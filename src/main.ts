@@ -5,11 +5,21 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+// Plugins
+import i18n from '@/plugins/i18n'
+
+// layouts
+import DefaultLayout from '@/layouts/Default.vue'
+import CleanLayout from '@/layouts/Clean.vue'
+Vue.component('default', DefaultLayout)
+Vue.component('clean', CleanLayout)
+
 Vue.config.productionTip = false
 
 export const app: Vue = new Vue({
   router,
   store,
   vuetify,
+  i18n,
   render: h => h(App)
 }).$mount('#app')

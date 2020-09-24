@@ -1,11 +1,11 @@
 import Vue from 'vue'
-import VueI18n, { LocaleMessages } from 'vue-i18n'
+import VueI18n from 'vue-i18n'
 
 Vue.use(VueI18n)
 
 const loadedPackages: string[] = [] // our default language that is preloaded
 
-let locale: any = process.env.VUE_APP_I18N_LOCALE
+const locale: string = process.env.VUE_APP_I18N_LOCALE
 
 const i18n = new VueI18n({
   locale,
@@ -14,11 +14,13 @@ const i18n = new VueI18n({
 
 export default i18n
 
-function setI18nLanguage(lang: string) {
+function setI18nLanguage (lang: string) {
   i18n.locale = lang
   // todo: Warning, not working in SSR!
+  /* eslint-disable */
   // @ts-ignore
   document.querySelector('html').setAttribute('lang', lang)
+  /* eslint-enable */
   return lang
 }
 
@@ -29,7 +31,7 @@ function setI18nLanguage(lang: string) {
  * @param name
  * @returns {Promise|Promise<any>|*|PromiseLike<any>}
  */
-export function loadLanguageAsync(lang: string, name: string) {
+export function loadLanguageAsync (lang: string, name: string) {
   return new Promise((resolve) => {
     const ln = `${lang}-${name}`
     if (loadedPackages.includes(ln)) {
@@ -48,4 +50,4 @@ export function loadLanguageAsync(lang: string, name: string) {
   })
 }
 
-loadLanguageAsync(locale, 'index')
+loadLanguageAsync(locale, 'index').then()
