@@ -7,6 +7,8 @@ import { Store } from 'vuex/types';
 declare module 'vue/types/vue' {
   // 3. Declare augmentation for Vue
 
-  interface Vue {}
+  interface Vue {
+    $screenHeight: number
+  }
 }
 
