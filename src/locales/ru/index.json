@@ -1,4 +1,5 @@
 {
+  "restore_access": "Восставновить доступ",
   "add": "Добавить",
   "account_information": "Информация об учетной записи",
   "message": "hello i18n !!",
@@ -13,6 +14,7 @@
   "language": "Язык",
   "loading_data": "Загрузка данных",
   "location": "Локация",
+  "login_to_the_system": "Вход в систему",
   "password": "Пароль",
   "old_password": "Текущий пароль",
   "new_password": "Новый пароль",

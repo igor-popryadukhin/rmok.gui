@@ -20,6 +20,17 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
+    path: '/login',
+    name: 'login',
+    component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),
+    meta: {
+      layout: 'clean',
+      title: 'login',
+      breadcrumbs: [],
+      middleware: []
+    }
+  },
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting
