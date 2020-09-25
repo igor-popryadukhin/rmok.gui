@@ -5,6 +5,9 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+// Mixins
+import '@/mixins/global'
+
 // Plugins
 import i18n from '@/plugins/i18n'
 
