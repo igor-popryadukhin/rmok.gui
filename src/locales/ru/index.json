@@ -68,6 +68,8 @@
   "the_password_is_very_simple": "Пароль очень простой!",
 
   "messages": {
+    "authorisation_success": "Успешная авторизация",
+    "authorisation_error": "Ошибка авторизации",
     "request_to_exit": "Вы действительно хотите выйти?",
     "email_not_confirmed": "Адрес электронной почты не подтверждён!"
   }

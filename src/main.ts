@@ -5,11 +5,15 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+// Style
+import '@/assets/scss/style.scss'
+
 // Mixins
 import '@/mixins/global'
 
 // Plugins
 import i18n from '@/plugins/i18n'
+import '@/plugins/toast'
 
 // layouts
 import DefaultLayout from '@/layouts/Default.vue'

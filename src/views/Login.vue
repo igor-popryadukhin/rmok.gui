@@ -2,7 +2,7 @@
   <v-app id="inspire">
     <v-main>
       <v-container
-        class="fill-height"
+        class="fill-height pa-0"
         fluid
       >
         <v-row
@@ -24,6 +24,7 @@
               <v-card-text>
                 <v-form>
                   <v-text-field
+                    v-model="authorization.login"
                     :label="$t('login')"
                     name="login"
                     prepend-icon="mdi-account"
@@ -31,7 +32,7 @@
                   ></v-text-field>
 
                   <v-text-field
-                    id="password"
+                    v-model="authorization.password"
                     :label="$t('password')"
                     name="password"
                     prepend-icon="mdi-lock"
@@ -50,6 +51,8 @@
                   color="black"
                   tile
                   text
+                  :loading="authorization.loading"
+                  @click="login(authorization.login, authorization.password)"
                 >{{ $t('sign_in') }}</v-btn>
               </v-card-actions>
             </v-card>
@@ -62,5 +65,73 @@
 
 <script lang="ts">
 import Vue from 'vue'
-export default Vue.extend({})
+import axios, { AxiosResponse } from 'axios'
+import { POSITION } from 'vue-toastification'
+
+export default Vue.extend({
+  data () {
+    return {
+      isError: false,
+      errorMessage: '',
+      authorization: {
+        login: '',
+        password: '',
+        loading: false
+      }
+    }
+  },
+
+  methods: {
+    login (login: string, password: string) {
+      this.isError = false
+      this.authorization.loading = true
+      axios.post(`${process.env.VUE_APP_API}/authorization`, {
+        login,
+        password
+      }).then(() => {
+        this.$toast.success(this.$tc('messages.authorisation_success'), {
+          position: POSITION.TOP_RIGHT,
+          timeout: 3000,
+          closeOnClick: true,
+          pauseOnFocusLoss: true,
+          pauseOnHover: true,
+          draggable: true,
+          draggablePercent: 0.6,
+          showCloseButtonOnHover: true,
+          hideProgressBar: true,
+          closeButton: 'button',
+          icon: true,
+          rtl: false,
+          onClose: () => {
+            this.$router.replace('/')
+          }
+        })
+      }).catch((e) => {
+        console.log(e)
+        this.$toast.error(this.$tc('messages.authorisation_error'), {
+          position: POSITION.TOP_RIGHT,
+          timeout: 5000,
+          closeOnClick: true,
+          pauseOnFocusLoss: true,
+          pauseOnHover: true,
+          draggable: true,
+          draggablePercent: 0.6,
+          showCloseButtonOnHover: true,
+          hideProgressBar: true,
+          closeButton: 'button',
+          icon: true,
+          rtl: false
+        })
+      }).finally(() => {
+        this.authorization.loading = false
+      })
+    }
+  }
+})
 </script>
+
+<style lang="scss">
+ html {
+   overflow: hidden;
+ }
+</style>
