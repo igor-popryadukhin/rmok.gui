@@ -25,5 +25,5 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-  html { overflow-y: auto }
+  html { overflow-y: auto !important; }
 </style>
