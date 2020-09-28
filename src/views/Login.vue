@@ -65,7 +65,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import axios, { AxiosResponse } from 'axios'
+import axios from 'axios'
 import { POSITION } from 'vue-toastification'
 
 export default Vue.extend({
@@ -93,8 +93,6 @@ export default Vue.extend({
           position: POSITION.TOP_RIGHT,
           timeout: 3000,
           closeOnClick: true,
-          pauseOnFocusLoss: true,
-          pauseOnHover: true,
           draggable: true,
           draggablePercent: 0.6,
           showCloseButtonOnHover: true,
@@ -132,6 +130,6 @@ export default Vue.extend({
 
 <style lang="scss">
  html {
-   overflow: hidden;
+   overflow: hidden !important;
  }
 </style>
