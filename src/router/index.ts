@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueRouter, {Route, RouteConfig} from 'vue-router'
+import VueRouter, { Route, RouteConfig } from 'vue-router'
 import Home from '@/views/Home.vue'
 
 Vue.use(VueRouter)
@@ -59,6 +59,11 @@ router.beforeEach((to: Route, from: Route, next: any) => {
   if (!to.meta.middleware) {
     return next()
   }
+
+  if (to.meta.middleware.length === 0) {
+    return next()
+  }
+
   const middleware = to.meta.middleware
   const context = {
     to,
