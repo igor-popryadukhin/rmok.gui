@@ -145,48 +145,7 @@ export default Vue.extend({
         icon: 'mdi-contacts',
         text: 'Contacts',
         to: ''
-      },
-      {
-        icon: 'mdi-history',
-        text: 'Frequently contacted',
-        to: ''
-      },
-      {
-        icon: 'mdi-content-copy',
-        text: 'Duplicates',
-        to: ''
-      },
-      {
-        icon: 'mdi-chevron-up',
-        'icon-alt': 'mdi-chevron-down',
-        text: 'Labels',
-        model: true,
-        children: [
-          {
-            icon: 'mdi-plus',
-            text: 'Create label',
-            to: ''
-          }
-        ]
-      },
-      {
-        icon: 'mdi-chevron-up',
-        'icon-alt': 'mdi-chevron-down',
-        text: 'More',
-        model: false,
-        children: [
-          { text: 'Import', to: '' },
-          { text: 'Export', to: '' },
-          { text: 'Print', to: '' },
-          { text: 'Undo changes', to: '' },
-          { text: 'Other contacts', to: '' }
-        ]
-      },
-      { icon: 'mdi-cog', text: 'Settings', to: '' },
-      { icon: 'mdi-message', text: 'Send feedback', to: '' },
-      { icon: 'mdi-help-circle', text: 'Help', to: '' },
-      { icon: 'mdi-cellphone-link', text: 'App downloads', to: '' },
-      { icon: 'mdi-keyboard', text: 'Go to the old version', to: '' }
+      }
     ]
   })
 })

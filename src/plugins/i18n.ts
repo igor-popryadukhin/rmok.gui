@@ -49,5 +49,3 @@ export function loadLanguageAsync (lang: string, name: string) {
     )
   })
 }
-
-loadLanguageAsync(locale, 'index').then()

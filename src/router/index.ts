@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import Home from '@/views/Home.vue'
+import { NavigationGuardNext } from 'vue-router/types/router'
 
 Vue.use(VueRouter)
 
@@ -55,7 +56,7 @@ const router = new VueRouter({
   routes
 })
 
-router.beforeEach((to: Route, from: Route, next: any) => {
+router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   if (!to.meta.middleware) {
     return next()
   }

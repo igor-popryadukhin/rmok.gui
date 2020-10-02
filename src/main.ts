@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import './plugins/axios'
+import '@/plugins/axios'
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -12,8 +12,9 @@ import '@/assets/scss/style.scss'
 import '@/mixins/global'
 
 // Plugins
-import i18n from '@/plugins/i18n'
+import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import '@/plugins/toast'
+import '@/plugins/cookie'
 
 // layouts
 import DefaultLayout from '@/layouts/Default.vue'
@@ -22,6 +23,8 @@ Vue.component('default', DefaultLayout)
 Vue.component('clean', CleanLayout)
 
 Vue.config.productionTip = false
+
+loadLanguageAsync('ru', 'index').then()
 
 export const app: Vue = new Vue({
   router,

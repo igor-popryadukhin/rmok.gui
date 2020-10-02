@@ -65,7 +65,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { POSITION } from 'vue-toastification'
 
 export default Vue.extend({
@@ -85,27 +85,30 @@ export default Vue.extend({
     login (login: string, password: string) {
       this.isError = false
       this.authorization.loading = true
-      axios.post(`${process.env.VUE_APP_API}/authorization`, {
+      axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
         login,
         password
-      }).then(() => {
-        this.$toast.success(this.$tc('messages.authorisation_success'), {
-          position: POSITION.TOP_RIGHT,
-          timeout: 3000,
-          closeOnClick: true,
-          draggable: true,
-          draggablePercent: 0.6,
-          showCloseButtonOnHover: true,
-          hideProgressBar: true,
-          closeButton: 'button',
-          icon: true,
-          rtl: false,
-          onClose: () => {
-            this.$router.replace('/')
-          }
-        })
+      }).then((response: AxiosResponse) => {
+        if (response.status === 200) {
+          this.$cookie.set('access_token', response.data.access_token, { 'max-age': 3600 })
+          this.$cookie.set('refresh_token', response.data.refresh_token)
+          this.$toast.success(this.$tc('messages.authorisation_success'), {
+            position: POSITION.TOP_RIGHT,
+            timeout: 3000,
+            closeOnClick: true,
+            draggable: true,
+            draggablePercent: 0.6,
+            showCloseButtonOnHover: true,
+            hideProgressBar: true,
+            closeButton: 'button',
+            icon: true,
+            rtl: false,
+            onClose: () => {
+              this.$router.replace('/')
+            }
+          })
+        }
       }).catch((e) => {
-        console.log(e)
         this.$toast.error(this.$tc('messages.authorisation_error'), {
           position: POSITION.TOP_RIGHT,
           timeout: 5000,
