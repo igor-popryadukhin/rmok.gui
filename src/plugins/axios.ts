@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Cookie } from '@/plugins/cookie'
+import { app } from '@/main'
 
 // Full config:  https://github.com/axios/axios#request-config
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
@@ -21,7 +22,7 @@ const _axios: AxiosInstance = axios.create(config)
 const cookie: Cookie = new Cookie()
 _axios.interceptors.request.use(async function (config: AxiosRequestConfig) {
     if (cookie.has('access_token')) {
-      // todo: set access token in header
+      config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
     } else {
       if (cookie.has('refresh_token')) {
         await axios.post(`${process.env.VUE_APP_API}/account/authorization/refresh-token`, {
