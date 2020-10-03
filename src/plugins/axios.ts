@@ -20,7 +20,6 @@ const config = {
 const _axios: AxiosInstance = axios.create(config)
 const cookie: Cookie = new Cookie()
 _axios.interceptors.request.use(async function (config: AxiosRequestConfig) {
-    debugger
     if (cookie.has('access_token')) {
       // todo: set access token in header
     } else {
@@ -32,6 +31,8 @@ _axios.interceptors.request.use(async function (config: AxiosRequestConfig) {
             cookie.set('access_token', response.data.access_token, { 'max-age': 3600 })
             cookie.set('refresh_token', response.data.refresh_token)
             // todo: set access token in header
+          } else {
+
           }
         })
       }

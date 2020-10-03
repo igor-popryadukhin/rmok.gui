@@ -15,6 +15,7 @@ import '@/mixins/global'
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import '@/plugins/toast'
 import '@/plugins/cookie'
+import '@/plugins/vuescroll'
 
 // layouts
 import DefaultLayout from '@/layouts/Default.vue'
@@ -24,7 +25,7 @@ Vue.component('clean', CleanLayout)
 
 Vue.config.productionTip = false
 
-loadLanguageAsync('ru', 'index').then()
+loadLanguageAsync('ru', 'main').then()
 
 export const app: Vue = new Vue({
   router,

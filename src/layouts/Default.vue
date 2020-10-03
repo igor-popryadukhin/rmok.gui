@@ -1,102 +1,35 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer
-      v-model="drawer"
-      :clipped="$vuetify.breakpoint.lgAndUp"
-      app
-    >
-      <v-list dense>
-        <template v-for="item in mainMenu">
-          <v-row
-            v-if="item.heading"
-            :key="item.heading"
-            align="center"
-          >
-            <v-col cols="6">
-              <v-subheader v-if="item.heading">
-                {{ item.heading }}
-              </v-subheader>
-            </v-col>
-            <v-col
-              cols="6"
-              class="text-center"
-            >
-              <a
-                href="#!"
-                class="body-2 black--text"
-              >EDIT</a>
-            </v-col>
-          </v-row>
-          <v-list-group
-            v-else-if="item.children"
-            :key="item.text"
-            v-model="item.model"
-            :prepend-icon="item.model ? item.icon : item['icon-alt']"
-            append-icon=""
-          >
-            <template v-slot:activator>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ item.text }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </template>
-            <v-list-item
-              v-for="(child, i) in item.children"
-              :key="i"
-              link
-            >
-              <v-list-item-action v-if="child.icon">
-                <v-icon>{{ child.icon }}</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ child.text }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-group>
-          <v-list-item
-            v-else
-            :key="item.text"
-            link
-          >
-            <v-list-item-action>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>
-                {{ item.text }}
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-      </v-list>
-    </v-navigation-drawer>
     <v-app-bar
-      :clipped-left="$vuetify.breakpoint.lgAndUp"
       app
-      color="blue darken-3"
       dark
+      flat
+      elevation="2"
       fixed
+      clipped-left
+      clipped-right
+      extended
+      extension-height="35px"
+      class="background--header"
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title
-        style="width: 300px"
-        class="ml-0 pl-4"
-      >
-        <span class="hidden-sm-and-down">Звонилка</span>
+      <div class="offset-lg-2 offset-md-2"></div>
+      <v-toolbar-title>
+        <span class="hidden-sm-and-down">RMOK</span>
       </v-toolbar-title>
+      <v-spacer/>
       <v-text-field
         flat
         solo-inverted
         hide-details
         prepend-inner-icon="mdi-magnify"
         :label="$t('search')"
-        class="hidden-sm-and-down"
+        class="mr-4"
+        style="max-width: 400px"
       ></v-text-field>
-      <v-spacer></v-spacer>
-      <v-btn icon>
+      <v-btn
+        icon
+        :to="{ name: 'contacts' }"
+      >
         <v-icon>mdi-contacts</v-icon>
       </v-btn>
       <v-btn icon>
@@ -107,24 +40,68 @@
       </v-btn>
       <v-btn
         icon
-        large
+        :to="{ name: 'help' }"
       >
-        <v-avatar
-          size="32px"
-          item
-        >
-          <v-img
-            src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
-            alt="Vuetify"
-          ></v-img></v-avatar>
+        <v-icon>mdi-help-circle-outline</v-icon>
       </v-btn>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            large
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-avatar
+              size="32px"
+              item
+            >
+              <v-img
+                src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
+                alt="Vuetify"
+              ></v-img>
+            </v-avatar>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            v-for="(item, index) in items"
+            :key="index"
+            :to="item.to"
+            @click="item.click || function () { console.log('item click') }"
+          >
+            <v-list-item-icon>
+              <v-icon v-text="item.icon"/>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>{{ $t(item.name) }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <div class="offset-lg-2 offset-md-2"></div>
+      <template v-slot:extension>
+        <v-breadcrumbs
+          :items="breadcrumbs"
+          class="pa-0 offset-lg-2 col-lg-8 offset-md-2 col-md-8"
+        >
+          <template v-slot:item="{ item }">
+            <v-breadcrumbs-item
+              :href="item.path"
+            >
+              <span style="color: white !important;">{{ $t(item.title).toUpperCase() }}</span>
+            </v-breadcrumbs-item>
+          </template>
+        </v-breadcrumbs>
+      </template>
     </v-app-bar>
     <v-main>
       <v-container
-        class="fill-height"
-        fluid
+        class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-4 pr-4"
       >
-        <router-view />
+        <vue-scroll :style="{ height: `${$screenHeight - 125}px` }">
+          <router-view/>
+        </vue-scroll>
       </v-container>
     </v-main>
   </v-app>
@@ -132,14 +109,40 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { CrumbInterface } from '@/Interfaces'
 
 export default Vue.extend({
   props: {
     source: String
   },
   data: () => ({
+    settings: {
+      suppressScrollY: false,
+      suppressScrollX: false,
+      wheelPropagation: false
+    },
     dialog: false,
     drawer: null,
+    items: [
+      {
+        name: 'profile',
+        to: {
+          name: 'profile'
+        }
+      },
+      {
+        name: 'settings',
+        to: {
+          name: 'settings'
+        }
+      },
+      {
+        name: 'exit',
+        click: () => {
+          // todo: delete cookie
+        }
+      }
+    ],
     mainMenu: [
       {
         icon: 'mdi-contacts',
@@ -147,6 +150,67 @@ export default Vue.extend({
         to: ''
       }
     ]
-  })
+  }),
+
+  computed: {
+    breadcrumbs (): Array<CrumbInterface> {
+      /* eslint-disable */
+      const crumbs: Array<CrumbInterface> = []
+      if (this.$route.path !== '/') {
+        crumbs.push({
+          path: '/',
+          title: this.$i18n.tc('route.home'),
+          class: ''
+        })
+      }
+      // @ts-ignore
+      this.$route.matched.map((item: any, i: number, {length}) => {
+        const crumb: CrumbInterface = {
+          class: '',
+          path: '',
+          title: ''
+        }
+        crumb.path = item.path
+        // @ts-ignore
+        crumb.title = this.$i18n.tc('route.' + (item.name || item.path.replace(/^\//s, '').replace(/\//s, '-')))
+        // is last item?
+        if (i === length - 1) {
+          // is param route? .../.../:id
+          if (item.regex.keys.length > 0) {
+            crumbs.push({
+              path: item.path.replace(/\/:[^/:]*$/, ''),
+              title: this.$i18n.tc('route.' + item.name.replace(/-[^-/]*$/, '')),
+              class: ''
+            })
+            // @ts-ignore
+            crumb.path = this.$route.path
+            // @ts-ignore
+            crumb.title = this.$i18n.tc('route.' + this.$route.name, [
+              // @ts-ignore
+              crumb.path.match(/[/]*$/)[0]
+            ])
+          }
+          crumb.class = 'is-active'
+        }
+
+        crumb.title = crumb.title.replace(/[/]/, '')
+        crumbs.push(crumb)
+      })
+      return crumbs
+      /* eslint-enable */
+    }
+  }
 })
 </script>
+
+<style lang="scss">
+  .background--header {
+    background-image: linear-gradient(to bottom, #1b4685, #3d4899, #6446a9, #8d3eb1, #b729b1);
+  }
+  .scroll-area {
+    position: relative;
+    margin: auto;
+    width: 600px;
+    height: 400px;
+  }
+</style>

@@ -90,8 +90,13 @@ export default Vue.extend({
         password
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
+          /* eslint-disable */
+          // @ts-ignore
           this.$cookie.set('access_token', response.data.access_token, { 'max-age': 3600 })
+          // @ts-ignore
           this.$cookie.set('refresh_token', response.data.refresh_token)
+          // @ts-ignore-end
+          /* eslint-disable */
           this.$toast.success(this.$tc('messages.authorisation_success'), {
             position: POSITION.TOP_RIGHT,
             timeout: 3000,

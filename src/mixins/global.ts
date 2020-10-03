@@ -9,7 +9,7 @@ Vue.mixin({
       /* eslint-enable */
     },
 
-    $locale () {
+    $locale (): string {
       return 'ru'
     }
   },

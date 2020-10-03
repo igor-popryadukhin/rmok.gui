@@ -34,6 +34,7 @@
   "cancel": "Отмена",
   "billing": "Биллинг",
   "settings": "Настройки",
+  "search": "Поиск",
   "video": "Видео",
 
   "titles": {
@@ -48,16 +49,15 @@
     "security": "Безопасность",
     "notifications": "Уведомления"
   },
-  "router": {
-    "dashboard": "Главная",
-    "services": "Сервисы",
-    "orders": "Заказы",
-    "products": "Продукты",
-    "documents": "Документы",
+  "route": {
+    "home": "Главная",
+    "contacts": "Контакты",
     "settings": "Настройки",
     "profile": "Профиль",
     "journal": "Журнал",
-    "regional": "Региональные настройки",
+    "telephony": "Телефония",
+    "headset_configure": "Настройка гарнитуры",
+    "integration": "Интеграция",
     "security": "Безопасность",
     "notifications": "Уведомления"
   },
