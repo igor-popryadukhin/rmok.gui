@@ -120,6 +120,15 @@ const routes: Array<RouteConfig> = [
       title: 'documents',
       middleware: []
     }
+  },
+  {
+    path: '*',
+    name: 'not_found',
+    component: () => import(/* webpackChunkName: "not-found" */ '../views/NotFound.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    }
   }
 ]
 
