@@ -46,7 +46,7 @@ const routes: Array<RouteConfig> = [
   {
     path: '/settings',
     name: 'settings',
-    component: () => import(/* webpackChunkName: "settings" */ '../views/Settings/Index.vue'),
+    component: () => import(/* webpackChunkName: "settings" */ '../views/Settings/Layout.vue'),
     children: [
       {
         path: 'profile',
