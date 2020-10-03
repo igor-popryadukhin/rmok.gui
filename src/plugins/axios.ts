@@ -35,6 +35,8 @@ _axios.interceptors.request.use(async function (config: AxiosRequestConfig) {
           } else {
 
           }
+        }).catch(() => {
+          app.$router.replace({ name: 'login' })
         })
       }
     }
@@ -53,6 +55,10 @@ _axios.interceptors.request.use(async function (config: AxiosRequestConfig) {
 // Add a response interceptor
 _axios.interceptors.response.use(
   function (response) {
+    if (response.status === 401) {
+      app.$router.replace({ name: 'login' }).then()
+      return Promise.reject(response)
+    }
     return response
   },
   function (error) {
