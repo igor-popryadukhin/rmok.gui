@@ -11,6 +11,7 @@
   "label": "Метка",
   "login": "Логин",
   "last_name": "Фамилия",
+  "middle_name": "Отчество",
   "language": "Язык",
   "loading_data": "Загрузка данных",
   "location": "Локация",
@@ -52,6 +53,8 @@
   "route": {
     "home": "Главная",
     "contacts": "Контакты",
+    "contacts_list": "Список контактов",
+    "contacts_new": "Создание новго контакта",
     "settings": "Настройки",
     "profile": "Профиль",
     "journal": "Журнал",
@@ -59,7 +62,8 @@
     "headset_configure": "Настройка гарнитуры",
     "integration": "Интеграция",
     "security": "Безопасность",
-    "notifications": "Уведомления"
+    "notifications": "Уведомления",
+    "help": "Справка"
   },
 
   "rule_email": "Адрес электронной почты не соответсвует требованиям",
