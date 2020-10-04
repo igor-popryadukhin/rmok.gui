@@ -32,10 +32,23 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/contacts',
-    name: 'contacts',
-    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/Index.vue'),
-    children: [],
+    component: () => import(/* webpackChunkName: "contacts-layout" */ '../views/Contacts/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'contacts_list',
+        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/List.vue'),
+        meta: { layout: 'default', middleware: [] }
+      },
+      {
+        path: 'new',
+        name: 'contacts_new',
+        component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Contacts/New.vue'),
+        meta: { layout: 'default', middleware: [] }
+      }
+    ],
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
       loadLanguageAsync('ru', 'contacts').then(() => next())
     },
     meta: {

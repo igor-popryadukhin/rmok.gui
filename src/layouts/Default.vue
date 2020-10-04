@@ -9,7 +9,7 @@
       clipped-left
       clipped-right
       extended
-      extension-height="35px"
+      extension-height="30px"
       class="background--header"
     >
       <div class="offset-lg-2 offset-md-2"></div>
@@ -25,10 +25,11 @@
         :label="$t('search')"
         class="mr-4"
         style="max-width: 400px"
+        dense
       ></v-text-field>
       <v-btn
         icon
-        :to="{ name: 'contacts' }"
+        to="/contacts"
       >
         <v-icon>mdi-contacts</v-icon>
       </v-btn>
@@ -102,7 +103,7 @@
     </v-app-bar>
     <v-main>
       <v-container
-        class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-4 pr-4"
+        class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-2 pr-2"
       >
         <vue-scroll :style="{ height: `${$screenHeight - 125}px` }">
           <v-fade-transition hide-on-leave>
@@ -158,6 +159,14 @@ export default Vue.extend({
       }
     ]
   }),
+
+  // watch: {
+  //   $route (to, from) {
+  //     const toDepth = to.path.split('/').length
+  //     const fromDepth = from.path.split('/').length
+  //     this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
+  //   }
+  // },
 
   computed: {
     breadcrumbs (): Array<CrumbInterface> {
@@ -225,5 +234,22 @@ export default Vue.extend({
     margin: auto;
     width: 600px;
     height: 400px;
+  }
+
+  .transition-fade {
+    opacity: 1;
+    animation-name: fadeInOpacity;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    animation-duration: 2s;
+  }
+
+  @keyframes fadeInOpacity {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 </style>

@@ -5,6 +5,8 @@
         <v-row>
           <v-col
             cols="12"
+            lg="6"
+            md="12"
           >
             <v-text-field
               v-model="firstname"
@@ -14,8 +16,12 @@
               required
             ></v-text-field>
           </v-col>
+        </v-row>
+        <v-row>
           <v-col
             cols="12"
+            lg="6"
+            md="12"
           >
             <v-text-field
               v-model="lastname"
@@ -25,8 +31,12 @@
               required
             ></v-text-field>
           </v-col>
+        </v-row>
+        <v-row>
           <v-col
             cols="12"
+            lg="6"
+            md="12"
           >
             <v-text-field
               v-model="lastname"
@@ -36,8 +46,12 @@
               required
             ></v-text-field>
           </v-col>
+        </v-row>
+        <v-row>
           <v-col
             cols="12"
+            lg="6"
+            md="12"
           >
             <v-text-field
               v-model="lastname"
