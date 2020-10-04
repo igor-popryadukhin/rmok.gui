@@ -13,9 +13,10 @@
         {{ $tc(`route.${tab.name}`) }}
         <v-spacer />
       </v-tab>
-
-      <v-tabs-items class="pa-2">
-        <router-view />
+      <v-tabs-items class="pa-2 border">
+        <v-fade-transition hide-on-leave>
+          <router-view />
+        </v-fade-transition>
       </v-tabs-items>
     </v-tabs>
   </div>
@@ -87,6 +88,9 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+  .border {
+    border-left: 2px #b729b1 solid;
+    margin-left: 5px;
+  }
 </style>

@@ -105,7 +105,9 @@
         class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-4 pr-4"
       >
         <vue-scroll :style="{ height: `${$screenHeight - 125}px` }">
-          <router-view/>
+          <v-fade-transition hide-on-leave>
+            <router-view/>
+          </v-fade-transition>
         </vue-scroll>
       </v-container>
     </v-main>

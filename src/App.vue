@@ -1,10 +1,12 @@
 <template>
-  <component
-    :is="layout"
-    tabindex="-1"
-    @keydown.ctrl="$root.$emit('on-keydown-ctrl')"
-    @keyup.ctrl="$root.$emit('on-keyup-ctrl')"
-  />
+  <v-fade-transition hide-on-leave>
+    <component
+      :is="layout"
+      tabindex="-1"
+      @keydown.ctrl="$root.$emit('on-keydown-ctrl')"
+      @keyup.ctrl="$root.$emit('on-keyup-ctrl')"
+    />
+  </v-fade-transition>
 </template>
 
 <script lang="ts">
