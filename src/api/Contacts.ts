@@ -23,9 +23,29 @@ export class Contacts {
         }
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          resolve(response.data)
+          const data: ContactResponseInterface = response.data
+          data.items = data.items.map((e) => {
+            e.checked = false
+            return e
+          })
+          resolve(data)
         }
       }).catch(reject)
+    })
+  }
+
+  /**
+   * @param id
+   */
+  delete (id: number): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      $axios.delete(`/contacts/${id}`)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve()
+          }
+          return reject(response)
+        }).catch(reject)
     })
   }
 }
