@@ -87,8 +87,13 @@
         >
           <template v-slot:item="{ item }">
             <v-breadcrumbs-item
+              v-if="!item.latest"
+              ripple
               :href="item.path"
             >
+              <span style="color: white !important;">{{ $t(item.title).toUpperCase() }}</span>
+            </v-breadcrumbs-item>
+            <v-breadcrumbs-item v-else>
               <span style="color: white !important;">{{ $t(item.title).toUpperCase() }}</span>
             </v-breadcrumbs-item>
           </template>
@@ -160,7 +165,8 @@ export default Vue.extend({
         crumbs.push({
           path: '/',
           title: this.$i18n.tc('route.home'),
-          class: ''
+          class: '',
+          latest: false
         })
       }
       // @ts-ignore
@@ -168,11 +174,12 @@ export default Vue.extend({
         const crumb: CrumbInterface = {
           class: '',
           path: '',
-          title: ''
+          title: '',
+          latest: false
         }
         crumb.path = item.path
         // @ts-ignore
-        crumb.title = this.$i18n.tc('route.' + (item.name || item.path.replace(/^\//s, '').replace(/\//s, '-')))
+        crumb.title = this.$i18n.tc('route.' + (item.name || item.path.replace(/^\//s, '').replace(/\//s, '')))
         // is last item?
         if (i === length - 1) {
           // is param route? .../.../:id
@@ -180,7 +187,8 @@ export default Vue.extend({
             crumbs.push({
               path: item.path.replace(/\/:[^/:]*$/, ''),
               title: this.$i18n.tc('route.' + item.name.replace(/-[^-/]*$/, '')),
-              class: ''
+              class: '',
+              latest: false
             })
             // @ts-ignore
             crumb.path = this.$route.path
@@ -196,6 +204,9 @@ export default Vue.extend({
         crumb.title = crumb.title.replace(/[/]/, '')
         crumbs.push(crumb)
       })
+      if (crumbs.length > 1) {
+        crumbs[crumbs.length - 1].latest = true
+      }
       return crumbs
       /* eslint-enable */
     }
