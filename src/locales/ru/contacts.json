@@ -1,6 +1,10 @@
 {
   "responsible": "Ответственный",
   "add_new_contact": "Добавить новый контакт",
+  "import_contact": "Импортировать",
+  "export_contact": "Экспортировать",
+  "export_to_file": "В файл",
+  "export_to_operator": "Другому оператору",
   "delete_selected_contacts": "Удалить выбранные контакты",
   "block_selected_contacts": "Заблокировать выбранные контакты",
   "select_all_contacts": "Выбрать все контакты"

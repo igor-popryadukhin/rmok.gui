@@ -37,6 +37,57 @@
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
+                v-on="on"
+                v-bind="attrs"
+                :disabled="buttonImport.disabled"
+              >
+                <v-icon>mdi-import</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $tc('import_contact') }}</span>
+          </v-tooltip>
+          <v-tooltip bottom max-width="400">
+            <template v-slot:activator="tooltipActivator">
+              <v-menu offset-y>
+                <template v-slot:activator="menuActivator">
+                  <v-btn
+                    icon
+                    v-bind="menuActivator.attrs"
+                    v-on="menuActivator.on"
+                    :disabled="buttonExport.disabled"
+                  >
+                    <v-icon
+                      v-on="tooltipActivator.on"
+                      v-bind="tooltipActivator.attrs"
+                    >mdi-export</v-icon>
+                  </v-btn>
+                </template>
+                <v-list min-width="200">
+                  <v-list-item
+                    ripple
+                    link
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>{{ $tc('export_to_file') }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-list-item
+                    ripple
+                    link
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>{{ $tc('export_to_operator') }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+            <span>{{ $tc('export_contact') }}</span>
+          </v-tooltip>
+          <v-tooltip bottom max-width="400">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
                 :disabled="buttonDelete.disabled"
                 @click="onSelectedDeleteClick"
                 v-on="on"
@@ -184,6 +235,12 @@ export default Vue.extend({
       buttonBlacklist: {
         disabled: true
       },
+      buttonImport: {
+        disabled: false
+      },
+      buttonExport: {
+        disabled: true
+      },
       contacts: [] as ContactInterface[]
     }
   },
@@ -237,14 +294,17 @@ export default Vue.extend({
         this.checkboxSelectedAll.indeterminate = true
         this.buttonDelete.disabled = false
         this.buttonBlacklist.disabled = false
+        this.buttonExport.disabled = false
       } else if (contactsCheckedCount === contactsCount && Math.sign(contactsCheckedCount) === 1) {
         this.checkboxSelectedAll.indeterminate = false
         this.checkboxSelectedAll.checked = true
         this.buttonDelete.disabled = false
         this.buttonBlacklist.disabled = false
+        this.buttonExport.disabled = false
       } else if (contactsCheckedCount === 0) {
         this.buttonDelete.disabled = true
         this.buttonBlacklist.disabled = true
+        this.buttonExport.disabled = true
         this.checkboxSelectedAll.indeterminate = false
         this.checkboxSelectedAll.checked = false
       }
