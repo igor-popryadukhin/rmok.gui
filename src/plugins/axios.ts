@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Cookie } from '@/plugins/cookie'
 import { app } from '@/main'
+import { Cookie } from '@/plugins/cookie'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import Vue from 'vue'
 
 // Full config:  https://github.com/axios/axios#request-config
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
@@ -26,14 +26,12 @@ _axios.interceptors.request.use(async function (config: AxiosRequestConfig) {
     } else {
       if (cookie.has('refresh_token')) {
         await axios.post(`${process.env.VUE_APP_API}/account/authorization/refresh-token`, {
-          "refresh_token": cookie.get('refresh_token')
+          refresh_token: cookie.get('refresh_token')
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {
             cookie.set('access_token', response.data.access_token, { 'max-age': 3600 })
             cookie.set('refresh_token', response.data.refresh_token)
-            // todo: set access token in header
-          } else {
-
+            config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
           }
         }).catch(() => {
           app.$router.replace({ name: 'login' })
@@ -68,7 +66,7 @@ _axios.interceptors.response.use(
 )
 
 class AxiosPlugin {
-  install () {
+  public install () {
     Object.defineProperties(Vue.prototype, {
       axios: {
         get () {
