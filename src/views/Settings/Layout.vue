@@ -82,7 +82,7 @@ export default Vue.extend({
           disabled: true,
           to: null
         }
-      ] as Array<TabInterface>
+      ] as TabInterface[]
     }
   }
 })

@@ -23,8 +23,8 @@ Vue.mixin({
         return def
       }
     },
-    setQuery (query?: Object) {
-      const obj: Object|any = Object.assign({}, this.$route.query)
+    setQuery (query?) {
+      const obj: any = Object.assign({}, this.$route.query)
 
       // @ts-ignore
       Object.keys(query).forEach((key: string) => {
@@ -46,7 +46,7 @@ Vue.mixin({
       return this
     },
     removeQuery (queryNameArray = [], exceptQueryNameArray = []) {
-      const obj: Object|any = {}
+      const obj: any = {}
 
       if (queryNameArray.length > 0) {
         queryNameArray.forEach((key: any) => {

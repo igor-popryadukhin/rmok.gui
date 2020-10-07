@@ -27,24 +27,68 @@
         style="max-width: 400px"
         dense
       ></v-text-field>
+      <v-tooltip bottom max-width="400">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            to="/contacts"
+            class="mr-1"
+            v-on="on"
+            v-bind="attrs"
+          >
+            <v-icon>mdi-contacts</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('route.contacts') }}</span>
+      </v-tooltip>
+      <v-tooltip bottom max-width="400">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            to="/leads"
+            class="mr-1"
+            v-on="on"
+            v-bind="attrs"
+          >
+            <v-icon>mdi-phone-classic</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('route.leads') }}</span>
+      </v-tooltip>
+      <v-tooltip bottom max-width="400">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            to="/calls"
+            class="mr-1"
+            v-on="on"
+            v-bind="attrs"
+          >
+            <v-icon>mdi-phone-log</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('route.calls') }}</span>
+      </v-tooltip>
       <v-btn
         icon
-        to="/contacts"
+        class="mr-1"
       >
-        <v-icon>mdi-contacts</v-icon>
-      </v-btn>
-      <v-btn icon>
-        <v-icon>mdi-phone-classic</v-icon>
-      </v-btn>
-      <v-btn icon>
         <v-icon>mdi-bell</v-icon>
       </v-btn>
-      <v-btn
-        icon
-        :to="{ name: 'help' }"
-      >
-        <v-icon>mdi-help-circle-outline</v-icon>
-      </v-btn>
+      <v-tooltip bottom max-width="400">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            :to="{ name: 'help' }"
+            class="mr-1"
+            v-on="on"
+            v-bind="attrs"
+          >
+            <v-icon>mdi-help-circle-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('route.help') }}</span>
+      </v-tooltip>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -105,7 +149,7 @@
       <v-container
         class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-2 pr-2"
       >
-        <vue-scroll :style="{ height: `${$screenHeight - 125}px` }">
+        <vue-scroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
           <v-fade-transition hide-on-leave>
             <router-view/>
           </v-fade-transition>
@@ -169,12 +213,13 @@ export default Vue.extend({
   // },
 
   computed: {
-    breadcrumbs (): Array<CrumbInterface> {
+    breadcrumbs (): CrumbInterface[] {
       /* eslint-disable */
-      const crumbs: Array<CrumbInterface> = []
+      const crumbs: CrumbInterface[]  = []
       if (this.$route.path !== '/') {
         crumbs.push({
           path: '/',
+          name: 'home',
           title: this.$i18n.tc('route.home'),
           class: '',
           latest: false
@@ -184,7 +229,8 @@ export default Vue.extend({
       this.$route.matched.map((item: any, i: number, {length}) => {
         const crumb: CrumbInterface = {
           class: '',
-          path: '',
+          name: item.name,
+          path: item.path,
           title: '',
           latest: false
         }
@@ -194,21 +240,22 @@ export default Vue.extend({
         // is last item?
         if (i === length - 1) {
           // is param route? .../.../:id
-          if (item.regex.keys.length > 0) {
-            crumbs.push({
-              path: item.path.replace(/\/:[^/:]*$/, ''),
-              title: this.$i18n.tc('route.' + item.name.replace(/-[^-/]*$/, '')),
-              class: '',
-              latest: false
-            })
-            // @ts-ignore
-            crumb.path = this.$route.path
-            // @ts-ignore
-            crumb.title = this.$i18n.tc('route.' + this.$route.name, [
-              // @ts-ignore
-              crumb.path.match(/[/]*$/)[0]
-            ])
-          }
+          // if (item.regex.keys.length > 0) {
+          //   crumbs.push({
+          //     path: item.path.replace(/\/:[^/:]*$/, ''),
+          //     name: item.name,
+          //     title: this.$i18n.tc('route.' + item.name.replace(/-[^-/]*$/, '')),
+          //     class: '',
+          //     latest: false
+          //   })
+          //   // @ts-ignore
+          //   crumb.path = this.$route.path
+          //   // @ts-ignore
+          //   crumb.title = this.$i18n.tc('route.' + this.$route.name, [
+          //     // @ts-ignore
+          //     crumb.path.match(/[/]*$/)[0]
+          //   ])
+          // }
           crumb.class = 'is-active'
         }
 

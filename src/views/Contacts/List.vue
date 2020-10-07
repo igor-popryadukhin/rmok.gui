@@ -6,6 +6,7 @@
       <v-card-text class="pa-0">
         <v-toolbar
           flat
+          class="pl-3"
         >
           <v-tooltip bottom max-width="400">
             <template v-slot:activator="{ on }">
@@ -113,7 +114,7 @@
           </v-tooltip>
         </v-toolbar>
       </v-card-text>
-      <v-row>
+      <v-row class="ma-0">
         <v-col
           cols="12"
           md="8"
@@ -129,15 +130,18 @@
               :key="`list-item-${item.id}`"
               ripple
               selectable
+              @click.stop="onContactItemClick(item)"
             >
               <v-list-item-action>
                 <v-checkbox
                   v-model="item.checked"
-                  @click="onItemClick(item)"
+                  @click.stop="onCheckBoxItemClick(item)"
                 ></v-checkbox>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
+                <v-list-item-title>
+                  {{ item.first_name }} {{ item.last_name }}
+                </v-list-item-title>
                 <v-list-item-subtitle v-if="item.phone_number_default">{{item.phone_number_default.type}}: {{ item.phone_number_default.value }}</v-list-item-subtitle>
                 <v-list-item-subtitle v-else>Нет номера по умолчанию</v-list-item-subtitle>
               </v-list-item-content>
@@ -150,21 +154,51 @@
                 </v-list-item-title>
               </v-list-item-content>
               <v-list-item-action>
+                <v-btn
+                  icon
+                  large
+                  color="green"
+                  @click.stop="() => {}"
+                >
+                  <v-icon>mdi-phone</v-icon>
+                </v-btn>
+              </v-list-item-action>
+              <v-list-item-action>
                 <v-menu offset-y>
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
                       icon
                       large
                       v-bind="attrs"
-                      v-on="on"
+                      v-on.stop="on"
                     >
                       <v-icon>mdi-dots-horizontal</v-icon>
                     </v-btn>
                   </template>
                   <v-list>
+                    <v-list-item
+                      :to="{ name: 'contacts_edit', params: { id: item.id } }"
+                    >
+                      <v-list-item-icon>
+                        <v-icon>mdi-square-edit-outline</v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-list-item-title>Редактировать</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
+                    >
+                      <v-list-item-icon>
+                        <v-icon>mdi-history</v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-list-item-title>История</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
                     <v-list-item>
                       <v-list-item-icon>
-                        ***
+                        <v-icon>mdi-delete</v-icon>
                       </v-list-item-icon>
                       <v-list-item-content>
                         <v-list-item-title>Удалить</v-list-item-title>
@@ -207,6 +241,117 @@
         </v-col>
       </v-row>
     </v-card>
+
+    <!-- Dialog -->
+    <v-row justify="center">
+      <v-dialog
+        v-model="dialog"
+        max-width="800"
+      >
+        <v-card class="overflow-hidden">
+          <v-app-bar
+            absolute
+            color="white"
+            height="80"
+            elevate-on-scroll
+            scroll-target="#scrolling-techniques-7"
+          >
+            <v-app-bar-nav-icon class="ml-3" style="background-color: #8d3eb1; color: white">
+              {{ avatar }}
+            </v-app-bar-nav-icon>
+            <v-toolbar-title>
+              {{ contact.first_name }} {{ contact.last_name }}
+            </v-toolbar-title>
+            <v-spacer />
+            <v-btn icon>
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+            <v-btn icon>
+              <v-icon>mdi-heart</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              @click="dialog = false"
+            >
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-app-bar>
+          <v-sheet
+            id="scrolling-techniques-7"
+            class="overflow-y-auto"
+            max-height="600"
+          >
+            <v-container class="pl-5 pr-5" style="margin-top: 80px">
+              <v-list tile dense>
+                <!-- Emails -->
+                <v-list-item
+                  v-for="(email, emailIndex) in contact.emails"
+                  :key="`email-${emailIndex}`"
+                  ripple
+                  link
+                  selectable
+                >
+                  <v-list-item-avatar size="30">
+                    <v-icon v-if="emailIndex === 0">mdi-email</v-icon>
+                  </v-list-item-avatar>
+                  <v-item-group>
+                    <v-list-item-title>{{ email.value }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ email.type }}</v-list-item-subtitle>
+                  </v-item-group>
+                </v-list-item>
+                <!-- Phones -->
+                <v-list-item
+                  v-for="(phone, phoneIndex) in contact.phone_numbers"
+                  :key="`phone-${phoneIndex}`"
+                  ripple
+                  link
+                  selectable
+                >
+                  <v-list-item-avatar size="30">
+                    <v-icon v-if="phoneIndex === 0">mdi-phone</v-icon>
+                  </v-list-item-avatar>
+                  <v-item-group>
+                    <v-list-item-title>{{ phone.value }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ phone.type }}</v-list-item-subtitle>
+                  </v-item-group>
+                  <v-spacer />
+                  <v-list-item-action>
+                    <v-btn
+                      icon
+                      small
+                      color="green"
+                    >
+                      <v-icon>mdi-phone</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list>
+              <v-divider />
+              <!-- History -->
+              <v-list
+                tile
+                dense
+              >
+                <!-- Emails -->
+                <v-list-item
+                  v-for="(i, emailIndex) in 35"
+                  :key="`email-${emailIndex}`"
+                  ripple
+                  link
+                  selectable
+                  dense
+                >
+                  <v-item-group>
+                    <v-list-item-title>History {{ i }}</v-list-item-title>
+                    <v-list-item-subtitle>subtitle{{ i }}</v-list-item-subtitle>
+                  </v-item-group>
+                </v-list-item>
+              </v-list>
+            </v-container>
+          </v-sheet>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </div>
 </template>
 
@@ -214,17 +359,22 @@
 import Vue from 'vue'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
+
+interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
   data () {
     return {
       select: ['Vuetify', 'Programming'],
+      dialog: false,
       items: [
         'Programming',
         'Design',
         'Vue',
         'Vuetify'
       ],
+      contact: {} as ContactInterface,
       checkboxSelectedAll: {
         checked: false,
         indeterminate: false
@@ -241,7 +391,15 @@ export default Vue.extend({
       buttonExport: {
         disabled: true
       },
-      contacts: [] as ContactInterface[]
+      contacts: [] as Contact[]
+    }
+  },
+
+  computed: {
+    avatar () {
+      const first: string = this.contact.first_name || ''
+      const last: string = this.contact.last_name || ''
+      return first.charAt(0) + last.charAt(0)
     }
   },
   watch: {
@@ -271,7 +429,7 @@ export default Vue.extend({
       this.operation()
     },
 
-    onItemClick (item: ContactInterface) {
+    onCheckBoxItemClick (item: ContactInterface) {
       this.operation()
     },
     /* eslint-enable */
@@ -321,6 +479,18 @@ export default Vue.extend({
       })
     },
     /* eslint-enable */
+
+    onContactItemClick (contact: any) {
+      new Contacts()
+        .getById(contact.id)
+        .then((contact) => {
+          /* eslint-disable */
+          (this as any).contact = contact
+          /* eslint-enable */
+        }).finally(() => {
+          this.dialog = true
+        })
+    }
   }
 })
 </script>

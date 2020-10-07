@@ -41,7 +41,7 @@ export function loadLanguageAsync (lang: string, name: string) {
     loadedPackages.push(ln)
 
     return import(/* webpackChunkName: "lang-[request]" */ `@/locales/${lang}/${name}.json`).then(
-      messages => {
+      (messages) => {
         resolve()
         i18n.mergeLocaleMessage(lang, messages.default)
         return setI18nLanguage(lang)

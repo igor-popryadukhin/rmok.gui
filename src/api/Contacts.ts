@@ -1,10 +1,13 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from './Schemas/ContactInterface'
+import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
+
+interface Contact extends ContactInterface, CheckedInterface {}
 
 export interface ContactResponseInterface {
   count: number;
-  items: ContactInterface[];
+  items: Contact[];
 }
 
 export class Contacts {
@@ -15,7 +18,7 @@ export class Contacts {
    * @param offset
    * @param count
    */
-  search (q = '', offset = 0, count = 100): Promise<ContactResponseInterface> {
+  public search (q = '', offset = 0, count = 100): Promise<ContactResponseInterface> {
     return new Promise((resolve, reject) => {
       $axios.get('/contacts', {
         params: {
@@ -35,9 +38,26 @@ export class Contacts {
   }
 
   /**
+   *
    * @param id
    */
-  delete (id: number): Promise<unknown> {
+  public getById (id: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/contacts/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            resolve(response.data)
+            return
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * @param id
+   */
+  public delete (id: number): Promise<unknown> {
     return new Promise((resolve, reject) => {
       $axios.delete(`/contacts/${id}`)
         .then((response: AxiosResponse) => {

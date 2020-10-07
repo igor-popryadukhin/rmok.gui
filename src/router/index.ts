@@ -1,12 +1,12 @@
+import { loadLanguageAsync } from '@/plugins/i18n'
+import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
-import Home from '@/views/Home.vue'
 import { NavigationGuardNext } from 'vue-router/types/router'
-import { loadLanguageAsync } from '@/plugins/i18n'
 
 Vue.use(VueRouter)
 
-const routes: Array<RouteConfig> = [
+const routes: RouteConfig[] = [
   {
     path: '/',
     name: 'home',
@@ -31,6 +31,25 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
+    path: '/calls',
+    component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Calls/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'calls_list',
+        component: () => import(/* webpackChunkName: "calls-list" */ '../views/Calls/List.vue'),
+        meta: { layout: 'default', middleware: [] }
+      }
+    ],
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    path: '/leads',
+    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Leads/Layout.vue'),
+    children: [],
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
     path: '/contacts',
     component: () => import(/* webpackChunkName: "contacts-layout" */ '../views/Contacts/Layout.vue'),
     children: [
@@ -44,6 +63,24 @@ const routes: Array<RouteConfig> = [
         path: 'new',
         name: 'contacts_new',
         component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Contacts/New.vue'),
+        meta: { layout: 'default', middleware: [] }
+      },
+      {
+        path: ':id/view',
+        name: 'contacts_view',
+        component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/View.vue'),
+        meta: { layout: 'default', middleware: [] }
+      },
+      {
+        path: ':id/edit',
+        name: 'contacts_edit',
+        component: () => import(/* webpackChunkName: "contacts-edit" */ '../views/Contacts/Edit.vue'),
+        meta: { layout: 'default', middleware: [] }
+      },
+      {
+        path: ':contact_id/history',
+        name: 'contacts_history',
+        component: () => import(/* webpackChunkName: "contacts-history" */ '../views/Contacts/History.vue'),
         meta: { layout: 'default', middleware: [] }
       }
     ],

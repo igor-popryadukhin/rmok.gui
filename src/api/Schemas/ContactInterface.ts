@@ -6,7 +6,6 @@ export interface ContactInterface {
   city: string;
   phone_number_default: PhoneDefaultInterface;
   user: any;
-  checked: boolean;
 }
 
 export interface PhoneDefaultInterface {

@@ -1,6 +1,7 @@
 export interface CrumbInterface {
-  title: string;
-  path: string;
-  class: string;
-  latest: boolean;
+  title: string
+  name: string
+  path: string
+  class: string
+  latest: boolean
 }

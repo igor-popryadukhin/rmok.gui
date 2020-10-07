@@ -1,4 +1,4 @@
-export default function auth ({ next }: any){
+export default function auth ({ next }: any) {
 
   // if(condition) {
   //   return next({

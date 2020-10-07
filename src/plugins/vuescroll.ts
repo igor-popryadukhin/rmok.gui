@@ -8,7 +8,7 @@ Vue.use(vuescroll, {
       showDelay: 500,
       onlyShowBarOnScroll: true,
       keepShow: false,
-      background: '#c1c1c1',
+      background: '#b729b1',
       opacity: 1,
       hoverStyle: false
     }

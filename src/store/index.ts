@@ -35,9 +35,9 @@ export default new Vuex.Store({
       key: 'rit-system-main',
       paths: [],
       storage: {
-        getItem: key => get(key),
+        getItem: (key) => get(key),
         setItem: (key, value) => set(key, value),
-        removeItem: key => remove(key)
+        removeItem: (key) => remove(key)
       }
     }),
     createPersistedState({

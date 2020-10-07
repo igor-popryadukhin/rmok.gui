@@ -5,10 +5,11 @@ interface CookieOptionsInterface {
 }
 /* eslint-disable */
 export class Cookie {
-  set (name: string, value: string, options: CookieOptionsInterface = {}) {
+  public set (name: string, value: string, options: CookieOptionsInterface = {}) {
 
     let updatedCookie = encodeURIComponent(name) + '=' + encodeURIComponent(value)
 
+    // tslint:disable-next-line:forin
     for (const optionKey in options) {
       const optionValue = options[optionKey]
       if (optionKey === 'expires') {
@@ -28,9 +29,10 @@ export class Cookie {
     document.cookie = updatedCookie
   }
 
-  get (name: string, def: any = null) {
+  public get (name: string, def: any = null) {
     const nameEQ = name + '='
     const ca = document.cookie.split(';')
+    // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < ca.length; i++) {
       let c = ca[i]
       while (c.charAt(0) === ' ') c = c.substring(1, c.length)
@@ -39,11 +41,11 @@ export class Cookie {
     return def
   }
 
-  has (name: string): boolean {
+  public has (name: string): boolean {
     return !!this.get(name, false)
   }
 
-  delete (name: string) {
+  public delete (name: string) {
     document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
   }
 }
@@ -51,8 +53,9 @@ export class Cookie {
 
 const $cookie: Cookie = new Cookie()
 
+// tslint:disable-next-line:max-classes-per-file
 class CookiePlugin {
-  install () {
+  public install () {
     Object.defineProperties(Vue.prototype, {
       $cookie: {
         get (): Cookie {
