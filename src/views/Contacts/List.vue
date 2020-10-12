@@ -553,7 +553,7 @@ export default Vue.extend({
               })
             }
           }
-          contacts.history(id)
+          contacts.getHistory(id)
             .then((history: any) => {
               this.contactHistory = history.items
             })

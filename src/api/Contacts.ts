@@ -76,7 +76,7 @@ export class Contacts {
    * @param offset
    * @param count
    */
-  public history (contact_id: number, offset = 0, count = 100): Promise<unknown> {
+  public getHistory (contact_id: number, offset = 0, count = 100): Promise<unknown> {
     return new Promise((resolve, reject) => {
       $axios.get(`/contacts/${contact_id}/history`, {
         params: { offset, count }
