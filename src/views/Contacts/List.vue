@@ -3,7 +3,6 @@
     <v-card
       flat
     >
-      {{ uaMachineCurrentState.value }}
       <v-card-text class="pa-0">
         <v-toolbar
           flat
@@ -159,7 +158,7 @@
                   icon
                   large
                   :disabled="!item.phone_number_default"
-                  @click.stop="onCall(item.phone_number_default.value)"
+                  @click.stop="onCall(item.id, item.phone_number_default.value)"
                 >
                   <v-icon>mdi-phone</v-icon>
                 </v-btn>
@@ -247,7 +246,7 @@
     <v-row justify="center">
       <v-dialog
         v-model="dialog"
-        max-width="800"
+        max-width="900"
         persistent
       >
         <v-card class="overflow-hidden">
@@ -255,8 +254,8 @@
             absolute
             color="white"
             height="80"
+            class="pr-4"
             elevate-on-scroll
-            scroll-target="#scrolling-techniques-7"
           >
             <v-app-bar-nav-icon class="ml-3" style="background-color: #8d3eb1; color: white">
               {{ avatar }}
@@ -265,12 +264,6 @@
               {{ contact.first_name }} {{ contact.last_name }}
             </v-toolbar-title>
             <v-spacer />
-            <v-btn icon>
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-            <v-btn icon>
-              <v-icon>mdi-heart</v-icon>
-            </v-btn>
             <v-btn
               icon
               :disabled="['call', 'accepted'].includes(uaMachineCurrentState.value)"
@@ -281,110 +274,126 @@
           </v-app-bar>
           <v-sheet
             id="scrolling-techniques-7"
-            class="overflow-y-auto"
             max-height="600"
+            style="margin-top: 80px"
           >
-            <v-container class="pl-5 pr-5" style="margin-top: 80px">
-              <v-list tile dense>
-                <!-- Emails -->
-                <v-list-item
-                  v-for="(email, emailIndex) in contact.emails"
-                  :key="`email-${emailIndex}`"
-                  ripple
-                  link
-                  selectable
-                >
-                  <v-list-item-avatar size="30">
-                    <v-icon v-if="emailIndex === 0">mdi-email</v-icon>
-                  </v-list-item-avatar>
-                  <v-item-group>
-                    <v-list-item-title>{{ email.value }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ email.type }}</v-list-item-subtitle>
-                  </v-item-group>
-                </v-list-item>
-                <!-- Phones -->
-                <v-list-item
-                  v-for="(phone, phoneIndex) in contact.phone_numbers"
-                  :key="phoneIndex"
-                  ripple
-                  link
-                  selectable
-                >
-                  <v-list-item-avatar size="30">
-                    <v-icon v-if="phoneIndex === 0">mdi-phone</v-icon>
-                  </v-list-item-avatar>
-                  <v-item-group>
-                    <v-list-item-title>{{ $parsePhoneNumber(phone.value).formatNational() }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ phone.type }}</v-list-item-subtitle>
-                  </v-item-group>
-                  <v-spacer />
-                  <v-item-group
-                    v-if="['accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.session && uaMachineCurrentState.context.target === phone.value"
+            <v-container class="pl-5 pr-5">
+              <vue-scroll :style="{ height: `${500}px` }" style="width: 100%">
+                <!-- Contacts -->
+                <v-list tile dense>
+                  <!-- Emails -->
+                  <v-list-item
+                    v-for="(email, emailIndex) in contact.emails"
+                    :key="`email-${emailIndex}`"
+                    ripple
+                    link
+                    selectable
                   >
-                    {{ secondsToHms(uaMachineCurrentState.context.seconds) }}
-                  </v-item-group>
-                  <v-list-item-action>
-                    <v-btn
-                      v-if="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target === phone.value"
-                      :key="phone.value"
-                      icon
-                      @click="onCancelCall()"
+                    <v-list-item-avatar size="30">
+                      <v-icon v-if="emailIndex === 0">mdi-email</v-icon>
+                    </v-list-item-avatar>
+                    <v-item-group>
+                      <v-list-item-title>{{ email.value }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ email.type }}</v-list-item-subtitle>
+                    </v-item-group>
+                  </v-list-item>
+                  <!-- Phones -->
+                  <v-list-item
+                    v-for="(phone, phoneIndex) in contact.phone_numbers"
+                    :key="phoneIndex"
+                    ripple
+                    link
+                    selectable
+                  >
+                    <v-list-item-avatar size="30">
+                      <v-icon v-if="phoneIndex === 0">mdi-phone</v-icon>
+                    </v-list-item-avatar>
+                    <v-item-group>
+                      <v-list-item-title>{{ $parsePhoneNumber(phone.value).formatNational() }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ phone.type }}</v-list-item-subtitle>
+                    </v-item-group>
+                    <v-spacer />
+                    <v-item-group
+                      v-if="['accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.session && uaMachineCurrentState.context.target === phone.value"
                     >
-                      <v-icon color="red">mdi-phone-hangup</v-icon>
-                    </v-btn>
-                    <v-btn
-                      v-else
-                      :disabled="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target !== phone.value"
-                      icon
-                      :key="phone.value"
-                      @click="onCall(phone.value)"
-                    >
-                      <v-icon>mdi-phone</v-icon>
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-              </v-list>
-              <v-divider />
-              <!-- History -->
-              <v-list
-                tile
-                dense
-              >
-                <!-- Emails -->
-                <v-list-item
-                  v-for="(item, index) in contactHistory"
-                  :key="index"
-                  ripple
-                  link
-                  selectable
+                      {{ secondsToHms(uaMachineCurrentState.context.seconds) }}
+                    </v-item-group>
+                    <v-list-item-action>
+                      <v-btn
+                        v-if="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target === phone.value"
+                        :key="phone.value"
+                        icon
+                        @click="onCancelCall()"
+                      >
+                        <v-icon color="red">mdi-phone-hangup</v-icon>
+                      </v-btn>
+                      <v-btn
+                        v-else
+                        :disabled="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target !== phone.value"
+                        icon
+                        :key="phone.value"
+                        @click="onCall(contact.id, phone.value)"
+                      >
+                        <v-icon>mdi-phone</v-icon>
+                      </v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list>
+                <v-divider />
+                <!-- History -->
+                <v-list
+                  tile
                   dense
                 >
-                  <v-item-group>
-                    <v-list-item-avatar size="25">
-                      <v-icon
-                        v-if="item.call_direction === 0"
-                        color="red"
-                      >mdi-phone-missed
-                      </v-icon>
-                      <v-icon v-else-if="item.call_direction === 1">mdi-phone-incoming</v-icon>
-                      <v-icon v-else-if="item.call_direction === 2" color="red">mdi-phone-incoming</v-icon>
-                      <v-icon v-else-if="item.call_direction === 3">mdi-phone-outgoing</v-icon>
-                      <v-icon v-else-if="item.call_direction === 4" color="red">mdi-phone-outgoing</v-icon>
-                    </v-list-item-avatar>
-                  </v-item-group>
-                  <v-item-group>
-                    <v-list-item-title v-if="item.call_direction === 0">Пропущеный</v-list-item-title>
-                    <v-list-item-title v-else-if="item.call_direction === 1">Входящий {{ secondsToHms(item.call_duration) }}</v-list-item-title>
-                    <v-list-item-title v-else-if="item.call_direction === 2">Входящий отменён {{ secondsToHms(item.call_duration) }}</v-list-item-title>
-                    <v-list-item-title v-else-if="item.call_direction === 3">Исходящий {{ secondsToHms(item.call_duration) }}</v-list-item-title>
-                    <v-list-item-title v-else-if="item.call_direction === 4">Исходящий отменён {{ secondsToHms(item.call_duration) }}</v-list-item-title>
-                  </v-item-group>
-                  <v-spacer />
-                  <v-item-group>
-                    <v-list-item-title>{{ new Date(item.call_time * 1000).toLocaleString() }}</v-list-item-title>
-                  </v-item-group>
-                </v-list-item>
-              </v-list>
+                  <template v-if="contactHistory.length === 0">
+                    <v-list-item class="text-center">
+                      <v-spacer />
+                      <span class="grey--text">
+                      По этому контакту ещё нет не одного звонка
+                    </span>
+                      <v-spacer />
+                    </v-list-item>
+                  </template>
+                  <template v-else>
+                    <v-list-item
+                      v-for="(item, index) in contactHistory"
+                      :key="index"
+                      ripple
+                      link
+                      selectable
+                      dense
+                    >
+                      <v-item-group>
+                        <v-list-item-avatar size="25">
+                          <v-icon
+                            v-if="item.direction === 0"
+                            color="red"
+                          >mdi-phone-missed
+                          </v-icon>
+                          <v-icon v-else-if="item.direction === 1">mdi-phone-incoming</v-icon>
+                          <v-icon v-else-if="item.direction === 2" color="red">mdi-phone-incoming</v-icon>
+                          <v-icon v-else-if="item.direction === 3">mdi-phone-outgoing</v-icon>
+                          <v-icon v-else-if="item.direction === 4" color="red">mdi-phone-outgoing</v-icon>
+                        </v-list-item-avatar>
+                      </v-item-group>
+                      <v-item-group class="mr-5">
+                        <v-list-item-title>{{ $parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
+                      </v-item-group>
+                      <v-item-group>
+                        <v-list-item-title v-if="item.direction === 0">Пропущеный</v-list-item-title>
+                        <v-list-item-title v-else-if="item.direction === 1">Входящий {{ secondsToHms(item.duration) }}</v-list-item-title>
+                        <v-list-item-title v-else-if="item.direction === 2">Входящий отменён {{ secondsToHms(item.duration) }}</v-list-item-title>
+                        <v-list-item-title v-else-if="item.direction === 3">Исходящий {{ secondsToHms(item.duration) }}</v-list-item-title>
+                        <v-list-item-title v-else-if="item.direction === 4">Исходящий отменён {{ secondsToHms(item.duration) }}</v-list-item-title>
+                      </v-item-group>
+                      <v-spacer />
+                      <v-item-group>
+                        <v-list-item-title>{{ new Date(item.start_time * 1000).toLocaleString() }}</v-list-item-title>
+                      </v-item-group>
+                    </v-list-item>
+                  </template>
+                </v-list>
+              </vue-scroll>
             </v-container>
           </v-sheet>
         </v-card>

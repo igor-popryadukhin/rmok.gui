@@ -10,9 +10,10 @@ export interface ContactInterface {
 
 export interface HistoryInterface {
   id: number;
-  call_direction: number;
-  call_duration: number;
-  call_time: number;
+  direction: number;
+  duration: number;
+  start_time: number;
+  end_time: number;
 }
 
 export interface PhoneDefaultInterface {
