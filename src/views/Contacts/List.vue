@@ -3,6 +3,7 @@
     <v-card
       flat
     >
+      {{ uaMachineCurrentState.value }}
       <v-card-text class="pa-0">
         <v-toolbar
           flat
@@ -157,8 +158,8 @@
                 <v-btn
                   icon
                   large
-                  color="green"
-                  @click.stop="() => {}"
+                  :disabled="!item.phone_number_default"
+                  @click.stop="onCall(item.phone_number_default.value)"
                 >
                   <v-icon>mdi-phone</v-icon>
                 </v-btn>
@@ -247,6 +248,7 @@
       <v-dialog
         v-model="dialog"
         max-width="800"
+        persistent
       >
         <v-card class="overflow-hidden">
           <v-app-bar
@@ -271,6 +273,7 @@
             </v-btn>
             <v-btn
               icon
+              :disabled="['call', 'accepted'].includes(uaMachineCurrentState.value)"
               @click="dialog = false"
             >
               <v-icon>mdi-close</v-icon>
@@ -302,7 +305,7 @@
                 <!-- Phones -->
                 <v-list-item
                   v-for="(phone, phoneIndex) in contact.phone_numbers"
-                  :key="`phone-${phoneIndex}`"
+                  :key="phoneIndex"
                   ripple
                   link
                   selectable
@@ -311,15 +314,30 @@
                     <v-icon v-if="phoneIndex === 0">mdi-phone</v-icon>
                   </v-list-item-avatar>
                   <v-item-group>
-                    <v-list-item-title>{{ phone.value }}</v-list-item-title>
+                    <v-list-item-title>{{ $parsePhoneNumber(phone.value).formatNational() }}</v-list-item-title>
                     <v-list-item-subtitle>{{ phone.type }}</v-list-item-subtitle>
                   </v-item-group>
                   <v-spacer />
+                  <v-item-group
+                    v-if="['accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.session && uaMachineCurrentState.context.target === phone.value"
+                  >
+                    {{ secondsToHms(uaMachineCurrentState.context.seconds) }}
+                  </v-item-group>
                   <v-list-item-action>
                     <v-btn
+                      v-if="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target === phone.value"
+                      :key="phone.value"
                       icon
-                      small
-                      color="green"
+                      @click="onCancelCall()"
+                    >
+                      <v-icon color="red">mdi-phone-hangup</v-icon>
+                    </v-btn>
+                    <v-btn
+                      v-else
+                      :disabled="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target !== phone.value"
+                      icon
+                      :key="phone.value"
+                      @click="onCall(phone.value)"
                     >
                       <v-icon>mdi-phone</v-icon>
                     </v-btn>
@@ -334,16 +352,36 @@
               >
                 <!-- Emails -->
                 <v-list-item
-                  v-for="(i, emailIndex) in 35"
-                  :key="`email-${emailIndex}`"
+                  v-for="(item, index) in contactHistory"
+                  :key="index"
                   ripple
                   link
                   selectable
                   dense
                 >
                   <v-item-group>
-                    <v-list-item-title>History {{ i }}</v-list-item-title>
-                    <v-list-item-subtitle>subtitle{{ i }}</v-list-item-subtitle>
+                    <v-list-item-avatar size="25">
+                      <v-icon
+                        v-if="item.call_direction === 0"
+                        color="red"
+                      >mdi-phone-missed
+                      </v-icon>
+                      <v-icon v-else-if="item.call_direction === 1">mdi-phone-incoming</v-icon>
+                      <v-icon v-else-if="item.call_direction === 2" color="red">mdi-phone-incoming</v-icon>
+                      <v-icon v-else-if="item.call_direction === 3">mdi-phone-outgoing</v-icon>
+                      <v-icon v-else-if="item.call_direction === 4" color="red">mdi-phone-outgoing</v-icon>
+                    </v-list-item-avatar>
+                  </v-item-group>
+                  <v-item-group>
+                    <v-list-item-title v-if="item.call_direction === 0">Пропущеный</v-list-item-title>
+                    <v-list-item-title v-else-if="item.call_direction === 1">Входящий {{ secondsToHms(item.call_duration) }}</v-list-item-title>
+                    <v-list-item-title v-else-if="item.call_direction === 2">Входящий отменён {{ secondsToHms(item.call_duration) }}</v-list-item-title>
+                    <v-list-item-title v-else-if="item.call_direction === 3">Исходящий {{ secondsToHms(item.call_duration) }}</v-list-item-title>
+                    <v-list-item-title v-else-if="item.call_direction === 4">Исходящий отменён {{ secondsToHms(item.call_duration) }}</v-list-item-title>
+                  </v-item-group>
+                  <v-spacer />
+                  <v-item-group>
+                    <v-list-item-title>{{ new Date(item.call_time * 1000).toLocaleString() }}</v-list-item-title>
                   </v-item-group>
                 </v-list-item>
               </v-list>
@@ -358,12 +396,15 @@
 <script lang="ts">
 import Vue from 'vue'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { ContactInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
+import { secondsToHms } from '@/utils/datetime'
+import jsSIP from '@/mixins/jsSIP'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
+  mixins: [jsSIP],
   data () {
     return {
       select: ['Vuetify', 'Programming'],
@@ -375,6 +416,7 @@ export default Vue.extend({
         'Vuetify'
       ],
       contact: {} as ContactInterface,
+      contactHistory: [] as HistoryInterface[],
       checkboxSelectedAll: {
         checked: false,
         indeterminate: false
@@ -410,6 +452,7 @@ export default Vue.extend({
       deep: true
     }
   },
+
   beforeCreate () {
     new Contacts()
       .search()
@@ -421,6 +464,9 @@ export default Vue.extend({
 
   methods: {
     /* eslint-disable */
+    /**
+     *  Happens when checkbox click
+     */
     onSelectedAllClick (sender: any) {
       const contacts: ContactInterface[] = (this as any).contacts
       contacts.forEach((e: ContactInterface) => {
@@ -428,7 +474,9 @@ export default Vue.extend({
       })
       this.operation()
     },
+    /* eslint-enable */
 
+    /* eslint-disable */
     onCheckBoxItemClick (item: ContactInterface) {
       this.operation()
     },
@@ -480,16 +528,41 @@ export default Vue.extend({
     },
     /* eslint-enable */
 
+    /* eslint-disable */
+    /**
+     * Occurs when a contact list item is clicked
+     * @param contact
+     *
+     */
     onContactItemClick (contact: any) {
-      new Contacts()
-        .getById(contact.id)
+      const id: number = contact.id
+      const contacts: Contacts = new Contacts()
+
+      // Load contact history
+      contacts.getById(id)
         .then((contact) => {
-          /* eslint-disable */
-          (this as any).contact = contact
-          /* eslint-enable */
-        }).finally(() => {
           this.dialog = true
+          this.contact = contact as any
+
+          // Changing the response scheme
+          if ('phone_numbers' in this.contact) {
+            if (Array.isArray(this.contact.phone_numbers)) {
+              this.contact.phone_numbers = this.contact.phone_numbers.map((e) => {
+                e.connecting = false
+                return e
+              })
+            }
+          }
+          contacts.history(id)
+            .then((history: any) => {
+              this.contactHistory = history.items
+            })
         })
+    },
+    /* eslint-enable */
+
+    secondsToHms (s: number) {
+      return secondsToHms(s)
     }
   }
 })

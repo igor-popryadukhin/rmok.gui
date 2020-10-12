@@ -16,6 +16,7 @@ import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import '@/plugins/toast'
 import '@/plugins/cookie'
 import '@/plugins/vuescroll'
+import '@/plugins/libphonenumber-js'
 
 // layouts
 import DefaultLayout from '@/layouts/Default.vue'

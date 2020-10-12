@@ -41,7 +41,7 @@ export class Contacts {
    *
    * @param id
    */
-  public getById (id: number): Promise<any> {
+  public getById (id: number): Promise<unknown> {
     return new Promise((resolve, reject) => {
       $axios.get(`/contacts/${id}`)
         .then((response: AxiosResponse) => {
@@ -68,4 +68,25 @@ export class Contacts {
         }).catch(reject)
     })
   }
+
+  /* eslint-disable */
+  /**
+   * Retrieve a contact's call history
+   * @param contact_id
+   * @param offset
+   * @param count
+   */
+  public history (contact_id: number, offset = 0, count = 100): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/contacts/${contact_id}/history`, {
+        params: { offset, count }
+      }).then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          reject (response.data)
+        }
+        resolve(response.data)
+      }).catch(reject)
+    })
+  }
+  /* eslint-enable */
 }

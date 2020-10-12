@@ -9,6 +9,7 @@ const locale: string = process.env.VUE_APP_I18N_LOCALE
 
 const i18n = new VueI18n({
   locale,
+  silentTranslationWarn: true,
   fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'ru'
 })
 

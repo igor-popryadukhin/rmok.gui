@@ -8,6 +8,13 @@ export interface ContactInterface {
   user: any;
 }
 
+export interface HistoryInterface {
+  id: number;
+  call_direction: number;
+  call_duration: number;
+  call_time: number;
+}
+
 export interface PhoneDefaultInterface {
   value: string;
   type: string;

@@ -156,6 +156,7 @@
         </vue-scroll>
       </v-container>
     </v-main>
+    <audio id="audio" controls style="display: none"/>
   </v-app>
 </template>
 
