@@ -83,5 +83,7 @@
     "authorisation_error": "Ошибка авторизации",
     "request_to_exit": "Вы действительно хотите выйти?",
     "email_not_confirmed": "Адрес электронной почты не подтверждён!"
-  }
+  },
+
+  "error_session_cause": "Ошибка сессии, причина: {cause}"
 }

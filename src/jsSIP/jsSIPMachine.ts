@@ -11,26 +11,81 @@ import {
   RTCSessionEventMap
 } from 'jssip/lib/RTCSession'
 import { app } from '@/main'
-import { ConnectedEvent } from 'jssip/lib/UA'
+import { ConnectedEvent, UnRegisteredEvent } from 'jssip/lib/UA'
 import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
 
-interface ContextStateInterface {
+/**
+ * Call direction
+ */
+export enum Direction {
+  /**
+   * Missed
+   */
+  MISSED = 0,
+
+  /**
+   * Incoming
+   */
+  INCOMING = 1,
+
+  /**
+   * Incoming canceled
+   */
+  INCOMING_CANCELED = 1,
+
+  /**
+   * Outgoing
+   */
+  OUTGOING = 3,
+
+  /**
+   * Outgoing canceled
+   */
+  OUTGOING_CANCELED = 4
+}
+
+export interface ContextUAStateInterface {
   ua: UA;
-  session?: RTCSession | null;
+  session: RTCSession;
   seconds: number;
   app: Vue;
   target: string;
+  contact_id: number;
 }
 
 export let uaServices: any = null
 
+/**
+ * Call direction conversion
+ * @param direction
+ */
+export function directionToNum (direction: string) {
+  switch (direction) {
+    case 'missed':
+      return Direction.MISSED
+    case 'incoming':
+      return Direction.INCOMING
+    case 'incoming_canceled':
+      return Direction.INCOMING_CANCELED
+    case 'outgoing':
+      return Direction.OUTGOING
+    case 'outgoing_canceled':
+      return Direction.OUTGOING_CANCELED
+    default: return -1
+  }
+}
+
 // Events
 function onJsSipUAConnected (event: ConnectedEvent) {
-  console.log('UAEvent: connected', event)
+  // todo: Implement event handling
 }
 
 function onJsSipUADisconnected (event: DisconnectEvent) {
-  console.log('UAEvent: disconnected', event)
+  // todo: Implement event handling
+}
+
+function onJsSipUARegistrationFailed (event: UnRegisteredEvent) {
+  // todo: Implement event handling
 }
 
 const eventHandlers: Partial<RTCSessionEventMap> = {
@@ -41,7 +96,7 @@ const eventHandlers: Partial<RTCSessionEventMap> = {
    * @param event
    */
   connecting (event) {
-    console.log('Session: connecting', event)
+    // todo: Implement event handling
   },
 
   /**
@@ -49,7 +104,6 @@ const eventHandlers: Partial<RTCSessionEventMap> = {
    * @param event
    */
   ended (event: EndEvent) {
-    console.log('Session: ended', event)
     uaServices.send('ENDED')
   },
 
@@ -58,7 +112,6 @@ const eventHandlers: Partial<RTCSessionEventMap> = {
    * @param event
    */
   accepted (event: IncomingEvent | OutgoingEvent) {
-    console.log('Session: accepted', event)
     uaServices.send('ACCEPTED')
   },
 
@@ -67,20 +120,19 @@ const eventHandlers: Partial<RTCSessionEventMap> = {
    * @param event
    */
   muted (event: MediaConstraints) {
-    console.log('Session: muted', event)
+    // todo: Implement event handling
   },
 
   unmuted (event: MediaConstraints) {
-    console.log('Session: unmuted', event)
+    // todo: Implement event handling
   },
 
   failed (event: EndEvent) {
-    console.log('Session: failed', event)
-    uaServices.send('FAILED')
+    uaServices.send('FAILED', event)
   },
 
   progress (event: IncomingEvent | OutgoingEvent) {
-    console.log('Session: progress', event)
+    // todo: Implement event handling
   }
 }
 
@@ -88,7 +140,7 @@ const eventHandlers: Partial<RTCSessionEventMap> = {
  * Creating a new instance of an agent
  * @param context
  */
-function createUAInstance (context: ContextStateInterface) {
+function createUAInstance (context: ContextUAStateInterface) {
   context.ua = JsSIPFactory.create('wss://84.201.164.37:8089/ws', {
     uri: 'sip:1002@84.201.164.37',
     password: '4e22df493698986b6bd2fa10c466562d'
@@ -100,20 +152,20 @@ function createUAInstance (context: ContextStateInterface) {
  * Initializing listeners
  * @param context
  */
-function initListeners (context: ContextStateInterface) {
-  console.log('Init listeners for ua...')
+function initListeners (context: ContextUAStateInterface) {
   context.ua.removeListener('connected', onJsSipUAConnected)
   context.ua.removeListener('disconnected', onJsSipUADisconnected)
 
   context.ua.addListener('connected', onJsSipUAConnected)
   context.ua.addListener('disconnected', onJsSipUADisconnected)
+  context.ua.addListener('registrationFailed', onJsSipUARegistrationFailed)
 }
 
 /**
  * Agent launch
  * @param context
  */
-function startUa (context: ContextStateInterface) {
+function startUa (context: ContextUAStateInterface) {
   context.ua.start()
 }
 
@@ -122,8 +174,11 @@ function startUa (context: ContextStateInterface) {
  * @param context
  * @param payload
  */
-function call (context: ContextStateInterface, payload: unknown | any) {
+function call (context: ContextUAStateInterface, payload: unknown | any) {
+  /* eslint-disable */
+  context.contact_id = payload.contact_id
   context.target = payload.target
+  /* eslint-enable */
   const session: RTCSession = context.ua.call(payload.target, {
     eventHandlers,
     pcConfig: {
@@ -149,8 +204,10 @@ let sessionTimerIntervalID: any = null
 /**
  * @param context
  */
-function entrySessionAccepted (context: ContextStateInterface) {
+function entrySessionAccepted (context: ContextUAStateInterface) {
   context.seconds = 0
+
+  // Run internal counter
   sessionTimerIntervalID = setInterval(() => {
     context.seconds++
   }, 1000)
@@ -168,21 +225,25 @@ function exitSessionAccepted () {
  * Occurs after the machine enters the state "ended"
  * @param context
  */
-function entrySessionEnded (context: ContextStateInterface) {
-  if (context.session) {
-    console.log('context.session.start_time: ' + context.session.start_time.toLocaleString())
-    console.log('context.session.end_time: ' + context.session.end_time.toLocaleString())
-    // todo: Implement saving history
-    // context.session.start_time
-    // context.session.end_time
-  }
+function entrySessionEnded (context: ContextUAStateInterface) {
+  context.app.$emit('jssip-session-ended', context)
+}
+
+/**
+ *
+ * @param context
+ * @param payload
+ */
+function entrySessionFailed (context: ContextUAStateInterface, payload: any) {
+  context.app.$emit('jssip-session-failed', context, payload)
 }
 
 /**
  * Terminates ongoing calls.
  * @param context
  */
-function cancel (context: ContextStateInterface) {
+function entryCancelSession (context: ContextUAStateInterface) {
+  context.app.$emit('jssip-session-cancel', context)
   context.ua.terminateSessions()
 }
 
@@ -200,11 +261,10 @@ export const uaMachine = Machine({
 
     // Idle
     parking: {
-      entry (context: ContextStateInterface, payload) {
-        console.log('This is parking.')
-      },
       on: {
-        CALL: 'call',
+        CALL: {
+          target: 'call'
+        },
         RECREATE: 'createUAInstance',
         ENDED: 'ended'
       }
@@ -257,13 +317,14 @@ export const uaMachine = Machine({
     },
 
     failed: {
+      entry: entrySessionFailed,
       on: {
         '': 'parking'
       }
     },
 
     cancel: {
-      entry: cancel,
+      entry: entryCancelSession,
       on: {
         '': 'parking'
       }

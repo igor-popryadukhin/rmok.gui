@@ -89,4 +89,21 @@ export class Contacts {
     })
   }
   /* eslint-enable */
+
+  /**
+   * Add information about the current session
+   * @param contactId
+   * @param data
+   */
+  public addHistory (contactId: number, data: any): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      $axios.post(`/contacts/${contactId}/history`, data)
+        .then((response: AxiosResponse) => {
+          if (![200, 201].includes(response.status)) {
+            reject(response.data)
+          }
+          resolve(response.data)
+        }).catch(reject)
+    })
+  }
 }
