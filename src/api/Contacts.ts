@@ -38,6 +38,22 @@ export class Contacts {
   }
 
   /**
+   * Add new contact
+   * @param data
+   */
+  public add (data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.post('/contacts', data)
+        .then((response: AxiosResponse) => {
+          if ([200, 201].includes(response.status)) {
+            return resolve(response.data)
+          }
+          reject(response.statusText)
+        }).catch(reject)
+    })
+  }
+
+  /**
    *
    * @param id
    */
@@ -101,6 +117,21 @@ export class Contacts {
         .then((response: AxiosResponse) => {
           if (![200, 201].includes(response.status)) {
             reject(response.data)
+          }
+          resolve(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Get contact labels
+   */
+  public getLabels (): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get('/contacts/labels')
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            return reject(response.data)
           }
           resolve(response.data)
         }).catch(reject)
