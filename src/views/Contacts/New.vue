@@ -60,7 +60,7 @@
         <!-- Emails -->
         <v-row
           v-for="(email, key) in contact.emails"
-          :key="key"
+          :key="`email-${key}`"
         >
           <v-col
             cols="6"
@@ -113,7 +113,7 @@
         <!-- Phones -->
         <v-row
           v-for="(phone, key) in contact.phones"
-          :key="key"
+          :key="`phone-${key}`"
         >
           <v-col
             cols="3"
@@ -121,7 +121,6 @@
           >
             <v-combobox
               v-model="phone.code"
-              :key="key"
               :items="countryCodes"
               item-text="name"
               item-value="code"

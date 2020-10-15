@@ -12,6 +12,7 @@ const routes: RouteConfig[] = [
     name: 'home',
     component: Home,
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
       loadLanguageAsync('ru', 'main').then(() => next())
     },
     meta: {
@@ -145,6 +146,7 @@ const routes: RouteConfig[] = [
       }
     ],
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
       loadLanguageAsync('ru', 'settings').then(() => next())
     },
     meta: {
