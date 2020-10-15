@@ -85,8 +85,6 @@
               v-model="email.label"
               :label="$tc('label')"
               :items="contactLabels"
-              item-value="id"
-              item-text="id"
               :return-object="false"
               :rules="[rules.max_50]"
             ><template v-slot:append-outer>
@@ -150,8 +148,6 @@
               v-model="phone.label"
               :label="$tc('label')"
               :items="contactLabels"
-              item-value="id"
-              item-text="id"
               :return-object="false"
               persistent-hint
               :rules="[rules.max_50]"

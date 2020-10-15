@@ -120,93 +120,104 @@
           md="8"
           lg="8"
         >
-          <template
-            v-for="item in contacts"
-          >
-            <v-divider
-              :key="`divider-${item.id}`"
-            />
-            <v-list-item
-              :key="`list-item-${item.id}`"
-              ripple
-              selectable
-              @click.stop="onContactItemClick(item)"
+          <template v-if="contacts.length > 0">
+            <template
+              v-for="item in contacts"
             >
-              <v-list-item-action>
-                <v-checkbox
-                  v-model="item.checked"
-                  @click.stop="onCheckBoxItemClick(item)"
-                ></v-checkbox>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ item.first_name }} {{ item.last_name }}
-                </v-list-item-title>
-                <v-list-item-subtitle v-if="item.phone_number_default">{{item.phone_number_default.type}}: {{ item.phone_number_default.value }}</v-list-item-subtitle>
-                <v-list-item-subtitle v-else>Нет номера по умолчанию</v-list-item-subtitle>
-              </v-list-item-content>
+              <v-divider
+                :key="`divider-${item.id}`"
+              />
+              <v-list-item
+                :key="`list-item-${item.id}`"
+                ripple
+                selectable
+                @click.stop="onContactItemClick(item)"
+              >
+                <v-list-item-action>
+                  <v-checkbox
+                    v-model="item.checked"
+                    @click.stop="onCheckBoxItemClick(item)"
+                  ></v-checkbox>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ item.first_name }} {{ item.last_name }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle v-if="item.phone_number_default">{{item.phone_number_default.type}}: {{ item.phone_number_default.value }}</v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>Нет номера по умолчанию</v-list-item-subtitle>
+                </v-list-item-content>
+                <v-spacer />
+                <v-list-item-content>
+                  <v-list-item-title
+                    v-if="item.user"
+                    class="text-right"
+                  >{{ item.user.first_name }} {{ item.user.last_name }}
+                  </v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    large
+                    :disabled="!item.phone_number_default"
+                    @click.stop="onCall(item.id, item.phone_number_default.value)"
+                  >
+                    <v-icon>mdi-phone</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+                <v-list-item-action>
+                  <v-menu offset-y>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        icon
+                        large
+                        v-bind="attrs"
+                        v-on.stop="on"
+                      >
+                        <v-icon>mdi-dots-horizontal</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item
+                        :to="{ name: 'contacts_edit', params: { id: item.id } }"
+                      >
+                        <v-list-item-icon>
+                          <v-icon>mdi-square-edit-outline</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                          <v-list-item-title>Редактировать</v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                      <v-list-item
+                        :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
+                      >
+                        <v-list-item-icon>
+                          <v-icon>mdi-history</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                          <v-list-item-title>История</v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-list-item-icon>
+                          <v-icon>mdi-delete</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                          <v-list-item-title>Удалить</v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-list-item-action>
+              </v-list-item>
+            </template>
+          </template>
+          <template v-else>
+            <v-list-item class="text-center">
               <v-spacer />
-              <v-list-item-content>
-                <v-list-item-title
-                  v-if="item.user"
-                  class="text-right"
-                >{{ item.user.first_name }} {{ item.user.last_name }}
-                </v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn
-                  icon
-                  large
-                  :disabled="!item.phone_number_default"
-                  @click.stop="onCall(item.id, item.phone_number_default.value)"
-                >
-                  <v-icon>mdi-phone</v-icon>
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-action>
-                <v-menu offset-y>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      large
-                      v-bind="attrs"
-                      v-on.stop="on"
-                    >
-                      <v-icon>mdi-dots-horizontal</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item
-                      :to="{ name: 'contacts_edit', params: { id: item.id } }"
-                    >
-                      <v-list-item-icon>
-                        <v-icon>mdi-square-edit-outline</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-content>
-                        <v-list-item-title>Редактировать</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                    <v-list-item
-                      :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
-                    >
-                      <v-list-item-icon>
-                        <v-icon>mdi-history</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-content>
-                        <v-list-item-title>История</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                    <v-list-item>
-                      <v-list-item-icon>
-                        <v-icon>mdi-delete</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-content>
-                        <v-list-item-title>Удалить</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </v-list-item-action>
+              <span class="grey--text">
+                {{ $tc('contact_list_empty') }}
+              </span>
+              <v-spacer />
             </v-list-item>
           </template>
         </v-col>
