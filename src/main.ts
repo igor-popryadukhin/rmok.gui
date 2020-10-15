@@ -17,6 +17,7 @@ import '@/plugins/toast'
 import '@/plugins/cookie'
 import '@/plugins/vuescroll'
 import '@/plugins/libphonenumber-js'
+import '@/plugins/vuetify-dialog'
 
 // layouts
 import DefaultLayout from '@/layouts/Default.vue'

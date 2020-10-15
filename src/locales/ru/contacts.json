@@ -11,5 +11,8 @@
   "call_to": "Позвонить {first} {last}",
   "note": "Заметка",
   "contact_saved_successfully": "Контакт успешно сохранен.",
+  "contact_delete_successfully": "Контакт успешно удалён.",
+  "contact_delete_selected_confirm": "Вы действительно хотите удалить выбранные контакты?",
+  "contact_delete_error": "Во время удаления контакта произошла ошибка\nПричина: {cause}",
   "error_occurred_while_saving_the_contact": "Во время сохранения контакта произошла ошибка\n{cause}"
 }

@@ -409,11 +409,14 @@ import { ContactInterface, HistoryInterface } from '@/api/Schemas/ContactInterfa
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
 import jsSIP from '@/mixins/jsSIP'
+import { POSITION } from 'vue-toastification'
+import confirmation from '@/mixins/confirmation'
+import { filter } from '@/Utils'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
-  mixins: [jsSIP],
+  mixins: [jsSIP, confirmation],
   data () {
     return {
       select: ['Vuetify', 'Programming'],
@@ -528,11 +531,62 @@ export default Vue.extend({
 
     /* eslint-disable */
     onSelectedDeleteClick () {
-      const contacts: ContactInterface[] = (this as any).contacts
+      this.$dialog.confirm({
+        text: this.$tc('contact_delete_selected_confirm'),
+        title: this.$tc('caution'),
+        actions: {
+          false: this.$tc('no'),
+          true: {
+            color: 'red',
+            text: this.$tc('yes'),
+            handle: () => {
+              return new Promise(async (resolve) => {
+                const contacts: ContactInterface[] = (this as any).contacts
+                const contactsApi: Contacts = new Contacts()
 
-      const contactsApi: Contacts = new Contacts()
-      contacts.forEach((e) => {
-        contactsApi.delete(e.id)
+                this.contacts = await filter(contacts, async (contact: Contact) => {
+                  if (contact.checked) {
+                    let isDelete: boolean = false
+                    await contactsApi.delete(contact.id)
+                      .then(() => {
+                        isDelete = true
+                        this.$toast.success(this.$t('contact_delete_successfully'), {
+                          position: POSITION.TOP_RIGHT,
+                          timeout: 3000,
+                          closeOnClick: true,
+                          draggable: true,
+                          draggablePercent: 0.6,
+                          showCloseButtonOnHover: true,
+                          hideProgressBar: true,
+                          closeButton: 'button',
+                          icon: true
+                        })
+                      }).catch((e) => {
+                        const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
+                        this.$toast.error(this.$t('contact_delete_error', { cause }), {
+                          position: POSITION.TOP_RIGHT,
+                          timeout: 3000,
+                          closeOnClick: true,
+                          draggable: true,
+                          draggablePercent: 0.6,
+                          showCloseButtonOnHover: true,
+                          hideProgressBar: true,
+                          closeButton: 'button',
+                          icon: true
+                        })
+                      })
+                    return !isDelete
+                  }
+                  return true
+                })
+
+                resolve()
+                this.checkboxSelectedAll.checked = false
+                this.checkboxSelectedAll.indeterminate = false
+              })
+            }
+          }
+        }
       })
     },
     /* eslint-enable */
