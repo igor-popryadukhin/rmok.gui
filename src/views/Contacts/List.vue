@@ -410,13 +410,12 @@ import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
 import jsSIP from '@/mixins/jsSIP'
 import { POSITION } from 'vue-toastification'
-import confirmation from '@/mixins/confirmation'
 import { filter } from '@/Utils'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
-  mixins: [jsSIP, confirmation],
+  mixins: [jsSIP],
   data () {
     return {
       select: ['Vuetify', 'Programming'],
