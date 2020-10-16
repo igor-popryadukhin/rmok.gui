@@ -197,7 +197,10 @@
                           <v-list-item-title>История</v-list-item-title>
                         </v-list-item-content>
                       </v-list-item>
-                      <v-list-item>
+                      <v-list-item
+                        link
+                        @click="onItemDeleteClick(item.id)"
+                      >
                         <v-list-item-icon>
                           <v-icon>mdi-delete</v-icon>
                         </v-list-item-icon>
@@ -633,6 +636,36 @@ export default Vue.extend({
         })
     },
     /* eslint-enable */
+
+    onItemDeleteClick (id: number) {
+      this.$dialog.confirm({
+        text: this.$tc('contact_delete_selected_confirm'),
+        title: this.$tc('caution'),
+        actions: {
+          false: this.$tc('no'),
+          true: {
+            color: 'red',
+            text: this.$tc('yes'),
+            handle: () => {
+              return new Promise((resolve) => {
+                new Contacts().delete(id)
+                  .then(() => {
+                    this.contacts = this.contacts.filter((e) => e.id !== id)
+                    this.$toast.success(this.$t('contact_delete_successfully'), { icon: true })
+                  }).catch((e) => {
+                    const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
+                    this.$toast.error(this.$t('contact_delete_error', { cause }), { icon: true })
+                  })
+
+                resolve()
+                this.checkboxSelectedAll.checked = false
+                this.checkboxSelectedAll.indeterminate = false
+              })
+            }
+          }
+        }
+      })
+    },
 
     secondsToHms (s: number) {
       return secondsToHms(s)
