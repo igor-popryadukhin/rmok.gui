@@ -1,7 +1,5 @@
 import Vue from 'vue'
-import { RTCSession } from 'jssip/lib/RTCSession'
-import { ContextUAStateInterface, directionToNum, uaMachine, uaServices } from '@/jsSIP/jsSIPMachine'
-import { State } from 'xstate/lib/State'
+import { ContextUAStateInterface, directionToNum } from '@/jsSIP/jsSIPMachine'
 import { HistoryInterface } from '@/api/Schemas/ContactInterface'
 import { Contacts } from '@/api/Contacts'
 import { POSITION } from 'vue-toastification'
@@ -10,14 +8,7 @@ import { POSITION } from 'vue-toastification'
 export default Vue.extend({
   data () {
     return {
-      uaServices,
-      uaMachineCurrentState: uaMachine.initialState,
-      contactHistory: [] as HistoryInterface[],
-      jsSip: {
-        color: null,
-        currentSession: null as RTCSession | null,
-        connecting: false
-      }
+      contactHistory: [] as HistoryInterface[]
     }
   },
 
@@ -25,13 +16,6 @@ export default Vue.extend({
     this.$root.$on('jssip-session-cancel', this.onJsSIPSessionCancel)
     this.$root.$on('jssip-session-ended', this.onJsSIPSessionEnded)
     this.$root.$on('jssip-session-failed', this.onJsSIPSessionFailed)
-  },
-
-  created () {
-    this.uaServices.onTransition((state: State<any, any, any, any>) => {
-      console.log('onTransition: ', state.value)
-      this.uaMachineCurrentState = state
-    })
   },
 
   destroyed () {
@@ -42,22 +26,6 @@ export default Vue.extend({
 
   methods: {
 
-    /**
-     * Fires when the call button is pressed
-     * @param contact_id
-     * @param target
-     */
-    onCall (contact_id: number, target: string) {
-      this.uaServices.send('CALL', { target, contact_id })
-    },
-
-    /**
-     * Fires when the end call button is pressed.
-     */
-    onCancelCall () {
-      this.uaServices.send('CANCEL')
-    },
-
     loadHistory (contact_id: number) {
       new Contacts()
         .getHistory(contact_id)
@@ -67,6 +35,7 @@ export default Vue.extend({
     },
 
     onJsSIPSessionCancel (context: ContextUAStateInterface) {
+      // @ts-ignore
       if (this.uaMachineCurrentState.value !== 'accepted') {
         new Contacts()
           .addHistory(context.contact_id, {

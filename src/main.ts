@@ -10,6 +10,7 @@ import '@/assets/scss/style.scss'
 
 // Mixins
 import '@/mixins/global'
+import '@/mixins/jsSIPGlobal'
 
 // Plugins
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'

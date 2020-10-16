@@ -13,6 +13,7 @@ import {
 import { app } from '@/main'
 import { ConnectedEvent, UnRegisteredEvent } from 'jssip/lib/UA'
 import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
+import { ATEConfigurationInterface, Configurations } from '@/api/Configurations'
 
 /**
  * Call direction
@@ -140,12 +141,29 @@ const eventHandlers: Partial<RTCSessionEventMap> = {
  * Creating a new instance of an agent
  * @param context
  */
-function createUAInstance (context: ContextUAStateInterface) {
-  context.ua = JsSIPFactory.create('wss://84.201.164.37:8089/ws', {
-    uri: 'sip:1002@84.201.164.37',
-    password: '4e22df493698986b6bd2fa10c466562d'
+async function createUAInstance (context: ContextUAStateInterface) {
+  return new Promise(function (resolve) {
+    if (context.ua instanceof UA) {
+      if (context.ua.isConnected()) {
+        context.ua.stop()
+      }
+    }
+
+    // Loading configuration data
+    new Configurations()
+      .getATEConfigurations()
+      .then((config: ATEConfigurationInterface) => {
+        context.ua = JsSIPFactory.create(`wss://${config.server}/ws`, {
+          /* eslint-disable */
+          uri: `sip:${config.login}@${config.server}`,
+          display_name: config.display_name,
+          password: config.password
+          /* eslint-enable */
+        })
+        context.app = app
+        resolve(context)
+      })
   })
-  context.app = app
 }
 
 /**
@@ -262,18 +280,18 @@ export const uaMachine = Machine({
     // Idle
     parking: {
       on: {
-        CALL: {
-          target: 'call'
-        },
+        CALL: 'call',
         RECREATE: 'createUAInstance',
         ENDED: 'ended'
       }
     },
 
     createUAInstance: {
-      entry: createUAInstance,
-      on: {
-        '': 'initEventListener'
+      invoke: {
+        src: createUAInstance,
+        onDone: {
+          target: 'initEventListener'
+        }
       }
     },
 

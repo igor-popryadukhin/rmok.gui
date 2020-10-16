@@ -419,9 +419,9 @@ import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import { ContactInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
-import jsSIP from '@/mixins/jsSIP'
 import { POSITION } from 'vue-toastification'
 import { filter } from '@/Utils'
+import jsSIP from '@/mixins/jsSIP'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 

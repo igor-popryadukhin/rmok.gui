@@ -3,6 +3,7 @@ import JsSIP, { UA, WebSocketInterface } from 'jssip'
 interface JsSPConfiguration {
   uri: string;
   password: string;
+  display_name?: string | undefined
 }
 
 /**
@@ -20,6 +21,7 @@ export class JsSIPFactory {
       sockets: [socket],
       uri: configuration.uri,
       password: configuration.password,
+      display_name: configuration.display_name,
       register: true
     })
   }

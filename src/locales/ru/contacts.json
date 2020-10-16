@@ -10,6 +10,7 @@
   "select_all_contacts": "Выбрать все контакты",
   "call_to": "Позвонить {first} {last}",
   "note": "Заметка",
+  "contact_list_empty": "Список контактов не содержит элементов",
   "contact_saved_successfully": "Контакт успешно сохранен.",
   "contact_delete_successfully": "Контакт успешно удалён.",
   "contact_delete_selected_confirm": "Вы действительно хотите удалить выбранные контакты?",
