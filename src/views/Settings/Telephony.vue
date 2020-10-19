@@ -2,7 +2,6 @@
   <div>
     <v-form>
       <v-container>
-        {{ uaMachineCurrentState.value }}
         <v-row>
           <v-col
             cols="12"
@@ -20,14 +19,22 @@
         </v-row>
         <v-row>
           <v-col
-            cols="12"
-            lg="6"
-            md="12"
+            cols="10"
           >
             <v-text-field
               v-model="config.server"
               :label="$tc('server_address')"
               :hint="$tc('server_address_hint')"
+              persistent-hint
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col
+            cols="2"
+          >
+            <v-text-field
+              v-model="config.port"
+              :label="$tc('server_port')"
               persistent-hint
               required
             ></v-text-field>
@@ -101,6 +108,7 @@
 import Vue from 'vue'
 import { ATEConfigurationInterface, Configurations } from '@/api/Configurations'
 import { POSITION } from 'vue-toastification'
+import { JsSIP } from '@/jsSIP/plugin'
 
 export default Vue.extend({
   data () {
@@ -113,7 +121,8 @@ export default Vue.extend({
         display_name: '',
         login: '',
         password: '',
-        server: ''
+        server: '',
+        port: 0
         /* eslint-enable */
       } as ATEConfigurationInterface
     }
@@ -127,13 +136,20 @@ export default Vue.extend({
         this.config.server = config.server || ''
         this.config.password = config.password || ''
         this.config.login = config.login || ''
+        this.config.port = config.port || 8089
         /* eslint-enable */
       })
   },
 
   methods: {
     onSave () {
-      this.uaServices.send('RECREATE')
+      (this.$jsSIP as JsSIP).setConfiguration(`wss://${this.config.server}:${this.config.port}/ws`, {
+        /* eslint-disable */
+        uri: `sip:${this.config.login}@${this.config.server}`,
+        display_name: this.config.display_name,
+        password: this.config.password
+        /* eslint-enable */
+      }).start()
       new Configurations()
         .setATEConfigurations(this.config)
         .then(() => {

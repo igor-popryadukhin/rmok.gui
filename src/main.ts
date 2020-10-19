@@ -10,7 +10,6 @@ import '@/assets/scss/style.scss'
 
 // Mixins
 import '@/mixins/global'
-import '@/mixins/jsSIPGlobal'
 
 // Plugins
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
@@ -19,6 +18,7 @@ import '@/plugins/cookie'
 import '@/plugins/vuescroll'
 import '@/plugins/libphonenumber-js'
 import '@/plugins/vuetify-dialog'
+import '@/jsSIP'
 
 // layouts
 import DefaultLayout from '@/layouts/Default.vue'

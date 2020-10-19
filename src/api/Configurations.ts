@@ -3,6 +3,7 @@ import { AxiosResponse } from 'axios'
 
 export interface ATEConfigurationInterface {
   server: string;
+  port: number;
   display_name: string;
   login: string;
   password: string;

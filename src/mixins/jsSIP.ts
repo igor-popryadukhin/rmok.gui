@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import { ContextUAStateInterface, directionToNum } from '@/jsSIP/jsSIPMachine'
 import { HistoryInterface } from '@/api/Schemas/ContactInterface'
 import { Contacts } from '@/api/Contacts'
 import { POSITION } from 'vue-toastification'
@@ -34,12 +33,12 @@ export default Vue.extend({
         })
     },
 
-    onJsSIPSessionCancel (context: ContextUAStateInterface) {
+    onJsSIPSessionCancel (context: any) {
       // @ts-ignore
       if (this.uaMachineCurrentState.value !== 'accepted') {
         new Contacts()
           .addHistory(context.contact_id, {
-            direction: directionToNum(context.session.direction + '_canceled'),
+            direction: '',
             target: context.target
           }).then(() => {
           this.loadHistory(context.contact_id)
@@ -47,7 +46,7 @@ export default Vue.extend({
       }
     },
 
-    onJsSIPSessionEnded (context: ContextUAStateInterface) {
+    onJsSIPSessionEnded (context: any) {
       let data = {}
       if (context.session.start_time && context.session.end_time) {
         data = {
@@ -57,7 +56,7 @@ export default Vue.extend({
       }
       new Contacts()
         .addHistory(context.contact_id, {
-          direction: directionToNum(context.session.direction),
+          direction: '',
           ...data,
           target: context.target
         }).then(() => {
@@ -65,7 +64,7 @@ export default Vue.extend({
       })
     },
 
-    onJsSIPSessionFailed (context: ContextUAStateInterface, payload: any) {
+    onJsSIPSessionFailed (context: any, payload: any) {
       const cause: string = payload.cause
       this.$toast.error(this.$t('error_session_cause', { cause }), {
         position: POSITION.TOP_RIGHT,

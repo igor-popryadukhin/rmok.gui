@@ -1,5 +1,8 @@
 <template>
   <div>
+    {{ $jsSIP.sessions.size }} <br>
+    {{ sessions }} <br>
+    {{ session.state }}
     <v-card
       flat
     >
@@ -159,7 +162,7 @@
                     icon
                     large
                     :disabled="!item.phone_number_default"
-                    @click.stop="onCall(item.id, item.phone_number_default.value)"
+                    @click.stop="$jsSIP.call(item.id, item.phone_number_default.value)"
                   >
                     <v-icon>mdi-phone</v-icon>
                   </v-btn>
@@ -280,7 +283,7 @@
             <v-spacer />
             <v-btn
               icon
-              :disabled="['call', 'accepted'].includes(uaMachineCurrentState.value)"
+              :disabled="['outgoing_call', 'accepted', 'connecting'].includes($jsSIP.state)"
               @click="dialog = false"
             >
               <v-icon>mdi-close</v-icon>
@@ -328,25 +331,23 @@
                     </v-item-group>
                     <v-spacer />
                     <v-item-group
-                      v-if="['accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.session && uaMachineCurrentState.context.target === phone.value"
                     >
-                      {{ secondsToHms(uaMachineCurrentState.context.seconds) }}
+                      <template v-if="sessions.findIndex((e) => e.target === phone.value) > -1">
+                        {{ secondsToHms(getSession(phone.value).seconds) }}
+                      </template>
                     </v-item-group>
                     <v-list-item-action>
                       <v-btn
-                        v-if="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target === phone.value"
                         :key="phone.value"
                         icon
-                        @click="onCancelCall()"
+                        @click="onCancel(sessions.find((e) => e.target === phone.value).id)"
                       >
                         <v-icon color="red">mdi-phone-hangup</v-icon>
                       </v-btn>
                       <v-btn
-                        v-else
-                        :disabled="['call', 'accepted'].includes(uaMachineCurrentState.value) && uaMachineCurrentState.context.target !== phone.value"
                         icon
-                        :key="phone.value"
-                        @click="onCall(contact.id, phone.value)"
+                        :key="`call-${phone.value}`"
+                        @click="onCall(phone.value)"
                       >
                         <v-icon>mdi-phone</v-icon>
                       </v-btn>
@@ -425,13 +426,21 @@ import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
 import { filter } from '@/Utils'
 import jsSIP from '@/mixins/jsSIP'
+import { JsSIPSession } from '@/jsSIP/JsSIPSession'
 
 interface Contact extends ContactInterface, CheckedInterface {}
+
+class S {
+  id: string
+  target: string
+}
 
 export default Vue.extend({
   mixins: [jsSIP],
   data () {
     return {
+      session: {},
+      sessions: [] as S[],
       select: ['Vuetify', 'Programming'],
       dialog: false,
       items: [
@@ -485,6 +494,19 @@ export default Vue.extend({
         // eslint-disable-next-line
         (this as any).contacts = contacts.items
       })
+  },
+
+  created () {
+    this.$jsSIP.on('beforeDeleteSession', (session: JsSIPSession) => {
+      const index: number = this.sessions.findIndex((e: S) => e.id === session.id)
+      if (index > -1) {
+        this.sessions.splice(index, 1)
+      }
+    })
+  },
+
+  beforeDestroy () {
+    this.$jsSIP.off('beforeDeleteSession')
   },
 
   methods: {
@@ -669,6 +691,33 @@ export default Vue.extend({
 
     secondsToHms (s: number) {
       return secondsToHms(s)
+    },
+
+    getSession (target: string): JsSIPSession | undefined {
+      Vue.observable(this.$jsSIP.sessions)
+      const index: number = this.sessions.findIndex((e: S) => e.target === target)
+      if (index > -1) {
+        if (this.$jsSIP.sessions.has(this.sessions[index].id)) {
+          return this.$jsSIP.sessions.get(this.sessions[index].id)
+        }
+      }
+      return undefined
+    },
+
+    onCancel (id?: string) {
+      if (id) {
+        if (this.$jsSIP.sessions.has(id)) {
+          this.$jsSIP.sessions.get(id).cancel()
+        }
+      }
+    },
+
+    onCall (target: string) {
+      const session: RTCSession = this.$jsSIP.call(target)
+      this.sessions.push({
+        target,
+        id: session.id
+      })
     }
   }
 })

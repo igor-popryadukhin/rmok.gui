@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-Vue.mixin({
+Vue.mixin(Vue.extend({
   computed: {
     $screenHeight () {
       /* eslint-disable */
@@ -23,7 +23,7 @@ Vue.mixin({
         return def
       }
     },
-    setQuery (query?) {
+    setQuery (query: any) {
       const obj: any = Object.assign({}, this.$route.query)
 
       // @ts-ignore
@@ -63,4 +63,4 @@ Vue.mixin({
     }
     /* eslint-enable */
   }
-})
+}))

@@ -1,9 +1,10 @@
+/* eslint-disable */
 import JsSIP, { UA, WebSocketInterface } from 'jssip'
 
-interface JsSPConfiguration {
+export interface JsSPConfiguration {
   uri: string;
   password: string;
-  display_name?: string | undefined
+  display_name?: string | undefined;
 }
 
 /**
