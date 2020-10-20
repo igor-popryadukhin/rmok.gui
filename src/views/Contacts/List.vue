@@ -1,8 +1,5 @@
 <template>
   <div>
-    {{ $jsSIP.sessions.size }} <br>
-    {{ sessions }} <br>
-    {{ session.state }}
     <v-card
       flat
     >
@@ -262,7 +259,7 @@
     <!-- Dialog -->
     <v-row justify="center">
       <v-dialog
-        v-model="dialog"
+        v-model="contactDialog.visible"
         max-width="900"
         persistent
       >
@@ -283,8 +280,8 @@
             <v-spacer />
             <v-btn
               icon
-              :disabled="['outgoing_call', 'accepted', 'connecting'].includes($jsSIP.state)"
-              @click="dialog = false"
+              :disabled="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
+              @click="contactDialog.visible = false"
             >
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -326,28 +323,31 @@
                       <v-icon v-if="phoneIndex === 0">mdi-phone</v-icon>
                     </v-list-item-avatar>
                     <v-item-group>
-                      <v-list-item-title>{{ $parsePhoneNumber(phone.value).formatNational() }}</v-list-item-title>
+                      <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(phone.value).formatNational() }}</v-list-item-title>
                       <v-list-item-subtitle>{{ phone.type }}</v-list-item-subtitle>
                     </v-item-group>
                     <v-spacer />
                     <v-item-group
                     >
-                      <template v-if="sessions.findIndex((e) => e.target === phone.value) > -1">
-                        {{ secondsToHms(getSession(phone.value).seconds) }}
+                      <template v-if="['accepted'].includes($jsSIP.state) && $jsSIP.target === phone.value">
+                        {{ secondsToHms($jsSIP.seconds) }}
                       </template>
                     </v-item-group>
                     <v-list-item-action>
                       <v-btn
+                        v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.value"
                         :key="phone.value"
                         icon
-                        @click="onCancel(sessions.find((e) => e.target === phone.value).id)"
+                        @click="$jsSIP.cancel()"
                       >
                         <v-icon color="red">mdi-phone-hangup</v-icon>
                       </v-btn>
                       <v-btn
+                        v-else
                         icon
-                        :key="`call-${phone.value}`"
-                        @click="onCall(phone.value)"
+                        :key="phone.value"
+                        :disabled="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.value"
+                        @click="onCall(phone.value, contact.id)"
                       >
                         <v-icon>mdi-phone</v-icon>
                       </v-btn>
@@ -364,8 +364,17 @@
                     <v-list-item class="text-center">
                       <v-spacer />
                       <span class="grey--text">
-                      По этому контакту ещё нет не одного звонка
-                    </span>
+                        По этому контакту ещё нет не одного звонка
+                      </span>
+                      <v-spacer />
+                    </v-list-item>
+                  </template>
+                  <template v-else-if="contactDialog.history.loading">
+                    <v-list-item class="text-center">
+                      <v-spacer />
+                      <span class="grey--text">
+                        Загрузка содержимого...
+                      </span>
                       <v-spacer />
                     </v-list-item>
                   </template>
@@ -392,7 +401,7 @@
                         </v-list-item-avatar>
                       </v-item-group>
                       <v-item-group class="mr-5">
-                        <v-list-item-title>{{ $parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
+                        <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
                       </v-item-group>
                       <v-item-group>
                         <v-list-item-title v-if="item.direction === 0">Пропущеный</v-list-item-title>
@@ -425,24 +434,19 @@ import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
 import { filter } from '@/Utils'
-import jsSIP from '@/mixins/jsSIP'
-import { JsSIPSession } from '@/jsSIP/JsSIPSession'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
-class S {
-  id: string
-  target: string
-}
-
 export default Vue.extend({
-  mixins: [jsSIP],
   data () {
     return {
-      session: {},
-      sessions: [] as S[],
       select: ['Vuetify', 'Programming'],
-      dialog: false,
+      contactDialog: {
+        visible: false,
+        history: {
+          loading: false
+        }
+      },
       items: [
         'Programming',
         'Design',
@@ -497,20 +501,31 @@ export default Vue.extend({
   },
 
   created () {
-    this.$jsSIP.on('beforeDeleteSession', (session: JsSIPSession) => {
-      const index: number = this.sessions.findIndex((e: S) => e.id === session.id)
-      if (index > -1) {
-        this.sessions.splice(index, 1)
-      }
-    })
+    this.$root.$on('jssip-session-cancel', this.onJssipSessionCancel)
   },
 
   beforeDestroy () {
-    this.$jsSIP.off('beforeDeleteSession')
+    this.$root.$off('jssip-session-cancel', this.onJssipSessionCancel)
   },
 
   methods: {
     /* eslint-disable */
+
+    /**
+     * Occurs when a session has ended for one reason or another
+     **/
+    onJssipSessionCancel (data: any) {
+
+      // If the claw-tact dialogue is open, load the updated history
+      if (this.contactDialog.visible) {
+        new Contacts()
+          .getHistory(this.contact.id)
+          .then((history: any) => {
+            this.contactHistory = history.items
+          })
+      }
+    },
+
     /**
      *  Happens when checkbox click
      */
@@ -639,7 +654,7 @@ export default Vue.extend({
       // Load contact history
       contacts.getById(id)
         .then((contact) => {
-          this.dialog = true
+          this.contactDialog.visible = true
           this.contact = contact as any
 
           // Changing the response scheme
@@ -651,10 +666,14 @@ export default Vue.extend({
               })
             }
           }
+
+          this.contactDialog.history.loading = true
           contacts.getHistory(id)
             .then((history: any) => {
               this.contactHistory = history.items
-            })
+            }).finally(() => {
+            this.contactDialog.history.loading = false
+          })
         })
     },
     /* eslint-enable */
@@ -693,31 +712,10 @@ export default Vue.extend({
       return secondsToHms(s)
     },
 
-    getSession (target: string): JsSIPSession | undefined {
-      Vue.observable(this.$jsSIP.sessions)
-      const index: number = this.sessions.findIndex((e: S) => e.target === target)
-      if (index > -1) {
-        if (this.$jsSIP.sessions.has(this.sessions[index].id)) {
-          return this.$jsSIP.sessions.get(this.sessions[index].id)
-        }
-      }
-      return undefined
-    },
-
-    onCancel (id?: string) {
-      if (id) {
-        if (this.$jsSIP.sessions.has(id)) {
-          this.$jsSIP.sessions.get(id).cancel()
-        }
-      }
-    },
-
-    onCall (target: string) {
-      const session: RTCSession = this.$jsSIP.call(target)
-      this.sessions.push({
-        target,
-        id: session.id
-      })
+    onCall (target: string, contactId: number) {
+      /* eslint-disable */
+      this.$jsSIP.call(target, { contact_id: contactId, target })
+      /* eslint-enable */
     }
   }
 })

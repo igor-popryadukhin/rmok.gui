@@ -1,16 +1,26 @@
 import Vue from 'vue'
 import parsePhoneNumber from 'libphonenumber-js'
+import { CountryCode, PhoneNumber } from 'libphonenumber-js/types'
 
-class LibphonenumberJsPlugin {
+export class LibPhoneNumberJs {
+  public parsePhoneNumber (text: string, defaultCountry?: CountryCode): PhoneNumber | undefined {
+    return parsePhoneNumber(text, defaultCountry)
+  }
+}
+
+const plugin: LibPhoneNumberJs = new LibPhoneNumberJs()
+
+// tslint:disable-next-line:max-classes-per-file
+class LibPhoneNumberJsPlugin {
   public install () {
     Object.defineProperties(Vue.prototype, {
-      $parsePhoneNumber: {
-        get () {
-          return parsePhoneNumber
+      $libPhoneNumberJs: {
+        get (): LibPhoneNumberJs {
+          return plugin
         }
       }
     })
   }
 }
 
-Vue.use(new LibphonenumberJsPlugin())
+Vue.use(new LibPhoneNumberJsPlugin())

@@ -2,27 +2,140 @@
 import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
 import { UA } from 'jssip'
 import {
-  AnswerOptions, IncomingEvent, OutgoingEvent,
+  AnswerOptions, ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent,
   RTCSession
 } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
-import { JsSIPSession, Listener } from '@/jsSIP/JsSIPSession'
-import { EventEmitter } from '@/jsSIP/EventEmitter'
+import { makeAudioElement } from '@/jsSIP/utils'
+
+// Audio element for playing the sound of an incoming or outgoing call
+const audioElementForCall: HTMLAudioElement = makeAudioElement()
+const audioElementForSound: HTMLAudioElement = makeAudioElement()
+
+export type EventHandler = (...args: any[]) => void
+
+/**
+ * Call direction
+ */
+export enum Direction {
+  /**
+   * Missed
+   */
+  MISSED = 0,
+
+  /**
+   * Incoming
+   */
+  INCOMING = 1,
+
+  /**
+   * Incoming canceled
+   */
+  INCOMING_CANCELED = 1,
+
+  /**
+   * Outgoing
+   */
+  OUTGOING = 3,
+
+  /**
+   * Outgoing canceled
+   */
+  OUTGOING_CANCELED = 4
+}
+
+/**
+ * Call direction conversion
+ * @param direction
+ */
+export function directionToNum (direction: string) {
+  switch (direction) {
+    case 'missed':
+      return Direction.MISSED
+    case 'incoming':
+      return Direction.INCOMING
+    case 'incoming_canceled':
+      return Direction.INCOMING_CANCELED
+    case 'outgoing':
+      return Direction.OUTGOING
+    case 'outgoing_canceled':
+      return Direction.OUTGOING_CANCELED
+    default: return -1
+  }
+}
+
+export enum JsSIPState {
+  IDLE = 'idle',
+  CONNECTING = 'connecting',
+  ACCEPTED = 'accepted',
+  PROGRESS = 'progress'
+}
 
 export class JsSIP {
-  get eventEmitter (): EventEmitter {
-    return this._eventEmitter;
+  get session (): RTCSession | undefined {
+    return this._session
   }
+
+  get target (): string {
+    return this._target
+  }
+
+  get seconds (): number {
+    return this._seconds
+  }
+
+  get state (): string {
+    return this._state
+  }
+
+  set onSessionConnecting (value: EventHandler) {
+    this._onSessionConnecting = value
+  }
+
+  set onSessionProgress (value: EventHandler) {
+    this._onSessionProgress = value
+  }
+
+  set onSessionAccepted (value: EventHandler) {
+    this._onSessionAccepted = value
+  }
+
+  set onSessionEnded (value: EventHandler) {
+    this._onSessionEnded = value
+  }
+
+  set onSessionFailed (value: EventHandler) {
+    this._onSessionFailed = value
+  }
+
+  private static playSound (name: string, loop = false) {
+    audioElementForSound.pause()
+    audioElementForSound.currentTime = 0.0
+    audioElementForSound.src = '/sounds/' + name
+    audioElementForSound.loop = loop
+    audioElementForSound.play()
+  }
+
+  private static stopSound () {
+    audioElementForSound.pause()
+    audioElementForSound.currentTime = 0.0
+  }
+
+  private _payload: any = undefined
   private _target: string = ''
+  private _session?: RTCSession
   private ua: UA
-  private _sessions: Map<string, JsSIPSession> = new Map<string, JsSIPSession>()
-  private _onSessionCreated?: (session: JsSIPSession) => void
-  private _onSessionAccepted?: Listener
-  private _onSessionEnded?: Listener
-  private _onSessionFailed?: Listener
-  private _eventEmitter: EventEmitter = new EventEmitter()
+  private _timerId: any = undefined
+  private _seconds = 0
+  private _state: string = JsSIPState.IDLE
+  private _onSessionConnecting?: EventHandler
+  private _onSessionProgress?: EventHandler
+  private _onSessionAccepted?: EventHandler
+  private _onSessionEnded?: EventHandler
+  private _onSessionFailed?: EventHandler
 
   constructor (url: string, config: JsSPConfiguration) {
+    this._state = JsSIPState.IDLE
     this.ua = JsSIPFactory.create(url, {
       /* eslint-disable */
       uri: config.uri,
@@ -34,59 +147,19 @@ export class JsSIP {
     return this
   }
 
-  get sessions (): Map<string, JsSIPSession> {
-    return this._sessions
-  }
-
-  get target () {
-    return this._target
-  }
-
-  set target (value: string) {
-    this._target = value
-  }
-
-  set onSessionCreated (value: (session: JsSIPSession) => void) {
-    this._onSessionCreated = value
-  }
-
-  set onSessionAccepted (value: Listener) {
-    this._onSessionAccepted = value
-  }
-
-  set onSessionEnded (value: Listener) {
-    this._onSessionEnded = value
-  }
-
-  set onSessionFailed (value: Listener) {
-    this._onSessionFailed = value
-  }
-
   /**
    * call up
    * @param target
+   * @param payload
    */
-  public call (target: string): RTCSession {
+  public call (target: string, payload: any = null): RTCSession {
+    this._payload = payload
     if (!this.ua) {
       throw new Error('Initialization required')
     }
     this._target = target
     /* eslint-disable */
     return this.ua.call(target, {
-      eventHandlers: {
-        connecting: (event) => {
-          console.log('connecting', event)
-        },
-        progress: (event: IncomingEvent | OutgoingEvent) => {
-          console.log('progress', event)
-        },
-        accepted: (event: IncomingEvent | OutgoingEvent) => {
-          console.log('accepted', event)
-        },
-        failed: (event) => {
-          console.log('failed', event)
-        }
-      },
       pcConfig: {
         // @ts-ignore
         hackStripTcp: true, // Важно для хрома, чтоб он не тупил при звонке
@@ -106,24 +179,19 @@ export class JsSIP {
     })
   }
 
-  public answer (id: string, options?: AnswerOptions) {
-    if (this._sessions.has(id)) {
-      const session: RTCSession = (this._sessions.get(id) as JsSIPSession).instance
-      session.answer(options)
+  public answer (payload: any = null, options?: AnswerOptions) {
+    if (payload) {
+      this._payload = payload
     }
+    JsSIP.playSound('answered.mp3')
+    this._session?.answer(options)
   }
 
   /**
    * Cancel call
    */
-  public cancel (id?: string) {
-    if (id) {
-      this.sessions.forEach((e) => {
-        e.cancel()
-      })
-    } else {
-      this.ua.terminateSessions()
-    }
+  public cancel () {
+    this.ua.terminateSessions()
   }
 
   /**
@@ -143,87 +211,144 @@ export class JsSIP {
     return this
   }
 
+  public setPayload (payload: any) {
+    this._payload = payload
+  }
+
   public start (): JsSIP {
-    console.log('Starting JsSIP...')
     this.ua.start()
     return this
   }
 
+  public stop (): JsSIP {
+    this.ua.stop()
+    return this
+  }
+
   public on (event: string, handler: (...args: any[]) => void): JsSIP {
-    switch (event) {
-      case 'sessionCreated': {
-        this._eventEmitter.on(event, handler)
-        break
-      }
-      case 'beforeDeleteSession': {
-        this._eventEmitter.on(event, handler)
-        break
-      }
-
-      default: (this.ua as UA).addListener(event, handler)
-    }
-
+    (this.ua as UA).addListener(event, handler)
     return this
   }
 
   public off (event: string, handler: (...args: any[]) => void): JsSIP {
-    switch (event) {
-      case 'sessionCreated': {
-        this._eventEmitter.off(event)
-        break
-      }
-      case 'beforeDeleteSession': {
-        this._eventEmitter.off(event)
-        break
-      }
-
-      default: (this.ua as UA).removeListener(event, handler)
-    }
-
+    (this.ua as UA).removeListener(event, handler)
     return this
   }
 
   private initializeListeners () {
     this.ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => {
-      console.log('newRTCSession', event)
-      const jssipSession: JsSIPSession = new JsSIPSession(event.session)
+      const session: RTCSession = event.session
+      this._session = event.session
 
-      try {
-        this.doCreatedSession(jssipSession)
-      } catch (e) {
-        console.error(e)
-      }
-
-      this._sessions.set(event.session.id, jssipSession)
-
-      event.session.on('ended', () => {
-        this.doBeforeDeleteSession(jssipSession)
-        this._sessions.delete(event.session.id)
+      event.session.on('connecting', (event: ConnectingEvent) => {
+        this._state = JsSIPState.CONNECTING
+        this.doSessionConnecting(session, event)
       })
 
-      event.session.on('failed', () => {
-        this.doBeforeDeleteSession(jssipSession)
-        this._sessions.delete(event.session.id)
+      event.session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
+        this._state = JsSIPState.PROGRESS
+
+        if (event.originator === 'local') {
+          JsSIP.playSound('ringing.ogg', true)
+        } else {
+          JsSIP.playSound('ringback.ogg', true)
+        }
+        this.doSessionProgress(session, event)
       })
 
-      if (this._onSessionAccepted) {
-        jssipSession.onAccepted = this._onSessionAccepted
-      }
-      if (this._onSessionEnded) {
-        jssipSession.onEnded = this._onSessionEnded
-      }
+      event.session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
+        this.startTimer()
+        JsSIP.stopSound()
+        this._state = JsSIPState.ACCEPTED
+        this.doSessionAccepted(session, event)
+      })
 
-      if (this._onSessionFailed) {
-        jssipSession.onFailed = this._onSessionFailed
+      event.session.on('ended', (event: EndEvent) => {
+        this.stopTimer()
+        this._state = JsSIPState.IDLE
+        this.doSessionEnded(session, event)
+      })
+
+      event.session.on('failed', (event: EndEvent) => {
+        this.stopTimer()
+
+        if (session.direction === 'outgoing') {
+          JsSIP.playSound('rejected.mp3')
+        } else {
+          JsSIP.stopSound()
+        }
+
+        this._state = JsSIPState.IDLE
+        this.doSessionFailed(session, event)
+      })
+
+      if (event.session.direction === 'outgoing') {
+        event.session.connection.addEventListener('addstream', (e: any) => {
+          audioElementForCall.srcObject = e.stream
+          audioElementForCall.play()
+        })
       }
     })
   }
 
-  private doCreatedSession (session: JsSIPSession) {
-    this._eventEmitter.emit('sessionCreated', session)
+  private doSessionConnecting (session: RTCSession, event: ConnectingEvent) {
+    if (typeof this._onSessionConnecting === 'function') {
+      try {
+        this._onSessionConnecting(session, event, this._payload)
+      } catch (e) {
+        console.error(e)
+      }
+    }
   }
 
-  private doBeforeDeleteSession (session: JsSIPSession) {
-    this._eventEmitter.emit('beforeDeleteSession', session)
+  private doSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+    if (typeof this._onSessionAccepted === 'function') {
+      try {
+        this._onSessionAccepted(session, event, this._payload)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
+  private doSessionEnded (session: RTCSession, event: EndEvent) {
+    if (typeof this._onSessionEnded === 'function') {
+      try {
+        this._onSessionEnded(session, event, this._payload)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
+  private doSessionFailed (session: RTCSession, event: EndEvent) {
+    if (typeof this._onSessionFailed === 'function') {
+      try {
+        this._onSessionFailed(session, event, this._payload)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
+  private doSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+    if (typeof this._onSessionProgress === 'function') {
+      try {
+        this._onSessionProgress(session, event, this._payload)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
+  private startTimer () {
+    this._seconds = 0
+    this._timerId = setInterval(() => {
+      this._seconds++
+    }, 1000)
+  }
+
+  private stopTimer () {
+    clearInterval(this._timerId)
   }
 }

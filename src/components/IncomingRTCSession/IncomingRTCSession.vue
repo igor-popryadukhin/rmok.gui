@@ -7,7 +7,7 @@
           outlined
           dark
           large
-          @click.stop="$emit('answerClick')"
+          @click.stop.once="$emit('answerClick')"
         >
           <v-icon>mdi-phone</v-icon>
         </v-btn>
@@ -17,10 +17,7 @@
           {{ displayName }}
         </div>
         <div style="font-size: 16px; margin-bottom: 5px">
-          + 7 (925)-604-10-55
-        </div>
-        <div style="font-size: 14px; margin-bottom: 5px">
-          {{ seconds }}
+          {{ phoneNumber }}
         </div>
       </div>
       <div class="button_cancel">
@@ -29,7 +26,7 @@
           outlined
           dark
           large
-          @click.stop="$emit('cancelClick')"
+          @click.stop.once="$emit('cancelClick')"
         >
           <v-icon>mdi-phone-hangup</v-icon>
         </v-btn>
@@ -40,19 +37,16 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { secondsToHms } from '@/utils/datetime'
 
 export default Vue.extend({
   props: {
     displayName: {
       type: String,
       default: ''
-    }
-  },
-
-  computed: {
-    seconds () {
-      return secondsToHms(this.$jsSIP.seconds)
+    },
+    phoneNumber: {
+      type: String,
+      default: ''
     }
   }
 })
@@ -67,6 +61,7 @@ export default Vue.extend({
 .incoming-rtc-session {
   .warp {
     width: auto;
+    min-width: 400px;
     display: flex;
     justify-content: space-between;
     padding: 1em;

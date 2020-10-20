@@ -3,9 +3,11 @@
  * Creates an instance of an audio element
  * @param id
  */
-export function makeAudioElement (id: string): HTMLAudioElement {
+export function makeAudioElement (id?: string): HTMLAudioElement {
   const audioElement: HTMLAudioElement = document.createElement('audio')
-  audioElement.setAttribute('id', id)
+  if (id) {
+    audioElement.setAttribute('id', id)
+  }
   audioElement.setAttribute('style', 'display: none')
   audioElement.setAttribute('controls', '')
   return audioElement

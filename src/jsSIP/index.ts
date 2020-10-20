@@ -21,7 +21,6 @@ class JsSIPlugin {
     })
 
     Vue.observable($jssip)
-    Vue.observable($jssip.sessions)
   }
 }
 

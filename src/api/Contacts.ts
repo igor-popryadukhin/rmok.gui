@@ -71,6 +71,23 @@ export class Contacts {
   }
 
   /**
+   * Get contact by phone number
+   * @param number
+   */
+  public getByPhoneNumber (number: string): Promise<ContactInterface> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/contacts/${number}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            resolve(response.data)
+            return
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
    * @param id
    */
   public delete (id: number): Promise<unknown> {
