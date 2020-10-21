@@ -90,6 +90,7 @@ export default Vue.extend({
         password
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
+          this.$store.dispatch('profile/loadProfile')
           /* eslint-disable */
           // @ts-ignore
           this.$cookie.set('access_token', response.data.access_token, { 'max-age': 3600 })

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import SecureLS from 'secure-ls'
 import createPersistedState from 'vuex-persistedstate'
-import { phones } from '@/store/addPhone'
+import { profile } from '@/store/profile'
 
 Vue.use(Vuex)
 
@@ -30,7 +30,7 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
-    phones
+    profile
   },
   plugins: [
     createPersistedState({
@@ -43,8 +43,8 @@ export default new Vuex.Store({
       }
     }),
     createPersistedState({
-      key: 'rmok-phones',
-      paths: ['phones'],
+      key: 'profile',
+      paths: ['profile'],
       storage: {
         getItem: (key: string) => get(key),
         setItem: (key, value) => set(key, value),
