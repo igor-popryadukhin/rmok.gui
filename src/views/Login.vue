@@ -107,11 +107,9 @@ export default Vue.extend({
             hideProgressBar: true,
             closeButton: 'button',
             icon: true,
-            rtl: false,
-            onClose: () => {
-              this.$router.replace('/')
-            }
+            rtl: false
           })
+          this.$router.replace('/')
         }
       }).catch((e) => {
         this.$toast.error(this.$tc('messages.authorisation_error'), {
