@@ -16,48 +16,51 @@ const config = {
     return status < 500 // Resolve only if the status code is less than 500
   }
 }
-/* eslint-disable */
+/* eslint-enable */
 
 const _axios: AxiosInstance = axios.create(config)
 const cookie: Cookie = new Cookie()
-_axios.interceptors.request.use(async function (config: AxiosRequestConfig) {
+/* eslint-disable */
+// @ts-ignore
+_axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
     if (cookie.has('access_token')) {
       config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
+      return config
     } else {
       if (cookie.has('refresh_token')) {
         await axios.post(`${process.env.VUE_APP_API}/account/authorization/refresh-token`, {
           refresh_token: cookie.get('refresh_token')
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {
-            cookie.set('access_token', response.data.access_token, { 'max-age': 3600 })
-            cookie.set('refresh_token', response.data.refresh_token)
+            cookie.set('access_token', response.data.access_token, { 'max-age': 3600, 'path': '/' })
+            cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
             config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
           }
         }).catch(() => {
-          app.$router.replace({ name: 'login' })
+          app.$router.replace({ name: 'login' }).then()
         })
+        return Promise.resolve(config)
       }
     }
-    return config
   },
   function (error) {
     // Do something with request error
     return Promise.reject(error)
   }
 )
-
+/* eslint-disable */
 /*
   Array of patterns to ignore status checks.
  */
 
 // Add a response interceptor
 _axios.interceptors.response.use(
-  function (response) {
-    // if (response.status === 401) {
-    //   app.$router.replace({ name: 'login' }).then()
-    //   return Promise.reject(response)
-    // }
-    return response
+  (response): Promise<AxiosResponse> | any => {
+    if (response.status === 401) {
+      return app.$router.replace({ name: 'login' }).finally(() => Promise.reject(response))
+    } else {
+      return response
+    }
   },
   function (error) {
     // Do something with response error
