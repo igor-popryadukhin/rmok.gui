@@ -79,7 +79,10 @@
     "administrator": "Администратор",
     "administratororganizations": "Организации",
     "administratorusers": "Пользователи",
-    "administrator_users_new": "Создание нового пользователя"
+    "administrator_users_new": "Создание нового пользователя",
+    "administratorgroups": "Группы",
+    "administrator_groups_new": "Создание новой группы",
+    "administrator_groups_edit": "Редактирование группы"
   },
 
   "rule_email": "Адрес электронной почты не соответсвует требованиям",

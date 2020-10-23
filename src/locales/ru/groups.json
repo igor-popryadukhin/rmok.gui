@@ -1,0 +1,12 @@
+{
+  "team_leader": "Руководитель группы",
+  "groups_list_empty": "Нет ни одной группы",
+  "group_name": "Наименование группы",
+  "add_group": "Добавить группу",
+  "group_update_successfully": "Группа успешно обновлена!",
+  "group_added_successfully": "Группа успешно добавлена!",
+  "group_delete_successfully": "Группа успешно удалена!",
+  "group_delete_error": "Во время добавления группы произошла ошибка!\nПричина: {cause}",
+  "group_update_error": "Во время обновления группы произошла ошибка!\nПричина: {cause}",
+  "confirm_group_deletion": "Подтверждаете удаление группы?"
+}

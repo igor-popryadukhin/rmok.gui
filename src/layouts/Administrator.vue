@@ -50,6 +50,7 @@
           <v-btn
             icon
             class="mr-1"
+            :to="{ path: '/administrator/groups' }"
             v-on="on"
             v-bind="attrs"
           >

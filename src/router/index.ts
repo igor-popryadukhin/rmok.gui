@@ -269,6 +269,48 @@ const routes: RouteConfig[] = [
         }
       },
       {
+        path: 'groups',
+        component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Users/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'administrator_groups_list',
+            component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Groups/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: []
+            }
+          },
+          {
+            path: 'new',
+            name: 'administrator_groups_new',
+            component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Groups/New.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: []
+            }
+          },
+          {
+            path: ':id',
+            name: 'administrator_groups_edit',
+            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Groups/Edit.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: []
+            }
+          }
+        ],
+        meta: {
+          layout: 'administrator',
+          middleware: []
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'groups').then(() => next())
+        }
+      },
+      {
         path: 'settings',
         name: 'administrator_settings',
         component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Settings/Layout.vue'),
