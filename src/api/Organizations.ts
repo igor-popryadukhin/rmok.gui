@@ -66,6 +66,22 @@ export class Organizations {
   }
 
   /**
+   * Deletes an organization
+   * @param id
+   */
+  public delete (id: number): Promise<any> {
+    return new Promise((resolve, reject): Promise<any> | any => {
+      $axios.delete(`/organizations/${id}`)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve()
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
    * Get a list of tags
    */
   public getTags (): Promise<TagInterface[] | any> {

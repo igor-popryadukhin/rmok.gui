@@ -70,10 +70,10 @@
                     {{ item.first_name }} {{ item.last_name }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="item.role">
-                    Роль: {{ item.role.name }}
+                    {{ item.role.name }}
                   </v-list-item-subtitle>
                   <v-list-item-subtitle v-else>
-                    Роль: нет роли
+                    Без роли
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer />

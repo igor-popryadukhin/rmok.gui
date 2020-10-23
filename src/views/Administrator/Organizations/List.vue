@@ -105,17 +105,8 @@
                         </v-list-item-content>
                       </v-list-item>
                       <v-list-item
-                        :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-history</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>История</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
                         link
+                        @click.stop="onDeleteItem(item.id)"
                       >
                         <v-list-item-icon>
                           <v-icon>mdi-delete</v-icon>
@@ -157,6 +148,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { OrganizationInterface, Organizations } from '@/api/Organizations'
+import { Contacts } from '@/api/Contacts'
 
 export default Vue.extend({
   data () {
@@ -177,6 +169,39 @@ export default Vue.extend({
       }).finally(() => {
         this.organizationsProcessLoading = false
       })
+  },
+
+  methods: {
+    onDeleteItem (id: number) {
+      this.$dialog.confirm({
+        text: this.$tc('organization_delete_selected_confirm'),
+        title: this.$tc('confirmation_request'),
+        actions: {
+          false: this.$tc('no'),
+          true: {
+            color: 'red',
+            text: this.$tc('yes'),
+            handle: () => {
+              return new Promise((resolve) => {
+                new Organizations()
+                  .delete(id)
+                  .then(() => {
+                    this.organizations = this.organizations.filter((e: OrganizationInterface) => e.id !== id)
+                    this.$toast.success(this.$t('organization_delete_successfully'), { icon: true })
+                  }).catch((e) => {
+                    const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
+                    this.$toast.error(this.$t('organization_delete_error', { cause }), { icon: true })
+                  }).finally()
+
+                resolve()
+                this.checkboxSelectedAll.checked = false
+                this.checkboxSelectedAll.indeterminate = false
+              })
+            }
+          }
+        }
+      })
+    }
   }
 })
 </script>
