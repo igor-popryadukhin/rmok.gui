@@ -4,6 +4,7 @@ import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import role from '@/middleware/role'
+import store from '@/store'
 
 Vue.use(VueRouter)
 
@@ -377,6 +378,8 @@ const routes: RouteConfig[] = [
     },
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
+      store.dispatch('system/roles').then()
+      store.dispatch('system/groups').then()
       loadLanguageAsync('ru', 'administrator').then(() => next())
     }
   }
