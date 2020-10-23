@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import SecureLS from 'secure-ls'
 import createPersistedState from 'vuex-persistedstate'
 import { profile } from '@/store/profile'
+import { system } from './system'
 
 Vue.use(Vuex)
 
@@ -30,11 +31,12 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
-    profile
+    profile,
+    system
   },
   plugins: [
     createPersistedState({
-      key: 'rit-system-main',
+      key: 'rmok',
       paths: [],
       storage: {
         getItem: (key) => get(key),
@@ -43,8 +45,17 @@ export default new Vuex.Store({
       }
     }),
     createPersistedState({
-      key: 'profile',
+      key: 'rmok-profile',
       paths: ['profile'],
+      storage: {
+        getItem: (key: string) => get(key),
+        setItem: (key, value) => set(key, value),
+        removeItem: (key: string) => remove(key)
+      }
+    }),
+    createPersistedState({
+      key: 'rmok-system',
+      paths: ['system'],
       storage: {
         getItem: (key: string) => get(key),
         setItem: (key, value) => set(key, value),
