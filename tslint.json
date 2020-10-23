@@ -5,6 +5,7 @@
     ],
     "jsRules": {},
     "rules": {
+        "no-string-literal" : [false],
         "interface-name" : [true, "never-prefix"],
         "max-line-length": [false],
         "no-console": [false, "log", "error"],
@@ -19,7 +20,8 @@
         "semicolon": false,
         "no-shadowed-variable": false,
         "only-arrow-functions": false,
-        "ordered-imports": [false]
+        "ordered-imports": [false],
+        "typedef-whitespace": [false]
     },
     "rulesDirectory": []
 }
