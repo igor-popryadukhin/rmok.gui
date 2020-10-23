@@ -18,11 +18,14 @@ import '@/plugins/cookie'
 import '@/plugins/vuescroll'
 import '@/plugins/libphonenumber-js'
 import '@/plugins/vuetify-dialog'
+import '@/plugins/lvovich'
 import '@/jsSIP'
 
 // layouts
+import AdministratorLayout from '@/layouts/Administrator.vue'
 import DefaultLayout from '@/layouts/Default.vue'
 import CleanLayout from '@/layouts/Clean.vue'
+Vue.component('administrator', AdministratorLayout)
 Vue.component('default', DefaultLayout)
 Vue.component('clean', CleanLayout)
 

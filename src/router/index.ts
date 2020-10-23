@@ -3,6 +3,7 @@ import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
+import role from '@/middleware/role'
 
 Vue.use(VueRouter)
 
@@ -173,6 +174,8 @@ const routes: RouteConfig[] = [
       middleware: []
     }
   },
+
+  /** Error Pages */
   {
     path: '*',
     name: 'not_found',
@@ -180,6 +183,159 @@ const routes: RouteConfig[] = [
     meta: {
       layout: 'default',
       middleware: []
+    }
+  },
+  {
+    path: '/access-denied',
+    name: 'access_denied',
+    component: () => import(/* webpackChunkName: "access-denied" */ '../views/AccessDenied.vue'),
+    meta: {
+      layout: 'clean',
+      middleware: []
+    }
+  },
+
+  /** Administrator */
+  {
+    path: '/administrator',
+    name: 'administrator',
+    component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Layout.vue'),
+    children: [
+      {
+        path: 'organizations',
+        component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'administrator_organizations_list',
+            component: () => import(/* webpackChunkName: "administrator-organizations-list" */ '../views/Administrator/Organizations/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: []
+            }
+          },
+          {
+            path: 'new',
+            name: 'administrator_organizations_new',
+            component: () => import(/* webpackChunkName: "administrator-organizations-new" */ '../views/Administrator/Organizations/New.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: []
+            }
+          }
+        ],
+        meta: {
+          layout: 'administrator',
+          middleware: []
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'organizations').then(() => next())
+        }
+      },
+      {
+        path: 'users',
+        component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'administrator_users_list',
+            component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: []
+            }
+          },
+          {
+            path: 'new',
+            name: 'administrator_users_new',
+            component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Users/New.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: []
+            }
+          }
+        ],
+        meta: {
+          layout: 'administrator',
+          middleware: []
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'users').then(() => next())
+        }
+      },
+      {
+        path: 'settings',
+        name: 'administrator_settings',
+        component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Settings/Layout.vue'),
+        children: [
+          {
+            path: 'profile',
+            name: 'administrator_profile',
+            component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Settings/Profile.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            }
+          },
+          {
+            path: 'journal',
+            name: 'administrator_journal',
+            component: () => import(/* webpackChunkName: "administrator-settings-journal" */ '../views/Settings/Journal.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            }
+          },
+          {
+            path: 'security',
+            name: 'administrator_security',
+            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Settings/Security.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            }
+          },
+          {
+            path: 'telephony',
+            name: 'administrator_telephony',
+            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Settings/Telephony.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            }
+          },
+          {
+            path: 'headset-configure',
+            name: 'administrator_headset_configure',
+            component: () => import(/* webpackChunkName: "administrator-settings-headset-configure" */ '../views/Settings/HeadsetConfigure.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            }
+          }
+        ],
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'settings').then(() => next())
+        },
+        meta: {
+          layout: 'default',
+          middleware: []
+        }
+      }
+    ],
+    meta: {
+      layout: 'administrator',
+      middleware: [role]
+    },
+    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
+      loadLanguageAsync('ru', 'administrator').then(() => next())
     }
   }
 ]
@@ -189,6 +345,12 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+export interface MiddlewareContextInterface {
+  to: Route;
+  from: Route;
+  next: NavigationGuardNext;
+}
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   if (!to.meta.middleware) {
@@ -200,7 +362,7 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   }
 
   const middleware = to.meta.middleware
-  const context = {
+  const context: MiddlewareContextInterface = {
     to,
     from,
     next

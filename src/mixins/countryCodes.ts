@@ -1,11 +1,11 @@
 import Vue from 'vue'
-import { Database } from '@/api/Database'
+import { CountryCodeInterface, Database } from '@/api/Database'
 
 export default Vue.extend({
   data () {
     return {
       countryCodeSelected: null,
-      countryCodes: [] as any[]
+      countryCodes: [] as CountryCodeInterface[]
     }
   },
 

@@ -20,3 +20,10 @@ export async function filter (arr: any[], callback: any) {
     await callback(item)) ? item : fail
   ))).filter((i) => i !== fail)
 }
+
+/**
+ * @param ms
+ */
+export async function sleep (ms: number): Promise<any> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

@@ -27,7 +27,7 @@ export default Vue.extend({
   data () {
     return {
       toastId: 0 as number | string,
-      contact: {} as ContactInterface,
+      organization: {} as ContactInterface,
       RTCToastOptions: {
         id: '',
         position: POSITION.TOP_RIGHT,

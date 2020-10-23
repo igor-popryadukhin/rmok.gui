@@ -13,8 +13,9 @@
       class="background--header"
     >
       <div class="offset-lg-2 offset-md-2"></div>
-      <v-toolbar-title>
-        <span class="hidden-sm-and-down">RMOK</span>
+      <v-toolbar-title class="d-inline-block toolbar-title">
+        <div class="hidden-sm-and-down">RMOK</div>
+        <div class="hidden-sm-and-down toolbar-title-subtitle">for administrator</div>
       </v-toolbar-title>
       <v-spacer/>
       <v-text-field
@@ -27,88 +28,78 @@
         style="max-width: 400px"
         dense
       ></v-text-field>
+
+      <!-- organizations -->
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
-            to="/contacts"
+            class="mr-1"
+            v-on="on"
+            v-bind="attrs"
+            :to="{ path: '/administrator/organizations' }"
+          >
+            <v-icon>mdi-office-building</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('route.administratororganizations') }}</span>
+      </v-tooltip>
+      <!-- groups -->
+      <v-tooltip bottom max-width="400">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
             class="mr-1"
             v-on="on"
             v-bind="attrs"
           >
-            <v-icon>mdi-contacts</v-icon>
+            <v-icon>mdi-account-group</v-icon>
           </v-btn>
         </template>
-        <span>{{ $tc('route.contacts') }}</span>
+        <span>{{ $tc('route.settings') }}</span>
+      </v-tooltip>
+      <!-- users -->
+      <v-tooltip bottom max-width="400">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            class="mr-1"
+            to="/administrator/users"
+            v-on="on"
+            v-bind="attrs"
+          >
+            <v-icon>mdi-account-multiple</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('route.settings') }}</span>
       </v-tooltip>
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
-            to="/leads"
             class="mr-1"
             v-on="on"
             v-bind="attrs"
           >
-            <v-icon>mdi-phone-classic</v-icon>
+            <v-icon>mdi-chart-areaspline-variant</v-icon>
           </v-btn>
         </template>
-        <span>{{ $tc('route.leads') }}</span>
+        <span>{{ $tc('route.settings') }}</span>
       </v-tooltip>
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
-            to="/calls"
+            :to="{ name: 'settings' }"
             class="mr-1"
             v-on="on"
             v-bind="attrs"
           >
-            <v-icon>mdi-phone-log</v-icon>
+            <v-icon>mdi-cog</v-icon>
           </v-btn>
         </template>
-        <span>{{ $tc('route.calls') }}</span>
+        <span>{{ $tc('route.settings') }}</span>
       </v-tooltip>
-      <v-btn
-        icon
-        class="mr-1"
-      >
-        <v-icon>mdi-bell</v-icon>
-      </v-btn>
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            :to="{ name: 'help' }"
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-help-circle-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.help') }}</span>
-      </v-tooltip>
-      <template v-if="$store.getters['profile/role'].id === 'admin'">
-        <v-tooltip
-          bottom
-          max-width="400"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              icon
-              color="#00ff0a"
-              :to="{ name: 'administrator' }"
-              class="mr-1"
-              v-on="on"
-              v-bind="attrs"
-            >
-              <v-icon>mdi-police-badge</v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc('route.administrator') }}</span>
-        </v-tooltip>
-      </template>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -118,11 +109,13 @@
             v-on="on"
           >
             <v-avatar
-              color="#ff9800e3"
-              style="color: white; font-size: 20px"
+              size="32px"
               item
             >
-              {{ avatar }}
+              <v-img
+                src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
+                alt="Vuetify"
+              ></v-img>
             </v-avatar>
           </v-btn>
         </template>
@@ -134,7 +127,7 @@
             @click="item.click || function () { console.log('item click') }"
           >
             <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon v-text="item.icon"/>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title>{{ $t(item.name) }}</v-list-item-title>
@@ -198,21 +191,18 @@ export default Vue.extend({
     items: [
       {
         name: 'profile',
-        icon: 'mdi-user',
         to: {
           name: 'profile'
         }
       },
       {
         name: 'settings',
-        icon: 'mdi-settings',
         to: {
           name: 'settings'
         }
       },
       {
         name: 'exit',
-        icon: 'mdi-exit',
         click: () => {
           // todo: delete cookie
         }
@@ -225,7 +215,7 @@ export default Vue.extend({
         to: ''
       }
     ]
-  }),
+  })
 
   // watch: {
   //   $route (to, from) {
@@ -234,14 +224,6 @@ export default Vue.extend({
   //     this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
   //   }
   // },
-
-  computed: {
-    avatar () {
-      const first: string = this.$store.getters['profile/first_name'] || ''
-      const last: string = this.$store.getters['profile/last_name'] || ''
-      return first.charAt(0) + last.charAt(0)
-    }
-  }
 })
 </script>
 

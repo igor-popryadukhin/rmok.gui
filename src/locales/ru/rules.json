@@ -7,5 +7,9 @@
   "rule_not_empty": "Поле не должно быть пустым!",
   "rule_invalid_email": "Неверный адрес электронной почты!",
   "rule_phone_number": "Номер телефона недействительный!",
-  "rule_required": "Обязательно к заполнению!"
+  "rule_required": "Обязательно к заполнению!",
+  "rule_max_dynamic_length": "Максимум {val}",
+  "rule_min_dynamic_length": "Минимум {val}",
+  "rule_regex_dynamic": "Не соответсвует паттерну {val}",
+  "rule_only": "Только: {val}"
 }

@@ -13,7 +13,7 @@
   "last_name": "Фамилия",
   "middle_name": "Отчество",
   "language": "Язык",
-  "loading_data": "Загрузка данных",
+  "loading_data": "Загрузка данных...",
   "location": "Локация",
   "login_to_the_system": "Вход в систему",
   "password": "Пароль",
@@ -23,6 +23,7 @@
   "company": "Компания",
   "change_password": "Изменить пароль",
   "close": "Закрыть",
+  "country_code": "Код страны",
   "email": "Эл. Почта",
   "first_name": "Имя",
   "phone": "Номер мобильного телефона",
@@ -73,7 +74,11 @@
     "integration": "Интеграция",
     "security": "Безопасность",
     "notifications": "Уведомления",
-    "help": "Справка"
+    "help": "Справка",
+    "administrator": "Администратор",
+    "administratororganizations": "Организации",
+    "administratorusers": "Пользователи",
+    "administrator_users_new": "Создание нового пользователя"
   },
 
   "rule_email": "Адрес электронной почты не соответсвует требованиям",

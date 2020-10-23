@@ -1,0 +1,6 @@
+{
+  "users_list_empty": "Нет ни одного пользователя",
+  "add_user": "Добавить пользователя",
+  "user_added_successfully": "Пользователь успешно добавлен!",
+  "error_occurred_while_added_the_user": "Во время добавления пользователя произошла ошибка!\n{cause}"
+}

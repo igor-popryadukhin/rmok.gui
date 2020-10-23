@@ -57,6 +57,7 @@ export const profile = {
     login (state: ProfileInterface) { return state.login },
     email (state: ProfileInterface) { return state.email },
     role (state: ProfileInterface) { return state.role },
+    role_id (state: ProfileInterface) { return state.role.id },
     userpic (state: ProfileInterface) { return state.userpic }
     /* eslint-enable */
   }

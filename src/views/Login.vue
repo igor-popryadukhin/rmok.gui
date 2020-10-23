@@ -93,9 +93,9 @@ export default Vue.extend({
           this.$store.dispatch('profile/loadProfile')
           /* eslint-disable */
           // @ts-ignore
-          this.$cookie.set('access_token', response.data.access_token, { 'max-age': 3600 })
+          this.$cookie.set('access_token', response.data.access_token, { 'max-age': 600, path: '/' })
           // @ts-ignore
-          this.$cookie.set('refresh_token', response.data.refresh_token)
+          this.$cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
           // @ts-ignore-end
           /* eslint-disable */
           this.$toast.success(this.$tc('messages.authorisation_success'), {

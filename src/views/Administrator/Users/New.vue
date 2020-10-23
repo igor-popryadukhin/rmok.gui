@@ -1,0 +1,441 @@
+<template>
+  <div>
+    <v-form
+      ref="form"
+      v-model="form.valid"
+      lazy-validation
+    >
+      <v-container>
+
+        <!-- FLM -->
+        <v-row>
+          <v-col
+            cols="12"
+            lg="4"
+            md="4"
+          >
+            <!-- eslint-disable -->
+            <v-text-field
+              v-model="user.first_name"
+              :label="$tc('first_name')"
+              persistent-hint
+              required
+              :rules="[rules.required]"
+            >
+              <template v-slot:prepend>
+                <v-avatar
+                  size="60"
+                  class="mr-4"
+                  style="background-color: #8d3eb1; color: white"
+                >
+                  AV
+                </v-avatar>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col
+            cols="12"
+            lg="4"
+            md="4"
+          >
+            <!-- eslint-disable -->
+            <v-text-field
+              v-model="user.last_name"
+              :label="$tc('last_name')"
+              persistent-hint
+              required
+              :rules="[rules.required]"
+            >
+            </v-text-field>
+          </v-col>
+          <v-col
+            cols="12"
+            lg="4"
+            md="4"
+          >
+            <!-- eslint-disable -->
+            <v-text-field
+              v-model="user.middle_name"
+              :label="$tc('middle_name')"
+              persistent-hint
+              required
+              :rules="[rules.required]"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+
+        <!--  -->
+        <v-row>
+          <v-col
+            cols="12"
+            lg="4"
+            md="4"
+          >
+            <v-text-field
+              v-model="user.login"
+              :label="$tc('login')"
+              :rules="[rules.required]"
+              autocomplete="new-password"
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-account-circle</v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col
+            cols="12"
+            lg="4"
+            md="4"
+          >
+            <v-text-field
+              v-model="user.password"
+              :label="$tc('password')"
+              :type="password.visible ? '' : 'password'"
+              :rules="[rules.required]"
+              required
+              autocomplete="new-password"
+            >
+              <template v-slot:append>
+                <v-btn
+                  v-if="password.visible"
+                  icon
+                  small
+                  @click="password.visible = false"
+                >
+                  <v-icon>mdi-eye</v-icon>
+                </v-btn>
+                <v-btn
+                  v-else
+                  small
+                  icon
+                  @click="password.visible = true"
+                >
+                  <v-icon>mdi-eye-off</v-icon>
+                </v-btn>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col
+            cols="12"
+            lg="4"
+            md="4"
+          >
+            <v-text-field
+              v-model="user.password2"
+              :label="$tc('password')"
+              :type="password.visible ? '' : 'password'"
+              :rules="[rules.required]"
+              required
+              autocomplete="new-password"
+            >
+              <template v-slot:append>
+                <v-btn
+                  v-if="password.visible"
+                  icon
+                  small
+                  @click="password.visible = false"
+                >
+                  <v-icon>mdi-eye</v-icon>
+                </v-btn>
+                <v-btn
+                  v-else
+                  small
+                  icon
+                  @click="password.visible = true"
+                >
+                  <v-icon>mdi-eye-off</v-icon>
+                </v-btn>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <!--  -->
+        <v-row>
+          <v-col
+            cols="12"
+            lg="6"
+            md="6"
+          >
+            <v-text-field
+              v-model="user.email"
+              :label="$tc('email')"
+              :rules="[rules.required]"
+              autocomplete="new-email"
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-email</v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col
+            cols="12"
+            lg="6"
+            md="6"
+          >
+            <v-text-field
+              v-model="user.phone"
+              :label="$tc('phone')"
+              type="tel"
+              :rules="[rules.required]"
+              required
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-phone</v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <!-- Role -->
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <v-combobox
+              v-model="user.role"
+              :items="roles"
+              item-text="name"
+              item-value="id"
+              :label="$tc('role')"
+              return-object
+              disable-lookup
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-account-tie</v-icon>
+              </template>
+            </v-combobox>
+          </v-col>
+        </v-row>
+
+        <!-- Group -->
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <v-combobox
+              v-model="user.group"
+              :items="groups"
+              item-text="name"
+              item-value="id"
+              :label="$tc('group')"
+              return-object
+              disable-lookup
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-account-group</v-icon>
+              </template>
+            </v-combobox>
+          </v-col>
+        </v-row>
+
+<!--        <v-row>-->
+<!--          <v-col-->
+<!--            cols="12"-->
+<!--            lg="6"-->
+<!--            md="12"-->
+<!--          >-->
+<!--            <v-text-field-->
+<!--              :label="$tc('sip_display_name')"-->
+<!--              :hint="$tc('sip_display_name_hint')"-->
+<!--              persistent-hint-->
+<!--              required-->
+<!--            ></v-text-field>-->
+<!--          </v-col>-->
+<!--        </v-row>-->
+<!--        <v-row>-->
+<!--          <v-col-->
+<!--            cols="10"-->
+<!--          >-->
+<!--            <v-text-field-->
+<!--              :label="$tc('server_address')"-->
+<!--              :hint="$tc('server_address_hint')"-->
+<!--              persistent-hint-->
+<!--              required-->
+<!--            ></v-text-field>-->
+<!--          </v-col>-->
+<!--          <v-col-->
+<!--            cols="2"-->
+<!--          >-->
+<!--            <v-text-field-->
+<!--              :label="$tc('server_port')"-->
+<!--              persistent-hint-->
+<!--              required-->
+<!--            ></v-text-field>-->
+<!--          </v-col>-->
+<!--        </v-row>-->
+<!--        <v-row>-->
+<!--          <v-col-->
+<!--            cols="12"-->
+<!--            lg="6"-->
+<!--            md="12"-->
+<!--          >-->
+<!--            <v-text-field-->
+<!--              :label="$tc('login')"-->
+<!--              :hint="$tc('login_hint')"-->
+<!--              persistent-hint-->
+<!--              required-->
+<!--            ></v-text-field>-->
+<!--          </v-col>-->
+<!--        </v-row>-->
+<!--        <v-row>-->
+<!--          <v-col-->
+<!--            cols="12"-->
+<!--            lg="6"-->
+<!--            md="12"-->
+<!--          >-->
+<!--            <v-text-field-->
+<!--              :label="$tc('password')"-->
+<!--              :hint="$tc('password_hint')"-->
+<!--              :type="password.visible ? '' : 'password'"-->
+<!--              persistent-hint-->
+<!--              required-->
+<!--            >-->
+<!--              <template v-slot:append>-->
+<!--                <v-btn-->
+<!--                  v-if="password.visible"-->
+<!--                  icon-->
+<!--                  @click="password.visible = false"-->
+<!--                >-->
+<!--                  <v-icon>mdi-eye</v-icon>-->
+<!--                </v-btn>-->
+<!--                <v-btn-->
+<!--                  v-else-->
+<!--                  icon-->
+<!--                  @click="password.visible = true"-->
+<!--                >-->
+<!--                  <v-icon>mdi-eye-off</v-icon>-->
+<!--                </v-btn>-->
+<!--              </template>-->
+<!--            </v-text-field>-->
+<!--          </v-col>-->
+<!--        </v-row>-->
+
+        <v-row>
+          <v-col
+            cols="12"
+            class="text-right"
+          >
+            <v-btn
+              text
+              tile
+              :loading="buttonSave.loading"
+              :disabled="buttonSave.disabled"
+              @click="onSave"
+            >
+              {{ $tc('save') }}
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
+  </div>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import rules from '@/mixins/rules'
+import countryCodes from '@/mixins/countryCodes'
+import roles from '@/mixins/roles'
+import groups from '@/mixins/groups'
+import { Users } from '@/api/Users'
+
+interface Phone {
+  code: string;
+  value: string;
+  label: string;
+}
+
+interface Email {
+  value: string;
+  label: string;
+}
+
+export default Vue.extend({
+  mixins: [rules, countryCodes, roles, groups],
+
+  data () {
+    return {
+      password: {
+        visible: false
+      },
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      form: {
+        valid: false
+      },
+      /* eslint-disable */
+      user: {
+        first_name: 'Игорь',
+        last_name: 'Попрядухин',
+        middle_name: 'Игоревич',
+        login: 'login',
+        password: '12345',
+        password2: '12345',
+        email: 'example@mail.com',
+        phone: '+79256041055',
+        role: undefined,
+        group: undefined
+      }
+      /* eslint-enable */
+    }
+  },
+
+  methods: {
+
+    resetForm () {
+      this.$refs.form.reset()
+    },
+
+    onSave () {
+      if (!this.$refs.form.validate()) {
+        return
+      }
+      this.buttonSave.loading = true
+      new Users()
+        .add({
+          /* eslint-disable */
+          first_name: this.user.first_name.trim(),
+          last_name: this.user.last_name.trim(),
+          middle_name: this.user.middle_name.trim(),
+          login: this.user.login.trim(),
+          password: this.user.password.trim(),
+          phone: this.user.phone.trim(),
+          email: this.user.email,
+          role: this.user.role ? this.user.role.id : null,
+          group_id: this.user.group ? this.user.group.id : null,
+          /* eslint-enable */
+        }).then(() => {
+          this.resetForm()
+          this.$toast.success(this.$tc('user_added_successfully'))
+        }).catch((e) => {
+          const cause: string = e.statusText || e.error_message || e || 'undefined'
+          this.$toast.error(this.$t('error_occurred_while_added_the_user', { cause }))
+        }).finally(() => {
+          this.buttonSave.loading = false
+        })
+    }
+  }
+})
+</script>
+
+<style scoped>
+
+</style>

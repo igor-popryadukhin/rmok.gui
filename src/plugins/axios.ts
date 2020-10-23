@@ -2,6 +2,7 @@ import { app } from '@/main'
 import { Cookie } from '@/plugins/cookie'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Vue from 'vue'
+import { sleep } from '@/Utils'
 
 // Full config:  https://github.com/axios/axios#request-config
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
@@ -20,27 +21,44 @@ const config = {
 
 const _axios: AxiosInstance = axios.create(config)
 const cookie: Cookie = new Cookie()
+let isRefreshTokenProcess = false
+const promises: any[] = []
 /* eslint-disable */
 // @ts-ignore
 _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
-    if (cookie.has('access_token')) {
+  console.log('isRefreshTokenProcess: ', isRefreshTokenProcess)
+  if (isRefreshTokenProcess) {
+    promises.push(new Promise(async (resolve) => {
+      while (isRefreshTokenProcess) {
+        console.log('isRefreshTokenProcess: ', isRefreshTokenProcess)
+        await sleep(500)
+      }
+      resolve()
+    }))
+    // This is process update token
+    await Promise.all(promises)
+  }
+
+  if (cookie.has('access_token')) {
       config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
       return config
     } else {
       if (cookie.has('refresh_token')) {
+        isRefreshTokenProcess = true
         await axios.post(`${process.env.VUE_APP_API}/account/authorization/refresh-token`, {
           refresh_token: cookie.get('refresh_token')
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {
-            cookie.set('access_token', response.data.access_token, { 'max-age': 3600, 'path': '/' })
+            cookie.set('access_token', response.data.access_token, { 'max-age': 600, 'path': '/' })
             cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
             config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
           }
         }).catch(() => {
           app.$router.replace({ name: 'login' }).then()
         })
-        return Promise.resolve(config)
       }
+      isRefreshTokenProcess = false
+      return Promise.resolve(config)
     }
   },
   function (error) {
