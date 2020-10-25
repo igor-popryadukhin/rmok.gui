@@ -57,7 +57,7 @@
             <v-icon>mdi-account-group</v-icon>
           </v-btn>
         </template>
-        <span>{{ $tc('route.settings') }}</span>
+        <span>{{ $tc('route.administratorgroups') }}</span>
       </v-tooltip>
       <!-- users -->
       <v-tooltip bottom max-width="400">
@@ -72,7 +72,7 @@
             <v-icon>mdi-account-multiple</v-icon>
           </v-btn>
         </template>
-        <span>{{ $tc('route.settings') }}</span>
+        <span>{{ $tc('route.administratorusers') }}</span>
       </v-tooltip>
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">

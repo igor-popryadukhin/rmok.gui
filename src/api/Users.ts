@@ -1,5 +1,19 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import { RoleInterface } from '@/api/Roles'
+import { GroupInterface } from '@/api/Groups'
+
+export interface UserInterface {
+  id: number;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  login: string;
+  email: string;
+  phone: string;
+  role: RoleInterface;
+  group: GroupInterface;
+}
 
 export class Users {
   /**
@@ -11,6 +25,22 @@ export class Users {
       $axios.post('/users', data)
         .then((response: AxiosResponse) => {
           if (response.status === 201) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   *
+   * @param id
+   */
+  public getById (id: number): Promise<UserInterface | any> {
+    return new Promise((resolve, reject): Promise<UserInterface | any> | any => {
+      $axios.get(`/users/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
             return resolve(response.data)
           }
           reject(response.data)

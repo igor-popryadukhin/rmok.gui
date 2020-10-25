@@ -258,6 +258,15 @@ const routes: RouteConfig[] = [
               layout: 'administrator',
               middleware: []
             }
+          },
+          {
+            path: ':id',
+            name: 'administrator_users_edit',
+            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: []
+            }
           }
         ],
         meta: {

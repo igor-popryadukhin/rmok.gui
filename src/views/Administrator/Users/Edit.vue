@@ -94,7 +94,7 @@
               v-model="user.password"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[]"
               required
               autocomplete="new-password"
             >
@@ -127,7 +127,7 @@
               v-model="user.password2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[]"
               required
               autocomplete="new-password"
             >
@@ -205,6 +205,7 @@
               v-model="user.role"
               :label="$tc('role')"
               visible-icon
+              :value="user.role"
             />
           </v-col>
         </v-row>
@@ -218,6 +219,7 @@
               v-model="user.group"
               :label="$tc('group')"
               visible-icon
+              :value="user.group"
             />
           </v-col>
         </v-row>
@@ -329,7 +331,7 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
-import { Users } from '@/api/Users'
+import { UserInterface, Users } from '@/api/Users'
 import RoleComboBox from '@/components/RoleComboBox/RoleComboBox'
 import GroupComboBox from '@/components/GroupComboBox/GroupComboBox'
 
@@ -344,6 +346,7 @@ export default Vue.extend({
     RoleComboBox,
     GroupComboBox
   },
+
   data () {
     return {
       password: {
@@ -358,6 +361,7 @@ export default Vue.extend({
       },
       /* eslint-disable */
       user: {
+        id: 0,
         first_name: '',
         last_name: '',
         middle_name: '',
@@ -366,11 +370,19 @@ export default Vue.extend({
         password2: '',
         email: '',
         phone: '',
-        role: undefined,
-        group: undefined
-      }
+        role: null,
+        group: null
+      } as UserInterface
       /* eslint-enable */
     }
+  },
+
+  created () {
+    new Users()
+      .getById(+this.$route.params.id)
+      .then((user: UserInterface) => {
+        this.user = user
+      })
   },
 
   methods: {

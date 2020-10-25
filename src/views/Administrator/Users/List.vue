@@ -91,23 +91,14 @@
                     </template>
                     <v-list>
                       <v-list-item
-                        :to="{ name: 'contacts_edit', params: { id: item.id } }"
+                        :to="{ name: 'administrator_users_edit', params: { id: item.id } }"
+                        link
                       >
                         <v-list-item-icon>
                           <v-icon>mdi-square-edit-outline</v-icon>
                         </v-list-item-icon>
                         <v-list-item-content>
                           <v-list-item-title>Редактировать</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
-                        :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-history</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>История</v-list-item-title>
                         </v-list-item-content>
                       </v-list-item>
                       <v-list-item
