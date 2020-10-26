@@ -4,7 +4,11 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [development] - 26.10.2020
+## Новое
+
+- Администратор видит все группы пользователей, всех организаций.
+
+## [development] - 2020-10-26
 
 ## Добавлено
 - Авторизация по логину и паролю

@@ -1,54 +1,44 @@
 <template>
   <div>
-    <v-card
-      flat
-    >
-      <v-card-text class="pa-0">
-        <v-toolbar
-          flat
-          class="pl-3"
-        >
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on }">
-              <v-checkbox
-                v-on="on"
-              />
-            </template>
-            <span>{{ $tc('select_all_contacts') }}</span>
-          </v-tooltip>
-          <v-spacer />
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                :to="{ name: 'administrator_organizations_new' }"
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-            </template>
-            <span>{{ $tc('create_organization') }}</span>
-          </v-tooltip>
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </template>
-            <span>{{ $tc('delete_selected_contacts') }}</span>
-          </v-tooltip>
-        </v-toolbar>
-      </v-card-text>
-      <v-row class="ma-0">
-        <v-col
-          cols="12"
-        >
-          <template v-if="organizations.length > 0">
+    <v-row class="ma-0">
+      <v-toolbar
+        flat
+        class="pl-3"
+      >
+        <v-spacer />
+        <v-tooltip bottom max-width="400">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              :to="{ name: 'administrator_organizations_new' }"
+              v-on="on"
+              v-bind="attrs"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $tc('create_organization') }}</span>
+        </v-tooltip>
+        <v-tooltip bottom max-width="400">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              v-on="on"
+              v-bind="attrs"
+            >
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $tc('delete_selected_contacts') }}</span>
+        </v-tooltip>
+      </v-toolbar>
+    </v-row>
+    <v-row class="ma-0">
+      <v-col
+        cols="12"
+      >
+        <template v-if="organizations.length > 0">
+          <v-list>
             <template
               v-for="item in organizations"
             >
@@ -59,11 +49,8 @@
                 :key="`list-item-${item.id}`"
                 ripple
                 selectable
+                link
               >
-                <v-list-item-action>
-                  <v-checkbox
-                  ></v-checkbox>
-                </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>
                     {{ item.name }}
@@ -75,7 +62,7 @@
                 <v-spacer />
                 <v-list-item-group>
                   <v-list-item-subtitle v-if="item.responsible">
-                    {{ $tc('responsible') }}: {{ item.responsible.first_name }} {{ item.responsible.last_name }}
+                    {{ item.responsible.first_name }} {{ item.responsible.last_name }}
                   </v-list-item-subtitle>
                   <v-list-item-subtitle v-else>
                     {{ $tc('feckless') }}
@@ -95,7 +82,7 @@
                     </template>
                     <v-list>
                       <v-list-item
-                        :to="{ name: 'contacts_edit', params: { id: item.id } }"
+                        :to="{ name: 'administrator_organizations_edit', params: { id: item.id } }"
                       >
                         <v-list-item-icon>
                           <v-icon>mdi-square-edit-outline</v-icon>
@@ -120,35 +107,34 @@
                 </v-list-item-action>
               </v-list-item>
             </template>
-          </template>
-          <template v-else-if="organizationsProcessLoading">
-            <v-list-item class="text-center">
-              <v-spacer />
-              <span class="grey--text">
+          </v-list>
+        </template>
+        <template v-else-if="organizationsProcessLoading">
+          <v-list-item class="text-center">
+            <v-spacer />
+            <span class="grey--text">
                 {{ $tc('loading_data') }}
               </span>
-              <v-spacer />
-            </v-list-item>
-          </template>
-          <template v-else>
-            <v-list-item class="text-center">
-              <v-spacer />
-              <span class="grey--text">
+            <v-spacer />
+          </v-list-item>
+        </template>
+        <template v-else>
+          <v-list-item class="text-center">
+            <v-spacer />
+            <span class="grey--text">
                 {{ $tc('organizations_list_empty') }}
               </span>
-              <v-spacer />
-            </v-list-item>
-          </template>
-        </v-col>
-      </v-row>
-    </v-card>
+            <v-spacer />
+          </v-list-item>
+        </template>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { OrganizationInterface, Organizations } from '@/api/Organizations'
-import { Contacts } from '@/api/Contacts'
 
 export default Vue.extend({
   data () {

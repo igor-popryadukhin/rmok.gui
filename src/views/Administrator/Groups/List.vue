@@ -47,13 +47,18 @@
                     {{ item.name }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="item.team_leader">
-                    Руководитель: {{ item.team_leader.first_name }} {{ item.team_leader.last_name }}
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle v-else>
-                    Без руководителя
+                    {{ item.team_leader.first_name }} {{ item.team_leader.last_name }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer />
+                <v-list-item-content>
+                  <v-list-item-title v-if="item.organization">
+                    {{ item.organization.name }}
+                  </v-list-item-title>
+                  <v-list-item-title v-else>
+                    &mdash;
+                  </v-list-item-title>
+                </v-list-item-content>
                 <!-- list-item-action -->
                 <v-list-item-action>
                   <v-menu offset-y>
@@ -126,7 +131,7 @@ import { GroupInterface, Groups } from '@/api/Groups'
 export default Vue.extend({
   data () {
     return {
-      groups: [],
+      groups: [] as GroupInterface[],
       groupsProcessLoading: false
     }
   },
@@ -134,7 +139,7 @@ export default Vue.extend({
   created () {
     this.groupsProcessLoading = true
     new Groups()
-      .get()
+      .find()
       .then((groups: any) => {
         this.groups = groups
       }).finally(() => {

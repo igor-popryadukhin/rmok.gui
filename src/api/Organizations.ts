@@ -1,6 +1,16 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
+interface OrganizationPhoneInterface {
+  label: string;
+  value: string;
+}
+
+interface OrganizationEmailInterface {
+  label: string;
+  value: string;
+}
+
 export interface OrganizationInterface {
   id: number;
   name: string;
@@ -8,6 +18,8 @@ export interface OrganizationInterface {
   inn: string;
   cpp: string;
   site: null;
+  phones?: OrganizationPhoneInterface[] | null;
+  emails?: OrganizationEmailInterface[] | null;
   responsible: Responsible;
 }
 
@@ -40,6 +52,21 @@ export class Organizations {
           tags
         }
       })
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * @param id
+   */
+  public getById (id: number): Promise<OrganizationInterface> {
+    return new Promise((resolve, reject): Promise<OrganizationInterface> | any => {
+      $axios.get(`/organizations/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)

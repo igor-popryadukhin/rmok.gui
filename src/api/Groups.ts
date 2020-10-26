@@ -8,16 +8,28 @@ export interface GroupTeamLeaderInterface {
   middle_name: string;
 }
 
+export interface GroupOrganizationInterface {
+  id: number;
+  name: string;
+}
+
 export interface GroupInterface {
   id: number;
   name: string;
-  team_leader: GroupTeamLeaderInterface;
+  team_leader?: GroupTeamLeaderInterface;
+  organization?: GroupOrganizationInterface;
 }
 
 export class Groups {
-  public get (): Promise<GroupInterface[] | any> | any {
+  /**
+   * Поиск групп
+   * @param q
+   * @param offset
+   * @param count
+   */
+  public find (q = '', offset = 0, count = 100): Promise<GroupInterface[] | any> | any {
     return new Promise((resolve, reject): Promise<GroupInterface[] | any> | any => {
-      $axios.get('/groups')
+      $axios.get('/groups', { params: { q, offset, count } })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)

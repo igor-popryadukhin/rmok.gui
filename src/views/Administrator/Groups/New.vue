@@ -24,10 +24,27 @@
           </v-col>
         </v-row>
 
-        <users-autocomplete
-          v-model="userSelected"
-          :label="$tc('team_leader')"
-        />
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <autocomplete-user
+              v-model="userSelected"
+              :label="$tc('team_leader')"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <autocomplete-organization
+              v-model="organizationSelected"
+              :label="$tc('organization')"
+            />
+          </v-col>
+        </v-row>
 
         <v-row>
           <v-col
@@ -54,7 +71,8 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { Groups } from '@/api/Groups'
-import UsersAutocomplete from '@/components/UsersAutocomplete/UsersAutocomplete.vue'
+import AutocompleteUser from '@/components/Autocomplete/AutocompleteUser.vue'
+import AutocompleteOrganization from '@/components/Autocomplete/AutocompleteOrganization.vue'
 
 interface Phone {
   code: string;
@@ -69,7 +87,8 @@ interface Email {
 
 export default Vue.extend({
   components: {
-    UsersAutocomplete
+    AutocompleteUser,
+    AutocompleteOrganization
   },
   mixins: [rules],
 
@@ -83,6 +102,7 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
+      organizationSelected: null,
       userSelected: null,
       group: {
         name: ''
@@ -106,7 +126,8 @@ export default Vue.extend({
         .add({
           /* eslint-disable */
           name: this.group.name.trim(),
-          team_leader_id: this.userSelected ? this.userSelected.id : 0
+          team_leader_id: this.userSelected ? this.userSelected.id : 0,
+          organization_id: this.organizationSelected ? this.organizationSelected.id : 0
           /* eslint-enable */
         }).then(() => {
           this.resetForm()

@@ -215,7 +215,7 @@
           <v-col
             cols="12"
           >
-            <group-combo-box
+            <autocomplete-group
               v-model="user.group"
               :label="$tc('group')"
               visible-icon
@@ -332,8 +332,8 @@ import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
 import { UserInterface, Users } from '@/api/Users'
-import RoleComboBox from '@/components/RoleComboBox/RoleComboBox'
-import GroupComboBox from '@/components/GroupComboBox/GroupComboBox'
+import RoleComboBox from '@/components/RoleComboBox/RoleComboBox.vue'
+import AutocompleteGroup from '@/components/Autocomplete/AutocompleteGroup.vue'
 
 interface Email {
   value: string;
@@ -344,7 +344,7 @@ export default Vue.extend({
   mixins: [rules, countryCodes],
   components: {
     RoleComboBox,
-    GroupComboBox
+    AutocompleteGroup
   },
 
   data () {
@@ -371,7 +371,8 @@ export default Vue.extend({
         email: '',
         phone: '',
         role: null,
-        group: null
+        group: null,
+        organization: null
       } as UserInterface
       /* eslint-enable */
     }

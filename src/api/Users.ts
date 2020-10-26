@@ -3,6 +3,11 @@ import { AxiosResponse } from 'axios'
 import { RoleInterface } from '@/api/Roles'
 import { GroupInterface } from '@/api/Groups'
 
+interface UserOrganizationInterface {
+  id: number;
+  name: string;
+}
+
 export interface UserInterface {
   id: number;
   first_name: string;
@@ -11,8 +16,9 @@ export interface UserInterface {
   login: string;
   email: string;
   phone: string;
-  role: RoleInterface;
-  group: GroupInterface;
+  role?: RoleInterface | null;
+  group?: GroupInterface | null;
+  organization?: UserOrganizationInterface | null;
 }
 
 export class Users {

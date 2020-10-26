@@ -26,13 +26,13 @@ const promises: any[] = []
 /* eslint-disable */
 // @ts-ignore
 _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
-  console.log('isRefreshTokenProcess: ', isRefreshTokenProcess)
   if (isRefreshTokenProcess) {
+    console.log('%c%s', 'color: red;', `Запрос ${config.url} ожидает обновление токена...`)
     promises.push(new Promise(async (resolve) => {
       while (isRefreshTokenProcess) {
-        console.log('isRefreshTokenProcess: ', isRefreshTokenProcess)
         await sleep(500)
       }
+      console.log('%c%s', 'color: green;', `Запрос ${config.url} разрешён!`)
       resolve()
     }))
     // This is process update token
@@ -44,6 +44,7 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
       return config
     } else {
       if (cookie.has('refresh_token')) {
+        console.log('%c%s', 'color: blue;', 'Обновление токена...')
         isRefreshTokenProcess = true
         await axios.post(`${process.env.VUE_APP_API}/account/authorization/refresh-token`, {
           refresh_token: cookie.get('refresh_token')

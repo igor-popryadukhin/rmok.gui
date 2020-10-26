@@ -1,8 +1,9 @@
 <template>
   <v-autocomplete
     v-model="selected"
-    :items="users"
-    :search-input.sync="usersSearchQuery"
+    :items="organizations"
+    :search-input.sync="organizationsSearchQuery"
+    no-filter
     persistent-hint
     :label="label"
     :rules="rules"
@@ -22,20 +23,20 @@
 <!--      </v-list-item>-->
 <!--    </template>-->
     <template v-slot:selection="{ attr, on, item }">
-      <span>{{ item.first_name }} {{ item.last_name }}</span>
+      <span>{{ item.name }}</span>
     </template>
     <template v-slot:item="{ item }">
       <v-list-item-avatar
         color="indigo"
         class="headline font-weight-light white--text"
       >
-        {{ item.first_name.charAt(0) }}
+        {{ item.name.charAt(0) }}
       </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
+        <v-list-item-title>{{ item.name }}</v-list-item-title>
         <v-list-item-subtitle
-          v-if="item.role"
-          v-text="item.role.name"
+          v-if="item.sphere_activity"
+          v-text="item.sphere_activity"
         ></v-list-item-subtitle>
       </v-list-item-content>
     </template>
@@ -45,10 +46,9 @@
 <script lang="ts">
 import Vue from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
-import { Users } from '@/api/Users'
+import { OrganizationInterface, Organizations } from '@/api/Organizations'
 
 export default Vue.extend({
-  name: 'UserAutocomplete',
   model: {
     prop: 'selected',
     event: 'change'
@@ -81,25 +81,22 @@ export default Vue.extend({
       loading: false,
       selectOnce: false,
       selected: null,
-      usersSearchQuery: null,
-      usersProcessLoading: false,
-      usersSearchDebounce: debounce((q: string) => {
-        this.loading = true
-        new Users().findUsers(q)
-          .then(({ count, items }) => {
-            this.users = items
+      organizationsSearchQuery: null as null | string,
+      organizationsSearchDebounce: debounce((q: string, context: any) => {
+        context.loading = true
+        new Organizations().find(q)
+          .then(({ items }) => {
+            context.organizations = items
 
-            if (this.selectOnce === false) {
-              this.selectOnce = true
-              this.selected = this.users.find((e) => e.id === this.selectedId)
-              console.log(this.selectedId, this.users)
-              console.log(this.selected)
+            if (!context.selectOnce) {
+              context.selectOnce = true
+              context.selected = context.organizations.find((e: OrganizationInterface) => e.id === context.selectedId)
             }
           }).finally(() => {
-            this.loading = false
+            context.loading = false
           })
       }, 400),
-      users: []
+      organizations: [] as OrganizationInterface[]
     }
   },
 
@@ -108,13 +105,13 @@ export default Vue.extend({
       this.$emit('change', value)
     },
 
-    usersSearchQuery (val: string) {
-      this.usersSearchDebounce(val)
+    organizationsSearchQuery (val: string) {
+      this.organizationsSearchDebounce(val, this)
     }
   },
 
   created () {
-    this.usersSearchQuery = this.search
+    this.organizationsSearchQuery = this.search
   }
 })
 </script>

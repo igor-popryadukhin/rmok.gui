@@ -24,12 +24,18 @@
           </v-col>
         </v-row>
 
-        <users-autocomplete
-          v-model="userSelected"
-          :selected-id="group.team_leader ? group.team_leader.id : 0"
-          :search="group.team_leader ? group.team_leader.first_name : ''"
-          :label="$tc('team_leader')"
-        />
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <autocomplete-user
+              v-model="userSelected"
+              :selected-id="group.team_leader ? group.team_leader.id : 0"
+              :search="group.team_leader ? group.team_leader.first_name : ''"
+              :label="$tc('team_leader')"
+            />
+          </v-col>
+        </v-row>
 
         <v-row>
           <v-col
@@ -56,11 +62,11 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { GroupInterface, Groups } from '@/api/Groups'
-import UsersAutocomplete from '@/components/UsersAutocomplete/UsersAutocomplete.vue'
+import AutocompleteUser from '@/components/Autocomplete/AutocompleteUser.vue'
 
 export default Vue.extend({
   components: {
-    UsersAutocomplete
+    AutocompleteUser
   },
   mixins: [rules],
 

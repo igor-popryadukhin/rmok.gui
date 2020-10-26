@@ -225,6 +225,16 @@ const routes: RouteConfig[] = [
               layout: 'administrator',
               middleware: []
             }
+          },
+          {
+            path: ':id',
+            name: 'administrator_organizations_edit',
+            component: () => import(/* webpackChunkName: "administrator-organizations-edit" */ '../views/Administrator/Organizations/Edit.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: []
+            }
           }
         ],
         meta: {
@@ -388,7 +398,6 @@ const routes: RouteConfig[] = [
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
       store.dispatch('system/roles').then()
-      store.dispatch('system/groups').then()
       loadLanguageAsync('ru', 'administrator').then(() => next())
     }
   }

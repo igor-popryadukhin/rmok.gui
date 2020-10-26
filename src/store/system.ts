@@ -19,7 +19,7 @@ export const system = {
 
   actions: {
     roles ({ commit }: any) { new Roles().get().then((roles: RoleInterface[]) => { commit('roles', roles) }) },
-    groups ({ commit }: any) { new Groups().get().then((groups: GroupInterface[]) => { commit('groups', groups) }) }
+    groups ({ commit }: any) { new Groups().find().then((groups: GroupInterface[]) => { commit('groups', groups) }) }
   },
 
   getters: {
