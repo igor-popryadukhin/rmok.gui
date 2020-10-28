@@ -1,10 +1,22 @@
 import Vue from 'vue'
-import parsePhoneNumber from 'libphonenumber-js'
-import { CountryCode, PhoneNumber } from 'libphonenumber-js/types'
+import parsePhoneNumber, { CountryCode, PhoneNumber } from 'libphonenumber-js'
 
 export class LibPhoneNumberJs {
   public parsePhoneNumber (text: string, defaultCountry?: CountryCode): PhoneNumber | undefined {
     return parsePhoneNumber(text, defaultCountry)
+  }
+
+  /**
+   * Phone number validation
+   * @param text
+   * @param defaultCountry
+   */
+  public validate (text: string, defaultCountry?: CountryCode): boolean {
+    const phoneNumber: PhoneNumber | undefined = this.parsePhoneNumber(text, defaultCountry)
+    if (phoneNumber) {
+      return phoneNumber.isValid()
+    }
+    return false
   }
 }
 

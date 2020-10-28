@@ -2,8 +2,13 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
 export interface CountryCodeInterface {
-  code: string;
   name: string;
+  name2: string;
+  country_code: string;
+  country_calling_code: string;
+  example_format: string;
+  example: string;
+  region: string;
 }
 
 export class Database {

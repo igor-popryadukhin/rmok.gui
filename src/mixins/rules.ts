@@ -5,6 +5,7 @@ import { loadLanguageAsync } from '@/plugins/i18n'
 import { isEmpty } from '@/Utils'
 
 interface DynamicRuleInterface {
+  val: (value: string) => void;
   min: (value: string) => void;
   max: (value: string) => void;
   regex: (value: string) => void;
@@ -19,6 +20,7 @@ export default Vue.extend({
         max_256: (value: string) => isEmpty(value) || value.length <= 256 || this.$t('rule_max_length_256'),
         max_50: (value: string) => isEmpty(value) || value.length <= 50 || this.$t('rule_max_length_50'),
         max_3000: (value: string) => isEmpty(value) || value.length <= 3000 || this.$t('rule_max_length_3000'),
+        number: (value: string) => isEmpty(value) || /\d+/.test(value) || this.$t('rule_number'),
         email: (value: string) => {
           if (!value) {
             return true
@@ -33,8 +35,9 @@ export default Vue.extend({
   },
 
   methods: {
-    ruleDynamic (val: number | string | RegExp, message?: string): DynamicRuleInterface {
+    ruleDynamic (val: number | string | boolean | RegExp, message?: string): DynamicRuleInterface {
       return {
+        val: () => val || message || this.$t('rule_max_dynamic_length', { val }),
         max: (value: string) => isEmpty(value) || value.length <= val || message || this.$t('rule_max_dynamic_length', { val }),
         min: (value: string) => isEmpty(value) || value.length >= val || message || this.$t('rule_min_dynamic_length', { val }),
         regex: (value: string) => isEmpty(value) || new RegExp(val as string | RegExp).test(value) || message || this.$t('rule_regex_dynamic', { val })

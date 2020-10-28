@@ -224,6 +224,9 @@ const routes: RouteConfig[] = [
               anonymous: true,
               layout: 'administrator',
               middleware: []
+            },
+            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+              store.dispatch('system/country_codes').finally(next)
             }
           },
           {
@@ -234,6 +237,9 @@ const routes: RouteConfig[] = [
               anonymous: true,
               layout: 'administrator',
               middleware: []
+            },
+            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+              store.dispatch('system/country_codes').finally(next)
             }
           }
         ],

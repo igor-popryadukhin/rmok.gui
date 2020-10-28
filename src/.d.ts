@@ -16,3 +16,5 @@ declare module 'vue/types/vue' {
     $lvovich: Lvovich
   }
 }
+
+declare module 'libphonenumber-js/examples.mobile.json'
