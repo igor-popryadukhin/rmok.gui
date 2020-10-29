@@ -57,17 +57,17 @@ export class Users {
   /**
    *
    * @param q
-   * @param roleId
+   * @param role
    * @param offset
    * @param count
    */
-  public findUsers (q = '', roleId = 0, offset = 0, count = 100): Promise<any> {
+  public find (q = '', role = '', offset = 0, count = 100): Promise<any> {
     return new Promise((resolve, reject): Promise<any> | any => {
       $axios.get('/users', {
         params: {
           /* eslint-disable */
           q,
-          role_id: roleId,
+          role,
           offset,
           count
           /* eslint-enable */
