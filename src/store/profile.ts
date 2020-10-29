@@ -58,7 +58,10 @@ export const profile = {
     email (state: ProfileInterface) { return state.email },
     role (state: ProfileInterface) { return state.role },
     role_id (state: ProfileInterface) { return state.role.id },
-    role_is_admin (state: ProfileInterface) { return state.role.id === 'admin' },
+    role_is_operator (state: ProfileInterface) { return state.role.id === 'r_operator' },
+    role_is_admin (state: ProfileInterface) { return state.role.id === 'r_admin' },
+    role_is_leader_cc (state: ProfileInterface) { return state.role.id === 'r_leader_cc' },
+    role_is_leader_group (state: ProfileInterface) { return state.role.id === 'r_leader_group' },
     userpic (state: ProfileInterface) { return state.userpic }
     /* eslint-enable */
   }
