@@ -13,7 +13,7 @@
       v-slot:prepend
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
     >
-      <v-icon class="pl-5 pr-9">mdi-account-tie</v-icon>
+      <v-icon class="pl-5 pr-9">mdi-office-building</v-icon>
     </template>
     <template v-slot:selection="{ attr, on, item }">
       <span>{{ item.name }}</span>
@@ -100,6 +100,10 @@ export default Vue.extend({
 
     organizationsSearchQuery (val: string) {
       this.organizationsSearchDebounce(val, this)
+    },
+
+    selectedId (id: number) {
+      this.organizations.find((e: OrganizationInterface) => e.id === id)
     }
   },
 

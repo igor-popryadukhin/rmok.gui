@@ -8,6 +8,7 @@
     :label="label"
     :rules="rules"
     :loading="loading"
+    :disabled="disabled"
   >
     <template
       v-slot:prepend
@@ -18,7 +19,7 @@
     <template v-slot:selection="{ item }">
       <v-list-item-content>
         <v-list-item-title>{{ item.name }}</v-list-item-title>
-        <v-list-item-subtitle v-if="item.organization">{{ item.organization.name }}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="item.organization && visibleOrganizationName">{{ item.organization.name }}</v-list-item-subtitle>
       </v-list-item-content>
     </template>
     <template v-slot:item="{ item }">
@@ -46,9 +47,21 @@ export default Vue.extend({
       type: Number,
       default: 0
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    organizationId: {
+      type: Number,
+      default: 0
+    },
     search: {
-      type: String,
-      default: ''
+      type: [String, Object],
+      default: null
+    },
+    visibleOrganizationName: {
+      type: Boolean,
+      default: true
     },
     rules: {
       type: Array,
@@ -71,17 +84,13 @@ export default Vue.extend({
       selected: null,
       groupsSearchQuery: null as null | string,
       groupsProcessLoading: false,
-      groupsSearchDebounce: debounce((q: string, context: any) => {
+      groupsSearchDebounce: debounce((q: string, organizationId: number, context: any) => {
         context.loading = true
         new Groups()
-          .find(q, 0, 10)
+          .find(q, organizationId)
           .then((items: GroupInterface[]) => {
             context.groups = items
-
-            if (!context.selectOnce) {
-              context.selectOnce = true
-              context.selected = context.groups.find((e: GroupInterface) => e.id === context.selectedId)
-            }
+            context.selected = context.groups.find((e: GroupInterface) => e.id === context.selectedId)
           }).finally(() => {
             context.loading = false
           })
@@ -92,16 +101,32 @@ export default Vue.extend({
 
   watch: {
     selected (value) {
-      this.$emit('change', value)
+      if (!this.disabled) {
+        this.$emit('change', value)
+      }
     },
 
     groupsSearchQuery (val: string) {
-      this.groupsSearchDebounce(val, this)
+      if (!this.disabled) {
+        this.groupsSearchDebounce(val, this.organizationId, this)
+      }
+    },
+
+    organizationId (val: number) {
+      if (!this.disabled) {
+        this.groupsSearchDebounce(this.groupsSearchQuery, val, this)
+      }
+    },
+
+    selectedId (val: number) {
+      this.selected = this.groups.find((e: GroupInterface) => e.id === val)
     }
   },
 
   created () {
-    this.groupsSearchQuery = this.search
+    if (this.search) {
+      this.groupsSearchQuery = this.search
+    }
   }
 })
 </script>

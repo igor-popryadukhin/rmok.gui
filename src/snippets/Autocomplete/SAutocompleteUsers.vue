@@ -9,6 +9,7 @@
     :rules="rules"
     :loading="loading"
     :no-data-text="$t('empty')"
+    :disabled="disabled"
   >
     <template
       v-slot:prepend
@@ -52,6 +53,10 @@ export default Vue.extend({
       type: Number,
       default: 0
     },
+    organizationId: {
+      type: Number,
+      default: 0
+    },
     search: {
       type: String,
       default: ''
@@ -71,6 +76,10 @@ export default Vue.extend({
     role: {
       type: String,
       default: ''
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -82,18 +91,21 @@ export default Vue.extend({
       usersSearchQuery: null as null | string,
       usersProcessLoading: false,
       usersSearchDebounce: debounce((q: string, context: any) => {
-        context.loading = true
-        new Users().find(q, this.role)
-          .then(({ items }) => {
-            context.users = items
+        if (!context.disabled) {
+          context.loading = true
+          new Users()
+            .find(q, this.role, context.organizationId)
+            .then(({ items }) => {
+              context.users = items
 
-            if (!context.selectOnce) {
-              context.selectOnce = true
-              context.selected = context.users.find((e: UserInterface) => e.id === context.selectedId)
-            }
-          }).finally(() => {
-            context.loading = false
-          })
+              if (!context.selectOnce) {
+                context.selectOnce = true
+                context.selected = context.users.find((e: UserInterface) => e.id === context.selectedId)
+              }
+            }).finally(() => {
+              context.loading = false
+            })
+        }
       }, 400),
       users: []
     }
@@ -106,6 +118,10 @@ export default Vue.extend({
 
     usersSearchQuery (val: string) {
       this.usersSearchDebounce(val, this)
+    },
+
+    organizationId () {
+      this.usersSearchDebounce(this.usersSearchQuery, this)
     }
   },
 
