@@ -64,7 +64,7 @@
           </v-col>
         </v-row>
 
-        <!--  -->
+        <!-- Credentials -->
         <v-row>
           <v-col
             cols="12"
@@ -75,7 +75,7 @@
               v-model="user.login"
               :label="$tc('login')"
               :rules="[rules.required]"
-              autocomplete="new-password"
+              autocomplete="new-login"
             >
               <template
                 v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
@@ -91,10 +91,12 @@
             md="4"
           >
             <v-text-field
-              v-model="user.password"
+              ref="password1"
+              v-model="password.value1"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[rules.required, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+              :success="password.isValid"
               required
               autocomplete="new-password"
             >
@@ -123,11 +125,13 @@
             lg="4"
             md="4"
           >
-            <v-text-field
-              v-model="user.password2"
+            <v-text-field 
+              ref="password2" 
+              v-model="password.value2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[rules.required, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+              :success="password.isValid"
               required
               autocomplete="new-password"
             >
@@ -163,7 +167,7 @@
             <v-text-field
               v-model="user.email"
               :label="$tc('email')"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.email]"
               autocomplete="new-email"
             >
               <template
@@ -183,7 +187,7 @@
               v-model="user.phone"
               :label="$tc('phone')"
               type="tel"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.phone_number]"
               required
             >
               <template
@@ -201,10 +205,25 @@
           <v-col
             cols="12"
           >
-            <role-combo-box
+            <s-role-combo-box
               v-model="user.role"
               :label="$tc('role')"
               visible-icon
+              :rules="[rules.required]"
+            />
+          </v-col>
+        </v-row>
+
+        <!-- Organizations -->
+        <v-row>
+          <v-col
+              cols="12"
+          >
+            <s-autocomplete-organizations
+                v-model="organizationSelected"
+                :label="$tc('organization')"
+                visible-icon
+                :rules="[rules.required]"
             />
           </v-col>
         </v-row>
@@ -214,11 +233,14 @@
           <v-col
             cols="12"
           >
-            <autocomplete-group
+            <s-autocomplete-groups
               v-model="user.group"
               :label="$tc('group')"
               visible-icon
               :value="user.group"
+              :disabled="!organizationSelected"
+              :organization-id="organizationSelected ? organizationSelected.id : 0"
+              :rules="[rules.required]"
             />
           </v-col>
         </v-row>
@@ -317,7 +339,7 @@
               :disabled="buttonSave.disabled"
               @click="onSave"
             >
-              {{ $tc('save') }}
+              {{ $tc('add') }}
             </v-btn>
           </v-col>
         </v-row>
@@ -331,25 +353,38 @@ import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
 import { Users } from '@/api/Users'
-import RoleComboBox from '@/components/RoleComboBox/RoleComboBox.vue'
-import AutocompleteGroup from '@/components/Autocomplete/AutocompleteGroup.vue'
+import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
+import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
+import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
 
 interface Email {
   value: string;
   label: string;
 }
 
+interface DataPasswordInterface {
+  visible: boolean;
+  isValid: boolean;
+  value1: string;
+  value2: string;
+}
+
 export default Vue.extend({
   mixins: [rules, countryCodes],
   components: {
-    RoleComboBox,
-    AutocompleteGroup
+    SRoleComboBox,
+    SAutocompleteGroups,
+    SAutocompleteOrganizations
   },
+
   data () {
     return {
       password: {
-        visible: false
-      },
+        visible: false,
+        isValid: false,
+        value1: null,
+        value2: null
+      } as DataPasswordInterface,
       buttonSave: {
         disabled: false,
         loading: false
@@ -357,20 +392,35 @@ export default Vue.extend({
       form: {
         valid: false
       },
+      organizationSelected: null,
       /* eslint-disable */
       user: {
         first_name: '',
         last_name: '',
         middle_name: '',
         login: '',
-        password: '',
-        password2: '',
         email: '',
         phone: '',
         role: undefined,
         group: undefined
       }
       /* eslint-enable */
+    }
+  },
+
+  watch: {
+    // Password comparison
+    password: {
+      handler (password: DataPasswordInterface) {
+        if (password.value1 === password.value2) {
+          password.isValid = true
+          this.$refs.password1.resetValidation()
+          this.$refs.password2.resetValidation()
+          return
+        }
+        password.isValid = false
+      },
+      deep: true
     }
   },
 
@@ -392,10 +442,10 @@ export default Vue.extend({
           last_name: this.user.last_name.trim(),
           middle_name: this.user.middle_name.trim(),
           login: this.user.login.trim(),
-          password: this.user.password.trim(),
+          password: this.password.value1.trim(),
           phone: this.user.phone.trim(),
           email: this.user.email,
-          role: this.user.role ? this.user.role.id : null,
+          role: this.user.role.id,
           group_id: this.user.group ? this.user.group.id : null,
           /* eslint-enable */
         }).then(() => {
