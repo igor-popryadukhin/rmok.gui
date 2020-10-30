@@ -28,11 +28,12 @@
           <v-col
             cols="12"
           >
-            <autocomplete-user
+            <s-autocomplete-users
               v-model="userSelected"
               :selected-id="group.team_leader ? group.team_leader.id : 0"
               :search="group.team_leader ? group.team_leader.first_name : ''"
               :label="$tc('team_leader')"
+              role="r_leader_group"
             />
           </v-col>
         </v-row>
@@ -62,11 +63,11 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { GroupInterface, Groups } from '@/api/Groups'
-import AutocompleteUser from '@/components/Autocomplete/AutocompleteUser.vue'
+import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 
 export default Vue.extend({
   components: {
-    AutocompleteUser
+    SAutocompleteUsers
   },
   mixins: [rules],
 

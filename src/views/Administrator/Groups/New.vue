@@ -24,24 +24,29 @@
           </v-col>
         </v-row>
 
+        <!-- Organizations -->
         <v-row>
           <v-col
-            cols="12"
+              cols="12"
           >
-            <autocomplete-user
-              v-model="userSelected"
-              :label="$tc('team_leader')"
+            <autocomplete-organization
+                v-model="organizationSelected"
+                :label="$tc('organization')"
             />
           </v-col>
         </v-row>
 
+        <!-- Users -->
         <v-row>
           <v-col
             cols="12"
           >
-            <autocomplete-organization
-              v-model="organizationSelected"
-              :label="$tc('organization')"
+            <s-autocomplete-users
+              v-model="userSelected"
+              :label="$tc('team_leader')"
+              :disabled="!organizationSelected"
+              :organization-id="organizationSelected ? organizationSelected.id : 0"
+              role="r_leader_group"
             />
           </v-col>
         </v-row>
@@ -71,7 +76,7 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { Groups } from '@/api/Groups'
-import AutocompleteUser from '@/components/Autocomplete/AutocompleteUser.vue'
+import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import AutocompleteOrganization from '@/components/Autocomplete/AutocompleteOrganization.vue'
 
 interface Phone {
@@ -87,7 +92,7 @@ interface Email {
 
 export default Vue.extend({
   components: {
-    AutocompleteUser,
+    SAutocompleteUsers,
     AutocompleteOrganization
   },
   mixins: [rules],
