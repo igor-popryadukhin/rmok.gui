@@ -44,6 +44,8 @@
   "video": "Видео",
   "unknown_number": "Неизвестный номер",
   "organization": "Организация",
+  "add_new_user": "Добавить нового пользователя",
+  "my_projects": "Мои проекты",
 
   "titles": {
     "dashboard": "Основнаяя панель",
@@ -84,7 +86,19 @@
     "administrator_users_edit": "Редактирование пользователя",
     "administratorgroups": "Группы",
     "administrator_groups_new": "Создание новой группы",
-    "administrator_groups_edit": "Редактирование группы"
+    "administrator_groups_edit": "Редактирование группы",
+    "administrator_projects": "Проекты",
+    "administrator_projects_new": "Создание нового проекта",
+    "call_center_manager": "Руководитель КЦ",
+    "call_center_manager_reports": "Отчёты",
+    "call_center_manager_reports_recent_calls": "Статистика по последним вызовам",
+    "call_center_manager_reports_all_calls": "Статистика по всем вызовам",
+    "call_center_manager_contacts": "Контакты",
+    "call_center_manager_operators": "Операторы",
+    "call_center_manager_operators_new": "Создание нового оператора",
+    "call_center_manager_groups": "Группы",
+    "call_center_manager_group_new": "Создание новой группы",
+    "call_center_manager_group_edit": "Редактирование группы"
   },
 
   "rule_email": "Адрес электронной почты не соответсвует требованиям",

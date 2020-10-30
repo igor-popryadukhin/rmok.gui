@@ -7,6 +7,7 @@
   "group_added_successfully": "Группа успешно добавлена!",
   "group_delete_successfully": "Группа успешно удалена!",
   "group_delete_error": "Во время добавления группы произошла ошибка!\nПричина: {cause}",
+  "group_add_error": "Во время обновления группы произошла ошибка!\nПричина: {cause}",
   "group_update_error": "Во время обновления группы произошла ошибка!\nПричина: {cause}",
   "confirm_group_deletion": "Подтверждаете удаление группы?"
 }
