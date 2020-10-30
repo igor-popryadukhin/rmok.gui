@@ -93,6 +93,7 @@ export default Vue.extend({
       usersSearchDebounce: debounce((q: string, context: any) => {
         if (!context.disabled) {
           context.loading = true
+          context.users = []
           new Users()
             .find(q, this.role, context.organizationId)
             .then(({ items }) => {
