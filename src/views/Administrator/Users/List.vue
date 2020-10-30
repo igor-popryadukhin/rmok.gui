@@ -8,14 +8,6 @@
           flat
           class="pl-3"
         >
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on }">
-              <v-checkbox
-                v-on="on"
-              />
-            </template>
-            <span>{{ $tc('select_all_contacts') }}</span>
-          </v-tooltip>
           <v-spacer />
           <!-- Add new user -->
           <v-tooltip bottom max-width="400">
@@ -61,10 +53,6 @@
                 ripple
                 selectable
               >
-                <v-list-item-action>
-                  <v-checkbox
-                  ></v-checkbox>
-                </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>
                     {{ item.first_name }} {{ item.last_name }}
