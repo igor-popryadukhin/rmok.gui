@@ -29,7 +29,7 @@
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
-            <span>{{ $tc('add_user') }}</span>
+            <span>{{ $tc('add_new_user') }}</span>
           </v-tooltip>
           <v-tooltip bottom max-width="400">
             <template v-slot:activator="{ on, attrs }">
@@ -77,6 +77,11 @@
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer />
+                <v-list-item-group v-if="item.project">
+                  <v-list-item-title>
+                    {{ item.project.name }}
+                  </v-list-item-title>
+                </v-list-item-group>
                 <v-list-item-action>
                   <v-menu offset-y>
                     <template v-slot:activator="{ on, attrs }">
@@ -156,7 +161,7 @@ export default Vue.extend({
   created () {
     this.organizationsProcessLoading = true
     new Users()
-      .findUsers()
+      .find()
       .then((users: any) => {
         this.users = users.items
       }).finally(() => {

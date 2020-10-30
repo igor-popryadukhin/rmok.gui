@@ -64,7 +64,7 @@
           </v-col>
         </v-row>
 
-        <!--  -->
+        <!-- Credentials -->
         <v-row>
           <v-col
             cols="12"
@@ -75,7 +75,7 @@
               v-model="user.login"
               :label="$tc('login')"
               :rules="[rules.required]"
-              autocomplete="new-password"
+              autocomplete="new-login"
             >
               <template
                 v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
@@ -91,10 +91,12 @@
             md="4"
           >
             <v-text-field
-              v-model="user.password"
+              ref="password1"
+              v-model="password.value1"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[]"
+              :rules="[ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+              :success="password.isValid"
               required
               autocomplete="new-password"
             >
@@ -124,10 +126,12 @@
             md="4"
           >
             <v-text-field
-              v-model="user.password2"
+              ref="password2"
+              v-model="password.value2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[]"
+              :rules="[ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+              :success="password.isValid"
               required
               autocomplete="new-password"
             >
@@ -163,7 +167,7 @@
             <v-text-field
               v-model="user.email"
               :label="$tc('email')"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.email]"
               autocomplete="new-email"
             >
               <template
@@ -183,7 +187,7 @@
               v-model="user.phone"
               :label="$tc('phone')"
               type="tel"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.phone_number]"
               required
             >
               <template
@@ -201,12 +205,44 @@
           <v-col
             cols="12"
           >
-            <role-combo-box
+            <s-role-combo-box
               v-model="user.role"
               :label="$tc('role')"
               visible-icon
-              :value="user.role"
+              :value="user.role ? user.role : null"
+              :rules="[rules.required]"
             />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col
+              cols="12"
+          >
+            <v-text-field
+              v-if="user.organization"
+              :value="user.organization.name"
+              disabled
+            >
+              <template
+                v-slot:prepend
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              >
+                <v-icon class="pl-5 pr-9">mdi-office-building</v-icon>
+              </template>
+            </v-text-field>
+            <v-text-field
+              v-else
+              :value="$t('loading_data')"
+              disabled
+            >
+              <template
+                v-slot:prepend
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              >
+                <v-icon class="pl-5 pr-9">mdi-office-building</v-icon>
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
 
@@ -215,11 +251,20 @@
           <v-col
             cols="12"
           >
-            <autocomplete-group
-              v-model="user.group"
+            <s-autocomplete-groups
+                v-if="user.group"
+                v-model="groupSelected"
+                :label="$tc('group')"
+                visible-icon
+                :rules="[rules.required]"
+                :selected-id="user.group ? user.group.id : 0"
+                :organization-id="user.organization ? user.organization.id : 0"
+                :visible-organization-name="false"
+            />
+            <s-autocomplete-groups
+              v-else
               :label="$tc('group')"
               visible-icon
-              :value="user.group"
             />
           </v-col>
         </v-row>
@@ -332,26 +377,40 @@ import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
 import { UserInterface, Users } from '@/api/Users'
-import RoleComboBox from '@/components/RoleComboBox/RoleComboBox.vue'
-import AutocompleteGroup from '@/components/Autocomplete/AutocompleteGroup.vue'
+import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
+import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
 
 interface Email {
   value: string;
   label: string;
 }
 
+interface DataPasswordInterface {
+  visible: boolean;
+  isValid: boolean;
+  value1: string;
+  value2: string;
+  isEmpty: () => boolean;
+}
+
 export default Vue.extend({
   mixins: [rules, countryCodes],
   components: {
-    RoleComboBox,
-    AutocompleteGroup
+    SRoleComboBox,
+    SAutocompleteGroups
   },
 
   data () {
     return {
       password: {
-        visible: false
-      },
+        visible: false,
+        isValid: true,
+        value1: null,
+        value2: null,
+        isEmpty (): boolean {
+          return Boolean(!this.value1 && !this.value2)
+        }
+      } as DataPasswordInterface,
       buttonSave: {
         disabled: false,
         loading: false
@@ -359,6 +418,8 @@ export default Vue.extend({
       form: {
         valid: false
       },
+      organizationSelected: null,
+      groupSelected: null,
       /* eslint-disable */
       user: {
         id: 0,
@@ -375,6 +436,23 @@ export default Vue.extend({
         organization: null
       } as UserInterface
       /* eslint-enable */
+    }
+  },
+
+  watch: {
+    // Password comparison
+    password: {
+      handler (password: DataPasswordInterface) {
+        console.log(this.password.isEmpty())
+        if (password.value1 === password.value2) {
+          password.isValid = true
+          this.$refs.password1.resetValidation()
+          this.$refs.password2.resetValidation()
+          return
+        }
+        password.isValid = false
+      },
+      deep: true
     }
   },
 
@@ -397,25 +475,32 @@ export default Vue.extend({
         return
       }
       this.buttonSave.loading = true
+
+      // Data for update
+      const data = {
+        /* eslint-disable */
+        first_name: this.user.first_name.trim(),
+        last_name: this.user.last_name.trim(),
+        middle_name: this.user.middle_name.trim(),
+        login: this.user.login.trim(),
+        password: this.password.value1,
+        phone: this.user.phone.trim(),
+        email: this.user.email,
+        role: this.user.role.id,
+        group_id: this.groupSelected ? this.groupSelected.id : null,
+        /* eslint-enable */
+      }
+
+      // Delete password if is empty
+      if (this.password.isEmpty()) {
+        delete data.password
+      }
+
       new Users()
-        .add({
-          /* eslint-disable */
-          first_name: this.user.first_name.trim(),
-          last_name: this.user.last_name.trim(),
-          middle_name: this.user.middle_name.trim(),
-          login: this.user.login.trim(),
-          password: this.user.password.trim(),
-          phone: this.user.phone.trim(),
-          email: this.user.email,
-          role: this.user.role ? this.user.role.id : null,
-          group_id: this.user.group ? this.user.group.id : null,
-          /* eslint-enable */
-        }).then(() => {
-          this.resetForm()
+        .update(+this.$route.params.id, data).then(() => {
           this.$toast.success(this.$tc('user_added_successfully'))
         }).catch((e) => {
-          const cause: string = e.statusText || e.error_message || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_added_the_user', { cause }))
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

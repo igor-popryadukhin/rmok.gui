@@ -446,7 +446,8 @@ export default Vue.extend({
           phone: this.user.phone.trim(),
           email: this.user.email,
           role: this.user.role.id,
-          group_id: this.user.group ? this.user.group.id : null,
+          organization_id: this.organizationSelected.id,
+          group_id: this.user.group.id,
           /* eslint-enable */
         }).then(() => {
           this.resetForm()
