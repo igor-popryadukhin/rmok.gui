@@ -51,6 +51,10 @@ export default Vue.extend({
     }
   },
 
+  beforeCreate () {
+    this.$store.dispatch('profile/loadProfile')
+  },
+
   created () {
     new Configurations()
       .getATEConfigurations()
