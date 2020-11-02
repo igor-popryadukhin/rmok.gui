@@ -94,7 +94,7 @@
               v-model="user.password"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[]"
+              :rules="[rules.required]"
               required
               autocomplete="new-password"
             >
@@ -127,7 +127,7 @@
               v-model="user.password2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[]"
+              :rules="[rules.required]"
               required
               autocomplete="new-password"
             >
@@ -205,7 +205,6 @@
               v-model="user.role"
               :label="$tc('role')"
               visible-icon
-              :value="user.role"
             />
           </v-col>
         </v-row>
@@ -220,6 +219,8 @@
               :label="$tc('group')"
               visible-icon
               :value="user.group"
+              :visible-organization-name="false"
+              auto-load
             />
           </v-col>
         </v-row>
@@ -331,7 +332,7 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
-import { UserInterface, Users } from '@/api/Users'
+import { Users } from '@/api/Users'
 import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
 import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
 
@@ -346,7 +347,6 @@ export default Vue.extend({
     SRoleComboBox,
     SAutocompleteGroups
   },
-
   data () {
     return {
       password: {
@@ -361,7 +361,6 @@ export default Vue.extend({
       },
       /* eslint-disable */
       user: {
-        id: 0,
         first_name: '',
         last_name: '',
         middle_name: '',
@@ -370,20 +369,11 @@ export default Vue.extend({
         password2: '',
         email: '',
         phone: '',
-        role: null,
-        group: null,
-        organization: null
-      } as UserInterface
+        role: undefined,
+        group: undefined
+      }
       /* eslint-enable */
     }
-  },
-
-  created () {
-    new Users()
-      .getById(+this.$route.params.id)
-      .then((user: UserInterface) => {
-        this.user = user
-      })
   },
 
   methods: {
@@ -414,8 +404,7 @@ export default Vue.extend({
           this.resetForm()
           this.$toast.success(this.$tc('user_added_successfully'))
         }).catch((e) => {
-          const cause: string = e.statusText || e.error_message || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_added_the_user', { cause }))
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

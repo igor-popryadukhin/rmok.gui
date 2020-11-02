@@ -8,21 +8,13 @@
           flat
           class="pl-3"
         >
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on }">
-              <v-checkbox
-                v-on="on"
-              />
-            </template>
-            <span>{{ $tc('select_all_contacts') }}</span>
-          </v-tooltip>
           <v-spacer />
           <!-- Add new user -->
           <v-tooltip bottom max-width="400">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
-                :to="{ name: 'administrator_users_new' }"
+                :to="{ name: 'call_center_manager_users_new' }"
                 v-on="on"
                 v-bind="attrs"
               >
@@ -30,18 +22,6 @@
               </v-btn>
             </template>
             <span>{{ $tc('add_new_user') }}</span>
-          </v-tooltip>
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </template>
-            <span>{{ $tc('delete_selected_contacts') }}</span>
           </v-tooltip>
         </v-toolbar>
       </v-card-text>
@@ -61,10 +41,6 @@
                 ripple
                 selectable
               >
-                <v-list-item-action>
-                  <v-checkbox
-                  ></v-checkbox>
-                </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>
                     {{ item.first_name }} {{ item.last_name }}
@@ -96,7 +72,7 @@
                     </template>
                     <v-list>
                       <v-list-item
-                        :to="{ name: 'administrator_users_edit', params: { id: item.id } }"
+                        :to="{ name: 'call_center_manager_users_edit', params: { id: item.id } }"
                         link
                       >
                         <v-list-item-icon>
