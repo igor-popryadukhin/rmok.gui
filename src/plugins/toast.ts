@@ -13,5 +13,5 @@ Vue.use(Toast, {
   showCloseButtonOnHover: true,
   hideProgressBar: true,
   closeButton: 'button',
-  timeout: 3000
+  timeout: 4500
 })

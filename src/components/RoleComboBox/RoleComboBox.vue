@@ -23,7 +23,7 @@ import Vue from 'vue'
 import { RoleInterface } from '@/api/Roles'
 
 export default Vue.extend({
-  name: 'RoleComboBox',
+  name: 'SRoleComboBox',
   model: {
     prop: 'selected',
     event: 'change'

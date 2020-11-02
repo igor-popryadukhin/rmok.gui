@@ -1,3 +1,3 @@
 export interface CheckedInterface {
-  checked: boolean
+  checked: boolean;
 }

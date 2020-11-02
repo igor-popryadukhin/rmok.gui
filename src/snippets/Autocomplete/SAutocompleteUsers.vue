@@ -1,5 +1,6 @@
 <template>
   <v-autocomplete
+      ref="autocomplete"
     v-model="selected"
     :items="users"
     :search-input.sync="usersSearchQuery"
@@ -10,6 +11,8 @@
     :loading="loading"
     :no-data-text="$t('empty')"
     :disabled="disabled"
+    :chips="multiple"
+    :multiple="multiple"
   >
     <template
       v-slot:prepend
@@ -17,10 +20,32 @@
     >
       <v-icon class="pl-5 pr-9">mdi-account-tie</v-icon>
     </template>
-    <template v-slot:selection="{ attr, on, item }">
-      <span>{{ item.first_name }} {{ item.last_name }}</span>
+    <template v-slot:selection="{ selected, item }">
+      <template v-if="multiple">
+        <v-chip
+          :selected="selected"
+          close
+          color="#af2db1"
+          text-color="white"
+          class="pl-1 pr-2"
+          label
+          @click:close="onChipRemove(item.id)"
+        >
+          <v-avatar
+            v-if="item.first_name && item.last_name"
+            style="margin-right: 5px; border: white 1px solid; font-size: 11px"
+          >
+            {{ item.first_name.charAt(0) }}{{ item.last_name.charAt(0) }}
+          </v-avatar>
+          {{ item.first_name }} {{ item.last_name }}
+        </v-chip>
+      </template>
+      <template v-else>
+        <span>{{ item.first_name }} {{ item.last_name }}</span>
+      </template>
     </template>
-    <template v-slot:item="{ item }">
+    <template v-slot:item="{ parent, item }">
+      {{ parent.selected }}
       <v-list-item-avatar
         color="indigo"
         class="headline font-weight-light white--text"
@@ -45,7 +70,7 @@ import { UserInterface, Users } from '@/api/Users'
 export default Vue.extend({
   name: 'SAutocompleteUsers',
   model: {
-    prop: 'selected',
+    prop: 'value',
     event: 'change'
   },
   props: {
@@ -80,6 +105,18 @@ export default Vue.extend({
     disabled: {
       type: Boolean,
       default: false
+    },
+    value: {
+      type: [Object, Array],
+      default: null
+    },
+    selectOnClear: {
+      type: Boolean,
+      default: false
+    },
+    multiple: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -87,7 +124,7 @@ export default Vue.extend({
     return {
       loading: false,
       selectOnce: false,
-      selected: null,
+      selected: null as any[] | any,
       usersSearchQuery: null as null | string,
       usersProcessLoading: false,
       usersSearchDebounce: debounce((q: string, context: any) => {
@@ -126,8 +163,29 @@ export default Vue.extend({
     }
   },
 
+  mounted () {
+    this.$on('change', this.onSelected)
+  },
+
   created () {
     this.usersSearchQuery = this.search
+  },
+
+  beforeDestroy () {
+    this.$off('change', this.onSelected)
+  },
+
+  methods: {
+    onSelected (data: any) {
+      this.selected = data
+    },
+
+    onChipRemove (id: number) {
+      if (Array.isArray(this.selected)) {
+        const index = this.selected.findIndex((e) => e.id === id)
+        if (index >= 0) this.selected.splice(index, 1)
+      }
+    }
   }
 })
 </script>

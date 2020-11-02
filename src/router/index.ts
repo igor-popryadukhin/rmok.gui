@@ -3,7 +3,8 @@ import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
-import role from '@/middleware/role'
+import roleAdmin from '@/middleware/roleAdmin'
+import roleRCC from '@/middleware/roleRCC'
 import store from '@/store'
 
 Vue.use(VueRouter)
@@ -213,7 +214,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           },
           {
@@ -223,7 +224,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               store.dispatch('system/country_codes').finally(next)
@@ -236,7 +237,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               store.dispatch('system/country_codes').finally(next)
@@ -245,7 +246,7 @@ const routes: RouteConfig[] = [
         ],
         meta: {
           layout: 'administrator',
-          middleware: []
+          middleware: [roleAdmin]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           // todo: Solve the question of how we will change the locale
@@ -263,7 +264,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           },
           {
@@ -272,7 +273,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Users/New.vue'),
             meta: {
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           },
           {
@@ -281,13 +282,13 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit.vue'),
             meta: {
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           }
         ],
         meta: {
           layout: 'administrator',
-          middleware: []
+          middleware: [roleAdmin]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           // todo: Solve the question of how we will change the locale
@@ -305,7 +306,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           },
           {
@@ -314,7 +315,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Groups/New.vue'),
             meta: {
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           },
           {
@@ -323,13 +324,13 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Groups/Edit.vue'),
             meta: {
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           }
         ],
         meta: {
           layout: 'administrator',
-          middleware: []
+          middleware: [roleAdmin]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           // todo: Solve the question of how we will change the locale
@@ -395,11 +396,194 @@ const routes: RouteConfig[] = [
           layout: 'default',
           middleware: []
         }
+      },
+      {
+        path: 'projects',
+        name: 'administrator_projects',
+        component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/Layout.vue'),
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "administrator-projects-list" */ '../views/Administrator/Projects/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: [roleAdmin]
+            }
+          },
+          {
+            path: 'new',
+            name: 'administrator_projects_new',
+            component: () => import(/* webpackChunkName: "administrator-projects-new" */ '../views/Administrator/Projects/New.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: [roleAdmin]
+            }
+          }
+        ],
+        meta: {
+          layout: 'administrator',
+          middleware: [roleAdmin]
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'projects').then(() => next())
+        }
       }
     ],
     meta: {
       layout: 'administrator',
-      middleware: [role]
+      middleware: [roleAdmin]
+    },
+    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
+      store.dispatch('system/roles').then()
+      loadLanguageAsync('ru', 'administrator').then(() => next())
+    }
+  },
+
+  /** Call center manager */
+  {
+    path: '/call-center-manager',
+    name: 'call_center_manager',
+    component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Layout.vue'),
+    children: [
+      {
+        path: 'reports',
+        name: 'call_center_manager_reports',
+        component: () => import(/* webpackChunkName: "call-center-manager-reports" */ '../views/CallCenterManage/Reports/Layout.vue'),
+        children: [
+          {
+            path: 'recent-calls',
+            name: 'call_center_manager_reports_recent_calls',
+            component: () => import(/* webpackChunkName: "call-center-manager-reports-recent-calls" */ '../views/CallCenterManage/Reports/RecentCalls.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            path: 'all-calls',
+            name: 'call_center_manager_reports_all_calls',
+            component: () => import(/* webpackChunkName: "call-center-manager-reports-all-calls" */ '../views/CallCenterManage/Reports/AllCalls.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          }
+        ],
+        meta: {
+          layout: 'call-center-manager',
+          middleware: [roleRCC]
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          next()
+        }
+      },
+      {
+        path: 'contacts',
+        name: 'call_center_manager_contacts',
+        component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/Layout.vue'),
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          }
+        ],
+        meta: {
+          layout: 'call-center-manager',
+          middleware: []
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          next()
+        }
+      },
+      {
+        path: 'operators',
+        name: 'call_center_manager_operators',
+        component: () => import(/* webpackChunkName: "call-center-manager-operators" */ '../views/CallCenterManage/Operators/Layout.vue'),
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "call-center-manager-operators" */ '../views/CallCenterManage/Operators/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            path: 'new',
+            name: 'call_center_manager_operators_new',
+            component: () => import(/* webpackChunkName: "call-center-manager-operators-new" */ '../views/CallCenterManage/Operators/New.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          }
+        ],
+        meta: {
+          layout: 'call-center-manager',
+          middleware: []
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          next()
+        }
+      },
+      {
+        path: 'groups',
+        name: 'call_center_manager_groups',
+        component: () => import(/* webpackChunkName: "call-center-manager-groups" */ '../views/CallCenterManage/Groups/Layout.vue'),
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "call-center-manager-group-list" */ '../views/CallCenterManage/Groups/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            path: 'new',
+            name: 'call_center_manager_group_new',
+            component: () => import(/* webpackChunkName: "call-center-manager-group-new" */ '../views/CallCenterManage/Groups/New.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            path: ':id',
+            name: 'call_center_manager_group_edit',
+            component: () => import(/* webpackChunkName: "call-center-manager-group-edit" */ '../views/CallCenterManage/Groups/Edit.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          }
+        ],
+        meta: {
+          layout: 'call-center-manager',
+          middleware: []
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'groups').then(() => next())
+        }
+      }
+    ],
+    meta: {
+      layout: 'call-center-manager',
+      middleware: [roleRCC]
     },
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale

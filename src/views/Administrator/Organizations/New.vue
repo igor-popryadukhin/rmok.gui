@@ -47,7 +47,10 @@
               required
               :rules="[rules.email, rules.max_256]"
             >
-              <template v-slot:prepend>
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
                 <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-email</v-icon>
                 <v-spacer v-else class="pl-10 pr-10"></v-spacer>
               </template>
@@ -60,97 +63,33 @@
               v-model="email.label"
               :label="$tc('label')"
               :rules="[rules.max_50]"
-            ><template v-slot:append-outer>
-              <v-btn
-                v-if="(organization.emails.length - 1) === key"
-                icon
-                @click="onAddEmailClick()"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-              <v-btn
-                v-else
-                icon
-                color="red"
-                @click="onDeleteEmailClick(key)"
-              >
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </template>
+            >
+              <template v-slot:append-outer>
+                <v-btn
+                  v-if="(organization.emails.length - 1) === key"
+                  icon
+                  @click="onAddEmailClick()"
+                >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+                <v-btn
+                  v-else
+                  icon
+                  color="red"
+                  @click="onDeleteEmailClick(key)"
+                >
+                  <v-icon>mdi-minus</v-icon>
+                </v-btn>
+              </template>
             </v-text-field>
           </v-col>
         </v-row>
 
         <!-- Phones -->
-        <v-row
-          v-for="(phone, key) in organization.phones"
-          :key="`phone-${key}`"
-        >
-          <v-col
-            cols="3"
-            lg="3"
-          >
-            <v-combobox
-              v-model="phone.code"
-              :items="countryCodes"
-              cache-items
-              :return-object="false"
-              item-text="name"
-              item-value="code"
-              :label="$tc('country_code')"
-              :rules="[rules.required]"
-            >
-              <template v-slot:prepend>
-                <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-phone</v-icon>
-                <v-spacer v-else class="pl-10 pr-10"></v-spacer>
-              </template>
-            </v-combobox>
-          </v-col>
-          <v-col
-            cols="3"
-            lg="3"
-          >
-            <v-text-field
-              v-model="phone.value"
-              :label="$tc('phone')"
-              :rules="[
-                rules.required,
-                ruleDynamic(/^\d+/i).regex,
-                ruleDynamic(10, 'Номер телефона должен содержать более 9 символов').min
-                ]"
-            >
-              <template v-slot:prepend-inner>
-                <div style="color: #848484; margin: inherit">{{ phone.code }}</div>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="6"
-          >
-            <v-text-field
-              v-model="phone.label"
-              :label="$tc('label')"
-              :rules="[rules.max_50]"
-            ><template v-slot:append-outer>
-              <v-btn
-                v-if="(organization.phones.length - 1) === key"
-                icon
-                @click="onAddPhoneClick"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-              <v-btn
-                v-else
-                icon
-                color="red"
-                @click="onDeletePhoneClick(key)"
-              >
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
+        <s-phone-numbers
+          v-model="phoneNumbers"
+          :items="organization.phones"
+        />
 
         <!-- Site -->
         <v-row>
@@ -163,7 +102,10 @@
               :placeholder="$tc('site_placeholder')"
               :rules="[ruleDynamic('[a-zа-я._-]+', $t('rule_only', {val: 'a-zа-я._-'} )).regex]"
             >
-              <template v-slot:prepend>
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
                 <v-icon class="pl-5 pr-9">mdi-web</v-icon>
               </template>
               <template v-slot:prepend-inner>
@@ -191,7 +133,10 @@
                 ]"
               counter
             >
-              <template v-slot:prepend>
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
                 <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
               </template>
             </v-text-field>
@@ -212,7 +157,10 @@
                 ]"
               counter
             >
-              <template v-slot:prepend v-if="['xs', 'sm'].includes($vuetify.breakpoint.name)">
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
                 <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
               </template>
             </v-text-field>
@@ -236,7 +184,10 @@
               disable-lookup
               multiple
             >
-              <template v-slot:prepend>
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
                 <v-icon class="pl-5 pr-9">mdi-tag-multiple</v-icon>
               </template>
             </v-combobox>
@@ -248,47 +199,14 @@
           <v-col
             cols="12"
           >
-            <v-autocomplete
+            <s-autocomplete-users
               v-model="organization.responsible"
-              :items="responsibles"
-              :loading="responsiblesProcessLoading"
-              :search-input.sync="responsiblesSearchQuery"
-              no-filter
-              hide-no-data
-              hide-selected
-              persistent-hint
+              :selected-id="organization.responsible ? organization.responsible.id: 0"
+              visible-icon
               :rules="[rules.required]"
               :label="$tc('responsible')"
-            >
-              <template v-slot:prepend>
-                <v-icon class="pl-5 pr-9">mdi-account-tie</v-icon>
-              </template>
-              <template v-slot:no-data>
-                <v-list-item>
-                  <v-list-item-title>
-                    {{ $tc('start_typing_your_search_term') }}
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
-              <template v-slot:selection="{ attr, on, item, selected }">
-                <span>{{ item.first_name }} {{ item.last_name }}</span>
-              </template>
-              <template v-slot:item="{ item }">
-                <v-list-item-avatar
-                  color="indigo"
-                  class="headline font-weight-light white--text"
-                >
-                  {{ item.first_name.charAt(0) }}
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-                  <v-list-item-subtitle
-                    v-if="item.role"
-                    v-text="item.role.name"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
-              </template>
-            </v-autocomplete>
+              role="r_leader_cc"
+            />
           </v-col>
         </v-row>
 
@@ -302,7 +220,10 @@
               :rules="[rules.max_3000]"
               counter
             >
-              <template v-slot:prepend>
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
                 <v-icon class="pl-5 pr-9">mdi-bag-checked</v-icon>
               </template>
             </v-textarea>
@@ -334,10 +255,15 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { isEmpty } from '@/Utils'
-import countryCodes from '@/mixins/countryCodes'
-import { Organizations, Responsible, OrganizationTagInterface } from '@/api/Organizations'
-import { Users } from '@/api/Users'
-import { debounce } from 'vuetify/src/util/helpers'
+import {
+  OrganizationInterface,
+  Organizations,
+  Responsible,
+  OrganizationTagInterface, OrganizationPhoneInterface, OrganizationEmailInterface
+} from '@/api/Organizations'
+import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
+import SPhoneNumbers from '@/snippets/SPhoneNumbers/SPhoneNumbers.vue'
+import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 
 interface Phone {
   code: string;
@@ -351,8 +277,11 @@ interface Email {
 }
 
 export default Vue.extend({
-  mixins: [rules, countryCodes],
-
+  mixins: [rules],
+  components: {
+    SAutocompleteUsers,
+    SPhoneNumbers
+  },
   data () {
     return {
       regExPatterns: {
@@ -366,19 +295,7 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
-      tags: [] as OrganizationTagInterface[],
-      responsiblesProcessLoading: false,
-      responsiblesSearchQuery: '',
-      responsiblesSearchDebounce: debounce((q: string) => {
-        this.responsiblesProcessLoading = true
-        new Users().findUsers(q, this.$store.getters['profile/role_id'])
-          .then(({ count, items }) => {
-            this.responsibles = items
-          }).finally(() => {
-          this.responsiblesProcessLoading = false
-        })
-      }, 350),
-      responsibles: [] as Responsible[],
+      phoneNumbers: [] as PhoneNumberInterface[],
       organization: {
         name: '',
         site: '',
@@ -393,7 +310,9 @@ export default Vue.extend({
         ],
         phones: [
           {
-            code: '',
+            id: 0,
+            country_code: 'RU',
+            country_calling_code: '7',
             value: '',
             label: ''
           }
@@ -404,14 +323,9 @@ export default Vue.extend({
           last_name: ''
         } as Responsible,
         tags: [] as OrganizationTagInterface[]
-      }
+      } as OrganizationInterface,
+      tags: [] as OrganizationTagInterface[]
       /* eslint-enable */
-    }
-  },
-
-  watch: {
-    responsiblesSearchQuery (val: string) {
-      this.responsiblesSearchDebounce(val)
     }
   },
 
@@ -422,17 +336,19 @@ export default Vue.extend({
         this.tags = tags
       })
   },
-
   methods: {
 
     /**
      * Fired when an clicked on the add email button
      */
     onAddEmailClick () {
+      if (!this.organization.emails) {
+        this.organization.emails = []
+      }
       this.organization.emails.push({
         value: '',
         label: ''
-      } as Email)
+      } as OrganizationEmailInterface)
     },
 
     /**
@@ -440,18 +356,26 @@ export default Vue.extend({
      * @param index
      */
     onDeleteEmailClick (index: number) {
-      this.organization.emails.splice(index, 1)
+      if (this.organization.emails) {
+        this.organization.emails.splice(index, 1)
+      }
     },
 
     /**
      * Fired when an clicked on the add phone number button
      */
     onAddPhoneClick () {
+      /* eslint-disable */
+      if (!this.organization.phones) {
+        this.organization.phones = []
+      }
       this.organization.phones.push({
-        country: null,
+        id: 0,
+        country_code: '',
+        country_calling_code: '',
         value: '',
         label: ''
-      } as Phone)
+      } as OrganizationPhoneInterface)
     },
 
     /**
@@ -459,17 +383,27 @@ export default Vue.extend({
      * @param index
      */
     onDeletePhoneClick (index: number) {
-      this.organization.phones.splice(index, 1)
+      if (this.organization.phones) {
+        this.organization.phones.splice(index, 1)
+      }
     },
 
     resetForm () {
+      /* eslint-disable */
       this.$refs.form.reset()
       this.organization.tags = []
       this.organization.emails = []
       this.organization.phones = []
 
-      this.organization.phones.push({ code: '', value: '', label: '' } as Phone)
-      this.organization.emails.push({ value: '', label: '' } as Email)
+      this.organization.phones.push({
+        id: 0,
+        country_code: '',
+        country_calling_code: '',
+        value: '',
+        label: ''
+      })
+      this.organization.emails.push({ value: '', label: '' })
+      /* eslint-enable */
     },
 
     onSave () {
@@ -492,24 +426,29 @@ export default Vue.extend({
                 value: email.value
               }
             }),
-          phones: this.organization.phones
-            .filter((e: Phone) => !(isEmpty(e.value) && isEmpty(e.label) && isEmpty(e.code)))
-            .map((phone: Phone) => { return { code: phone.code, label: phone.label, value: phone.value }}),
+          phones: this.phoneNumbers
+            .map((phone) => {
+              return {
+                country_code: phone.country_code,
+                country_calling_code: phone.country_calling_code,
+                label: phone.label,
+                value: phone.value
+              }
+            }),
           sphere_activity: this.organization.sphere_activity || null,
-          tags: this.organization.tags.map((tag: OrganizationTagInterface | string) => {
+          tags: this.organization.tags ? this.organization.tags.map((tag: OrganizationTagInterface | string) => {
             if (typeof tag === 'object') {
               return tag.id
             }
             return tag
-          }),
+          }) : [],
           responsible: this.organization.responsible ? this.organization.responsible.id : 0 // 0 = Без ответсвенного
           /* eslint-enable */
         }).then(() => {
           this.resetForm()
-          this.$toast.success(this.$tc('contact_saved_successfully'))
+          this.$toast.success(this.$tc('organization_saved_successfully'))
         }).catch((e) => {
-          const cause: string = e.statusText || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_saving_the_contact', { cause }))
+          this.$toast.error(e.statusText || e.message || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

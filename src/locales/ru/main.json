@@ -46,6 +46,7 @@
   "organization": "Организация",
   "add_new_user": "Добавить нового пользователя",
   "my_projects": "Мои проекты",
+  "passwords_do_not_match": "Пароли не совпадают",
 
   "titles": {
     "dashboard": "Основнаяя панель",

@@ -8,7 +8,7 @@ const users: any = Vue.extend({
       usersSearchQuery: null,
       usersProcessLoading: false,
       usersSearchDebounce: debounce((q: string) => {
-        new Users().findUsers(q)
+        new Users().find(q)
           .then(({ count, items }) => {
             (this as any).users = items
           })

@@ -56,6 +56,7 @@ export const profile = {
     middle_name (state: ProfileInterface) { return state.middle_name },
     login (state: ProfileInterface) { return state.login },
     email (state: ProfileInterface) { return state.email },
+    project (state: ProfileInterface) { return state.email },
     role (state: ProfileInterface) { return state.role },
     role_id (state: ProfileInterface) { return state.role.id },
     role_is_operator (state: ProfileInterface) { return state.role.id === 'r_operator' },

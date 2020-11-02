@@ -85,7 +85,7 @@ export default Vue.extend({
       usersProcessLoading: false,
       usersSearchDebounce: debounce((q: string, context: any) => {
         context.loading = true
-        new Users().findUsers(q)
+        new Users().find(q)
           .then(({ items }) => {
             context.users = items
 

@@ -27,6 +27,27 @@
         style="max-width: 400px"
         dense
       ></v-text-field>
+
+      <!-- If this is operator role then showing button my project -->
+      <v-tooltip
+        v-if="$store.getters['profile/role_is_operator']"
+        bottom
+        max-width="400"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            class="mr-1"
+            v-on="on"
+            v-bind="attrs"
+            @click="onMyProjectsButtonClick"
+          >
+            <v-icon>mdi-projector-screen</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('my_projects') }}</span>
+      </v-tooltip>
+
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -89,7 +110,7 @@
         </template>
         <span>{{ $tc('route.help') }}</span>
       </v-tooltip>
-      <template v-if="$store.getters['profile/role'].id === 'admin'">
+      <template v-if="$store.getters['profile/role_is_admin']">
         <v-tooltip
           bottom
           max-width="400"
@@ -107,6 +128,26 @@
             </v-btn>
           </template>
           <span>{{ $tc('route.administrator') }}</span>
+        </v-tooltip>
+      </template>
+      <template v-if="$store.getters['profile/role_is_leader_cc']">
+        <v-tooltip
+          bottom
+          max-width="400"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              color="#FFEB3B"
+              :to="{ name: 'call_center_manager' }"
+              class="mr-1"
+              v-on="on"
+              v-bind="attrs"
+            >
+              <v-icon>mdi-police-badge</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $tc('route.call_center_manager') }}</span>
         </v-tooltip>
       </template>
       <v-menu offset-y>
@@ -167,6 +208,7 @@
       <v-container
         class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-2 pr-2"
       >
+        {{ projects }}
         <vue-scroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
           <v-fade-transition hide-on-leave>
             <router-view/>
@@ -181,6 +223,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
+import { Projects } from '@/api/Projects'
+import PhoneNumbers from '@/components/PhoneNumbers/PhoneNumbers'
 
 export default Vue.extend({
   props: {
@@ -224,7 +268,8 @@ export default Vue.extend({
         text: 'Contacts',
         to: ''
       }
-    ]
+    ],
+    projects: []
   }),
 
   // watch: {
@@ -240,6 +285,25 @@ export default Vue.extend({
       const first: string = this.$store.getters['profile/first_name'] || ''
       const last: string = this.$store.getters['profile/last_name'] || ''
       return first.charAt(0) + last.charAt(0)
+    }
+  },
+
+  created () {
+    new Projects()
+      .find()
+      .then((projects) => {
+        this.projects = projects.items
+      })
+  },
+
+  methods: {
+    onMyProjectsButtonClick () {
+      this.$dialog.show(PhoneNumbers)
+      new Projects()
+        .find()
+        .then((projects) => {
+          this.projects = projects.items
+        })
     }
   }
 })

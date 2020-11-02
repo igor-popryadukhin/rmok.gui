@@ -13,7 +13,7 @@ module.exports = {
     ecmaVersion: 2020
   },
   rules: {
-    "no-control-regex": "off",
+    'no-control-regex': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/naming-convention': [
@@ -26,11 +26,11 @@ module.exports = {
           'PascalCase',
           'StrictPascalCase',
           'snake_case',
-          'UPPER_CASE',
+          'UPPER_CASE'
         ],
         leadingUnderscore: 'allow',
-        trailingUnderscore: 'allow',
-      },
+        trailingUnderscore: 'allow'
+      }
     ]
   }
 }

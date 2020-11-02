@@ -26,6 +26,10 @@ const promises: any[] = []
 /* eslint-disable */
 // @ts-ignore
 _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+
+  // todo: set locale optional
+  config.headers.Language = 'ru'
+
   if (isRefreshTokenProcess) {
     console.log('%c%s', 'color: red;', `Запрос ${config.url} ожидает обновление токена...`)
     promises.push(new Promise(async (resolve) => {

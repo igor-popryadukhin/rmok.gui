@@ -199,7 +199,7 @@
           <v-col
             cols="12"
           >
-            <autocomplete-user
+            <s-autocomplete-users
               v-model="organization.responsible"
               :selected-id="organization.responsible ? organization.responsible.id: 0"
               visible-icon
@@ -260,7 +260,7 @@ import {
   Responsible,
   OrganizationTagInterface, OrganizationPhoneInterface, OrganizationEmailInterface
 } from '@/api/Organizations'
-import AutocompleteUser from '@/components/Autocomplete/AutocompleteUser.vue'
+import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import PhoneNumbers from '@/components/PhoneNumbers/PhoneNumbers.vue'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 
@@ -278,7 +278,7 @@ interface Email {
 export default Vue.extend({
   mixins: [rules],
   components: {
-    AutocompleteUser,
+    SAutocompleteUsers,
     PhoneNumbers
   },
   data () {
@@ -479,8 +479,7 @@ export default Vue.extend({
         }).then(() => {
           this.$toast.success(this.$tc('organization_saved_successfully'))
         }).catch((e) => {
-          const cause: string = e.statusText || e.message || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_saving_the_organization', { cause }))
+          this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

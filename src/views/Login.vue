@@ -29,6 +29,7 @@
                     name="login"
                     prepend-icon="mdi-account"
                     type="text"
+                    @keyup.enter="login(authorization.login, authorization.password)"
                   ></v-text-field>
 
                   <v-text-field
@@ -37,6 +38,7 @@
                     name="password"
                     prepend-icon="mdi-lock"
                     type="password"
+                    @keyup.enter="login(authorization.login, authorization.password)"
                   ></v-text-field>
                 </v-form>
               </v-card-text>

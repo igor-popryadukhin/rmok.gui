@@ -19,18 +19,6 @@
           </template>
           <span>{{ $tc('create_organization') }}</span>
         </v-tooltip>
-        <v-tooltip bottom max-width="400">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              icon
-              v-on="on"
-              v-bind="attrs"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc('delete_selected_contacts') }}</span>
-        </v-tooltip>
       </v-toolbar>
     </v-row>
     <v-row class="ma-0">

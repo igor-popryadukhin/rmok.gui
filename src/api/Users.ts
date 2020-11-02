@@ -39,6 +39,22 @@ export class Users {
   }
 
   /**
+   * @param id
+   * @param data
+   */
+  public update (id: number, data: any): Promise<any> {
+    return new Promise((resolve, reject): Promise<any> | any => {
+      $axios.put(`/users/${id}`, data)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
    *
    * @param id
    */
@@ -58,16 +74,18 @@ export class Users {
    *
    * @param q
    * @param role
+   * @param organizationId
    * @param offset
    * @param count
    */
-  public find (q = '', role = '', offset = 0, count = 100): Promise<any> {
+  public find (q = '', role = '', organizationId = 0, offset = 0, count = 100): Promise<any> {
     return new Promise((resolve, reject): Promise<any> | any => {
       $axios.get('/users', {
         params: {
           /* eslint-disable */
           q,
           role,
+          organization_id: organizationId,
           offset,
           count
           /* eslint-enable */

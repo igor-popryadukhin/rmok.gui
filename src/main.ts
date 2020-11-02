@@ -22,10 +22,12 @@ import '@/plugins/lvovich'
 import '@/jsSIP'
 
 // layouts
+import CallCenterManager from '@/layouts/CallCenterManager.vue'
 import AdministratorLayout from '@/layouts/Administrator.vue'
 import DefaultLayout from '@/layouts/Default.vue'
 import CleanLayout from '@/layouts/Clean.vue'
 Vue.component('administrator', AdministratorLayout)
+Vue.component('call-center-manager', CallCenterManager)
 Vue.component('default', DefaultLayout)
 Vue.component('clean', CleanLayout)
 
