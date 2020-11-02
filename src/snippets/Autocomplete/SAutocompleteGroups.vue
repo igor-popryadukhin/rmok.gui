@@ -74,6 +74,10 @@ export default Vue.extend({
     label: {
       type: String,
       default: ''
+    },
+    autoLoad: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -81,13 +85,13 @@ export default Vue.extend({
     return {
       loading: false,
       selectOnce: false,
-      selected: null,
+      selected: null as any,
       groupsSearchQuery: null as null | string,
       groupsProcessLoading: false,
-      groupsSearchDebounce: debounce((q: string, organizationId: number, context: any) => {
+      groupsSearchDebounce: debounce((context: any) => {
         context.loading = true
         new Groups()
-          .find(q, organizationId)
+          .find(context.groupsSearchQuery, context.organizationId)
           .then((items: GroupInterface[]) => {
             context.groups = items
             context.selected = context.groups.find((e: GroupInterface) => e.id === context.selectedId)
@@ -106,15 +110,15 @@ export default Vue.extend({
       }
     },
 
-    groupsSearchQuery (val: string) {
+    groupsSearchQuery () {
       if (!this.disabled) {
-        this.groupsSearchDebounce(val, this.organizationId, this)
+        this.groupsSearchDebounce(this)
       }
     },
 
-    organizationId (val: number) {
+    organizationId () {
       if (!this.disabled) {
-        this.groupsSearchDebounce(this.groupsSearchQuery, val, this)
+        this.groupsSearchDebounce(this)
       }
     },
 
@@ -124,8 +128,8 @@ export default Vue.extend({
   },
 
   created () {
-    if (this.search) {
-      this.groupsSearchQuery = this.search
+    if (this.autoLoad) {
+      this.groupsSearchDebounce(this)
     }
   }
 })

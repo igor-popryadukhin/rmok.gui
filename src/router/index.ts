@@ -506,13 +506,13 @@ const routes: RouteConfig[] = [
         }
       },
       {
-        path: 'operators',
-        name: 'call_center_manager_operators',
-        component: () => import(/* webpackChunkName: "call-center-manager-operators" */ '../views/CallCenterManage/Operators/Layout.vue'),
+        path: 'users',
+        name: 'call_center_manager_users',
+        component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/Layout.vue'),
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "call-center-manager-operators" */ '../views/CallCenterManage/Operators/List.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/List.vue'),
             meta: {
               anonymous: true,
               layout: 'call-center-manager',
@@ -521,8 +521,17 @@ const routes: RouteConfig[] = [
           },
           {
             path: 'new',
-            name: 'call_center_manager_operators_new',
-            component: () => import(/* webpackChunkName: "call-center-manager-operators-new" */ '../views/CallCenterManage/Operators/New.vue'),
+            name: 'call_center_manager_users_new',
+            component: () => import(/* webpackChunkName: "call-center-manager-users-new" */ '../views/CallCenterManage/Users/New.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            path: ':id',
+            name: 'call_center_manager_users_edit',
+            component: () => import(/* webpackChunkName: "call-center-manager-users-edit" */ '../views/CallCenterManage/Users/Edit.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -531,7 +540,7 @@ const routes: RouteConfig[] = [
         ],
         meta: {
           layout: 'call-center-manager',
-          middleware: []
+          middleware: [roleRCC]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           // todo: Solve the question of how we will change the locale

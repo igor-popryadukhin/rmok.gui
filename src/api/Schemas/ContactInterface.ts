@@ -6,6 +6,19 @@ export interface ContactInterface {
   city: string;
   phone_number_default: PhoneDefaultInterface;
   user: any;
+  emails?: []
+  phones?: ContactPhoneInterface[]
+}
+
+export interface ContactPhoneInterface {
+  id: number;
+  label: string;
+  value: {
+    e164: string;
+    international: string;
+  };
+  country_code: string;
+  country_calling_code: string;
 }
 
 export interface HistoryInterface {

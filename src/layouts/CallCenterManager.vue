@@ -45,7 +45,7 @@
         <span>{{ $tc('route.call_center_manager_contacts') }}</span>
       </v-tooltip>
 
-      <!-- Operators -->
+      <!-- Users -->
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -53,12 +53,12 @@
             class="mr-1"
             v-on="on"
             v-bind="attrs"
-            :to="{ path: '/call-center-manager/operators' }"
+            :to="{ path: '/call-center-manager/users' }"
           >
             <v-icon>mdi-account-multiple</v-icon>
           </v-btn>
         </template>
-        <span>{{ $tc('route.call_center_manager_operators') }}</span>
+        <span>{{ $tc('route.call_center_manager_users') }}</span>
       </v-tooltip>
 
       <!-- groups -->

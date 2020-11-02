@@ -1,5 +1,6 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+/* eslint-disable */
 
 export interface GroupTeamLeaderInterface {
   id: number;
@@ -16,8 +17,8 @@ export interface GroupOrganizationInterface {
 export interface GroupInterface {
   id: number;
   name: string;
-  team_leader?: GroupTeamLeaderInterface;
-  organization?: GroupOrganizationInterface;
+  team_leader?: GroupTeamLeaderInterface | null;
+  organization?: GroupOrganizationInterface | null;
 }
 
 export class Groups {
