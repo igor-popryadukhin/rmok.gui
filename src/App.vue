@@ -1,12 +1,36 @@
 <template>
-  <v-fade-transition hide-on-leave>
+  <div>
+    <v-dialog
+      v-model="dialogLoading.visible"
+      :key="1"
+      hide-overlay
+      persistent
+      width="300"
+      light
+    >
+      <v-card
+        color="primary"
+        dark
+        flat
+      >
+        <v-card-text>
+          {{ dialogLoading.message }}
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="mb-0"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <component
       :is="layout"
+      :key="2"
       tabindex="-1"
       @keydown.ctrl="$root.$emit('on-keydown-ctrl')"
       @keyup.ctrl="$root.$emit('on-keyup-ctrl')"
     />
-  </v-fade-transition>
+  </div>
 </template>
 
 <script lang="ts">
@@ -21,11 +45,16 @@ import { Contacts } from '@/api/Contacts'
 import { PhoneNumber } from 'libphonenumber-js'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import VueI18n from 'vue-i18n'
 
 export default Vue.extend({
   name: 'App',
   data () {
     return {
+      dialogLoading: {
+        visible: false,
+        message: '' as string
+      },
       toastId: 0 as number | string,
       organization: {} as ContactInterface,
       RTCToastOptions: {
@@ -53,6 +82,16 @@ export default Vue.extend({
 
   beforeCreate () {
     this.$store.dispatch('profile/loadProfile')
+  },
+
+  mounted () {
+    this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
+    this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
+    this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
   },
 
   created () {
@@ -242,6 +281,25 @@ export default Vue.extend({
     onCancelClick () {
       this.$toast.dismiss(this.toastId)
       this.$jsSIP.cancel()
+    },
+
+    tc (key: VueI18n.Path, choice: VueI18n.Choice, locale: VueI18n.Locale, values?: VueI18n.Values) {
+      return this.$tc(key, choice, locale, values)
+    },
+
+    rootLoadingDataShow (message: '') {
+      if (message) {
+        this.dialogLoading.message = message
+      } else {
+        this.dialogLoading.message = this.$tc('loading_data')
+      }
+
+      this.dialogLoading.visible = true
+    },
+
+    rootLoadingDataHide () {
+      this.dialogLoading.message = ''
+      this.dialogLoading.visible = false
     }
   }
 })
