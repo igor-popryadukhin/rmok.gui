@@ -5,7 +5,7 @@ Vue.use(VueI18n)
 
 const loadedPackages: string[] = [] // our default language that is preloaded
 
-const locale: string = process.env.VUE_APP_I18N_LOCALE
+const locale: string | undefined = process.env.VUE_APP_I18N_LOCALE
 
 const i18n = new VueI18n({
   locale,

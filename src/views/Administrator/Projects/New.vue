@@ -43,7 +43,7 @@
           >
             <s-autocomplete-users
               v-model="userSelected"
-              :label="$tc('team_leader')"
+              :label="$tc('project_manager')"
               :disabled="!organizationSelected"
               :organization-id="organizationSelected ? organizationSelected.id : 0"
               select-on-clear
