@@ -71,6 +71,23 @@ export class Contacts {
   }
 
   /**
+   *
+   * @param contactId
+   * @param phoneNumberId
+   */
+  public setDefaultPhoneNumber (contactId: number, phoneNumberId: number): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      $axios.patch(`/contacts/${contactId}/phone/${phoneNumberId}/default`)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
    * Get contact by phone number
    * @param number
    */
