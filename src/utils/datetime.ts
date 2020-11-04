@@ -16,7 +16,6 @@ const defaultOptions = {
 } as TitleOptionsInterface
 
 export function secondsToHms (d: number, titles: TitleOptionsInterface = defaultOptions) {
-  d = Number(d)
   const h: number = Math.floor(d / 3600)
   const m = Math.floor(d % 3600 / 60)
   const s = Math.floor(d % 3600 % 60)
