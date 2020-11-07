@@ -10,8 +10,15 @@ const $jssip: JsSIP = new JsSIP(`wss://server:8089/ws`, {
   /* eslint-enable */
 })
 
+declare global {
+  interface Window {
+    $jssip: JsSIP;
+  }
+}
+
 class JsSIPlugin {
   public install () {
+    window.$jssip = $jssip
     Object.defineProperties(Vue.prototype, {
       $jsSIP: {
         get (): JsSIP {

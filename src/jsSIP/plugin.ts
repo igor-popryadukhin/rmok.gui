@@ -7,6 +7,7 @@ import {
 } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import { makeAudioElement } from '@/jsSIP/utils'
+import { Timer } from './Timer'
 
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement()
@@ -72,16 +73,36 @@ export enum JsSIPState {
 }
 
 export class JsSIP {
+
+  get sessionStopwatch (): string {
+    return this._sessionStopwatch
+  }
+
+  get sessionEndTime (): Date {
+    return this._sessionEndTime
+  }
+
+  get sessionStartTime (): Date {
+    return this._sessionStartTime
+  }
+
+  /**
+   * Returns true if the transport is connected, false otherwise.
+   */
+  get isConnected () {
+    try {
+     return this.ua.isConnected()
+    } catch (e) {
+      console.log('%c%s', 'color: red;', 'User Agent is not defined!')
+      return false
+    }
+  }
   get session (): RTCSession | undefined {
     return this._session
   }
 
   get target (): string {
     return this._target
-  }
-
-  get seconds (): number {
-    return this._seconds
   }
 
   get state (): string {
@@ -126,7 +147,14 @@ export class JsSIP {
   private _session?: RTCSession
   private ua: UA
   private _timerId: any = undefined
-  private _seconds = 0
+
+  // Session time
+  private _timer: Timer
+  private _sessionStopwatchTimerId: any = undefined
+  private _sessionStopwatch: string = '00:00:000'
+  private _sessionStartTime: Date = new Date()
+  private _sessionEndTime: Date = new Date()
+
   private _state: string = JsSIPState.IDLE
   private _onSessionConnecting?: EventHandler
   private _onSessionProgress?: EventHandler
@@ -135,6 +163,7 @@ export class JsSIP {
   private _onSessionFailed?: EventHandler
 
   constructor (url: string, config: JsSPConfiguration) {
+    this._timer = new Timer()
     this._state = JsSIPState.IDLE
     this.ua = JsSIPFactory.create(url, {
       /* eslint-disable */
@@ -237,11 +266,13 @@ export class JsSIP {
 
   private initializeListeners () {
     this.ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => {
+      this._sessionStartTime = new Date()
       const session: RTCSession = event.session
       this._session = event.session
 
       event.session.on('connecting', (event: ConnectingEvent) => {
         this._state = JsSIPState.CONNECTING
+        this.startRenderSessionStopwatch()
         this.doSessionConnecting(session, event)
       })
 
@@ -257,20 +288,21 @@ export class JsSIP {
       })
 
       event.session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
-        this.startTimer()
         JsSIP.stopSound()
         this._state = JsSIPState.ACCEPTED
         this.doSessionAccepted(session, event)
       })
 
       event.session.on('ended', (event: EndEvent) => {
-        this.stopTimer()
+        this._sessionEndTime = new Date()
+        this.stopRenderSessionStopwatch()
         this._state = JsSIPState.IDLE
         this.doSessionEnded(session, event)
       })
 
       event.session.on('failed', (event: EndEvent) => {
-        this.stopTimer()
+        this._sessionEndTime = new Date()
+        this.stopRenderSessionStopwatch()
 
         if (session.direction === 'outgoing') {
           JsSIP.playSound('rejected.mp3')
@@ -279,6 +311,8 @@ export class JsSIP {
         }
 
         this._state = JsSIPState.IDLE
+
+        this.doSessionEnded(session, event)
         this.doSessionFailed(session, event)
       })
 
@@ -341,14 +375,26 @@ export class JsSIP {
     }
   }
 
-  private startTimer () {
-    this._seconds = 0
-    this._timerId = setInterval(() => {
-      this._seconds++
-    }, 1000)
+  /**
+   * Start rendering timer
+   * @private
+   */
+  private startRenderSessionStopwatch () {
+    this._timer.reset()
+    this._timer.start()
+    this._sessionStopwatchTimerId = setInterval(() => {
+      this._sessionStopwatch = this._timer.render()
+    }, 100)
   }
 
-  private stopTimer () {
-    clearInterval(this._timerId)
+  /**
+   * Stop rendering timer
+   * @private
+   */
+  private stopRenderSessionStopwatch () {
+    this._timer.stop()
+    this._timer.reset()
+    this._sessionStopwatch = '00:00:000'
+    clearInterval(this._sessionStopwatchTimerId)
   }
 }
