@@ -57,7 +57,7 @@
             <v-btn
               text
               tile
-            >{{ $tc('save') }}</v-btn>
+            >{{ $tc('Save') }}</v-btn>
           </v-col>
         </v-row>
         <!-- CONTACTS -->

@@ -4,6 +4,7 @@ import SecureLS from 'secure-ls'
 import createPersistedState from 'vuex-persistedstate'
 import { profile } from '@/store/profile'
 import { system } from './system'
+import { project } from '@/store/project'
 
 Vue.use(Vuex)
 
@@ -32,6 +33,7 @@ export default new Vuex.Store({
   },
   modules: {
     profile,
+    project,
     system
   },
   plugins: [
@@ -56,6 +58,15 @@ export default new Vuex.Store({
     createPersistedState({
       key: 'rmok-system',
       paths: ['system'],
+      storage: {
+        getItem: (key: string) => get(key),
+        setItem: (key, value) => set(key, value),
+        removeItem: (key: string) => remove(key)
+      }
+    }),
+    createPersistedState({
+      key: 'rmok-project',
+      paths: ['project'],
       storage: {
         getItem: (key: string) => get(key),
         setItem: (key, value) => set(key, value),

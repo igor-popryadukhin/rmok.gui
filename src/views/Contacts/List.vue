@@ -131,7 +131,7 @@
                 :key="`list-item-${item.id}`"
                 ripple
                 selectable
-                @click.stop="onContactItemClick(item)"
+                :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
               >
                 <v-list-item-action>
                   <v-checkbox
@@ -500,31 +500,8 @@ export default Vue.extend({
       })
   },
 
-  created () {
-    this.$root.$on('jssip-session-cancel', this.onJssipSessionCancel)
-  },
-
-  beforeDestroy () {
-    this.$root.$off('jssip-session-cancel', this.onJssipSessionCancel)
-  },
-
   methods: {
     /* eslint-disable */
-
-    /**
-     * Occurs when a session has ended for one reason or another
-     **/
-    onJssipSessionCancel (data: any) {
-
-      // If the claw-tact dialogue is open, load the updated history
-      if (this.contactDialog.visible) {
-        new Contacts()
-          .getHistory(this.contact.id)
-          .then((history: any) => {
-            this.contactHistory = history.items
-          })
-      }
-    },
 
     /**
      *  Happens when checkbox click

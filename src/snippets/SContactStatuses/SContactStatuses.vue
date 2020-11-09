@@ -2,6 +2,7 @@
   <div>
     <v-tabs
       v-model="tabStatus"
+      height="35"
     >
       <v-tab>
         Все
@@ -17,7 +18,7 @@
       v-model="tabStatus"
     >
       <v-tab-item>
-        <v-container>
+        <v-container fluid>
           <v-radio-group
             column
           >
@@ -30,7 +31,7 @@
                 v-for="(item, statusIndex) in status.items"
                 :key="`v-col-status-${statusIndex}`"
                 cols="3"
-                class="mr-10"
+                class="mr-10 pa-0 mb-1"
               >
                 <v-radio
                   :key="`v-radio-${statusIndex}`"

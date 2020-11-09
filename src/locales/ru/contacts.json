@@ -15,5 +15,11 @@
   "contact_delete_successfully": "Контакт успешно удалён.",
   "contact_delete_selected_confirm": "Вы действительно хотите удалить выбранные контакты?",
   "contact_delete_error": "Во время удаления контакта произошла ошибка\nПричина: {cause}",
-  "error_occurred_while_saving_the_contact": "Во время сохранения контакта произошла ошибка\n{cause}"
+  "error_occurred_while_saving_the_contact": "Во время сохранения контакта произошла ошибка\n{cause}",
+  "Incoming call": "Входящий вызов",
+  "Incoming call canceled": "Входящий вызов отменен",
+  "Outgoing call": "Исходящий вызов",
+  "Outgoing call canceled": "Исходящий вызов отменен",
+  "Missed call": "Пропущенный вызов",
+  "Last comment": "Последний комментарий"
 }

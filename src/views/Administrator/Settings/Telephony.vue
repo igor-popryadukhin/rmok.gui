@@ -96,7 +96,7 @@
               text
               tile
               @click="onSave"
-            >{{ $tc('save') }}</v-btn>
+            >{{ $tc('Save') }}</v-btn>
           </v-col>
         </v-row>
       </v-container>

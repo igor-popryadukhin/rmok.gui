@@ -9,10 +9,10 @@
       clipped-left
       clipped-right
       extended
-      extension-height="30px"
+      extension-height="25px"
       class="background--header"
     >
-      <div class="offset-lg-2 offset-md-2"></div>
+      <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title>
         <span class="hidden-sm-and-down">RMOK</span>
       </v-toolbar-title>
@@ -40,7 +40,6 @@
             class="mr-1"
             v-on="on"
             v-bind="attrs"
-            @click="onMyProjectsButtonClick"
           >
             <v-icon>mdi-projector-screen</v-icon>
           </v-btn>
@@ -130,7 +129,7 @@
           <span>{{ $tc('route.administrator') }}</span>
         </v-tooltip>
       </template>
-      <template v-if="$store.getters['profile/role_is_leader_cc']">
+      <template v-else-if="$store.getters['profile/role_is_leader_cc']">
         <v-tooltip
           bottom
           max-width="400"
@@ -150,6 +149,7 @@
           <span>{{ $tc('route.call_center_manager') }}</span>
         </v-tooltip>
       </template>
+      <div style="width: 10px"></div>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -183,11 +183,11 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <div class="offset-lg-2 offset-md-2"></div>
+      <div class="offset-lg-1 offset-md-1"></div>
       <template v-slot:extension>
         <v-breadcrumbs
           :items="breadcrumbs"
-          class="pa-0 offset-lg-2 col-lg-8 offset-md-2 col-md-8"
+          class="offset-lg-1 col-lg-10 offset-md-1 col-md-10 pa-0"
         >
           <template v-slot:item="{ item }">
             <v-breadcrumbs-item
@@ -206,25 +206,19 @@
     </v-app-bar>
     <v-main>
       <v-container
-        class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-2 pr-2"
+        class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
       >
-        {{ projects }}
         <vue-scroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
-          <v-fade-transition hide-on-leave>
-            <router-view/>
-          </v-fade-transition>
+          <router-view/>
         </vue-scroll>
       </v-container>
     </v-main>
-    <audio id="audio" controls style="display: none"/>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import { Projects } from '@/api/Projects'
-import PhoneNumbers from '@/components/PhoneNumbers/PhoneNumbers'
 
 export default Vue.extend({
   props: {
@@ -272,6 +266,14 @@ export default Vue.extend({
     projects: []
   }),
 
+  computed: {
+    avatar () {
+      const first: string = this.$store.getters['profile/first_name'] || ''
+      const last: string = this.$store.getters['profile/last_name'] || ''
+      return first.charAt(0) + last.charAt(0)
+    }
+  }
+
   // watch: {
   //   $route (to, from) {
   //     const toDepth = to.path.split('/').length
@@ -279,33 +281,6 @@ export default Vue.extend({
   //     this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
   //   }
   // },
-
-  computed: {
-    avatar () {
-      const first: string = this.$store.getters['profile/first_name'] || ''
-      const last: string = this.$store.getters['profile/last_name'] || ''
-      return first.charAt(0) + last.charAt(0)
-    }
-  },
-
-  created () {
-    new Projects()
-      .find()
-      .then((projects) => {
-        this.projects = projects.items
-      })
-  },
-
-  methods: {
-    onMyProjectsButtonClick () {
-      this.$dialog.show(PhoneNumbers)
-      new Projects()
-        .find()
-        .then((projects) => {
-          this.projects = projects.items
-        })
-    }
-  }
 })
 </script>
 

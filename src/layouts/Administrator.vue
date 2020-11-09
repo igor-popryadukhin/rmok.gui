@@ -9,10 +9,10 @@
       clipped-left
       clipped-right
       extended
-      extension-height="30px"
+      extension-height="25px"
       class="background--header"
     >
-      <div class="offset-lg-2 offset-md-2"></div>
+      <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title class="d-inline-block toolbar-title">
         <div class="hidden-sm-and-down">RMOK</div>
         <div class="hidden-sm-and-down toolbar-title-subtitle">for administrator</div>
@@ -44,6 +44,7 @@
         </template>
         <span>{{ $tc('route.administratororganizations') }}</span>
       </v-tooltip>
+
       <!-- groups -->
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
@@ -59,6 +60,7 @@
         </template>
         <span>{{ $tc('route.administratorgroups') }}</span>
       </v-tooltip>
+
       <!-- users -->
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
@@ -74,6 +76,7 @@
         </template>
         <span>{{ $tc('route.administratorusers') }}</span>
       </v-tooltip>
+
       <!-- Projects -->
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
@@ -89,25 +92,16 @@
         </template>
         <span>{{ $tc('route.administrator_projects') }}</span>
       </v-tooltip>
-      <v-tooltip bottom max-width="400">
+
+      <!-- Settings -->
+      <v-tooltip
+        bottom
+        max-width="400"
+      >
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-chart-areaspline-variant</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.settings') }}</span>
-      </v-tooltip>
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            :to="{ name: 'settings' }"
-            class="mr-1"
+            :to="{ name: 'administrator_settings' }"
             v-on="on"
             v-bind="attrs"
           >
@@ -123,6 +117,7 @@
           <v-btn
             icon
             large
+            class="ml-5"
             v-bind="attrs"
             v-on="on"
           >
@@ -151,12 +146,11 @@
           </v-list-item>
         </v-list>
       </v-menu>
-
-      <div class="offset-lg-2 offset-md-2"></div>
+      <div class="offset-lg-1 offset-md-1"></div>
       <template v-slot:extension>
         <v-breadcrumbs
           :items="breadcrumbs"
-          class="pa-0 offset-lg-2 col-lg-8 offset-md-2 col-md-8"
+          class="offset-lg-1 col-lg-10 offset-md-1 col-md-10 pa-0"
         >
           <template v-slot:item="{ item }">
             <v-breadcrumbs-item
@@ -175,16 +169,13 @@
     </v-app-bar>
     <v-main>
       <v-container
-        class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-2 pr-2"
+        class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
       >
         <vue-scroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
-          <v-fade-transition hide-on-leave>
-            <router-view/>
-          </v-fade-transition>
+          <router-view/>
         </vue-scroll>
       </v-container>
     </v-main>
-    <audio id="audio" controls style="display: none"/>
   </v-app>
 </template>
 
@@ -196,11 +187,7 @@ export default Vue.extend({
   props: {
     source: String
   },
-
   mixins: [breadcrumbs],
-  components: {
-  },
-
   data: () => ({
     settings: {
       suppressScrollY: false,
@@ -212,21 +199,21 @@ export default Vue.extend({
     items: [
       {
         name: 'profile',
+        icon: 'mdi-user',
         to: {
           name: 'profile'
         }
       },
       {
         name: 'settings',
+        icon: 'mdi-settings',
         to: {
           name: 'settings'
         }
       },
       {
         name: 'exit',
-        to: {
-          name: 'login'
-        },
+        icon: 'mdi-exit',
         click: () => {
           // todo: delete cookie
         }

@@ -40,19 +40,6 @@
 import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
 
-interface ContactInterface {
-  id: number;
-  phone_numbers: PhoneInterface[];
-  emails: EmailInterface[];
-  first_name: string;
-  last_name: string;
-  middle_name: string;
-  city: string;
-  region: null;
-  phone_number_default: null;
-  owner: null;
-}
-
 interface EmailInterface {
   value: string;
   type: string;

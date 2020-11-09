@@ -319,7 +319,7 @@
               :disabled="buttonSave.disabled"
               @click="onSave"
             >
-              {{ $tc('save') }}
+              {{ $tc('Save') }}
             </v-btn>
           </v-col>
         </v-row>

@@ -123,13 +123,16 @@ export class Contacts {
   /**
    * Retrieve a contact's call history
    * @param contact_id
+   * @param filter
    * @param offset
    * @param count
    */
-  public getHistory (contact_id: number, offset = 0, count = 100): Promise<unknown> {
+  public getHistory (contact_id: number, filter = '', offset = 0, count = 100): Promise<any> {
     return new Promise((resolve, reject) => {
+      const query: any = {}
+      if (filter) { query.filter = filter }
       $axios.get(`/contacts/${contact_id}/history`, {
-        params: { offset, count }
+        params: { offset, count, ...query }
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
           reject (response.data)
@@ -141,15 +144,47 @@ export class Contacts {
   /* eslint-enable */
 
   /**
+   * @param historyId
+   */
+  public getHistoryById (historyId: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/contacts/history/${historyId}`)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            reject(response.data)
+          }
+          resolve(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
    * Add information about the current session
    * @param contactId
    * @param data
    */
-  public addHistory (contactId: number, data: any): Promise<unknown> {
-    return new Promise((resolve, reject) => {
+  public addHistory (contactId: number, data: any): Promise<number | any> {
+    return new Promise((resolve, reject): Promise<number | any> | any => {
       $axios.post(`/contacts/${contactId}/history`, data)
         .then((response: AxiosResponse) => {
           if (![200, 201].includes(response.status)) {
+            reject(response.data)
+          }
+          resolve(response.data.id)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Update history data
+   * @param historyId
+   * @param data
+   */
+  public updateHistory (historyId: number, data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.patch(`/contacts/history/${historyId}`, data)
+        .then((response: AxiosResponse) => {
+          if (![200, 204].includes(response.status)) {
             reject(response.data)
           }
           resolve(response.data)

@@ -9,12 +9,18 @@ export interface ProjectOwnerInterface {
 }
 
 export interface ProjectInterface {
-  id: string;
+  id: number;
   name: string;
   comment: string;
   owner: ProjectOwnerInterface;
   organization: ProjectOwnerInterface;
+  statuses: StatusInterface[];
   created_at: number;
+}
+
+export interface StatusInterface {
+  id: number;
+  name: number;
 }
 
 export interface ProjectResponseItemsInterface {
@@ -43,14 +49,17 @@ export class Projects {
     })
   }
 
-  public getById (id: string): Promise<ProjectInterface | any> | any {
+  /**
+   * Get current user project.
+   */
+  public current (): Promise<ProjectInterface | any> | any {
     return new Promise((resolve, reject): Promise<ProjectInterface | any> | any => {
-      $axios.get(`/roles/${id}`)
+      $axios.get('/projects/current')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data.result)
+            return resolve(response.data)
           }
-          resolve(false)
+          reject(response.data)
         }).catch(reject)
     })
   }

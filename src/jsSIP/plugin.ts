@@ -20,29 +20,29 @@ export type EventHandler = (...args: any[]) => void
  */
 export enum Direction {
   /**
-   * Missed
-   */
-  MISSED = 0,
-
-  /**
    * Incoming
    */
-  INCOMING = 1,
+  INCOMING = 'incoming',
 
   /**
    * Incoming canceled
    */
-  INCOMING_CANCELED = 1,
+  INCOMING_CANCELED = 'incoming_canceled',
 
   /**
    * Outgoing
    */
-  OUTGOING = 3,
+  OUTGOING = 'outgoing',
 
   /**
    * Outgoing canceled
    */
-  OUTGOING_CANCELED = 4
+  OUTGOING_CANCELED = 'outgoing_canceled',
+
+  /**
+   * Missed
+   */
+  MISSED = 'missed'
 }
 
 /**
@@ -130,7 +130,9 @@ export class JsSIP {
   }
 
   private static playSound (name: string, loop = false) {
-    audioElementForSound.pause()
+    if (!audioElementForSound.paused) {
+      audioElementForSound.pause()
+    }
     audioElementForSound.currentTime = 0.0
     audioElementForSound.src = '/sounds/' + name
     audioElementForSound.loop = loop

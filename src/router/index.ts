@@ -64,28 +64,36 @@ const routes: RouteConfig[] = [
         meta: { layout: 'default', middleware: [] }
       },
       {
-        path: 'new',
-        name: 'contacts_new',
-        component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Contacts/New.vue'),
-        meta: { layout: 'default', middleware: [] }
-      },
-      {
-        path: ':id/view',
+        path: ':contact_id',
         name: 'contacts_view',
         component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/View.vue'),
-        meta: { layout: 'default', middleware: [] }
-      },
-      {
-        path: ':id/edit',
-        name: 'contacts_edit',
-        component: () => import(/* webpackChunkName: "contacts-edit" */ '../views/Contacts/Edit.vue'),
-        meta: { layout: 'default', middleware: [] }
-      },
-      {
-        path: ':contact_id/history',
-        name: 'contacts_history',
-        component: () => import(/* webpackChunkName: "contacts-history" */ '../views/Contacts/History.vue'),
-        meta: { layout: 'default', middleware: [] }
+        children: [
+          {
+            path: 'script',
+            name: 'contacts_script',
+            component: () => import(/* webpackChunkName: "contacts-script" */ '../views/Contacts/Script.vue'),
+            meta: { layout: 'default', middleware: [] }
+          },
+          {
+            path: 'history',
+            name: 'contacts_history',
+            component: () => import(/* webpackChunkName: "contacts-history" */ '../views/Contacts/History.vue'),
+            meta: { layout: 'default', middleware: [] }
+          },
+          {
+            path: 'tasks',
+            name: 'contacts_task',
+            component: () => import(/* webpackChunkName: "contacts-task" */ '../views/Contacts/Task.vue'),
+            meta: { layout: 'default', middleware: [] }
+          }
+        ],
+        meta: { layout: 'default', middleware: [] },
+        beforeEnter (to, form, next) {
+          if (/\d+/.test(to.params.contact_id)) {
+            return next()
+          }
+          return next({ name: 'not_found' })
+        }
       }
     ],
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
@@ -340,50 +348,55 @@ const routes: RouteConfig[] = [
       {
         path: 'settings',
         name: 'administrator_settings',
-        component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Settings/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Layout.vue'),
         children: [
           {
             path: 'profile',
             name: 'administrator_profile',
-            component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Settings/Profile.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Administrator/Settings/Profile.vue'),
             meta: {
-              layout: 'default',
+              icon: 'mdi-account-circle-outline',
+              layout: 'administrator',
               middleware: []
             }
           },
           {
             path: 'journal',
             name: 'administrator_journal',
-            component: () => import(/* webpackChunkName: "administrator-settings-journal" */ '../views/Settings/Journal.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-journal" */ '../views/Administrator/Settings/Journal.vue'),
             meta: {
-              layout: 'default',
+              icon: 'mdi-history',
+              layout: 'administrator',
               middleware: []
             }
           },
           {
             path: 'security',
             name: 'administrator_security',
-            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Settings/Security.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Administrator/Settings/Security.vue'),
             meta: {
-              layout: 'default',
+              icon: 'mdi-security',
+              layout: 'administrator',
               middleware: []
             }
           },
           {
             path: 'telephony',
             name: 'administrator_telephony',
-            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Settings/Telephony.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Administrator/Settings/Telephony.vue'),
             meta: {
-              layout: 'default',
+              icon: 'mdi-phone-voip',
+              layout: 'administrator',
               middleware: []
             }
           },
           {
             path: 'headset-configure',
             name: 'administrator_headset_configure',
-            component: () => import(/* webpackChunkName: "administrator-settings-headset-configure" */ '../views/Settings/HeadsetConfigure.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-headset-configure" */ '../views/Administrator/Settings/HeadsetConfigure.vue'),
             meta: {
-              layout: 'default',
+              icon: 'mdi-headset',
+              layout: 'administrator',
               middleware: []
             }
           }
@@ -393,7 +406,7 @@ const routes: RouteConfig[] = [
           loadLanguageAsync('ru', 'settings').then(() => next())
         },
         meta: {
-          layout: 'default',
+          layout: 'administrator',
           middleware: []
         }
       },

@@ -9,7 +9,7 @@
       clipped-left
       clipped-right
       extended
-      extension-height="30px"
+      extension-height="25px"
       class="background--header"
     >
       <div class="offset-lg-2 offset-md-2"></div>

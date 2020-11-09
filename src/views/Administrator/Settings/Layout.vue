@@ -25,6 +25,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Route } from 'vue-router'
+import router from '@/router'
 
 interface TabInterface {
   name: string;
@@ -37,52 +38,84 @@ export default Vue.extend({
   data () {
     return {
       tabs: [
-        {
-          name: 'profile',
-          icon: 'mdi-account-circle-outline',
-          disabled: false,
-          to: {
-            name: 'profile'
-          }
-        },
-        {
-          name: 'journal',
-          icon: 'mdi-history',
-          disabled: false,
-          to: {
-            name: 'journal'
-          }
-        },
-        {
-          name: 'security',
-          icon: 'mdi-security',
-          disabled: false,
-          to: {
-            name: 'security'
-          }
-        },
-        {
-          name: 'telephony',
-          icon: 'mdi-phone-voip',
-          to: {
-            name: 'telephony'
-          }
-        },
-        {
-          name: 'headset_configure',
-          icon: 'mdi-headset',
-          disabled: false,
-          to: {
-            name: 'headset_configure'
-          }
-        },
-        {
-          name: 'integration',
-          icon: 'mdi-api',
-          disabled: true,
-          to: null
-        }
+        // {
+        //   name: 'profile',
+        //   icon: 'mdi-account-circle-outline',
+        //   disabled: false,
+        //   to: {
+        //     name: 'profile'
+        //   }
+        // },
+        // {
+        //   name: 'journal',
+        //   icon: 'mdi-history',
+        //   disabled: false,
+        //   to: {
+        //     name: 'journal'
+        //   }
+        // },
+        // {
+        //   name: 'security',
+        //   icon: 'mdi-security',
+        //   disabled: false,
+        //   to: {
+        //     name: 'security'
+        //   }
+        // },
+        // {
+        //   name: 'telephony',
+        //   icon: 'mdi-phone-voip',
+        //   to: {
+        //     name: 'telephony'
+        //   }
+        // },
+        // {
+        //   name: 'headset_configure',
+        //   icon: 'mdi-headset',
+        //   disabled: false,
+        //   to: {
+        //     name: 'headset_configure'
+        //   }
+        // },
+        // {
+        //   name: 'integration',
+        //   icon: 'mdi-api',
+        //   disabled: true,
+        //   to: null
+        // }
       ] as TabInterface[]
+    }
+  },
+
+  created () {
+    if (router.options.routes) {
+      router.options.routes.forEach((e) => {
+        this.tree(e, (r: any) => {
+          // Admin settings
+          if (r.name === 'administrator_settings') {
+            r.children.forEach((router: Route) => {
+              console.log(router.name)
+              this.tabs.push({
+                name: this.$tc(router.name || ''),
+                icon: router.meta.icon,
+                disabled: false,
+                to: router
+              })
+            })
+          }
+        })
+      })
+    }
+  },
+
+  methods: {
+    tree (node: any, handler: Function) {
+      if (node.children) {
+        node.children.forEach((e: any) => {
+          this.tree(e, handler)
+          handler(e)
+        })
+      }
     }
   }
 })
