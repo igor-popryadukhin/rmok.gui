@@ -40,7 +40,7 @@
               :label="$tc('last_name')"
               persistent-hint
               required
-              :rules="[rules.max_256]"
+              :rules="[rules.required, rules.max_256]"
             ></v-text-field>
           </v-col>
           <v-col
@@ -57,118 +57,29 @@
           </v-col>
         </v-row>
 
-        <!-- Emails -->
-        <v-row
-          v-for="(email, key) in contact.emails"
-          :key="`email-${key}`"
-        >
-          <v-col
-            cols="6"
-          >
-            <v-text-field
-              v-model="email.value"
-              :label="$tc('email')"
-              persistent-hint
-              required
-              :rules="[rules.email, rules.max_256]"
-            >
-              <template v-slot:prepend>
-                <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-email</v-icon>
-                <v-spacer v-else class="pl-10 pr-10"></v-spacer>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="6"
-          >
-            <v-combobox
-              v-model="email.label"
-              :label="$tc('label')"
-              :items="contactLabels"
-              :return-object="false"
-              :rules="[rules.max_50]"
-            ><template v-slot:append-outer>
-              <v-btn
-                v-if="(contact.emails.length - 1) === key"
-                icon
-                @click="onAddEmailClick()"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-              <v-btn
-                v-else
-                icon
-                color="red"
-                @click="onDeleteEmailClick(key)"
-              >
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </template>
-            </v-combobox>
+        <!-- Phones -->
+        <v-row>
+          <v-col>
+            <s-phone-numbers
+              v-model="contact.phones"
+              :message-error="$t('Invalid phone number format')"
+              :rules-number="[rules.required]"
+              :rules-label="[rules.required, rules.max_50]"
+              :rules-country-code="[rules.required]"
+            />
           </v-col>
         </v-row>
 
-        <!-- Phones -->
-        <v-row
-          v-for="(phone, key) in contact.phones"
-          :key="`phone-${key}`"
-        >
-          <v-col
-            cols="3"
-            lg="3"
-          >
-            <v-combobox
-              v-model="phone.code"
-              :items="countryCodes"
-              item-text="name"
-              item-value="code"
-              @change="onCountryCodeSelected(phone)"
-            >
-              <template v-slot:prepend>
-                <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-phone</v-icon>
-                <v-spacer v-else class="pl-10 pr-10"></v-spacer>
-              </template>
-            </v-combobox>
-          </v-col>
-          <v-col
-            cols="3"
-            lg="3"
-          >
-            <v-text-field
-              v-model="phone.value"
-              :label="$tc('phone')"
-              :rules="[rules.required, rules.phone_number]"
-            >
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="6"
-          >
-            <v-combobox
-              v-model="phone.label"
-              :label="$tc('label')"
-              :items="contactLabels"
-              :return-object="false"
-              persistent-hint
-              :rules="[rules.max_50]"
-            ><template v-slot:append-outer>
-              <v-btn
-                v-if="key > 0"
-                icon
-                color="red"
-                @click="onDeletePhoneClick(key)"
-              >
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-              <v-btn
-                v-if="key === 0"
-                icon
-                @click="onAddPhoneClick()"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-            </template>
-            </v-combobox>
+        <!-- Emails -->
+        <v-row>
+          <v-col>
+            <s-emails
+              v-model="contact.emails"
+              :text-label="$t('Label')"
+              :text-email="$t('E-mail address')"
+              :rules-email="[rules.required, rules.email]"
+              :rules-label="[rules.required, rules.max_50]"
+            />
           </v-col>
         </v-row>
 
@@ -212,28 +123,21 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import countryCodes from '@/mixins/countryCodes'
-import contactLabels from '@/mixins/contactLabels'
 import { Contacts } from '@/api/Contacts'
-import { POSITION } from 'vue-toastification'
 import rules from '@/mixins/rules'
 import { isEmpty } from '@/Utils'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-
-interface Phone {
-  code: string;
-  value: string;
-  label: string;
-}
-
-interface Email {
-  value: string;
-  label: string;
-}
+import SPhoneNumbers from '@/snippets/SPhoneNumbers/SPhoneNumbers.vue'
+import SEmails from '@/snippets/SEmails/SEmails.vue'
 
 export default Vue.extend({
-  mixins: [countryCodes, contactLabels, rules],
+  mixins: [rules],
+
+  components: {
+    SPhoneNumbers,
+    SEmails
+  },
+
   data () {
     return {
       buttonSave: {
@@ -243,15 +147,50 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      /* eslint-disable */
-      contact: {} as ContactInterface & { notes: string }
+      contact: {
+        first_name: '',
+        last_name: '',
+        middle_name: '',
+        notes: '',
+        emails: [
+          {
+            value: '',
+            label: ''
+          }
+        ],
+        phones: [
+          {
+            id: 0,
+            country_code: 'RU',
+            country_calling_code: '7',
+            value: '',
+            label: ''
+          }
+        ]
+      }
       /* eslint-enable */
     }
   },
 
   methods: {
-    onCountryCodeSelected (phone: Phone) {
-      phone.value = phone.code
+
+    resetForm () {
+      this.contact.phones = [
+        {
+          id: 0,
+          country_code: 'RU',
+          country_calling_code: '7',
+          value: '',
+          label: ''
+        }
+      ]
+      this.contact.emails = [
+        {
+          value: '',
+          label: ''
+        }
+      ];
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     /**
@@ -294,46 +233,34 @@ export default Vue.extend({
     },
 
     onSave () {
-      if ((this.$refs.form as Vue & { validate: () => boolean }).validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
       new Contacts()
         .add({
           /* eslint-disable */
-          first_name: this.contact.first_name.trim(),
-          last_name: this.contact.last_name.trim(),
-          middle_name: this.contact.middle_name.trim(),
+          first_name: this.contact.first_name,
+          last_name: this.contact.last_name,
+          middle_name: this.contact.middle_name,
           emails: this.contact.emails
-            .filter((e: Email) => !(isEmpty(e.value) && isEmpty(e.label)))
-            .map((email: Email) => {
-              return {
-                label: email.label,
-                value: email.value
-              }
-            }),
+            .filter((e) => !(isEmpty(e.value) && isEmpty(e.label)))
+            .map((email) => ({ label: email.label, value: email.value })),
           phones: this.contact.phones
             .filter((e: PhoneNumberInterface) => !(isEmpty(e.value) && isEmpty(e.label)))
-            .map((phone: PhoneNumberInterface) => ({ label: phone.label, value: phone.value })),
+            .map((phone: PhoneNumberInterface) => ({
+              country_code: phone.country_code,
+              country_calling_code: phone.country_calling_code,
+              label: phone.label,
+              value: phone.value
+            })),
           notes: this.contact.notes || null
           /* eslint-enable */
         }).then(() => {
-          (this.$refs.form as Vue & { reset: () => boolean }).reset()
+          this.resetForm()
           this.$toast.success(this.$tc('contact_saved_successfully'))
         }).catch((e) => {
-          const cause: string = e.statusText || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_saving_the_contact', { cause }), {
-            position: POSITION.TOP_RIGHT,
-            timeout: 3000,
-            closeOnClick: true,
-            draggable: true,
-            draggablePercent: 0.6,
-            showCloseButtonOnHover: true,
-            hideProgressBar: true,
-            closeButton: 'button',
-            icon: true,
-            rtl: false
-          })
+          this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

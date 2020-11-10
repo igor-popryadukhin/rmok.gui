@@ -8,13 +8,13 @@
         cols="3"
         lg="3"
       >
-
         <combo-box-country-calling-code
           v-model="item.country_code"
           :key="`item-${item.country_code}`"
           :label="$tc('country_code')"
           :country-code-selected="item.country_code"
           :on-selected="(e) => { item.country_code = e.country_code; item.country_calling_code = e.country_calling_code; }"
+          :rules="rulesCountryCode"
         >
           <template
             v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
@@ -33,7 +33,7 @@
           v-model="item.value"
           :label="$tc('phone')"
           :prefix="item.country_calling_code ? `+${item.country_calling_code}` : ''"
-          :rules="[() => validate(item.value, item.country_code) || 'Не валидный номер']"
+          :rules="rulesNumber ? rulesNumber.concat([() => validate(item.value, item.country_code)]) : [() => validate(item.value, item.country_code)]"
         >
         </v-text-field>
       </v-col>
@@ -43,6 +43,7 @@
         <v-text-field
           v-model="item.label"
           :label="$tc('label')"
+          :rules="rulesLabel"
         >
           <template v-slot:append-outer>
             <v-btn
@@ -83,9 +84,25 @@ export default Vue.extend({
     event: 'change'
   },
   props: {
-    items: {
+    messageError: {
+      type: String,
+      default: 'Invalid number format'
+    },
+    rulesLabel: {
       type: Array,
-      required: true
+      default: undefined
+    },
+    rulesNumber: {
+      type: Array,
+      default: undefined
+    },
+    rulesCountryCode: {
+      type: Array,
+      default: undefined
+    },
+    value: {
+      type: [Array],
+      default: undefined
     }
   },
 
@@ -95,61 +112,29 @@ export default Vue.extend({
     }
   },
 
-  // mounted () {
-  //   this.phones = this.items.map((e: PhoneNumberInterface) => {
-  //     return {
-  //       /* eslint-disable */
-  //       country_code: e.country_code,
-  //       country_calling_code: e.country_calling_code,
-  //       label: e.label,
-  //       value: e.value
-  //       /* eslint-enable */
-  //     }
-  //   })
-  // },
-
   watch: {
-    phones: {
-      handler (items) {
-        console.log('Updated phones...')
-        this.$emit('change', items.map((e: any) => {
-          return {
-            /* eslint-disable */
-            id: e.id,
-            country_code: e.country_code,
-            country_calling_code: e.country_calling_code,
-            label: e.label,
-            value: e.value
-            /* eslint-enable */
-          }
-        }))
-      },
-      deep: true
-    },
-
-    items: {
-      handler (items) {
-        this.phones = items.map((e: any) => {
-          return {
-            /* eslint-disable */
-            id: e.id,
-            country_code: e.country_code,
-            country_calling_code: e.country_calling_code,
-            label: e.label,
-            value: e.value
-            /* eslint-enable */
-          }
-        })
-      },
-      deep: true
+    value (value) {
+      this.phones = value
     }
   },
 
+  mounted () {
+    this.$on('change', this.onChange)
+  },
+
   created () {
-    this.phones = this.items
+    this.phones = this.value
+  },
+
+  beforeDestroy () {
+    this.$off('change', this.onChange)
   },
 
   methods: {
+    onChange (value: any) {
+      this.phones = value
+    },
+
     onAddClick () {
       this.doAddPhoneNumber()
     },
@@ -161,8 +146,7 @@ export default Vue.extend({
         country_code: countryCode,
         country_calling_code: countryCallingCode,
         label,
-        value,
-        rules: [] as any[]
+        value
         /* eslint-enable */
       })
     },
@@ -172,7 +156,11 @@ export default Vue.extend({
     },
 
     validate (text: string, defaultCountry?: CountryCode) {
-      return parsePhoneNumber(text, defaultCountry)?.isValid() || false
+      try {
+        return parsePhoneNumber(text, defaultCountry)?.isValid() || false
+      } catch (e) {
+        return false
+      }
     }
   }
 })

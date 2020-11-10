@@ -14,5 +14,19 @@ module.exports = {
     resolve: {
       symlinks: false
     }
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
+        resourceQuery: /blockType=i18n/,
+        type: 'javascript/auto',
+        loader: '@kazupon/vue-i18n-loader'
+      }
+    ]
   }
 }

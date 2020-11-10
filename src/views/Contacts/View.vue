@@ -118,10 +118,19 @@
                 <v-item-group
                 >
                   <v-btn
-                    v-if="contact.default_phone.id === phone.id"
+                    v-if="!contact.default_phone"
                     :key="`phone-default-btn-${phoneIndex}`"
                     icon
-                    color="#FFC107 "
+                    color="#9e9e9e73"
+                    @click.stop="onDefaultPhoneSet(phone)"
+                  >
+                    <v-icon>mdi-star</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-else-if="contact.default_phone.id === phone.id"
+                    :key="`phone-default-btn-${phoneIndex}`"
+                    icon
+                    color="#ffc107"
                   >
                     <v-icon>mdi-star</v-icon>
                   </v-btn>

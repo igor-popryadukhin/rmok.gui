@@ -12,6 +12,6 @@
   "rule_required": "Обязательно к заполнению!",
   "rule_max_dynamic_length": "Максимум {val}",
   "rule_min_dynamic_length": "Минимум {val}",
-  "rule_regex_dynamic": "Не соответсвует паттерну {val}",
+  "rule_regex_dynamic": "Не соответствует паттерну {val}",
   "rule_only": "Только: {val}"
 }
