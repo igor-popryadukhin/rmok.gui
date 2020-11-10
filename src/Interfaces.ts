@@ -5,3 +5,10 @@ export interface CrumbInterface {
   class: string;
   latest: boolean;
 }
+
+export interface NotificationInterface {
+  icon: string;
+  color: string;
+  title: string;
+  message: string;
+}

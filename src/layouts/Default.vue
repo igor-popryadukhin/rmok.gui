@@ -89,12 +89,49 @@
         </template>
         <span>{{ $tc('route.calls') }}</span>
       </v-tooltip>
-      <v-btn
-        icon
-        class="mr-1"
+
+      <!-- BELL -->
+      <v-menu
+        :close-on-content-click="false"
+        nudge-left="150"
+        open-on-hover
       >
-        <v-icon>mdi-bell</v-icon>
-      </v-btn>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="mr-1"
+            icon
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon>mdi-bell</v-icon>
+            <v-badge
+              v-if="notifications.length > 0"
+              color="red"
+              content="!"
+            />
+          </v-btn>
+        </template>
+        <v-card v-if="notifications.length > 0">
+          <v-list>
+            <v-list-item
+              v-for="(item, itemIndex) in notifications"
+              :key="itemIndex"
+              ripple
+            >
+              <v-list-item-avatar>
+                <v-icon :color="item.color">
+                  {{ item.icon }}
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+                <v-list-item-subtitle>{{ item.message }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-menu>
+
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -219,12 +256,15 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
+import { NotificationInterface } from '@/Interfaces'
 
 export default Vue.extend({
   props: {
     source: String
   },
+
   mixins: [breadcrumbs],
+
   data: () => ({
     settings: {
       suppressScrollY: false,
@@ -263,6 +303,7 @@ export default Vue.extend({
         to: ''
       }
     ],
+    notifications: [] as NotificationInterface[],
     projects: []
   }),
 
@@ -272,15 +313,26 @@ export default Vue.extend({
       const last: string = this.$store.getters['profile/last_name'] || ''
       return first.charAt(0) + last.charAt(0)
     }
-  }
+  },
 
-  // watch: {
-  //   $route (to, from) {
-  //     const toDepth = to.path.split('/').length
-  //     const fromDepth = from.path.split('/').length
-  //     this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
-  //   }
-  // },
+  created () {
+    this.$store.subscribe(
+      ({ payload, type }) => {
+        if (type === 'project/set') {
+          if (payload.statuses) {
+            if (payload.statuses.length === 0) {
+              this.notifications.push({
+                icon: 'mdi-alert',
+                color: 'red',
+                title: 'Ошибка проекта!',
+                message: 'У проекта нет статусов'
+              })
+            }
+          }
+        }
+      }
+    )
+  }
 })
 </script>
 
