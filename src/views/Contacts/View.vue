@@ -35,7 +35,8 @@
             <v-btn
               v-else
               text
-              class="primary"
+              color="primary"
+              outlined
               :disabled="!$jsSIP.isConnected || !$libPhoneNumberJs.validate(contact.default_phone.value.e164)"
               @click="onCall(contact.default_phone.value.e164, contact.id)"
             >
@@ -375,7 +376,7 @@ export default Vue.extend({
     this.dataLoading = true
     contacts
       .getById(+this.$route.params.contact_id)
-      .then((contact) => {
+      .then((contact: ContactInterface) => {
         this.contact = contact
       }).finally(() => {
         this.dataLoading = false

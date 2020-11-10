@@ -58,7 +58,7 @@ export class Contacts {
    *
    * @param id
    */
-  public getById (id: number): Promise<unknown> {
+  public getById (id: number): Promise<ContactInterface> {
     return new Promise((resolve, reject) => {
       $axios.get(`/contacts/${id}`)
         .then((response: AxiosResponse) => {

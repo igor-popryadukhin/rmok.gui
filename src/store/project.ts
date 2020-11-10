@@ -29,12 +29,24 @@ export const project = {
 
   actions: {
     load ({ commit }: any) {
-      new Projects().current().then((project: ProjectInterface) => { commit('set', project) })
+      new Projects()
+        .current()
+        .then((project: ProjectInterface) => { commit('set', project) })
+        .catch(() => {
+          commit('set', {
+            id: 0,
+            name: '',
+            comment: '',
+            statuses: [],
+            created_at: 0
+          })
+        })
     }
   },
 
   getters: {
     /* eslint-disable */
+    is (state: ProjectInterface) { return state },
     id (state: ProjectInterface) { return state.id },
     name (state: ProjectInterface) { return state.name },
     created_at (state: ProjectInterface) { return state.created_at },
