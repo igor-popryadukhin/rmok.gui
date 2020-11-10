@@ -115,6 +115,8 @@
         </v-toolbar>
       </v-card-text>
       <v-row class="ma-0">
+
+        <!-- List -->
         <v-col
           order-sm="2"
           order-lg="1"
@@ -170,16 +172,6 @@
                       </v-btn>
                     </template>
                     <v-list>
-                      <v-list-item
-                        :to="{ name: 'contacts_edit', params: { id: item.id } }"
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-square-edit-outline</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Редактировать</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
                       <v-list-item
                         :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
                       >
