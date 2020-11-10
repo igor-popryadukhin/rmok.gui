@@ -64,6 +64,12 @@ const routes: RouteConfig[] = [
         meta: { layout: 'default', middleware: [] }
       },
       {
+        path: 'new',
+        name: 'contacts_new',
+        component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Contacts/New.vue'),
+        meta: { layout: 'default', middleware: [] }
+      },
+      {
         path: ':contact_id',
         name: 'contacts_view',
         component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/View.vue'),
@@ -87,18 +93,6 @@ const routes: RouteConfig[] = [
             meta: { layout: 'default', middleware: [] }
           }
         ],
-        meta: { layout: 'default', middleware: [] },
-        beforeEnter (to, form, next) {
-          if (/\d+/.test(to.params.contact_id)) {
-            return next()
-          }
-          return next({ name: 'not_found' })
-        }
-      },
-      {
-        path: 'new',
-        name: 'contacts_new',
-        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/New.vue'),
         meta: { layout: 'default', middleware: [] }
       }
     ],
