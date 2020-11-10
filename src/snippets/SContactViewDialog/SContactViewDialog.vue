@@ -246,9 +246,7 @@ export default Vue.extend({
       /* eslint-enable */
     },
 
-    /**
-     * Occurs when a session has ended for one reason or another
-     **/
+    // Occurs when a session has ended for one reason or another
     onJssipSessionCancel (data: any) {
       // If the claw-tact dialogue is open, load the updated history
       if (this.dialog.visible) {

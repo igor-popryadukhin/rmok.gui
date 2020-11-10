@@ -1,11 +1,11 @@
 import Vue from 'vue'
 
 interface CookieOptionsInterface {
-  [key: string]: string | Date | boolean | number;
+  [key: string]: any;
 }
 /* eslint-disable */
 export class Cookie {
-  public set (name: string, value: string, options: CookieOptionsInterface = {}) {
+  public set (name: string, value: string, options: any = { path: '/' }) {
 
     let updatedCookie = encodeURIComponent(name) + '=' + encodeURIComponent(value)
 

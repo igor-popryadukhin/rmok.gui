@@ -2,6 +2,7 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
 export interface CountryCodeInterface {
+  /* eslint-disable */
   name: string;
   name2: string;
   country_code: string;
@@ -9,6 +10,7 @@ export interface CountryCodeInterface {
   example_format: string;
   example: string;
   region: string;
+  /* eslint-enable */
 }
 
 export class Database {

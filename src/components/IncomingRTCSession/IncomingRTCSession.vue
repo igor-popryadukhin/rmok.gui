@@ -7,7 +7,7 @@
           outlined
           dark
           large
-          @click.stop.once="$emit('answerClick')"
+          @click.stop.once="$emit('answer-click')"
         >
           <v-icon>mdi-phone</v-icon>
         </v-btn>
@@ -26,7 +26,7 @@
           outlined
           dark
           large
-          @click.stop.once="$emit('cancelClick')"
+          @click.stop.once="$emit('answer-click')"
         >
           <v-icon>mdi-phone-hangup</v-icon>
         </v-btn>

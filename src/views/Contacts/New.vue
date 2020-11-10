@@ -218,6 +218,8 @@ import { Contacts } from '@/api/Contacts'
 import { POSITION } from 'vue-toastification'
 import rules from '@/mixins/rules'
 import { isEmpty } from '@/Utils'
+import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 
 interface Phone {
   code: string;
@@ -228,15 +230,6 @@ interface Phone {
 interface Email {
   value: string;
   label: string;
-}
-
-interface Contact {
-  first_name: string;
-  last_name: string;
-  middle_name: string;
-  notes: string;
-  emails: Email[];
-  phones: Phone[];
 }
 
 export default Vue.extend({
@@ -251,32 +244,14 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
-      contact: {
-        first_name: '',
-        last_name: '',
-        middle_name: '',
-        notes: '',
-        emails: [
-          {
-            email: '',
-            label: ''
-          }
-        ],
-        phones: [
-          {
-            code: '',
-            value: '',
-            label: ''
-          }
-        ]
-      } as Contact
+      contact: {} as ContactInterface & { notes: string }
       /* eslint-enable */
     }
   },
 
   methods: {
     onCountryCodeSelected (phone: Phone) {
-      phone.value = phone.code.code
+      phone.value = phone.code
     },
 
     /**
@@ -302,9 +277,11 @@ export default Vue.extend({
      */
     onAddPhoneClick () {
       this.contact.phones.push({
-        code: '',
-        value: '',
-        label: ''
+        country_calling_code: '',
+        country_code: '',
+        id: 0,
+        label: '',
+        value: ''
       })
     },
 
@@ -317,7 +294,7 @@ export default Vue.extend({
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if ((this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -336,24 +313,13 @@ export default Vue.extend({
               }
             }),
           phones: this.contact.phones
-            .filter((e: Phone) => !(isEmpty(e.value) && isEmpty(e.label)))
-            .map((phone: Phone) => { return { label: phone.label, value: phone.value }}),
+            .filter((e: PhoneNumberInterface) => !(isEmpty(e.value) && isEmpty(e.label)))
+            .map((phone: PhoneNumberInterface) => ({ label: phone.label, value: phone.value })),
           notes: this.contact.notes || null
           /* eslint-enable */
         }).then(() => {
-          this.$refs.form.reset()
-          this.$toast.success(this.$tc('contact_saved_successfully'), {
-            position: POSITION.TOP_RIGHT,
-            timeout: 3000,
-            closeOnClick: true,
-            draggable: true,
-            draggablePercent: 0.6,
-            showCloseButtonOnHover: true,
-            hideProgressBar: true,
-            closeButton: 'button',
-            icon: true,
-            rtl: false
-          })
+          (this.$refs.form as Vue & { reset: () => boolean }).reset()
+          this.$toast.success(this.$tc('contact_saved_successfully'))
         }).catch((e) => {
           const cause: string = e.statusText || e || 'undefined'
           this.$toast.error(this.$t('error_occurred_while_saving_the_contact', { cause }), {

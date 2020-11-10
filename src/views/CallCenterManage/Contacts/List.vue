@@ -348,7 +348,7 @@ export default Vue.extend({
     onSelectedAllClick (sender: any) {
       const contacts: ContactInterface[] = (this as any).contacts
       contacts.forEach((e: ContactInterface) => {
-        e.checked = sender.isActive
+        (e as ContactInterface & {checked: boolean}).checked = sender.isActive
       })
       this.operation()
     },
@@ -367,7 +367,7 @@ export default Vue.extend({
       let contactsCheckedCount = 0
 
       contacts.forEach((e: ContactInterface) => {
-        if (e.checked) {
+        if ((e as ContactInterface & {checked: boolean}).checked) {
           contactsCheckedCount++
         }
       })

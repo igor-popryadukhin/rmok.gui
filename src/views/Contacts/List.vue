@@ -429,7 +429,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
-import { ContactInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
+import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
@@ -453,7 +453,19 @@ export default Vue.extend({
         'Vue',
         'Vuetify'
       ],
-      contact: {} as ContactInterface,
+      contact: {
+        /* eslint-disable */
+        city: '',
+        default_phone: undefined,
+        emails: [],
+        first_name: '',
+        id: 0,
+        last_name: '',
+        middle_name: '',
+        phones: [] as ContactPhoneInterface[],
+        user: undefined
+        /* eslint-enabled */
+      } as ContactInterface,
       contactHistory: [] as HistoryInterface[],
       checkboxSelectedAll: {
         checked: false,
@@ -508,7 +520,7 @@ export default Vue.extend({
      */
     onSelectedAllClick (sender: any) {
       const contacts: ContactInterface[] = (this as any).contacts
-      contacts.forEach((e: ContactInterface) => {
+      contacts.forEach((e: any) => {
         e.checked = sender.isActive
       })
       this.operation()
@@ -527,7 +539,7 @@ export default Vue.extend({
       const contactsCount = contacts.length
       let contactsCheckedCount = 0
 
-      contacts.forEach((e: ContactInterface) => {
+      contacts.forEach((e: any) => {
         if (e.checked) {
           contactsCheckedCount++
         }
@@ -635,9 +647,9 @@ export default Vue.extend({
           this.contact = contact as any
 
           // Changing the response scheme
-          if ('phone_numbers' in this.contact) {
-            if (Array.isArray(this.contact.phone_numbers)) {
-              this.contact.phone_numbers = this.contact.phone_numbers.map((e) => {
+          if ('phones' in this.contact) {
+            if (Array.isArray(this.contact.phones)) {
+              this.contact.phones = this.contact.phones.map((e: any) => {
                 e.connecting = false
                 return e
               })

@@ -65,7 +65,7 @@ export default Vue.extend({
 
   data () {
     return {
-      selected: null,
+      selected: {} as CountryCodeInterface,
       roles: [] as RoleInterface[]
     }
   },
@@ -83,10 +83,9 @@ export default Vue.extend({
       /* eslint-disable */
       const countryCodes: CountryCodeInterface[] = this.$store.getters['system/country_codes']
       if (countryCodes) {
-        for (let i = 0; i < countryCodes.length; i++) {
-          console.log(countryCodes[i].country_code, value)
-          if (countryCodes[i].country_code === value) {
-            this.selected = countryCodes[i]
+        for (let item of countryCodes) {
+          if (item.country_code === value) {
+            this.selected = item
             break
           }
         }
@@ -98,9 +97,9 @@ export default Vue.extend({
   created () {
     const countryCodes: CountryCodeInterface[] = this.$store.getters['system/country_codes']
     if (countryCodes) {
-      for (let i = 0; i < countryCodes.length; i++) {
-        if (countryCodes[i].country_code === this.countryCodeSelected) {
-          this.selected = countryCodes[i]
+      for (const item of countryCodes) {
+        if (item.country_code === this.countryCodeSelected) {
+          this.selected = item
           break
         }
       }

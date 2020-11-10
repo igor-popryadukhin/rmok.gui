@@ -390,7 +390,7 @@ export default Vue.extend({
 
     resetForm () {
       /* eslint-disable */
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
       this.organization.tags = []
       this.organization.emails = []
       this.organization.phones = []
@@ -407,7 +407,7 @@ export default Vue.extend({
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -418,7 +418,7 @@ export default Vue.extend({
           inn: this.organization.inn.trim(),
           cpp: this.organization.cpp.trim(),
           site: this.organization.site.trim(),
-          emails: this.organization.emails
+          emails: this.organization.emails || []
             .filter((e: Email) => !(isEmpty(e.value) && isEmpty(e.label)))
             .map((email: Email) => {
               return {

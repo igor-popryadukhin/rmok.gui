@@ -78,6 +78,8 @@ import rules from '@/mixins/rules'
 import { Groups } from '@/api/Groups'
 import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import AutocompleteOrganization from '@/components/Autocomplete/AutocompleteOrganization.vue'
+import { UserInterface } from '@/api/Users'
+import { OrganizationInterface } from '@/api/Organizations'
 
 interface Phone {
   code: string;
@@ -107,8 +109,8 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
-      organizationSelected: null,
-      userSelected: null,
+      organizationSelected: {} as OrganizationInterface,
+      userSelected: {} as UserInterface,
       group: {
         name: ''
       }
@@ -119,11 +121,11 @@ export default Vue.extend({
   methods: {
 
     resetForm () {
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true

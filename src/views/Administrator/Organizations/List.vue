@@ -168,8 +168,6 @@ export default Vue.extend({
                   }).finally()
 
                 resolve()
-                this.checkboxSelectedAll.checked = false
-                this.checkboxSelectedAll.indeterminate = false
               })
             }
           }

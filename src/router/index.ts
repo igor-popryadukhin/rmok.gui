@@ -94,6 +94,12 @@ const routes: RouteConfig[] = [
           }
           return next({ name: 'not_found' })
         }
+      },
+      {
+        path: 'new',
+        name: 'contacts_new',
+        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/New.vue'),
+        meta: { layout: 'default', middleware: [] }
       }
     ],
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {

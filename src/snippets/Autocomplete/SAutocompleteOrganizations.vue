@@ -15,7 +15,7 @@
     >
       <v-icon class="pl-5 pr-9">mdi-office-building</v-icon>
     </template>
-    <template v-slot:selection="{ attr, on, item }">
+    <template v-slot:selection="{ item }">
       <span>{{ item.name }}</span>
     </template>
     <template v-slot:item="{ item }">

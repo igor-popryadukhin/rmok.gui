@@ -336,13 +336,13 @@ export default Vue.extend({
         }
       },
       contact: {
-        city: "",
+        city: '',
         default_phone: undefined,
         emails: [],
-        first_name: "",
+        first_name: '',
         id: 0,
-        last_name: "",
-        middle_name: "",
+        last_name: '',
+        middle_name: '',
         phones: [],
         user: undefined
       } as ContactInterface

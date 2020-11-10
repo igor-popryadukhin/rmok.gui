@@ -158,14 +158,12 @@ export default Vue.extend({
                   .then(() => {
                     this.groups = this.groups.filter((e: GroupInterface) => e.id !== id)
                     this.$toast.success(this.$t('group_delete_successfully'), { icon: true })
-                  }).catch((e) => {
+                  }).catch((e: any) => {
                     const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
                     this.$toast.error(this.$t('group_delete_error', { cause }), { icon: true })
                   }).finally()
 
                 resolve()
-                this.checkboxSelectedAll.checked = false
-                this.checkboxSelectedAll.indeterminate = false
               })
             }
           }

@@ -8,8 +8,8 @@ export interface ContactInterface {
   city: string;
   default_phone?: PhoneNumberInterface;
   user: any;
-  emails?: []
-  phones?: ContactPhoneInterface[]
+  emails: any[];
+  phones: ContactPhoneInterface[];
 }
 
 export interface ContactPhoneInterface {
@@ -18,7 +18,7 @@ export interface ContactPhoneInterface {
   value: {
     e164: string;
     international: string;
-  };
+  } | string;
   country_code: string;
   country_calling_code: string;
 }
@@ -30,4 +30,3 @@ export interface HistoryInterface {
   start_time: number;
   end_time: number;
 }
-

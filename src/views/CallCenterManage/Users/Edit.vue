@@ -91,7 +91,7 @@
             md="4"
           >
             <v-text-field
-              v-model="user.password"
+              v-model="password.value1"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
               :rules="[]"
@@ -124,7 +124,7 @@
             md="4"
           >
             <v-text-field
-              v-model="user.password2"
+              v-model="password.value2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
               :rules="[]"
@@ -352,7 +352,9 @@ export default Vue.extend({
   data () {
     return {
       password: {
-        visible: false
+        visible: false,
+        value1: '',
+        value2: ''
       },
       buttonSave: {
         disabled: false,
@@ -368,8 +370,6 @@ export default Vue.extend({
         last_name: '',
         middle_name: '',
         login: '',
-        password: '',
-        password2: '',
         email: '',
         phone: '',
         role: null,
@@ -397,11 +397,11 @@ export default Vue.extend({
   methods: {
 
     resetForm () {
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -412,11 +412,11 @@ export default Vue.extend({
           last_name: this.user.last_name.trim(),
           middle_name: this.user.middle_name.trim(),
           login: this.user.login.trim(),
-          password: this.user.password.trim(),
+          password: this.password.value1.trim(),
           phone: this.user.phone.trim(),
           email: this.user.email,
           role: this.user.role ? this.user.role.id : null,
-          group_id: this.user.group ? this.user.group.id : null,
+          group_id: this.user.group ? this.user.group.id : null
           /* eslint-enable */
         }).then(() => {
           this.resetForm()

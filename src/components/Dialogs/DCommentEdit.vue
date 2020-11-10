@@ -44,7 +44,7 @@ export default Vue.extend({
 
   data () {
     return {
-      text: '' as string
+      text: '' as any
     }
   },
 
@@ -56,7 +56,7 @@ export default Vue.extend({
           text: this.cancelTitle,
           handle: () => {
             if (this.onCancel) {
-              this.onCancel()
+              (this.onCancel as () => void)()
             }
           }
         },
@@ -66,16 +66,12 @@ export default Vue.extend({
           text: this.saveTitle,
           handle: () => {
             if (this.onSave) {
-              this.onSave(this.text)
+              (this.onSave as () => void)()
             }
           }
         }
       }
     }
-  },
-
-  created () {
-    this.text = this.comment
   }
 
 })

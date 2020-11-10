@@ -2,11 +2,13 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
 export interface ATEConfigurationInterface {
+  /* eslint-disable */
   server: string;
   port: number;
   display_name: string;
   login: string;
   password: string;
+  /* eslint-enable */
 }
 
 export class Configurations {

@@ -94,7 +94,6 @@ export default Vue.extend({
           // Admin settings
           if (r.name === 'administrator_settings') {
             r.children.forEach((router: Route) => {
-              console.log(router.name)
               this.tabs.push({
                 name: this.$tc(router.name || ''),
                 icon: router.meta.icon,
@@ -109,7 +108,7 @@ export default Vue.extend({
   },
 
   methods: {
-    tree (node: any, handler: Function) {
+    tree (node: any, handler: (a: any) => void) {
       if (node.children) {
         node.children.forEach((e: any) => {
           this.tree(e, handler)

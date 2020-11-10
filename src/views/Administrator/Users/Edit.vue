@@ -379,6 +379,7 @@ import countryCodes from '@/mixins/countryCodes'
 import { UserInterface, Users } from '@/api/Users'
 import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
 import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
+import { OrganizationInterface } from '@/api/Organizations'
 
 interface Email {
   value: string;
@@ -405,8 +406,8 @@ export default Vue.extend({
       password: {
         visible: false,
         isValid: true,
-        value1: null,
-        value2: null,
+        value1: '',
+        value2: '',
         isEmpty (): boolean {
           return Boolean(!this.value1 && !this.value2)
         }
@@ -418,8 +419,8 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      organizationSelected: null,
-      groupSelected: null,
+      organizationSelected: {} as OrganizationInterface,
+      groupSelected: {} as UserInterface,
       /* eslint-disable */
       user: {
         id: 0,
@@ -427,8 +428,6 @@ export default Vue.extend({
         last_name: '',
         middle_name: '',
         login: '',
-        password: '',
-        password2: '',
         email: '',
         phone: '',
         role: null,
@@ -467,11 +466,11 @@ export default Vue.extend({
   methods: {
 
     resetForm () {
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -486,10 +485,10 @@ export default Vue.extend({
         password: this.password.value1,
         phone: this.user.phone.trim(),
         email: this.user.email,
-        role: this.user.role.id,
-        group_id: this.groupSelected ? this.groupSelected.id : null,
+        role: this.user.role?.id,
+        group_id: this.groupSelected.id
         /* eslint-enable */
-      }
+      } as any & { password?: string }
 
       // Delete password if is empty
       if (this.password.isEmpty()) {

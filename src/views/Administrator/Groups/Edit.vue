@@ -64,6 +64,7 @@ import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { GroupInterface, Groups } from '@/api/Groups'
 import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
+import { UserInterface } from '@/api/Users'
 
 export default Vue.extend({
   components: {
@@ -81,7 +82,7 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
-      userSelected: null,
+      userSelected: {} as UserInterface,
       group: {
         id: 0,
         name: '',
@@ -96,18 +97,18 @@ export default Vue.extend({
       .getById(+this.$route.params.id)
       .then((group: GroupInterface) => {
         this.group = group
-        this.userSelected = group.team_leader
+        // this.userSelected.id = group.team_leader.id
       })
   },
 
   methods: {
 
     resetForm () {
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -119,7 +120,7 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.$toast.success(this.$tc('group_update_successfully'))
-        }).catch((e) => {
+        }).catch((e: any) => {
           const cause: string = e.statusText || e.error_message || e || 'undefined'
           this.$toast.error(this.$t('error_occurred_while_added_the_group', { cause }))
         }).finally(() => {

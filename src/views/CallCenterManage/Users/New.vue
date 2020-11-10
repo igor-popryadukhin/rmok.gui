@@ -335,6 +335,8 @@ import countryCodes from '@/mixins/countryCodes'
 import { Users } from '@/api/Users'
 import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
 import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
+import { RoleInterface } from '@/api/Roles'
+import { GroupInterface } from '@/api/Groups'
 
 interface Email {
   value: string;
@@ -369,8 +371,8 @@ export default Vue.extend({
         password2: '',
         email: '',
         phone: '',
-        role: undefined,
-        group: undefined
+        role: {} as RoleInterface,
+        group: {} as GroupInterface
       }
       /* eslint-enable */
     }
@@ -379,11 +381,11 @@ export default Vue.extend({
   methods: {
 
     resetForm () {
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -397,8 +399,8 @@ export default Vue.extend({
           password: this.user.password.trim(),
           phone: this.user.phone.trim(),
           email: this.user.email,
-          role: this.user.role ? this.user.role.id : null,
-          group_id: this.user.group ? this.user.group.id : null,
+          role: this.user.role.id,
+          group_id: this.user.group.id
           /* eslint-enable */
         }).then(() => {
           this.resetForm()

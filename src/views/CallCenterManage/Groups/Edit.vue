@@ -82,7 +82,8 @@ export default Vue.extend({
       /* eslint-disable */
       userSelected: null as any,
       group: {
-        id: 0, name: "",
+        id: 0,
+        name: '',
         organization: undefined,
         team_leader: undefined
       } as GroupInterface
@@ -102,11 +103,11 @@ export default Vue.extend({
   methods: {
 
     resetForm () {
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -118,7 +119,7 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.$toast.success(this.$t('group_update_successfully'))
-        }).catch((e) => {
+        }).catch((e: any) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false

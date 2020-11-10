@@ -22,7 +22,7 @@
 <!--        </v-list-item-title>-->
 <!--      </v-list-item>-->
 <!--    </template>-->
-    <template v-slot:selection="{ attr, on, item }">
+    <template v-slot:selection="{ item }">
       <span>{{ item.name }}</span>
     </template>
     <template v-slot:item="{ item }">

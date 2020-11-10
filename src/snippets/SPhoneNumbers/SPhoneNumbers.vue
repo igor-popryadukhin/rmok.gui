@@ -91,7 +91,7 @@ export default Vue.extend({
 
   data () {
     return {
-      phones: []
+      phones: [] as any[]
     }
   },
 
@@ -112,7 +112,7 @@ export default Vue.extend({
     phones: {
       handler (items) {
         console.log('Updated phones...')
-        this.$emit('change', items.map((e) => {
+        this.$emit('change', items.map((e: any) => {
           return {
             /* eslint-disable */
             id: e.id,
@@ -129,7 +129,7 @@ export default Vue.extend({
 
     items: {
       handler (items) {
-        this.phones = items.map((e) => {
+        this.phones = items.map((e: any) => {
           return {
             /* eslint-disable */
             id: e.id,
@@ -154,7 +154,7 @@ export default Vue.extend({
       this.doAddPhoneNumber()
     },
 
-    doAddPhoneNumber (id = 0, countryCode = '', countryCallingCode, label = '', value = '') {
+    doAddPhoneNumber (id = 0, countryCode = '', countryCallingCode = '', label = '', value = '') {
       this.phones.push({
         /* eslint-disable */
         id,
@@ -162,7 +162,7 @@ export default Vue.extend({
         country_calling_code: countryCallingCode,
         label,
         value,
-        rules: []
+        rules: [] as any[]
         /* eslint-enable */
       })
     },

@@ -3,7 +3,7 @@ export interface PhoneNumberInterface {
   country_code: string;
   country_calling_code: string;
   label: string;
-  value: ValueInterface;
+  value: ValueInterface | string;
 }
 
 interface ValueInterface {

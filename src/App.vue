@@ -64,12 +64,14 @@ import parsePhoneNumber, { PhoneNumber } from 'libphonenumber-js'
 import SContactStatusesDialog from '@/snippets/SContactStatuses/SContactStatusesDialog.vue'
 
 interface HistoryDataInterface {
+  /* eslint-disable */
   session_start_time: number;
   session_end_time: number;
   start_timestamp?: number;
   end_timestamp?: number;
   type: string;
   direction?: string;
+  /* eslint-enable */
 }
 
 export default Vue.extend({
@@ -154,17 +156,12 @@ export default Vue.extend({
     **/
     this.$jsSIP.onSessionConnecting = (session: RTCSession, event: ConnectingEvent, payload: any) => {
       console.log('%c%s', 'color: blue;', 'Начало сессии')
-      if (session.direction === 'outgoing') {
-
-      } else {
-
-      }
     }
 
     /**
      * In the process of call...
      * Works on both incoming and outgoing calls
-     **/
+     * */
     this.$jsSIP.onSessionProgress = (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
       /* eslint-disable */
       console.log('onSessionProgress...', event, session.direction, session, payload)
@@ -175,27 +172,23 @@ export default Vue.extend({
         new Contacts()
           .getByPhoneNumber(displayName)
           .then((data) => {
-            this.contact = data
-            let phoneNumber = '...'
-            if (this.$libPhoneNumberJs.parsePhoneNumber(displayName)?.isValid) {
-              const pn: PhoneNumber = this.$libPhoneNumberJs.parsePhoneNumber(displayName)
-              phoneNumber = pn.formatNational()
-            }
+            //todo: Show contact call
+            // this.contact = data
+            // let phoneNumber = '...'
+            // if ((this.$libPhoneNumberJs as LibPhoneNumberJs).parsePhoneNumber(displayName)?.isValid) {
+            //   const pn: PhoneNumber = this.$libPhoneNumberJs.parsePhoneNumber(displayName)
+            //   phoneNumber = pn.formatNational()
+            // }
 
             // Update incoming call information in toast
-            this.updateRTCToast(session.id, `${data.first_name} ${data.last_name}`, phoneNumber)
+            // this.updateRTCToast(session.id, `${data.first_name} ${data.last_name}`, phoneNumber)
           })
       }
       /* eslint-enable */
     }
 
     this.$jsSIP.onSessionAccepted = (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
-      // console.log('onSessionAccepted...', event, session.direction, session, payload)
-      if (session.direction === 'outgoing') {
-
-      } else {
-
-      }
+      console.log('onSessionAccepted...', event, session.direction, session, payload)
     }
 
     this.$jsSIP.onSessionEnded = (session: RTCSession, event: EndEvent, payload: any) => {

@@ -352,10 +352,13 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
-import { Users } from '@/api/Users'
+import { UserInterface, Users } from '@/api/Users'
 import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
 import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
 import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
+import { RoleInterface } from '@/api/Roles'
+import { GroupInterface } from '@/api/Groups'
+import { OrganizationInterface } from '@/api/Organizations'
 
 interface Email {
   value: string;
@@ -382,8 +385,8 @@ export default Vue.extend({
       password: {
         visible: false,
         isValid: false,
-        value1: null,
-        value2: null
+        value1: '',
+        value2: ''
       } as DataPasswordInterface,
       buttonSave: {
         disabled: false,
@@ -392,7 +395,7 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      organizationSelected: null,
+      organizationSelected: {} as OrganizationInterface,
       /* eslint-disable */
       user: {
         first_name: '',
@@ -401,9 +404,9 @@ export default Vue.extend({
         login: '',
         email: '',
         phone: '',
-        role: undefined,
-        group: undefined
-      }
+        role: {} as RoleInterface,
+        group: {} as GroupInterface
+      } as UserInterface
       /* eslint-enable */
     }
   },
@@ -427,11 +430,11 @@ export default Vue.extend({
   methods: {
 
     resetForm () {
-      this.$refs.form.reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
     },
 
     onSave () {
-      if (!this.$refs.form.validate()) {
+      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
       this.buttonSave.loading = true
@@ -445,9 +448,9 @@ export default Vue.extend({
           password: this.password.value1.trim(),
           phone: this.user.phone.trim(),
           email: this.user.email,
-          role: this.user.role.id,
+          role: this.user.role?.id,
           organization_id: this.organizationSelected.id,
-          group_id: this.user.group.id,
+          group_id: this.user.group?.id
           /* eslint-enable */
         }).then(() => {
           this.resetForm()

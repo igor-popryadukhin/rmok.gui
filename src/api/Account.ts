@@ -2,6 +2,7 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
 export interface ProfileInterface {
+  /* eslint-disable */
   id: number;
   login: string;
   email: string;
@@ -11,6 +12,7 @@ export interface ProfileInterface {
   userpic: null;
   created_at: number;
   role: Role;
+  /* eslint-enable */
 }
 
 export interface Role {

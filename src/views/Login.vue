@@ -68,7 +68,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import axios, { AxiosResponse } from 'axios'
-import { POSITION } from 'vue-toastification'
 
 export default Vue.extend({
   data () {
@@ -92,43 +91,18 @@ export default Vue.extend({
         password
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          this.$store.dispatch('profile/loadProfile')
           /* eslint-disable */
+          this.$store.dispatch('profile/loadProfile')
           // @ts-ignore
-          this.$cookie.set('access_token', response.data.access_token, { 'max-age': 600, path: '/' })
+          this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 600 })
           // @ts-ignore
           this.$cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
-          // @ts-ignore-end
-          /* eslint-disable */
-          this.$toast.success(this.$tc('messages.authorisation_success'), {
-            position: POSITION.TOP_RIGHT,
-            timeout: 3000,
-            closeOnClick: true,
-            draggable: true,
-            draggablePercent: 0.6,
-            showCloseButtonOnHover: true,
-            hideProgressBar: true,
-            closeButton: 'button',
-            icon: true,
-            rtl: false
-          })
+          this.$toast.success(this.$tc('messages.authorisation_success'))
           this.$router.replace('/')
+          /* eslint-enable */
         }
-      }).catch((e) => {
-        this.$toast.error(this.$tc('messages.authorisation_error'), {
-          position: POSITION.TOP_RIGHT,
-          timeout: 5000,
-          closeOnClick: true,
-          pauseOnFocusLoss: true,
-          pauseOnHover: true,
-          draggable: true,
-          draggablePercent: 0.6,
-          showCloseButtonOnHover: true,
-          hideProgressBar: true,
-          closeButton: 'button',
-          icon: true,
-          rtl: false
-        })
+      }).catch((e: any) => {
+        this.$toast.error(this.$tc('messages.authorisation_error'))
       }).finally(() => {
         this.authorization.loading = false
       })
