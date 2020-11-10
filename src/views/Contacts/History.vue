@@ -207,7 +207,7 @@ export default Vue.extend({
     return {
       historyLoading: false,
       historyFilter: {
-        selected: null as any,
+        selected: null,
         items: [
           {
             title: 'All',
@@ -240,7 +240,7 @@ export default Vue.extend({
 
   watch: {
     'historyFilter.selected': {
-      handler (value: any) {
+      handler (value) {
         const name: string = this.$route.name || ''
         if (value) {
           if (Array.isArray(value)) {
@@ -277,7 +277,7 @@ export default Vue.extend({
   },
 
   methods: {
-    onShowDialogCommentEdit ({ id, comment, actions }: any) {
+    onShowDialogCommentEdit ({ id, comment, actions }) {
       this.$dialog.show(DCommentEdit, {
         waitForResult: true,
         title: this.$t('Comment'),
@@ -290,7 +290,7 @@ export default Vue.extend({
             .updateHistory(id, {
               comment: value
             }).then(() => {
-              const element: any = this.history.find((e: any) => e.id === id)
+              const element = this.history.find((e) => e.id === id)
               if (element) {
                 element.comment = value
               }
@@ -311,7 +311,7 @@ export default Vue.extend({
           +this.$route.query.history_count || 50
         )
         .then((response) => {
-          this.history = response.items.map((e: any) => {
+          this.history = response.items.map((e) => {
             return Object.assign({
               actions: {
                 edit: {
@@ -333,7 +333,4 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-  .history-day {
-    background-color: #03a9f41a;
-  }
 </style>

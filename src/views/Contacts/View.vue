@@ -376,7 +376,7 @@ export default Vue.extend({
     contacts
       .getById(+this.$route.params.contact_id)
       .then((contact) => {
-        this.contact = contact as any
+        this.contact = contact
       }).finally(() => {
         this.dataLoading = false
         this.$root.$emit('root-loading-data-hide')

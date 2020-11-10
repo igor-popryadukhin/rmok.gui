@@ -101,7 +101,7 @@ export default Vue.extend({
           this.$router.replace('/')
           /* eslint-enable */
         }
-      }).catch((e: any) => {
+      }).catch(() => {
         this.$toast.error(this.$tc('messages.authorisation_error'))
       }).finally(() => {
         this.authorization.loading = false

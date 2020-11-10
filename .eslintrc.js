@@ -17,8 +17,8 @@ module.exports = {
   },
   rules: {
     'no-control-regex': 'off',
-    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-console': 'off',
+    'no-debugger': 'off',
     camelcase: 'off',
     '@typescript-eslint/naming-convention': [
       'error',
