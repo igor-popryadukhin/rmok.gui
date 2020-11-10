@@ -182,17 +182,6 @@
                           <v-list-item-title>История</v-list-item-title>
                         </v-list-item-content>
                       </v-list-item>
-                      <v-list-item
-                        link
-                        @click="onItemDeleteClick(item.id)"
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-delete</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Удалить</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
                     </v-list>
                   </v-menu>
                 </v-list-item-action>
