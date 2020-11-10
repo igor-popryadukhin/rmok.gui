@@ -20,6 +20,7 @@ import '@/plugins/vuescroll'
 import '@/plugins/libphonenumber-js'
 import '@/plugins/vuetify-dialog'
 import '@/plugins/lvovich'
+import '@/plugins/router-query'
 import '@/jsSIP'
 
 // layouts
