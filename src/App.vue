@@ -225,8 +225,12 @@ export default Vue.extend({
           new Contacts()
             .addHistory(contact_id, historyData)
             .then((id: number) => {
-              this.contactStatusDialog.visible = true
-              this.contactStatusDialog.historyId = id
+              if (this.$store.getters['project/statuses'].length > 0) {
+                this.contactStatusDialog.visible = true
+                this.contactStatusDialog.historyId = id
+              } else {
+                this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
+              }
             })
             .finally(() => {
               // After adding new data to history, we generate an event

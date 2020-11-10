@@ -55,6 +55,8 @@
   "add_new_user": "Добавить нового пользователя",
   "my_projects": "Мои проекты",
   "passwords_do_not_match": "Пароли не совпадают",
+  "City": "Город",
+  "Project": "Проект",
 
   "titles": {
     "dashboard": "Основнаяя панель",
@@ -133,5 +135,6 @@
   },
 
   "error_session_cause": "Ошибка сессии, причина: {cause}",
-  "Choose a status first!": "Сначала выберите статус!"
+  "Choose a status first!": "Сначала выберите статус!",
+  "The status cannot be set, because the project is configured incorrectly!": "Статус установить не получится, так как проект настроен неверно!"
 }
