@@ -22,5 +22,9 @@
   "Outgoing call canceled": "Исходящий вызов отменен",
   "Missed call": "Пропущенный вызов",
   "Last comment": "Последний комментарий",
+  "Filter by projects": "Фильтровать по проектам",
+  "Filter by city": "Фильтровать по городу",
+  "Filter by scenario": "Фильтровать по сценарию",
+  "Scenario": "Сценарий",
   "No default number": "Нет номера по умолчанию"
 }
