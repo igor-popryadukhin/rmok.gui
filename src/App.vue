@@ -151,9 +151,7 @@ export default Vue.extend({
         /* eslint-enable */
       })
 
-    /**
-     * Это глобальный обработчик сессии.
-    **/
+    // This is the global session handler.
     this.$jsSIP.onSessionConnecting = (session: RTCSession, event: ConnectingEvent, payload: any) => {
       console.log('%c%s', 'color: blue;', 'Начало сессии')
     }

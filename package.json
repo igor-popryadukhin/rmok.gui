@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@mdi/font": "^5.7.55",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
     "@xstate/vue": "^0.3.0",
     "apexcharts": "^3.22.1",
     "core-js": "^3.6.5",
@@ -30,8 +32,6 @@
     "vuex-persistedstate": "^3.1.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.7.0",
-    "@typescript-eslint/parser": "^4.7.0",
     "@vue/cli-plugin-babel": "^4.5.8",
     "@vue/cli-plugin-eslint": "^4.5.8",
     "@vue/cli-plugin-router": "^4.5.8",
@@ -56,7 +56,8 @@
     "vue-cli-plugin-axios": "^0.0.4",
     "vue-cli-plugin-vuetify": "^2.0.7",
     "vue-template-compiler": "^2.6.12",
-    "vuetify-loader": "^1.6.0"
+    "vuetify-loader": "^1.6.0",
+    "webpack-bundle-analyzer": "^4.1.0"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
