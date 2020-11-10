@@ -13,6 +13,7 @@ declare module 'vue/types/vue' {
     $locale: string
     $cookie: Cookie
     $libPhoneNumberJs: LibPhoneNumberJs
-    $lvovich: Lvovich
+    $lvovich: Lvovich,
+    setQuery: (query: any) => void
   }
 }

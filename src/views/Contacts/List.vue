@@ -116,6 +116,9 @@
       </v-card-text>
       <v-row class="ma-0">
         <v-col
+          order-sm="2"
+          order-lg="1"
+          order-md="1"
           cols="12"
           md="8"
           lg="8"
@@ -204,6 +207,15 @@
               </v-list-item>
             </template>
           </template>
+          <template v-else-if="contactsLoading && contacts.length === 0">
+            <v-list-item class="text-center">
+              <v-spacer />
+              <span class="grey--text">
+                {{ $tc('Loading content...') }}
+              </span>
+              <v-spacer />
+            </v-list-item>
+          </template>
           <template v-else>
             <v-list-item class="text-center">
               <v-spacer />
@@ -214,7 +226,12 @@
             </v-list-item>
           </template>
         </v-col>
+
+        <!-- Filter -->
         <v-col
+          order-sm="1"
+          order-lg="2"
+          order-md="2"
           cols="12"
           md="4"
           lg="4"
@@ -223,22 +240,60 @@
             flat
             outlined
           >
-            <v-card-text class="">
+            <v-card-text class="pt-5">
               <v-tooltip bottom max-width="400">
                 <template v-slot:activator="{ on }">
                   <v-combobox
-                    v-model="select"
-                    :items="items"
-                    :label="$tc('responsible')"
+                    v-model="filter.project.selected"
+                    :items="filter.project.items"
+                    :disabled="filter.project.disabled || filter.project.items.length === 0"
+                    :label="$tc('Project')"
+                    item-value="id"
+                    item-text="name"
                     small-chips
                     multiple
                     outlined
                     dense
                     v-on="on"
-                    style="max-width: 400px"
                   ></v-combobox>
                 </template>
-                <span>{{ $tc('Фильтр') }}</span>
+                <span>{{ $tc('Filter by projects') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom max-width="400">
+                <template v-slot:activator="{ on }">
+                  <v-combobox
+                    v-model="filter.city.selected"
+                    :items="filter.city.items"
+                    :disabled="filter.city.disabled || filter.city.items.length === 0"
+                    :label="$tc('City')"
+                    item-value="id"
+                    item-text="name"
+                    small-chips
+                    multiple
+                    outlined
+                    dense
+                    v-on="on"
+                  ></v-combobox>
+                </template>
+                <span>{{ $tc('Filter by city') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom max-width="400">
+                <template v-slot:activator="{ on }">
+                  <v-combobox
+                    v-model="filter.scenario.selected"
+                    :items="filter.scenario.items"
+                    :disabled="filter.scenario.disabled || filter.scenario.length === 0"
+                    :label="$tc('Scenario')"
+                    item-value="id"
+                    item-text="name"
+                    small-chips
+                    multiple
+                    outlined
+                    dense
+                    v-on="on"
+                  ></v-combobox>
+                </template>
+                <span>{{ $tc('Filter by scenario') }}</span>
               </v-tooltip>
             </v-card-text>
           </v-card>
@@ -250,12 +305,13 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { ContactResponseInterface, Contacts } from '@/api/Contacts'
+import { ContactResponseInterface, Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
 import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
-import { filter } from '@/Utils'
+import { filter, isEmpty } from '@/Utils'
+import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
@@ -305,7 +361,27 @@ export default Vue.extend({
       buttonExport: {
         disabled: true
       },
-      contacts: [] as Contact[]
+      contactsLoading: false,
+      contacts: [] as Contact[] & { checked: boolean }[],
+      filter: {
+        project: {
+          disabled: true,
+          selected: null,
+          items: [] as ProjectInterface[]
+        },
+
+        city: {
+          disabled: true,
+          selected: null,
+          items: []
+        },
+
+        scenario: {
+          disabled: true,
+          selected: null,
+          items: []
+        }
+      }
     }
   },
 
@@ -316,22 +392,38 @@ export default Vue.extend({
       return first.charAt(0) + last.charAt(0)
     }
   },
+
   watch: {
     contacts: {
       handler () {
         // todo: implementation
       },
       deep: true
+    },
+
+    // Filter by projects
+    'filter.project.selected': {
+      handler (value?: ProjectInterface | ProjectInterface[] | null) {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            this.$routerQuery.setQuery({
+              filter_project: value.map((v: ProjectInterface) => v.id).join(',')
+            }).then(this.loadContacts)
+          } else {
+            this.$routerQuery.removeQuery(['filter_project']).then(this.loadContacts)
+          }
+        }
+      }
     }
   },
 
-  beforeCreate () {
-    new Contacts()
-      .search()
-      .then((contacts: ContactResponseInterface) => {
-        // eslint-disable-next-line
-        (this as any).contacts = contacts.items
-      })
+  created () {
+    new Projects()
+    .find()
+    .then((response: ProjectResponseItemsInterface) => {
+      this.filter.project.items = response.items
+    })
+    this.loadContacts()
   },
 
   methods: {
@@ -527,6 +619,30 @@ export default Vue.extend({
       /* eslint-disable */
       this.$jsSIP.call(target, { contact_id: contactId, target })
       /* eslint-enable */
+    },
+
+    loadContacts () {
+      const query: ContactSearchQueryInterface = {
+        q: this.$routerQuery.getQuery('q', ''),
+        projects: this.$routerQuery.getQuery('filter_project', ''),
+        offset: this.$routerQuery.getQuery('offset', 0),
+        count: this.$routerQuery.getQuery('count', 100)
+      }
+
+      if (isEmpty(query.projects)) {
+        delete query.projects
+      }
+
+      this.contactsLoading = true
+      new Contacts()
+        .search(query)
+        .then((contacts: ContactResponseInterface) => {
+          this.contacts = contacts.items.map((contact: ContactInterface) => ({ ...contact, checked: false }))
+        }).catch((e) => {
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).finally(() => {
+          this.contactsLoading = false
+        })
     }
   }
 })

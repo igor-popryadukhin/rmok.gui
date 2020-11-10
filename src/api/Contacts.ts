@@ -11,28 +11,28 @@ export interface ContactResponseInterface {
   items: Contact[];
 }
 
+export interface ContactSearchQueryInterface {
+  q: string;
+  projects?: string;
+  offset: number;
+  count: number;
+}
+
 export class Contacts {
   /**
-   * Поиск контактов
+   * Find contacts
    *
-   * @param q
-   * @param offset
-   * @param count
+   * @param query
    */
-  public search (q = '', offset = 0, count = 100): Promise<ContactResponseInterface> {
+  public search (query: ContactSearchQueryInterface | null = { q: '', offset: 0, count: 100 }): Promise<ContactResponseInterface> {
     return new Promise((resolve, reject) => {
       $axios.get('/contacts', {
-        params: {
-          q, offset, count
-        }
+        params: { ...query }
       }).then((response: AxiosResponse) => {
-        if (response.status === 200) {
-          const data: ContactResponseInterface = response.data
-          data.items = data.items.map((e) => {
-            e.checked = false
-            return e
-          })
-          resolve(data)
+        if ([200].includes(response.status)) {
+          resolve(response.data)
+        } else {
+          reject(response.data)
         }
       }).catch(reject)
     })
