@@ -33,63 +33,30 @@
         </v-row>
 
         <!-- Emails -->
-        <v-row
-          v-for="(email, key) in organization.emails"
-          :key="`email-${key}`"
-        >
-          <v-col
-            cols="6"
-          >
-            <v-text-field
-              v-model="email.value"
-              :label="$tc('email')"
-              persistent-hint
-              required
-              :rules="[rules.email, rules.max_256]"
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-email</v-icon>
-                <v-spacer v-else class="pl-10 pr-10"></v-spacer>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="6"
-          >
-            <v-text-field
-              v-model="email.label"
-              :label="$tc('label')"
-              :rules="[rules.max_50]"
-            >
-              <template v-slot:append-outer>
-                <v-btn
-                  v-if="(organization.emails.length - 1) === key"
-                  icon
-                  @click="onAddEmailClick()"
-                >
-                  <v-icon>mdi-plus</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else
-                  icon
-                  color="red"
-                  @click="onDeleteEmailClick(key)"
-                >
-                  <v-icon>mdi-minus</v-icon>
-                </v-btn>
-              </template>
-            </v-text-field>
+        <v-row>
+          <v-col>
+            <s-emails
+              v-model="organization.emails"
+              :text-label="$t('Label')"
+              :text-email="$t('E-mail address')"
+              :rules-email="[rules.required, rules.email]"
+              :rules-label="[rules.required, rules.max_50]"
+            />
           </v-col>
         </v-row>
 
         <!-- Phones -->
-        <phone-numbers
-          v-model="phoneNumbers"
-          :items="organization.phones"
-        />
+        <v-row>
+          <v-col>
+            <s-phone-numbers
+              v-model="organization.phones"
+              :message-error="$t('Invalid phone number format')"
+              :rules-number="[rules.required]"
+              :rules-label="[rules.required, rules.max_50]"
+              :rules-country-code="[rules.required]"
+            />
+          </v-col>
+        </v-row>
 
         <!-- Site -->
         <v-row>
@@ -128,8 +95,8 @@
               v-model="organization.cpp"
               :label="$tc('cpp')"
               :rules="[
-                ruleDynamic(9, 'Минимальная длина КПП 9 символов').min,
-                ruleDynamic(9, 'Максимальная длина КПП 9 символов').max
+                ruleDynamic(9, $t('The minimum length of the CPP is 9 characters')).min,
+                ruleDynamic(9, $t('The maximum length of the CPP is 9 characters')).max
                 ]"
               counter
             >
@@ -152,8 +119,9 @@
               v-model="organization.inn"
               :label="$tc('inn')"
               :rules="[
-                ruleDynamic(9, 'Минимальная длина ИНН 9 символов').min,
-                ruleDynamic(12, 'Максимальная длина ИНН 12 символов').max
+                ruleDynamic(9, $t('Minimum length INN 9 characters')).min,
+                ruleDynamic(12, $t('Maximum length ИНН 12 characters')).max,
+
                 ]"
               counter
             >
@@ -202,10 +170,27 @@
             <s-autocomplete-users
               v-model="organization.responsible"
               :selected-id="organization.responsible ? organization.responsible.id: 0"
+              :organization-id="organization.id"
+              display-organization
               visible-icon
               :rules="[rules.required]"
               :label="$tc('responsible')"
-            />
+              role="r_leader_cc"
+            >
+              <template v-slot:no-data>
+                <v-list-item
+                  link
+                  target="_blank"
+                  :to="{ name: 'administrator_users_new' }"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      Нажмите что бы добавить нового пользователя
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </s-autocomplete-users>
           </v-col>
         </v-row>
 
@@ -253,7 +238,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import rules from '@/mixins/rules'
-import { isEmpty } from '@/Utils'
 import {
   OrganizationInterface,
   Organizations,
@@ -261,25 +245,16 @@ import {
   OrganizationTagInterface, OrganizationPhoneInterface, OrganizationEmailInterface
 } from '@/api/Organizations'
 import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
-import PhoneNumbers from '@/components/PhoneNumbers/PhoneNumbers.vue'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-
-interface Phone {
-  code: string;
-  value: string;
-  label: string;
-}
-
-interface Email {
-  value: string;
-  label: string;
-}
+import SPhoneNumbers from '@/snippets/SPhoneNumbers/SPhoneNumbers.vue'
+import SEmails from '@/snippets/SEmails/SEmails.vue'
 
 export default Vue.extend({
   mixins: [rules],
   components: {
     SAutocompleteUsers,
-    PhoneNumbers
+    SPhoneNumbers,
+    SEmails
   },
   data () {
     return {
@@ -304,6 +279,7 @@ export default Vue.extend({
         sphere_activity: '',
         emails: [
           {
+            id: 0,
             value: '',
             label: ''
           }
@@ -311,8 +287,8 @@ export default Vue.extend({
         phones: [
           {
             id: 0,
-            country_code: '',
-            country_calling_code: '',
+            country_code: 'RU',
+            country_calling_code: '7',
             value: '',
             label: ''
           }
@@ -330,19 +306,25 @@ export default Vue.extend({
   },
 
   created () {
-    new Organizations()
-      .getTags()
-      .then((tags: OrganizationTagInterface[]) => {
-        this.tags = tags
-      })
+    // this.$root.$emit('root-loading-data-show')
+
     new Organizations()
       .getById(+this.$route.params.id)
       .then((organization: OrganizationInterface) => {
         /* eslint-disable */
         this.organization.id = organization.id
         this.organization.name = organization.name
-        this.organization.emails = organization.emails || []
-        this.organization.phones = organization.phones || []
+        this.organization.emails = organization.emails?.map((e) => e) || []
+        this.organization.phones = organization
+          .phones?.map((e: OrganizationPhoneInterface) => {
+            return {
+              id: e.id,
+              country_code: e.country_code,
+              country_calling_code: e.country_calling_code,
+              label: e.label,
+              value: e.value.e164 || e.value
+            }
+          }) || []
         this.organization.site = organization.site
         this.organization.cpp = organization.cpp
         this.organization.inn = organization.inn
@@ -367,6 +349,13 @@ export default Vue.extend({
           } as OrganizationEmailInterface)
         }
         /* eslint-enable */
+      })
+      .finally(() => {
+        new Organizations()
+          .getTags()
+          .then((tags: OrganizationTagInterface[]) => {
+            this.tags = tags
+          })
       })
   },
   methods: {
@@ -452,17 +441,19 @@ export default Vue.extend({
           cpp: this.organization.cpp ? this.organization.cpp.trim() : '',
           site: this.organization.site ? this.organization.site.trim() : '',
           emails: this.organization.emails ? this.organization.emails
-            .filter((e: OrganizationEmailInterface) => !(isEmpty(e.value) && isEmpty(e.label)))
-            .map((email: Email) => {
+            .map((email: OrganizationEmailInterface) => {
               return {
+                id: email.id,
                 label: email.label,
                 value: email.value
               }
             }) : [],
-          phones: this.phoneNumbers
-            .map((phone) => {
+          phones: this.organization.phones
+            .map((phone: OrganizationPhoneInterface) => {
               return {
+                id: phone.id,
                 country_code: phone.country_code,
+                country_calling_code: phone.country_calling_code,
                 label: phone.label,
                 value: phone.value
               }
@@ -478,6 +469,7 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.$toast.success(this.$tc('organization_saved_successfully'))
+          this.$router.replace('/administrator/organizations')
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {

@@ -1,7 +1,8 @@
 <template>
-  <div>
     <v-form>
       <v-container>
+
+      <!-- Name -->
         <v-row>
           <v-col
             cols="12"
@@ -18,6 +19,7 @@
             md="12"
           >
             <v-text-field
+            v-model="profile.first_name"
               :label="$tc('first_name')"
               persistent-hint
               required
@@ -31,6 +33,7 @@
             md="12"
           >
             <v-text-field
+            v-model="profile.last_name"
               :label="$tc('last_name')"
               persistent-hint
               required
@@ -44,23 +47,15 @@
             md="12"
           >
             <v-text-field
+            v-model="profile.middle_name"
               :label="$tc('middle_name')"
               persistent-hint
               required
             ></v-text-field>
           </v-col>
         </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <v-btn
-              text
-              tile
-            >{{ $tc('Save') }}</v-btn>
-          </v-col>
-        </v-row>
-        <!-- CONTACTS -->
+
+      <!-- Contacts -->
         <v-row>
           <v-col
             cols="12"
@@ -77,6 +72,7 @@
             md="12"
           >
             <v-text-field
+            v-model="profile.phone"
               :label="$tc('contact_number')"
               persistent-hint
               required
@@ -99,6 +95,7 @@
             md="12"
           >
             <v-text-field
+            v-model="profile.email"
               :label="$tc('contact_email')"
               persistent-hint
             ><template v-slot:append>
@@ -112,15 +109,77 @@
             </v-text-field>
           </v-col>
         </v-row>
+
+      <v-row>
+        <v-col
+          cols="12"
+        >
+          <v-btn
+            text
+            tile
+            :loading="profileSaveLoading"
+            @click="onSave"
+          >{{ $tc('Save') }}</v-btn>
+        </v-col>
+      </v-row>
       </v-container>
     </v-form>
-  </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import { Account, ProfileInterface } from '@/api/Account'
 
-export default Vue.extend({})
+export default Vue.extend({
+  data () {
+    return {
+      profileSaveLoading: false,
+      profile: {
+        created_at: 0,
+        email: '',
+        phone: '',
+        first_name: '',
+        id: 0,
+        last_name: '',
+        login: '',
+        middle_name: '',
+        role: undefined,
+        userpic: null
+      } as ProfileInterface
+    }
+  },
+
+  created () {
+    this.profile.id = this.$store.getters['profile/id']
+    this.profile.login = this.$store.getters['profile/login']
+    this.profile.email = this.$store.getters['profile/email']
+    this.profile.phone = this.$store.getters['profile/phone']
+    this.profile.first_name = this.$store.getters['profile/first_name']
+    this.profile.last_name = this.$store.getters['profile/last_name']
+    this.profile.middle_name = this.$store.getters['profile/middle_name']
+  },
+
+  methods: {
+    onSave () {
+      this.profileSaveLoading = true
+      new Account()
+        .updateProfile({
+          first_name: this.profile.first_name,
+          last_name: this.profile.last_name,
+          middle_name: this.profile.middle_name,
+          email: this.profile.email,
+          phone: this.profile.phone
+        }).then(() => {
+          this.$toast.success(this.$tc('Changes saved'))
+          this.$store.dispatch('profile/loadProfile')
+        }).catch((e) => {
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).finally(() => {
+          this.profileSaveLoading = false
+        })
+    }
+  }
+})
 </script>
 
 <style scoped>

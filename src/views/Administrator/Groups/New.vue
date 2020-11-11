@@ -46,8 +46,22 @@
               :label="$tc('team_leader')"
               :disabled="!organizationSelected"
               :organization-id="organizationSelected ? organizationSelected.id : 0"
-              role="r_leader_group"
-            />
+              display-organization
+            >
+              <template v-slot:no-data>
+                <v-list-item
+                  link
+                  target="_blank"
+                  :to="{ name: 'administrator_users_new' }"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      Нажмите что бы добавить нового пользователя
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </s-autocomplete-users>
           </v-col>
         </v-row>
 
@@ -139,9 +153,9 @@ export default Vue.extend({
         }).then(() => {
           this.resetForm()
           this.$toast.success(this.$tc('group_added_successfully'))
+          this.$router.replace('/administrator/groups')
         }).catch((e) => {
-          const cause: string = e.statusText || e.error_message || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_added_the_group', { cause }))
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

@@ -48,7 +48,7 @@
                   color="grey"
                   tile
                   text
-                >{{ $t('restore_access') }}</v-btn>
+                >{{ $t('Restore access') }}</v-btn>
                 <v-btn
                   color="black"
                   tile

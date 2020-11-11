@@ -233,7 +233,7 @@
             </v-text-field>
             <v-text-field
               v-else
-              :value="$t('loading_data')"
+              :value="$t('Loading content...')"
               disabled
             >
               <template

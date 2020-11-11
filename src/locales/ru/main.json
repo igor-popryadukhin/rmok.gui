@@ -1,5 +1,5 @@
 {
-  "restore_access": "Восставновить доступ",
+  "Restore access": "Восстановить доступ",
   "add": "Добавить",
   "All": "Все",
   "account_information": "Информация об учетной записи",
@@ -16,7 +16,6 @@
   "last_name": "Фамилия",
   "middle_name": "Отчество",
   "language": "Язык",
-  "loading_data": "Загрузка данных...",
   "Loading content...": "Загрузка содержимого...",
   "location": "Локация",
   "login_to_the_system": "Вход в систему",
@@ -57,6 +56,8 @@
   "passwords_do_not_match": "Пароли не совпадают",
   "City": "Город",
   "Project": "Проект",
+  "Label": "Метка",
+  "E-mail address": "Адрес электронной почты",
 
   "titles": {
     "dashboard": "Основнаяя панель",

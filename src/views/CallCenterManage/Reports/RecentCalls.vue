@@ -16,6 +16,11 @@
 <script lang="ts">
 import Vue from 'vue'
 
+import VueApexCharts from 'vue-apexcharts'
+
+Vue.use(VueApexCharts)
+Vue.component('apexchart', VueApexCharts)
+
 export default Vue.extend({
   data () {
     return {

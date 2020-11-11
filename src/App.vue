@@ -40,6 +40,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { VApp } from 'vuetify/lib'
+
 import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSession.vue'
 import { ATEConfigurationInterface, Configurations } from '@/api/Configurations'
 import { JsSIP } from '@/jsSIP/plugin'
@@ -78,7 +80,8 @@ export default Vue.extend({
   name: 'App',
 
   components: {
-    SContactStatusesDialog
+    SContactStatusesDialog,
+    VApp
   },
 
   data () {
@@ -195,6 +198,11 @@ export default Vue.extend({
       console.log('%c%s', 'color: green;', '------------------------')
       console.log(event)
       console.log('%c%s', 'color: green;', '------------------------')
+
+      if (event.originator === 'remote') {
+        this.$toast.error(event.cause)
+        return
+      }
 
       // If this is an incoming call, then the payload must be present
       if (payload) {
@@ -341,7 +349,7 @@ export default Vue.extend({
       if (message) {
         this.dialogLoading.message = message
       } else {
-        this.dialogLoading.message = this.$tc('loading_data')
+        this.dialogLoading.message = this.$tc('Loading content...')
       }
 
       this.dialogLoading.visible = true

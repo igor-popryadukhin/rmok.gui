@@ -4,7 +4,6 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
-import VueApexCharts from 'vue-apexcharts'
 
 // Style
 import '@/assets/scss/style.scss'
@@ -32,9 +31,6 @@ Vue.component('administrator', AdministratorLayout)
 Vue.component('call-center-manager', CallCenterManager)
 Vue.component('default', DefaultLayout)
 Vue.component('clean', CleanLayout)
-
-Vue.use(VueApexCharts)
-Vue.component('apexchart', VueApexCharts)
 
 Vue.config.productionTip = false
 

@@ -13,5 +13,9 @@
   "rule_max_dynamic_length": "Максимум {val}",
   "rule_min_dynamic_length": "Минимум {val}",
   "rule_regex_dynamic": "Не соответствует паттерну {val}",
-  "rule_only": "Только: {val}"
+  "rule_only": "Только: {val}",
+  "The minimum length of the CPP is 9 characters": "Минимальная длина КПП - 9 символов",
+  "The maximum length of the CPP is 9 characters": "Максимальная длина КПП 9 символов",
+  "Minimum length INN 9 characters": "Минимальная длина ИНН 9 символов",
+  "Maximum length ИНН 12 characters": "Максимальная длина ИНН 12 символов"
 }

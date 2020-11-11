@@ -8,10 +8,26 @@ module.exports = {
     public: '0.0.0.0:3000',
     disableHostCheck: true
   },
+
   transpileDependencies: [
     'vuetify'
   ],
 
+  pluginOptions: {
+    webpackBundleAnalyzer: {
+      openAnalyzer: true
+    }
+  },
+
+  chainWebpack: config => {
+    config.plugin('VuetifyLoaderPlugin').tap(args => [{
+      match (originalTag, { kebabTag, camelTag, path, component }) {
+        if (kebabTag.startsWith('core-')) {
+          return [camelTag, `import ${camelTag} from '@/components/core/${camelTag.substring(4)}.vue'`]
+        }
+      }
+    }])
+  },
   configureWebpack: config => {
     // remove the existing ForkTsCheckerWebpackPlugin
     config.plugins = config.plugins.filter(

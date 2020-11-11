@@ -10,6 +10,11 @@
     :loading="loading"
     :disabled="disabled"
   >
+    <template v-slot:no-data>
+      <slot name="no-data">
+        No data
+      </slot>
+    </template>
     <template
       v-slot:prepend
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"

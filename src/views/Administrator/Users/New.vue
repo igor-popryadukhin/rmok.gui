@@ -240,8 +240,21 @@
               :value="user.group"
               :disabled="!organizationSelected"
               :organization-id="organizationSelected ? organizationSelected.id : 0"
-              :rules="[rules.required]"
-            />
+            >
+              <template v-slot:no-data>
+                <v-list-item
+                  link
+                  target="_blank"
+                  :to="{ name: 'administrator_groups_new' }"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      Нажмите что бы добавить новую группу
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </s-autocomplete-groups>
           </v-col>
         </v-row>
 

@@ -24,17 +24,60 @@
           </v-col>
         </v-row>
 
+        <!-- Organization -->
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <v-text-field
+              v-if="group.organization"
+              :value="group.organization.name"
+              disabled
+            >
+            </v-text-field>
+            <v-text-field
+              v-else-if="loading & !group.organization"
+              :value="$t('Loading content...')"
+              disabled
+            >
+            </v-text-field>
+            <v-text-field
+              v-else
+              :value="$t('No data')"
+              disabled
+            >
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <!-- Users -->
         <v-row>
           <v-col
             cols="12"
           >
             <s-autocomplete-users
               v-model="userSelected"
+              :disabled="!group.organization"
               :selected-id="group.team_leader ? group.team_leader.id : 0"
+              :organization-id="group.organization ? group.organization.id : 0"
               :search="group.team_leader ? group.team_leader.first_name : ''"
               :label="$tc('team_leader')"
               role="r_leader_group"
-            />
+            >
+              <template v-slot:no-data>
+                <v-list-item
+                  link
+                  target="_blank"
+                  :to="{ name: 'administrator_users_new' }"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      Нажмите что бы добавить нового пользователя
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </s-autocomplete-users>
           </v-col>
         </v-row>
 
@@ -83,6 +126,7 @@ export default Vue.extend({
       },
       /* eslint-disable */
       userSelected: {} as UserInterface,
+      loading: false,
       group: {
         id: 0,
         name: '',
@@ -93,11 +137,14 @@ export default Vue.extend({
   },
 
   created () {
+    this.loading = true
     new Groups()
       .getById(+this.$route.params.id)
       .then((group: GroupInterface) => {
         this.group = group
         // this.userSelected.id = group.team_leader.id
+      }).finally(() => {
+        this.loading = false
       })
   },
 
@@ -120,9 +167,9 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.$toast.success(this.$tc('group_update_successfully'))
-        }).catch((e: any) => {
-          const cause: string = e.statusText || e.error_message || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_added_the_group', { cause }))
+          this.$router.replace('/administrator/groups')
+        }).catch((e) => {
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

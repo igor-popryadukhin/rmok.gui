@@ -5,6 +5,8 @@
     :items="users"
     :search-input.sync="usersSearchQuery"
     no-filter
+    disable-lookup
+    :cache-items="false"
     persistent-hint
     :label="label"
     :rules="rules"
@@ -14,6 +16,11 @@
     :chips="multiple"
     :multiple="multiple"
   >
+    <template v-slot:no-data>
+      <slot name="no-data">
+        No data
+      </slot>
+    </template>
     <template
       v-slot:prepend
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
@@ -54,9 +61,8 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-        <v-list-item-subtitle
-            v-if="item.role"
-        >{{ item.role.name }}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="item.role">Роль: {{ item.role.name }}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="displayOrganization && item.organization">Организация: {{ item.organization.name }}</v-list-item-subtitle>
       </v-list-item-content>
     </template>
   </v-autocomplete>
@@ -111,6 +117,10 @@ export default Vue.extend({
       default: null
     },
     selectOnClear: {
+      type: Boolean,
+      default: false
+    },
+    displayOrganization: {
       type: Boolean,
       default: false
     },

@@ -2,15 +2,21 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
+interface OrganizationPhoneValueInterface {
+  e164: string;
+  international: string;
+}
+
 export interface OrganizationPhoneInterface {
-  id: number;
+  id?: number;
   country_code: string;
   country_calling_code: string;
   label: string;
-  value: string;
+  value: OrganizationPhoneValueInterface | string;
 }
 
 export interface OrganizationEmailInterface {
+  id?: number;
   label: string;
   value: string;
 }

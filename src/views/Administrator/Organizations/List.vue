@@ -82,6 +82,7 @@
                       <v-list-item
                         link
                         @click.stop="onDeleteItem(item.id)"
+                        disabled
                       >
                         <v-list-item-icon>
                           <v-icon>mdi-delete</v-icon>
@@ -101,7 +102,7 @@
           <v-list-item class="text-center">
             <v-spacer />
             <span class="grey--text">
-                {{ $tc('loading_data') }}
+                {{ $tc('Loading content...') }}
               </span>
             <v-spacer />
           </v-list-item>

@@ -47,7 +47,7 @@
         <v-row v-else-if="dataLoading">
           <v-col class="d-flex justify-space-between">
             <div>
-              {{ $t('loading_data') }}
+              {{ $t('Loading content...') }}
             </div>
             <v-btn
               text
@@ -82,7 +82,7 @@
         <!-- Phones & Emails -->
         <v-row v-if="dataLoading">
           <v-col class="text-center grey--text">
-            {{ $t('loading_data') }}
+            {{ $t('Loading content...') }}
           </v-col>
         </v-row>
         <v-row v-else>

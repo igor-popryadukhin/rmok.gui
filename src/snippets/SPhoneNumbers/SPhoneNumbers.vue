@@ -44,6 +44,7 @@
           v-model="item.label"
           :label="$tc('label')"
           :rules="rulesLabel"
+          counter
         >
           <template v-slot:append-outer>
             <v-btn

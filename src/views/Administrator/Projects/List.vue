@@ -85,7 +85,7 @@
             <v-list-item class="text-center">
               <v-spacer />
               <span class="grey--text">
-                {{ $tc('loading_data') }}
+                {{ $tc('Loading content...') }}
               </span>
               <v-spacer />
             </v-list-item>

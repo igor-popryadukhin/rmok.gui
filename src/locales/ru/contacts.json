@@ -28,7 +28,5 @@
   "Scenario": "Сценарий",
   "No default number": "Нет номера по умолчанию",
   "Invalid phone number format": "Неверный формат номера телефона",
-  "Invalid Email address": "Неверный адрес электронной почты",
-  "Label": "Метка",
-  "E-mail address": "Адрес электронной почты"
+  "Invalid Email address": "Неверный адрес электронной почты"
 }

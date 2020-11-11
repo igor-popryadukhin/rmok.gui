@@ -343,7 +343,7 @@ export default Vue.extend({
         disabled: true
       },
       contactsLoading: false,
-      contacts: [] as Contact[] & { checked: boolean }[],
+      contacts: [] as Contact[] & Array<T>,
       filter: {
         project: {
           disabled: true,
