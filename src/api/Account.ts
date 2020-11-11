@@ -35,6 +35,21 @@ export class Account {
     })
   }
 
+  /**
+   * Update profile details
+   */
+  public updateProfile (data: any): Promise<any> {
+    return new Promise((resolve, reject): Promise<any> | any => {
+      $axios.patch('/account/profile', data)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
   public isRole (role: string): Promise<any> {
     return new Promise((resolve, reject) => {
       $axios.get(`/account/roles/is/${role}`)

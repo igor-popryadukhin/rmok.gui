@@ -135,6 +135,7 @@
   },
 
   "error_session_cause": "Ошибка сессии, причина: {cause}",
+  "Changes saved": "Изменения сохранены",
   "Choose a status first!": "Сначала выберите статус!",
   "Your search - {q} - did not match any documents.": "По запросу {q} ничего не найдено.",
   "The status cannot be set, because the project is configured incorrectly!": "Статус установить не получится, так как проект настроен неверно!"

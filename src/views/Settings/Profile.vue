@@ -1,6 +1,8 @@
 <template>
   <v-form>
     <v-container>
+
+      <!-- Name -->
       <v-row>
         <v-col
           cols="12"
@@ -52,17 +54,8 @@
           ></v-text-field>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col
-          cols="12"
-        >
-          <v-btn
-            text
-            tile
-          >{{ $tc('Save') }}</v-btn>
-        </v-col>
-      </v-row>
-      <!-- CONTACTS -->
+
+      <!-- Contacts -->
       <v-row>
         <v-col
           cols="12"
@@ -116,17 +109,31 @@
           </v-text-field>
         </v-col>
       </v-row>
+
+      <v-row>
+        <v-col
+          cols="12"
+        >
+          <v-btn
+            text
+            tile
+            :loading="profileSaveLoading"
+            @click="onSave"
+          >{{ $tc('Save') }}</v-btn>
+        </v-col>
+      </v-row>
     </v-container>
   </v-form>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { ProfileInterface } from '@/api/Account'
+import { Account, ProfileInterface } from '@/api/Account'
 
 export default Vue.extend({
   data () {
     return {
+      profileSaveLoading: false,
       profile: {
         created_at: 0,
         email: '',
@@ -150,6 +157,26 @@ export default Vue.extend({
     this.profile.first_name = this.$store.getters['profile/first_name']
     this.profile.last_name = this.$store.getters['profile/last_name']
     this.profile.middle_name = this.$store.getters['profile/middle_name']
+  },
+
+  methods: {
+    onSave () {
+      this.profileSaveLoading = true
+      new Account()
+        .updateProfile({
+          first_name: this.profile.first_name,
+          last_name: this.profile.last_name,
+          middle_name: this.profile.middle_name,
+          email: this.profile.email,
+          phone: this.profile.phone
+        }).then(() => {
+          this.$toast.success(this.$tc('Changes saved'))
+        }).catch((e) => {
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).finally(() => {
+          this.profileSaveLoading = false
+        })
+    }
   }
 })
 </script>
