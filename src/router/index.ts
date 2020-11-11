@@ -54,6 +54,23 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [] }
   },
   {
+    path: '/projects',
+    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Projects/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'projects_list',
+        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Projects/List.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        }
+      }
+    ],
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
     path: '/contacts',
     component: () => import(/* webpackChunkName: "contacts-layout" */ '../views/Contacts/Layout.vue'),
     children: [

@@ -73,6 +73,7 @@
             class="mr-1"
             v-on="on"
             v-bind="attrs"
+            :to="{ path: '/projects' }"
           >
             <v-icon>mdi-projector-screen</v-icon>
           </v-btn>
