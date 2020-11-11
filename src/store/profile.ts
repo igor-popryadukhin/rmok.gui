@@ -10,6 +10,7 @@ export const profile = {
       id: 0,
       created_at: 0,
       email: '',
+      phone: '',
       first_name: '',
       last_name: '',
       login: '',
@@ -30,6 +31,7 @@ export const profile = {
       state.id = payload.id
       state.login = payload.login
       state.email = payload.email
+      state.phone = payload.phone
       state.first_name = payload.first_name
       state.last_name = payload.last_name
       state.middle_name = payload.middle_name
@@ -56,6 +58,7 @@ export const profile = {
     middle_name (state: ProfileInterface) { return state.middle_name },
     login (state: ProfileInterface) { return state.login },
     email (state: ProfileInterface) { return state.email },
+    phone (state: ProfileInterface) { return state.phone },
     project (state: ProfileInterface) { return state.email },
     role (state: ProfileInterface) { return state.role },
     role_id (state: ProfileInterface) { return state.role.id },

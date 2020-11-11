@@ -6,6 +6,7 @@ export interface ProfileInterface {
   id: number;
   login: string;
   email: string;
+  phone: string;
   first_name: string;
   last_name: string;
   middle_name: string;
