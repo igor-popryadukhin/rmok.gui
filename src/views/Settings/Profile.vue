@@ -171,6 +171,7 @@ export default Vue.extend({
           phone: this.profile.phone
         }).then(() => {
           this.$toast.success(this.$tc('Changes saved'))
+          this.$store.dispatch('profile/loadProfile')
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
