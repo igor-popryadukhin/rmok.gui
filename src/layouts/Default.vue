@@ -281,9 +281,9 @@
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
       >
-        <vue-scroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
+        <vuescroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
           <router-view/>
-        </vue-scroll>
+        </vuescroll>
       </v-container>
     </v-main>
   </v-app>
@@ -294,10 +294,15 @@ import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
 import { NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
+import vuescroll from 'vuescroll'
 
 export default Vue.extend({
   props: {
     source: String
+  },
+
+  components: {
+    vuescroll
   },
 
   mixins: [breadcrumbs],

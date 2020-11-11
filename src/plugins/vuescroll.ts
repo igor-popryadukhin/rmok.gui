@@ -1,19 +1,19 @@
-import Vue from 'vue'
-import vuescroll from 'vuescroll'
-
-// You can set global config here.
-Vue.use(vuescroll, {
-  ops: {
-    vuescroll: {
-      wheelScrollDuration: 500
-    },
-    bar: {
-      showDelay: 500,
-      onlyShowBarOnScroll: true,
-      keepShow: false,
-      background: '#b729b1',
-      opacity: 1,
-      hoverStyle: true
-    }
-  }
-})
+// import Vue from 'vue'
+// import vuescroll from 'vuescroll'
+//
+// // You can set global config here.
+// Vue.use(vuescroll, {
+//   ops: {
+//     vuescroll: {
+//       wheelScrollDuration: 500
+//     },
+//     bar: {
+//       showDelay: 500,
+//       onlyShowBarOnScroll: true,
+//       keepShow: false,
+//       background: '#b729b1',
+//       opacity: 1,
+//       hoverStyle: true
+//     }
+//   }
+// })

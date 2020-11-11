@@ -14,9 +14,7 @@
         <v-spacer />
       </v-tab>
       <v-tabs-items class="pa-2 border">
-        <v-fade-transition hide-on-leave>
-          <router-view />
-        </v-fade-transition>
+        <router-view />
       </v-tabs-items>
     </v-tabs>
   </div>

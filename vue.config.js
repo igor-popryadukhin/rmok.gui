@@ -9,9 +9,14 @@ module.exports = {
     disableHostCheck: true
   },
 
+  parallel: 4,
+
   transpileDependencies: [
     'vuetify'
   ],
+
+  productionSourceMap: false,
+  filenameHashing: true,
 
   pluginOptions: {
     webpackBundleAnalyzer: {

@@ -200,6 +200,7 @@ import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import DCommentEdit from '@/components/Dialogs/DCommentEdit.vue'
+import '@/plugins/libphonenumber-js'
 
 export default Vue.extend({
 

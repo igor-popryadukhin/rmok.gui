@@ -228,9 +228,9 @@
               </v-tab>
             </v-tabs>
             <v-container class="pb-0" style="min-height: 300px">
-              <vue-scroll :style="{ height: `${400}px` }" style="width: 99%" >
+              <vuescroll :style="{ height: `${400}px` }" style="width: 99%" >
                 <router-view />
-              </vue-scroll>
+              </vuescroll>
             </v-container>
           </v-col>
         </v-row>
@@ -292,6 +292,8 @@ import { Route } from 'vue-router'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
+import vuescroll from 'vuescroll'
+import '@/plugins/libphonenumber-js'
 
 interface TabInterface {
   name: string;
@@ -302,6 +304,10 @@ interface TabInterface {
 
 export default Vue.extend({
   mixins: [lvovich],
+
+  components: {
+    vuescroll
+  },
 
   data () {
     return {

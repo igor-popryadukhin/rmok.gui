@@ -265,8 +265,6 @@
       </v-col>
     </v-row>
 
-    <s-contact-view-dialog />
-
   </div>
 </template>
 
@@ -277,14 +275,10 @@ import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { POSITION } from 'vue-toastification'
 import { filter } from '@/Utils'
-import SContactViewDialog from '@/snippets/SContactViewDialog/SContactViewDialog.vue'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
-  components: {
-    SContactViewDialog
-  },
   data () {
     return {
       select: ['Vuetify', 'Programming'],

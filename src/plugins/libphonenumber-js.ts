@@ -2,6 +2,10 @@ import Vue from 'vue'
 import parsePhoneNumber, { CountryCode, PhoneNumber } from 'libphonenumber-js'
 
 export class LibPhoneNumberJs {
+  /**
+   * @param text
+   * @param defaultCountry
+   */
   public parsePhoneNumber (text: string, defaultCountry?: CountryCode): PhoneNumber | undefined {
     return parsePhoneNumber(text, defaultCountry)
   }

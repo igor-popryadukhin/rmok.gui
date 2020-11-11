@@ -15,21 +15,18 @@ import '@/mixins/global'
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import '@/plugins/toast'
 import '@/plugins/cookie'
-import '@/plugins/vuescroll'
-import '@/plugins/libphonenumber-js'
+// import '@/plugins/vuescroll'
+// import '@/plugins/libphonenumber-js'
 import '@/plugins/vuetify-dialog'
 import '@/plugins/lvovich'
 import '@/plugins/router-query'
-import '@/jsSIP'
+import CleanLayout from '@/layouts/Clean.vue'
+import(/* webpackChunkName: "jssip" */ './jsSIP')
 
 // layouts
-import CallCenterManager from '@/layouts/CallCenterManager.vue'
-import AdministratorLayout from '@/layouts/Administrator.vue'
-import DefaultLayout from '@/layouts/Default.vue'
-import CleanLayout from '@/layouts/Clean.vue'
-Vue.component('administrator', AdministratorLayout)
-Vue.component('call-center-manager', CallCenterManager)
-Vue.component('default', DefaultLayout)
+Vue.component('administrator', () => import(/* webpackChunkName: "layout-administrator" */ './layouts/Administrator.vue'))
+Vue.component('call-center-manager', () => import(/* webpackChunkName: "layout-call-center-manager" */ './layouts/CallCenterManager.vue'))
+Vue.component('default', () => import(/* webpackChunkName: "layout-default" */ './layouts/Default.vue'))
 Vue.component('clean', CleanLayout)
 
 Vue.config.productionTip = false

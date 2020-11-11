@@ -1,7 +1,5 @@
 <template>
-  <v-fade-transition hide-on-leave>
-    <router-view />
-  </v-fade-transition>
+  <router-view />
 </template>
 
 <script lang="ts">
