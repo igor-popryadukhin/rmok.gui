@@ -287,7 +287,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import lvovich from '@/mixins/lvovich'
-import { Contacts } from '@/api/Contacts'
+import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import { Route } from 'vue-router'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { secondsToHmsDigital } from '@/utils/datetime'
@@ -373,10 +373,29 @@ export default Vue.extend({
   },
 
   mounted () {
+    this.$root.$on('root-main-search', this.onRootMainSearch)
+    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
     // Prevent booting or closing a tab!!!
     // window.onbeforeunload = () => {
     //   return true
     // }
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      const contacts: Contacts = new Contacts()
+
+      this.dataLoading = true
+      contacts
+        .getById(+to.params.contact_id)
+        .then((contact: ContactInterface) => {
+          this.contact = contact
+        }).finally(() => {
+          this.dataLoading = false
+          this.$root.$emit('root-loading-data-hide')
+        })
+    }
+    next()
   },
 
   created () {
@@ -393,7 +412,34 @@ export default Vue.extend({
       })
   },
 
+  beforeDestroy () {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+  },
+
   methods: {
+
+    onRootMainSearch (q, set) {
+      new Contacts()
+        .search({
+          q,
+          offset: 0,
+          count: 10
+        }).then((response: ContactResponseInterface) => {
+          set(response.items.map((e: ContactInterface) => {
+            return {
+              ...e,
+              title: `${e.first_name} ${e.last_name}`,
+              subtitle: e.city
+            }
+          }))
+        })
+    },
+
+    onRootMainSearchSelected (data: ContactInterface) {
+      this.$router.push({ path: `/contacts/${data.id}/script` })
+    },
+
     onCall (target: string, contactId: number) {
       /* eslint-disable */
       this.$jsSIP.call(target, {contact_id: contactId, target})

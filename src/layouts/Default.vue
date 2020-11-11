@@ -17,16 +17,49 @@
         <span class="hidden-sm-and-down">RMOK</span>
       </v-toolbar-title>
       <v-spacer/>
-      <v-text-field
+
+      <!-- Main search -->
+      <v-autocomplete
+        v-model="mainSearch.selected"
+        :items="mainSearch.items"
+        :search-input.sync="mainSearch.q"
+        item-text="title"
+        return-object
+        hide-no-data
+        no-filter
+        clearable
+        disable-lookup
         flat
-        solo-inverted
-        hide-details
-        prepend-inner-icon="mdi-magnify"
-        :label="$t('search')"
+        hide-selected
         class="mr-4"
-        style="max-width: 400px"
+        :label="$t('search')"
+        :loading="mainSearch.loading"
+        hide-details
+        outlined
         dense
-      ></v-text-field>
+      >
+        <template
+          v-slot:no-data
+        >
+          <div class="pa-4">
+            {{ $t('Your search - {q} - did not match any documents.', { q: mainSearch.q }) }}
+          </div>
+        </template>
+        <template
+          v-slot:prepend-inner
+        >
+          <v-icon>mdi-magnify</v-icon>
+        </template>
+        <template v-slot:selection="{ item }">
+          <span>{{ item.name }}</span>
+        </template>
+        <template v-slot:item="{ item }">
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-subtitle v-if="item.subtitle" v-text="item.subtitle"></v-list-item-subtitle>
+          </v-list-item-content>
+        </template>
+      </v-autocomplete>
 
       <!-- If this is operator role then showing button my project -->
       <v-tooltip
@@ -257,6 +290,7 @@
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
 import { NotificationInterface } from '@/Interfaces'
+import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
   props: {
@@ -266,6 +300,17 @@ export default Vue.extend({
   mixins: [breadcrumbs],
 
   data: () => ({
+    mainSearch: {
+      q: null,
+      selected: null,
+      loading: false,
+      items: [],
+      debounce: debounce(function (q: string, _this) {
+        _this.$root.$emit('root-main-search', q, (items) => {
+          _this.mainSearch.items = items
+        })
+      }, 400)
+    },
     settings: {
       suppressScrollY: false,
       suppressScrollX: false,
@@ -307,6 +352,22 @@ export default Vue.extend({
     projects: []
   }),
 
+  watch: {
+    'mainSearch.q': {
+      handler (q: string) {
+        this.mainSearch.debounce(q, this)
+      }
+    },
+
+    'mainSearch.selected': {
+      handler (value) {
+        if (value) {
+          this.$root.$emit('root-main-search-selected', value)
+        }
+      }
+    }
+  },
+
   computed: {
     avatar () {
       const first: string = this.$store.getters['profile/first_name'] || ''
@@ -332,6 +393,12 @@ export default Vue.extend({
         }
       }
     )
+  },
+
+  methods: {
+    onInputMainSearch (e) {
+      console.log(e)
+    }
   }
 })
 </script>

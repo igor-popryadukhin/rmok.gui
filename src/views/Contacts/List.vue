@@ -136,7 +136,7 @@
                 :key="`list-item-${item.id}`"
                 ripple
                 selectable
-                @click.stop="$router.push({ name: 'contacts_view', params: { contact_id: item.id } })"
+                @click.stop="$router.push({ path: `/contacts/${item.id}/script` })"
               >
                 <v-list-item-action>
                   <v-checkbox
@@ -398,6 +398,11 @@ export default Vue.extend({
     }
   },
 
+  mounted() {
+    this.$root.$on('root-main-search', this.onRootMainSearch)
+    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
+  },
+
   created () {
     new Projects()
     .find()
@@ -407,8 +412,34 @@ export default Vue.extend({
     this.loadContacts()
   },
 
+  beforeDestroy() {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+  },
+
   methods: {
     /* eslint-disable */
+
+    onRootMainSearch (q, set) {
+      new Contacts()
+        .search({
+          q,
+          offset: 0,
+          count: 10
+        }).then((response: ContactResponseInterface) => {
+        set(response.items.map((e: ContactInterface) => {
+          return {
+            ...e,
+            title: `${e.first_name} ${e.last_name}`,
+            subtitle: e.city
+          }
+        }))
+      })
+    },
+
+    onRootMainSearchSelected (data: ContactInterface) {
+      this.$router.push({ path: `/contacts/${data.id}/script` })
+    },
 
     /**
      *  Happens when checkbox click
