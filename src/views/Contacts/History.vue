@@ -281,7 +281,7 @@ export default Vue.extend({
       this.$dialog.show(DCommentEdit, {
         waitForResult: true,
         title: this.$t('Comment'),
-        comment,
+        text: comment,
         saveTitle: this.$t('Save'),
         cancelTitle: this.$t('Cancel'),
         onSave: (value: string) => {

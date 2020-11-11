@@ -4,7 +4,7 @@
     :actions="actions"
   >
     <v-textarea
-      v-model="text"
+      v-model="dataText"
       outlined
     >
     </v-textarea>
@@ -20,7 +20,7 @@ export default Vue.extend({
       type: String,
       default: 'Title'
     },
-    comment: {
+    text: {
       type: String,
       default: ''
     },
@@ -44,7 +44,7 @@ export default Vue.extend({
 
   data () {
     return {
-      text: '' as any
+      dataText: ''
     }
   },
 
@@ -65,13 +65,17 @@ export default Vue.extend({
           flat: true,
           text: this.saveTitle,
           handle: () => {
-            if (this.onSave) {
-              (this.onSave as () => void)()
+            if (typeof this.onSave === 'function') {
+              this.onSave(this.dataText)
             }
           }
         }
       }
     }
+  },
+
+  created () {
+    this.dataText = this.text
   }
 
 })
