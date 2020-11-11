@@ -130,7 +130,6 @@
             v-for="(item, index) in items"
             :key="index"
             :to="item.to"
-            @click="item.click || function () { console.log('item click') }"
           >
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>
@@ -142,11 +141,11 @@
         </v-list>
       </v-menu>
 
-      <div class="offset-lg-2 offset-md-2"></div>
+      <div class="offset-lg-1 offset-md-1"></div>
       <template v-slot:extension>
         <v-breadcrumbs
           :items="breadcrumbs"
-          class="pa-0 offset-lg-2 col-lg-8 offset-md-2 col-md-8"
+          class="offset-lg-1 col-lg-10 offset-md-1 col-md-10 pa-0"
         >
           <template v-slot:item="{ item }">
             <v-breadcrumbs-item
@@ -165,16 +164,13 @@
     </v-app-bar>
     <v-main>
       <v-container
-        class="offset-lg-2 col-lg-8 offset-md-2 col-md-8 pl-2 pr-2"
+        class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
       >
         <vue-scroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
-          <v-fade-transition hide-on-leave>
-            <router-view/>
-          </v-fade-transition>
+          <router-view/>
         </vue-scroll>
       </v-container>
     </v-main>
-    <audio id="audio" controls style="display: none"/>
   </v-app>
 </template>
 
@@ -200,23 +196,23 @@ export default Vue.extend({
     items: [
       {
         name: 'profile',
+        icon: 'mdi-account',
         to: {
           name: 'profile'
         }
       },
       {
         name: 'settings',
+        icon: 'mdi-cog',
         to: {
           name: 'settings'
         }
       },
       {
         name: 'exit',
+        icon: 'mdi-exit-run',
         to: {
           name: 'login'
-        },
-        click: () => {
-          // todo: delete cookie
         }
       }
     ],

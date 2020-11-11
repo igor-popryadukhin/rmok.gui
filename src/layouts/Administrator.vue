@@ -112,12 +112,11 @@
       </v-tooltip>
 
       <!-- Avatar -->
-      <v-menu offset-y>
+      <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
             large
-            class="ml-5"
             v-bind="attrs"
             v-on="on"
           >
@@ -135,7 +134,6 @@
             v-for="(item, index) in items"
             :key="index"
             :to="item.to"
-            @click="item.click || function () { console.log('item click') }"
           >
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>
@@ -146,6 +144,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
+
       <div class="offset-lg-1 offset-md-1"></div>
       <template v-slot:extension>
         <v-breadcrumbs
@@ -199,23 +198,23 @@ export default Vue.extend({
     items: [
       {
         name: 'profile',
-        icon: 'mdi-user',
+        icon: 'mdi-account',
         to: {
           name: 'profile'
         }
       },
       {
         name: 'settings',
-        icon: 'mdi-settings',
+        icon: 'mdi-cog',
         to: {
           name: 'settings'
         }
       },
       {
         name: 'exit',
-        icon: 'mdi-exit',
-        click: () => {
-          // todo: delete cookie
+        icon: 'mdi-exit-run',
+        to: {
+          name: 'login'
         }
       }
     ],

@@ -82,6 +82,11 @@ export default Vue.extend({
     }
   },
 
+  created () {
+    this.$cookie.delete('access_token')
+    this.$cookie.delete('refresh_token')
+  },
+
   methods: {
     login (login: string, password: string) {
       this.isError = false

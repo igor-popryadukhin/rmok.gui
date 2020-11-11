@@ -245,7 +245,6 @@
             v-for="(item, index) in items"
             :key="index"
             :to="item.to"
-            @click="item.click || function () { console.log('item click') }"
           >
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>
@@ -340,8 +339,8 @@ export default Vue.extend({
       {
         name: 'exit',
         icon: 'mdi-exit-run',
-        click: () => {
-          // todo: delete cookie
+        to: {
+          name: 'login'
         }
       }
     ],
