@@ -220,7 +220,9 @@
         </v-tooltip>
       </template>
       <div style="width: 10px"></div>
-      <v-menu offset-y>
+
+      <!-- Avatar -->
+      <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
@@ -253,6 +255,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
+
       <div class="offset-lg-1 offset-md-1"></div>
       <template v-slot:extension>
         <v-breadcrumbs
@@ -321,21 +324,21 @@ export default Vue.extend({
     items: [
       {
         name: 'profile',
-        icon: 'mdi-user',
+        icon: 'mdi-account',
         to: {
           name: 'profile'
         }
       },
       {
         name: 'settings',
-        icon: 'mdi-settings',
+        icon: 'mdi-cog',
         to: {
           name: 'settings'
         }
       },
       {
         name: 'exit',
-        icon: 'mdi-exit',
+        icon: 'mdi-exit-run',
         click: () => {
           // todo: delete cookie
         }
