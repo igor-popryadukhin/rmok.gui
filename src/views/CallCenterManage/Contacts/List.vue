@@ -1,7 +1,9 @@
 <template>
   <div>
-    <v-row>
-      <v-col cols="12">
+    <v-card
+      flat
+    >
+      <v-card-text class="pa-0">
         <v-toolbar
           flat
           class="pl-3"
@@ -23,15 +25,14 @@
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
-                :to="{ name: 'call_center_manager_users_new' }"
+                :to="{ name: 'call_center_manager_contacts_new' }"
                 v-on="on"
                 v-bind="attrs"
-                :disabled="buttonAdd.disabled"
               >
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
-            <span>{{ $tc('add_new_contact') }}</span>
+            <span>{{ $tc('Add new contact') }}</span>
           </v-tooltip>
           <v-tooltip bottom max-width="400">
             <template v-slot:activator="{ on, attrs }">
@@ -112,182 +113,302 @@
             <span>{{ $tc('block_selected_contacts') }}</span>
           </v-tooltip>
         </v-toolbar>
-      </v-col>
-    </v-row>
+      </v-card-text>
+      <v-row class="ma-0">
 
-    <v-row class="ma-0">
-      <v-col
-        cols="12"
-        md="8"
-        lg="8"
-      >
-        <template v-if="contacts.length > 0">
-          <template
-            v-for="item in contacts"
-          >
-            <v-divider
-              :key="`divider-${item.id}`"
-            />
-            <v-list-item
-              :key="`list-item-${item.id}`"
-              ripple
-              selectable
-              @click.stop="onContactItemClick(item)"
-            >
-              <v-list-item-action>
-                <v-checkbox
-                  v-model="item.checked"
-                  @click.stop="onCheckBoxItemClick(item)"
-                ></v-checkbox>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ item.first_name }} {{ item.last_name }}
-                </v-list-item-title>
-                <v-list-item-subtitle v-if="item.phone_number_default">{{item.phone_number_default.type}}: {{ item.phone_number_default.value }}</v-list-item-subtitle>
-                <v-list-item-subtitle v-else>Нет номера по умолчанию</v-list-item-subtitle>
-              </v-list-item-content>
-              <v-spacer />
-              <v-list-item-content>
-                <v-list-item-title
-                  v-if="item.user"
-                  class="text-right"
-                >{{ item.user.first_name }} {{ item.user.last_name }}
-                </v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn
-                  icon
-                  large
-                  :disabled="!item.phone_number_default"
-                  @click.stop="$jsSIP.call(item.id, item.phone_number_default.value)"
+        <!-- List -->
+        <v-col
+          order-sm="2"
+          order-lg="1"
+          order-md="1"
+          cols="12"
+          md="8"
+          lg="8"
+        >
+          <vuescroll :style="{ height: `${$screenHeight - 250}px` }" style="width: 100%">
+            <template v-if="contacts.length > 0">
+              <template
+                v-for="item in contacts"
+              >
+                <v-divider
+                  :key="`divider-${item.id}`"
+                />
+                <v-list-item
+                  :key="`list-item-${item.id}`"
+                  ripple
+                  selectable
+                  three-line
+                  @click.stop="$router.push({ path: `/call-center-manager/contacts/${item.id}` })"
                 >
-                  <v-icon>mdi-phone</v-icon>
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-action>
-                <v-menu offset-y>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      large
-                      v-bind="attrs"
-                      v-on.stop="on"
-                    >
-                      <v-icon>mdi-dots-horizontal</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item
-                      :to="{ name: 'contacts_edit', params: { id: item.id } }"
-                    >
-                      <v-list-item-icon>
-                        <v-icon>mdi-square-edit-outline</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-content>
-                        <v-list-item-title>Редактировать</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                    <v-list-item
-                      :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
-                    >
-                      <v-list-item-icon>
-                        <v-icon>mdi-history</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-content>
-                        <v-list-item-title>История</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                    <v-list-item
-                      link
-                      @click="onItemDeleteClick(item.id)"
-                    >
-                      <v-list-item-icon>
-                        <v-icon>mdi-delete</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-content>
-                        <v-list-item-title>Удалить</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </v-list-item-action>
-            </v-list-item>
-          </template>
-        </template>
-        <template v-else-if="contacts.length === 0 && contactsLoading">
-          <v-list-item class="text-center">
-            <v-spacer />
-            <span class="grey--text">
+                  <v-list-item-action class="mr-4">
+                    <v-checkbox
+                      v-model="item.checked"
+                      class="pa-0"
+                      @click.stop="onCheckBoxItemClick(item)"
+                    ></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-avatar class="mr-2">
+                    <v-avatar color="primary">
+                    <span style="color: white">
+                      {{ item.first_name.charAt(0) + item.last_name.charAt(0) }}
+                    </span>
+                    </v-avatar>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ item.first_name }} {{ item.last_name }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle v-if="item.default_phone">{{ item.default_phone.label }}: {{ item.default_phone.value.international }}</v-list-item-subtitle>
+                    <v-list-item-subtitle v-else>{{ $t('No default number') }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ new Date(item.created_at * 1000).toLocaleDateString() }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-spacer />
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-if="item.user"
+                      class="text-right"
+                    >{{ item.user.first_name }} {{ item.user.last_name }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-menu offset-y>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          icon
+                          large
+                          v-bind="attrs"
+                          v-on.stop="on"
+                        >
+                          <v-icon>mdi-dots-horizontal</v-icon>
+                        </v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          :to="{ name: 'call_center_manager_contacts_view_history', params: { contact_id: item.id } }"
+                        >
+                          <v-list-item-icon>
+                            <v-icon>mdi-history</v-icon>
+                          </v-list-item-icon>
+                          <v-list-item-content>
+                            <v-list-item-title>История</v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-list-item-action>
+                </v-list-item>
+              </template>
+            </template>
+            <template v-else-if="contactsLoading && contacts.length === 0">
+              <v-list-item class="text-center">
+                <v-spacer />
+                <span class="grey--text">
                 {{ $tc('Loading content...') }}
               </span>
-            <v-spacer />
-          </v-list-item>
-        </template>
-        <template v-else>
-          <v-list-item class="text-center">
-            <v-spacer />
-            <span class="grey--text">
-                {{ $tc('contact_list_empty') }}
+                <v-spacer />
+              </v-list-item>
+            </template>
+            <template v-else>
+              <v-list-item class="text-center">
+                <v-spacer />
+                <span class="grey--text">
+                {{ $tc('No contacts') }}
               </span>
-            <v-spacer />
-          </v-list-item>
-        </template>
-      </v-col>
-      <v-col
-        cols="12"
-        md="4"
-        lg="4"
-      >
-        <v-card
-          flat
-          outlined
-        >
-          <v-card-text class="">
-            <v-tooltip bottom max-width="400">
-              <template v-slot:activator="{ on }">
-                <v-combobox
-                  v-model="select"
-                  :items="items"
-                  :label="$tc('responsible')"
-                  small-chips
-                  multiple
-                  outlined
-                  dense
-                  v-on="on"
-                  style="max-width: 400px"
-                ></v-combobox>
-              </template>
-              <span>{{ $tc('Фильтр') }}</span>
-            </v-tooltip>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+                <v-spacer />
+              </v-list-item>
+            </template>
+          </vuescroll>
+        </v-col>
 
+        <!-- Filter -->
+        <v-col
+          order-sm="1"
+          order-lg="2"
+          order-md="2"
+          cols="12"
+          md="4"
+          lg="4"
+        >
+          <v-card
+            flat
+            outlined
+          >
+            <v-card-text class="pt-5">
+              <v-tooltip bottom max-width="400">
+                <template v-slot:activator="{ on }">
+                  <v-combobox
+                    v-model="filter.project.selected"
+                    :items="filter.project.items"
+                    :disabled="filter.project.disabled || filter.project.items.length === 0"
+                    :label="$tc('Project')"
+                    clearable
+                    item-value="id"
+                    item-text="name"
+                    outlined
+                    dense
+                    v-on="on"
+                  ></v-combobox>
+                </template>
+                <span>{{ $tc('Filter by projects') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom max-width="400">
+                <template v-slot:activator="{ on }">
+                  <v-combobox
+                    v-model="filter.city.selected"
+                    :items="filter.city.items"
+                    :disabled="filter.city.disabled || filter.city.items.length === 0"
+                    :label="$tc('City')"
+                    item-value="id"
+                    item-text="name"
+                    small-chips
+                    multiple
+                    outlined
+                    dense
+                    v-on="on"
+                  ></v-combobox>
+                </template>
+                <span>{{ $tc('Filter by city') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom max-width="400">
+                <template v-slot:activator="{ on }">
+                  <v-combobox
+                    v-model="filter.scenario.selected"
+                    :items="filter.scenario.items"
+                    :disabled="filter.scenario.disabled || filter.scenario.length === 0"
+                    :label="$tc('Scenario')"
+                    item-value="id"
+                    item-text="name"
+                    small-chips
+                    multiple
+                    outlined
+                    dense
+                    v-on="on"
+                  ></v-combobox>
+                </template>
+                <span>{{ $tc('Filter by scenario') }}</span>
+              </v-tooltip>
+              <v-menu
+                ref="filterDataRange"
+                v-model="filter.dataRange.visible"
+                :close-on-content-click="false"
+                :return-value.sync="filter.dataRange.dates"
+                transition="scale-transition"
+                offset-y
+                max-width="290px"
+                min-width="290px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="dateRangeText"
+                    :label="$t('Date the contact was created')"
+                    persistent-hint
+                    prepend-inner-icon="mdi-calendar"
+                    readonly
+                    outlined
+                    dense
+                    clearable
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="filter.dataRange.dates"
+                  no-title
+                  :show-current="false"
+                  :locale="$i18n.locale"
+                  range
+                >
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="filter.dataRange.dates = []"
+                    @mouseup="filter.dataRange.visible = false"
+                  >
+                    {{ $t('Clear') }}
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="filter.dataRange.visible = false"
+                  >
+                    {{ $t('Cancel') }}
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="$refs.filterDataRange.save(filter.dataRange.dates)"
+                  >
+                    {{ $t('Ok') }}
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+              <div class="text-center">
+                <v-pagination
+                  v-model="paginator.page"
+                  :total-visible="5"
+                  :length="paginator.pages"
+                ></v-pagination>
+              </div>
+              <div class="text-center">
+                {{ contactsCount }}
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-card>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { ContactResponseInterface, Contacts } from '@/api/Contacts'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { ContactResponseInterface, Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
+import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
+import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
-import { filter } from '@/Utils'
+import { filter, isEmpty } from '@/Utils'
+import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
+import { MainSearchMethod } from '@/Interfaces'
+import vuescroll from 'vuescroll'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
+
+  components: {
+    vuescroll
+  },
+
   data () {
     return {
       select: ['Vuetify', 'Programming'],
-      items: [
-        'Programming',
-        'Design',
-        'Vue',
-        'Vuetify'
-      ],
+      contactDialog: {
+        visible: false,
+        history: {
+          loading: false
+        }
+      },
+      paginator: {
+        perPage: 10,
+        pages: 0,
+        page: 1
+      },
+      contact: {
+        /* eslint-disable */
+        city: '',
+        default_phone: undefined,
+        emails: [],
+        first_name: '',
+        id: 0,
+        last_name: '',
+        middle_name: '',
+        phones: [] as ContactPhoneInterface[],
+        user: undefined
+        /* eslint-enabled */
+      } as ContactInterface,
+      contactHistory: [] as HistoryInterface[],
       checkboxSelectedAll: {
         checked: false,
         indeterminate: false
@@ -299,17 +420,57 @@ export default Vue.extend({
         disabled: true
       },
       buttonImport: {
-        disabled: true
+        disabled: false
       },
       buttonExport: {
         disabled: true
       },
-      buttonAdd: {
-        disabled: true
-      },
       contactsLoading: false,
-      contacts: [] as Contact[]
+      contacts: [] as Contact[],
+      contactsCount: 0,
+      filter: {
+        project: {
+          disabled: false,
+          selected: null,
+          items: [] as ProjectInterface[]
+        },
+
+        city: {
+          disabled: true,
+          selected: null,
+          items: []
+        },
+
+        scenario: {
+          disabled: true,
+          selected: null,
+          items: []
+        },
+
+        dataRange: {
+          visible: false,
+          disabled: true,
+          dates: [],
+        }
+      }
     }
+  },
+
+  computed: {
+    avatar () {
+      const first: string = this.contact.first_name || ''
+      const last: string = this.contact.last_name || ''
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    dateRangeText: {
+      get () {
+        return this.filter.dataRange.dates.join(' ~ ')
+      },
+      set () {
+        this.filter.dataRange.dates = []
+      }
+    },
   },
 
   watch: {
@@ -318,31 +479,104 @@ export default Vue.extend({
         // todo: implementation
       },
       deep: true
+    },
+
+    // Filter by projects
+    'filter.project.selected': {
+      handler (value?: ProjectInterface | ProjectInterface[] | null) {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            this.$routerQuery.setQuery({
+              project_id: value.map((v: ProjectInterface) => v.id).join(',')
+            }).then(this.loadContacts)
+          } else {
+            this.$routerQuery.removeQuery(['project_id']).then(this.loadContacts)
+          }
+        } else if (value) {
+          this.$routerQuery.setQuery({
+            project_id: value.id
+          }).then(this.loadContacts)
+        } else {
+          this.$routerQuery.removeQuery(['project_id']).then(this.loadContacts)
+        }
+      }
+    },
+
+    'filter.dataRange.dates': {
+      handler (value?: string[]) {
+        if (Array.isArray(value)) {
+          if (value.length === 2) {
+            this.$routerQuery.setQuery({
+              dates: value.map((v: string) => {
+                return Math.round(new Date(v).getTime() / 1000)
+              }).join(',')
+            }).then(this.loadContacts)
+          } else if (value.length === 0) {
+            this.$routerQuery.removeQuery(['dates']).then(this.loadContacts)
+          }
+        }
+      }
+    },
+
+    'paginator.page': {
+      handler (value: number) {
+        const offset: number = Math.ceil(value * this.paginator.perPage - this.paginator.perPage)
+        const count: number = this.paginator.perPage
+        this.$routerQuery.setQuery({ offset, count }).then(this.loadContacts)
+      }
     }
   },
 
+  mounted() {
+    this.$root.$on('root-main-search', this.onRootMainSearch)
+    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
+  },
+
   created () {
-    this.contactsLoading = true
-    new Contacts()
-      .search()
-      .then((contacts: ContactResponseInterface) => {
-        // eslint-disable-next-line
-        (this as any).contacts = contacts.items
-      }).finally(() => {
-        this.contactsLoading = false
-      })
+    new Projects()
+    .find()
+    .then((response: ProjectResponseItemsInterface) => {
+      this.filter.project.items = response.items
+    })
+    this.loadContacts()
+  },
+
+  beforeDestroy() {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
   },
 
   methods: {
     /* eslint-disable */
+
+    onRootMainSearch (q: string, set: MainSearchMethod) {
+      new Contacts()
+        .search({
+          q,
+          offset: 0,
+          count: 10
+        }).then((response: ContactResponseInterface) => {
+        set(response.items.map((e: ContactInterface) => {
+          return {
+            ...e,
+            title: `${e.first_name} ${e.last_name}`,
+            subtitle: e.city
+          }
+        }))
+      })
+    },
+
+    onRootMainSearchSelected (data: ContactInterface) {
+      this.$router.push({ path: `/contacts/${data.id}/script` })
+    },
 
     /**
      *  Happens when checkbox click
      */
     onSelectedAllClick (sender: any) {
       const contacts: ContactInterface[] = (this as any).contacts
-      contacts.forEach((e: ContactInterface) => {
-        (e as ContactInterface & {checked: boolean}).checked = sender.isActive
+      contacts.forEach((e: any) => {
+        e.checked = sender.isActive
       })
       this.operation()
     },
@@ -360,8 +594,8 @@ export default Vue.extend({
       const contactsCount = contacts.length
       let contactsCheckedCount = 0
 
-      contacts.forEach((e: ContactInterface) => {
-        if ((e as ContactInterface & {checked: boolean}).checked) {
+      contacts.forEach((e: any) => {
+        if (e.checked) {
           contactsCheckedCount++
         }
       })
@@ -458,7 +692,33 @@ export default Vue.extend({
      *
      */
     onContactItemClick (contact: any) {
-      this.$emit('contact-show', contact.id)
+      const id: number = contact.id
+      const contacts: Contacts = new Contacts()
+
+      // Load contact history
+      contacts.getById(id)
+        .then((contact) => {
+          this.contactDialog.visible = true
+          this.contact = contact as any
+
+          // Changing the response scheme
+          if ('phones' in this.contact) {
+            if (Array.isArray(this.contact.phones)) {
+              this.contact.phones = this.contact.phones.map((e: any) => {
+                e.connecting = false
+                return e
+              })
+            }
+          }
+
+          this.contactDialog.history.loading = true
+          contacts.getHistory(id)
+            .then((history: any) => {
+              this.contactHistory = history.items
+            }).finally(() => {
+            this.contactDialog.history.loading = false
+          })
+        })
     },
     /* eslint-enable */
 
@@ -490,6 +750,47 @@ export default Vue.extend({
           }
         }
       })
+    },
+
+    secondsToHms (s: number) {
+      return secondsToHms(s)
+    },
+
+    onCall (target: string, contactId: number) {
+      /* eslint-disable */
+      this.$jsSIP.call(target, { contact_id: contactId, target })
+      /* eslint-enable */
+    },
+
+    loadContacts () {
+      const query: ContactSearchQueryInterface = {
+        q: this.$routerQuery.getQuery('q', ''),
+        project_id: this.$routerQuery.getQuery('project_id', ''),
+        dates: this.$routerQuery.getQuery('dates', false),
+        offset: this.$routerQuery.getQuery('offset', 0),
+        count: this.$routerQuery.getQuery('count', this.paginator.perPage)
+      }
+
+      if (!query.dates) {
+        delete query.dates
+      }
+
+      if (isEmpty(query.project_id)) {
+        delete query.project_id
+      }
+
+      this.contactsLoading = true
+      new Contacts()
+        .search(query)
+        .then((contacts: ContactResponseInterface) => {
+          this.contactsCount = contacts.count
+          this.paginator.pages = Math.ceil(contacts.count / this.paginator.perPage)
+          this.contacts = contacts.items.map((contact: ContactInterface) => ({ ...contact, checked: false }))
+        }).catch((e) => {
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).finally(() => {
+          this.contactsLoading = false
+        })
     }
   }
 })

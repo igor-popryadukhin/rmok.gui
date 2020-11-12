@@ -12,10 +12,11 @@ export interface ContactResponseInterface {
 }
 
 export interface ContactSearchQueryInterface {
-  q: string;
-  projects?: string;
-  offset: number;
-  count: number;
+  q?: string;
+  project_id?: number;
+  dates?: string;
+  offset?: number;
+  count?: number;
 }
 
 export class Contacts {

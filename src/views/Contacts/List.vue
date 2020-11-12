@@ -389,10 +389,10 @@ export default Vue.extend({
         if (Array.isArray(value)) {
           if (value.length > 0) {
             this.$routerQuery.setQuery({
-              filter_project: value.map((v: ProjectInterface) => v.id).join(',')
+              project_id: value.map((v: ProjectInterface) => v.id).join(',')
             }).then(this.loadContacts)
           } else {
-            this.$routerQuery.removeQuery(['filter_project']).then(this.loadContacts)
+            this.$routerQuery.removeQuery(['project_id']).then(this.loadContacts)
           }
         }
       }
@@ -637,13 +637,13 @@ export default Vue.extend({
     loadContacts () {
       const query: ContactSearchQueryInterface = {
         q: this.$routerQuery.getQuery('q', ''),
-        projects: this.$routerQuery.getQuery('filter_project', ''),
+        project_id: this.$routerQuery.getQuery('project_id', ''),
         offset: this.$routerQuery.getQuery('offset', 0),
         count: this.$routerQuery.getQuery('count', 100)
       }
 
-      if (isEmpty(query.projects)) {
-        delete query.projects
+      if (isEmpty(query.project_id)) {
+        delete query.project_id
       }
 
       this.contactsLoading = true

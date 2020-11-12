@@ -10,6 +10,7 @@ export interface ContactInterface {
   user: any;
   emails: any[];
   phones: ContactPhoneInterface[];
+  created_at: number;
 }
 
 export interface ContactPhoneInterface {

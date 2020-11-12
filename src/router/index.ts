@@ -522,8 +522,44 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'call-center-manager',
+              middleware: []
+            }
+          },
+          {
+            name: 'call_center_manager_contacts_new',
+            path: 'new',
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts-new" */ '../views/CallCenterManage/Contacts/New.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'call-center-manager',
               middleware: [roleRCC]
             }
+          },
+          {
+            path: ':contact_id',
+            name: 'contacts_view',
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts-view" */ '../views/CallCenterManage/Contacts/View.vue'),
+            children: [
+              {
+                path: 'script',
+                name: 'call_center_manager_contacts_view_script',
+                component: () => import(/* webpackChunkName: "call-center-manager-contacts-view-script" */ '../views/CallCenterManage/Contacts/Script.vue'),
+                meta: { layout: 'call-center-manager', middleware: [] }
+              },
+              {
+                path: 'history',
+                name: 'call_center_manager_contacts_view_history',
+                component: () => import(/* webpackChunkName: "call-center-manager-contacts-view-history" */ '../views/CallCenterManage/Contacts/History.vue'),
+                meta: { layout: 'call-center-manager', middleware: [] }
+              },
+              {
+                path: 'tasks',
+                name: 'call_center_manager_contacts_view_task',
+                component: () => import(/* webpackChunkName: "call-center-manager-contacts-view-task" */ '../views/CallCenterManage/Contacts/Task.vue'),
+                meta: { layout: 'call-center-manager', middleware: [] }
+              }
+            ],
+            meta: { layout: 'call-center-manager', middleware: [] }
           }
         ],
         meta: {
