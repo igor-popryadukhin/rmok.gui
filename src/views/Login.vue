@@ -94,15 +94,16 @@ export default Vue.extend({
       axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
         login,
         password
-      }).then((response: AxiosResponse) => {
+      }).then(async (response: AxiosResponse) => {
         if (response.status === 200) {
           /* eslint-disable */
-          this.$store.dispatch('profile/loadProfile')
           // @ts-ignore
           this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 600 })
           // @ts-ignore
           this.$cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
           this.$toast.success(this.$tc('messages.authorisation_success'))
+
+          await this.$store.dispatch('profile/loadProfile')
           this.$router.replace('/')
           /* eslint-enable */
         }

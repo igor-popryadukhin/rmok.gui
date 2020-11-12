@@ -110,6 +110,7 @@
         </template>
         <span>{{ $tc('route.settings') }}</span>
       </v-tooltip>
+      <div style="width: 15px"></div>
 
       <!-- Avatar -->
       <v-menu offset-y min-width="300">

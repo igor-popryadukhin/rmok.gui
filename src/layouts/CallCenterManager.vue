@@ -203,14 +203,14 @@ export default Vue.extend({
         name: 'profile',
         icon: 'mdi-account',
         to: {
-          name: 'profile'
+          name: 'call_center_manager_profile'
         }
       },
       {
         name: 'settings',
         icon: 'mdi-cog',
         to: {
-          name: 'settings'
+          name: 'call_center_manager_settings'
         }
       },
       {

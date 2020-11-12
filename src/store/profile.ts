@@ -44,8 +44,11 @@ export const profile = {
 
   actions: {
     loadProfile ({ commit }: any) {
-      new Account().getProfile().then((profile) => {
-        commit('set', profile)
+      return new Promise((resolve) => {
+        new Account().getProfile()
+          .then((profile) => {
+            commit('set', profile)
+          }).finally(resolve)
       })
     }
   },
