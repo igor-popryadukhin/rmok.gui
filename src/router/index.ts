@@ -710,6 +710,15 @@ export interface MiddlewareContextInterface {
 }
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
+  if (to.path === '/') {
+    if (store.getters['profile/role_is_leader_cc']) {
+      return next({ name: 'call_center_manager' })
+    }
+    if (store.getters['profile/role_is_admin']) {
+      return next({ name: 'administrator' })
+    }
+  }
+
   if (!to.meta.middleware) {
     return next()
   }
