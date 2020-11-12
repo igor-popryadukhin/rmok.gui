@@ -618,6 +618,71 @@ const routes: RouteConfig[] = [
           // todo: Solve the question of how we will change the locale
           loadLanguageAsync('ru', 'groups').then(() => next())
         }
+      },
+      {
+        path: 'settings',
+        name: 'call_center_manager_settings',
+        component: () => import(/* webpackChunkName: "call-center-manager-settings" */ '../views/CallCenterManage/Settings/Layout.vue'),
+        children: [
+          {
+            path: 'profile',
+            name: 'call_center_manager_profile',
+            component: () => import(/* webpackChunkName: "call-center-manager-settings-profile" */ '../views/CallCenterManage/Settings/Profile.vue'),
+            meta: {
+              icon: 'mdi-account-circle-outline',
+              layout: 'call-center-manager',
+              middleware: []
+            }
+          },
+          {
+            path: 'journal',
+            name: 'call_center_manager_journal',
+            component: () => import(/* webpackChunkName: "call-center-manager-settings-journal" */ '../views/CallCenterManage/Settings/Journal.vue'),
+            meta: {
+              icon: 'mdi-history',
+              layout: 'call-center-manager',
+              middleware: []
+            }
+          },
+          {
+            path: 'security',
+            name: 'call_center_manager_security',
+            component: () => import(/* webpackChunkName: "call-center-manager-settings-security" */ '../views/CallCenterManage/Settings/Security.vue'),
+            meta: {
+              icon: 'mdi-security',
+              layout: 'call-center-manager',
+              middleware: []
+            }
+          },
+          {
+            path: 'telephony',
+            name: 'call_center_manager_telephony',
+            component: () => import(/* webpackChunkName: "call-center-manager-settings-security" */ '../views/CallCenterManage/Settings/Telephony.vue'),
+            meta: {
+              icon: 'mdi-phone-voip',
+              layout: 'call-center-manager',
+              middleware: []
+            }
+          },
+          {
+            path: 'headset-configure',
+            name: 'call_center_manager_headset_configure',
+            component: () => import(/* webpackChunkName: "call-center-manager-settings-headset-configure" */ '../views/CallCenterManage/Settings/HeadsetConfigure.vue'),
+            meta: {
+              icon: 'mdi-headset',
+              layout: 'call-center-manager',
+              middleware: []
+            }
+          }
+        ],
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'settings').then(() => next())
+        },
+        meta: {
+          layout: 'call-center-manager',
+          middleware: []
+        }
       }
     ],
     meta: {
@@ -627,7 +692,7 @@ const routes: RouteConfig[] = [
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
       store.dispatch('system/roles').then()
-      loadLanguageAsync('ru', 'administrator').then(() => next())
+      loadLanguageAsync('ru', 'call-center-manager').then(() => next())
     }
   }
 ]
