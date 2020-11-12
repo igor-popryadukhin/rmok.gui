@@ -208,7 +208,7 @@ const routes: RouteConfig[] = [
     name: 'not_found',
     component: () => import(/* webpackChunkName: "not-found" */ '../views/NotFound.vue'),
     meta: {
-      layout: 'default',
+      layout: 'clean',
       middleware: []
     }
   },
