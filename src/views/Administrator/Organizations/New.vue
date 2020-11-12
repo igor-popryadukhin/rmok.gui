@@ -381,7 +381,7 @@ export default Vue.extend({
               }
             }) : [],
           phones: this.organization.phones
-            .map((phone: OrganizationPhoneInterface) => {
+            ?.map((phone: OrganizationPhoneInterface) => {
               return {
                 country_code: phone.country_code,
                 country_calling_code: phone.country_calling_code,

@@ -285,7 +285,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { VueConstructor } from 'vue'
 import lvovich from '@/mixins/lvovich'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import { Route } from 'vue-router'
@@ -294,6 +294,7 @@ import { secondsToHmsDigital } from '@/utils/datetime'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import vuescroll from 'vuescroll'
 import '@/plugins/libphonenumber-js'
+import { MainSearchMethod } from '@/Interfaces'
 
 interface TabInterface {
   name: string;
@@ -302,7 +303,7 @@ interface TabInterface {
   to?: string | Route;
 }
 
-export default Vue.extend({
+export default (Vue as VueConstructor<Vue & any>).extend({
   mixins: [lvovich],
 
   components: {
@@ -425,7 +426,7 @@ export default Vue.extend({
 
   methods: {
 
-    onRootMainSearch (q, set) {
+    onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
         .search({
           q,

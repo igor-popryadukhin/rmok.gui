@@ -322,7 +322,7 @@ export default Vue.extend({
               country_code: e.country_code,
               country_calling_code: e.country_calling_code,
               label: e.label,
-              value: e.value.e164 || e.value
+              value: typeof e.value === 'string' ? e.value : e.value.e164
             }
           }) || []
         this.organization.site = organization.site
@@ -449,7 +449,7 @@ export default Vue.extend({
               }
             }) : [],
           phones: this.organization.phones
-            .map((phone: OrganizationPhoneInterface) => {
+            ?.map((phone: OrganizationPhoneInterface) => {
               return {
                 id: phone.id,
                 country_code: phone.country_code,

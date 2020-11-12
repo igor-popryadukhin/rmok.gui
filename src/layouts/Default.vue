@@ -292,7 +292,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import { NotificationInterface } from '@/Interfaces'
+import { MainSearchInterface, MainSearchMethod, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
 import vuescroll from 'vuescroll'
 
@@ -313,8 +313,8 @@ export default Vue.extend({
       selected: null,
       loading: false,
       items: [],
-      debounce: debounce(function (q: string, _this) {
-        _this.$root.$emit('root-main-search', q, (items) => {
+      debounce: debounce(function (q: string, _this: any) {
+        _this.$root.$emit('root-main-search', q, (items: MainSearchInterface[]) => {
           _this.mainSearch.items = items
         })
       }, 400)
@@ -401,12 +401,6 @@ export default Vue.extend({
         }
       }
     )
-  },
-
-  methods: {
-    onInputMainSearch (e) {
-      console.log(e)
-    }
   }
 })
 </script>

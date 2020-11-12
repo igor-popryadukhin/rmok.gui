@@ -293,6 +293,7 @@ import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
 import { filter, isEmpty } from '@/Utils'
 import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
+import { MainSearchMethod } from '@/Interfaces'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
@@ -343,7 +344,7 @@ export default Vue.extend({
         disabled: true
       },
       contactsLoading: false,
-      contacts: [] as Contact[] & Array<T>,
+      contacts: [] as Contact[],
       filter: {
         project: {
           disabled: true,
@@ -420,7 +421,7 @@ export default Vue.extend({
   methods: {
     /* eslint-disable */
 
-    onRootMainSearch (q, set) {
+    onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
         .search({
           q,

@@ -208,7 +208,7 @@ export default Vue.extend({
     return {
       historyLoading: false,
       historyFilter: {
-        selected: null,
+        selected: null as any,
         items: [
           {
             title: 'All',
@@ -278,7 +278,7 @@ export default Vue.extend({
   },
 
   methods: {
-    onShowDialogCommentEdit ({ id, comment, actions }) {
+    onShowDialogCommentEdit ({ id, comment, actions }: any) {
       this.$dialog.show(DCommentEdit, {
         waitForResult: true,
         title: this.$t('Comment'),
@@ -291,7 +291,7 @@ export default Vue.extend({
             .updateHistory(id, {
               comment: value
             }).then(() => {
-              const element = this.history.find((e) => e.id === id)
+              const element: any = this.history.find((e: any) => e.id === id)
               if (element) {
                 element.comment = value
               }
@@ -312,7 +312,7 @@ export default Vue.extend({
           +this.$route.query.history_count || 50
         )
         .then((response) => {
-          this.history = response.items.map((e) => {
+          this.history = response.items.map((e: any) => {
             return Object.assign({
               actions: {
                 edit: {

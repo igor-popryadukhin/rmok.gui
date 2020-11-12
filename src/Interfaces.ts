@@ -12,3 +12,11 @@ export interface NotificationInterface {
   title: string;
   message: string;
 }
+
+export interface MainSearchInterface {
+  title: string;
+  subtitle: string;
+  [key: string]: any;
+}
+
+export type MainSearchMethod = (items: MainSearchInterface[]) => MainSearchInterface
