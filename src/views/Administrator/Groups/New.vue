@@ -29,7 +29,7 @@
           <v-col
               cols="12"
           >
-            <autocomplete-organization
+            <s-autocomplete-organizations
                 v-model="organizationSelected"
                 :label="$tc('organization')"
             />
@@ -90,26 +90,15 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { Groups } from '@/api/Groups'
+import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
 import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
-import AutocompleteOrganization from '@/components/Autocomplete/AutocompleteOrganization.vue'
 import { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
-
-interface Phone {
-  code: string;
-  value: string;
-  label: string;
-}
-
-interface Email {
-  value: string;
-  label: string;
-}
 
 export default Vue.extend({
   components: {
     SAutocompleteUsers,
-    AutocompleteOrganization
+    SAutocompleteOrganizations
   },
   mixins: [rules],
 

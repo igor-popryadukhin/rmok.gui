@@ -62,7 +62,7 @@
               :organization-id="group.organization ? group.organization.id : 0"
               :search="group.team_leader ? group.team_leader.first_name : ''"
               :label="$tc('team_leader')"
-              role="r_leader_group"
+              roles="r_leader_group"
             >
               <template v-slot:no-data>
                 <v-list-item

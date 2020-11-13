@@ -14,6 +14,7 @@ export interface ContactResponseInterface {
 export interface ContactSearchQueryInterface {
   q?: string;
   project_id?: number;
+  user_id?: number;
   dates?: string;
   offset?: number;
   count?: number;

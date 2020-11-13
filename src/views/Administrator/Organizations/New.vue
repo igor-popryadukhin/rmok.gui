@@ -173,7 +173,7 @@
               visible-icon
               :rules="[rules.required]"
               :label="$tc('responsible')"
-              role="r_leader_cc"
+              roles="r_leader_cc"
             />
           </v-col>
         </v-row>

@@ -292,7 +292,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import { MainSearchInterface, MainSearchMethod, NotificationInterface } from '@/Interfaces'
+import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
 import vuescroll from 'vuescroll'
 

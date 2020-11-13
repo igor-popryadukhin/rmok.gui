@@ -22,6 +22,15 @@ export interface UserInterface {
   organization?: UserOrganizationInterface | null;
 }
 
+interface ParamsFindInterface {
+  q?: string;
+  roles?: string;
+  organization_id?: number;
+  project_id?: number;
+  offset?: number;
+  count?: number;
+}
+
 export class Users {
   /**
    * Add new user
@@ -73,22 +82,14 @@ export class Users {
 
   /**
    *
-   * @param q
-   * @param role
-   * @param organizationId
-   * @param offset
-   * @param count
+   * @param params
    */
-  public find (q = '', role = '', organizationId = 0, offset = 0, count = 100): Promise<any> {
+  public find (params: ParamsFindInterface): Promise<any> {
     return new Promise((resolve, reject): Promise<any> | any => {
       $axios.get('/users', {
         params: {
           /* eslint-disable */
-          q,
-          role,
-          organization_id: organizationId,
-          offset,
-          count
+          ...params
           /* eslint-enable */
         }
       })

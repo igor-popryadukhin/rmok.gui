@@ -31,7 +31,7 @@
             <s-autocomplete-users
               v-model="userSelected"
               :label="$tc('team_leader')"
-              role="r_leader_group"
+              roles="r_leader_group"
             />
           </v-col>
         </v-row>

@@ -32,7 +32,7 @@
               v-model="userSelected"
               :label="$tc('team_leader')"
               :selected-id="group.team_leader ? group.team_leader.id : 0"
-              role="r_leader_group"
+              roles="r_leader_group"
             />
           </v-col>
         </v-row>

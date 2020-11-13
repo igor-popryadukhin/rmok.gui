@@ -1,4 +1,5 @@
 {
   "No contacts": "Нет контактов",
-  "Date the contact was created": "Дата создания контакта"
+  "Date the contact was created": "Дата создания контакта",
+  "Not found | Found {n} contact | Found {n} contacts | Found {n} contacts": "Не найдено | Найден {n} контакт | Найдено {n} контакта | Найдено {n} контактов"
 }

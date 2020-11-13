@@ -12,7 +12,7 @@
       extension-height="25px"
       class="background--header"
     >
-      <div class="offset-lg-2 offset-md-2"></div>
+      <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title class="d-inline-block toolbar-title">
         <div class="hidden-sm-and-down">RMOK</div>
         <div class="hidden-sm-and-down toolbar-title-subtitle">for call center manager</div>

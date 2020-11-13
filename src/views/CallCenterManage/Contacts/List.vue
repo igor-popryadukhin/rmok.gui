@@ -253,6 +253,20 @@
               </v-tooltip>
               <v-tooltip bottom max-width="400">
                 <template v-slot:activator="{ on }">
+                  <s-autocomplete-users
+                    v-model="filter.user.selected"
+                    :disabled="filter.user.disabled"
+                    dense
+                    outlined
+                    clearable
+                    roles="r_operator"
+                    v-on="on"
+                  />
+                </template>
+                <span>{{ $tc('Filter by projects') }}</span>
+              </v-tooltip>
+              <v-tooltip bottom max-width="400">
+                <template v-slot:activator="{ on }">
                   <v-combobox
                     v-model="filter.city.selected"
                     :items="filter.city.items"
@@ -343,15 +357,15 @@
                   </v-btn>
                 </v-date-picker>
               </v-menu>
-              <div class="text-center">
+              <div v-if="contactsCount > 0" class="text-center mb-3">
                 <v-pagination
                   v-model="paginator.page"
                   :total-visible="5"
                   :length="paginator.pages"
                 ></v-pagination>
               </div>
-              <div class="text-center">
-                {{ contactsCount }}
+              <div class="text-left">
+                {{ $tc('Not found | Found {n} contact | Found {n} contacts | Found {n} contacts', contactsCount) }} <br />
               </div>
             </v-card-text>
           </v-card>
@@ -372,13 +386,16 @@ import { filter, isEmpty } from '@/Utils'
 import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
 import vuescroll from 'vuescroll'
+import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
+import { UserInterface } from '@/api/Users'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
 
   components: {
-    vuescroll
+    vuescroll,
+    SAutocompleteUsers
   },
 
   data () {
@@ -431,19 +448,25 @@ export default Vue.extend({
       filter: {
         project: {
           disabled: false,
-          selected: null,
+          selected: undefined,
           items: [] as ProjectInterface[]
         },
 
+        user: {
+          disabled: false,
+          selected: undefined,
+        },
+
+
         city: {
           disabled: true,
-          selected: null,
+          selected: undefined,
           items: []
         },
 
         scenario: {
           disabled: true,
-          selected: null,
+          selected: undefined,
           items: []
         },
 
@@ -484,6 +507,7 @@ export default Vue.extend({
     // Filter by projects
     'filter.project.selected': {
       handler (value?: ProjectInterface | ProjectInterface[] | null) {
+        this.paginator.page = 0
         if (Array.isArray(value)) {
           if (value.length > 0) {
             this.$routerQuery.setQuery({
@@ -502,8 +526,24 @@ export default Vue.extend({
       }
     },
 
+    // Filter by users
+    'filter.user.selected': {
+      handler (value?: UserInterface) {
+        this.paginator.page = 0
+        if (value) {
+          this.$routerQuery.setQuery({
+            user_id: value.id
+          }).then(this.loadContacts)
+        } else {
+          this.$routerQuery.removeQuery(['user_id']).then(this.loadContacts)
+        }
+      }
+    },
+
+    // Filter by date range
     'filter.dataRange.dates': {
       handler (value?: string[]) {
+        this.paginator.page = 0
         if (Array.isArray(value)) {
           if (value.length === 2) {
             this.$routerQuery.setQuery({
@@ -518,11 +558,14 @@ export default Vue.extend({
       }
     },
 
+    // Paginator
     'paginator.page': {
-      handler (value: number) {
-        const offset: number = Math.ceil(value * this.paginator.perPage - this.paginator.perPage)
-        const count: number = this.paginator.perPage
-        this.$routerQuery.setQuery({ offset, count }).then(this.loadContacts)
+      handler (value?: number) {
+        if (value > 0) {
+          const offset: number = Math.ceil(value * this.paginator.perPage - this.paginator.perPage)
+          const count: number = this.paginator.perPage
+          this.$routerQuery.setQuery({ offset, count }).then(this.loadContacts)
+        }
       }
     }
   },
@@ -765,7 +808,8 @@ export default Vue.extend({
     loadContacts () {
       const query: ContactSearchQueryInterface = {
         q: this.$routerQuery.getQuery('q', ''),
-        project_id: this.$routerQuery.getQuery('project_id', ''),
+        project_id: this.$routerQuery.getQuery('project_id', 0),
+        user_id: this.$routerQuery.getQuery('user_id', 0),
         dates: this.$routerQuery.getQuery('dates', false),
         offset: this.$routerQuery.getQuery('offset', 0),
         count: this.$routerQuery.getQuery('count', this.paginator.perPage)
@@ -775,8 +819,12 @@ export default Vue.extend({
         delete query.dates
       }
 
-      if (isEmpty(query.project_id)) {
+      if (query.project_id === 0) {
         delete query.project_id
+      }
+
+      if (query.user_id === 0) {
+        delete query.user_id
       }
 
       this.contactsLoading = true

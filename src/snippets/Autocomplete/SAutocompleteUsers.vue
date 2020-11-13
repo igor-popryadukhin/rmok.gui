@@ -1,13 +1,14 @@
 <template>
   <v-autocomplete
-      ref="autocomplete"
+    ref="autocomplete"
     v-model="selected"
     :items="users"
-    :search-input.sync="usersSearchQuery"
+    :search-input.sync="dataSearch"
     no-filter
     disable-lookup
     :cache-items="false"
     persistent-hint
+    outlined="outlined"
     :label="label"
     :rules="rules"
     :loading="loading"
@@ -15,6 +16,8 @@
     :disabled="disabled"
     :chips="multiple"
     :multiple="multiple"
+    :dense="dense"
+    :clearable="clearable"
   >
     <template v-slot:no-data>
       <slot name="no-data">
@@ -88,6 +91,10 @@ export default Vue.extend({
       type: Number,
       default: 0
     },
+    projectId: {
+      type: Number,
+      default: 0
+    },
     search: {
       type: String,
       default: ''
@@ -104,7 +111,7 @@ export default Vue.extend({
       type: String,
       default: ''
     },
-    role: {
+    roles: {
       type: String,
       default: ''
     },
@@ -127,22 +134,42 @@ export default Vue.extend({
     multiple: {
       type: Boolean,
       default: false
+    },
+    outlined: {
+      type: Boolean,
+      default: false
+    },
+    dense: {
+      type: Boolean,
+      default: false
+    },
+    clearable: {
+      type: Boolean,
+      default: false
     }
   },
 
   data () {
     return {
+      attributes: null,
       loading: false,
       selectOnce: false,
       selected: null as any[] | any,
-      usersSearchQuery: null as null | string,
+      dataSearch: null as string | null,
       usersProcessLoading: false,
-      usersSearchDebounce: debounce((q: string, context: any) => {
+      usersSearchDebounce: debounce((context: any) => {
         if (!context.disabled) {
           context.loading = true
           context.users = []
           new Users()
-            .find(q, this.role, context.organizationId)
+            .find({
+              q: context.dataSearch,
+              roles: context.roles,
+              organization_id: context.organizationId,
+              project_id: context.projectId,
+              offset: 0,
+              count: 50
+            })
             .then(({ items }) => {
               context.users = items
 
@@ -164,12 +191,16 @@ export default Vue.extend({
       this.$emit('change', value)
     },
 
-    usersSearchQuery (val: string) {
-      this.usersSearchDebounce(val, this)
+    dataSearch () {
+      this.usersSearchDebounce(this)
     },
 
     organizationId () {
-      this.usersSearchDebounce(this.usersSearchQuery, this)
+      this.usersSearchDebounce(this)
+    },
+
+    projectId () {
+      this.usersSearchDebounce(this)
     }
   },
 
@@ -178,7 +209,9 @@ export default Vue.extend({
   },
 
   created () {
-    this.usersSearchQuery = this.search
+    if (!this.disabled) {
+      this.dataSearch = this.search
+    }
   },
 
   beforeDestroy () {
