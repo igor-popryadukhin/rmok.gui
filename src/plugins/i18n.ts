@@ -10,7 +10,36 @@ const locale: string | undefined = process.env.VUE_APP_I18N_LOCALE
 const i18n = new VueI18n({
   locale,
   silentTranslationWarn: true,
-  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'ru'
+  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'ru',
+  pluralizationRules: {
+    /**
+     * @param choice {number} индекс выбора, переданный в $tc: `$tc('path.to.rule', choiceIndex)`
+     * @param choicesLength {number} общее количество доступных вариантов
+     * @returns финальный индекс для выбора соответственного варианта слова
+     */
+    ru (choice: number, choicesLength: number) {
+      // this === VueI18n instance, so the locale property also exists here
+
+      if (choice === 0) {
+        return 0
+      }
+
+      const teen = choice > 10 && choice < 20
+      const endsWithOne = choice % 10 === 1
+
+      if (choicesLength < 4) {
+        return (!teen && endsWithOne) ? 1 : 2
+      }
+      if (!teen && endsWithOne) {
+        return 1
+      }
+      if (!teen && choice % 10 >= 2 && choice % 10 <= 4) {
+        return 2
+      }
+
+      return (choicesLength < 4) ? 2 : 3
+    }
+  }
 })
 
 export default i18n
