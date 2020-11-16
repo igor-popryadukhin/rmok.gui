@@ -29,5 +29,6 @@
   "No default number": "Нет номера по умолчанию",
   "Invalid phone number format": "Неверный формат номера телефона",
   "Invalid Email address": "Неверный адрес электронной почты",
-  "No contacts": "Нет контактов"
+  "No contacts": "Нет контактов",
+  "Available statuses": "Доступные статусы"
 }

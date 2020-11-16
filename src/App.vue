@@ -23,11 +23,6 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <s-contact-statuses-dialog
-      v-model="contactStatusDialog.visible"
-      :history-id="contactStatusDialog.historyId"
-      title="Статус"
-    />
     <component
       :is="layout"
       :key="2"
@@ -62,7 +57,7 @@ import { Contacts } from '@/api/Contacts'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import VueI18n from 'vue-i18n'
-import SContactStatusesDialog from '@/snippets/SContactStatuses/SContactStatusesDialog.vue'
+import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
 
 interface HistoryDataInterface {
   /* eslint-disable */
@@ -72,6 +67,8 @@ interface HistoryDataInterface {
   end_timestamp?: number;
   type: string;
   direction?: string;
+  initiator?: string;
+  target?: string;
   /* eslint-enable */
 }
 
@@ -79,7 +76,6 @@ export default Vue.extend({
   name: 'App',
 
   components: {
-    SContactStatusesDialog,
     VApp
   },
 
@@ -195,58 +191,69 @@ export default Vue.extend({
       this.$jsSIP.onSessionEnded = (session: RTCSession, event: EndEvent, payload: any) => {
         /* eslint-disable */
           console.log('%c%s', 'color: blue;', 'Конец сессии')
-          console.log('%c%s', 'color: green;', '------------------------')
-          console.log(event)
-          console.log('%c%s', 'color: green;', '------------------------')
+          console.log('%c%s', 'color: blue;', '------------------------')
+          console.log(event, session)
+          console.log('%c%s', 'color: blue;', '------------------------')
 
-          if (event.originator === 'remote') {
-            this.$toast.error(event.cause)
-            return
+        let historyData = {
+          session_start_time: this.$jsSIP.sessionStartTime.getTime() / 1000,
+          session_end_time: this.$jsSIP.sessionEndTime.getTime() / 1000,
+          start_timestamp: session.start_time ? session.start_time.getTime() / 1000 : null,
+          end_timestamp: session.end_time ? session.end_time.getTime() / 1000 : null,
+          type: 'call',
+          direction: session.direction
+        } as HistoryDataInterface
+
+        // If ATE did not return the call time, we delete zero data from the request
+        if (historyData.start_timestamp == null) {
+          delete historyData.start_timestamp
+          delete historyData.end_timestamp
+        }
+
+        let contactId = 0;
+
+        // End, remote side
+        if (event.originator === 'remote') {
+          // this.$toast.error(event.cause)
+          //return
+        } else if (event.originator === 'local') { // End, local side
+          contactId = payload.contact_id
+          historyData.target = payload.target
+
+          if (event.cause === 'Canceled') {
+            historyData.direction = session.direction + '_canceled'
           }
+        }
 
-          // If this is an incoming call, then the payload must be present
-          if (payload) {
-            if ({}.hasOwnProperty.call(payload, 'contact_id')) {
-
-              const { contact_id, target } = payload
-
-              let historyData = {
-                session_start_time: this.$jsSIP.sessionStartTime.getTime() / 1000,
-                session_end_time: this.$jsSIP.sessionEndTime.getTime() / 1000,
-                start_timestamp: session.start_time ? session.start_time.getTime() / 1000 : null,
-                end_timestamp: session.end_time ?session.end_time.getTime() / 1000 : null,
-                type: 'call',
-                direction: session.direction,
-                target
-              } as HistoryDataInterface
-
-              if (event.originator === 'local' && event.cause === 'Canceled') {
-                historyData.direction = session.direction + '_canceled'
-              }
-
-              // If ATE did not return the call time, we delete zero data from the request
-              if (historyData.start_timestamp == null) {
-                delete historyData.start_timestamp
-                delete historyData.end_timestamp
-              }
-
-              new Contacts()
-                .addHistory(contact_id, historyData)
-                .then((id: number) => {
-                  if (this.$store.getters['project/statuses'].length > 0) {
-                    this.contactStatusDialog.visible = true
-                    this.contactStatusDialog.historyId = id
-                  } else {
-                    this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
-                  }
-                })
-                .finally(() => {
-                  // After adding new data to history, we generate an event
-                  this.$root.$emit('root-contact-history-change')
-                  this.$root.$emit('jssip-session-cancel', { session, payload })
-                })
+        new Contacts()
+          .addHistory(contactId, historyData)
+          .then((id: number) => {
+            if (this.$store.getters['project/statuses'].length > 0) {
+              this.$dialog.show(DStatusEdit, {
+                waitForResult: true,
+                title: this.$t('Available statuses'),
+                statuses: this.$store.getters['project/statuses'], // Statuses in current project
+                saveTitle: this.$t('Save'),
+                cancelTitle: this.$t('Cancel'),
+                width: '60%',
+                height: '600',
+                onSave: (status: any) => {
+                  new Contacts()
+                    .updateHistory(id, {
+                      status_id: status.id
+                    }).finally(() => {
+                      this.$root.$emit('root-contact-history-change')
+                    })
+                }
+              })
+            } else {
+              this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
             }
-          }
+          }).finally(() => {
+            // After adding new data to history, we generate an event
+            this.$root.$emit('root-contact-history-change')
+            this.$root.$emit('jssip-session-cancel', { session, payload })
+          })
           /* eslint-enable */
       }
 

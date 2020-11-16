@@ -186,6 +186,15 @@
                 >
                   <v-icon>mdi-pencil-box-outline</v-icon>
                 </v-btn>
+                <v-btn
+                  v-else-if="item.type === 'call'"
+                  icon
+                  :key="`v-list-item-action-${index}`"
+                  :loading="item.actions.edit.loading"
+                  @click.stop="onShowDialogCallEdit(item)"
+                >
+                  <v-icon>mdi-pencil-box-outline</v-icon>
+                </v-btn>
               </v-list-item-action>
             </v-list-item>
           </template>
@@ -200,6 +209,7 @@ import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import DCommentEdit from '@/components/Dialogs/DCommentEdit.vue'
+import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
 import '@/plugins/libphonenumber-js'
 
 export default Vue.extend({
@@ -215,7 +225,7 @@ export default Vue.extend({
             value: 'all'
           },
           {
-            title: 'Last comment',
+            title: 'Comments',
             value: 'comment'
           },
           {
@@ -300,6 +310,37 @@ export default Vue.extend({
             })
         }
       })
+    },
+
+    onShowDialogCallEdit ({ id, actions }: any) {
+      if (this.$store.getters['project/statuses'].length > 0) {
+        this.$dialog.show(DStatusEdit, {
+          waitForResult: true,
+          title: this.$t('Available statuses'),
+          statuses: this.$store.getters['project/statuses'], // Statuses in current project
+          saveTitle: this.$t('Save'),
+          cancelTitle: this.$t('Cancel'),
+          width: '60%',
+          height: '600',
+          onSave: (status: any) => {
+            console.log(status)
+            actions.edit.loading = true
+            new Contacts()
+              .updateHistory(id, {
+                status_id: status.id
+              }).then(() => {
+                const element: any = this.history.find((e: any) => e.id === id)
+                if (element) {
+                  element.status = status.name
+                }
+              }).finally(() => {
+                actions.edit.loading = false
+              })
+          }
+        })
+      } else {
+        this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
+      }
     },
 
     loadHistory () {
