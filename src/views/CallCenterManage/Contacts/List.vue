@@ -125,7 +125,7 @@
           md="8"
           lg="8"
         >
-          <vuescroll :style="{ height: `${$screenHeight - 250}px` }" style="width: 100%">
+          <vuescroll :ops="vuescroll_options" :style="{ height: `${$screenHeight - 250}px` }" style="width: 100%">
             <template v-if="contacts.length > 0">
               <template
                 v-for="item in contacts"
@@ -382,7 +382,7 @@ import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
-import { filter, isEmpty } from '@/Utils'
+import { filter } from '@/Utils'
 import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
 import vuescroll from 'vuescroll'
@@ -400,7 +400,11 @@ export default Vue.extend({
 
   data () {
     return {
-      select: ['Vuetify', 'Programming'],
+      vuescroll_options: {
+        bar: {
+          background: '#c912c6'
+        }
+      },
       contactDialog: {
         visible: false,
         history: {
@@ -422,7 +426,8 @@ export default Vue.extend({
         last_name: '',
         middle_name: '',
         phones: [] as ContactPhoneInterface[],
-        user: undefined
+        user: undefined,
+        created_at: 0
         /* eslint-enabled */
       } as ContactInterface,
       contactHistory: [] as HistoryInterface[],
@@ -507,7 +512,7 @@ export default Vue.extend({
     // Filter by projects
     'filter.project.selected': {
       handler (value?: ProjectInterface | ProjectInterface[] | null) {
-        this.paginator.page = 0
+        this.paginator.page = 1
         if (Array.isArray(value)) {
           if (value.length > 0) {
             this.$routerQuery.setQuery({
@@ -529,7 +534,7 @@ export default Vue.extend({
     // Filter by users
     'filter.user.selected': {
       handler (value?: UserInterface) {
-        this.paginator.page = 0
+        this.paginator.page = 1
         if (value) {
           this.$routerQuery.setQuery({
             user_id: value.id
@@ -543,7 +548,7 @@ export default Vue.extend({
     // Filter by date range
     'filter.dataRange.dates': {
       handler (value?: string[]) {
-        this.paginator.page = 0
+        this.paginator.page = 1
         if (Array.isArray(value)) {
           if (value.length === 2) {
             this.$routerQuery.setQuery({
@@ -580,7 +585,21 @@ export default Vue.extend({
     .find()
     .then((response: ProjectResponseItemsInterface) => {
       this.filter.project.items = response.items
+    }).finally(() => {
+      const index: number = this.filter.project.items.findIndex((e: any) => +this.$route.query.project_id === e.id)
+      if (index > -1) {
+        this.filter.project.selected = this.filter.project.items[index]
+      }
     })
+
+    // todo: Restore filter
+    // if (this.$route.query.dates) {
+    //   console.log(new Date(+this.$route.query.dates[0] * 1000))
+    //   this.filter.dataRange.dates = [
+    //     new Date(+this.$route.query.dates[0] * 1000).toISOString().substr(0, 7),
+    //     new Date(+this.$route.query.dates[1] * 1000).toISOString().substr(0, 7)
+    //   ]
+    // }
     this.loadContacts()
   },
 
