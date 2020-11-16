@@ -367,11 +367,11 @@ export default Vue.extend({
 <style lang="scss">
   html { overflow-y: hidden !important; }
 
-  .v-overlay {
-    backdrop-filter: blur(1px);
-  }
-
-  .v-overlay__scrim {
-    backdrop-filter: blur(1px);
-  }
+  //.v-overlay {
+  //  backdrop-filter: blur(1px);
+  //}
+  //
+  //.v-overlay__scrim {
+  //  backdrop-filter: blur(1px);
+  //}
 </style>
