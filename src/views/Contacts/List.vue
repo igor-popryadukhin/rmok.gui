@@ -32,7 +32,7 @@
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
-            <span>{{ $tc('add_new_contact') }}</span>
+            <span>{{ $tc('Add new contact') }}</span>
           </v-tooltip>
           <v-tooltip bottom max-width="400">
             <template v-slot:activator="{ on, attrs }">
@@ -125,6 +125,7 @@
           md="8"
           lg="8"
         >
+          <vuescroll :ops="vuescroll_options" :style="{ height: `${$screenHeight - 250}px` }" style="width: 100%">
           <template v-if="contacts.length > 0">
             <template
               v-for="item in contacts"
@@ -141,15 +142,24 @@
                 <v-list-item-action>
                   <v-checkbox
                     v-model="item.checked"
+                      class="pa-0"
                     @click.stop="onCheckBoxItemClick(item)"
                   ></v-checkbox>
                 </v-list-item-action>
+                  <v-list-item-avatar class="mr-2">
+                    <v-avatar color="primary">
+                    <span style="color: white">
+                      {{ item.first_name.charAt(0) + item.last_name.charAt(0) }}
+                    </span>
+                    </v-avatar>
+                  </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title>
                     {{ item.first_name }} {{ item.last_name }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="item.default_phone">{{ item.default_phone.label }}: {{ item.default_phone.value.international }}</v-list-item-subtitle>
                   <v-list-item-subtitle v-else>{{ $t('No default number') }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ new Date(item.created_at * 1000).toLocaleDateString() }}</v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer />
                 <v-list-item-content>
@@ -201,11 +211,12 @@
             <v-list-item class="text-center">
               <v-spacer />
               <span class="grey--text">
-                {{ $tc('contact_list_empty') }}
+                {{ $tc('No contacts') }}
               </span>
               <v-spacer />
             </v-list-item>
           </template>
+          </vuescroll>
         </v-col>
 
         <!-- Filter -->
@@ -276,6 +287,72 @@
                 </template>
                 <span>{{ $tc('Filter by scenario') }}</span>
               </v-tooltip>
+              <v-menu
+                ref="filterDataRange"
+                v-model="filter.dataRange.visible"
+                :close-on-content-click="false"
+                :return-value.sync="filter.dataRange.dates"
+                transition="scale-transition"
+                offset-y
+                max-width="290px"
+                min-width="290px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="dateRangeText"
+                    :label="$t('Date the contact was created')"
+                    persistent-hint
+                    prepend-inner-icon="mdi-calendar"
+                    readonly
+                    outlined
+                    dense
+                    clearable
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="filter.dataRange.dates"
+                  no-title
+                  :show-current="false"
+                  :locale="$i18n.locale"
+                  range
+                >
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="filter.dataRange.dates = []"
+                    @mouseup="filter.dataRange.visible = false"
+                  >
+                    {{ $t('Clear') }}
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="filter.dataRange.visible = false"
+                  >
+                    {{ $t('Cancel') }}
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="$refs.filterDataRange.save(filter.dataRange.dates)"
+                  >
+                    {{ $t('Ok') }}
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+              <div v-if="contactsCount > 0" class="text-center mb-3">
+                <v-pagination
+                  v-model="paginator.page"
+                  :total-visible="5"
+                  :length="paginator.pages"
+                ></v-pagination>
+              </div>
+              <div class="text-left">
+                {{ $tc('Not found | Found {n} contact | Found {n} contacts | Found {n} contacts', contactsCount) }} <br />
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -294,25 +371,36 @@ import { POSITION } from 'vue-toastification'
 import { filter, isEmpty } from '@/Utils'
 import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
+import vuescroll from 'vuescroll'
+import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
+import { UserInterface } from '@/api/Users'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
 export default Vue.extend({
+
+  components: {
+    vuescroll
+  },
+
   data () {
     return {
-      select: ['Vuetify', 'Programming'],
+      vuescroll_options: {
+        bar: {
+          background: '#c912c6'
+        }
+      },
       contactDialog: {
         visible: false,
         history: {
           loading: false
         }
       },
-      items: [
-        'Programming',
-        'Design',
-        'Vue',
-        'Vuetify'
-      ],
+      paginator: {
+        perPage: 10,
+        pages: 0,
+        page: 1
+      },
       contact: {
         /* eslint-disable */
         city: '',
@@ -323,7 +411,8 @@ export default Vue.extend({
         last_name: '',
         middle_name: '',
         phones: [] as ContactPhoneInterface[],
-        user: undefined
+        user: undefined,
+        created_at: 0
         /* eslint-enabled */
       } as ContactInterface,
       contactHistory: [] as HistoryInterface[],
@@ -345,23 +434,30 @@ export default Vue.extend({
       },
       contactsLoading: false,
       contacts: [] as Contact[],
+      contactsCount: 0,
       filter: {
         project: {
-          disabled: true,
-          selected: null,
+          disabled: false,
+          selected: undefined,
           items: [] as ProjectInterface[]
         },
 
         city: {
           disabled: true,
-          selected: null,
+          selected: undefined,
           items: []
         },
 
         scenario: {
           disabled: true,
-          selected: null,
+          selected: undefined,
           items: []
+        },
+
+        dataRange: {
+          visible: false,
+          disabled: true,
+          dates: [],
         }
       }
     }
@@ -372,7 +468,16 @@ export default Vue.extend({
       const first: string = this.contact.first_name || ''
       const last: string = this.contact.last_name || ''
       return first.charAt(0) + last.charAt(0)
+    },
+
+    dateRangeText: {
+      get () {
+        return this.filter.dataRange.dates.join(' ~ ')
+      },
+      set () {
+        this.filter.dataRange.dates = []
     }
+  },
   },
 
   watch: {
@@ -386,6 +491,7 @@ export default Vue.extend({
     // Filter by projects
     'filter.project.selected': {
       handler (value?: ProjectInterface | ProjectInterface[] | null) {
+        this.paginator.page = 1
         if (Array.isArray(value)) {
           if (value.length > 0) {
             this.$routerQuery.setQuery({
@@ -394,6 +500,55 @@ export default Vue.extend({
           } else {
             this.$routerQuery.removeQuery(['project_id']).then(this.loadContacts)
           }
+        } else if (value) {
+          this.$routerQuery.setQuery({
+            project_id: value.id
+          }).then(this.loadContacts)
+        } else {
+          this.$routerQuery.removeQuery(['project_id']).then(this.loadContacts)
+        }
+      }
+    },
+
+    // Filter by users
+    'filter.user.selected': {
+      handler (value?: UserInterface) {
+        this.paginator.page = 1
+        if (value) {
+          this.$routerQuery.setQuery({
+            user_id: value.id
+          }).then(this.loadContacts)
+        } else {
+          this.$routerQuery.removeQuery(['user_id']).then(this.loadContacts)
+        }
+      }
+    },
+
+    // Filter by date range
+    'filter.dataRange.dates': {
+      handler (value?: string[]) {
+        this.paginator.page = 1
+        if (Array.isArray(value)) {
+          if (value.length === 2) {
+            this.$routerQuery.setQuery({
+              dates: value.map((v: string) => {
+                return Math.round(new Date(v).getTime() / 1000)
+              }).join(',')
+            }).then(this.loadContacts)
+          } else if (value.length === 0) {
+            this.$routerQuery.removeQuery(['dates']).then(this.loadContacts)
+          }
+        }
+      }
+    },
+
+    // Paginator
+    'paginator.page': {
+      handler (value?: number) {
+        if (value > 0) {
+          const offset: number = Math.ceil(value * this.paginator.perPage - this.paginator.perPage)
+          const count: number = this.paginator.perPage
+          this.$routerQuery.setQuery({ offset, count }).then(this.loadContacts)
         }
       }
     }
@@ -409,7 +564,21 @@ export default Vue.extend({
     .find()
     .then((response: ProjectResponseItemsInterface) => {
       this.filter.project.items = response.items
+    }).finally(() => {
+      const index: number = this.filter.project.items.findIndex((e: any) => +this.$route.query.project_id === e.id)
+      if (index > -1) {
+        this.filter.project.selected = this.filter.project.items[index]
+      }
     })
+
+    // todo: Restore filter
+    // if (this.$route.query.dates) {
+    //   console.log(new Date(+this.$route.query.dates[0] * 1000))
+    //   this.filter.dataRange.dates = [
+    //     new Date(+this.$route.query.dates[0] * 1000).toISOString().substr(0, 7),
+    //     new Date(+this.$route.query.dates[1] * 1000).toISOString().substr(0, 7)
+    //   ]
+    // }
     this.loadContacts()
   },
 
@@ -637,19 +806,31 @@ export default Vue.extend({
     loadContacts () {
       const query: ContactSearchQueryInterface = {
         q: this.$routerQuery.getQuery('q', ''),
-        project_id: this.$routerQuery.getQuery('project_id', ''),
+        project_id: this.$routerQuery.getQuery('project_id', 0),
+        user_id: this.$routerQuery.getQuery('user_id', 0),
+        dates: this.$routerQuery.getQuery('dates', false),
         offset: this.$routerQuery.getQuery('offset', 0),
-        count: this.$routerQuery.getQuery('count', 100)
+        count: this.$routerQuery.getQuery('count', this.paginator.perPage)
       }
 
-      if (isEmpty(query.project_id)) {
+      if (!query.dates) {
+        delete query.dates
+      }
+
+      if (query.project_id === 0) {
         delete query.project_id
+      }
+
+      if (query.user_id === 0) {
+        delete query.user_id
       }
 
       this.contactsLoading = true
       new Contacts()
         .search(query)
         .then((contacts: ContactResponseInterface) => {
+          this.contactsCount = contacts.count
+          this.paginator.pages = Math.ceil(contacts.count / this.paginator.perPage)
           this.contacts = contacts.items.map((contact: ContactInterface) => ({ ...contact, checked: false }))
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')
