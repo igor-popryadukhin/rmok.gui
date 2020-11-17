@@ -73,7 +73,7 @@
           >
             <v-text-field
               v-model="user.login"
-              :label="$tc('login')"
+              :label="$tc('Login')"
               :rules="[rules.required]"
               autocomplete="new-password"
             >
@@ -203,7 +203,7 @@
           >
             <s-role-combo-box
               v-model="user.role"
-              :label="$tc('role')"
+              :label="$tc('Role')"
               visible-icon
               :value="user.role"
             />
@@ -217,9 +217,10 @@
           >
             <s-autocomplete-groups
               v-model="user.group"
-              :label="$tc('group')"
+              :label="$tc('Group')"
               visible-icon
               :selected-id="user.group ? user.group.id : 0"
+              :visible-organization-name="false"
               auto-load
             />
           </v-col>
@@ -267,7 +268,7 @@
 <!--            md="12"-->
 <!--          >-->
 <!--            <v-text-field-->
-<!--              :label="$tc('login')"-->
+<!--              :label="$tc('Login')"-->
 <!--              :hint="$tc('login_hint')"-->
 <!--              persistent-hint-->
 <!--              required-->
@@ -420,10 +421,9 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.resetForm()
-          this.$toast.success(this.$tc('user_added_successfully'))
+          this.$toast.success(this.$tc('User added successfully'))
         }).catch((e) => {
-          const cause: string = e.statusText || e.error_message || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_added_the_user', { cause }))
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

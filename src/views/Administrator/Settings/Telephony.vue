@@ -48,7 +48,7 @@
           >
             <v-text-field
               v-model="config.login"
-              :label="$tc('login')"
+              :label="$tc('Login')"
               :hint="$tc('login_hint')"
               persistent-hint
               required

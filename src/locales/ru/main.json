@@ -13,7 +13,7 @@
   "exit": "Выход",
   "empty": "Пусто",
   "label": "Метка",
-  "login": "Логин",
+  "Login": "Логин",
   "last_name": "Фамилия",
   "middle_name": "Отчество",
   "language": "Язык",
@@ -140,6 +140,8 @@
     "email_not_confirmed": "Адрес электронной почты не подтверждён!"
   },
 
+  "Group": "Группа",
+  "Role": "Роль",
   "Date": "Дата",
   "Time": "Время",
   "Automatically complete the task after the call": "Автоматически выполнить задачу после звонка",

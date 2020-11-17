@@ -25,7 +25,7 @@
                 <v-form>
                   <v-text-field
                     v-model="authorization.login"
-                    :label="$t('login')"
+                    :label="$tc('Login')"
                     name="login"
                     prepend-icon="mdi-account"
                     type="text"

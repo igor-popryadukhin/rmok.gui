@@ -73,7 +73,7 @@
           >
             <v-text-field
               v-model="user.login"
-              :label="$tc('login')"
+              :label="$tc('Login')"
               :rules="[rules.required]"
               autocomplete="new-login"
             >
@@ -207,7 +207,7 @@
           >
             <s-role-combo-box
               v-model="user.role"
-              :label="$tc('role')"
+              :label="$tc('Role')"
               visible-icon
               :value="user.role ? user.role : null"
               :rules="[rules.required]"
@@ -254,7 +254,7 @@
             <s-autocomplete-groups
                 v-if="user.group"
                 v-model="groupSelected"
-                :label="$tc('group')"
+                :label="$tc('Group')"
                 visible-icon
                 :rules="[rules.required]"
                 :selected-id="user.group ? user.group.id : 0"
@@ -263,7 +263,7 @@
             />
             <s-autocomplete-groups
               v-else
-              :label="$tc('group')"
+              :label="$tc('Group')"
               visible-icon
             />
           </v-col>
@@ -311,7 +311,7 @@
 <!--            md="12"-->
 <!--          >-->
 <!--            <v-text-field-->
-<!--              :label="$tc('login')"-->
+<!--              :label="$tc('Login')"-->
 <!--              :hint="$tc('login_hint')"-->
 <!--              persistent-hint-->
 <!--              required-->
@@ -497,7 +497,7 @@ export default Vue.extend({
 
       new Users()
         .update(+this.$route.params.id, data).then(() => {
-          this.$toast.success(this.$tc('user_update_successfully'))
+          this.$toast.success(this.$tc('User updated successfully'))
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
