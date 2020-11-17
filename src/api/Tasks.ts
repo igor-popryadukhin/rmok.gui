@@ -1,6 +1,15 @@
 /* eslint-disable */
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import { ContactInterface } from '@/api/Schemas/ContactInterface'
+
+export enum TaskType {
+  CALL = 'call',
+  TASK = 'task',
+  MEETING = 'meeting',
+  LETTER = 'letter',
+  OTHER = 'other'
+}
 
 export interface TaskInterface {
   id: number;
@@ -10,6 +19,7 @@ export interface TaskInterface {
   done: boolean;
   planned_for: number;
   author: TaskAuthorInterface;
+  contact?: ContactInterface;
   created_at: number;
 }
 
@@ -30,6 +40,7 @@ interface TaskAuthorInterface {
 export interface TaskPostDataInterface {
   planned_for: number;
   description: string;
+  contact_id?: number;
   type: string;
 }
 

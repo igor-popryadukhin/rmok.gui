@@ -126,6 +126,7 @@
 
       <!-- BELL -->
       <v-menu
+        v-model="buttonMenuNotification"
         :close-on-content-click="false"
         nudge-left="150"
       >
@@ -149,7 +150,7 @@
             <v-list-item
               v-for="(item, itemIndex) in notifications"
               :key="itemIndex"
-              ripple
+              link
             >
               <v-list-item-avatar>
                 <v-icon :color="item.color">
@@ -178,6 +179,7 @@
                       :key="actionIndex"
                       link
                       @click="action.handle(action.arg)"
+                      @mouseup="buttonMenuNotification = false"
                     >
                       <v-list-item-content>
                         <v-list-item-title>{{ action.title }}</v-list-item-title>
@@ -320,7 +322,7 @@ import breadcrumbs from '@/mixins/breadcrumbs'
 import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
 import vuescroll from 'vuescroll'
-import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
+import Tasks, { TaskGetResponseInterface, TaskInterface, TaskType } from '@/api/Tasks'
 
 export default Vue.extend({
   props: {
@@ -334,6 +336,7 @@ export default Vue.extend({
   mixins: [breadcrumbs],
 
   data: () => ({
+    buttonMenuNotification: false,
     mainSearch: {
       q: null,
       selected: null,
@@ -448,59 +451,83 @@ export default Vue.extend({
               actions: []
             })
           }
-          response.items.forEach((e: TaskInterface) => {
-            if (!e.done) {
+          response.items.forEach((task: TaskInterface) => {
+            if (!task.done) {
               let title = ''
               let icon = ''
-              switch (e.type) {
-                case 'call': {
+              switch (task.type) {
+                case TaskType.CALL: {
                   title = this.$tc('Call')
                   icon = 'mdi-alpha-c-circle'
                   break
                 }
-                case 'task': {
+                case TaskType.TASK: {
                   title = this.$tc('Task')
                   icon = 'mdi-alpha-t-circle'
                   break
                 }
-                case 'meeting': {
+                case TaskType.MEETING: {
                   title = this.$tc('Meeting')
                   icon = 'mdi-alpha-m-circle'
                   break
                 }
-                case 'letter': {
+                case TaskType.LETTER: {
                   title = this.$tc('Letter')
                   icon = 'mdi-alpha-e-circle'
                   break
                 }
-                case 'other': {
+                case TaskType.OTHER: {
                   title = this.$tc('Other')
                   icon = 'mdi-alpha-o-circle'
                   break
                 }
               }
 
-              this.notifications.push({
-                type: 'task',
-                icon,
-                color: 'red',
-                title,
-                message: e.description,
-                message2: `Выполнить до ${new Date(e.planned_for * 1000).toLocaleString()}`,
-                actions: [
-                  {
-                    title: 'Выполнить',
-                    arg: e,
-                    handle: (arg: TaskInterface) => {
-                      new Tasks()
-                        .done(arg.id)
-                        .then(() => {
-                          this.$root.$emit('root-update-notifications')
-                        })
+              if (task.type === TaskType.CALL) {
+                this.notifications.push({
+                  type: 'task',
+                  icon,
+                  color: 'blue',
+                  title,
+                  message: task.description,
+                  message2: `Позвонить в ${new Date(task.planned_for * 1000).toLocaleString()}`,
+                  actions: [
+                    {
+                      title: 'Позвонить',
+                      arg: task,
+                      handle: (arg: TaskInterface) => {
+                        if (arg.contact) {
+                          this.$router.push({ path: `/contacts/${arg.contact?.id}/script` })
+                        } else {
+                          console.error('Задача для контакта не содержит данные контакта')
+                        }
+                      }
                     }
-                  }
-                ]
-              })
+                  ]
+                })
+              } else {
+                this.notifications.push({
+                  type: 'task',
+                  icon,
+                  color: 'blue',
+                  title,
+                  message: task.description,
+                  message2: `Выполнить до ${new Date(task.planned_for * 1000).toLocaleString()}`,
+                  actions: [
+                    {
+                      title: 'Выполнить',
+                      arg: task,
+                      handle: (arg: TaskInterface) => {
+                        new Tasks()
+                          .done(arg.id)
+                          .then(() => {
+                            this.$root.$emit('root-update-notifications')
+                          })
+                      }
+                    }
+                  ]
+                })
+              }
             }
           })
         })

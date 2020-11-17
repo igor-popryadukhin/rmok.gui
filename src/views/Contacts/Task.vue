@@ -133,9 +133,9 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import DTask, { DTaskInterface } from '@/components/Dialogs/DTask.vue'
+import DTask from '@/components/Dialogs/DTask.vue'
 import rules from '@/mixins/rules'
-import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
+import Tasks, { TaskGetResponseInterface, TaskInterface, TaskPostDataInterface, TaskType } from '@/api/Tasks'
 
 export default Vue.extend({
   mixins: [breadcrumbs, rules],
@@ -242,14 +242,18 @@ export default Vue.extend({
         },
         width: this.$vuetify.breakpoint.name === 'sm' ? '100%' : '60%',
         persistent: true,
-        onSave: (data: DTaskInterface) => {
-          console.log(`${data.date} ${data.time}`)
+        onSave: (data: TaskPostDataInterface) => {
+          const taskData: TaskPostDataInterface = {
+            description: data.description,
+            planned_for: Date.parse(`${data.date} ${data.time}`) / 1000,
+            type: data.type.value
+          }
+
+          if (data.type.value === TaskType.CALL) {
+            taskData.contact_id = +this.$route.params.contact_id
+          }
           new Tasks()
-            .add({
-              description: data.description,
-              planned_for: Date.parse(`${data.date} ${data.time}`) / 1000,
-              type: data.type.value
-            }).finally(this.loadTasks)
+            .add(taskData).finally(this.loadTasks)
         }
       })
     },
