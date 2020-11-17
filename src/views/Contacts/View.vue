@@ -228,7 +228,7 @@
               </v-tab>
             </v-tabs>
             <v-container class="pb-0" style="min-height: 300px">
-              <vuescroll :style="{ height: `${400}px` }" style="width: 99%" >
+              <vuescroll :style="{ height: `${500}px` }" style="width: 99%" >
                 <router-view />
               </vuescroll>
             </v-container>

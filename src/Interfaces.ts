@@ -6,11 +6,21 @@ export interface CrumbInterface {
   latest: boolean;
 }
 
+export interface NotificationActionInterface {
+  handle: (...arg: any) => void;
+  title: string;
+  arg: any;
+  [key: string]: any
+}
+
 export interface NotificationInterface {
+  type: string;
   icon: string;
   color: string;
   title: string;
   message: string;
+  message2?: string;
+  actions: NotificationActionInterface[];
 }
 
 export interface MainSearchInterface {

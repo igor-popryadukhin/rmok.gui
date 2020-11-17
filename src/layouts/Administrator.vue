@@ -61,7 +61,7 @@
         <span>{{ $tc('route.administratorgroups') }}</span>
       </v-tooltip>
 
-      <!-- users -->
+      <!-- vuescroll -->
       <v-tooltip bottom max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn

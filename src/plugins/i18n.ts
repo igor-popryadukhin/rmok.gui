@@ -42,6 +42,20 @@ const i18n = new VueI18n({
   }
 })
 
+class VueI18nPlugin {
+  public install () {
+    Object.defineProperties(Vue.prototype, {
+      i18n: {
+        get () {
+          return i18n
+        }
+      }
+    })
+  }
+}
+
+Vue.use(new VueI18nPlugin())
+
 export default i18n
 
 function setI18nLanguage (lang: string) {

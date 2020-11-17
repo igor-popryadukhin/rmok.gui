@@ -128,7 +128,6 @@
       <v-menu
         :close-on-content-click="false"
         nudge-left="150"
-        open-on-hover
       >
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -141,7 +140,7 @@
             <v-badge
               v-if="notifications.length > 0"
               color="red"
-              content="!"
+              :content="notifications.length"
             />
           </v-btn>
         </template>
@@ -160,7 +159,33 @@
               <v-list-item-content>
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
                 <v-list-item-subtitle>{{ item.message }}</v-list-item-subtitle>
+                <v-list-item-subtitle v-if="item.message2">{{ item.message2 }}</v-list-item-subtitle>
               </v-list-item-content>
+              <v-list-item-action v-if="item.actions.length > 0">
+                <v-menu offset-y>
+                  <template v-slot:activator="{ on, attr }">
+                    <v-btn
+                      icon
+                      v-on.stop="on"
+                      v-bind="attr"
+                    >
+                      <v-icon>mdi-dots-horizontal</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item
+                      v-for="(action, actionIndex) in item.actions"
+                      :key="actionIndex"
+                      link
+                      @click="action.handle(action.arg)"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ action.title }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-list-item-action>
             </v-list-item>
           </v-list>
         </v-card>
@@ -295,6 +320,7 @@ import breadcrumbs from '@/mixins/breadcrumbs'
 import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
 import vuescroll from 'vuescroll'
+import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
 
 export default Vue.extend({
   props: {
@@ -384,23 +410,101 @@ export default Vue.extend({
     }
   },
 
+  mounted () {
+    this.$root.$on('root-update-notifications', this.onRootNewTasks)
+  },
+
   created () {
     this.$store.subscribe(
       ({ payload, type }) => {
         if (type === 'project/set') {
           if (payload.statuses) {
             if (payload.statuses.length === 0) {
-              this.notifications.push({
-                icon: 'mdi-alert',
-                color: 'red',
-                title: 'Ошибка проекта!',
-                message: 'У проекта нет статусов'
-              })
+              this.$root.$emit('root-update-notifications')
             }
           }
         }
       }
     )
+  },
+
+  beforeDestroy () {
+    this.$root.$off('root-update-notifications', this.onRootNewTasks)
+  },
+
+  methods: {
+    onRootNewTasks () {
+      new Tasks()
+        .get()
+        .then((response: TaskGetResponseInterface) => {
+          this.notifications = []
+          if (this.$store.getters['project/statuses'].length === 0) {
+            this.notifications.push({
+              type: 'event',
+              icon: 'mdi-alert',
+              color: 'red',
+              title: 'Ошибка проекта!',
+              message: 'У проекта нет статусов',
+              actions: []
+            })
+          }
+          response.items.forEach((e: TaskInterface) => {
+            if (!e.done) {
+              let title = ''
+              let icon = ''
+              switch (e.type) {
+                case 'call': {
+                  title = this.$tc('Call')
+                  icon = 'mdi-alpha-c-circle'
+                  break
+                }
+                case 'task': {
+                  title = this.$tc('Task')
+                  icon = 'mdi-alpha-t-circle'
+                  break
+                }
+                case 'meeting': {
+                  title = this.$tc('Meeting')
+                  icon = 'mdi-alpha-m-circle'
+                  break
+                }
+                case 'letter': {
+                  title = this.$tc('Letter')
+                  icon = 'mdi-alpha-e-circle'
+                  break
+                }
+                case 'other': {
+                  title = this.$tc('Other')
+                  icon = 'mdi-alpha-o-circle'
+                  break
+                }
+              }
+
+              this.notifications.push({
+                type: 'task',
+                icon,
+                color: 'red',
+                title,
+                message: e.description,
+                message2: `Выполнить до ${new Date(e.planned_for * 1000).toLocaleString()}`,
+                actions: [
+                  {
+                    title: 'Выполнить',
+                    arg: e,
+                    handle: (arg: TaskInterface) => {
+                      new Tasks()
+                        .done(arg.id)
+                        .then(() => {
+                          this.$root.$emit('root-update-notifications')
+                        })
+                    }
+                  }
+                ]
+              })
+            }
+          })
+        })
+    }
   }
 })
 </script>

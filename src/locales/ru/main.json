@@ -140,6 +140,17 @@
     "email_not_confirmed": "Адрес электронной почты не подтверждён!"
   },
 
+  "Date": "Дата",
+  "Time": "Время",
+  "Automatically complete the task after the call": "Автоматически выполнить задачу после звонка",
+  "Task type": "Тип задачи",
+  "Task": "Задача",
+  "Meeting": "Встреча",
+  "Letter": "Письмо",
+  "Other": "Другое",
+  "Performer": "Исполнитель",
+  "Create a new task": "Создание новой задачи",
+  "Add new task": "Добавить новую задачу",
   "error_session_cause": "Ошибка сессии, причина: {cause}",
   "Changes saved": "Изменения сохранены",
   "Choose a status first!": "Сначала выберите статус!",
