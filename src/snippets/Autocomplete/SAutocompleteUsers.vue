@@ -8,7 +8,7 @@
     disable-lookup
     :cache-items="false"
     persistent-hint
-    outlined="outlined"
+    :outlined="outlined"
     :label="label"
     :rules="rules"
     :loading="loading"

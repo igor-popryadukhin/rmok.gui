@@ -29,6 +29,12 @@ export interface ProjectResponseItemsInterface {
   items: ProjectInterface[];
 }
 
+interface ProjectPostDataInterface {
+  name: string;
+  organization_id?: number;
+  users: number[];
+}
+
 export class Projects {
   /**
    * @param q
@@ -46,6 +52,22 @@ export class Projects {
           return resolve(response.data as ProjectResponseItemsInterface)
         }
         reject(response.data)
+      }).catch(reject)
+    })
+  }
+
+  /**
+   * Add new project
+   * @param data
+   */
+  public add (data: ProjectPostDataInterface): Promise<ProjectResponseItemsInterface> {
+    return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
+      $axios.post('/projects', data)
+        .then((response: AxiosResponse) => {
+          if ([200, 201].includes(response.status)) {
+            return resolve(response.data as ProjectResponseItemsInterface)
+          }
+          reject(response.data)
       }).catch(reject)
     })
   }

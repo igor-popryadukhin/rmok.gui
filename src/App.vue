@@ -58,6 +58,7 @@ import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import VueI18n from 'vue-i18n'
 import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
+import DIncommingCall from '@/components/Dialogs/DIncommingCall.vue'
 
 interface HistoryDataInterface {
   /* eslint-disable */
@@ -81,6 +82,7 @@ export default Vue.extend({
 
   data () {
     return {
+      incomingDialogInstance: undefined as any,
       contactStatusDialog: {
         visible: false,
         historyId: 0
@@ -121,32 +123,48 @@ export default Vue.extend({
   },
 
   mounted () {
+    this.$root.$on('root-jssip-initialize', this.jsSIPInitialize) // Emit root-jssip-initialize for initialize JSSIP
     this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
   },
 
   beforeDestroy () {
+    this.$root.$off('root-jssip-initialize', this.jsSIPInitialize)
     this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
   },
 
   created () {
-    setTimeout(() => {
+    setTimeout(async () => {
+      this.$root.$emit('root-jssip-initialize')
+    }, 2000)
+  },
+
+  methods: {
+    jsSIPInitialize () {
+      if (this.$jsSIP.isConnected) {
+        this.$jsSIP.stop()
+      }
       new Configurations()
         .getATEConfigurations()
         .then((config: ATEConfigurationInterface) => {
           /* eslint-disable */
           (this.$jsSIP as JsSIP).setConfiguration(`wss://${config.server}:${config.port}/ws`, {
             uri: `sip:${config.login}@${config.server}`,
-            display_name: config.display_name,
             password: config.password
           })
             .on('connected', this.onJsSIPConnected)
             .on('disconnected', this.onJsSIPDisconnected)
+            .on('registered', this.onJsSIPRegistered)
             .on('registrationFailed', this.onJsSIPRegistrationFailed)
             .on('newRTCSession', this.onJsSIPNewRTCSession)
             .on('sipEvent', this.onJsSIPSipEvent)
-            .start()
+            .on('newMessage', this.onJsSIPNewMessage)
+
+          // Event Disconnected can happen later than Connected
+          setTimeout(() => {
+            this.$jsSIP.start()
+          }, 1500)
           /* eslint-enable */
         })
 
@@ -156,32 +174,50 @@ export default Vue.extend({
       }
 
       /**
-         * In the process of call...
-         * Works on both incoming and outgoing calls
-         * */
-      this.$jsSIP.onSessionProgress = (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
+       * In the process of call...
+       * Works on both incoming and outgoing calls
+       * */
+      this.$jsSIP.onSessionProgress = async (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
         /* eslint-disable */
-          console.log('onSessionProgress...', event, session.direction, session, payload)
+        console.log('onSessionProgress...', event, session.direction, session, payload)
 
-          // Incoming call processing
-          if (session.direction === 'incoming') {
-            const displayName: string = session.remote_identity.display_name
-            new Contacts()
-              .getByPhoneNumber(displayName)
-              .then((data) => {
-                //todo: Show contact call
-                // this.contact = data
-                // let phoneNumber = '...'
-                // if ((this.$libPhoneNumberJs as LibPhoneNumberJs).parsePhoneNumber(displayName)?.isValid) {
-                //   const pn: PhoneNumber = this.$libPhoneNumberJs.parsePhoneNumber(displayName)
-                //   phoneNumber = pn.formatNational()
-                // }
+        // Incoming call processing
+        if (session.direction === 'incoming') {
+          const displayName: string = session.remote_identity.display_name
+          new Contacts()
+            .getByPhoneNumber(displayName)
+            .then((data) => {
+              //todo: Show contact call
+              // this.contact = data
+              // let phoneNumber = '...'
+              // if ((this.$libPhoneNumberJs as LibPhoneNumberJs).parsePhoneNumber(displayName)?.isValid) {
+              //   const pn: PhoneNumber = this.$libPhoneNumberJs.parsePhoneNumber(displayName)
+              //   phoneNumber = pn.formatNational()
+              // }
 
-                // Update incoming call information in toast
-                // this.updateRTCToast(session.id, `${data.first_name} ${data.last_name}`, phoneNumber)
-              })
-          }
-          /* eslint-enable */
+              // Update incoming call information in toast
+              // this.updateRTCToast(session.id, `${data.first_name} ${data.last_name}`, phoneNumber)
+            })
+
+          this.incomingDialogInstance = await this.$dialog.show(DIncommingCall, {
+            waitForResult: false,
+            showClose: false,
+            persistent: true,
+            title: displayName,
+            subTitle: 'Иван Фёдорович Крузенштерн',
+            onHangup: () => {
+              this.$jsSIP.cancel()
+              this.incomingDialogInstance.close()
+              this.incomingDialogInstance = undefined
+            },
+            onAnswer: () => {
+              this.$jsSIP.answer()
+              this.incomingDialogInstance.close()
+              this.incomingDialogInstance = undefined
+            }
+          })
+        }
+        /* eslint-enable */
       }
 
       this.$jsSIP.onSessionAccepted = (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
@@ -190,10 +226,18 @@ export default Vue.extend({
 
       this.$jsSIP.onSessionEnded = (session: RTCSession, event: EndEvent, payload: any) => {
         /* eslint-disable */
-          console.log('%c%s', 'color: blue;', 'Конец сессии')
-          console.log('%c%s', 'color: blue;', '------------------------')
-          console.log(event, session)
-          console.log('%c%s', 'color: blue;', '------------------------')
+
+        if (this.incomingDialogInstance) {
+          setTimeout(() => {
+            this.incomingDialogInstance.close()
+            this.incomingDialogInstance = undefined
+          }, 1000)
+        }
+
+        console.log('%c%s', 'color: blue;', 'Конец сессии')
+        console.log('%c%s', 'color: blue;', '------------------------')
+        console.log(event, session)
+        console.log('%c%s', 'color: blue;', '------------------------')
 
         let historyData = {
           session_start_time: this.$jsSIP.sessionStartTime.getTime() / 1000,
@@ -242,37 +286,40 @@ export default Vue.extend({
                     .updateHistory(id, {
                       status_id: status.id
                     }).finally(() => {
-                      this.$root.$emit('root-contact-history-change')
-                    })
+                    this.$root.$emit('root-contact-history-change')
+                  })
                 }
               })
             } else {
               this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
             }
           }).finally(() => {
-            // After adding new data to history, we generate an event
-            this.$root.$emit('root-contact-history-change')
-            this.$root.$emit('jssip-session-cancel', { session, payload })
-          })
-          /* eslint-enable */
+          // After adding new data to history, we generate an event
+          this.$root.$emit('root-contact-history-change')
+          this.$root.$emit('jssip-session-cancel', { session, payload })
+        })
+        /* eslint-enable */
       }
 
       this.$jsSIP.onSessionFailed = (session: RTCSession, event: EndEvent, payload: any) => {
         /* eslint-disable */
-          // this.$root.$emit('jssip-session-cancel', { session, payload })
-          // console.log('onSessionFailed...', event.cause)
-          /* eslint-enable */
+        // this.$root.$emit('jssip-session-cancel', { session, payload })
+        // console.log('onSessionFailed...', event.cause)
+        /* eslint-enable */
       }
-    }, 2000)
-  },
+    },
 
-  methods: {
     onJsSIPConnected (event: any) {
       console.log('%c%s', 'color: green;', 'JSSIP Connected')
     },
 
     onJsSIPDisconnected (event: any) {
       console.log('%c%s', 'color: green;', 'JSSIP Disconnected')
+    },
+
+    onJsSIPRegistered (event: any) {
+      // console.log(JSON.stringify(event))
+      console.log('%c%s', 'color: green;', 'JSSIP Registered', event)
     },
 
     onJsSIPRegistrationFailed (event: UnRegisteredEvent) {
@@ -307,6 +354,10 @@ export default Vue.extend({
 
     onJsSIPSipEvent (event: any) {
       console.log(event)
+    },
+
+    onJsSIPNewMessage (event: any) {
+      console.log('%c%s', 'color: green;', 'JSSIP NewMessage', event)
     },
 
     showRTCToast (displayName: string, phoneNumber: string, id: string | number) {

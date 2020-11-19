@@ -107,8 +107,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import { ATEConfigurationInterface, Configurations } from '@/api/Configurations'
-import { POSITION } from 'vue-toastification'
-import { JsSIP } from '@/jsSIP/plugin'
 
 export default Vue.extend({
   data () {
@@ -143,27 +141,11 @@ export default Vue.extend({
 
   methods: {
     onSave () {
-      (this.$jsSIP as JsSIP).setConfiguration(`wss://${this.config.server}:${this.config.port}/ws`, {
-        /* eslint-disable */
-        uri: `sip:${this.config.login}@${this.config.server}`,
-        display_name: this.config.display_name,
-        password: this.config.password
-        /* eslint-enable */
-      }).start()
       new Configurations()
         .setATEConfigurations(this.config)
         .then(() => {
-          this.$toast.success(this.$tc('configuration_saved_successfully'), {
-            position: POSITION.TOP_RIGHT,
-            timeout: 3000,
-            closeOnClick: true,
-            draggable: true,
-            draggablePercent: 0.6,
-            showCloseButtonOnHover: true,
-            hideProgressBar: true,
-            closeButton: 'button',
-            icon: true
-          })
+          this.$root.$emit('root-jssip-initialize')
+          this.$toast.success(this.$tc('configuration_saved_successfully'))
         })
     }
   }

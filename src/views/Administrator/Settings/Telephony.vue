@@ -143,7 +143,7 @@ export default Vue.extend({
 
   methods: {
     onSave () {
-      (this.$jsSIP as JsSIP).setConfiguration(`wss://${this.config.server}:${this.config.port}/ws`, {
+      this.$jsSIP.setConfiguration(`wss://${this.config.server}:${this.config.port}/ws`, {
         /* eslint-disable */
         uri: `sip:${this.config.login}@${this.config.server}`,
         display_name: this.config.display_name,

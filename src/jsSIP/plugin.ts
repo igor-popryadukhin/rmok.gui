@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
-import { UA } from 'jssip'
+import {debug, UA} from 'jssip'
 import {
   AnswerOptions, ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent,
   RTCSession
@@ -264,6 +264,10 @@ export class JsSIP {
   public off (event: string, handler: (...args: any[]) => void): JsSIP {
     (this.ua as UA).removeListener(event, handler)
     return this
+  }
+
+  public debug (namespace: string) {
+    debug(namespace)
   }
 
   private initializeListeners () {

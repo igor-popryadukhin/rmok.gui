@@ -23,7 +23,8 @@ export class JsSIPFactory {
       uri: configuration.uri,
       password: configuration.password,
       display_name: configuration.display_name,
-      register: true
+      register: true,
+      contact_uri: configuration.uri
     })
   }
 }

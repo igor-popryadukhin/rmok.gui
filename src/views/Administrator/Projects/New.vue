@@ -14,7 +14,7 @@
           >
             <!-- eslint-disable -->
             <v-text-field
-              v-model="group.name"
+              v-model="projectName"
               :label="$tc('project_name')"
               persistent-hint
               required
@@ -46,9 +46,20 @@
               :label="$tc('project_manager')"
               :disabled="!organizationSelected"
               :organization-id="organizationSelected ? organizationSelected.id : 0"
+              display-organization
               select-on-clear
               multiple
             />
+          </v-col>
+        </v-row>
+
+        <!-- Statuses -->
+        <v-row>
+          <v-col
+            cols="12"
+          >
+            <h3 class="mb-3">Статусы звонков</h3>
+            <project-status />
           </v-col>
         </v-row>
 
@@ -76,27 +87,18 @@
 <script lang="ts">
 import Vue from 'vue'
 import rules from '@/mixins/rules'
-import { Groups } from '@/api/Groups'
 import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
 import { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
-
-interface Phone {
-  code: string;
-  value: string;
-  label: string;
-}
-
-interface Email {
-  value: string;
-  label: string;
-}
+import { Projects } from '@/api/Projects'
+import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 
 export default Vue.extend({
   components: {
     SAutocompleteUsers,
-    SAutocompleteOrganizations
+    SAutocompleteOrganizations,
+    ProjectStatus
   },
   mixins: [rules],
 
@@ -110,21 +112,10 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
+      projectName: '',
       organizationSelected: {} as OrganizationInterface,
-      userSelected: {} as UserInterface,
-      users: [] as UserInterface[],
-      group: {
-        name: ''
-      }
+      userSelected: [] as UserInterface[],
       /* eslint-enable */
-    }
-  },
-
-  watch: {
-    userSelected (value?: UserInterface) {
-      if (value) {
-        this.users.push(value)
-      }
     }
   },
 
@@ -139,19 +130,18 @@ export default Vue.extend({
         return
       }
       this.buttonSave.loading = true
-      new Groups()
+      new Projects()
         .add({
           /* eslint-disable */
-          name: this.group.name.trim(),
-          team_leader_id: this.userSelected ? this.userSelected.id : 0,
-          organization_id: this.organizationSelected ? this.organizationSelected.id : 0
+          name: this.projectName.trim(),
+          organization_id: this.organizationSelected.id,
+          users: this.userSelected.map((e: UserInterface) => e.id)
           /* eslint-enable */
         }).then(() => {
           this.resetForm()
-          this.$toast.success(this.$tc('group_added_successfully'))
+          this.$toast.success(this.$tc('Project added successfully!'))
         }).catch((e) => {
-          const cause: string = e.statusText || e.error_message || e || 'undefined'
-          this.$toast.error(this.$t('error_occurred_while_added_the_group', { cause }))
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

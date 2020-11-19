@@ -429,6 +429,10 @@ export default Vue.extend({
         }
       }
     )
+
+    setTimeout(() => {
+      this.$root.$emit('root-update-notifications')
+    }, 1000)
   },
 
   beforeDestroy () {

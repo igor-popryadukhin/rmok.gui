@@ -141,7 +141,7 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.resetForm()
-          this.$toast.success(this.$tc('group_added_successfully'))
+          this.$toast.success(this.$tc('Group added successfully'))
           this.$router.replace('/administrator/groups')
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')

@@ -1,5 +1,6 @@
 {
   "add_new_project": "Добавить новый проект",
   "project_name": "Наименование проекта",
-  "add_project": "Добавить проект"
+  "add_project": "Добавить проект",
+  "Project added successfully!": "Проект успешно добавлен!"
 }

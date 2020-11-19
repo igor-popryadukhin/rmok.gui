@@ -10,6 +10,8 @@ const $jssip: JsSIP = new JsSIP(`wss://server:8089/ws`, {
   /* eslint-enable */
 })
 
+$jssip.debug('JsSIP:*')
+
 declare global {
   interface Window {
     $jssip: JsSIP;
