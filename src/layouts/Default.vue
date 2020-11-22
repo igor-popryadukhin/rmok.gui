@@ -61,68 +61,45 @@
         </template>
       </v-autocomplete>
 
-      <!-- If this is operator role then showing button my project -->
-      <v-tooltip
-        v-if="$store.getters['profile/role_is_operator']"
-        bottom
-        max-width="400"
+      <v-btn
+        text
+        :to="{ path: '/leads' }"
+        class="mr-1"
       >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-            :to="{ path: '/projects' }"
-          >
-            <v-icon>mdi-projector-screen</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('my_projects') }}</span>
-      </v-tooltip>
+        {{ $tc('Ringing') }}
+      </v-btn>
 
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            to="/contacts"
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-contacts</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.contacts') }}</span>
-      </v-tooltip>
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            to="/leads"
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-phone-classic</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.leads') }}</span>
-      </v-tooltip>
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            to="/calls"
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-phone-log</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.calls') }}</span>
-      </v-tooltip>
+      <v-btn
+        text
+        to="/contacts"
+        class="mr-1"
+      >
+        {{ $tc('Contacts') }}
+      </v-btn>
+
+      <v-btn
+        text
+        to="/reports"
+        class="mr-1"
+      >
+        {{ $tc('Reports') }}
+      </v-btn>
+
+      <v-btn
+        text
+        to="/calls"
+        class="mr-1"
+      >
+        {{ $tc('Calls') }}
+      </v-btn>
+
+      <v-btn
+        text
+        :to="{ name: 'help' }"
+        class="mr-1"
+      >
+        {{ $tc('Help') }}
+      </v-btn>
 
       <!-- BELL -->
       <v-menu
@@ -193,20 +170,6 @@
         </v-card>
       </v-menu>
 
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            :to="{ name: 'help' }"
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-help-circle-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.help') }}</span>
-      </v-tooltip>
       <template v-if="$store.getters['profile/role_is_admin']">
         <v-tooltip
           bottom

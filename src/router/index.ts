@@ -123,6 +123,18 @@ const routes: RouteConfig[] = [
     }
   },
   {
+    path: '/reports',
+    component: () => import(/* webpackChunkName: "reports-layout" */ '../views/Reports/Layout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "reports" */ '../views/Reports/Index.vue'),
+        meta: { layout: 'default', middleware: [] }
+      }
+    ],
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import(/* webpackChunkName: "settings" */ '../views/Settings/Layout.vue'),
