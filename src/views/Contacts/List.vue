@@ -368,11 +368,10 @@ import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { secondsToHms } from '@/utils/datetime'
 import { POSITION } from 'vue-toastification'
-import { filter, isEmpty } from '@/Utils'
+import { filter } from '@/Utils'
 import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
 import vuescroll from 'vuescroll'
-import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import { UserInterface } from '@/api/Users'
 
 interface Contact extends ContactInterface, CheckedInterface {}

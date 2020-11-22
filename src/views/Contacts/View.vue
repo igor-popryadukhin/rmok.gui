@@ -361,7 +361,8 @@ export default (Vue as VueConstructor<Vue & any>).extend({
         last_name: '',
         middle_name: '',
         phones: [],
-        user: undefined
+        user: undefined,
+        created_at: 0
       } as ContactInterface
       /* eslint-enable */
     }

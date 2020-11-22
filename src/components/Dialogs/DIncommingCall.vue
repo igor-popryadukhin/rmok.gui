@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title>{{ title }}</v-card-title>
+    <v-card-title>{{ $title }}</v-card-title>
     <v-card-subtitle>{{ subTitle }}</v-card-subtitle>
     <v-card-text>
       <div class="d-flex justify-space-between">
@@ -70,14 +70,34 @@ export default Vue.extend({
     onAnswer: {
       type: Function,
       default: () => undefined
+    },
+
+    onShowing: {
+      type: Function,
+      default: () => undefined
     }
   },
 
   data () {
-    return {}
+    return {
+      $title: ''
+    }
   },
 
   computed: {},
+
+  mounted () {
+    this.$on('update-title', (text: string) => {
+      this.$title = text
+    })
+  },
+
+  created () {
+    this.$title = this.title
+    if (this.onShowing) {
+      this.onShowing(this)
+    }
+  },
 
   methods: {
     _onHangup () {

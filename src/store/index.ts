@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import SecureLS from 'secure-ls'
 import createPersistedState from 'vuex-persistedstate'
 import { profile } from '@/store/profile'
 import { system } from './system'
@@ -8,21 +7,28 @@ import { project } from '@/store/project'
 
 Vue.use(Vuex)
 
-const ls = new SecureLS({ isCompression: false })
+let get = (key: string) => localStorage.getItem(key)
+let set = (key: string, value: string) => localStorage.setItem(key, value)
+let remove = (key: string) => localStorage.getItem(key)
 
-/* eslint-disable */
-function get (key: string) {
-  return process.env.NODE_ENV === 'development' ? localStorage.getItem(key) : ls.get(key)
-}
+const loadSLS = () => import(/* webpackChunkName: "store-secure-ls" */ 'secure-ls/dist/secure-ls')
+loadSLS()
+  .then((a: any) => {
+    const ls = a.default({ isCompression: false })
+    /* eslint-disable */
+    get = (key: string) => {
+      return process.env.NODE_ENV === 'development' ? localStorage.getItem(key) : ls.get(key)
+    }
 
-function set (key: string, value: any) {
-  return process.env.NODE_ENV === 'development' ? localStorage.setItem(key, value) : ls.set(key, value)
-}
+    set = (key: string, value: any) => {
+      return process.env.NODE_ENV === 'development' ? localStorage.setItem(key, value) : ls.set(key, value)
+    }
 
-function remove (key: string) {
-  return process.env.NODE_ENV === 'development' ? localStorage.removeItem(key) : ls.remove(key)
-}
-/* eslint-enable */
+    remove = (key: string) => {
+      return process.env.NODE_ENV === 'development' ? localStorage.removeItem(key) : ls.remove(key)
+    }
+    /* eslint-enable */
+  })
 
 export default new Vuex.Store({
   state: {

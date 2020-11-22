@@ -7,7 +7,7 @@
           outlined
           dark
           large
-          @click.stop.once="$emit('answer-click')"
+          @click="$emit('answer')"
         >
           <v-icon>mdi-phone</v-icon>
         </v-btn>
@@ -20,13 +20,13 @@
           {{ phoneNumber }}
         </div>
       </div>
-      <div class="button_cancel">
+      <div class="button_hangup">
         <v-btn
           icon
           outlined
           dark
           large
-          @click.stop.once="$emit('answer-click')"
+          @click="$emit('hangup')"
         >
           <v-icon>mdi-phone-hangup</v-icon>
         </v-btn>
@@ -67,10 +67,10 @@ export default Vue.extend({
     padding: 1em;
     box-sizing: border-box;
 
-    .button_cancel {
+    .button_hangup {
       align-self: center;
     }
-    .button_cancel button {
+    .button_hangup button {
       background-color: #ff0000 !important;
       box-shadow: 1px 1px 20px 1px #fb0006 !important;
     }

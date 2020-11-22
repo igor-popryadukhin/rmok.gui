@@ -41,8 +41,6 @@ import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSessi
 import { ATEConfigurationInterface, Configurations } from '@/api/Configurations'
 import { JsSIP } from '@/jsSIP/plugin'
 import {
-  IncomingRTCSessionEvent,
-  OutgoingRTCSessionEvent,
   UnRegisteredEvent
 } from 'jssip/lib/UA'
 import { POSITION } from 'vue-toastification'
@@ -58,7 +56,6 @@ import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import VueI18n from 'vue-i18n'
 import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
-import DIncommingCall from '@/components/Dialogs/DIncommingCall.vue'
 
 interface HistoryDataInterface {
   /* eslint-disable */
@@ -82,7 +79,6 @@ export default Vue.extend({
 
   data () {
     return {
-      incomingDialogInstance: undefined as any,
       contactStatusDialog: {
         visible: false,
         historyId: 0
@@ -123,6 +119,10 @@ export default Vue.extend({
   },
 
   mounted () {
+    this.$root.$emit('root-jssip-initialize')
+  },
+
+  created () {
     this.$root.$on('root-jssip-initialize', this.jsSIPInitialize) // Emit root-jssip-initialize for initialize JSSIP
     this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
@@ -134,179 +134,146 @@ export default Vue.extend({
     this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
   },
 
-  created () {
-    setTimeout(async () => {
-      this.$root.$emit('root-jssip-initialize')
-    }, 2000)
-  },
-
   methods: {
     jsSIPInitialize () {
-      if (this.$jsSIP.isConnected) {
-        this.$jsSIP.stop()
-      }
-      new Configurations()
-        .getATEConfigurations()
-        .then((config: ATEConfigurationInterface) => {
-          /* eslint-disable */
-          (this.$jsSIP as JsSIP).setConfiguration(`wss://${config.server}:${config.port}/ws`, {
-            uri: `sip:${config.login}@${config.server}`,
-            password: config.password
-          })
-            .on('connected', this.onJsSIPConnected)
-            .on('disconnected', this.onJsSIPDisconnected)
-            .on('registered', this.onJsSIPRegistered)
-            .on('registrationFailed', this.onJsSIPRegistrationFailed)
-            .on('newRTCSession', this.onJsSIPNewRTCSession)
-            .on('sipEvent', this.onJsSIPSipEvent)
-            .on('newMessage', this.onJsSIPNewMessage)
+      const libphonenumberInitialize = () => import(/* webpackChunkName: "libphonenumber-js-plugin" */ '@/plugins/libphonenumber-js')
+      const jssipInitialize = () => import(/* webpackChunkName: "jssip-plugin" */ '@/jsSIP')
+        .then(() => {
+          if (this.$jsSIP.isConnected) {
+            this.$jsSIP.stop()
+          }
+          new Configurations()
+            .getATEConfigurations()
+            .then((config: ATEConfigurationInterface) => {
+            /* eslint-disable */
+            (this.$jsSIP as JsSIP).setConfiguration(`wss://${config.server}:${config.port}/ws`, {
+              uri: `sip:${config.login}@${config.server}`,
+              password: config.password
+            })
+              .on('connected', this.onJsSIPConnected)
+              .on('disconnected', this.onJsSIPDisconnected)
+              .on('registered', this.onJsSIPRegistered)
+              .on('registrationFailed', this.onJsSIPRegistrationFailed)
+              .on('sipEvent', this.onJsSIPSipEvent)
+              .on('newMessage', this.onJsSIPNewMessage)
 
-          // Event Disconnected can happen later than Connected
-          setTimeout(() => {
-            this.$jsSIP.start()
-          }, 1500)
-          /* eslint-enable */
-        })
-
-      // This is the global session handler.
-      this.$jsSIP.onSessionConnecting = (session: RTCSession, event: ConnectingEvent, payload: any) => {
-        console.log('%c%s', 'color: blue;', 'Начало сессии')
-      }
-
-      /**
-       * In the process of call...
-       * Works on both incoming and outgoing calls
-       * */
-      this.$jsSIP.onSessionProgress = async (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
-        /* eslint-disable */
-        console.log('onSessionProgress...', event, session.direction, session, payload)
-
-        // Incoming call processing
-        if (session.direction === 'incoming') {
-          const displayName: string = session.remote_identity.display_name
-          new Contacts()
-            .getByPhoneNumber(displayName)
-            .then((data) => {
-              //todo: Show contact call
-              // this.contact = data
-              // let phoneNumber = '...'
-              // if ((this.$libPhoneNumberJs as LibPhoneNumberJs).parsePhoneNumber(displayName)?.isValid) {
-              //   const pn: PhoneNumber = this.$libPhoneNumberJs.parsePhoneNumber(displayName)
-              //   phoneNumber = pn.formatNational()
-              // }
-
-              // Update incoming call information in toast
-              // this.updateRTCToast(session.id, `${data.first_name} ${data.last_name}`, phoneNumber)
+            // Event Disconnected can happen later than Connected
+            setTimeout(() => {
+              this.$jsSIP.start()
+            }, 500)
+            /* eslint-enable */
             })
 
-          this.incomingDialogInstance = await this.$dialog.show(DIncommingCall, {
-            waitForResult: false,
-            showClose: false,
-            persistent: true,
-            title: displayName,
-            subTitle: 'Иван Фёдорович Крузенштерн',
-            onHangup: () => {
-              this.$jsSIP.cancel()
-              this.incomingDialogInstance.close()
-              this.incomingDialogInstance = undefined
-            },
-            onAnswer: () => {
-              this.$jsSIP.answer()
-              this.incomingDialogInstance.close()
-              this.incomingDialogInstance = undefined
+          // This is the global session handler.
+          this.$jsSIP.onSessionConnecting = (session: RTCSession, event: ConnectingEvent, payload: any) => {
+            console.log('%c%s', 'color: blue;', 'Начало сессии')
+          }
+
+          this.$jsSIP.onSessionProgress = async (session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
+          /* eslint-disable */
+          if (event.originator === 'local') {
+            if (session.direction === 'incoming') {
+
+              // Incoming call identification
+              const displayName: string = session.remote_identity.display_name
+              new Contacts()
+                .getByPhoneNumber(displayName)
+                .then((data) => {
+                  let phoneNumber: any = '...'
+                  if (this.$libPhoneNumberJs.parsePhoneNumber(displayName)?.isValid) {
+                    const pn = this.$libPhoneNumberJs.parsePhoneNumber(displayName)
+                    phoneNumber = pn?.formatNational()
+                    this.$jsSIP.setPayload({contact_id: data.id, target: pn?.format('E.164')})
+                  }
+
+                  this.updateRTCToast(session.id, `${data.first_name} ${data.last_name}`, phoneNumber)
+                })
+
+              this.showRTCToast(displayName, displayName, session.id)
             }
-          })
-        }
-        /* eslint-enable */
-      }
+          } else {
 
-      this.$jsSIP.onSessionAccepted = (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
-        console.log('onSessionAccepted...', event, session.direction, session, payload)
-      }
+          }
+          /* eslint-enable */
+          }
 
-      this.$jsSIP.onSessionEnded = (session: RTCSession, event: EndEvent, payload: any) => {
-        /* eslint-disable */
+          this.$jsSIP.onSessionAccepted = (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
+            console.log('onSessionAccepted...', event, session.direction, session, payload)
+          }
 
-        if (this.incomingDialogInstance) {
-          setTimeout(() => {
-            this.incomingDialogInstance.close()
-            this.incomingDialogInstance = undefined
-          }, 1000)
-        }
+          this.$jsSIP.onSessionEnded = (session: RTCSession, event: EndEvent, payload: any) => {
+          /* eslint-disable */
 
-        console.log('%c%s', 'color: blue;', 'Конец сессии')
-        console.log('%c%s', 'color: blue;', '------------------------')
-        console.log(event, session)
-        console.log('%c%s', 'color: blue;', '------------------------')
+          if (session.direction === 'incoming') {
+            this.$toast.dismiss(session.id)
+          }
 
-        let historyData = {
-          session_start_time: this.$jsSIP.sessionStartTime.getTime() / 1000,
-          session_end_time: this.$jsSIP.sessionEndTime.getTime() / 1000,
-          start_timestamp: session.start_time ? session.start_time.getTime() / 1000 : null,
-          end_timestamp: session.end_time ? session.end_time.getTime() / 1000 : null,
-          type: 'call',
-          direction: session.direction
-        } as HistoryDataInterface
+          let historyData = {
+            session_start_time: this.$jsSIP.sessionStartTime.getTime() / 1000,
+            session_end_time: this.$jsSIP.sessionEndTime.getTime() / 1000,
+            start_timestamp: session.start_time ? session.start_time.getTime() / 1000 : null,
+            end_timestamp: session.end_time ? session.end_time.getTime() / 1000 : null,
+            type: 'call',
+            direction: session.direction
+          } as HistoryDataInterface
 
-        // If ATE did not return the call time, we delete zero data from the request
-        if (historyData.start_timestamp == null) {
-          delete historyData.start_timestamp
-          delete historyData.end_timestamp
-        }
+          // If ATE did not return the call time, we delete zero data from the request
+          if (historyData.start_timestamp == null) {
+            delete historyData.start_timestamp
+            delete historyData.end_timestamp
+          }
 
-        let contactId = 0;
+          let contactId = 0;
 
-        // End, remote side
-        if (event.originator === 'remote') {
-          // this.$toast.error(event.cause)
-          //return
-        } else if (event.originator === 'local') { // End, local side
           contactId = payload.contact_id
           historyData.target = payload.target
 
           if (event.cause === 'Canceled') {
             historyData.direction = session.direction + '_canceled'
           }
-        }
 
-        new Contacts()
-          .addHistory(contactId, historyData)
-          .then((id: number) => {
-            if (this.$store.getters['project/statuses'].length > 0) {
-              this.$dialog.show(DStatusEdit, {
-                waitForResult: true,
-                title: this.$t('Available statuses'),
-                statuses: this.$store.getters['project/statuses'], // Statuses in current project
-                saveTitle: this.$t('Save'),
-                cancelTitle: this.$t('Cancel'),
-                width: '60%',
-                height: '600',
-                onSave: (status: any) => {
-                  new Contacts()
-                    .updateHistory(id, {
-                      status_id: status.id
-                    }).finally(() => {
-                    this.$root.$emit('root-contact-history-change')
-                  })
-                }
-              })
-            } else {
-              this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
-            }
-          }).finally(() => {
-          // After adding new data to history, we generate an event
-          this.$root.$emit('root-contact-history-change')
-          this.$root.$emit('jssip-session-cancel', { session, payload })
+          new Contacts()
+            .addHistory(contactId, historyData)
+            .then((id: number) => {
+              if (this.$store.getters['project/statuses'].length > 0) {
+                this.$dialog.show(DStatusEdit, {
+                  waitForResult: true,
+                  title: this.$t('Available statuses'),
+                  statuses: this.$store.getters['project/statuses'], // Statuses in current project
+                  saveTitle: this.$t('Save'),
+                  cancelTitle: this.$t('Cancel'),
+                  width: '60%',
+                  height: '600',
+                  onSave: (status: any) => {
+                    new Contacts()
+                      .updateHistory(id, {
+                        status_id: status.id
+                      }).finally(() => {
+                      this.$root.$emit('root-contact-history-change')
+                    })
+                  }
+                })
+              } else {
+                this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
+              }
+            }).finally(() => {
+            // After adding new data to history, we generate an event
+            this.$root.$emit('root-contact-history-change')
+            this.$root.$emit('jssip-session-cancel', { session, payload })
+          })
+          /* eslint-enable */
+          }
+
+          this.$jsSIP.onSessionFailed = (session: RTCSession, event: EndEvent, payload: any) => {
+          /* eslint-disable */
+          // this.$root.$emit('jssip-session-cancel', { session, payload })
+          // console.log('onSessionFailed...', event.cause)
+          /* eslint-enable */
+          }
         })
-        /* eslint-enable */
-      }
 
-      this.$jsSIP.onSessionFailed = (session: RTCSession, event: EndEvent, payload: any) => {
-        /* eslint-disable */
-        // this.$root.$emit('jssip-session-cancel', { session, payload })
-        // console.log('onSessionFailed...', event.cause)
-        /* eslint-enable */
-      }
+      libphonenumberInitialize()
+        .finally(jssipInitialize)
     },
 
     onJsSIPConnected (event: any) {
@@ -326,32 +293,6 @@ export default Vue.extend({
       console.log('%c%s', 'color: red;', 'JSSIP Failed: ' + event.cause)
     },
 
-    onJsSIPNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
-      const session: RTCSession = event.session
-
-      // Incoming call processing
-      if (event.session.direction === 'incoming') {
-        const displayName: string = event.request.from.display_name
-        // const phoneNumber: PhoneNumber | undefined = parsePhoneNumber(displayName)
-
-        // if (phoneNumber) {
-        //   this.showRTCToast(this.$tc('unknown_number'), phoneNumber?.formatNational(), event.session.id)
-        // }
-
-        event.session.once('connecting', (event: ConnectingEvent) => {
-          console.log('connecting', event)
-        })
-        event.session.once('ended', (event: EndEvent) => {
-          this.$toast.dismiss(session.id)
-        })
-        event.session.once('failed', (event: EndEvent) => {
-          this.$toast.dismiss(session.id)
-        })
-      } else if (event.session.direction === 'outgoing') {
-        // Outgoing call processing
-      }
-    },
-
     onJsSIPSipEvent (event: any) {
       console.log(event)
     },
@@ -369,8 +310,8 @@ export default Vue.extend({
           phoneNumber
         },
         listeners: {
-          answerClick: this.onAnswerClick,
-          cancelClick: this.onCancelClick
+          answer: this.onAnswer,
+          hangup: this.onHangup
         }
       }, this.RTCToastOptions)
     },
@@ -384,18 +325,18 @@ export default Vue.extend({
             phoneNumber
           },
           listeners: {
-            answerClick: this.onAnswerClick,
-            cancelClick: this.onCancelClick
+            answer: this.onAnswer,
+            hangup: this.onHangup
           }
         }
       })
     },
 
-    onAnswerClick () {
+    onAnswer () {
       this.$jsSIP.answer()
     },
 
-    onCancelClick () {
+    onHangup () {
       this.$toast.dismiss(this.toastId)
       this.$jsSIP.cancel()
     },

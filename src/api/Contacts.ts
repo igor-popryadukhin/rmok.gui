@@ -99,8 +99,7 @@ export class Contacts {
       $axios.get(`/contacts/${number}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            resolve(response.data)
-            return
+            return resolve(response.data)
           }
           reject(response.data)
         }).catch(reject)
