@@ -15,7 +15,7 @@ export default Vue.mixin(Vue.extend({
           latest: false
         })
       }
-      // @ts-ignore
+
       this.$route.matched.forEach((item: any, i: number, {length}) => {
         if (item.meta.anonymous) {
           return
@@ -28,27 +28,9 @@ export default Vue.mixin(Vue.extend({
           latest: false
         }
         crumb.path = item.path
-        // @ts-ignore
         crumb.title = this.$i18n.tc('route.' + (item.name || item.path.replace(/^\//s, '').replace(/\//s, '')))
         // is last item?
         if (i === length - 1) {
-          // is param route? .../.../:id
-          // if (item.regex.keys.length > 0) {
-          //   crumbs.push({
-          //     path: item.path.replace(/\/:[^/:]*$/, ''),
-          //     name: item.name,
-          //     title: this.$i18n.tc('route.' + item.name.replace(/-[^-/]*$/, '')),
-          //     class: '',
-          //     latest: false
-          //   })
-          //   // @ts-ignore
-          //   crumb.path = this.$route.path
-          //   // @ts-ignore
-          //   crumb.title = this.$i18n.tc('route.' + this.$route.name, [
-          //     // @ts-ignore
-          //     crumb.path.match(/[/]*$/)[0]
-          //   ])
-          // }
           crumb.class = 'is-active'
         }
 
