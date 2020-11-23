@@ -43,14 +43,9 @@ export class RouterQuery {
    * @param key
    * @param def
    */
-  public getQuery (key: string, def: string | number): string | number {
+  public getQuery (key: string, def: string): string {
     if (key in this._vueRouter.currentRoute.query) {
-      const value = String(this._vueRouter.currentRoute.query[key])
-      if (/\^d+/.test(value)) {
-        return Number(value)
-      } else {
-        return String(value)
-      }
+      return String(this._vueRouter.currentRoute.query[key])
     } else {
       return def
     }
