@@ -27,7 +27,12 @@ export default Vue.mixin(Vue.extend({
           title: '',
           latest: false
         }
-        crumb.path = item.path
+
+        // I replace markers with real data
+        for (const param in this.$route.params) {
+          crumb.path = crumb.path.replace(`:${param}`, this.$route.params[param])
+        }
+
         crumb.title = this.$i18n.tc('route.' + (item.name || item.path.replace(/^\//s, '').replace(/\//s, '')))
         // is last item?
         if (i === length - 1) {
