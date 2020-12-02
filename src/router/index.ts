@@ -703,21 +703,11 @@ const routes: RouteConfig[] = [
             }
           },
           {
-            path: 'telephony',
-            name: 'call_center_manager_telephony',
-            component: () => import(/* webpackChunkName: "call-center-manager-settings-security" */ '../views/CallCenterManage/Settings/Telephony.vue'),
+            path: 'developer-settings',
+            name: 'call_center_manager_developer_settings',
+            component: () => import(/* webpackChunkName: "call-center-manager-settings-developer-settings" */ '../views/CallCenterManage/Settings/DeveloperSettings.vue'),
             meta: {
-              icon: 'mdi-phone-voip',
-              layout: 'call-center-manager',
-              middleware: []
-            }
-          },
-          {
-            path: 'headset-configure',
-            name: 'call_center_manager_headset_configure',
-            component: () => import(/* webpackChunkName: "call-center-manager-settings-headset-configure" */ '../views/CallCenterManage/Settings/HeadsetConfigure.vue'),
-            meta: {
-              icon: 'mdi-headset',
+              icon: 'mdi-flask',
               layout: 'call-center-manager',
               middleware: []
             }

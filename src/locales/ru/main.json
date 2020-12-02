@@ -75,6 +75,7 @@
   "route": {
     "home": "Главная",
     "leads": "Прозвон",
+    "leads_view": "Просмотр",
     "projects": "Мои проекты",
     "contacts": "Контакты",
     "contacts_list": "Список контактов",
@@ -97,6 +98,9 @@
     "help": "Справка",
     "administrator": "Администратор",
     "administratororganizations": "Организации",
+    "administrator_organizations_apps": "Приложения",
+    "administrator_organizations_apps_new": "Создание нового приложения",
+    "administrator_organizations_apps_edit": "Редактирование приложения",
     "administratorusers": "Пользователи",
     "administrator_users_new": "Создание нового пользователя",
     "administrator_users_edit": "Редактирование пользователя",
@@ -125,7 +129,12 @@
     "call_center_manager_operators_new": "Создание нового оператора",
     "call_center_manager_groups": "Группы",
     "call_center_manager_group_new": "Создание новой группы",
-    "call_center_manager_group_edit": "Редактирование группы"
+    "call_center_manager_group_edit": "Редактирование группы",
+    "call_center_manager_settings": "Настройки",
+    "call_center_manager_profile": "Профиль",
+    "call_center_manager_journal": "Журнал действий",
+    "call_center_manager_security": "Безопасность",
+    "call_center_manager_developer_settings": "Настройки разработчика"
   },
 
   "rule_email": "Адрес электронной почты не соответсвует требованиям",
@@ -140,6 +149,9 @@
     "email_not_confirmed": "Адрес электронной почты не подтверждён!"
   },
 
+
+  "Copy": "Копировать",
+  "Basic information": "Основная информация",
   "Ringing": "Прозвон",
   "Contacts": "Контакты",
   "Reports": "Отчеты",

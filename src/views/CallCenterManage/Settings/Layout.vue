@@ -89,8 +89,8 @@ export default Vue.extend({
     if (router.options.routes) {
       router.options.routes.forEach((e) => {
         this.tree(e, (r: any) => {
-          // Admin settings
-          if (r.name === 'administrator_settings') {
+          // Call center manager settings
+          if (r.name === 'call_center_manager_settings') {
             r.children.forEach((router: Route) => {
               this.tabs.push({
                 name: this.$tc(router.name || ''),
