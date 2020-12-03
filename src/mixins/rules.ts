@@ -11,11 +11,20 @@ interface DynamicRuleInterface {
   regex: (value: string) => void;
 }
 
+interface AssertLengthInterface {
+  max?: number;
+  min?: number;
+  messageMax?: string;
+  messageMin?: string;
+}
+
 export default Vue.extend({
   data () {
     return {
       rules: {
         /* eslint-disable */
+        notBlank: (value: string) => !!value || this.$t('This field should not be blank.'),
+        positive: (value: string) => +value > 0 || this.$t('This value should be positive.'),
         required: (value: string) => !!value || this.$t('rule_required'),
         max_256: (value: string) => isEmpty(value) || value.length <= 256 || this.$t('rule_max_length_256'),
         max_50: (value: string) => isEmpty(value) || value.length <= 50 || this.$t('rule_max_length_50'),
@@ -41,6 +50,30 @@ export default Vue.extend({
         max: (value: string) => isEmpty(value) || value.length <= val || message || this.$t('rule_max_dynamic_length', { val }),
         min: (value: string) => isEmpty(value) || value.length >= val || message || this.$t('rule_min_dynamic_length', { val }),
         regex: (value: string) => isEmpty(value) || new RegExp(val as string | RegExp).test(value) || message || this.$t('rule_regex_dynamic', { val })
+      }
+    },
+
+    assertLength: function (options: AssertLengthInterface) {
+      return (value: string) => {
+        if (options.max) {
+          const max = options.max
+          const messageMax: string = options.messageMax ?? 'Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.'
+          const assertMax = (v: string) => {
+            return v.length <= max ? true : this.$tc(messageMax, max)
+          }
+
+          return assertMax(value)
+        }
+
+        if (options.min) {
+          const min = options.min
+          const messageMin: string = options.messageMin ?? 'Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.'
+          const assertMin = (v: string) => {
+            return v.length <= min ? true : this.$tc(messageMin, min)
+          }
+
+          return assertMin(value)
+        }
       }
     },
 
