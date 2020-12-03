@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import AccessTokenInterface from '@/api/Schemas/AccessTokenInterface'
 
 interface OrganizationPhoneValueInterface {
   e164: string;
@@ -32,6 +33,7 @@ export interface OrganizationInterface {
   emails?: OrganizationEmailInterface[] | null;
   responsible: Responsible;
   tags?: OrganizationTagInterface[] | null;
+  app?: OrganizationAppInterface;
 }
 
 export interface Responsible {
@@ -43,6 +45,14 @@ export interface Responsible {
 export interface OrganizationTagInterface {
   id: number;
   name: string;
+}
+
+export interface OrganizationAppInterface {
+  id: number;
+  name: string;
+  client_id: string;
+  client_secret: string;
+  created_at: number;
 }
 
 export class Organizations {
@@ -78,6 +88,36 @@ export class Organizations {
   public getById (id: number): Promise<OrganizationInterface> {
     return new Promise((resolve, reject): Promise<OrganizationInterface> | any => {
       $axios.get(`/organizations/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Получить мою организацию
+   */
+  public getMy (): Promise<OrganizationInterface> {
+    return new Promise<OrganizationInterface | any>((resolve, reject): Promise<OrganizationInterface> | any => {
+      $axios.get('/organizations/my')
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Получить мою организацию
+   */
+  public generatePersonalAccessToken (): Promise<AccessTokenInterface> {
+    return new Promise<AccessTokenInterface | any>((resolve, reject): Promise<AccessTokenInterface> | any => {
+      $axios.get('/organizations/access-token/generate')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)

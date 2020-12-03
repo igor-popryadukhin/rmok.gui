@@ -1,12 +1,10 @@
-import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-
 export interface ContactInterface {
   id: number;
   first_name: string;
   last_name: string;
   middle_name: string;
   city: string;
-  default_phone?: PhoneNumberInterface;
+  default_phone?: ContactPhoneInterface;
   user: any;
   emails: any[];
   phones: ContactPhoneInterface[];

@@ -38,7 +38,7 @@ import Vue from 'vue'
 import { VApp } from 'vuetify/lib'
 
 import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSession.vue'
-import { ATEConfigurationInterface, Configurations } from '@/api/Configurations'
+import { Configurations } from '@/api/Configurations'
 import { JsSIP } from '@/jsSIP/plugin'
 import {
   UnRegisteredEvent
@@ -56,6 +56,7 @@ import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import VueI18n from 'vue-i18n'
 import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
+import PBXInterface from '@/api/Schemas/PBXInterface'
 
 interface HistoryDataInterface {
   /* eslint-disable */
@@ -144,7 +145,7 @@ export default Vue.extend({
           }
           new Configurations()
             .getATEConfigurations()
-            .then((config: ATEConfigurationInterface) => {
+            .then((config: PBXInterface) => {
             /* eslint-disable */
             (this.$jsSIP as JsSIP).setConfiguration(`wss://${config.server}:${config.port}/ws`, {
               uri: `sip:${config.login}@${config.server}`,

@@ -50,8 +50,47 @@ const routes: RouteConfig[] = [
   {
     path: '/leads',
     component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Leads/Layout.vue'),
-    children: [],
-    meta: { layout: 'default', middleware: [] }
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "leads" */ '../views/Leads/List.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        }
+      },
+      {
+        path: ':contact_id',
+        name: 'leads_view',
+        component: () => import(/* webpackChunkName: "leads-view" */ '../views/Leads/View.vue'),
+        children: [
+          {
+            path: 'script',
+            name: 'leads_script',
+            component: () => import(/* webpackChunkName: "leads-script" */ '../views/Leads/Script.vue'),
+            meta: { layout: 'default', middleware: [] }
+          },
+          {
+            path: 'history',
+            name: 'leads_history',
+            component: () => import(/* webpackChunkName: "leads-history" */ '../views/Leads/History.vue'),
+            meta: { layout: 'default', middleware: [] }
+          },
+          {
+            path: 'tasks',
+            name: 'leads_task',
+            component: () => import(/* webpackChunkName: "leads-task" */ '../views/Leads/Task.vue'),
+            meta: { layout: 'default', middleware: [] }
+          }
+        ],
+        meta: { layout: 'default', middleware: [] }
+      }
+    ],
+    meta: {
+      layout: 'default',
+      middleware: []
+    }
   },
   {
     path: '/projects',
@@ -84,7 +123,11 @@ const routes: RouteConfig[] = [
         path: 'new',
         name: 'contacts_new',
         component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Contacts/New.vue'),
-        meta: { layout: 'default', middleware: [] }
+        meta: { layout: 'default', middleware: [] },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          next()
+          store.dispatch('system/country_codes')
+        }
       },
       {
         path: ':contact_id',

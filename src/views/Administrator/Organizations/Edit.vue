@@ -5,229 +5,326 @@
       v-model="form.valid"
       lazy-validation
     >
-      <v-container>
+      <v-container fluid>
+
+        <!-- Основная информация -->
         <v-row>
           <v-col
             cols="12"
           >
-            <!-- eslint-disable -->
-            <v-text-field
-              v-model="organization.name"
-              :label="$tc('organization_name')"
-              persistent-hint
-              required
-              :rules="[rules.required, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
-            >
-              <template v-slot:prepend>
-                <v-avatar
-                  size="60"
-                  class="mr-4"
-                  style="background-color: #8d3eb1; color: white"
-                >
-                  AV
-                </v-avatar>
-              </template>
-            </v-text-field>
+            <v-card outlined flat>
+              <v-card-title>{{ $tc('Basic information') }}</v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <!-- eslint-disable -->
+                    <v-text-field
+                      v-model="organization.name"
+                      :label="$tc('organization_name')"
+                      persistent-hint
+                      required
+                      :rules="[rules.required, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
+                    >
+                      <template v-slot:prepend>
+                        <v-avatar
+                          size="60"
+                          class="mr-4"
+                          style="background-color: #8d3eb1; color: white"
+                        >
+                          AV
+                        </v-avatar>
+                      </template>
+                    </v-text-field>
 
-          </v-col>
-        </v-row>
+                  </v-col>
+                </v-row>
 
-        <!-- Emails -->
-        <v-row>
-          <v-col>
-            <s-emails
-              v-model="organization.emails"
-              :text-label="$t('Label')"
-              :text-email="$t('E-mail address')"
-              :rules-email="[rules.required, rules.email]"
-              :rules-label="[rules.required, rules.max_50]"
-            />
-          </v-col>
-        </v-row>
+                <!-- Emails -->
+                <v-row>
+                  <v-col>
+                    <s-emails
+                      v-model="organization.emails"
+                      :text-label="$t('Label')"
+                      :text-email="$t('E-mail address')"
+                      :rules-email="[rules.required, rules.email]"
+                      :rules-label="[rules.required, rules.max_50]"
+                    />
+                  </v-col>
+                </v-row>
 
-        <!-- Phones -->
-        <v-row>
-          <v-col>
-            <s-phone-numbers
-              v-model="organization.phones"
-              :message-error="$t('Invalid phone number format')"
-              :rules-number="[rules.required]"
-              :rules-label="[rules.required, rules.max_50]"
-              :rules-country-code="[rules.required]"
-            />
-          </v-col>
-        </v-row>
+                <!-- Phones -->
+                <v-row>
+                  <v-col>
+                    <s-phone-numbers
+                      v-model="organization.phones"
+                      :message-error="$t('Invalid phone number format')"
+                      :rules-number="[rules.required]"
+                      :rules-label="[rules.required, rules.max_50]"
+                      :rules-country-code="[rules.required]"
+                    />
+                  </v-col>
+                </v-row>
 
-        <!-- Site -->
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <v-text-field
-              v-model="organization.site"
-              :label="$tc('site')"
-              :placeholder="$tc('site_placeholder')"
-              :rules="[ruleDynamic('[a-zа-я._-]+', $t('rule_only', {val: 'a-zа-я._-'} )).regex]"
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-web</v-icon>
-              </template>
-              <template v-slot:prepend-inner>
-                <div style="color: #848484; margin: inherit">http://</div>
-              </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
+                <!-- Site -->
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <v-text-field
+                      v-model="organization.site"
+                      :label="$tc('site')"
+                      :placeholder="$tc('site_placeholder')"
+                      :rules="[ruleDynamic('[a-zа-я._-]+', $t('rule_only', {val: 'a-zа-я._-'} )).regex]"
+                    >
+                      <template
+                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                        v-slot:prepend
+                      >
+                        <v-icon class="pl-5 pr-9">mdi-web</v-icon>
+                      </template>
+                      <template v-slot:prepend-inner>
+                        <div style="color: #848484; margin: inherit">http://</div>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                </v-row>
 
-        <!-- Requisites -->
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="6"
-            sm="12"
-            xl="12"
-          >
-            <v-text-field
-              v-model="organization.cpp"
-              :label="$tc('cpp')"
-              :rules="[
+                <!-- Requisites -->
+                <v-row>
+                  <v-col
+                    cols="12"
+                    lg="6"
+                    md="6"
+                    sm="12"
+                    xl="12"
+                  >
+                    <v-text-field
+                      v-model="organization.cpp"
+                      :label="$tc('cpp')"
+                      :rules="[
                 ruleDynamic(9, $t('The minimum length of the CPP is 9 characters')).min,
                 ruleDynamic(9, $t('The maximum length of the CPP is 9 characters')).max
                 ]"
-              counter
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            lg="6"
-            md="6"
-            sm="12"
-            xl="12"
-          >
-            <v-text-field
-              v-model="organization.inn"
-              :label="$tc('inn')"
-              :rules="[
+                      counter
+                    >
+                      <template
+                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                        v-slot:prepend
+                      >
+                        <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    lg="6"
+                    md="6"
+                    sm="12"
+                    xl="12"
+                  >
+                    <v-text-field
+                      v-model="organization.inn"
+                      :label="$tc('inn')"
+                      :rules="[
                 ruleDynamic(9, $t('Minimum length INN 9 characters')).min,
                 ruleDynamic(12, $t('Maximum length ИНН 12 characters')).max,
 
                 ]"
-              counter
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
-              </template>
-            </v-text-field>
+                      counter
+                    >
+                      <template
+                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                        v-slot:prepend
+                      >
+                        <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+                </v-row>
+
+                <!-- Tags -->
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <v-combobox
+                      v-model="organization.tags"
+                      :items="tags"
+                      item-text="name"
+                      item-value="id"
+                      :label="$tc('tags')"
+                      chips
+                      deletable-chips
+                      return-object
+                      disable-lookup
+                      multiple
+                    >
+                      <template
+                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                        v-slot:prepend
+                      >
+                        <v-icon class="pl-5 pr-9">mdi-tag-multiple</v-icon>
+                      </template>
+                    </v-combobox>
+                  </v-col>
+                </v-row>
+
+                <!-- Responsible -->
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <s-autocomplete-users
+                      v-model="organization.responsible"
+                      :selected-id="organization.responsible ? organization.responsible.id: 0"
+                      :organization-id="organization.id"
+                      display-organization
+                      visible-icon
+                      :rules="[rules.required]"
+                      :label="$tc('responsible')"
+                      roles="r_leader_cc"
+                    >
+                      <template v-slot:no-data>
+                        <v-list-item
+                          link
+                          target="_blank"
+                          :to="{ name: 'administrator_users_new' }"
+                        >
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              Нажмите что бы добавить нового пользователя
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </template>
+                    </s-autocomplete-users>
+                  </v-col>
+                </v-row>
+
+                <!-- Сфера деятельности -->
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <v-textarea
+                      v-model="organization.sphere_activity"
+                      :label="$tc('sphere_activity')"
+                      :rules="[rules.max_3000]"
+                      counter
+                    >
+                      <template
+                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                        v-slot:prepend
+                      >
+                        <v-icon class="pl-5 pr-9">mdi-bag-checked</v-icon>
+                      </template>
+                    </v-textarea>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+              <v-card-actions>
+                <v-row>
+                  <v-col
+                    cols="12"
+                    class="text-right"
+                  >
+                    <v-btn
+                      text
+                      tile
+                      :loading="buttonSave.loading"
+                      :disabled="buttonSave.disabled"
+                      @click="onSave"
+                    >
+                      {{ $tc('Save') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+              </v-card-actions>
+            </v-card>
           </v-col>
         </v-row>
 
-        <!-- Tags -->
+        <!-- Интеграционные данные -->
         <v-row>
           <v-col
             cols="12"
           >
-            <v-combobox
-              v-model="organization.tags"
-              :items="tags"
-              item-text="name"
-              item-value="id"
-              :label="$tc('tags')"
-              chips
-              deletable-chips
-              return-object
-              disable-lookup
-              multiple
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-tag-multiple</v-icon>
-              </template>
-            </v-combobox>
-          </v-col>
-        </v-row>
+            <v-card>
+              <v-card-title>{{ $tc('Developer settings') }}</v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <v-text-field
+                      v-model="organization.app.name"
+                      :label="$tc('App name')"
+                      persistent-hint
+                      required
+                    >
+                    </v-text-field>
 
-        <!-- Responsible -->
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <s-autocomplete-users
-              v-model="organization.responsible"
-              :selected-id="organization.responsible ? organization.responsible.id: 0"
-              :organization-id="organization.id"
-              display-organization
-              visible-icon
-              :rules="[rules.required]"
-              :label="$tc('responsible')"
-              roles="r_leader_cc"
-            >
-              <template v-slot:no-data>
-                <v-list-item
-                  link
-                  target="_blank"
-                  :to="{ name: 'administrator_users_new' }"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      Нажмите что бы добавить нового пользователя
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-            </s-autocomplete-users>
-          </v-col>
-        </v-row>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <v-text-field
+                      v-model="organization.app.client_id"
+                      :label="$tc('Client ID')"
+                      persistent-hint
+                      required
+                    >
+                      <template v-slot:append>
+                        <v-btn
+                          icon
+                          small
+                        >
+                          <v-icon>mdi-content-copy</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          small
+                        >
+                          <v-icon>mdi-refresh</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
 
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <v-textarea
-              v-model="organization.sphere_activity"
-              :label="$tc('sphere_activity')"
-              :rules="[rules.max_3000]"
-              counter
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-bag-checked</v-icon>
-              </template>
-            </v-textarea>
-          </v-col>
-        </v-row>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col
+                    cols="12"
+                  >
+                    <v-text-field
+                      :label="$tc('Client Secret')"
+                      disabled
+                    >
+                      <template v-slot:append>
+                        <v-btn
+                          icon
+                          small
+                        >
+                          <v-icon>mdi-content-copy</v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          small
+                        >
+                          <v-icon>mdi-refresh</v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
 
-        <v-row>
-          <v-col
-            cols="12"
-            class="text-right"
-          >
-            <v-btn
-              text
-              tile
-              :loading="buttonSave.loading"
-              :disabled="buttonSave.disabled"
-              @click="onSave"
-            >
-              {{ $tc('Save') }}
-            </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
       </v-container>
@@ -248,6 +345,7 @@ import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import SPhoneNumbers from '@/snippets/SPhoneNumbers/SPhoneNumbers.vue'
 import SEmails from '@/snippets/SEmails/SEmails.vue'
+import { AppInterface } from '@/api/Apps'
 
 export default Vue.extend({
   mixins: [rules],
@@ -298,9 +396,21 @@ export default Vue.extend({
           id: 0,
           last_name: ''
         } as Responsible,
-        tags: [] as OrganizationTagInterface[]
+        tags: [] as OrganizationTagInterface[],
+        app: {
+          id: 0,
+          client_id: '',
+          client_secret: '',
+          created_at: 0
+        }
       } as OrganizationInterface,
-      tags: [] as OrganizationTagInterface[]
+      tags: [] as OrganizationTagInterface[],
+      app: {
+        id: 0,
+        name: '',
+        client_id: '',
+        created_at: 0
+      } as AppInterface
       /* eslint-enable */
     }
   },
@@ -331,6 +441,7 @@ export default Vue.extend({
         this.organization.tags = organization.tags
         this.organization.responsible = organization.responsible
         this.organization.sphere_activity = organization.sphere_activity
+        this.organization.app = organization.app
 
         if (this.organization.phones.length === 0) {
           this.organization.phones.push({

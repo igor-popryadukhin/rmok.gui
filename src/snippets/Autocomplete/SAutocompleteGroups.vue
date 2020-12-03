@@ -94,6 +94,7 @@ export default Vue.extend({
       groupsSearchQuery: null as null | string,
       groupsProcessLoading: false,
       groupsSearchDebounce: debounce((context: any) => {
+        if (context.disabled) { return }
         context.loading = true
         new Groups()
           .find(context.groupsSearchQuery, context.organizationId)
@@ -127,8 +128,8 @@ export default Vue.extend({
       }
     },
 
-    selectedId (val: number) {
-      this.selected = this.groups.find((e: GroupInterface) => e.id === val)
+    async selectedId () {
+      this.groupsSearchDebounce(this)
     }
   },
 

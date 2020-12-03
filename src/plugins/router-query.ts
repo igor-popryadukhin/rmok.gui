@@ -3,7 +3,7 @@ import { VueRouter } from 'vue-router/types/router'
 import router from '@/router'
 
 interface QueryInterface {
-  [key: string]: string
+  [key: string]: string | number
 }
 
 export class RouterQuery {
@@ -43,11 +43,11 @@ export class RouterQuery {
    * @param key
    * @param def
    */
-  public getQuery (key: string, def: string): string {
+  public getQuery (key: string, def: string | number): string {
     if (key in this._vueRouter.currentRoute.query) {
       return String(this._vueRouter.currentRoute.query[key])
     } else {
-      return def
+      return String(def)
     }
   }
 

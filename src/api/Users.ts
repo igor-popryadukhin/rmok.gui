@@ -3,6 +3,7 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { RoleInterface } from '@/api/Roles'
 import { GroupInterface } from '@/api/Groups'
+import PBXInterface from '@/api/Schemas/PBXInterface'
 
 interface UserOrganizationInterface {
   id: number;
@@ -20,6 +21,7 @@ export interface UserInterface {
   role?: RoleInterface | null;
   group?: GroupInterface | null;
   organization?: UserOrganizationInterface | null;
+  pbx_config?: PBXInterface;
 }
 
 interface ParamsFindInterface {
@@ -68,8 +70,8 @@ export class Users {
    *
    * @param id
    */
-  public getById (id: number): Promise<UserInterface | any> {
-    return new Promise((resolve, reject): Promise<UserInterface | any> | any => {
+  public getById (id: number): Promise<UserInterface | any> | any {
+    return new Promise<UserInterface | any>((resolve, reject): Promise<UserInterface | any> | any => {
       $axios.get(`/users/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {

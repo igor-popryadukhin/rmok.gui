@@ -20,7 +20,7 @@
   "Loading content...": "Загрузка содержимого...",
   "location": "Локация",
   "login_to_the_system": "Вход в систему",
-  "password": "Пароль",
+  "Password": "Пароль",
   "old_password": "Текущий пароль",
   "new_password": "Новый пароль",
   "confirm_new_password": "Повторите новый пароль",
@@ -150,6 +150,14 @@
   },
 
 
+  "User updated successfully!": "Пользователь успешно обновлен!",
+  "Server address": "Адрес сервера",
+  "The address of your PBX server. For example: pbx.mycompany.ru": "Адрес вашего сервера АТС. Например: pbx.mycompany.ru",
+  "The phone number that is displayed when calling from your PBX": "Номер телефона, который отображается при звонке с вашей АТС",
+  "SIP phone number": "Номер SIP телефона",
+  "Port": "Порт",
+  "Login to access your PBX. For example: 003452": "Логин доступа к вашей АТС. Например: 003452",
+  "PBX access password": "Пароль доступа к АТС",
   "Copy": "Копировать",
   "Basic information": "Основная информация",
   "Ringing": "Прозвон",
