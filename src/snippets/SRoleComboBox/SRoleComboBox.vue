@@ -31,7 +31,7 @@ export default Vue.extend({
   props: {
     rules: {
       type: Array,
-      default: undefined
+      default: () => []
     },
     value: {
       type: Object,
