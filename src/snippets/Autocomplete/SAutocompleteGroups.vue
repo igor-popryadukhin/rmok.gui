@@ -1,45 +1,64 @@
 <template>
-  <v-autocomplete
+  <v-combobox
     v-model="selected"
     :items="groups"
-    :search-input.sync="groupsSearchQuery"
-    no-filter
-    persistent-hint
+    item-text="name"
+    item-value="id"
     :label="label"
     :rules="rules"
-    :loading="loading"
-    :disabled="disabled"
+    return-object
+    disable-lookup
   >
-    <template v-slot:no-data>
-      <slot name="no-data">
-        No data
-      </slot>
-    </template>
     <template
-      v-slot:prepend
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
+      v-slot:prepend
     >
       <v-icon class="pl-5 pr-9">mdi-account-group</v-icon>
     </template>
-    <template v-slot:selection="{ item }">
-      <v-list-item-content>
-        <v-list-item-title>{{ item.name }}</v-list-item-title>
-        <v-list-item-subtitle v-if="item.organization && visibleOrganizationName">{{ item.organization.name }}</v-list-item-subtitle>
-      </v-list-item-content>
-    </template>
-    <template v-slot:item="{ item }">
-      <v-list-item-content>
-        <v-list-item-title>{{ item.name }}</v-list-item-title>
-        <v-list-item-subtitle v-if="item.organization  && visibleOrganizationName">{{ item.organization.name }}</v-list-item-subtitle>
-      </v-list-item-content>
-    </template>
-  </v-autocomplete>
+  </v-combobox>
+<!--  <v-autocomplete-->
+<!--    v-model="selected"-->
+<!--    :items="groups"-->
+<!--    :search-input.sync="groupsSearchQuery"-->
+<!--    no-filter-->
+<!--    :label="label"-->
+<!--    :rules="rules"-->
+<!--    :loading="loading"-->
+<!--    :disabled="disabled"-->
+<!--    disable-lookup-->
+<!--    clearable-->
+<!--    hide-details-->
+<!--  >-->
+<!--    <template v-slot:no-data>-->
+<!--      <slot name="no-data">-->
+<!--        No data-->
+<!--      </slot>-->
+<!--    </template>-->
+<!--    <template-->
+<!--      v-slot:prepend-->
+<!--      v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"-->
+<!--    >-->
+<!--      <v-icon class="pl-5 pr-9">mdi-account-group</v-icon>-->
+<!--    </template>-->
+<!--    <template v-slot:selection="{ item }">-->
+<!--      <v-list-item-content>-->
+<!--        <v-list-item-title>{{ item.name }}</v-list-item-title>-->
+<!--        <v-list-item-subtitle v-if="item.organization && visibleOrganizationName">{{ item.organization.name }}</v-list-item-subtitle>-->
+<!--      </v-list-item-content>-->
+<!--    </template>-->
+<!--    <template v-slot:item="{ item }">-->
+<!--      <v-list-item-content :key="item.id">-->
+<!--        <v-list-item-title>{{ item.name }}</v-list-item-title>-->
+<!--        <v-list-item-subtitle v-if="item.organization  && visibleOrganizationName">{{ item.organization.name }}</v-list-item-subtitle>-->
+<!--      </v-list-item-content>-->
+<!--    </template>-->
+<!--  </v-autocomplete>-->
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
-import { GroupInterface, Groups } from '@/api/Groups'
+import { GroupFindQueryInterface, GroupInterface, Groups } from '@/api/Groups'
 
 export default Vue.extend({
   name: 'SAutocompleteGroups',
@@ -97,7 +116,7 @@ export default Vue.extend({
         if (context.disabled) { return }
         context.loading = true
         new Groups()
-          .find(context.groupsSearchQuery, context.organizationId)
+          .find()
           .then((items: GroupInterface[]) => {
             context.groups = items
             context.selected = context.groups.find((e: GroupInterface) => e.id === context.selectedId)
@@ -135,7 +154,30 @@ export default Vue.extend({
 
   created () {
     if (this.autoLoad) {
-      this.groupsSearchDebounce(this)
+      this.loadGroups()
+    }
+  },
+
+  methods: {
+    loadGroups () {
+      this.loading = true
+      const query: GroupFindQueryInterface = {
+        offset: 0,
+        count: 100
+      }
+
+      if (this.organizationId) {
+        query.organization_id = this.organizationId
+      }
+
+      new Groups()
+        .find(query)
+        .then((items: GroupInterface[]) => {
+          this.groups = items
+          this.selected = this.groups.find((e: GroupInterface) => e.id === this.selectedId)
+        }).finally(() => {
+          this.loading = false
+        })
     }
   }
 })
