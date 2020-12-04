@@ -150,6 +150,8 @@
   },
 
 
+  "Profile": "Профиль",
+  "Telephony": "Телефония",
   "User updated successfully!": "Пользователь успешно обновлен!",
   "Server address": "Адрес сервера",
   "The address of your PBX server. For example: pbx.mycompany.ru": "Адрес вашего сервера АТС. Например: pbx.mycompany.ru",

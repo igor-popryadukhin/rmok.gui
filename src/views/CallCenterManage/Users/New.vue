@@ -4,9 +4,10 @@
       ref="form"
       v-model="form.valid"
       lazy-validation
+      class="mr-4"
     >
-      <v-container>
-
+      <div class="text-h6">{{ $tc('Profile') }}</div>
+      <div class="mb-10">
         <!-- FLM -->
         <v-row>
           <v-col
@@ -91,7 +92,7 @@
             md="4"
           >
             <v-text-field
-              v-model="user.password"
+              v-model="password.value1"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
               :rules="[rules.required]"
@@ -124,7 +125,7 @@
             md="4"
           >
             <v-text-field
-              v-model="user.password2"
+              v-model="password.value2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
               :rules="[rules.required]"
@@ -200,19 +201,20 @@
         <v-row>
           <v-col
             cols="12"
+            md="6"
+            lg="6"
           >
             <s-role-combo-box
               v-model="user.role"
               :label="$tc('Role')"
               visible-icon
+              :rules="rules.notBlank"
             />
           </v-col>
-        </v-row>
-
-        <!-- Group -->
-        <v-row>
           <v-col
             cols="12"
+            md="6"
+            lg="6"
           >
             <s-autocomplete-groups
               v-model="user.group"
@@ -224,90 +226,133 @@
             />
           </v-col>
         </v-row>
+      </div>
 
-<!--        <v-row>-->
-<!--          <v-col-->
-<!--            cols="12"-->
-<!--            lg="6"-->
-<!--            md="12"-->
-<!--          >-->
-<!--            <v-text-field-->
-<!--              :label="$tc('sip_display_name')"-->
-<!--              :hint="$tc('sip_display_name_hint')"-->
-<!--              persistent-hint-->
-<!--              required-->
-<!--            ></v-text-field>-->
-<!--          </v-col>-->
-<!--        </v-row>-->
-<!--        <v-row>-->
-<!--          <v-col-->
-<!--            cols="10"-->
-<!--          >-->
-<!--            <v-text-field-->
-<!--              :label="$tc('server_address')"-->
-<!--              :hint="$tc('server_address_hint')"-->
-<!--              persistent-hint-->
-<!--              required-->
-<!--            ></v-text-field>-->
-<!--          </v-col>-->
-<!--          <v-col-->
-<!--            cols="2"-->
-<!--          >-->
-<!--            <v-text-field-->
-<!--              :label="$tc('server_port')"-->
-<!--              persistent-hint-->
-<!--              required-->
-<!--            ></v-text-field>-->
-<!--          </v-col>-->
-<!--        </v-row>-->
-<!--        <v-row>-->
-<!--          <v-col-->
-<!--            cols="12"-->
-<!--            lg="6"-->
-<!--            md="12"-->
-<!--          >-->
-<!--            <v-text-field-->
-<!--              :label="$tc('Login')"-->
-<!--              :hint="$tc('login_hint')"-->
-<!--              persistent-hint-->
-<!--              required-->
-<!--            ></v-text-field>-->
-<!--          </v-col>-->
-<!--        </v-row>-->
-<!--        <v-row>-->
-<!--          <v-col-->
-<!--            cols="12"-->
-<!--            lg="6"-->
-<!--            md="12"-->
-<!--          >-->
-<!--            <v-text-field-->
-<!--              :label="$tc('password')"-->
-<!--              :hint="$tc('password_hint')"-->
-<!--              :type="password.visible ? '' : 'password'"-->
-<!--              persistent-hint-->
-<!--              required-->
-<!--            >-->
-<!--              <template v-slot:append>-->
-<!--                <v-btn-->
-<!--                  v-if="password.visible"-->
-<!--                  icon-->
-<!--                  @click="password.visible = false"-->
-<!--                >-->
-<!--                  <v-icon>mdi-eye</v-icon>-->
-<!--                </v-btn>-->
-<!--                <v-btn-->
-<!--                  v-else-->
-<!--                  icon-->
-<!--                  @click="password.visible = true"-->
-<!--                >-->
-<!--                  <v-icon>mdi-eye-off</v-icon>-->
-<!--                </v-btn>-->
-<!--              </template>-->
-<!--            </v-text-field>-->
-<!--          </v-col>-->
-<!--        </v-row>-->
-
+      <div class="text-h6">{{ $tc('Telephony') }}</div>
+      <div class="mb-10">
         <v-row>
+          <v-col
+            cols="12"
+            lg="6"
+            md="12"
+          >
+            <v-text-field
+              v-model="user.pbx_config.display_name"
+              :label="$tc('SIP phone number')"
+              :hint="$tc('The phone number that is displayed when calling from your PBX')"
+              persistent-hint
+              :rules="[assertLength({ max: 20 })]"
+              counter
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-account-circle</v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col
+            cols="6"
+          >
+            <v-text-field
+              v-model="user.pbx_config.server"
+              :label="$tc('Server address')"
+              :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
+              persistent-hint
+              :rules="[rules.notBlank]"
+              required
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-domain</v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col
+            cols="2"
+          >
+            <v-text-field
+              v-model="user.pbx_config.port"
+              :label="$tc('Port')"
+              type="number"
+              persistent-hint
+              required
+              single-line
+              :rules="[rules.positive]"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col
+            cols="12"
+            lg="6"
+            md="12"
+          >
+            <v-text-field
+              v-model="user.pbx_config.login"
+              :label="$tc('Login')"
+              :hint="$tc('Login to access your PBX. For example: 003452')"
+              persistent-hint
+              :rules="[rules.notBlank]"
+              required
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-account-key</v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col
+            cols="12"
+            lg="6"
+            md="12"
+          >
+            <v-text-field
+              v-model="user.pbx_config.password"
+              :label="$tc('Password')"
+              :hint="$tc('PBX access password')"
+              :type="pbxPasswordVisible ? '' : 'password'"
+              persistent-hint
+              :rules="[rules.notBlank]"
+              required
+            >
+              <template
+                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+                v-slot:prepend
+              >
+                <v-icon class="pl-5 pr-9">mdi-form-textbox-password</v-icon>
+              </template>
+              <template v-slot:append>
+                <v-btn
+                  v-if="pbxPasswordVisible"
+                  icon
+                  @click="pbxPasswordVisible = false"
+                >
+                  <v-icon>mdi-eye</v-icon>
+                </v-btn>
+                <v-btn
+                  v-else
+                  icon
+                  @click="pbxPasswordVisible = true"
+                >
+                  <v-icon>mdi-eye-off</v-icon>
+                </v-btn>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+      </div>
+
+      <v-row>
           <v-col
             cols="12"
             class="text-right"
@@ -323,7 +368,6 @@
             </v-btn>
           </v-col>
         </v-row>
-      </v-container>
     </v-form>
   </div>
 </template>
@@ -332,16 +376,10 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
-import { Users } from '@/api/Users'
+import { UserInterface, Users } from '@/api/Users'
 import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
 import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
-import { RoleInterface } from '@/api/Roles'
 import { GroupInterface } from '@/api/Groups'
-
-interface Email {
-  value: string;
-  label: string;
-}
 
 export default Vue.extend({
   mixins: [rules, countryCodes],
@@ -349,11 +387,15 @@ export default Vue.extend({
     SRoleComboBox,
     SAutocompleteGroups
   },
+
   data () {
     return {
       password: {
-        visible: false
+        visible: false,
+        value1: '',
+        value2: ''
       },
+      pbxPasswordVisible: false,
       buttonSave: {
         disabled: false,
         loading: false
@@ -367,15 +409,21 @@ export default Vue.extend({
         last_name: '',
         middle_name: '',
         login: '',
-        password: '',
-        password2: '',
         email: '',
         phone: '',
-        role: {} as RoleInterface,
-        group: {} as GroupInterface
-      }
-      /* eslint-enable */
+        role: null,
+        pbx_config: {
+          display_name: '',
+          login: '',
+          password: '',
+          port: 0,
+          server: ''
+        },
+        group: {} as GroupInterface,
+        organization: null
+      } as UserInterface
     }
+    /* eslint-enable */
   },
 
   methods: {
@@ -396,11 +444,12 @@ export default Vue.extend({
           last_name: this.user.last_name.trim(),
           middle_name: this.user.middle_name.trim(),
           login: this.user.login.trim(),
-          password: this.user.password.trim(),
+          password: this.password.value1,
           phone: this.user.phone.trim(),
           email: this.user.email,
           role: this.user.role.id,
-          group_id: this.user.group.id
+          group_id: this.user.group.id,
+          pbx_config: this.user.pbx_config
           /* eslint-enable */
         }).then(() => {
           this.resetForm()

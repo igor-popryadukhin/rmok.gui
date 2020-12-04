@@ -21,17 +21,21 @@ export interface GroupInterface {
   organization?: GroupOrganizationInterface | null;
 }
 
+export interface GroupFindQueryInterface {
+  q?: string;
+  organization_id?: number;
+  offset?: number;
+  count?: number;
+}
+
 export class Groups {
   /**
    * Поиск групп
-   * @param q
-   * @param organization_id
-   * @param offset
-   * @param count
+   * @param query
    */
-  public find (q = '', organization_id = 0, offset = 0, count = 100): Promise<GroupInterface[] | any> | any {
+  public find (query: GroupFindQueryInterface = {}): Promise<GroupInterface[] | any> | any {
     return new Promise((resolve, reject): Promise<GroupInterface[] | any> | any => {
-      $axios.get('/groups', { params: { q, organization_id, offset, count } })
+      $axios.get('/groups', { params: { ...query } })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)

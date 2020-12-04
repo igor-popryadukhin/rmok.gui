@@ -6,7 +6,7 @@
       lazy-validation
       class="mr-4"
     >
-      <div class="text-h6">Профиль</div>
+      <div class="text-h6">{{ $tc('Profile') }}</div>
       <div class="mb-10">
         <!-- FLM -->
         <v-row>
@@ -227,7 +227,7 @@
         </v-row>
       </div>
 
-      <div class="text-h6">Телефония</div>
+      <div class="text-h6">{{ $tc('Telephony') }}</div>
       <div class="mb-10">
         <v-row>
           <v-col
