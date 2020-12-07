@@ -8,6 +8,7 @@ import {
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import { makeAudioElement } from '@/jsSIP/utils'
 import { Timer } from './Timer'
+import { Debugger } from 'debug'
 
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
@@ -266,8 +267,8 @@ export class JsSIP {
     return this
   }
 
-  public debug (namespace: string) {
-    debug(namespace)
+  public debug (namespace: string): void {
+    debug.enable(namespace)
   }
 
   private initializeListeners () {

@@ -21,7 +21,7 @@
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
-            <span>{{ $tc('add_new_user') }}</span>
+            <span>{{ $tc('Add new user') }}</span>
           </v-tooltip>
         </v-toolbar>
       </v-card-text>

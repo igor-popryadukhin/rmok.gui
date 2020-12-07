@@ -4,5 +4,7 @@
   "roles": "Роли",
   "groups": "Группы",
   "group": "Группа",
-  "project_manager": "Руководитель проекта"
+  "project_manager": "Руководитель проекта",
+  "Outgoing call testing": "Тестирование исходящего звонка",
+  "Subscriber's phone number to whom we are calling": "Номер телефона абонента кому звоним"
 }

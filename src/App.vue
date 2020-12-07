@@ -116,11 +116,10 @@ export default Vue.extend({
 
   beforeCreate () {
     this.$store.dispatch('profile/loadProfile')
+      .then(() => {
+        this.$root.$emit('root-jssip-initialize')
+      })
     this.$store.dispatch('project/load')
-  },
-
-  mounted () {
-    this.$root.$emit('root-jssip-initialize')
   },
 
   created () {
