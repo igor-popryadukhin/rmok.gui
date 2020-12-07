@@ -266,17 +266,43 @@
             </v-textarea>
           </v-col>
         </v-row>
+
+        <!-- Save -->
         <v-row>
           <v-col class="pa-0 pt-3 text-right">
-            <v-btn
+            <v-btn-toggle
               :disabled="comment.disabled || comment.text === ''"
               :loading="comment.buttonSave.loading"
-              outlined
               color="primary"
-              @click="onSaveComment"
+              dense
+              tile
             >
-              {{ $t('Save') }}
-            </v-btn>
+              <v-btn
+                color="primary"
+                text
+                @click="onSaveAndNext"
+              >
+                {{ $t('Save') }}
+              </v-btn>
+              <v-menu offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    text
+                    icon
+                    color="primary"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-icon color="primary">mdi-arrow-down-drop-circle-outline</v-icon>
+                  </v-btn>
+                </template>
+                <v-list class="pa-0">
+                  <v-list-item link>
+                    <v-list-item-title>{{ $tc('Сохранить и остаться') }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-btn-toggle>
           </v-col>
         </v-row>
       </v-col>
@@ -295,6 +321,7 @@ import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import vuescroll from 'vuescroll'
 import '@/plugins/libphonenumber-js'
 import { MainSearchMethod } from '@/Interfaces'
+import Leads from '@/api/Leads'
 
 interface TabInterface {
   name: string;
@@ -484,6 +511,18 @@ export default (Vue as VueConstructor<Vue & any>).extend({
         this.comment.buttonSave.loading = false
       })
       /* eslint-enable */
+    },
+
+    onSaveAndNext () {
+      new Leads()
+        .next(+this.$route.params.contact_id)
+        .then((contact: ContactInterface) => {
+          // this.$route.title = `${contact.first_name} ${contact.last_name}`
+          this.contact = contact
+        }).finally(() => {
+          this.dataLoading = false
+          this.$root.$emit('root-loading-data-hide')
+        })
     }
   }
 })

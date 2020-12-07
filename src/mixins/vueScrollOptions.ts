@@ -1,11 +1,21 @@
 import Vue from 'vue'
 
-const vueScrollOptions: any = Vue.extend({
-  data () {
-    return {
-      vueScrollOptions: {
+const vueScrollOptions = Vue.extend({
+  computed: {
+    vueScrollOptions () {
+      return {
+        vuescroll: {
+          wheelScrollDuration: 500
+        },
         bar: {
-          background: '#c912c6'
+          background: '#c912c6',
+          keepShow: true
+        },
+        rail: {
+          opacity: '0.2',
+          background: '#c912c6',
+          border: '1px solid #cecece',
+          size: '10px'
         }
       }
     }

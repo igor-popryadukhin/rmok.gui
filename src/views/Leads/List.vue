@@ -44,7 +44,7 @@
                 </v-toolbar>
                 <v-card-text>
                   <vuescroll
-                    :ops="vueScrollLeads.opt"
+                    :ops="vueScrollOptions"
                     :style="{ height: `${260}px` }"
                     style="width: 100%"
                     @handle-scroll-complete="onVueScrollLeadsHandleComplete"
@@ -131,7 +131,7 @@
                 </v-toolbar>
                 <v-card-text>
                   <vuescroll
-                    :ops="vueScrollTasks.opt"
+                    :ops="vueScrollOptions"
                     :style="{ height: `${380}px` }"
                     style="width: 100%"
                     @handle-scroll-complete="onVueScrollTaskHandleComplete"
@@ -357,25 +357,14 @@ import { MainSearchMethod } from '@/Interfaces'
 import vuescroll from 'vuescroll'
 import { UserInterface } from '@/api/Users'
 import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
-import { Leads } from '@/api/Leads'
-
-const vueScrollOptions = {
-  vuescroll: {
-    wheelScrollDuration: 500
-  },
-  bar: {
-    background: '#c912c6',
-    keepShow: true
-  },
-  rail: {
-    opacity: '0.2',
-    background: '#c912c6',
-    border: '1px solid #cecece',
-    size: '10px'
-  }
-}
+import Leads from '@/api/Leads'
+import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 export default Vue.extend({
+
+  mixins: [
+    vueScrollOptions
+  ],
 
   components: {
     vuescroll

@@ -20,7 +20,7 @@ export interface LeadSearchQueryInterface {
   count?: number;
 }
 
-export class Leads {
+export default class Leads {
   /**
    * Find contacts
    *
@@ -30,6 +30,29 @@ export class Leads {
     return new Promise<LeadResponseInterface>((resolve, reject) => {
       $axios.get('/leads', {
         params: { ...query }
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          resolve(response.data)
+        } else {
+          reject(response.data)
+        }
+      }).catch(reject)
+    })
+  }
+
+  /**
+   * Получить следующего лида
+   *
+   * @param contact_id
+   */
+  public next (contact_id = 0): Promise<ContactInterface> {
+    return new Promise<ContactInterface>((resolve, reject) => {
+      const params: any = {}
+      if (contact_id > 0) {
+        params.contact_id = contact_id
+      }
+      $axios.get('/leads/next', {
+        params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
           resolve(response.data)
