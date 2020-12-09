@@ -45,8 +45,8 @@ export default class Leads {
    *
    * @param contact_id
    */
-  public next (contact_id = 0): Promise<ContactInterface> {
-    return new Promise<ContactInterface>((resolve, reject) => {
+  public next (contact_id: number): Promise<number | any> {
+    return new Promise<number | any>((resolve, reject) => {
       const params: any = {}
       if (contact_id > 0) {
         params.contact_id = contact_id
@@ -55,7 +55,7 @@ export default class Leads {
         params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          resolve(response.data)
+          resolve(response.data.contact_id)
         } else {
           reject(response.data)
         }

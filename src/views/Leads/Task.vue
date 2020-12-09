@@ -117,10 +117,10 @@
               <v-spacer />
             </v-list-item>
           </template>
-          <template v-else-if="history.length === 0 && tasksLoading === false">
+          <template v-else-if="tasks.length === 0 && tasksLoading === false">
             <v-list-item class="text-center">
               <v-spacer />
-              <span class="grey--text">У вас нет задач</span>
+              <span class="grey--text">{{ $tc('Task list is empty') }}</span>
               <v-spacer />
             </v-list-item>
           </template>
@@ -132,19 +132,36 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import breadcrumbs from '@/mixins/breadcrumbs'
 import DTask from '@/components/Dialogs/DTask.vue'
 import rules from '@/mixins/rules'
 import Tasks, { TaskGetResponseInterface, TaskInterface, TaskPostDataInterface, TaskType } from '@/api/Tasks'
+import { Contacts } from '@/api/Contacts'
+import { ContactInterface } from '@/api/Schemas/ContactInterface'
 
 export default Vue.extend({
-  mixins: [breadcrumbs, rules],
+  mixins: [rules],
 
   data () {
     return {
       tasksLoading: false,
       tasks: [] as TaskInterface[]
     }
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      this.tasksLoading = true
+      new Tasks()
+        .get({
+          contact_id: +to.params.contact_id
+        })
+        .then((response: TaskGetResponseInterface) => {
+          this.tasks = response.items
+        }).finally(() => {
+          this.tasksLoading = false
+        })
+    }
+    next()
   },
 
   created () {
@@ -253,7 +270,11 @@ export default Vue.extend({
             taskData.contact_id = +this.$route.params.contact_id
           }
           new Tasks()
-            .add(taskData).finally(this.loadTasks)
+            .add(taskData)
+            .finally(() => {
+              this.loadTasks()
+              this.$root.$emit('root-update-notifications')
+            })
         }
       })
     },
@@ -261,12 +282,13 @@ export default Vue.extend({
     loadTasks () {
       this.tasksLoading = true
       new Tasks()
-        .get()
+        .get({
+          contact_id: +this.$route.params.contact_id
+        })
         .then((response: TaskGetResponseInterface) => {
           this.tasks = response.items
         }).finally(() => {
           this.tasksLoading = false
-          this.$root.$emit('root-update-notifications')
         })
     }
   }

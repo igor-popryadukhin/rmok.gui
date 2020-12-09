@@ -277,13 +277,20 @@
               dense
               tile
             >
-              <v-btn
-                color="primary"
-                text
-                @click="onSaveAndNext"
-              >
-                {{ $t('Save') }}
-              </v-btn>
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    color="primary"
+                    text
+                    v-on="on"
+                    v-bind="attrs"
+                    @click="onSaveAndNext"
+                  >
+                    {{ $t('Save') }}
+                  </v-btn>
+                </template>
+                <span>{{ $t('Save and continue') }}</span>
+              </v-tooltip>
               <v-menu offset-y>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
@@ -516,9 +523,16 @@ export default (Vue as VueConstructor<Vue & any>).extend({
     onSaveAndNext () {
       new Leads()
         .next(+this.$route.params.contact_id)
-        .then((contact: ContactInterface) => {
-          // this.$route.title = `${contact.first_name} ${contact.last_name}`
-          this.contact = contact
+        .then((contact_id: number) => {
+          this.$router.push({
+            name: this.$route.name,
+            params: {
+              contact_id
+            }
+          })
+        })
+        .catch(() => {
+          this.$router.replace('/leads')
         }).finally(() => {
           this.dataLoading = false
           this.$root.$emit('root-loading-data-hide')

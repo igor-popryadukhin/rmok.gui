@@ -51,6 +51,7 @@ export interface TaskGetResponseInterface {
 
 interface TaskGetParamsInterface {
   q?: string;
+  contact_id?: number;
   user_id?: number;
   offset?: number;
   count?: number;

@@ -264,7 +264,7 @@ export default Vue.extend({
               }
             }).then(() => {
               this.history = []
-              this.loadHistory()
+              this.loadHistory(+this.$route.params.contact_id)
             })
           }
         }
@@ -276,11 +276,18 @@ export default Vue.extend({
     this.$root.$on('root-contact-history-change', this.loadHistory)
   },
 
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      this.loadHistory(+to.params.contact_id)
+    }
+    next()
+  },
+
   created () {
     if (this.$route.query.filter) {
       this.historyFilter.selected = this.historyFilter.items.find((e) => e.value === this.$route.query.filter)?.value
     }
-    this.loadHistory()
+    this.loadHistory(+this.$route.params.contact_id)
   },
 
   beforeDestroy () {
@@ -343,11 +350,11 @@ export default Vue.extend({
       }
     },
 
-    loadHistory () {
+    loadHistory (contact_id?: number) {
       this.historyLoading = true
       new Contacts()
         .getHistory(
-          +this.$route.params.contact_id,
+          contact_id ?? +this.$route.params.contact_id,
           String(this.$route.query.filter) === 'all' ? '' : String(this.$route.query.filter) || '',
           +this.$route.query.history_offset || 0,
           +this.$route.query.history_count || 50
