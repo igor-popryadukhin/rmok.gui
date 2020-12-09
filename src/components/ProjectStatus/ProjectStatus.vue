@@ -138,7 +138,7 @@ export default Vue.extend({
 
   props: {
     value: {
-      type: Object,
+      type: Array,
       default: () => null
     }
   },
