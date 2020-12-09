@@ -6,13 +6,10 @@
       lazy-validation
     >
       <v-container>
-
-        <!-- FLM -->
         <v-row>
           <v-col
             cols="12"
           >
-            <!-- eslint-disable -->
             <v-text-field
               v-model="projectName"
               :label="$tc('project_name')"
@@ -59,7 +56,7 @@
             cols="12"
           >
             <h3 class="mb-3">Статусы звонков</h3>
-            <project-status />
+            <project-status v-model="statuses"/>
           </v-col>
         </v-row>
 
@@ -104,6 +101,7 @@ export default Vue.extend({
 
   data () {
     return {
+      statuses: [],
       buttonSave: {
         disabled: false,
         loading: false
