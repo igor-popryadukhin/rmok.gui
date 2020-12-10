@@ -1,7 +1,7 @@
 <template>
   <v-app id="sandbox">
     <v-main>
-      <v-container fluid>
+      <v-container class="fill-height" fluid>
         <router-view />
       </v-container>
     </v-main>

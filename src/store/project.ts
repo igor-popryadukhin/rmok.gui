@@ -28,19 +28,22 @@ export const project = {
   },
 
   actions: {
-    load ({ commit }: any) {
-      new Projects()
-        .current()
-        .then((project: ProjectInterface) => { commit('set', project) })
-        .catch(() => {
-          commit('set', {
-            id: 0,
-            name: '',
-            comment: '',
-            statuses: [],
-            created_at: 0
+    async load ({ commit }: any) {
+      return new Promise(resolve => {
+        new Projects()
+          .current()
+          .then((project: ProjectInterface) => { commit('set', project) })
+          .catch(() => {
+            commit('set', {
+              id: 0,
+              name: '',
+              comment: '',
+              statuses: [],
+              created_at: 0
+            })
           })
-        })
+          .finally(resolve)
+      })
     }
   },
 
