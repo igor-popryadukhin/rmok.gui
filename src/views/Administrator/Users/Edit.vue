@@ -257,7 +257,20 @@
                 :disabled="user.organization === null"
                 :organization-id="user.organization ? user.organization.id : 0"
                 :visible-organization-name="true"
-              />
+              >
+                <template v-slot:no-data>
+                  <v-list-item
+                    link
+                    to="/administrator/new"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ $tc('Click to add a new group') }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </s-autocomplete-groups>
             </v-col>
           </v-row>
         </div>

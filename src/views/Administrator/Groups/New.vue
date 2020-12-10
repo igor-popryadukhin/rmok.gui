@@ -46,6 +46,7 @@
               :label="$tc('team_leader')"
               :disabled="!organizationSelected"
               :organization-id="organizationSelected ? organizationSelected.id : 0"
+              roles="r_team_leader"
               display-organization
             >
               <template v-slot:no-data>

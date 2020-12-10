@@ -52,8 +52,17 @@
                   <v-list-item-subtitle v-else>
                     Без роли
                   </v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.group">
+                    {{ $tc('Group | Groups', 0) }}: {{ item.group.name }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>
+                    {{ $tc('Group | Groups', 0) }}: —
+                  </v-list-item-subtitle>
                   <v-list-item-subtitle v-if="item.organization">
                     {{ $tc('Organization | Organizations', 0) }}: {{ item.organization.name }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>
+                    {{ $tc('Organization | Organizations', 0) }}: —
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer />
