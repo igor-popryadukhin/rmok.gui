@@ -68,7 +68,7 @@ export const profile = {
     role_is_operator (state: ProfileInterface) { return state.role.id === 'r_operator' },
     role_is_admin (state: ProfileInterface) { return state.role.id === 'r_admin' },
     role_is_leader_cc (state: ProfileInterface) { return state.role.id === 'r_leader_cc' },
-    role_is_leader_group (state: ProfileInterface) { return state.role.id === 'r_leader_group' },
+    role_is_team_leader (state: ProfileInterface) { return state.role.id === 'r_team_leader' },
     userpic (state: ProfileInterface) { return state.userpic }
     /* eslint-enable */
   }
