@@ -6,5 +6,11 @@
   "group": "Группа",
   "project_manager": "Руководитель проекта",
   "Outgoing call testing": "Тестирование исходящего звонка",
-  "Subscriber's phone number to whom we are calling": "Номер телефона абонента кому звоним"
+  "Subscriber's phone number to whom we are calling": "Номер телефона абонента кому звоним",
+  "Start typing to Search": "Начните вводить в поиск",
+  "Search for project participants": "Поиск участников проекта",
+  "Project participants": "Участники проекта",
+  "Available members": "Доступные участники",
+  "Getting available members": "Получение доступных участников...",
+  "To activate the member search box, select an organization": "Чтобы активировать поле поиска участников, выберите организацию"
 }

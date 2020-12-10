@@ -18,20 +18,25 @@
     <template v-slot:selection="{ item }">
       <span>{{ item.name }}</span>
     </template>
-    <template v-slot:item="{ item }">
-      <v-list-item-avatar
-        color="indigo"
-        class="headline font-weight-light white--text"
+    <template v-slot:item="{ item, on }">
+      <v-list-item
+        link
+        v-on="on"
       >
-        {{ item.name.charAt(0) }}
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <v-list-item-title>{{ item.name }}</v-list-item-title>
-        <v-list-item-subtitle
-          v-if="item.sphere_activity"
-          v-text="item.sphere_activity"
-        ></v-list-item-subtitle>
-      </v-list-item-content>
+        <v-list-item-avatar
+          color="indigo"
+          class="headline font-weight-light white--text"
+        >
+          {{ item.name.charAt(0) }}
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title>{{ item.name }}</v-list-item-title>
+          <v-list-item-subtitle
+            v-if="item.sphere_activity"
+            v-text="item.sphere_activity"
+          ></v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
     </template>
   </v-autocomplete>
 </template>

@@ -104,3 +104,5 @@ export class Users {
     })
   }
 }
+
+export default Users

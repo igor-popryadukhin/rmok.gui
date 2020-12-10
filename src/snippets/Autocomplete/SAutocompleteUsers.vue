@@ -33,7 +33,7 @@
     <template v-slot:selection="{ selected, item }">
       <template v-if="multiple">
         <v-chip
-          :selected="selected"
+          :input-value="selected"
           close
           color="#af2db1"
           text-color="white"
@@ -54,8 +54,7 @@
         <span>{{ item.first_name }} {{ item.last_name }}</span>
       </template>
     </template>
-    <template v-slot:item="{ parent, item }">
-      {{ parent.selected }}
+    <template v-slot:item="{item }">
       <v-list-item-avatar
         color="indigo"
         class="headline font-weight-light white--text"

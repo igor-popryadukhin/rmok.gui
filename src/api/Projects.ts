@@ -32,7 +32,8 @@ export interface ProjectResponseItemsInterface {
 interface ProjectPostDataInterface {
   name: string;
   organization_id?: number;
-  users: number[];
+  members: number[];
+  statuses: any;
 }
 
 export class Projects {
