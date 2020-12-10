@@ -47,10 +47,13 @@
                     {{ item.first_name }} {{ item.last_name }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="item.role">
-                    {{ item.role.name }}
+                    {{ $tc('Role | Roles', 0) }}: {{ item.role.name }}
                   </v-list-item-subtitle>
                   <v-list-item-subtitle v-else>
                     Без роли
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.organization">
+                    {{ $tc('Organization | Organizations', 0) }}: {{ item.organization.name }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer />

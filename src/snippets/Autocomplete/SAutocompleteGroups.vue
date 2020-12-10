@@ -6,6 +6,8 @@
     item-value="id"
     :label="label"
     :rules="rules"
+    :disabled="disabled"
+    :loading="loading"
     return-object
     disable-lookup
   >
@@ -111,12 +113,18 @@ export default Vue.extend({
       selectOnce: false,
       selected: null as any,
       groupsSearchQuery: null as null | string,
-      groupsProcessLoading: false,
       groupsSearchDebounce: debounce((context: any) => {
         if (context.disabled) { return }
         context.loading = true
+
+        const query = {}
+
+        if (context.organizationId > 0) {
+          query.organization_id = context.organizationId
+        }
+
         new Groups()
-          .find()
+          .find(query)
           .then((items: GroupInterface[]) => {
             context.groups = items
             context.selected = context.groups.find((e: GroupInterface) => e.id === context.selectedId)
@@ -153,7 +161,7 @@ export default Vue.extend({
   },
 
   created () {
-    if (this.autoLoad) {
+    if (this.autoLoad && this.disabled === false) {
       this.loadGroups()
     }
   },
