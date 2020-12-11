@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <v-row
+      v-if="processAuthorization"
       align="center"
       justify="center"
     >
@@ -15,6 +16,7 @@
       </v-col>
     </v-row>
     <v-row
+      v-else
       align="center"
       justify="center"
     >
@@ -82,6 +84,7 @@ export default Vue.extend({
       isError: false,
       errorMessage: '',
       processMessage: '',
+      processAuthorization: false,
       authorization: {
         login: '',
         password: '',
@@ -97,9 +100,10 @@ export default Vue.extend({
 
   methods: {
     login (login: string, password: string) {
+      this.processAuthorization = true
       this.isError = false
       this.authorization.loading = true
-      this.processMessage = 'Авторизация...'
+      this.processMessage = this.$tc('Authorization...')
       axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
         login,
         password
@@ -110,21 +114,37 @@ export default Vue.extend({
           this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 600 })
           // @ts-ignore
           this.$cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
-          this.$toast.success(this.$tc('messages.authorisation_success'))
 
-          this.processMessage = 'Загрузка данных профиля...'
+          this.processMessage = this.$tc('Loading profile data...')
           await this.$store.dispatch('profile/loadProfile')
-          this.processMessage = 'Загрузка проектов...'
+
+          this.processMessage = this.$tc('Loading projects...')
           await this.$store.dispatch('project/load')
-          this.processMessage = '';
-          this.$router.replace('/')
+
+          if (this.$store.getters['profile/role_is_operator']) {
+            this.$router.replace({ name: 'home' })
+          }
+
+          if (this.$store.getters['profile/role_is_team_leader']) {
+            this.$router.replace({ name: 'team_leader' })
+          }
+
+          if (this.$store.getters['profile/role_is_admin']) {
+            this.$router.replace({ name: 'administrator' })
+          }
+
+          if (this.$store.getters['profile/role_is_leader_cc']) {
+            this.$router.replace({ name: 'call_center_manager' })
+          }
+
+          this.processMessage = this.$tc('Login successful!')
           /* eslint-enable */
         }
       }).catch(() => {
-        this.$toast.error(this.$tc('messages.authorisation_error'))
+        this.processAuthorization = false
+        this.processMessage = this.$tc('Authorisation Error!')
       }).finally(() => {
         this.authorization.loading = false
-        this.processMessage = ''
       })
     }
   }
