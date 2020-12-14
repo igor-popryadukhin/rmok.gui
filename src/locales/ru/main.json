@@ -163,6 +163,8 @@
     "email_not_confirmed": "Адрес электронной почты не подтверждён!"
   },
 
+  "Organization": "Организация",
+  "Confirmation request": "Запрос подтверждения",
   "You": "Вы",
   "Empty": "Пусто",
   "Add group": "Добавить группу",

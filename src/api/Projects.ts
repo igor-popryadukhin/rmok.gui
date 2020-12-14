@@ -9,12 +9,25 @@ export interface ProjectOwnerInterface {
   middle_name: string;
 }
 
+export interface ProjectOrganizationInterface {
+  id: number;
+  name: string;
+}
+
+export interface ProjectMemberInterface {
+  id: number;
+  first_name: string;
+  last_name: string;
+  middle_name?: string;
+}
+
 export interface ProjectInterface {
   id: number;
   name: string;
   comment: string;
   owner: ProjectOwnerInterface;
-  organization: ProjectOwnerInterface;
+  organization: ProjectOrganizationInterface;
+  members: ProjectMemberInterface[];
   statuses: StatusInterface[];
   created_at: number;
 }

@@ -249,7 +249,7 @@ import rules from '@/mixins/rules'
 import vuescroll from 'vuescroll'
 import Users, { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
-import { Projects } from '@/api/Projects'
+import { ProjectMemberInterface, ProjectInterface, Projects } from '@/api/Projects'
 import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import ErrorInterface from '@/api/Schemas/ErrorInterface'
@@ -264,19 +264,11 @@ export default Vue.extend({
 
   data () {
     return {
-      userSearch: {
-        q: null as any,
-        loading: false,
-        count: 0,
-        selected: null,
-        entries: [] as UserInterface[],
-        errorMessages: [] as string[]
-      },
       availableMembersCount: 0,
       availableMembers: [] as UserInterface[],
       availableMembersLoading: false,
-      members: [] as UserInterface[],
-      statuses: [],
+      members: [] as ProjectMemberInterface[] | UserInterface[],
+      statuses: [] as any[],
       buttonSave: {
         disabled: false,
         loading: false
@@ -296,55 +288,10 @@ export default Vue.extend({
     }
   },
 
-  watch: {
-
-    // Когда выбрали только выбрали и изменили организацию
-    // organizationSelected (scope?: OrganizationInterface) {
-    //   if (scope?.id) {
-    //     this.searchAvailableMembers('', scope.id)
-    //   }
-    // },
-
-    'userSearch.q' (q: string) {
-      // Items have already been loaded
-      // if (this.users.length > 0) return
-
-      // Items have already been requested
-      if (this.userSearch.loading) return
-
-      this.userSearch.errorMessages = []
-      if (!('id' in this.organizationSelected)) {
-        this.userSearch.errorMessages = [
-          this.$tc('To activate the member search box, select an organization')
-        ]
-        return
-      }
-
-      this.userSearch.loading = true
-
-      // Lazily load input items
-      new Users()
-        .find({
-          q,
-          roles: 'r_operator',
-          organization_id: this.organizationSelected.id
-        }).then((response) => {
-          this.userSearch.count = response.count
-          this.userSearch.entries = response.items
-        }).finally(() => (this.userSearch.loading = false))
-    }
-  },
-
-  computed: {
-    users (): UserInterface[] {
-      return this.userSearch.entries
-    }
-  },
-
   created () {
     new Projects()
       .getById(+this.$route.params.project_id)
-      .then((response) => {
+      .then((response: ProjectInterface) => {
         this.projectName = response.name
         this.members = response.members
         this.statuses = response.statuses
