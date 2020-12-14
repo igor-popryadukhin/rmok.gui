@@ -24,10 +24,10 @@
         <v-col
           cols="12"
         >
-          <s-autocomplete-organizations
-            v-model="organizationSelected"
-            :label="$tc('organization')"
-            :rules="[rules.notBlank]"
+          <v-text-field
+            v-model="organizationName"
+            :label="$tc('Organization')"
+            disabled
           />
         </v-col>
       </v-row>
@@ -206,19 +206,40 @@
       <v-row>
         <v-col
           cols="12"
-          class="text-right"
         >
-          <v-btn
-            text
-            tile
-            :loading="buttonSave.loading"
-            :disabled="buttonSave.disabled"
-            @click="onSave"
-          >
-            {{ $tc('Save') }}
-          </v-btn>
+          <div class="d-flex">
+            <v-btn
+              text
+              tile
+              color="black"
+              @click="$router.back()"
+            >
+              {{ $tc('Back') }}
+            </v-btn>
+            <v-spacer />
+            <v-btn
+              text
+              tile
+              color="red"
+              :loading="buttonDelete.loading"
+              :disabled="buttonDelete.disabled"
+              @click="onBtnDeleteClick"
+            >
+              {{ $tc('Delete') }}
+            </v-btn>
+            <v-btn
+              text
+              tile
+              :loading="buttonSave.loading"
+              :disabled="buttonSave.disabled"
+              @click="onBtnSaveClick"
+            >
+              {{ $tc('Save') }}
+            </v-btn>
+          </div>
         </v-col>
       </v-row>
+    <div style="height: 200px"></div>
     </v-container>
 </template>
 
@@ -226,16 +247,15 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import vuescroll from 'vuescroll'
-import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
 import Users, { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
 import { Projects } from '@/api/Projects'
 import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
+import ErrorInterface from '@/api/Schemas/ErrorInterface'
 
 export default Vue.extend({
   components: {
-    SAutocompleteOrganizations,
     ProjectStatus,
     vuescroll
   },
@@ -261,11 +281,16 @@ export default Vue.extend({
         disabled: false,
         loading: false
       },
+      buttonDelete: {
+        disabled: false,
+        loading: false
+      },
       form: {
         valid: false
       },
       /* eslint-disable */
       projectName: '',
+      organizationName: '',
       organizationSelected: {} as OrganizationInterface
       /* eslint-enable */
     }
@@ -274,11 +299,11 @@ export default Vue.extend({
   watch: {
 
     // Когда выбрали только выбрали и изменили организацию
-    organizationSelected (scope?: OrganizationInterface) {
-      if (scope?.id) {
-        this.searchAvailableMembers('', scope.id)
-      }
-    },
+    // organizationSelected (scope?: OrganizationInterface) {
+    //   if (scope?.id) {
+    //     this.searchAvailableMembers('', scope.id)
+    //   }
+    // },
 
     'userSearch.q' (q: string) {
       // Items have already been loaded
@@ -316,6 +341,20 @@ export default Vue.extend({
     }
   },
 
+  created () {
+    new Projects()
+      .getById(+this.$route.params.project_id)
+      .then((response) => {
+        this.projectName = response.name
+        this.members = response.members
+        this.statuses = response.statuses
+        this.organizationName = response.organization.name
+
+        // Загрузить доступных участников
+        this.searchAvailableMembers('', response.organization.id)
+      })
+  },
+
   methods: {
 
     memberToRight (item: UserInterface) {
@@ -348,11 +387,7 @@ export default Vue.extend({
       }
     },
 
-    resetForm () {
-      (this.$refs.form as Vue & { reset: () => boolean }).reset()
-    },
-
-    onSave () {
+    onBtnSaveClick () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
@@ -363,43 +398,87 @@ export default Vue.extend({
 
       this.buttonSave.loading = true
       new Projects()
-        .add({
+        .update(this.$route.params.project_id, {
           /* eslint-disable */
           name: this.projectName.trim(),
-          organization_id: this.organizationSelected.id,
-          members: this.members.map((e: UserInterface) => e.id),
+          members: this.members.map((e: UserInterface) => +e.id),
           statuses: this.statuses.map((e: any) => {
             return {
+              id: e.id,
               name: e.name,
               color: e.color,
-              children: e.children.map((e: any) => e.name)
+              children: e.children.map((e: any) => ({ id: e.id, name: e.name }))
             }
           })
           /* eslint-enable */
         }).then(() => {
-          this.resetForm()
-          this.$toast.success(this.$tc('Project added successfully!'))
-        }).catch((e) => {
-          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+          this.$toast.success(this.$tc('Project updated successfully!'))
+        }).catch((e: ErrorInterface | never) => {
+          if ('errors' in e) {
+            if (Array.isArray(e.errors)) {
+              e.errors.forEach((e) => {
+                switch (e.property_name) {
+                  case '[members]': {
+                    this.$toast.warning('Как минимум один участник проекта обязан присутствовать!')
+                    break
+                  }
+                }
+              })
+            }
+          } else {
+            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+          }
         }).finally(() => {
           this.buttonSave.loading = false
         })
     },
 
+    onBtnDeleteClick () {
+      this.$dialog.confirm({
+        title: this.$tc('Confirmation request'),
+        text: this.$tc('Are you sure you want to delete the project?'),
+        actions: {
+          false: this.$tc('no'),
+          true: {
+            color: 'red',
+            text: this.$tc('yes'),
+            handle: () => {
+              return new Promise((resolve) => {
+                new Projects()
+                  .delete(this.$route.params.project_id)
+                  .then(() => {
+                    this.$toast.success(this.$tc('Project successfully deleted!'))
+                    this.$router.back()
+                  }).catch((e: any) => {
+                    const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
+                    this.$toast.error(this.$t('group_delete_error', { cause }), { icon: true })
+                  }).finally()
+
+                resolve()
+              })
+            }
+          }
+        }
+      })
+    },
+
     searchAvailableMembers (q: string, organization_id: number) {
       this.availableMembersLoading = true
       this.availableMembers = []
-      this.members = []
       new Users()
         .find({
           q,
           organization_id,
-          roles: 'r_operator',
+          roles: 'r_operator,r_team_leader',
           offset: 0,
           count: 500
         }).then((response) => {
           this.availableMembersCount = response.count
-          this.availableMembers = response.items
+
+          // Фильтрую участников, для того чтобы в списке доступных, не было текущих участников
+          this.availableMembers = response.items.filter(function (element: UserInterface) {
+            return this.members.findIndex((member: UserInterface) => member.id === element.id) === -1
+          }, this)
         }).finally(() => (this.availableMembersLoading = false))
     }
   }

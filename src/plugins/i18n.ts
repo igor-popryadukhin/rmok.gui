@@ -20,8 +20,9 @@ const i18n = new VueI18n({
     ru (choice: number, choicesLength: number) {
       // this === VueI18n instance, so the locale property also exists here
 
-      if (choice === 0) {
-        return 0
+      // 12 вариантов
+      if (choicesLength === 11) {
+        return choice
       }
 
       const teen = choice > 10 && choice < 20

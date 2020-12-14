@@ -33,7 +33,14 @@ interface ProjectPostDataInterface {
   name: string;
   organization_id?: number;
   members: number[];
-  statuses: any;
+  statuses: [];
+}
+
+interface ProjectPutDataInterface {
+  name: string;
+  organization_id?: number;
+  members: number[];
+  statuses: [];
 }
 
 export class Projects {
@@ -61,12 +68,12 @@ export class Projects {
    * Add new project
    * @param data
    */
-  public add (data: ProjectPostDataInterface): Promise<ProjectResponseItemsInterface> {
-    return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
+  public add (data: ProjectPostDataInterface): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
       $axios.post('/projects', data)
         .then((response: AxiosResponse) => {
           if ([200, 201].includes(response.status)) {
-            return resolve(response.data as ProjectResponseItemsInterface)
+            return resolve(response.data)
           }
           reject(response.data)
       }).catch(reject)
@@ -81,6 +88,55 @@ export class Projects {
       $axios.get('/projects/current')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Add new project
+   * @param id
+   * @param data
+   */
+  public update (id: number, data: ProjectPostDataInterface): Promise<ProjectResponseItemsInterface> {
+    return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
+      $axios.put(`/projects/${id}`, data)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data as ProjectResponseItemsInterface)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Получить проект по идентификатору
+   * @param id
+   */
+  public getById (id: number): Promise<ProjectInterface | any> | any {
+    return new Promise<ProjectInterface | any>((resolve, reject) => {
+      $axios.get(`/projects/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Удалить проект используя идентификатор проекта
+   * @param id
+   */
+  public delete (id: number): Promise<any> | any {
+    return new Promise<ProjectInterface | any>((resolve, reject) => {
+      $axios.delete(`/projects/${id}`)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
             return resolve(response.data)
           }
           reject(response.data)

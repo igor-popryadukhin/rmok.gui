@@ -32,6 +32,10 @@ const routes: RouteConfig[] = [
       layout: 'clean',
       breadcrumbs: [],
       middleware: []
+    },
+    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
+      loadLanguageAsync('ru', 'login').then(() => next())
     }
   },
   {
@@ -500,6 +504,15 @@ const routes: RouteConfig[] = [
             path: 'new',
             name: 'administrator_projects_new',
             component: () => import(/* webpackChunkName: "administrator-projects-new" */ '../views/Administrator/Projects/New.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: [roleAdmin]
+            }
+          },
+          {
+            path: ':project_id',
+            name: 'administrator_projects_edit',
+            component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '../views/Administrator/Projects/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]

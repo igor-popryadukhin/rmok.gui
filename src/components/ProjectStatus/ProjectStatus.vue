@@ -170,6 +170,10 @@ export default Vue.extend({
         this.$emit('change', value)
       },
       deep: true
+    },
+
+    value (data: any) {
+      this.items = data
     }
   },
 

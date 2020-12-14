@@ -17,6 +17,15 @@
     >
       <v-icon class="pl-5 pr-9">mdi-account-group</v-icon>
     </template>
+    <template
+      v-slot:no-data
+    >
+      <slot name="no-data">
+        <div class="pt-2 pb-2 pl-2 pr-2">
+          {{ $tc('No data') }}
+        </div>
+      </slot>
+    </template>
   </v-combobox>
 <!--  <v-autocomplete-->
 <!--    v-model="selected"-->

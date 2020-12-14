@@ -1,9 +1,9 @@
 import Vue from 'vue'
 
 const vueScrollOptions = Vue.extend({
-  computed: {
-    vueScrollOptions () {
-      return {
+  data () {
+    return {
+      vueScrollOptions: {
         vuescroll: {
           wheelScrollDuration: 500
         },
