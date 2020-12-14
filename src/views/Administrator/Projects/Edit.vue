@@ -305,10 +305,10 @@ export default Vue.extend({
   methods: {
 
     memberToRight (item: UserInterface) {
-      const index = this.members.findIndex((member: UserInterface) => member.id === item.id)
+      const index = this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id)
       if (index === -1) {
         this.members.push(item)
-        const availableMemberIndex = this.availableMembers.findIndex((member: UserInterface) => member.id === item.id)
+        const availableMemberIndex = this.availableMembers.findIndex((member: UserInterface | ProjectMemberInterface) => member.id === item.id)
         if (availableMemberIndex > -1) {
           this.availableMembers.splice(availableMemberIndex, 1)
         }
@@ -316,10 +316,10 @@ export default Vue.extend({
     },
 
     memberToLeft (item: UserInterface) {
-      const index = this.availableMembers.findIndex((member: UserInterface) => member.id === item.id)
+      const index = this.availableMembers.findIndex((member: UserInterface | ProjectMemberInterface) => member.id === item.id)
       if (index === -1) {
         this.availableMembers.push(item)
-        const index = this.members.findIndex((member: UserInterface) => member.id === item.id)
+        const index = this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id)
         if (index > -1) {
           this.members.splice(index, 1)
         }
@@ -327,10 +327,8 @@ export default Vue.extend({
     },
 
     onSelectedUser (item: UserInterface) {
-      if (this.members.findIndex((member: UserInterface) => member.id === item.id) === -1) {
+      if (this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id) === -1) {
         this.members.push(item)
-        this.userSearch.q = ''
-        this.userSearch.selected = null
       }
     },
 
@@ -345,10 +343,10 @@ export default Vue.extend({
 
       this.buttonSave.loading = true
       new Projects()
-        .update(this.$route.params.project_id, {
+        .update(+this.$route.params.project_id, {
           /* eslint-disable */
           name: this.projectName.trim(),
-          members: this.members.map((e: UserInterface) => +e.id),
+          members: this.members.map((e: ProjectMemberInterface) => e.id),
           statuses: this.statuses.map((e: any) => {
             return {
               id: e.id,
@@ -360,7 +358,7 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.$toast.success(this.$tc('Project updated successfully!'))
-        }).catch((e: ErrorInterface | never) => {
+        }).catch((e: ErrorInterface | any) => {
           if ('errors' in e) {
             if (Array.isArray(e.errors)) {
               e.errors.forEach((e) => {
@@ -392,7 +390,7 @@ export default Vue.extend({
             handle: () => {
               return new Promise((resolve) => {
                 new Projects()
-                  .delete(this.$route.params.project_id)
+                  .delete(+this.$route.params.project_id)
                   .then(() => {
                     this.$toast.success(this.$tc('Project successfully deleted!'))
                     this.$router.back()
@@ -424,7 +422,7 @@ export default Vue.extend({
 
           // Фильтрую участников, для того чтобы в списке доступных, не было текущих участников
           this.availableMembers = response.items.filter(function (element: UserInterface) {
-            return this.members.findIndex((member: UserInterface) => member.id === element.id) === -1
+            return this.members.findIndex((member: ProjectMemberInterface) => member.id === element.id) === -1
           }, this)
         }).finally(() => (this.availableMembersLoading = false))
     }

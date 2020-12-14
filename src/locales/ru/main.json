@@ -151,7 +151,7 @@
     "call_center_manager_developer_settings": "@:Settings разработчика"
   },
 
-  "rule_email": "Адрес электронной почты не соответсвует требованиям",
+  "rule_email": "Адрес электронной почты не соответствует требованиям",
   "rule_phone": "Номер телефона заполнен не верно",
   "empty_field_is_not_allowed": "Пустое поле недопустимо!",
   "the_password_is_very_simple": "Пароль очень простой!",
