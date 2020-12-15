@@ -780,6 +780,7 @@ const routes: RouteConfig[] = [
       }
     ],
     meta: {
+      anonymous: true,
       layout: 'call-center-manager',
       middleware: [roleRCC]
     },
