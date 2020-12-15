@@ -171,7 +171,8 @@
               </v-list-item-group>
               <v-spacer />
               <v-list-item-group class="mr-5">
-                {{ item.status }}
+                <span v-if="item.status" class="label" :style="{ 'background-color': item.status_color }">{{ item.status }}</span>
+                <span v-else>Статус не установлен</span>
               </v-list-item-group>
               <v-list-item-group>
                 <v-list-item-title>{{ new Date(item.start_time * 1000).toLocaleString() }}</v-list-item-title>
