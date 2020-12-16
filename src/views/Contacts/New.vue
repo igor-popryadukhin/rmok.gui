@@ -89,7 +89,7 @@
           >
             <v-textarea
               v-model="contact.notes"
-              :label="$tc('note')"
+              :label="$tc('Note')"
               :rules="[rules.max_3000]"
               counter
             >
@@ -258,7 +258,7 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.resetForm()
-          this.$toast.success(this.$tc('contact_saved_successfully'))
+          this.$toast.success(this.$tc('Contact successfully saved.'))
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {

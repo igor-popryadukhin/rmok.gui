@@ -17,7 +17,8 @@
               :label="$tc('first_name')"
               persistent-hint
               required
-              :rules="[rules.required, rules.max_256]"
+              :rules="[rules.notBlank, rules.lengthMax(255), rules.lengthMin(1)]"
+              counter
             >
               <template v-slot:prepend>
                 <v-avatar
@@ -25,7 +26,12 @@
                   class="mr-4"
                   style="background-color: #8d3eb1; color: white"
                 >
-                  AV
+<!--                  <span v-if="contact.first_name.length >= 1 && contact.last_name.length >= 1">-->
+<!--                    {{ contact.first_name.charAt(0).toUpperCase() }}{{ contact.last_name.charAt(0).toUpperCase() }}-->
+<!--                  </span>-->
+<!--                  <span v-else>-->
+<!--                    &#45;&#45;-->
+<!--                  </span>-->
                 </v-avatar>
               </template>
             </v-text-field>
@@ -40,7 +46,7 @@
               :label="$tc('last_name')"
               persistent-hint
               required
-              :rules="[rules.required, rules.max_256]"
+              :rules="[rules.required, rules.lengthMax(255), rules.lengthMin(1)]"
             ></v-text-field>
           </v-col>
           <v-col
@@ -52,7 +58,7 @@
               v-model="contact.middle_name"
               :label="$tc('middle_name')"
               persistent-hint
-              :rules="[rules.max_256]"
+              :rules="[rules.lengthMax(256)]"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -63,9 +69,9 @@
             <s-phone-numbers
               v-model="contact.phones"
               :message-error="$t('Invalid phone number format')"
-              :rules-number="[rules.required]"
-              :rules-label="[rules.required, rules.max_50]"
-              :rules-country-code="[rules.required]"
+              :rules-number="[rules.notBlank]"
+              :rules-label="[rules.lengthMax(50)]"
+              :rules-country-code="[rules.notBlank]"
             />
           </v-col>
         </v-row>
@@ -77,8 +83,8 @@
               v-model="contact.emails"
               :text-label="$t('Label')"
               :text-email="$t('E-mail address')"
-              :rules-email="[rules.required, rules.email]"
-              :rules-label="[rules.required, rules.max_50]"
+              :rules-email="[rules.email]"
+              :rules-label="[rules.lengthMax(50)]"
             />
           </v-col>
         </v-row>
@@ -89,8 +95,8 @@
           >
             <v-textarea
               v-model="contact.notes"
-              :label="$tc('note')"
-              :rules="[rules.max_3000]"
+              :label="$tc('Note')"
+              :rules="[rules.lengthMax(100)]"
               counter
             >
               <template v-slot:prepend>
@@ -258,7 +264,7 @@ export default Vue.extend({
           /* eslint-enable */
         }).then(() => {
           this.resetForm()
-          this.$toast.success(this.$tc('contact_saved_successfully'))
+          this.$toast.success(this.$tc('Contact successfully saved.'))
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {

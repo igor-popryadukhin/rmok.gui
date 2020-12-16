@@ -39,10 +39,10 @@ export default Vue.extend({
         },
         phone_number: (value: string) => isEmpty(value) || /^(8|\+\d{1,3})(\d{10}|\s([0-9]{1,3})\s(\d{3}-\d{2}-\d{2})|(|\s+)\((\d+)\)(|\s)([0-9]{7}|\s(\d{3})\s(\d{4})))/i.test(value) || this.$t('rule_invalid_phone_number'),
         lengthMax: (value: number, message = 'Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.') => {
-          return (v: string) => (v.length <= value ? true : this.$tc(message, value))
+          return (v: string) => isEmpty(v) || (v.length <= value ? true : this.$tc(message, value))
         },
         lengthMin: (value: number, message = 'Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.') => {
-          return (v: string) => (v.length >= value ? true : this.$tc(message, value))
+          return (v: string) => isEmpty(v) || (v.length >= value ? true : this.$tc(message, value))
         },
         /* eslint-enable */
       }
