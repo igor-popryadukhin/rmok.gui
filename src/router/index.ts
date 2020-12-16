@@ -40,12 +40,12 @@ const routes: RouteConfig[] = [
   },
   {
     path: '/calls',
-    component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Calls/Layout.vue'),
+    component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Operator/Calls/Layout.vue'),
     children: [
       {
         path: '',
         name: 'calls_list',
-        component: () => import(/* webpackChunkName: "calls-list" */ '../views/Calls/List.vue'),
+        component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
         meta: { layout: 'default', middleware: [] }
       }
     ],
@@ -53,11 +53,11 @@ const routes: RouteConfig[] = [
   },
   {
     path: '/leads',
-    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Leads/Layout.vue'),
+    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Leads/Layout.vue'),
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "leads" */ '../views/Leads/List.vue'),
+        component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
@@ -67,24 +67,24 @@ const routes: RouteConfig[] = [
       {
         path: ':contact_id',
         name: 'leads_view',
-        component: () => import(/* webpackChunkName: "leads-view" */ '../views/Leads/View.vue'),
+        component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Leads/View.vue'),
         children: [
           {
             path: 'script',
             name: 'leads_script',
-            component: () => import(/* webpackChunkName: "leads-script" */ '../views/Leads/Script.vue'),
+            component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
             meta: { layout: 'default', middleware: [] }
           },
           {
             path: 'history',
             name: 'leads_history',
-            component: () => import(/* webpackChunkName: "leads-history" */ '../views/Leads/History.vue'),
+            component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
             meta: { layout: 'default', middleware: [] }
           },
           {
             path: 'tasks',
             name: 'leads_task',
-            component: () => import(/* webpackChunkName: "leads-task" */ '../views/Leads/Task.vue'),
+            component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
             meta: { layout: 'default', middleware: [] }
           }
         ],
@@ -98,12 +98,12 @@ const routes: RouteConfig[] = [
   },
   {
     path: '/projects',
-    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Projects/Layout.vue'),
+    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/Layout.vue'),
     children: [
       {
         path: '',
         name: 'projects_list',
-        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Projects/List.vue'),
+        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/List.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
@@ -115,18 +115,18 @@ const routes: RouteConfig[] = [
   },
   {
     path: '/contacts',
-    component: () => import(/* webpackChunkName: "contacts-layout" */ '../views/Contacts/Layout.vue'),
+    component: () => import(/* webpackChunkName: "contacts-layout" */ '../views/Operator/Contacts/Layout.vue'),
     children: [
       {
         path: '',
         name: 'contacts_list',
-        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/List.vue'),
+        component: () => import(/* webpackChunkName: "contacts" */ '../views/Operator/Contacts/List.vue'),
         meta: { layout: 'default', middleware: [] }
       },
       {
         path: 'new',
         name: 'contacts_new',
-        component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Contacts/New.vue'),
+        component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Operator/Contacts/New.vue'),
         meta: { layout: 'default', middleware: [] },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           next()
@@ -136,24 +136,24 @@ const routes: RouteConfig[] = [
       {
         path: ':contact_id',
         name: 'contacts_view',
-        component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/View.vue'),
+        component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Operator/Contacts/View.vue'),
         children: [
           {
             path: 'script',
             name: 'contacts_script',
-            component: () => import(/* webpackChunkName: "contacts-script" */ '../views/Contacts/Script.vue'),
+            component: () => import(/* webpackChunkName: "contacts-script" */ '../views/Operator/Contacts/Script.vue'),
             meta: { layout: 'default', middleware: [] }
           },
           {
             path: 'history',
             name: 'contacts_history',
-            component: () => import(/* webpackChunkName: "contacts-history" */ '../views/Contacts/History.vue'),
+            component: () => import(/* webpackChunkName: "contacts-history" */ '../views/Operator/Contacts/History.vue'),
             meta: { layout: 'default', middleware: [] }
           },
           {
             path: 'tasks',
             name: 'contacts_task',
-            component: () => import(/* webpackChunkName: "contacts-task" */ '../views/Contacts/Task.vue'),
+            component: () => import(/* webpackChunkName: "contacts-task" */ '../views/Operator/Contacts/Task.vue'),
             meta: { layout: 'default', middleware: [] }
           }
         ],
@@ -171,11 +171,11 @@ const routes: RouteConfig[] = [
   },
   {
     path: '/reports',
-    component: () => import(/* webpackChunkName: "reports-layout" */ '../views/Reports/Layout.vue'),
+    component: () => import(/* webpackChunkName: "reports-layout" */ '../views/Operator/Reports/Layout.vue'),
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "reports" */ '../views/Reports/Index.vue'),
+        component: () => import(/* webpackChunkName: "reports" */ '../views/Operator/Reports/Index.vue'),
         meta: { layout: 'default', middleware: [] }
       }
     ],
@@ -184,12 +184,12 @@ const routes: RouteConfig[] = [
   {
     path: '/settings',
     name: 'settings',
-    component: () => import(/* webpackChunkName: "settings" */ '../views/Settings/Layout.vue'),
+    component: () => import(/* webpackChunkName: "settings" */ '../views/Operator/Settings/Layout.vue'),
     children: [
       {
         path: 'profile',
         name: 'profile',
-        component: () => import(/* webpackChunkName: "settings-profile" */ '../views/Settings/Profile.vue'),
+        component: () => import(/* webpackChunkName: "settings-profile" */ '../views/Operator/Settings/Profile.vue'),
         meta: {
           layout: 'default',
           middleware: []
@@ -198,7 +198,7 @@ const routes: RouteConfig[] = [
       {
         path: 'journal',
         name: 'journal',
-        component: () => import(/* webpackChunkName: "settings-journal" */ '../views/Settings/Journal.vue'),
+        component: () => import(/* webpackChunkName: "settings-journal" */ '../views/Operator/Settings/Journal.vue'),
         meta: {
           layout: 'default',
           middleware: []
@@ -207,7 +207,7 @@ const routes: RouteConfig[] = [
       {
         path: 'security',
         name: 'security',
-        component: () => import(/* webpackChunkName: "settings-security" */ '../views/Settings/Security.vue'),
+        component: () => import(/* webpackChunkName: "settings-security" */ '../views/Operator/Settings/Security.vue'),
         meta: {
           layout: 'default',
           middleware: []
@@ -216,7 +216,7 @@ const routes: RouteConfig[] = [
       {
         path: 'telephony',
         name: 'telephony',
-        component: () => import(/* webpackChunkName: "settings-security" */ '../views/Settings/Telephony.vue'),
+        component: () => import(/* webpackChunkName: "settings-security" */ '../views/Operator/Settings/Telephony.vue'),
         meta: {
           layout: 'default',
           middleware: []
@@ -225,7 +225,7 @@ const routes: RouteConfig[] = [
       {
         path: 'headset-configure',
         name: 'headset_configure',
-        component: () => import(/* webpackChunkName: "settings-headset-configure" */ '../views/Settings/HeadsetConfigure.vue'),
+        component: () => import(/* webpackChunkName: "settings-headset-configure" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
         meta: {
           layout: 'default',
           middleware: []
@@ -244,7 +244,7 @@ const routes: RouteConfig[] = [
   {
     path: '/help',
     name: 'help',
-    component: () => import(/* webpackChunkName: "help" */ '../views/Help/Index.vue'),
+    component: () => import(/* webpackChunkName: "help" */ '../views/Operator/Help/Index.vue'),
     meta: {
       layout: 'default',
       middleware: []
