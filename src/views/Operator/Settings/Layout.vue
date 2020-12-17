@@ -23,6 +23,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Route } from 'vue-router'
+import router from '@/router'
 
 interface TabInterface {
   name: string;
@@ -34,54 +35,34 @@ interface TabInterface {
 export default Vue.extend({
   data () {
     return {
-      tabs: [
-        {
-          name: 'profile',
-          icon: 'mdi-account-circle-outline',
-          disabled: false,
-          to: {
-            name: 'profile'
-          }
-        },
-        {
-          name: 'journal',
-          icon: 'mdi-history',
-          disabled: false,
-          to: {
-            name: 'journal'
-          }
-        },
-        {
-          name: 'security',
-          icon: 'mdi-security',
-          disabled: false,
-          to: {
-            name: 'security'
-          }
-        },
-        {
-          name: 'telephony',
-          icon: 'mdi-phone-voip',
-          to: {
-            name: 'telephony'
-          }
-        },
-        {
-          name: 'headset_configure',
-          icon: 'mdi-headset',
-          disabled: false,
-          to: {
-            name: 'headset_configure'
-          }
-        },
-        {
-          name: 'integration',
-          icon: 'mdi-api',
-          disabled: true,
-          to: null
-        }
-      ] as TabInterface[]
+      tabs: [] as TabInterface[]
     }
+  },
+
+  created () {
+    // Данная конструкция позволяет построить массив дочерних маршрутов, опираясь на имя родительского маршрута
+    const tree = (node: Route, handler: (a: Route) => void) => {
+      if (node.children) {
+        node.children.forEach((e: Route) => {
+          tree(e, handler)
+        })
+      } else {
+        handler(node)
+      }
+    }
+
+    router.options.routes.forEach((e) => {
+      tree(e, (route: Route) => {
+        if (/^operator_settings.*?$/.test(route.name)) {
+          this.tabs.push({
+            name: this.$tc(route.name || ''),
+            icon: route.meta.icon,
+            disabled: false,
+            to: route
+          })
+        }
+      })
+    })
   }
 })
 </script>

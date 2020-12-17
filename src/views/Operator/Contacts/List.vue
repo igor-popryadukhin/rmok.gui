@@ -137,7 +137,7 @@
                 :key="`list-item-${item.id}`"
                 ripple
                 selectable
-                @click.stop="$router.push({ path: `/contacts/${item.id}/script` })"
+                @click.stop="$router.push({ path: `/operator/contacts/${item.id}/script` })"
               >
                 <v-list-item-action>
                   <v-checkbox

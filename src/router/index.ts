@@ -5,6 +5,7 @@ import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import roleAdmin from '@/middleware/roleAdmin'
 import roleRCC from '@/middleware/roleRCC'
+import roleTeamLeader from '@/middleware/roleTeamLeader.ts'
 import store from '@/store'
 
 Vue.use(VueRouter)
@@ -39,209 +40,6 @@ const routes: RouteConfig[] = [
     }
   },
   {
-    path: '/calls',
-    component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Operator/Calls/Layout.vue'),
-    children: [
-      {
-        path: '',
-        name: 'calls_list',
-        component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
-        meta: { layout: 'default', middleware: [] }
-      }
-    ],
-    meta: { layout: 'default', middleware: [] }
-  },
-  {
-    path: '/leads',
-    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Leads/Layout.vue'),
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        }
-      },
-      {
-        path: ':contact_id',
-        name: 'leads_view',
-        component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Leads/View.vue'),
-        children: [
-          {
-            path: 'script',
-            name: 'leads_script',
-            component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
-            meta: { layout: 'default', middleware: [] }
-          },
-          {
-            path: 'history',
-            name: 'leads_history',
-            component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
-            meta: { layout: 'default', middleware: [] }
-          },
-          {
-            path: 'tasks',
-            name: 'leads_task',
-            component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
-            meta: { layout: 'default', middleware: [] }
-          }
-        ],
-        meta: { layout: 'default', middleware: [] }
-      }
-    ],
-    meta: {
-      layout: 'default',
-      middleware: []
-    }
-  },
-  {
-    path: '/projects',
-    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/Layout.vue'),
-    children: [
-      {
-        path: '',
-        name: 'projects_list',
-        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/List.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        }
-      }
-    ],
-    meta: { layout: 'default', middleware: [] }
-  },
-  {
-    path: '/contacts',
-    component: () => import(/* webpackChunkName: "contacts-layout" */ '../views/Operator/Contacts/Layout.vue'),
-    children: [
-      {
-        path: '',
-        name: 'contacts_list',
-        component: () => import(/* webpackChunkName: "contacts" */ '../views/Operator/Contacts/List.vue'),
-        meta: { layout: 'default', middleware: [] }
-      },
-      {
-        path: 'new',
-        name: 'contacts_new',
-        component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Operator/Contacts/New.vue'),
-        meta: { layout: 'default', middleware: [] },
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          next()
-          store.dispatch('system/country_codes')
-        }
-      },
-      {
-        path: ':contact_id',
-        name: 'contacts_view',
-        component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Operator/Contacts/View.vue'),
-        children: [
-          {
-            path: 'script',
-            name: 'contacts_script',
-            component: () => import(/* webpackChunkName: "contacts-script" */ '../views/Operator/Contacts/Script.vue'),
-            meta: { layout: 'default', middleware: [] }
-          },
-          {
-            path: 'history',
-            name: 'contacts_history',
-            component: () => import(/* webpackChunkName: "contacts-history" */ '../views/Operator/Contacts/History.vue'),
-            meta: { layout: 'default', middleware: [] }
-          },
-          {
-            path: 'tasks',
-            name: 'contacts_task',
-            component: () => import(/* webpackChunkName: "contacts-task" */ '../views/Operator/Contacts/Task.vue'),
-            meta: { layout: 'default', middleware: [] }
-          }
-        ],
-        meta: { layout: 'default', middleware: [] }
-      }
-    ],
-    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-      // todo: Solve the question of how we will change the locale
-      loadLanguageAsync('ru', 'contacts').then(() => next())
-    },
-    meta: {
-      layout: 'default',
-      middleware: []
-    }
-  },
-  {
-    path: '/reports',
-    component: () => import(/* webpackChunkName: "reports-layout" */ '../views/Operator/Reports/Layout.vue'),
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "reports" */ '../views/Operator/Reports/Index.vue'),
-        meta: { layout: 'default', middleware: [] }
-      }
-    ],
-    meta: { layout: 'default', middleware: [] }
-  },
-  {
-    path: '/settings',
-    name: 'settings',
-    component: () => import(/* webpackChunkName: "settings" */ '../views/Operator/Settings/Layout.vue'),
-    children: [
-      {
-        path: 'profile',
-        name: 'profile',
-        component: () => import(/* webpackChunkName: "settings-profile" */ '../views/Operator/Settings/Profile.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        }
-      },
-      {
-        path: 'journal',
-        name: 'journal',
-        component: () => import(/* webpackChunkName: "settings-journal" */ '../views/Operator/Settings/Journal.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        }
-      },
-      {
-        path: 'security',
-        name: 'security',
-        component: () => import(/* webpackChunkName: "settings-security" */ '../views/Operator/Settings/Security.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        }
-      },
-      {
-        path: 'telephony',
-        name: 'telephony',
-        component: () => import(/* webpackChunkName: "settings-security" */ '../views/Operator/Settings/Telephony.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        }
-      },
-      {
-        path: 'headset-configure',
-        name: 'headset_configure',
-        component: () => import(/* webpackChunkName: "settings-headset-configure" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        }
-      }
-    ],
-    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-      // todo: Solve the question of how we will change the locale
-      loadLanguageAsync('ru', 'settings').then(() => next())
-    },
-    meta: {
-      layout: 'default',
-      middleware: []
-    }
-  },
-  {
     path: '/help',
     name: 'help',
     component: () => import(/* webpackChunkName: "help" */ '../views/Operator/Help/Index.vue'),
@@ -257,6 +55,248 @@ const routes: RouteConfig[] = [
     meta: {
       layout: 'default',
       title: 'documents',
+      middleware: []
+    }
+  },
+
+  /** Operator */
+  {
+    path: '/operator',
+    name: 'operator',
+    component: () => import(/* webpackChunkName: "operator-home" */ '../views/Operator/Home.vue'),
+    meta: {
+      anonymous: true,
+      layout: 'operator-layout',
+      middleware: []
+    }
+  },
+  {
+    path: '/operator/calls',
+    component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Operator/Calls/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'operator_calls',
+        component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
+        meta: { layout: 'operator-layout', middleware: [] }
+      }
+    ],
+    meta: {
+      anonymous: true,
+      layout: 'operator-layout',
+      middleware: []
+    }
+  },
+  {
+    path: '/operator/leads',
+    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Leads/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'operator_leads',
+        component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
+        meta: {
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: ':contact_id',
+        name: 'leads_view',
+        component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Leads/View.vue'),
+        children: [
+          {
+            path: 'script',
+            name: 'leads_script',
+            component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          },
+          {
+            path: 'history',
+            name: 'leads_history',
+            component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          },
+          {
+            path: 'tasks',
+            name: 'leads_task',
+            component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          }
+        ],
+        meta: { layout: 'operator-layout', middleware: [] }
+      }
+    ],
+    meta: {
+      anonymous: true,
+      layout: 'operator-layout',
+      middleware: []
+    }
+  },
+  {
+    path: '/operator/projects',
+    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'projects_list',
+        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/List.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'operator-layout',
+          middleware: []
+        }
+      }
+    ],
+    meta: { layout: 'operator-layout', middleware: [] }
+  },
+  {
+    path: '/operator/contacts',
+    component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'contacts_list',
+        component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
+        meta: { layout: 'operator-layout', middleware: [] }
+      },
+      {
+        path: 'new',
+        name: 'contacts_new',
+        component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
+        meta: { layout: 'operator-layout', middleware: [] },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          next()
+          store.dispatch('system/country_codes')
+        }
+      },
+      {
+        path: ':contact_id',
+        name: 'contacts_view',
+        component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
+        children: [
+          {
+            path: 'script',
+            name: 'contacts_script',
+            component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          },
+          {
+            path: 'history',
+            name: 'contacts_history',
+            component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          },
+          {
+            path: 'tasks',
+            name: 'contacts_task',
+            component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          }
+        ],
+        meta: { layout: 'operator-layout', middleware: [] }
+      }
+    ],
+    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
+      loadLanguageAsync('ru', 'contacts').then(() => next())
+    },
+    meta: {
+      anonymous: true,
+      layout: 'operator-layout',
+      middleware: []
+    }
+  },
+  {
+    path: '/operator/reports',
+    component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Layout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'operator_reports',
+        component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Index.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'operator-layout',
+          middleware: []
+        }
+      }
+    ],
+    meta: {
+      layout: 'operator-layout',
+      middleware: []
+    }
+  },
+  {
+    path: '/operator/settings',
+    component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Layout.vue'),
+    children: [
+      {
+        path: 'profile',
+        name: 'operator_settings_profile',
+        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Profile.vue'),
+        meta: {
+          icon: 'mdi-account-circle-outline',
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'journal',
+        name: 'operator_settings_journal',
+        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Journal.vue'),
+        meta: {
+          icon: 'mdi-history',
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'security',
+        name: 'operator_settings_security',
+        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Security.vue'),
+        meta: {
+          icon: 'mdi-security',
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'telephony',
+        name: 'operator_settings_telephony',
+        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Telephony.vue'),
+        meta: {
+          icon: 'mdi-security',
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'headset-configure',
+        name: 'operator_settings_headset_configure',
+        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
+        meta: {
+          icon: 'mdi-security',
+          layout: 'operator-layout',
+          middleware: []
+        }
+      }
+    ],
+    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
+      loadLanguageAsync('ru', 'settings').then(() => next())
+    },
+    meta: {
+      layout: 'operator-layout',
+      middleware: []
+    }
+  },
+  {
+    path: '/operator/help',
+    name: 'operator_help',
+    component: () => import(/* webpackChunkName: "operator-help" */ '../views/Operator/Help/Index.vue'),
+    meta: {
+      layout: 'operator-layout',
       middleware: []
     }
   },
@@ -488,11 +528,11 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'projects',
-        name: 'administrator_projects',
         component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/Layout.vue'),
         children: [
           {
             path: '',
+            name: 'administrator_projects',
             component: () => import(/* webpackChunkName: "administrator-projects-list" */ '../views/Administrator/Projects/List.vue'),
             meta: {
               anonymous: true,
@@ -581,11 +621,11 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'contacts',
-        name: 'call_center_manager_contacts',
         component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/Layout.vue'),
         children: [
           {
             path: '',
+            name: 'call_center_manager_contacts',
             component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/List.vue'),
             meta: {
               anonymous: true,
@@ -605,7 +645,7 @@ const routes: RouteConfig[] = [
           },
           {
             path: ':contact_id',
-            name: 'contacts_view',
+            name: 'call_center_manager_contacts_view',
             component: () => import(/* webpackChunkName: "call-center-manager-contacts-view" */ '../views/CallCenterManage/Contacts/View.vue'),
             children: [
               {
@@ -641,11 +681,11 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'users',
-        name: 'call_center_manager_users',
         component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/Layout.vue'),
         children: [
           {
             path: '',
+            name: 'call_center_manager_users',
             component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/List.vue'),
             meta: {
               anonymous: true,
@@ -683,11 +723,11 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'groups',
-        name: 'call_center_manager_groups',
         component: () => import(/* webpackChunkName: "call-center-manager-groups" */ '../views/CallCenterManage/Groups/Layout.vue'),
         children: [
           {
             path: '',
+            name: 'call_center_manager_groups',
             component: () => import(/* webpackChunkName: "call-center-manager-group-list" */ '../views/CallCenterManage/Groups/List.vue'),
             meta: {
               anonymous: true,
@@ -789,6 +829,145 @@ const routes: RouteConfig[] = [
       store.dispatch('system/roles').then()
       loadLanguageAsync('ru', 'call-center-manager').then(() => next())
     }
+  },
+
+  /** Call center manager */
+  {
+    path: '/team-leader',
+    name: 'team_leader',
+    component: () => import(/* webpackChunkName: "team-leader" */ '../views/TeamLeader/Layout.vue'),
+    children: [
+      {
+        path: 'reports',
+        name: 'team_leader_reports',
+        component: () => import(/* webpackChunkName: "team-leader-reports" */ '../views/TeamLeader/Reports/Layout.vue'),
+        children: [
+          {
+            path: 'recent-calls',
+            name: 'team_leader_reports_recent_calls',
+            component: () => import(/* webpackChunkName: "team-leader-reports-recent-calls" */ '../views/TeamLeader/Reports/RecentCalls.vue'),
+            meta: {
+              layout: 'team-leader',
+              middleware: [roleTeamLeader]
+            }
+          },
+          {
+            path: 'all-calls',
+            name: 'team_leader_reports_all_calls',
+            component: () => import(/* webpackChunkName: "team-leader-reports-all-calls" */ '../views/TeamLeader/Reports/AllCalls.vue'),
+            meta: {
+              layout: 'team-leader',
+              middleware: [roleTeamLeader]
+            }
+          }
+        ],
+        meta: {
+          layout: 'team-leader',
+          middleware: [roleTeamLeader]
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          next()
+        }
+      },
+      {
+        path: 'users',
+        component: () => import(/* webpackChunkName: "team-leader-users" */ '../views/TeamLeader/Users/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'team_leader_users',
+            component: () => import(/* webpackChunkName: "team-leader-users" */ '../views/TeamLeader/Users/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'team-leader',
+              middleware: [roleTeamLeader]
+            }
+          },
+          {
+            path: 'new',
+            name: 'team_leader_users_new',
+            component: () => import(/* webpackChunkName: "team-leader-users-new" */ '../views/TeamLeader/Users/New.vue'),
+            meta: {
+              layout: 'team-leader',
+              middleware: [roleTeamLeader]
+            }
+          },
+          {
+            path: ':id',
+            name: 'team_leader_users_edit',
+            component: () => import(/* webpackChunkName: "team-leader-users-edit" */ '../views/TeamLeader/Users/Edit.vue'),
+            meta: {
+              layout: 'team-leader',
+              middleware: [roleTeamLeader]
+            }
+          }
+        ],
+        meta: {
+          layout: 'team-leader',
+          middleware: [roleTeamLeader]
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          next()
+        }
+      },
+      {
+        path: 'settings',
+        name: 'team_leader_settings',
+        component: () => import(/* webpackChunkName: "team-leader-settings" */ '../views/TeamLeader/Settings/Layout.vue'),
+        children: [
+          {
+            path: 'profile',
+            name: 'team_leader_profile',
+            component: () => import(/* webpackChunkName: "team-leader-settings-profile" */ '../views/TeamLeader/Settings/Profile.vue'),
+            meta: {
+              icon: 'mdi-account-circle-outline',
+              layout: 'team-leader',
+              middleware: []
+            }
+          },
+          {
+            path: 'journal',
+            name: 'team_leader_journal',
+            component: () => import(/* webpackChunkName: "team-leader-settings-journal" */ '../views/TeamLeader/Settings/Journal.vue'),
+            meta: {
+              icon: 'mdi-history',
+              layout: 'team-leader',
+              middleware: []
+            }
+          },
+          {
+            path: 'security',
+            name: 'team_leader_security',
+            component: () => import(/* webpackChunkName: "team-leader-settings-security" */ '../views/TeamLeader/Settings/Security.vue'),
+            meta: {
+              icon: 'mdi-security',
+              layout: 'team-leader',
+              middleware: []
+            }
+          }
+        ],
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'settings').then(() => next())
+        },
+        meta: {
+          layout: 'team-leader',
+          middleware: []
+        }
+      }
+    ],
+    meta: {
+      anonymous: true,
+      layout: 'team-leader',
+      middleware: [roleTeamLeader]
+    },
+    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+      // todo: Solve the question of how we will change the locale
+      store.dispatch('system/roles').then()
+      loadLanguageAsync('ru', 'team-leader').then(() => next())
+    }
   }
 ]
 
@@ -806,12 +985,17 @@ export interface MiddlewareContextInterface {
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   if (to.path === '/') {
+    if (store.getters['profile/role_is_team_leader']) {
+      return next({ name: 'team_leader' })
+    }
     if (store.getters['profile/role_is_leader_cc']) {
       return next({ name: 'call_center_manager' })
     }
     if (store.getters['profile/role_is_admin']) {
       return next({ name: 'administrator' })
     }
+
+    return next({ name: 'operator' })
   }
 
   if (!to.meta.middleware) {

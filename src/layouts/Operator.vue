@@ -63,7 +63,7 @@
 
       <v-btn
         text
-        :to="{ path: '/leads' }"
+        :to="{ path: '/operator/leads' }"
         class="mr-1"
       >
         {{ $tc('Ringing') }}
@@ -71,7 +71,7 @@
 
       <v-btn
         text
-        to="/contacts"
+        to="/operator/contacts"
         class="mr-1"
       >
         {{ $tc('Contacts') }}
@@ -79,7 +79,7 @@
 
       <v-btn
         text
-        to="/reports"
+        to="/operator/reports"
         class="mr-1"
       >
         {{ $tc('Reports') }}
@@ -87,7 +87,7 @@
 
       <v-btn
         text
-        to="/calls"
+        to="/operator/calls"
         class="mr-1"
       >
         {{ $tc('Calls') }}
@@ -95,7 +95,7 @@
 
       <v-btn
         text
-        :to="{ name: 'help' }"
+        :to="{ path: '/operator/help' }"
         class="mr-1"
       >
         {{ $tc('Help') }}
@@ -170,46 +170,6 @@
         </v-card>
       </v-menu>
 
-      <template v-if="$store.getters['profile/role_is_admin']">
-        <v-tooltip
-          bottom
-          max-width="400"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              icon
-              color="#00ff0a"
-              :to="{ name: 'administrator' }"
-              class="mr-1"
-              v-on="on"
-              v-bind="attrs"
-            >
-              <v-icon>mdi-police-badge</v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc('route.administrator') }}</span>
-        </v-tooltip>
-      </template>
-      <template v-else-if="$store.getters['profile/role_is_leader_cc']">
-        <v-tooltip
-          bottom
-          max-width="400"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              icon
-              color="#FFEB3B"
-              :to="{ name: 'call_center_manager' }"
-              class="mr-1"
-              v-on="on"
-              v-bind="attrs"
-            >
-              <v-icon>mdi-police-badge</v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc('route.call_center_manager') }}</span>
-        </v-tooltip>
-      </template>
       <div style="width: 10px"></div>
 
       <!-- Avatar -->
@@ -320,17 +280,10 @@ export default Vue.extend({
     drawer: null,
     items: [
       {
-        name: 'profile',
+        name: 'route.operator_settings_profile',
         icon: 'mdi-account',
         to: {
-          name: 'profile'
-        }
-      },
-      {
-        name: 'settings',
-        icon: 'mdi-cog',
-        to: {
-          name: 'settings'
+          name: 'operator_settings_profile'
         }
       },
       {

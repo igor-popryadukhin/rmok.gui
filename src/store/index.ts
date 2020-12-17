@@ -7,28 +7,9 @@ import { project } from '@/store/project'
 
 Vue.use(Vuex)
 
-let get = (key: string) => localStorage.getItem(key)
-let set = (key: string, value: string) => localStorage.setItem(key, value)
-let remove = (key: string) => localStorage.getItem(key)
-
-const loadSLS = () => import(/* webpackChunkName: "store-secure-ls" */ 'secure-ls/dist/secure-ls')
-loadSLS()
-  .then((a: any) => {
-    const ls = a.default({ isCompression: false })
-    /* eslint-disable */
-    get = (key: string) => {
-      return process.env.NODE_ENV === 'development' ? localStorage.getItem(key) : ls.get(key)
-    }
-
-    set = (key: string, value: any) => {
-      return process.env.NODE_ENV === 'development' ? localStorage.setItem(key, value) : ls.set(key, value)
-    }
-
-    remove = (key: string) => {
-      return process.env.NODE_ENV === 'development' ? localStorage.removeItem(key) : ls.remove(key)
-    }
-    /* eslint-enable */
-  })
+const get = (key: string) => localStorage.getItem(key)
+const set = (key: string, value: string) => localStorage.setItem(key, value)
+const remove = (key: string) => localStorage.getItem(key)
 
 export default new Vuex.Store({
   state: {

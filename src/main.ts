@@ -26,7 +26,8 @@ import('./jsSIP')
 // layouts
 Vue.component('administrator', () => import(/* webpackChunkName: "layout-administrator" */ './layouts/Administrator.vue'))
 Vue.component('call-center-manager', () => import(/* webpackChunkName: "layout-call-center-manager" */ './layouts/CallCenterManager.vue'))
-Vue.component('default', () => import(/* webpackChunkName: "layout-default" */ './layouts/Default.vue'))
+Vue.component('team-leader', () => import(/* webpackChunkName: "layout-team-leader" */ './layouts/TeamLeader.vue'))
+Vue.component('operator-layout', () => import(/* webpackChunkName: "layout-operator" */ './layouts/Operator.vue'))
 Vue.component('clean', CleanLayout)
 
 Vue.config.productionTip = false

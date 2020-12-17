@@ -60,7 +60,7 @@
                           :key="`list-item-${item.id}`"
                           ripple
                           selectable
-                          @click.stop="$router.push({ path: `/leads/${item.id}/script` })"
+                          @click.stop="$router.push({ path: `/operator/leads/${item.id}/script` })"
                           style="min-height: 35px"
                         >
                           <v-list-item-content class="pa-0">
