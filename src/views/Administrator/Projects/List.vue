@@ -71,7 +71,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { ProjectInterface, ProjectResponseItemsInterface, Projects } from '@/api/Projects'
+import Projects, { ProjectInterface, ProjectResponseItemsInterface } from '@/api/Projects'
 
 export default Vue.extend({
   data () {

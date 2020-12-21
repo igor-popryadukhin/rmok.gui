@@ -1,4 +1,4 @@
-import { ProjectInterface, Projects, StatusInterface } from '@/api/Projects'
+import Projects, { ProjectInterface, StatusInterface } from '@/api/Projects'
 
 export const project = {
 

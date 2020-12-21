@@ -229,7 +229,7 @@ import vuescroll from 'vuescroll'
 import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
 import Users, { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
-import { Projects } from '@/api/Projects'
+import Projects from '@/api/Projects'
 import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 

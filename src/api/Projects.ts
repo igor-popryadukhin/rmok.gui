@@ -56,7 +56,7 @@ interface ProjectPutDataInterface {
   statuses: [];
 }
 
-export class Projects {
+export default class Projects {
   /**
    * @param q
    * @param offset
