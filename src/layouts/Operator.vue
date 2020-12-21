@@ -11,6 +11,7 @@
       extended
       extension-height="25px"
       class="background--header"
+      style="z-index: 100"
     >
       <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title>
@@ -259,6 +260,7 @@ export default Vue.extend({
   mixins: [breadcrumbs],
 
   data: () => ({
+    overlay: false,
     buttonMenuNotification: false,
     mainSearch: {
       q: null,
@@ -331,6 +333,8 @@ export default Vue.extend({
 
   mounted () {
     this.$root.$on('root-update-notifications', this.onRootNewTasks)
+    this.$root.$on('root-loading-data-show', this.onRootLoadingDataShow)
+    this.$root.$on('root-loading-data-hide', this.onRootLoadingDataHide)
   },
 
   created () {
@@ -353,6 +357,8 @@ export default Vue.extend({
 
   beforeDestroy () {
     this.$root.$off('root-update-notifications', this.onRootNewTasks)
+    this.$root.$off('root-loading-data-show', this.onRootLoadingDataShow)
+    this.$root.$off('root-loading-data-hide', this.onRootLoadingDataHide)
   },
 
   methods: {
@@ -456,6 +462,14 @@ export default Vue.extend({
             }
           })
         })
+    },
+
+    onRootLoadingDataShow () {
+      this.overlay = true
+    },
+
+    onRootLoadingDataHide () {
+      this.overlay = false
     }
   }
 })

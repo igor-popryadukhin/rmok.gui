@@ -1,28 +1,13 @@
 <template>
   <div>
-    <v-dialog
-      v-model="dialogLoading.visible"
-      :key="1"
-      hide-overlay
-      persistent
-      width="300"
-      light
-    >
-      <v-card
-        color="primary"
-        dark
-        flat
-      >
-        <v-card-text>
-          {{ dialogLoading.message }}
-          <v-progress-linear
-            indeterminate
-            color="white"
-            class="mb-0"
-          ></v-progress-linear>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+    <div class="text-center">
+      <v-overlay z-index="99" :value="overlay">
+        <v-progress-circular
+          indeterminate
+          size="64"
+        ></v-progress-circular>
+      </v-overlay>
+    </div>
     <component
       :is="layout"
       :key="2"
@@ -84,10 +69,7 @@ export default Vue.extend({
         visible: false,
         historyId: 0
       },
-      dialogLoading: {
-        visible: false,
-        message: '' as string
-      },
+      overlay: false,
       toastId: 0 as number | string,
       organization: {} as ContactInterface,
       RTCToastOptions: {
@@ -345,19 +327,12 @@ export default Vue.extend({
       return this.$tc(key, choice, locale, values)
     },
 
-    rootLoadingDataShow (message: '') {
-      if (message) {
-        this.dialogLoading.message = message
-      } else {
-        this.dialogLoading.message = this.$tc('Loading content...')
-      }
-
-      this.dialogLoading.visible = true
+    rootLoadingDataShow () {
+      this.overlay = true
     },
 
     rootLoadingDataHide () {
-      this.dialogLoading.message = ''
-      this.dialogLoading.visible = false
+      this.overlay = false
     }
   }
 })

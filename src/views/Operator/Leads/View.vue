@@ -284,6 +284,7 @@
                     text
                     v-on="on"
                     v-bind="attrs"
+                    :loading="saveAndNextLoading"
                     @click="onSaveAndNext"
                   >
                     {{ $t('Save') }}
@@ -378,6 +379,7 @@ export default (Vue as VueConstructor<Vue & any>).extend({
           }
         }
       ] as TabInterface[],
+      saveAndNextLoading: false,
       dataLoading: true,
       comment: {
         disabled: false,
@@ -428,6 +430,7 @@ export default (Vue as VueConstructor<Vue & any>).extend({
       const contacts: Contacts = new Contacts()
 
       this.dataLoading = true
+      this.$root.$emit('root-loading-data-show')
       contacts
         .getById(+to.params.contact_id)
         .then((contact: ContactInterface) => {
@@ -521,6 +524,7 @@ export default (Vue as VueConstructor<Vue & any>).extend({
     },
 
     onSaveAndNext () {
+      this.saveAndNextLoading = true
       new Leads()
         .next(+this.$route.params.contact_id)
         .then((contact_id: number) => {
@@ -536,8 +540,7 @@ export default (Vue as VueConstructor<Vue & any>).extend({
             name: 'operator_leads'
           })
         }).finally(() => {
-          this.dataLoading = false
-          this.$root.$emit('root-loading-data-hide')
+          this.saveAndNextLoading = false
         })
     }
   }
