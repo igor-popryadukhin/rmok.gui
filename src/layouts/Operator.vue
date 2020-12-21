@@ -417,7 +417,12 @@ export default Vue.extend({
                       arg: task,
                       handle: (arg: TaskInterface) => {
                         if (arg.contact) {
-                          this.$router.push({ path: `/contacts/${arg.contact?.id}/script` })
+                          this.$router.push({
+                            name: 'operator_leads_script',
+                            params: {
+                              contact_id: String(arg.contact?.id)
+                            }
+                          })
                         } else {
                           console.error('Задача для контакта не содержит данные контакта')
                         }
