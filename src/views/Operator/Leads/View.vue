@@ -354,27 +354,27 @@ export default (Vue as VueConstructor<Vue & any>).extend({
       tab: null,
       tabs: [
         {
-          name: 'leads_script',
+          name: 'operator_leads_script',
           icon: 'mdi-script-text',
           disabled: false,
           to: {
-            name: 'leads_script'
+            name: 'operator_leads_script'
           }
         },
         {
-          name: 'leads_history',
+          name: 'operator_leads_history',
           icon: 'mdi-history',
           disabled: false,
           to: {
-            name: 'leads_history'
+            name: 'operator_leads_history'
           }
         },
         {
-          name: 'leads_task',
+          name: 'operator_leads_task',
           icon: 'mdi-clipboard-list',
           disabled: false,
           to: {
-            name: 'leads_task'
+            name: 'operator_leads_task'
           }
         }
       ] as TabInterface[],
@@ -532,7 +532,9 @@ export default (Vue as VueConstructor<Vue & any>).extend({
           })
         })
         .catch(() => {
-          this.$router.replace('/leads')
+          this.$router.replace({
+            name: 'operator_leads'
+          })
         }).finally(() => {
           this.dataLoading = false
           this.$root.$emit('root-loading-data-hide')

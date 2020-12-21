@@ -628,7 +628,12 @@ export default Vue.extend({
     },
 
     onRootMainSearchSelected (data: ContactInterface) {
-      this.$router.push({ path: `/leads/${data.id}/script` })
+      this.$router.push({
+        name: 'operator_leads_script',
+        params: {
+          contact_id: String(data.id)
+        }
+      })
     },
 
     /* eslint-disable */

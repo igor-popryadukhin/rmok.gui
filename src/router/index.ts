@@ -102,24 +102,24 @@ const routes: RouteConfig[] = [
       },
       {
         path: ':contact_id',
-        name: 'leads_view',
+        name: 'operator_leads_view',
         component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Leads/View.vue'),
         children: [
           {
             path: 'script',
-            name: 'leads_script',
+            name: 'operator_leads_script',
             component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
             meta: { layout: 'operator-layout', middleware: [] }
           },
           {
             path: 'history',
-            name: 'leads_history',
+            name: 'operator_leads_history',
             component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
             meta: { layout: 'operator-layout', middleware: [] }
           },
           {
             path: 'tasks',
-            name: 'leads_task',
+            name: 'operator_leads_task',
             component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
             meta: { layout: 'operator-layout', middleware: [] }
           }
@@ -139,7 +139,7 @@ const routes: RouteConfig[] = [
     children: [
       {
         path: '',
-        name: 'projects_list',
+        name: 'operator_projects_list',
         component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/List.vue'),
         meta: {
           anonymous: true,
@@ -156,13 +156,13 @@ const routes: RouteConfig[] = [
     children: [
       {
         path: '',
-        name: 'contacts_list',
+        name: 'operator_contacts_list',
         component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
         meta: { layout: 'operator-layout', middleware: [] }
       },
       {
         path: 'new',
-        name: 'contacts_new',
+        name: 'operator_contacts_new',
         component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
         meta: { layout: 'operator-layout', middleware: [] },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
@@ -172,10 +172,11 @@ const routes: RouteConfig[] = [
       },
       {
         path: ':contact_id',
-        name: 'contacts_view',
+        name: 'operator_contacts_view',
         component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
         children: [
           {
+            // todo: Deprecated (нет нужды в данном решении)
             path: 'script',
             name: 'contacts_script',
             component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
@@ -848,7 +849,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "team-leader-reports-recent-calls" */ '../views/TeamLeader/Reports/RecentCalls.vue'),
             meta: {
               layout: 'team-leader',
-              middleware: [roleTeamLeader]
+              middleware: []
             }
           },
           {
@@ -857,7 +858,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "team-leader-reports-all-calls" */ '../views/TeamLeader/Reports/AllCalls.vue'),
             meta: {
               layout: 'team-leader',
-              middleware: [roleTeamLeader]
+              middleware: []
             }
           }
         ],

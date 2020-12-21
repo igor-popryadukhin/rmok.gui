@@ -16,13 +16,15 @@ export class RouterQuery {
   /**
    * @param query
    */
-  public setQuery (query: QueryInterface) {
+  setQuery (query: QueryInterface): Promise<any> {
     return new Promise((resolve) => {
       const obj = Object.assign({}, this._vueRouter.currentRoute.query)
 
       Object.keys(query).forEach((key: string) => {
         const value = query[key]
         if (value) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           obj[key] = value
         } else {
           delete obj[key]
@@ -71,6 +73,14 @@ export class RouterQuery {
       }
       this.setQuery(obj).finally(resolve)
     })
+  }
+
+  /**
+   *
+   * @param key
+   */
+  public hasQuery (key: string): boolean {
+    return key in this._vueRouter.currentRoute.query
   }
 }
 

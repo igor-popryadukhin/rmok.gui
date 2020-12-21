@@ -25,7 +25,7 @@
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
-                :to="{ name: 'contacts_new' }"
+                :to="{ name: 'operator_contacts_new' }"
                 v-on="on"
                 v-bind="attrs"
               >
