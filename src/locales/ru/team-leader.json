@@ -1,0 +1,17 @@
+{
+  "Role | Roles": "Роль | Роли",
+  "January | February | March | April | May | June | July | August | September | October | December": "Январь | Февраль | Март | Апрель | Май | Июнь | Июль | Август | Сентябрь | Октябрь | Декабрь",
+  "Range": "Интервал",
+  "Manager": "Менеджер",
+  "route": {
+    "team_leaders": "@:Home",
+    "team_leader_users": "@:Users",
+    "team_leader_settings": "@:Settings",
+    "team_leader_profile": "@:Profile",
+    "team_leader_journal": "@:Journal",
+    "team_leader_security": "@:Security",
+    "team_leader_reports": "Статистика",
+    "team_leader_reports_recent_calls": "Статистика по последним вызовам",
+    "team_leader_reports_all_calls": "Статистика по всем вызовам"
+  }
+}
