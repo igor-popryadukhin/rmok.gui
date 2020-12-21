@@ -62,243 +62,259 @@ const routes: RouteConfig[] = [
   /** Operator */
   {
     path: '/operator',
-    name: 'operator',
-    component: () => import(/* webpackChunkName: "operator-home" */ '../views/Operator/Home.vue'),
-    meta: {
-      anonymous: true,
-      layout: 'operator-layout',
-      middleware: []
-    }
-  },
-  {
-    path: '/operator/calls',
-    component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Operator/Calls/Layout.vue'),
+    component: () => import(/* webpackChunkName: "operator-layout" */ '../views/Operator/Layout.vue'),
     children: [
       {
         path: '',
-        name: 'operator_calls',
-        component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
-        meta: { layout: 'operator-layout', middleware: [] }
-      }
-    ],
-    meta: {
-      anonymous: true,
-      layout: 'operator-layout',
-      middleware: []
-    }
-  },
-  {
-    path: '/operator/leads',
-    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Leads/Layout.vue'),
-    children: [
-      {
-        path: '',
-        name: 'operator_leads',
-        component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
-        meta: {
-          layout: 'operator-layout',
-          middleware: []
-        }
-      },
-      {
-        path: ':contact_id',
-        name: 'operator_leads_view',
-        component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Leads/View.vue'),
-        children: [
-          {
-            path: 'script',
-            name: 'operator_leads_script',
-            component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
-          },
-          {
-            path: 'history',
-            name: 'operator_leads_history',
-            component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
-          },
-          {
-            path: 'tasks',
-            name: 'operator_leads_task',
-            component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
-          }
-        ],
-        meta: { layout: 'operator-layout', middleware: [] }
-      }
-    ],
-    meta: {
-      anonymous: true,
-      layout: 'operator-layout',
-      middleware: []
-    }
-  },
-  {
-    path: '/operator/projects',
-    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/Layout.vue'),
-    children: [
-      {
-        path: '',
-        name: 'operator_projects_list',
-        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/List.vue'),
+        name: 'operator_home',
+        component: () => import(/* webpackChunkName: "operator-home" */ '../views/Operator/Home/Index.vue'),
         meta: {
           anonymous: true,
           layout: 'operator-layout',
           middleware: []
         }
-      }
-    ],
-    meta: { layout: 'operator-layout', middleware: [] }
-  },
-  {
-    path: '/operator/contacts',
-    component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Layout.vue'),
-    children: [
+      },
       {
-        path: '',
-        name: 'operator_contacts_list',
-        component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
+        path: 'calls',
+        component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Operator/Calls/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'operator_calls',
+            component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          }
+        ],
+        meta: {
+          anonymous: true,
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'leads',
+        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Leads/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'operator_leads',
+            component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
+            meta: {
+              layout: 'operator-layout',
+              middleware: []
+            }
+          },
+          {
+            path: ':contact_id',
+            name: 'operator_leads_view',
+            component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Leads/View.vue'),
+            children: [
+              {
+                path: 'script',
+                name: 'operator_leads_script',
+                component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
+                meta: { layout: 'operator-layout', middleware: [] }
+              },
+              {
+                path: 'history',
+                name: 'operator_leads_history',
+                component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
+                meta: { layout: 'operator-layout', middleware: [] }
+              },
+              {
+                path: 'tasks',
+                name: 'operator_leads_task',
+                component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
+                meta: { layout: 'operator-layout', middleware: [] }
+              }
+            ],
+            meta: { layout: 'operator-layout', middleware: [] }
+          }
+        ],
+        meta: {
+          anonymous: true,
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'projects',
+        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'operator_projects_list',
+            component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'operator-layout',
+              middleware: []
+            }
+          }
+        ],
         meta: { layout: 'operator-layout', middleware: [] }
       },
       {
-        path: 'new',
-        name: 'operator_contacts_new',
-        component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
-        meta: { layout: 'operator-layout', middleware: [] },
+        path: 'contacts',
+        component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'operator_contacts_list',
+            component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
+            meta: { layout: 'operator-layout', middleware: [] }
+          },
+          {
+            path: 'new',
+            name: 'operator_contacts_new',
+            component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
+            meta: { layout: 'operator-layout', middleware: [] },
+            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+              next()
+              store.dispatch('system/country_codes')
+            }
+          },
+          {
+            path: ':contact_id',
+            name: 'operator_contacts_view',
+            component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
+            children: [
+              {
+                // todo: Deprecated (нет нужды в данном решении)
+                path: 'script',
+                name: 'contacts_script',
+                component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
+                meta: { layout: 'operator-layout', middleware: [] }
+              },
+              {
+                path: 'history',
+                name: 'contacts_history',
+                component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
+                meta: { layout: 'operator-layout', middleware: [] }
+              },
+              {
+                path: 'tasks',
+                name: 'contacts_task',
+                component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
+                meta: { layout: 'operator-layout', middleware: [] }
+              }
+            ],
+            meta: { layout: 'operator-layout', middleware: [] }
+          }
+        ],
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          next()
-          store.dispatch('system/country_codes')
-        }
-      },
-      {
-        path: ':contact_id',
-        name: 'operator_contacts_view',
-        component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
-        children: [
-          {
-            // todo: Deprecated (нет нужды в данном решении)
-            path: 'script',
-            name: 'contacts_script',
-            component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
-          },
-          {
-            path: 'history',
-            name: 'contacts_history',
-            component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
-          },
-          {
-            path: 'tasks',
-            name: 'contacts_task',
-            component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
-          }
-        ],
-        meta: { layout: 'operator-layout', middleware: [] }
-      }
-    ],
-    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-      // todo: Solve the question of how we will change the locale
-      loadLanguageAsync('ru', 'contacts').then(() => next())
-    },
-    meta: {
-      anonymous: true,
-      layout: 'operator-layout',
-      middleware: []
-    }
-  },
-  {
-    path: '/operator/reports',
-    component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Layout.vue'),
-    children: [
-      {
-        path: '',
-        name: 'operator_reports',
-        component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Index.vue'),
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'contacts').then(() => next())
+        },
         meta: {
           anonymous: true,
           layout: 'operator-layout',
           middleware: []
         }
+      },
+      {
+        path: 'reports',
+        component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'operator_reports',
+            component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Index.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'operator-layout',
+              middleware: []
+            }
+          }
+        ],
+        meta: {
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'settings',
+        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Layout.vue'),
+        children: [
+          {
+            path: 'profile',
+            name: 'operator_settings_profile',
+            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Profile.vue'),
+            meta: {
+              icon: 'mdi-account-circle-outline',
+              layout: 'operator-layout',
+              middleware: []
+            }
+          },
+          {
+            path: 'journal',
+            name: 'operator_settings_journal',
+            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Journal.vue'),
+            meta: {
+              icon: 'mdi-history',
+              layout: 'operator-layout',
+              middleware: []
+            }
+          },
+          {
+            path: 'security',
+            name: 'operator_settings_security',
+            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Security.vue'),
+            meta: {
+              icon: 'mdi-security',
+              layout: 'operator-layout',
+              middleware: []
+            }
+          },
+          {
+            path: 'telephony',
+            name: 'operator_settings_telephony',
+            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Telephony.vue'),
+            meta: {
+              icon: 'mdi-security',
+              layout: 'operator-layout',
+              middleware: []
+            }
+          },
+          {
+            path: 'headset-configure',
+            name: 'operator_settings_headset_configure',
+            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
+            meta: {
+              icon: 'mdi-security',
+              layout: 'operator-layout',
+              middleware: []
+            }
+          }
+        ],
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          loadLanguageAsync('ru', 'settings').then(() => next())
+        },
+        meta: {
+          layout: 'operator-layout',
+          middleware: []
+        }
+      },
+      {
+        path: 'help',
+        name: 'operator_help',
+        component: () => import(/* webpackChunkName: "operator-help" */ '../views/Operator/Help/Index.vue'),
+        meta: {
+          layout: 'operator-layout',
+          middleware: []
+        }
       }
     ],
     meta: {
+      anonymous: true,
       layout: 'operator-layout',
       middleware: []
-    }
-  },
-  {
-    path: '/operator/settings',
-    component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Layout.vue'),
-    children: [
-      {
-        path: 'profile',
-        name: 'operator_settings_profile',
-        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Profile.vue'),
-        meta: {
-          icon: 'mdi-account-circle-outline',
-          layout: 'operator-layout',
-          middleware: []
-        }
-      },
-      {
-        path: 'journal',
-        name: 'operator_settings_journal',
-        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Journal.vue'),
-        meta: {
-          icon: 'mdi-history',
-          layout: 'operator-layout',
-          middleware: []
-        }
-      },
-      {
-        path: 'security',
-        name: 'operator_settings_security',
-        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Security.vue'),
-        meta: {
-          icon: 'mdi-security',
-          layout: 'operator-layout',
-          middleware: []
-        }
-      },
-      {
-        path: 'telephony',
-        name: 'operator_settings_telephony',
-        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Telephony.vue'),
-        meta: {
-          icon: 'mdi-security',
-          layout: 'operator-layout',
-          middleware: []
-        }
-      },
-      {
-        path: 'headset-configure',
-        name: 'operator_settings_headset_configure',
-        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
-        meta: {
-          icon: 'mdi-security',
-          layout: 'operator-layout',
-          middleware: []
-        }
-      }
-    ],
+    },
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
-      loadLanguageAsync('ru', 'settings').then(() => next())
-    },
-    meta: {
-      layout: 'operator-layout',
-      middleware: []
-    }
-  },
-  {
-    path: '/operator/help',
-    name: 'operator_help',
-    component: () => import(/* webpackChunkName: "operator-help" */ '../views/Operator/Help/Index.vue'),
-    meta: {
-      layout: 'operator-layout',
-      middleware: []
+      store.dispatch('system/roles').then()
+      loadLanguageAsync('ru', 'operator').then(() => next())
     }
   },
 
@@ -996,7 +1012,7 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
       return next({ name: 'administrator' })
     }
 
-    return next({ name: 'operator' })
+    return next('/operator')
   }
 
   if (!to.meta.middleware) {
