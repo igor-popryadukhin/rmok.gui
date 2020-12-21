@@ -237,6 +237,42 @@
         </vuescroll>
       </v-container>
     </v-main>
+    <v-dialog
+      v-model="projectDialog.visible"
+      persistent
+      :max-width="projectDialogWidth"
+    >
+      <v-card>
+        <v-card-title class="headline">
+          Выберите проект
+        </v-card-title>
+        <v-card-text class="pb-10">
+          <v-list
+            subheader
+          >
+            <template
+              v-for="item in projectDialog.projects"
+            >
+              <v-list-item
+                :key="`v-list-item-${item.id}`"
+                link
+                @click="onProjectItemClick(item)"
+              >
+                <v-list-item-title>
+                  {{ item.name }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-divider :key="`v-divider-${item.id}`" />
+            </template>
+          </v-list>
+          <div class="v-messages__wrapper">
+            <div class="v-messages__message grey--text">
+              {{ $tc('Select the desired item from the list') }}
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -247,6 +283,8 @@ import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
 import vuescroll from 'vuescroll'
 import Tasks, { TaskGetResponseInterface, TaskInterface, TaskType } from '@/api/Tasks'
+import Projects, { ProjectInterface } from '@/api/Projects'
+import Users from '@/api/Users'
 
 export default Vue.extend({
   props: {
@@ -260,6 +298,10 @@ export default Vue.extend({
   mixins: [breadcrumbs],
 
   data: () => ({
+    projectDialog: {
+      visible: false,
+      projects: [] as ProjectInterface[]
+    },
     overlay: false,
     buttonMenuNotification: false,
     mainSearch: {
@@ -320,6 +362,15 @@ export default Vue.extend({
           this.$root.$emit('root-main-search-selected', value)
         }
       }
+    },
+
+    'projectDialog.projects': {
+      handler (projects: ProjectInterface[] | any) {
+        if (!Array.isArray(projects)) { return }
+        if (projects.length === 0) { return }
+
+        this.projectDialog.visible = true
+      }
     }
   },
 
@@ -328,6 +379,17 @@ export default Vue.extend({
       const first: string = this.$store.getters['profile/first_name'] || ''
       const last: string = this.$store.getters['profile/last_name'] || ''
       return first.charAt(0) + last.charAt(0)
+    },
+
+    // Ширина окна диалога для выбора проекта, зависит от размера экрана
+    projectDialogWidth () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 100 + '%'
+        case 'sm': return 100 + '%'
+        case 'md': return 60 + '%'
+        case 'lg': return 40 + '%'
+        default: return 100 + '%'
+      }
     }
   },
 
@@ -335,6 +397,9 @@ export default Vue.extend({
     this.$root.$on('root-update-notifications', this.onRootNewTasks)
     this.$root.$on('root-loading-data-show', this.onRootLoadingDataShow)
     this.$root.$on('root-loading-data-hide', this.onRootLoadingDataHide)
+
+    // Событие загрузки проектов для выбора
+    this.$root.$on('root-loading-projects', this.onRootLoadingProjects)
   },
 
   created () {
@@ -359,6 +424,7 @@ export default Vue.extend({
     this.$root.$off('root-update-notifications', this.onRootNewTasks)
     this.$root.$off('root-loading-data-show', this.onRootLoadingDataShow)
     this.$root.$off('root-loading-data-hide', this.onRootLoadingDataHide)
+    this.$root.$off('root-loading-projects', this.onRootLoadingProjects)
   },
 
   methods: {
@@ -470,6 +536,30 @@ export default Vue.extend({
 
     onRootLoadingDataHide () {
       this.overlay = false
+    },
+
+    /**
+     * Происходит при каждом клике по элементу списка проектов в диалоговом окне
+     *
+     * @param item
+     */
+    onProjectItemClick (item: ProjectInterface) {
+      new Users()
+        .setProject(this.$store.getters['profile/id'], item.id)
+        .then(() => {
+          this.projectDialog.visible = false
+          this.$store.dispatch('project/load')
+        }).catch((e) => {
+          console.log(e)
+        })
+    },
+
+    onRootLoadingProjects () {
+      new Projects()
+        .find('', 0, 100)
+        .then((response) => {
+          this.projectDialog.projects = response.items || []
+        })
     }
   }
 })

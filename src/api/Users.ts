@@ -103,6 +103,24 @@ export class Users {
         }).catch(reject)
     })
   }
+
+  /**
+   * Установить проект пользователю
+   *
+   * @param user_id     Идентификатор пользователя
+   * @param project_id  Идентификатор проекта
+   */
+  public setProject (user_id: number, project_id: number): Promise<AxiosResponse | any> {
+    return new Promise<AxiosResponse>((resolve, reject): Promise<AxiosResponse> | any => {
+      $axios.get(`/users/${user_id}/projects/${project_id}`, {})
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
 }
 
 export default Users

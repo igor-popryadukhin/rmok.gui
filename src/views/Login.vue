@@ -121,8 +121,13 @@ export default Vue.extend({
           this.processMessage = this.$tc('Loading projects...')
           await this.$store.dispatch('project/load')
 
+          // Если авторизовался оператор
           if (this.$store.getters['profile/role_is_operator']) {
-            this.$router.replace({ name: 'home' })
+            this.$router.replace({ name: 'operator_home' })
+            .then(() => {
+              // Загрузить проекты, что бы оператор мог выбрать из списка
+              this.$root.$emit('root-loading-projects')
+            })
           }
 
           if (this.$store.getters['profile/role_is_team_leader']) {
