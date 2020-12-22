@@ -2,10 +2,6 @@ import Vue from 'vue'
 import { VueRouter } from 'vue-router/types/router'
 import router from '@/router'
 
-interface QueryInterface {
-  [key: string]: string | number
-}
-
 export class RouterQuery {
   private _vueRouter: VueRouter
 
@@ -16,7 +12,7 @@ export class RouterQuery {
   /**
    * @param query
    */
-  setQuery (query: QueryInterface): Promise<any> {
+  setQuery (query: any): Promise<any> {
     return new Promise((resolve) => {
       const obj = Object.assign({}, this._vueRouter.currentRoute.query)
 
@@ -58,14 +54,19 @@ export class RouterQuery {
    */
   public removeQuery (names: string[]) {
     return new Promise((resolve) => {
-      const obj: any = {}
+      const obj = Object.assign({}, this._vueRouter.currentRoute.query)
 
-      const query = this._vueRouter.currentRoute.query
       names.forEach((key) => {
-        delete query[key]
+        delete obj[key]
       })
 
-      this.setQuery(obj).finally(resolve)
+      this._vueRouter.replace({
+        path: this._vueRouter.currentRoute.path,
+        params: this._vueRouter.currentRoute.params,
+        query: obj
+      }).catch((reason) => {
+        console.log(reason)
+      }).finally(resolve)
     })
   }
 
