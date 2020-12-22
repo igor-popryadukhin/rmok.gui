@@ -54,23 +54,17 @@ export class RouterQuery {
   }
 
   /**
-   * @param queryNameArray
-   * @param exceptQueryNameArray
+   * @param names
    */
-  public removeQuery (queryNameArray = [], exceptQueryNameArray = []) {
+  public removeQuery (names: string[]) {
     return new Promise((resolve) => {
       const obj: any = {}
 
-      if (queryNameArray.length > 0) {
-        queryNameArray.forEach((key: any) => {
-          obj[key] = null
-        })
-      } else {
-        const query = this._vueRouter.currentRoute.query
-        for (const key in query) {
-          if (exceptQueryNameArray.findIndex((e: any) => e === key) === -1) { delete this._vueRouter.currentRoute.query[key] }
-        }
-      }
+      const query = this._vueRouter.currentRoute.query
+      names.forEach((key) => {
+        delete query[key]
+      })
+
       this.setQuery(obj).finally(resolve)
     })
   }
