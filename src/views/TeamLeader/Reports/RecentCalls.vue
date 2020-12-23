@@ -110,13 +110,11 @@
               style="max-width: 350px"
             >
               <template v-slot:item="scope">
-                <v-list>
-                  <v-list-item :dense="false">
-                    <v-list-item-title>
-                      {{ scope.item.first_name }} {{ scope.item.last_name }}
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
+                <v-list-item v-on="scope.on">
+                  <v-list-item-title>
+                    {{ scope.item.first_name }} {{ scope.item.last_name }}
+                  </v-list-item-title>
+                </v-list-item>
               </template>
               <template v-slot:selection="{ item }">
                 {{ item.first_name }} {{ item.last_name }}
@@ -310,8 +308,11 @@
           <template slot="item.comment" slot-scope="{ item }">
             {{ item.comment || '-' }}
           </template>
-          <template slot="item.duration" slot-scope="">
-            00:00:00
+          <template slot="item.call_duration" slot-scope="{ item }">
+            {{ secondsToHmsDigital(item.call_duration) }}
+          </template>
+          <template slot="item.session_duration" slot-scope="{ item }">
+            {{ secondsToHmsDigital(item.session_duration) }}
           </template>
           <template slot="item.owner" slot-scope="{ item }">
             {{ item.owner.first_name }} {{ item.owner.last_name }}
@@ -349,6 +350,7 @@ import VRouterComboBox from '@/components/VRouterCombobox/VRouterComboBox.vue'
 import Reports from '@/api/Reports'
 import { format } from 'date-fns'
 import Users, { UserInterface } from '@/api/Users'
+import { secondsToHmsDigital } from '@/utils/datetime'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
@@ -420,10 +422,16 @@ export default Vue.extend({
             value: 'comment'
           },
           {
-            text: 'Длительность',
+            text: 'Длительность разговора',
             align: 'end',
             sortable: false,
-            value: 'duration'
+            value: 'call_duration'
+          },
+          {
+            text: 'Общее время сессии',
+            align: 'end',
+            sortable: false,
+            value: 'session_duration'
           },
           {
             text: 'Менеджер',
@@ -657,6 +665,10 @@ export default Vue.extend({
 
     onHistoryPaginationChange (pagination: any) {
       console.log(pagination)
+    },
+
+    secondsToHmsDigital (d: number) {
+      return secondsToHmsDigital(d)
     }
   }
 })
