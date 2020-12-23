@@ -3,6 +3,8 @@
   "January | February | March | April | May | June | July | August | September | October | December": "Январь | Февраль | Март | Апрель | Май | Июнь | Июль | Август | Сентябрь | Октябрь | Декабрь",
   "Range": "Интервал",
   "Manager": "Менеджер",
+  "Date the contact was created": "Дата создания контакта",
+  "No data for the selected period": "Нет данных по выбранному периоду",
   "route": {
     "team_leaders": "@:Home",
     "team_leader_users": "@:Users",

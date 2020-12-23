@@ -6,9 +6,23 @@ export default class Reports {
    *
    * @param params
    */
-  get (params = {}): any {
+  pie (params = {}): any {
     return new Promise<any>((resolve, reject) => {
-      $axios.get('/reports', {
+      $axios.get('/reports/pie', {
+        params: { ...params }
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          resolve(response.data)
+        } else {
+          reject(response.data)
+        }
+      }).catch(reject)
+    })
+  }
+
+  history (params = {}): any {
+    return new Promise<any>((resolve, reject) => {
+      $axios.get('/reports/history', {
         params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
