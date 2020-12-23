@@ -111,7 +111,7 @@
             >
               <template v-slot:item="scope">
                 <v-list>
-                  <v-list-item>
+                  <v-list-item :dense="false">
                     <v-list-item-title>
                       {{ scope.item.first_name }} {{ scope.item.last_name }}
                     </v-list-item-title>
@@ -557,7 +557,10 @@ export default Vue.extend({
   methods: {
     fetchUsers () {
       new Users()
-        .find()
+        .find({
+          roles: 'r_operator',
+          count: 1000
+        })
         .then((response) => {
           this.users = response.items || []
           if (this.$routerQuery.hasQuery('owner_id')) {
