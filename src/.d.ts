@@ -17,5 +17,6 @@ declare module 'vue/types/vue' {
     $lvovich: Lvovich,
     setQuery: (query: any) => void
     $routerQuery: RouterQuery
+    $isDebug: boolean
   }
 }

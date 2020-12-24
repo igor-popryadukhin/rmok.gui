@@ -196,6 +196,7 @@
             v-for="(item, index) in items"
             :key="index"
             :to="item.to"
+            @click="item.click ? item.click : () => {}"
           >
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>

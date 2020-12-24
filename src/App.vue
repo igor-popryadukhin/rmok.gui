@@ -26,6 +26,7 @@ import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSessi
 import { Configurations } from '@/api/Configurations'
 import { JsSIP } from '@/jsSIP/plugin'
 import {
+  ConnectedEvent,
   UnRegisteredEvent
 } from 'jssip/lib/UA'
 import { POSITION } from 'vue-toastification'
@@ -42,6 +43,8 @@ import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import VueI18n from 'vue-i18n'
 import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
 import PBXInterface from '@/api/Schemas/PBXInterface'
+import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
+import VToast from '@/components/VToast/VToast.vue'
 
 interface HistoryDataInterface {
   /* eslint-disable */
@@ -98,7 +101,7 @@ export default Vue.extend({
 
   beforeCreate () {
     this.$store.dispatch('profile/loadProfile')
-      .then(() => {
+      .finally(() => {
         this.$root.$emit('root-jssip-initialize')
       })
     this.$store.dispatch('project/load')
@@ -118,6 +121,7 @@ export default Vue.extend({
 
   methods: {
     jsSIPInitialize () {
+      console.log('%c%s', 'color: green;', 'JsSIP: Инициализация...')
       const libphonenumberInitialize = () => import(/* webpackChunkName: "libphonenumber-js-plugin" */ '@/plugins/libphonenumber-js')
       const jssipInitialize = () => import(/* webpackChunkName: "jssip-plugin" */ '@/jsSIP')
         .then(() => {
@@ -142,13 +146,25 @@ export default Vue.extend({
             // Event Disconnected can happen later than Connected
             setTimeout(() => {
               this.$jsSIP.start()
-            }, 500)
+            }, 1000)
             /* eslint-enable */
             })
 
-          // This is the global session handler.
+          // Это глобальный обработчик сеанса.
           this.$jsSIP.onSessionConnecting = (session: RTCSession, event: ConnectingEvent, payload: any) => {
-            console.log('%c%s', 'color: blue;', 'Начало сессии')
+            // Слушатель событий в рамках одной сессии
+            session.once('failed', (event: EndEvent) => {
+              this.$toast.error(event.cause)
+            })
+
+            if (this.$isDebug) {
+              console.group('JsSIP: Начало сессии')
+              console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
+              console.log('%c%s', 'color: green;', '----------------------------------------------------')
+              console.log(event)
+              console.log('%c%s', 'color: green;', '----------------------------------------------------')
+              console.groupEnd()
+            }
           }
 
           this.$jsSIP.onSessionProgress = async (session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
@@ -180,11 +196,32 @@ export default Vue.extend({
           }
 
           this.$jsSIP.onSessionAccepted = (session: RTCSession, event: IncomingEvent | OutgoingEvent, payload: any) => {
-            console.log('onSessionAccepted...', event, session.direction, session, payload)
+            if (this.$isDebug) {
+              console.group('JsSIP: Принятый')
+              console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
+              console.log('%c%s', 'color: green;', '----------------------------------------------------')
+              console.log(event)
+              console.log(session)
+              console.log(payload)
+              console.log('%c%s', 'color: green;', '----------------------------------------------------')
+              console.groupEnd()
+            }
           }
 
           this.$jsSIP.onSessionEnded = (session: RTCSession, event: EndEvent, payload: any) => {
           /* eslint-disable */
+
+            if (this.$isDebug) {
+              console.group('JsSIP: Завершение сессии')
+              console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
+              console.log('%c%s', 'color: green;', '----------------------------------------------------')
+              console.log(event)
+              console.log(session.direction)
+              console.log(session)
+              console.log(payload)
+              console.log('%c%s', 'color: green;', '----------------------------------------------------')
+              console.groupEnd()
+            }
 
           if (session.direction === 'incoming') {
             this.$toast.dismiss(session.id)
@@ -258,29 +295,78 @@ export default Vue.extend({
         .finally(jssipInitialize)
     },
 
-    onJsSIPConnected (event: any) {
-      console.log('%c%s', 'color: green;', 'JSSIP Connected')
+    onJsSIPConnected (event: ConnectedEvent) {
+      if (this.$isDebug) {
+        console.group()
+        console.log('%c%s', 'color: green;', 'JsSIP: Соединение установлено.')
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.log(event)
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.groupEnd()
+      }
     },
 
-    onJsSIPDisconnected (event: any) {
-      console.log('%c%s', 'color: green;', 'JSSIP Disconnected')
+    onJsSIPDisconnected (event: DisconnectEvent) {
+      if (this.$isDebug) {
+        console.log('%c%s', 'color: blue;', 'JsSIP: Соединение разорвано.')
+      }
     },
 
     onJsSIPRegistered (event: any) {
-      // console.log(JSON.stringify(event))
-      console.log('%c%s', 'color: green;', 'JSSIP Registered', event)
+      if (this.$isDebug) {
+        console.log('%c%s', 'color: green;', 'JsSIP: Зарегистрирован')
+      }
     },
 
     onJsSIPRegistrationFailed (event: UnRegisteredEvent) {
-      console.log('%c%s', 'color: red;', 'JSSIP Failed: ' + event.cause)
+      if (this.$isDebug) {
+        console.log('%c%s', 'color: red;', 'JsSIP: Ошибка [' + event.cause + ']')
+      }
+
+      // Только в интерфейсе оператора выводим информацию об ошибке при подключении
+      if (this.$store.getters['profile/role_is_operator']) {
+        this.$toast.error({
+          component: VToast,
+          props: {
+            title: this.$tc('Error connecting to PBX'),
+            text: this.$t('Cause: {text}', { text: event.cause }),
+            actions: [
+              {
+                attrs: {
+                  label: this.$tc('Tune'),
+                  style: { color: 'white' }
+                },
+                on: {
+                  click: () => {
+                    this.$router.push({ name: 'operator_settings_telephony' })
+                  }
+                }
+              }
+            ]
+          }
+        }, { timeout: false })
+      }
     },
 
     onJsSIPSipEvent (event: any) {
-      console.log(event)
+      if (this.$isDebug) {
+        console.group()
+        console.log('%c%s', 'color: green;', 'JsSIP: Событие')
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.log(event)
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.groupEnd()
+      }
     },
 
     onJsSIPNewMessage (event: any) {
-      console.log('%c%s', 'color: green;', 'JSSIP NewMessage', event)
+      if (this.$isDebug) {
+        console.group('JsSIP: Новое сообщение')
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.log(event)
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.groupEnd()
+      }
     },
 
     showRTCToast (displayName: string, phoneNumber: string, id: string | number) {

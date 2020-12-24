@@ -107,15 +107,14 @@
               return-object
                   dense
                   outlined
+              style="max-width: 350px"
               >
               <template v-slot:item="scope">
-                <v-list>
-                  <v-list-item>
+                <v-list-item v-on="scope.on">
                     <v-list-item-title>
                       {{ scope.item.first_name }} {{ scope.item.last_name }}
                     </v-list-item-title>
                   </v-list-item>
-                </v-list>
               </template>
               <template v-slot:selection="{ item }">
                 {{ item.first_name }} {{ item.last_name }}
@@ -141,6 +140,7 @@
                   v-on="on"
                   outlined
                   dense
+                  style="max-width: 350px"
                 ></v-text-field>
               </template>
               <v-date-picker
@@ -555,7 +555,10 @@ export default Vue.extend({
   methods: {
     fetchUsers () {
       new Users()
-        .find()
+        .find({
+          roles: 'r_operator',
+          count: 1000
+        })
         .then((response) => {
           this.users = response.items || []
           if (this.$routerQuery.hasQuery('owner_id')) {

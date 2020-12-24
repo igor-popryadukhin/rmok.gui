@@ -11,6 +11,10 @@ Vue.mixin(Vue.extend({
 
     $locale (): string {
       return 'ru'
+    },
+
+    $isDebug (): boolean {
+      return Boolean(localStorage.getItem('debug-enabled'))
     }
   },
 
