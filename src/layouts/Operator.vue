@@ -238,10 +238,12 @@
         </vuescroll>
       </v-container>
     </v-main>
+
     <v-dialog
       v-model="projectDialog.visible"
       persistent
       :max-width="projectDialogWidth"
+      :disabled="projectDialog.disabled"
     >
       <v-card>
         <v-card-title class="headline">
@@ -250,6 +252,7 @@
         <v-card-text class="pb-10">
           <v-list
             subheader
+            :disabled="projectDialog.disabled"
           >
             <template
               v-for="item in projectDialog.projects"
@@ -262,6 +265,15 @@
                 <v-list-item-title>
                   {{ item.name }}
                 </v-list-item-title>
+                <v-list-item-action>
+                  <v-progress-circular
+                    v-if="item.loading"
+                    indeterminate
+                    size="22"
+                    width="2"
+                    color="grey"
+                  />
+                </v-list-item-action>
               </v-list-item>
               <v-divider :key="`v-divider-${item.id}`" />
             </template>
@@ -301,7 +313,8 @@ export default Vue.extend({
   data: () => ({
     projectDialog: {
       visible: false,
-      projects: [] as ProjectInterface[]
+      projects: [] as ProjectInterface[],
+      disabled: false
     },
     overlay: false,
     buttonMenuNotification: false,
@@ -544,7 +557,9 @@ export default Vue.extend({
      *
      * @param item
      */
-    onProjectItemClick (item: ProjectInterface) {
+    onProjectItemClick (item: ProjectInterface & { loading: boolean }) {
+      this.projectDialog.disabled = true
+      item.loading = true
       new Users()
         .setProject(this.$store.getters['profile/id'], item.id)
         .then(() => {
@@ -552,6 +567,9 @@ export default Vue.extend({
           this.$store.dispatch('project/load')
         }).catch((e) => {
           console.log(e)
+        }).finally(() => {
+          item.loading = false
+          this.projectDialog.disabled = false
         })
     },
 
@@ -559,7 +577,10 @@ export default Vue.extend({
       new Projects()
         .find('', 0, 100)
         .then((response) => {
-          this.projectDialog.projects = response.items || []
+          this.projectDialog.projects = response.items.map((e: any) => {
+            e.loading = false
+            return e
+          }) || []
         })
     }
   }
