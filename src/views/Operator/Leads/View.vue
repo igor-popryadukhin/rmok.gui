@@ -437,7 +437,9 @@ export default (Vue as VueConstructor<Vue & any>).extend({
           this.contact = contact
         }).finally(() => {
           this.dataLoading = false
-          this.$root.$emit('root-loading-data-hide')
+          setTimeout(() => {
+            this.$root.$emit('root-loading-data-hide')
+          }, 1500)
         })
     }
     next()

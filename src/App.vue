@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-center">
-      <v-overlay z-index="99" :value="overlay">
+      <v-overlay z-index="150" :value="overlay">
         <v-progress-circular
           indeterminate
           size="64"

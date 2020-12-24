@@ -79,6 +79,11 @@
         </v-tab-item>
       </v-tabs-items>
     </div>
+    <v-textarea
+      v-model="dComment"
+      label="Comment"
+      outlined
+    />
   </DialogCard>
 </template>
 
@@ -106,6 +111,10 @@ export default Vue.extend({
       type: String,
       default: 'Cancel'
     },
+    comment: {
+      type: String,
+      default: ''
+    },
     onSave: {
       type: Function,
       default: null
@@ -118,10 +127,15 @@ export default Vue.extend({
 
   data () {
     return {
+      dComment: '',
       tabStatus: 0,
       tab: null,
       selected: undefined
     }
+  },
+
+  created () {
+    (this as any).dComment = (this as any).comment
   },
 
   computed: {

@@ -175,7 +175,7 @@
                 <span v-else>Статус не установлен</span>
               </v-list-item-group>
               <v-list-item-group>
-                <v-list-item-title>{{ new Date(item.start_time * 1000).toLocaleString() }}</v-list-item-title>
+                <v-list-item-title>{{ new Date(item.created_at * 1000).toLocaleString() }}</v-list-item-title>
               </v-list-item-group>
               <v-list-item-action>
                 <v-btn
