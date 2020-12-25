@@ -121,7 +121,9 @@ export default Vue.extend({
 
   methods: {
     jsSIPInitialize () {
-      console.log('%c%s', 'color: green;', 'JsSIP: Инициализация...')
+      if (this.$isDebug) {
+        console.log('%c%s', 'color: green;', 'JsSIP: Инициализация...')
+      }
       const libphonenumberInitialize = () => import(/* webpackChunkName: "libphonenumber-js-plugin" */ '@/plugins/libphonenumber-js')
       const jssipInitialize = () => import(/* webpackChunkName: "jssip-plugin" */ '@/jsSIP')
         .then(() => {
@@ -211,10 +213,20 @@ export default Vue.extend({
           this.$jsSIP.onSessionEnded = (session: RTCSession, event: EndEvent, payload: any) => {
           /* eslint-disable */
 
+
+            let audioRecordId = undefined
+            if (session.direction === 'incoming') {
+              audioRecordId = session._request.headers["X-Call-Filename"][0]['raw']
+            } else {
+              audioRecordId = this.$jsSIP.uuid
+            }
+
+
             if (this.$isDebug) {
               console.group('JsSIP: Завершение сессии')
               console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
               console.log('%c%s', 'color: green;', '----------------------------------------------------')
+              console.log(`X-Call-Filename: ${audioRecordId}`)
               console.log(event)
               console.log(session.direction)
               console.log(session)
@@ -233,7 +245,8 @@ export default Vue.extend({
             start_timestamp: session.start_time ? session.start_time.getTime() / 1000 : null,
             end_timestamp: session.end_time ? session.end_time.getTime() / 1000 : null,
             type: 'call',
-            direction: session.direction
+            direction: session.direction,
+            audio_record_id: audioRecordId
           } as HistoryDataInterface
 
           // If ATE did not return the call time, we delete zero data from the request
@@ -297,8 +310,7 @@ export default Vue.extend({
 
     onJsSIPConnected (event: ConnectedEvent) {
       if (this.$isDebug) {
-        console.group()
-        console.log('%c%s', 'color: green;', 'JsSIP: Соединение установлено.')
+        console.group('JsSIP: Соединение установлено.')
         console.log('%c%s', 'color: green;', '----------------------------------------------------')
         console.log(event)
         console.log('%c%s', 'color: green;', '----------------------------------------------------')
@@ -308,13 +320,21 @@ export default Vue.extend({
 
     onJsSIPDisconnected (event: DisconnectEvent) {
       if (this.$isDebug) {
-        console.log('%c%s', 'color: blue;', 'JsSIP: Соединение разорвано.')
+        console.group('JsSIP: Соединение разорвано.')
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.log(event)
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.groupEnd()
       }
     },
 
     onJsSIPRegistered (event: any) {
       if (this.$isDebug) {
-        console.log('%c%s', 'color: green;', 'JsSIP: Зарегистрирован')
+        console.group('JsSIP: Зарегистрирован')
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.log(event)
+        console.log('%c%s', 'color: green;', '----------------------------------------------------')
+        console.groupEnd()
       }
     },
 
