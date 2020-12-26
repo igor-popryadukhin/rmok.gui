@@ -319,12 +319,30 @@
           </template>
           <template slot="item.record" slot-scope="{ item }">
             <v-btn
+              v-if="!item.isPlaying"
               icon
               small
               :value="item"
+              @click="onHistoryItemRecordPlay(item)"
             >
               <v-icon>mdi-play</v-icon>
             </v-btn>
+            <v-progress-circular
+              v-else
+              :value="item.playingProgress || 0"
+              width="1"
+              color="blue-grey"
+            >
+              <v-btn
+                :value="item"
+                color="red"
+                icon
+                small
+                @click="() => { stopSound(); dataTableHistory.items.forEach((e => (e.isPlaying = false))) }"
+              >
+                <v-icon>mdi-stop</v-icon>
+              </v-btn>
+            </v-progress-circular>
           </template>
           <!-- slots item -->
 
@@ -351,6 +369,8 @@ import Reports from '@/api/Reports'
 import { format } from 'date-fns'
 import Users, { UserInterface } from '@/api/Users'
 import { secondsToHmsDigital } from '@/utils/datetime'
+import ContactHistory from '@/api/ContactHistory'
+import audioPlayer from '@/mixins/audioPlayer'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
@@ -360,6 +380,8 @@ export default Vue.extend({
   components: {
     VRouterComboBox
   },
+
+  mixins: [audioPlayer],
 
   data () {
     return {
@@ -605,7 +627,10 @@ export default Vue.extend({
         .then((response: any) => {
           this.dataTableHistory.totalCount = response.count || 0
           this.dataTableHistory.pages = Math.ceil(response.count / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.items || []
+          this.dataTableHistory.items = response.items?.map((e: any) => {
+            e.isPlaying = false
+            return e
+          }) || []
         }).finally(() => (this.historyProcessLoading = false))
     },
 
@@ -665,6 +690,43 @@ export default Vue.extend({
 
     onHistoryPaginationChange (pagination: any) {
       console.log(pagination)
+    },
+
+    onHistoryItemRecordPlay (item: any) {
+      this.stopSound()
+      this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+      item.isPlaying = true
+      item.playingProgress = 0
+
+      if (item.audioUrl) {
+        this.playSound(item.audioUrl, false, {
+          onEnded: () => {
+            this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+          },
+          onProgressUpdate: (progress: number) => {
+            item.playingProgress = progress
+            this.$forceUpdate()
+          }
+        })
+      } else {
+        new ContactHistory()
+          .getAudioFile(item.id)
+          .then((response: any) => {
+            item.audioUrl = response.url
+            this.playSound(response.url, false, {
+              onEnded: () => {
+                this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+              },
+              onProgressUpdate: (progress: number) => {
+                item.playingProgress = progress
+                this.$forceUpdate()
+              }
+            })
+          }).catch(() => {
+            this.$toast.error(this.$tc('Audio file not found'))
+            item.isPlaying = false
+          })
+      }
     },
 
     secondsToHmsDigital (d: number) {
