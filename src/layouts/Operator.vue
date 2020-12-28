@@ -11,7 +11,6 @@
       extended
       extension-height="25px"
       class="background--header"
-      style="z-index: 100"
     >
       <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title>

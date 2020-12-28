@@ -30,32 +30,24 @@
       ></v-text-field>
 
       <!-- Users -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-            :to="{ path: '/team-leader/users' }"
-          >
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.team_leader_users') }}</span>
-      </v-tooltip>
+      <v-btn
+        text
+        :to="{ path: '/team-leader/users' }"
+        class="mr-1"
+      >
+        {{ $tc('route.team_leader_users') }}
+      </v-btn>
 
       <!-- Menu reports -->
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-            icon
-            class="mr-3"
-            :class="['team_leader_reports_recent_calls', 'team_leader_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
+            text
+            class="mr-5"
             v-on="on"
             v-bind="attrs"
           >
-            <v-icon>mdi-chart-areaspline-variant</v-icon>
+            {{ $tc('route.team_leader_reports') }}
           </v-btn>
         </template>
         <v-list>
