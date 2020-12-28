@@ -320,9 +320,9 @@
           <template slot="item.record" slot-scope="{ item }">
             <v-btn
               v-if="!item.isPlaying"
+              :disabled="item.audio_recording_id === null"
               icon
               small
-              :value="item"
               @click="onHistoryItemRecordPlay(item)"
             >
               <v-icon>mdi-play</v-icon>
