@@ -15,7 +15,7 @@
       <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title class="d-inline-block toolbar-title">
         <div class="hidden-sm-and-down">RMOK</div>
-        <div class="hidden-sm-and-down toolbar-title-subtitle">for call center manager</div>
+        <div class="hidden-sm-and-down toolbar-title-subtitle">Для руководителя колл центра</div>
       </v-toolbar-title>
       <v-spacer/>
       <v-text-field
@@ -165,8 +165,9 @@
     <v-main>
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
+        fluid
       >
-        <vuescroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
+        <vuescroll :ops="vueScrollOptions" :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
           <router-view/>
         </vuescroll>
       </v-container>
@@ -178,6 +179,7 @@
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
 import vuescroll from 'vuescroll'
+import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 export default Vue.extend({
   props: {
@@ -188,7 +190,7 @@ export default Vue.extend({
     vuescroll
   },
 
-  mixins: [breadcrumbs],
+  mixins: [breadcrumbs, vueScrollOptions],
 
   data: () => ({
     settings: {
@@ -252,15 +254,12 @@ export default Vue.extend({
       const last: string = this.$store.getters['profile/last_name'] || ''
       return first.charAt(0) + last.charAt(0)
     }
-  }
+  },
 
-  // watch: {
-  //   $route (to, from) {
-  //     const toDepth = to.path.split('/').length
-  //     const fromDepth = from.path.split('/').length
-  //     this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
-  //   }
-  // },
+  beforeMount () {
+    this.vueScrollOptions.bar.keepShow = false
+    delete this.vueScrollOptions.rail
+  }
 })
 </script>
 
