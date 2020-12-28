@@ -56,6 +56,7 @@ interface HistoryDataInterface {
   direction?: string;
   initiator?: string;
   target?: string;
+  audio_record_id?: string;
   /* eslint-enable */
 }
 
@@ -156,7 +157,7 @@ export default Vue.extend({
           // Это глобальный обработчик сеанса.
           this.$jsSIP.onSessionConnecting = (session: RTCSession, event: ConnectingEvent, payload: any) => {
             // Слушатель событий в рамках одной сессии
-            session.once('failed', (event: EndEvent) => {
+            session.on('failed', (event: EndEvent) => {
               this.$toast.error(event.cause)
             })
 
@@ -250,10 +251,11 @@ export default Vue.extend({
             audio_record_id: audioRecordId
           } as HistoryDataInterface
 
-          // If ATE did not return the call time, we delete zero data from the request
+          // Если АТС не вернула время звонка, удаляем ненужные данные из запроса
           if (historyData.start_timestamp == null) {
-            delete historyData.start_timestamp
-            delete historyData.end_timestamp
+            delete historyData.start_timestamp  // Время начала разговора не требуется, так как разговор не состоялся.
+            delete historyData.end_timestamp    // Время завершения разговора не требуется, так как разговор не состоялся.
+            delete historyData.audio_record_id  // ID аудиозаписи не требуется, так как разговор не состоялся.
           }
 
           let contactId = 0;
