@@ -244,7 +244,8 @@ export class JsSIP {
       /* eslint-disable */
       uri: config.uri,
       display_name: config.display_name,
-      password: config.password
+      password: config.password,
+      realm: config.realm
       /* eslint-enable */
     })
     this.initializeListeners()
