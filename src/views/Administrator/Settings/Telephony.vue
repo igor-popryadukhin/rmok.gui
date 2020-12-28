@@ -147,7 +147,8 @@ export default Vue.extend({
         /* eslint-disable */
         uri: `sip:${this.config.login}@${this.config.server}`,
         display_name: this.config.display_name,
-        password: this.config.password
+        password: this.config.password,
+        realm: config.server
         /* eslint-enable */
       }).start()
       new Configurations()

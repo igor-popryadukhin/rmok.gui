@@ -136,7 +136,8 @@ export default Vue.extend({
             /* eslint-disable */
             (this.$jsSIP as JsSIP).setConfiguration(`wss://${config.server}:${config.port}/ws`, {
               uri: `sip:${config.login}@${config.server}`,
-              password: config.password
+              password: config.password,
+              realm: config.server
             })
               .on('connected', this.onJsSIPConnected)
               .on('disconnected', this.onJsSIPDisconnected)

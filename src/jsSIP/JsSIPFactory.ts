@@ -5,6 +5,7 @@ export interface JsSPConfiguration {
   uri: string;
   password: string;
   display_name?: string | undefined;
+  realm?: string;
 }
 
 /**
@@ -24,6 +25,7 @@ export class JsSIPFactory {
       password: configuration.password,
       display_name: configuration.display_name,
       register: true,
+      realm: configuration.realm || '',
       contact_uri: configuration.uri
     })
   }

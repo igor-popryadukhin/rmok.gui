@@ -408,7 +408,8 @@ export default Vue.extend({
       }
       this.$jsSIP.setConfiguration(`wss://${this.testingCallDialog.pbx_config.server}:${this.testingCallDialog.pbx_config.port}/ws`, {
         uri: `sip:${this.testingCallDialog.pbx_config.login}@${this.testingCallDialog.pbx_config.server}`,
-        password: this.testingCallDialog.pbx_config.password
+        password: this.testingCallDialog.pbx_config.password,
+        realm: this.testingCallDialog.pbx_config.server
       }).on('connected', this.onJsSIPConnected)
         .on('disconnected', this.onJsSIPDisconnected)
         .on('registered', this.onJsSIPRegistered)
