@@ -698,7 +698,6 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'users',
-        name: 'call_center_manager_users',
         component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/Layout.vue'),
         children: [
           {
