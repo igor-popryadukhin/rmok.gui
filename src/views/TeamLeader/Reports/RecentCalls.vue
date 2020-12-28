@@ -330,7 +330,8 @@
             <v-progress-circular
               v-else
               :value="item.playingProgress || 0"
-              width="1"
+              width="2"
+              size="28"
               color="blue-grey"
             >
               <v-btn
@@ -722,8 +723,8 @@ export default Vue.extend({
                 this.$forceUpdate()
               }
             })
-          }).catch(() => {
-            this.$toast.error(this.$tc('Audio file not found'))
+          }).catch((e) => {
+            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
             item.isPlaying = false
           })
       }
