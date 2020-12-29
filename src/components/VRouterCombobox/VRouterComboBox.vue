@@ -54,7 +54,6 @@ export default Vue.extend({
 
   created () {
     const tree = (node: Route, handler: (a: Route) => void) => {
-      // console.log(node)
       if (node.children) {
         node.children.forEach((e: Route) => {
           tree(e, handler)

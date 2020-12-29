@@ -227,5 +227,6 @@
   "Changes saved": "Изменения сохранены",
   "Choose a status first!": "Сначала выберите статус!",
   "Your search - {q} - did not match any documents.": "По запросу {q} ничего не найдено.",
-  "The status cannot be set, because the project is configured incorrectly!": "Статус установить не получится, так как проект настроен неверно!"
+  "The status cannot be set, because the project is configured incorrectly!": "Статус установить не получится, так как проект настроен неверно!",
+  "January | February | March | April | May | June | July | August | September | October | December": "Январь | Февраль | Март | Апрель | Май | Июнь | Июль | Август | Сентябрь | Октябрь | Декабрь"
 }

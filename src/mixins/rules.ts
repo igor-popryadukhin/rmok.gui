@@ -38,6 +38,7 @@ export default Vue.extend({
           return pattern.test(value) || this.$t('rule_invalid_email')
         },
         phone_number: (value: string) => isEmpty(value) || /^(8|\+\d{1,3})(\d{10}|\s([0-9]{1,3})\s(\d{3}-\d{2}-\d{2})|(|\s+)\((\d+)\)(|\s)([0-9]{7}|\s(\d{3})\s(\d{4})))/i.test(value) || this.$t('rule_invalid_phone_number'),
+        phoneNumber: (value: string) => isEmpty(value) || /^(8|\+\d{1,3})(\d{10}|\s([0-9]{1,3})\s(\d{3}-\d{2}-\d{2})|(|\s+)\((\d+)\)(|\s)([0-9]{7}|\s(\d{3})\s(\d{4})))/i.test(value) || this.$t('Invalid phone number.'),
         lengthMax: (value: number, message = 'Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.') => {
           return (v: string) => isEmpty(v) || (v.length <= value ? true : this.$tc(message, value))
         },
@@ -60,7 +61,6 @@ export default Vue.extend({
     },
 
     assertLength (options: AssertLengthInterface) {
-      console.log('call assertLength')
       return (value: string) => {
         if (options.max) {
           const max = options.max
