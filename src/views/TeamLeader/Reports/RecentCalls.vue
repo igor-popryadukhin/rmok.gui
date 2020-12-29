@@ -357,6 +357,16 @@
         </v-data-table>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col class="d-flex">
+        <v-pagination
+          v-model="dataTableHistory.page"
+          :length="dataTableHistory.pages"
+          total-visible="5"
+        ></v-pagination>
+        <v-spacer/>
+      </v-col>
+    </v-row>
     <div style="height: 200px"></div>
   </v-container>
 </template>
