@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-0 pt-5" fluid>
+  <v-container class="pa-0" fluid>
     <v-row>
       <v-col class="pt-0 pb-0">
         <div class="d-flex">
@@ -96,19 +96,22 @@
     <v-row>
       <v-col>
         <v-card outlined>
-          <v-card-text class="d-flex justify-lg-space-between">
+          <v-card-text class="d-flex">
+
+            <!-- Пользователи -->
             <v-combobox
               v-model="usersSelected"
               :items="users"
               item-value="id"
                   :label="$tc('Users')"
               :disabled="(users || []).length === 0"
+              style="max-width: 300px"
+              class="mr-5"
               clearable
               return-object
-                  dense
-                  outlined
-              style="max-width: 350px"
-              >
+              dense
+              outlined
+            >
               <template v-slot:item="scope">
                 <v-list-item v-on="scope.on">
                     <v-list-item-title>
@@ -120,6 +123,7 @@
                 {{ item.first_name }} {{ item.last_name }}
               </template>
             </v-combobox>
+
             <v-spacer />
             <v-menu
               ref="menuContactDateCreated"
@@ -177,85 +181,18 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col>
-        <v-card outlined>
-          <v-card-text>
-            <v-row v-if="processPieLoading">
-              <v-col>
-                <div
-                  class="d-flex align-center justify-center"
-                  style="min-height: 320px"
-                >
-                  <div>
-                    {{ $tc('Loading content...') }}
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-else-if="total_calls === 0">
-              <v-col>
-                <div
-                  class="d-flex align-center justify-center"
-                  style="min-height: 320px"
-                >
-                  <div>
-                    {{ $tc('No data for the selected period') }}
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-else>
-              <v-col
-                cols="12"
-                md="6"
-                lg="6"
-              >
-                <div class="d-flex flex-column fill-height" style="min-height: 320px">
-                  <v-spacer/>
-                  <div class="mb-5">
-                    <h4 class="mb-2 font-weight-medium">Всего сделано звонков</h4>
-                    <div style="font-size: 2rem">{{ total_calls }}</div>
-                  </div>
-                  <div class="mb-5">
-                    <h4 class="mb-2 font-weight-medium">Всего клиентов прозвонено</h4>
-                    <div style="font-size: 2rem">{{ total_clients }}</div>
-                  </div>
-                  <v-spacer/>
-                  <div>
-                    На диаграмме представлены результаты последних звонков каждому клиенту
-                  </div>
-                </div>
-              </v-col>
-              <v-col
-                cols="12"
-                md="6"
-                lg="6"
-              >
-                <v-card-text class="d-flex" style="min-height: 320px; max-height: 320px">
-                  <v-spacer/>
-                  <apexchart
-                    width="500"
-                    type="pie"
-                    :options="apexchartOptions"
-                    :series="pieSeries"
-                  />
-                </v-card-text>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
 
-    <!-- Actions -->
     <v-row>
       <v-col class="d-flex">
         <v-pagination
           v-model="dataTableHistory.page"
           :length="dataTableHistory.pages"
           total-visible="5"
+          class="mr-5"
         ></v-pagination>
+        <div class="align-self-center">
+          {{ dataTableHistory.pageStart }}-{{ dataTableHistory.pageStop }} из {{ dataTableHistory.totalCount }}
+        </div>
         <v-spacer/>
         <v-btn-toggle background-color="green">
           <v-btn
@@ -276,7 +213,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <!-- Контакты -->
+        <!-- История -->
         <v-data-table
           :headers="dataTableHistory.headers"
           :items="dataTableHistory.items"
@@ -288,7 +225,8 @@
           :loading="historyProcessLoading"
           locale="ru"
           :no-data-text="$tc('No data for the selected period')"
-          @pagination="onHistoryPaginationChange"
+          :height="$screenHeight - 389"
+          @pagination="onPaginationChange"
           dense
           fixed-header
           hide-default-footer
@@ -308,20 +246,42 @@
           <template slot="item.comment" slot-scope="{ item }">
             {{ item.comment || '-' }}
                 </template>
-          <template slot="item.duration" slot-scope="">
-            00:00:00
+          <template slot="item.call_duration" slot-scope="{ item }">
+            {{ secondsToHmsDigital(item.call_duration) }}
+          </template>
+          <template slot="item.session_duration" slot-scope="{ item }">
+            {{ secondsToHmsDigital(item.session_duration) }}
           </template>
           <template slot="item.owner" slot-scope="{ item }">
             {{ item.owner.first_name }} {{ item.owner.last_name }}
           </template>
           <template slot="item.record" slot-scope="{ item }">
             <v-btn
+              v-if="!item.isPlaying"
+              :disabled="item.audio_recording_id === null"
               icon
               small
-              :value="item"
+              @click="onHistoryItemRecordPlay(item)"
             >
               <v-icon>mdi-play</v-icon>
             </v-btn>
+            <v-progress-circular
+              v-else
+              :value="item.playingProgress || 0"
+              width="2"
+              size="28"
+              color="blue-grey"
+            >
+              <v-btn
+              :value="item"
+                color="red"
+                icon
+                small
+                @click="() => { stopSound(); dataTableHistory.items.forEach((e => (e.isPlaying = false))) }"
+            >
+                <v-icon>mdi-stop</v-icon>
+            </v-btn>
+            </v-progress-circular>
           </template>
           <!-- slots item -->
 
@@ -335,7 +295,6 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <div style="height: 200px"></div>
   </v-container>
 </template>
 
@@ -347,6 +306,9 @@ import VRouterComboBox from '@/components/VRouterCombobox/VRouterComboBox.vue'
 import Reports from '@/api/Reports'
 import { format } from 'date-fns'
 import Users, { UserInterface } from '@/api/Users'
+import { secondsToHmsDigital } from '@/utils/datetime'
+import ContactHistory from '@/api/ContactHistory'
+import audioPlayer from '@/mixins/audioPlayer'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
@@ -356,6 +318,8 @@ export default Vue.extend({
   components: {
     VRouterComboBox
   },
+
+  mixins: [audioPlayer],
 
   data () {
     return {
@@ -389,10 +353,12 @@ export default Vue.extend({
 
       // Data table
       dataTableHistory: {
+        page: 1,
+        pages: 1,
         totalCount: 0,
-        page: 1, // Текущая страница
-        pages: 0, // Всего страниц
-        itemsPerPage: 100, // Количество данных на страницу
+        itemsPerPage: 100,
+        pageStart: 0,
+        pageStop: 0,
         items: [],
         headers: [
           {
@@ -418,10 +384,16 @@ export default Vue.extend({
             value: 'comment'
           },
           {
-            text: 'Длительность',
+            text: 'Длительность разговора',
             align: 'end',
             sortable: false,
-            value: 'duration'
+            value: 'call_duration'
+          },
+          {
+            text: 'Общее время сессии',
+            align: 'end',
+            sortable: false,
+            value: 'session_duration'
           },
           {
             text: 'Менеджер',
@@ -437,8 +409,7 @@ export default Vue.extend({
         ],
         options: {}
       },
-      loading: true,
-      DtOptions: {}
+      loading: true
     }
   },
 
@@ -447,28 +418,23 @@ export default Vue.extend({
     filterDate (value: string | number | undefined) {
       switch (value) {
         case 'today': {
-          this.$routerQuery.setQuery({ date: 'today' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDataHistory)
           break
         }
         case 'yesterday': {
-          this.$routerQuery.setQuery({ date: 'yesterday' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDataHistory)
           break
         }
         case 'this_week': {
-          this.$routerQuery.setQuery({ date: 'this_week' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDataHistory)
           break
         }
         case 'last_week': {
-          this.$routerQuery.setQuery({ date: 'last_week' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDataHistory)
           break
         }
         case 'month': {
-          this.$routerQuery.setQuery({ date: 'month' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDataHistory)
           break
         }
       }
@@ -499,14 +465,12 @@ export default Vue.extend({
           this.$routerQuery.setQuery({
             owner_id: user.id
           }).then(() => {
-            this.fetchDataPie()
             this.fetchDataHistory()
           })
         } else {
           this.$routerQuery
             .removeQuery(['owner_id'])
             .then(() => {
-              this.fetchDataPie()
               this.fetchDataHistory()
             })
         }
@@ -548,7 +512,6 @@ export default Vue.extend({
     }
 
     this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
-    this.fetchDataPie()
     this.fetchUsers()
   },
 
@@ -570,32 +533,23 @@ export default Vue.extend({
         })
     },
 
-    // Загрузить график
-    fetchDataPie () {
-      this.processPieLoading = true
-      new Reports()
-        .pie(this.$route.query)
-        .then((report: any) => {
-          this.total_calls = report.total_calls
-          this.total_clients = report.total_clients
-
-          // Pie chart
-          this.pieLabels = report.pie_chart.labels || ['']
-          this.pieSeries = report.pie_chart.series || [1]
-          this.pieColors = report.pie_chart.colors || []
-        }).finally(() => (this.processPieLoading = false))
-    },
-
     // Загрузить историю
     fetchDataHistory () {
       this.historyProcessLoading = true
       const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
       new Reports()
-        .history(Object.assign({ offset, count: this.dataTableHistory.itemsPerPage }, this.$route.query))
+        .history(Object.assign({
+          offset,
+          count: this.dataTableHistory.itemsPerPage,
+          type: 'all' // Показать всю историю
+        }, this.$route.query))
         .then((response: any) => {
           this.dataTableHistory.totalCount = response.count || 0
           this.dataTableHistory.pages = Math.ceil(response.count / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.items || []
+          this.dataTableHistory.items = response.items?.map((e: any) => {
+            e.isPlaying = false
+            return e
+          }) || []
         }).finally(() => (this.historyProcessLoading = false))
     },
 
@@ -618,7 +572,6 @@ export default Vue.extend({
       this.$routerQuery
         .setQuery({ date: dr })
         .then(() => {
-          this.fetchDataPie()
           this.fetchDataHistory()
         })
     },
@@ -632,7 +585,6 @@ export default Vue.extend({
         this.$routerQuery
           .removeQuery(['contact_created_at'])
           .finally(() => {
-            this.fetchDataPie()
             this.fetchDataHistory()
           })
         this.$refs.menuContactDateCreated.save(null)
@@ -643,18 +595,54 @@ export default Vue.extend({
       this.$routerQuery
         .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
         .finally(() => {
-          this.fetchDataPie()
           this.fetchDataHistory()
         })
     },
 
-    onFilterDate () {
-      this.fetchDataPie()
-      this.fetchDataHistory()
+    onHistoryItemRecordPlay (item: any) {
+      this.stopSound()
+      this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+      item.isPlaying = true
+      item.playingProgress = 0
+
+      if (item.audioUrl) {
+        this.playSound(item.audioUrl, false, {
+          onEnded: () => {
+            this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+          },
+          onProgressUpdate: (progress: number) => {
+            item.playingProgress = progress
+            this.$forceUpdate()
+          }
+        })
+      } else {
+        new ContactHistory()
+          .getAudioFile(item.id)
+          .then((response: any) => {
+            item.audioUrl = response.url
+            this.playSound(response.url, false, {
+              onEnded: () => {
+                this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+              },
+              onProgressUpdate: (progress: number) => {
+                item.playingProgress = progress
+                this.$forceUpdate()
+              }
+            })
+          }).catch((e) => {
+            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+            item.isPlaying = false
+          })
+      }
     },
 
-    onHistoryPaginationChange (pagination: any) {
-      console.log(pagination)
+    onPaginationChange (data: any) {
+      this.dataTableHistory.pageStart = data.pageStart + 1
+      this.dataTableHistory.pageStop = data.pageStop
+    },
+
+    secondsToHmsDigital (d: number) {
+      return secondsToHmsDigital(d)
     }
   }
 })

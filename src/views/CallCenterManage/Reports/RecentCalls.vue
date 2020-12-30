@@ -480,28 +480,23 @@ export default Vue.extend({
     filterDate (value: string | number | undefined) {
       switch (value) {
         case 'today': {
-          this.$routerQuery.setQuery({ date: 'today' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'today' }).then(this.onFilterDate)
           break
         }
         case 'yesterday': {
-          this.$routerQuery.setQuery({ date: 'yesterday' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.onFilterDate)
           break
         }
         case 'this_week': {
-          this.$routerQuery.setQuery({ date: 'this_week' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'this_week' }).then(this.onFilterDate)
           break
         }
         case 'last_week': {
-          this.$routerQuery.setQuery({ date: 'last_week' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'last_week' }).then(this.onFilterDate)
           break
         }
         case 'month': {
-          this.$routerQuery.setQuery({ date: 'month' })
-          this.onFilterDate()
+          this.$routerQuery.setQuery({ date: 'month' }).then(this.onFilterDate)
           break
         }
       }
