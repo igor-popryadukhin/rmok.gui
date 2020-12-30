@@ -27,7 +27,7 @@ export class RouterQuery {
         }
       })
 
-      this._vueRouter.replace({
+      this._vueRouter.push({
         path: this._vueRouter.currentRoute.path,
         params: this._vueRouter.currentRoute.params,
         query: obj
@@ -60,7 +60,7 @@ export class RouterQuery {
         delete obj[key]
       })
 
-      this._vueRouter.replace({
+      this._vueRouter.push({
         path: this._vueRouter.currentRoute.path,
         params: this._vueRouter.currentRoute.params,
         query: obj
