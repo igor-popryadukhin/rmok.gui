@@ -43,7 +43,7 @@
 
             <v-btn value="month">
               {{
-                $tc('January | February | March | April | May | June | July | August | September | October | December', new Date().getMonth() - 1)
+                $tc('January | February | March | April | May | June | July | August | September | October | December', new Date().getMonth())
               }}
             </v-btn>
 
