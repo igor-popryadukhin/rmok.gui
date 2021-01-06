@@ -588,6 +588,7 @@ const routes: RouteConfig[] = [
     ],
     meta: {
       layout: 'administrator',
+      anonymous: true,
       middleware: [roleAdmin]
     },
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
