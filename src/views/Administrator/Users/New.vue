@@ -21,7 +21,7 @@
                 :label="$tc('first_name')"
                 persistent-hint
                 required
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               >
                 <template v-slot:prepend>
                   <v-avatar
@@ -45,7 +45,7 @@
                 :label="$tc('last_name')"
                 persistent-hint
                 required
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               >
               </v-text-field>
             </v-col>
@@ -60,7 +60,7 @@
                 :label="$tc('middle_name')"
                 persistent-hint
                 required
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -73,7 +73,7 @@
               <v-text-field
                 v-model="user.login"
                 :label="$tc('Login')"
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
                 autocomplete="new-login"
               >
                 <template
@@ -94,7 +94,7 @@
                 v-model="password.value1"
                 :label="$tc('password')"
                 :type="password.visible ? '' : 'password'"
-                :rules="[rules.required, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+                :rules="[rules.notBlank, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
                 :success="password.isValid"
                 required
                 autocomplete="new-password"
@@ -129,7 +129,7 @@
                 v-model="password.value2"
                 :label="$tc('password')"
                 :type="password.visible ? '' : 'password'"
-                :rules="[rules.required, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+                :rules="[rules.notBlank, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
                 :success="password.isValid"
                 required
                 autocomplete="new-password"
@@ -165,7 +165,7 @@
               <v-text-field
                 v-model="user.email"
                 :label="$tc('email')"
-                :rules="[rules.required, rules.email]"
+                :rules="[rules.notBlank, rules.email]"
                 autocomplete="new-email"
               >
                 <template
@@ -185,7 +185,7 @@
                 v-model="user.phone"
                 :label="$tc('phone')"
                 type="tel"
-                :rules="[rules.required, rules.phone_number]"
+                :rules="[rules.notBlank, rules.phone_number]"
                 required
               >
                 <template
@@ -207,7 +207,7 @@
                 v-model="user.role"
                 :label="$tc('Role')"
                 visible-icon
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               />
             </v-col>
           </v-row>
@@ -220,7 +220,7 @@
                 v-model="organizationSelected"
                 :label="$tc('organization')"
                 visible-icon
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               />
             </v-col>
           </v-row>

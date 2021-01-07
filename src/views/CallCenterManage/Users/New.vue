@@ -6,7 +6,7 @@
       lazy-validation
       class="mr-4"
     >
-      <div class="text-h6">{{ $tc('Profile') }}</div>
+      <div class="text-h6 grey--text">{{ $tc('Profile') }}</div>
       <div class="mb-10">
         <!-- FLM -->
         <v-row>
@@ -17,11 +17,11 @@
           >
             <!-- eslint-disable -->
             <v-text-field
-              v-model="user.first_name"
+              v-model="userFirstName"
               :label="$tc('first_name')"
               persistent-hint
               required
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
             >
               <template v-slot:prepend>
                 <v-avatar
@@ -29,7 +29,9 @@
                   class="mr-4"
                   style="background-color: #8d3eb1; color: white"
                 >
-                  AV
+                  <v-btn icon large min-height="60" min-width="60">
+                    <v-icon color="white">mdi-camera-outline</v-icon>
+                  </v-btn>
                 </v-avatar>
               </template>
             </v-text-field>
@@ -41,11 +43,11 @@
           >
             <!-- eslint-disable -->
             <v-text-field
-              v-model="user.last_name"
+              v-model="userLastName"
               :label="$tc('last_name')"
               persistent-hint
               required
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
             >
             </v-text-field>
           </v-col>
@@ -56,11 +58,11 @@
           >
             <!-- eslint-disable -->
             <v-text-field
-              v-model="user.middle_name"
+              v-model="userMiddleName"
               :label="$tc('middle_name')"
-              persistent-hint
+              :rules="[rules.lengthMax(255)]"
               required
-              :rules="[rules.required]"
+              counter
             ></v-text-field>
           </v-col>
         </v-row>
@@ -73,9 +75,9 @@
             md="4"
           >
             <v-text-field
-              v-model="user.login"
+              v-model="userLogin"
               :label="$tc('Login')"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               autocomplete="new-password"
             >
               <template
@@ -92,10 +94,10 @@
             md="4"
           >
             <v-text-field
-              v-model="password.value1"
+              v-model="userPassword1"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               required
               autocomplete="new-password"
             >
@@ -125,10 +127,10 @@
             md="4"
           >
             <v-text-field
-              v-model="password.value2"
+              v-model="userPassword2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               required
               autocomplete="new-password"
             >
@@ -154,7 +156,7 @@
           </v-col>
         </v-row>
 
-        <!--  -->
+        <!-- Телефон и EMail  -->
         <v-row>
           <v-col
             cols="12"
@@ -162,9 +164,9 @@
             md="6"
           >
             <v-text-field
-              v-model="user.email"
+              v-model="userEmail"
               :label="$tc('email')"
-              :rules="[rules.required]"
+              :rules="[rules.email]"
               autocomplete="new-email"
             >
               <template
@@ -181,11 +183,10 @@
             md="6"
           >
             <v-text-field
-              v-model="user.phone"
+              v-model="userPhoneNumber"
               :label="$tc('phone')"
               type="tel"
-              :rules="[rules.required]"
-              required
+              :rules="[rules.phoneNumber]"
             >
               <template
                 v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
@@ -205,10 +206,10 @@
             lg="6"
           >
             <s-role-combo-box
-              v-model="user.role"
+              v-model="userRole"
               :label="$tc('Role')"
               visible-icon
-              :rules="rules.notBlank"
+              :rules="[rules.notBlank]"
             />
           </v-col>
           <v-col
@@ -217,10 +218,9 @@
             lg="6"
           >
             <s-autocomplete-groups
-              v-model="user.group"
+              v-model="userGroup"
               :label="$tc('Group')"
               visible-icon
-              :value="user.group"
               :visible-organization-name="false"
               auto-load
             />
@@ -228,7 +228,7 @@
         </v-row>
       </div>
 
-      <div class="text-h6">{{ $tc('Telephony') }}</div>
+      <div class="text-h6 grey--text">{{ $tc('Telephony') }}</div>
       <div class="mb-10">
         <v-row>
           <v-col
@@ -237,11 +237,11 @@
             md="12"
           >
             <v-text-field
-              v-model="user.pbx_config.display_name"
+              v-model="userPBXConfig.display_name"
               :label="$tc('SIP phone number')"
               :hint="$tc('The phone number that is displayed when calling from your PBX')"
               persistent-hint
-              :rules="[assertLength({ max: 20 })]"
+              :rules="[rules.lengthMax(20)]"
               counter
             >
               <template
@@ -258,11 +258,11 @@
             cols="6"
           >
             <v-text-field
-              v-model="user.pbx_config.server"
+              v-model="userPBXConfig.server"
               :label="$tc('Server address')"
               :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
               persistent-hint
-              :rules="[rules.notBlank]"
+              :rules="[]"
               required
             >
               <template
@@ -277,13 +277,13 @@
             cols="2"
           >
             <v-text-field
-              v-model="user.pbx_config.port"
+              v-model="userPBXConfig.port"
               :label="$tc('Port')"
               type="number"
               persistent-hint
               required
               single-line
-              :rules="[rules.positive]"
+              :rules="[]"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -294,11 +294,11 @@
             md="12"
           >
             <v-text-field
-              v-model="user.pbx_config.login"
+              v-model="userPBXConfig.login"
               :label="$tc('Login')"
               :hint="$tc('Login to access your PBX. For example: 003452')"
               persistent-hint
-              :rules="[rules.notBlank]"
+              :rules="[]"
               required
             >
               <template
@@ -317,12 +317,12 @@
             md="12"
           >
             <v-text-field
-              v-model="user.pbx_config.password"
+              v-model="userPBXConfig.password"
               :label="$tc('Password')"
               :hint="$tc('PBX access password')"
               :type="pbxPasswordVisible ? '' : 'password'"
               persistent-hint
-              :rules="[rules.notBlank]"
+              :rules="[]"
               required
             >
               <template
@@ -376,13 +376,30 @@
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
-import { UserInterface, Users } from '@/api/Users'
+import { Users } from '@/api/Users'
 import SRoleComboBox from '@/snippets/SRoleComboBox/SRoleComboBox.vue'
 import SAutocompleteGroups from '@/snippets/Autocomplete/SAutocompleteGroups.vue'
 import { GroupInterface } from '@/api/Groups'
+import PBXInterface from '@/api/Schemas/PBXInterface'
+import { RoleInterface } from '@/api/Roles'
+
+interface PostDataInterface {
+  first_name: string;
+  last_name: string;
+  middle_name?: string;
+  login: string;
+  password: string;
+  phone?: string;
+  email?: string;
+  role: string;
+  group_id?: number;
+  pbx_config?: PBXInterface;
+}
 
 export default Vue.extend({
+
   mixins: [rules, countryCodes],
+
   components: {
     SRoleComboBox,
     SAutocompleteGroups
@@ -404,24 +421,23 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
-      user: {
-        first_name: '',
-        last_name: '',
-        middle_name: '',
+      userFirstName: '' as string,
+      userLastName: '' as string,
+      userMiddleName: '' as string,
+      userLogin: '' as string,
+      userPassword1: '' as string,
+      userPassword2: '' as string,
+      userEmail: '' as string,
+      userPhoneNumber: '' as string,
+      userPBXConfig: {
+        display_name: '',
         login: '',
-        email: '',
-        phone: '',
-        role: null,
-        pbx_config: {
-          display_name: '',
-          login: '',
-          password: '',
-          port: 0,
-          server: ''
-        },
-        group: {} as GroupInterface,
-        organization: null
-      } as UserInterface
+        password: '',
+        port: 0,
+        server: ''
+      } as PBXInterface,
+      userRole: null as unknown as RoleInterface,
+      userGroup: null as unknown as GroupInterface
     }
     /* eslint-enable */
   },
@@ -437,21 +453,36 @@ export default Vue.extend({
         return
       }
       this.buttonSave.loading = true
+
+      const data: PostDataInterface = {
+        first_name: this.userFirstName.trim(),
+        last_name: this.userLastName.trim(),
+        middle_name: this.userMiddleName.trim(),
+        login: this.userLogin.trim(),
+        password: this.userPassword1,
+        role: this.userRole.id
+      }
+
+      if (this.userPBXConfig) {
+        data.pbx_config = this.userPBXConfig
+      }
+
+      if (this.userEmail) {
+        data.email = this.userEmail
+      }
+
+      if (this.userPhoneNumber) {
+        data.phone = this.userPhoneNumber.trim()
+      }
+
+      // Группа необязательна, поэтому если есть можно указать
+      if (this.userGroup) {
+        data.group_id = this.userGroup?.id
+      }
+
       new Users()
-        .add({
-          /* eslint-disable */
-          first_name: this.user.first_name.trim(),
-          last_name: this.user.last_name.trim(),
-          middle_name: this.user.middle_name.trim(),
-          login: this.user.login.trim(),
-          password: this.password.value1,
-          phone: this.user.phone.trim(),
-          email: this.user.email,
-          role: this.user.role.id,
-          group_id: this.user.group.id,
-          pbx_config: this.user.pbx_config
-          /* eslint-enable */
-        }).then(() => {
+        .add(data)
+        .then(() => {
           this.resetForm()
           this.$toast.success(this.$tc('User added successfully'))
         }).catch((e) => {

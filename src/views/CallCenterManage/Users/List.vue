@@ -1,148 +1,139 @@
 <template>
-  <div>
-    <v-card
-      flat
-    >
-      <v-card-text class="pa-0">
-        <v-toolbar
-          flat
-          class="pl-3"
+  <v-container class="pa-0" fluid>
+    <v-row>
+      <v-col>
+        <v-data-table
+          dense
+          :headers="dataTableUsers.headers"
+          :items="dataTableUsers.items"
+          :server-items-length="dataTableUsers.totalCount"
+          :page.sync="dataTableUsers.page"
+          :items-per-page="dataTableUsers.itemsPerPage"
+          :loading="usersProcessLoading"
+          item-key="id"
+          item-class="v-datatable-item"
+          disable-sort
+          fixed-header
+          calculate-widths
+          hide-default-footer
+          :height="$screenHeight - 270"
+          @pagination="onPaginationChange"
         >
-          <v-spacer />
-          <!-- Add new user -->
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
+          <template v-slot:top>
+            <v-toolbar
+              dense
+              flat
+            >
+              <v-toolbar-title class="grey--text">
+                Пользователи системы
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
               <v-btn
-                icon
+                color="primary"
                 :to="{ name: 'call_center_manager_users_new' }"
-                v-on="on"
-                v-bind="attrs"
+                icon
               >
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
-            </template>
-            <span>{{ $tc('Add new user') }}</span>
-          </v-tooltip>
-        </v-toolbar>
-      </v-card-text>
-      <v-row class="ma-0">
-        <v-col
-          cols="12"
-        >
-          <template v-if="users.length > 0">
-            <template
-              v-for="item in users"
-            >
-              <v-divider
-                :key="`divider-${item.id}`"
-              />
-              <v-list-item
-                :key="`list-item-${item.id}`"
-                ripple
-                selectable
-              >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ item.first_name }} {{ item.last_name }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle v-if="item.role">
-                    {{ item.role.name }}
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle v-else>
-                    Без роли
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-spacer />
-                <v-list-item-group v-if="item.project">
-                  <v-list-item-title>
-                    {{ item.project.name }}
-                  </v-list-item-title>
-                </v-list-item-group>
-                <v-list-item-action>
-                  <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        icon
-                        large
-                        v-bind="attrs"
-                        v-on.stop="on"
-                      >
-                        <v-icon>mdi-dots-horizontal</v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item
-                        :to="{ name: 'call_center_manager_users_edit', params: { id: item.id } }"
-                        link
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-square-edit-outline</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Редактировать</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
-                        link
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-delete</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Удалить</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
+            </v-toolbar>
           </template>
-          <template v-else-if="organizationsProcessLoading">
-            <v-list-item class="text-center">
-              <v-spacer />
-              <span class="grey--text">
-                {{ $tc('Loading content...') }}
-              </span>
-              <v-spacer />
-            </v-list-item>
+          <template slot="item" slot-scope="{ item }">
+            <tr class="v-datatable-item">
+              <td>{{ item.first_name }}</td>
+              <td>{{ item.last_name }}</td>
+              <td>{{ item.middle_name }}</td>
+              <td class="text-no-wrap">{{ item.role ? item.role.name : '-' }}</td>
+              <td>{{ item.email }}</td>
+<!--              <td class="text-no-wrap">{{ item.organization ? item.organization.name : '-'}}</td>-->
+              <td class="text-no-wrap text-right">
+                <v-btn icon small>
+                  <v-icon>mdi-pencil-box-outline</v-icon>
+                </v-btn>
+              </td>
+            </tr>
           </template>
-          <template v-else>
-            <v-list-item class="text-center">
-              <v-spacer />
-              <span class="grey--text">
-                {{ $tc('users_list_empty') }}
-              </span>
-              <v-spacer />
-            </v-list-item>
-          </template>
-        </v-col>
-      </v-row>
-    </v-card>
-  </div>
+        </v-data-table>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col class="d-flex justify-md-space-between">
+        <div>
+          <v-pagination
+            v-model="dataTableUsers.page"
+            :length="dataTableUsers.pages"
+            total-visible="6"
+          ></v-pagination>
+        </div>
+        <div class="d-flex align-center justify-center">
+          {{ this.dataTableUsers.pageStart }}-{{ this.dataTableUsers.pageStop }} из {{ this.dataTableUsers.totalCount }}
+        </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { Users } from '@/api/Users'
+import { UserInterface, Users } from '@/api/Users'
 
 export default Vue.extend({
   data () {
     return {
-      users: [],
-      organizationsProcessLoading: false
+      dataTableUsers: {
+        page: 1,
+        pages: 1,
+        totalCount: 0,
+        itemsPerPage: 20,
+        pageStart: 0,
+        pageStop: 0,
+        headers: [
+          { text: 'Имя', align: 'start', sortable: true, value: 'first_name', width: 'auto' },
+          { text: 'Фамилия', align: 'start', sortable: true, value: 'last_name' },
+          { text: 'Отчество', align: 'start', sortable: true, value: 'middle_name' },
+          { text: 'Роль', align: 'start', sortable: true, value: 'role' },
+          { text: 'E-Mail', align: 'start', sortable: true, value: 'email' },
+          // { text: 'Организация', align: 'start', sortable: true, value: 'organization' },
+          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
+        ],
+        items: [] as UserInterface[]
+      },
+      usersProcessLoading: false
+    }
+  },
+
+  watch: {
+    'dataTableUsers.page': {
+      handler () {
+        this.fetchUsers()
+      }
     }
   },
 
   created () {
-    this.organizationsProcessLoading = true
-    new Users()
-      .find()
-      .then((users: any) => {
-        this.users = users.items
-      }).finally(() => {
-        this.organizationsProcessLoading = false
-      })
+    this.fetchUsers()
+  },
+
+  methods: {
+    fetchUsers () {
+      this.usersProcessLoading = true
+      const offset = (this.dataTableUsers.itemsPerPage * this.dataTableUsers.page) - this.dataTableUsers.itemsPerPage
+      new Users()
+        .find({
+          offset,
+          count: this.dataTableUsers.itemsPerPage
+        })
+        .then((response: any) => {
+          this.dataTableUsers.totalCount = response.count
+          this.dataTableUsers.pages = Math.ceil(response.count / this.dataTableUsers.itemsPerPage)
+          this.dataTableUsers.items = response.items
+        }).finally(() => {
+          this.usersProcessLoading = false
+        })
+    },
+    onPaginationChange (data: any) {
+      this.dataTableUsers.pageStart = data.pageStart + 1
+      this.dataTableUsers.pageStop = data.pageStop
+    }
   }
 })
 </script>

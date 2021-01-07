@@ -46,7 +46,7 @@
               :label="$tc('last_name')"
               persistent-hint
               required
-              :rules="[rules.required, rules.lengthMax(255), rules.lengthMin(1)]"
+              :rules="[rules.notBlank, rules.lengthMax(255), rules.lengthMin(1)]"
             ></v-text-field>
           </v-col>
           <v-col

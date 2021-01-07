@@ -21,7 +21,7 @@
               :label="$tc('first_name')"
               persistent-hint
               required
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
             >
               <template v-slot:prepend>
                 <v-avatar
@@ -45,7 +45,7 @@
               :label="$tc('last_name')"
               persistent-hint
               required
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
             >
             </v-text-field>
           </v-col>
@@ -60,7 +60,7 @@
               :label="$tc('middle_name')"
               persistent-hint
               required
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -75,7 +75,7 @@
             <v-text-field
               v-model="user.login"
               :label="$tc('Login')"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               autocomplete="new-password"
             >
               <template
@@ -95,7 +95,7 @@
               v-model="password.value1"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               required
               autocomplete="new-password"
             >
@@ -128,7 +128,7 @@
               v-model="password.value2"
               :label="$tc('password')"
               :type="password.visible ? '' : 'password'"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               required
               autocomplete="new-password"
             >
@@ -164,7 +164,7 @@
             <v-text-field
               v-model="user.email"
               :label="$tc('email')"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               autocomplete="new-email"
             >
               <template
@@ -184,7 +184,7 @@
               v-model="user.phone"
               :label="$tc('phone')"
               type="tel"
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
               required
             >
               <template

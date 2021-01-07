@@ -199,7 +199,10 @@
           cols="12"
         >
           <h3 class="mb-3">Статусы звонков</h3>
-          <project-status v-model="statuses"/>
+          <project-status
+            v-model="statuses"
+            :actions="statusActions"
+          />
         </v-col>
       </v-row>
 
@@ -253,6 +256,7 @@ import Projects, { ProjectMemberInterface, ProjectInterface } from '@/api/Projec
 import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import ErrorInterface from '@/api/Schemas/ErrorInterface'
+import statusActions from '@/mixins/statusActions'
 
 export default Vue.extend({
   components: {
@@ -260,7 +264,7 @@ export default Vue.extend({
     vuescroll
   },
 
-  mixins: [rules, vueScrollOptions],
+  mixins: [rules, vueScrollOptions, statusActions],
 
   data () {
     return {

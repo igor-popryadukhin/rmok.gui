@@ -17,7 +17,7 @@
               :label="$tc('first_name')"
               persistent-hint
               required
-              :rules="[rules.required, rules.max_256]"
+              :rules="[rules.notBlank, rules.max_256]"
             >
               <template v-slot:prepend>
                 <v-avatar
@@ -40,7 +40,7 @@
               :label="$tc('last_name')"
               persistent-hint
               required
-              :rules="[rules.required, rules.max_256]"
+              :rules="[rules.notBlank, rules.max_256]"
             ></v-text-field>
           </v-col>
           <v-col
@@ -63,9 +63,9 @@
             <s-phone-numbers
               v-model="contact.phones"
               :message-error="$t('Invalid phone number format')"
-              :rules-number="[rules.required]"
-              :rules-label="[rules.required, rules.max_50]"
-              :rules-country-code="[rules.required]"
+              :rules-number="[rules.notBlank]"
+              :rules-label="[rules.notBlank, rules.max_50]"
+              :rules-country-code="[rules.notBlank]"
             />
           </v-col>
         </v-row>
@@ -77,8 +77,8 @@
               v-model="contact.emails"
               :text-label="$t('Label')"
               :text-email="$t('E-mail address')"
-              :rules-email="[rules.required, rules.email]"
-              :rules-label="[rules.required, rules.max_50]"
+              :rules-email="[rules.notBlank, rules.email]"
+              :rules-label="[rules.notBlank, rules.max_50]"
             />
           </v-col>
         </v-row>

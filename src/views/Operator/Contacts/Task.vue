@@ -190,21 +190,21 @@ export default Vue.extend({
         cancelTitle: this.$t('Cancel'),
         date: {
           label: this.$tc('Date'),
-          rules: [this.rules.required]
+          rules: [this.rules.notBlank]
         },
         time: {
           label: this.$tc('Time'),
-          rules: [this.rules.required]
+          rules: [this.rules.notBlank]
         },
         comment: {
           label: this.$tc('Comment'),
-          rules: [this.rules.required]
+          rules: [this.rules.notBlank]
         },
         types: {
           label: this.$tc('Task type'),
           itemText: 'title',
           itemValue: 'value',
-          rules: [this.rules.required],
+          rules: [this.rules.notBlank],
           items: [
             {
               title: this.$tc('Call'),

@@ -25,7 +25,7 @@
                       :label="$tc('organization_name')"
                       persistent-hint
                       required
-                      :rules="[rules.required, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
+                      :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
                     >
                       <template v-slot:prepend>
                         <v-avatar
@@ -48,8 +48,8 @@
                       v-model="organization.emails"
                       :text-label="$t('Label')"
                       :text-email="$t('E-mail address')"
-                      :rules-email="[rules.required, rules.email]"
-                      :rules-label="[rules.required, rules.max_50]"
+                      :rules-email="[rules.notBlank, rules.email]"
+                      :rules-label="[rules.notBlank, rules.max_50]"
                     />
                   </v-col>
                 </v-row>
@@ -60,9 +60,9 @@
                     <s-phone-numbers
                       v-model="organization.phones"
                       :message-error="$t('Invalid phone number format')"
-                      :rules-number="[rules.required]"
-                      :rules-label="[rules.required, rules.max_50]"
-                      :rules-country-code="[rules.required]"
+                      :rules-number="[rules.notBlank]"
+                      :rules-label="[rules.notBlank, rules.max_50]"
+                      :rules-country-code="[rules.notBlank]"
                     />
                   </v-col>
                 </v-row>
@@ -182,7 +182,7 @@
                       :organization-id="organization.id"
                       display-organization
                       visible-icon
-                      :rules="[rules.required]"
+                      :rules="[rules.notBlank]"
                       :label="$tc('responsible')"
                       roles="r_leader_cc"
                     >

@@ -103,6 +103,7 @@
     <project-status-dialog-status
       v-model="dialogStatus.visible"
       :name="dialogStatus.name"
+      :actions="actions"
       @save-click="onSaveStatusClick"
     />
   </div>
@@ -113,9 +114,10 @@ import Vue from 'vue'
 import ProjectStatusDialogGroup from './ProjectStatusDialogGroup.vue'
 import ProjectStatusDialogStatus from './ProjectStatusDialogStatus.vue'
 
-interface StatusInterface {
+export interface StatusInterface {
   id: string | number;
   name: string;
+  action: string | null;
 }
 
 interface GroupInterface {
@@ -140,6 +142,10 @@ export default Vue.extend({
     value: {
       type: Array,
       default: () => null
+    },
+    actions: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -155,7 +161,8 @@ export default Vue.extend({
         selected: null,
         visible: false,
         id: '' as number | string,
-        name: ''
+        name: '',
+        action: '' as null | string
       },
       currentGroup: null as GroupInterface | any,
       initiallyOpen: [],
@@ -215,7 +222,7 @@ export default Vue.extend({
     },
 
     onGroupRemoveClick (item: GroupInterface) {
-      const index: number = this.items.findIndex((e: StatusInterface) => e.id === item.id)
+      const index: number = this.items.findIndex((e: GroupInterface) => e.id === item.id)
       if (index > -1) {
         this.items.splice(index, 1)
       }
@@ -244,12 +251,13 @@ export default Vue.extend({
       })
     },
 
-    onSaveStatusClick (name: string) {
+    onSaveStatusClick (status: StatusInterface) {
       let isEdit = false
       this.items.forEach((group: GroupInterface) => {
         const index = group.children.findIndex((status: StatusInterface) => status.id === this.dialogStatus.id)
         if (index > -1) {
-          group.children[index].name = name
+          group.children[index].name = status.name
+          group.children[index].action = status.action
           isEdit = true
         }
       })
@@ -259,7 +267,8 @@ export default Vue.extend({
           if (group.id === this.dialogGroup.id) {
             group.children.push({
               id: this.generateUUID(),
-              name
+              name: status.name,
+              action: status.action
             })
           }
         })
@@ -276,6 +285,7 @@ export default Vue.extend({
     onStatusEditClick (item: StatusInterface) {
       this.dialogStatus.id = item.id
       this.dialogStatus.name = item.name
+      this.dialogStatus.action = item.action
       this.dialogStatus.visible = true
     }
   }

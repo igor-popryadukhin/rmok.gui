@@ -21,7 +21,7 @@
                 :label="$tc('first_name')"
                 persistent-hint
                 required
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               >
                 <template v-slot:prepend>
                   <v-avatar
@@ -45,7 +45,7 @@
                 :label="$tc('last_name')"
                 persistent-hint
                 required
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               >
               </v-text-field>
             </v-col>
@@ -60,7 +60,7 @@
                 :label="$tc('middle_name')"
                 persistent-hint
                 required
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -73,7 +73,7 @@
               <v-text-field
                 v-model="user.login"
                 :label="$tc('Login')"
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
                 autocomplete="new-login"
               >
                 <template
@@ -164,7 +164,7 @@
               <v-text-field
                 v-model="user.email"
                 :label="$tc('email')"
-                :rules="[rules.required, rules.email]"
+                :rules="[rules.notBlank, rules.email]"
                 autocomplete="new-email"
               >
                 <template
@@ -184,7 +184,7 @@
                 v-model="user.phone"
                 :label="$tc('phone')"
                 type="tel"
-                :rules="[rules.required, rules.phone_number]"
+                :rules="[rules.notBlank, rules.phone_number]"
                 required
               >
                 <template
@@ -207,7 +207,7 @@
                 :label="$tc('Role')"
                 visible-icon
                 :value="user.role ? user.role : null"
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
               />
             </v-col>
           </v-row>
@@ -252,7 +252,7 @@
                 v-model="groupSelected"
                 :label="$tc('Group')"
                 visible-icon
-                :rules="[rules.required]"
+                :rules="[rules.notBlank]"
                 :selected-id="user.group ? user.group.id : 0"
                 :disabled="user.organization === null"
                 :organization-id="user.organization ? user.organization.id : 0"

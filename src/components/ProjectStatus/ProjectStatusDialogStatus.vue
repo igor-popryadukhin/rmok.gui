@@ -6,12 +6,25 @@
     <v-card>
       <v-card-text class="pt-5">
         <v-text-field
-          v-model="dName"
+          v-model="status.name"
           :tabindex="0"
           autofocus
           label="Наименование статуса"
-          @keyup.enter="save(dName)"
+          @keyup.enter="save(status.name)"
         ></v-text-field>
+
+        <v-combobox
+          v-model="status.action"
+          :items="actions"
+          :label="$tc('На событие')"
+        >
+          <template v-slot:selection="scope">
+            {{ $tc(scope.item) }}
+          </template>
+          <template v-slot:item="scope">
+            {{ $tc(scope.item) }}
+          </template>
+        </v-combobox>
       </v-card-text>
 
       <v-card-actions>
@@ -28,7 +41,7 @@
         <v-btn
           color="green darken-1"
           text
-          @click="save(dName)"
+          @click="save(status)"
         >
           {{ $tc('Save') }}
         </v-btn>
@@ -39,6 +52,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { StatusInterface } from './ProjectStatus.vue'
 
 export default Vue.extend({
   model: {
@@ -51,19 +65,26 @@ export default Vue.extend({
       type: String,
       default: ''
     },
+    actions: {
+      type: Array,
+      default: () => []
+    },
     value: Boolean
   },
 
   data () {
     return {
       dialogVisible: false,
-      dName: ''
+      status: {
+        name: '',
+        action: ''
+      } as StatusInterface
     }
   },
 
   watch: {
     name (val: string) {
-      this.dName = val
+      this.status.name = val
     },
 
     value (val: boolean) {
@@ -76,14 +97,15 @@ export default Vue.extend({
   },
 
   methods: {
-    save (name: string) {
-      this.$emit('save-click', name)
+    save (status: StatusInterface) {
+      this.$emit('save-click', status)
       this.dialogVisible = false
       this.formReset()
     },
 
     formReset () {
-      this.dName = ''
+      this.status.name = ''
+      this.status.action = ''
     }
   }
 })

@@ -18,7 +18,7 @@
               :label="$tc('group_name')"
               persistent-hint
               required
-              :rules="[rules.required]"
+              :rules="[rules.notBlank]"
             >
             </v-text-field>
           </v-col>

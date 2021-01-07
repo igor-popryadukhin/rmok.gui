@@ -111,17 +111,6 @@
           </v-textarea>
         </v-col>
       </v-row>
-
-      <!-- Auto -->
-      <v-row>
-        <v-col>
-          <v-checkbox
-            v-model="dataAutomaticExecution"
-            v-bind="automaticExecution"
-          >
-          </v-checkbox>
-        </v-col>
-      </v-row>
     </v-form>
   </DialogCard>
 </template>
