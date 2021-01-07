@@ -54,7 +54,7 @@
                   <v-list-item-title v-if="task.type === 'letter'">{{ $t('Letter') }}</v-list-item-title>
                   <v-list-item-title v-if="task.type === 'other'">{{ $t('Other') }}</v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ task.description }}
+                    {{ task.description || '—' }}
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
                     Выполнить до {{ new Date(task.planned_for * 1000).toLocaleString() }}
@@ -132,11 +132,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import DTask from '@/components/Dialogs/DTask.vue'
+import VTaskDialog from '@/components/VTaskDialog/VTaskDialog.vue'
 import rules from '@/mixins/rules'
 import Tasks, { TaskGetResponseInterface, TaskInterface, TaskPostDataInterface, TaskType } from '@/api/Tasks'
-import { Contacts } from '@/api/Contacts'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
 
 export default Vue.extend({
   mixins: [rules],
@@ -200,48 +198,50 @@ export default Vue.extend({
     },
 
     onTaskAddClick () {
-      this.$dialog.show(DTask, {
+      this.$dialog.show(VTaskDialog, {
         waitForResult: true,
-        title: this.$t('Create a new task'),
-        saveTitle: this.$t('Save'),
-        cancelTitle: this.$t('Cancel'),
         date: {
           label: this.$tc('Date'),
-          rules: [this.rules.required]
+          rules: [this.rules.notBlank]
         },
         time: {
           label: this.$tc('Time'),
-          rules: [this.rules.required]
+          rules: [this.rules.notBlank]
         },
         comment: {
           label: this.$tc('Comment'),
-          rules: [this.rules.required]
+          rules: [this.rules.notBlank]
         },
         types: {
           label: this.$tc('Task type'),
           itemText: 'title',
           itemValue: 'value',
-          rules: [this.rules.required],
+          rules: [this.rules.notBlank],
           items: [
             {
               title: this.$tc('Call'),
-              value: 'call'
+              value: 'call',
+              disabled: false
             },
             {
               title: this.$tc('Task'),
-              value: 'task'
+              value: 'task',
+              disabled: true
             },
             {
               title: this.$tc('Meeting'),
-              value: 'meeting'
+              value: 'meeting',
+              disabled: true
             },
             {
               title: this.$tc('Letter'),
-              value: 'letter'
+              value: 'letter',
+              disabled: true
             },
             {
               title: this.$tc('Other'),
-              value: 'other'
+              value: 'other',
+              disabled: true
             }
           ]
         },
@@ -252,10 +252,6 @@ export default Vue.extend({
           disabled: true,
           placeholder: 'Вы',
           rules: []
-        },
-        automaticExecution: {
-          label: this.$tc('Automatically complete the task after the call'),
-          value: false
         },
         width: this.$vuetify.breakpoint.name === 'sm' ? '100%' : '60%',
         persistent: true,
@@ -272,8 +268,8 @@ export default Vue.extend({
           new Tasks()
             .add(taskData)
             .finally(() => {
-              this.loadTasks()
-              this.$root.$emit('root-update-notifications')
+              this.loadTasks() // Загружаю новые таски
+              this.$root.$emit('root-update-notifications') // Генерирую глобальное событие, для обновления уведомлений
             })
         }
       })
