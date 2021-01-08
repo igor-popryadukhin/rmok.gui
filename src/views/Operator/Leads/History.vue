@@ -4,21 +4,6 @@
       <v-col
         cols="12"
       >
-<!--        <v-btn-toggle-->
-<!--          v-model="historyFilter.selected"-->
-<!--          tile-->
-<!--          color="primary"-->
-<!--        >-->
-<!--          <v-btn-->
-<!--            v-for="(item, key) in historyFilter.items"-->
-<!--            :key="key"-->
-<!--            small-->
-<!--            text-->
-<!--            :value="item.value"-->
-<!--          >-->
-<!--            {{ $t(item.title) }}-->
-<!--          </v-btn>-->
-<!--        </v-btn-toggle>-->
         <v-list>
           <template v-if="history.length === 0 && historyLoading  === true">
             <v-list-item class="text-center">
@@ -222,23 +207,6 @@ export default Vue.extend({
   data () {
     return {
       historyLoading: false,
-      historyFilter: {
-        selected: null as any,
-        items: [
-          {
-            title: 'All',
-            value: 'all'
-          },
-          {
-            title: 'Comments',
-            value: 'comment'
-          },
-          {
-            title: 'Challenges',
-            value: 'call'
-          }
-        ]
-      },
       historyDialog: {
         visible: false,
         historyId: 0
@@ -254,36 +222,13 @@ export default Vue.extend({
     }
   },
 
-  watch: {
-    'historyFilter.selected': {
-      handler (value) {
-        const name: string = this.$route.name || ''
-        if (value) {
-          if (Array.isArray(value)) {
-            // todo: is array
-          } else {
-            this.$router.replace({
-              name,
-              query: {
-                filter: value
-              }
-            }).then(() => {
-              this.history = []
-              this.loadHistory(+this.$route.params.contact_id)
-            })
-          }
-        }
-      }
-    }
-  },
-
   mounted () {
     this.$root.$on('root-contact-history-change', this.loadHistory)
   },
 
   beforeRouteUpdate (to, from, next) {
     if (from.params.contact_id !== to.params.contact_id) {
-      this.loadHistory(+to.params.contact_id)
+      this.loadHistory()
     }
     next()
   },
@@ -292,7 +237,8 @@ export default Vue.extend({
     if (this.$route.query.filter) {
       this.historyFilter.selected = this.historyFilter.items.find((e) => e.value === this.$route.query.filter)?.value
     }
-    this.loadHistory(+this.$route.params.contact_id)
+    this.loadHistory()
+    this.$root.$on('root-contact-history-change', this.loadHistory)
   },
 
   beforeDestroy () {
@@ -353,11 +299,14 @@ export default Vue.extend({
       }
     },
 
-    loadHistory (contact_id?: number) {
+    /**
+     * Загружает историю контакта
+     */
+    loadHistory () {
       this.historyLoading = true
       new Contacts()
         .getHistory(
-          contact_id ?? +this.$route.params.contact_id,
+          +this.$route.params.contact_id,
           String(this.$route.query.filter) === 'all' ? '' : String(this.$route.query.filter) || '',
           +this.$route.query.history_offset || 0,
           +this.$route.query.history_count || 20
