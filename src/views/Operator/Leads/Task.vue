@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container class="pa-0" fluid>
     <v-row no-gutters>
       <v-col class="pa-0">
         <v-toolbar
@@ -25,9 +25,19 @@
     </v-row>
     <v-row no-gutters>
       <v-col>
-        <v-list>
-          <template v-if="tasks.length > 0">
-            <template v-for="(task, taskIndex) in tasks">
+        <template v-if="tasks.length === 0 && tasksLoading  === true">
+          <div class="d-flex align-center justify-center height-vh-50">
+            <div class="grey--text">{{ $tc('Loading content...') }}</div>
+          </div>
+        </template>
+        <template v-if="tasks.length === 0 && tasksLoading  === false">
+          <div class="d-flex align-center justify-center height-vh-50">
+            <div class="grey--text">{{ $tc('Task list is empty') }}</div>
+          </div>
+        </template>
+        <template v-if="tasks.length > 0">
+          <v-list>
+          <template v-for="(task, taskIndex) in tasks">
               <v-divider
                 :key="`v-divider-${taskIndex}`"
               />
@@ -109,25 +119,11 @@
                 </v-list-item-action>
               </v-list-item>
             </template>
-          </template>
-          <template v-else-if="tasks.length === 0 && tasksLoading  === true">
-            <v-list-item class="text-center">
-              <v-spacer />
-              <span class="grey--text">{{ $tc('Loading content...') }}</span>
-              <v-spacer />
-            </v-list-item>
-          </template>
-          <template v-else-if="tasks.length === 0 && tasksLoading === false">
-            <v-list-item class="text-center">
-              <v-spacer />
-              <span class="grey--text">{{ $tc('Task list is empty') }}</span>
-              <v-spacer />
-            </v-list-item>
-          </template>
         </v-list>
+        </template>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -290,7 +286,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style scoped>
-
-</style>

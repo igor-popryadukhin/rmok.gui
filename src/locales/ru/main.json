@@ -178,6 +178,9 @@
   },
 
   "Available statuses": "Доступные статусы",
+  "Status not set": "Статус не установлен",
+  "Result": "Результат",
+  "There are no calls for this contact": "По этому контакту нет ни одного звонка",
   "Error connecting to PBX": "Ошибка при подключении к АТС",
   "Cause: {text}": "Причина: {text}",
   "Tune": "Настроить",

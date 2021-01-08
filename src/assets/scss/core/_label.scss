@@ -8,7 +8,15 @@
   white-space: nowrap;
   vertical-align: baseline;
   font-weight: bold;
-  background-color: rgba(120, 130, 140, 0.6);
-  color: #fff;
+  background-color: transparent;
+  color: #ffffff;
   border-radius: .2rem;
+}
+
+.label-color-grey {
+  color: #878686;
+}
+
+.label-outlined {
+  border: thin solid currentColor;
 }

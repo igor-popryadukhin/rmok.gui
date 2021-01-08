@@ -227,7 +227,7 @@
                 <v-spacer/>
               </v-tab>
             </v-tabs>
-            <v-container class="pa-0" style="min-height: 300px">
+            <v-container class="pa-0 tab-container">
               <vuescroll
                 :ops="vueScrollOptions"
                 :style="{ height: `${$screenHeight - 221}px` }" style="width: 100%"
@@ -290,7 +290,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue'
+import Vue from 'vue'
 import lvovich from '@/mixins/lvovich'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import { Route } from 'vue-router'
@@ -310,7 +310,7 @@ interface TabInterface {
   to?: string | Route;
 }
 
-export default (Vue as VueConstructor<Vue & any>).extend({
+export default Vue.extend({
   mixins: [lvovich, vueScrollOptions],
 
   components: {
@@ -532,5 +532,10 @@ export default (Vue as VueConstructor<Vue & any>).extend({
   font-family: monospace;
   font-size: 1.4rem;
   color: #9C27B0;
+}
+
+.tab-container {
+  min-height: 300px;
+  border-top: thin solid #e3e3e3;
 }
 </style>
