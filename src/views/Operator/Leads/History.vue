@@ -121,8 +121,8 @@
                   <div class="d-flex flex-row">
                     <div class="grey--text mr-5">{{ $tc('Result') }}: </div>
                     <div>
-                      <span v-if="item.status" class="label" :style="{'background-color': item.status_color}">
-                        {{ item.status }}
+                      <span v-if="item.status_result" class="label" :style="{'background-color': item.status_color}">
+                        {{ item.status_result }}
                       </span>
                       <span v-else class="label label-outlined label-color-grey">
                         {{ $tc('Status not set') }}
@@ -180,7 +180,7 @@
                     <div class="grey--text mr-5">Результат: </div>
                     <div>
                       <span class="label" :style="{'background-color': item.status_color}">
-                        {{ item.status }}
+                        {{ item.status_result }}
                       </span>
                     </div>
                   </div>
@@ -242,7 +242,7 @@
                     <div class="grey--text mr-5">Результат: </div>
                     <div>
                       <span class="label" :style="{'background-color': item.status_color}">
-                        {{ item.status }}
+                        {{ item.status_result }}
                       </span>
                     </div>
                   </div>

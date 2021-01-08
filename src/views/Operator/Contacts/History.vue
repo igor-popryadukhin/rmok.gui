@@ -171,7 +171,7 @@
               </v-list-item-group>
               <v-spacer />
               <v-list-item-group class="mr-5">
-                {{ item.status }}
+                {{ item.status_result }}
               </v-list-item-group>
               <v-list-item-group>
                 <v-list-item-title>{{ new Date(item.start_time * 1000).toLocaleString() }}</v-list-item-title>

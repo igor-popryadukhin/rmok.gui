@@ -240,7 +240,7 @@
           </template>
           <template slot="item.status" slot-scope="{ item }">
             <span class="label" :style="{'background-color': item.status_color}">
-              {{ item.status }}
+              {{ item.status_result }}
             </span>
           </template>
           <template slot="item.comment" slot-scope="{ item }">
