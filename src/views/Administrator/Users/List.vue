@@ -349,7 +349,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { UserInterface, Users } from '@/api/Users'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'

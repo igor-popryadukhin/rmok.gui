@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 0 15px 0 15px;">
+  <v-container class="pt-0" fluid>
     <v-row no-gutters>
       <v-col
         cols="12"
@@ -195,11 +195,11 @@
           </v-col>
         </v-row>
 
-<!--        <v-row>-->
-<!--          <v-col>-->
-<!--            {{ contact }}-->
-<!--          </v-col>-->
-<!--        </v-row>-->
+        <!--        <v-row>-->
+        <!--          <v-col>-->
+        <!--            {{ contact }}-->
+        <!--          </v-col>-->
+        <!--        </v-row>-->
       </v-col>
 
       <!-- Tabs -->
@@ -209,7 +209,7 @@
         lg="8"
       >
         <v-row>
-          <v-col class="pt-0">
+          <v-col class="pa-0">
             <v-tabs
               v-model="tab"
               height="35"
@@ -227,43 +227,14 @@
                 <v-spacer/>
               </v-tab>
             </v-tabs>
-            <v-container class="pb-0" style="min-height: 300px">
-              <vuescroll :style="{ height: `${$screenHeight - 355}px` }" style="width: 99%" >
+            <v-container class="pa-0" style="min-height: 300px">
+              <vuescroll
+                :ops="vueScrollOptions"
+                :style="{ height: `${$screenHeight - 221}px` }" style="width: 100%"
+              >
                 <router-view />
               </vuescroll>
             </v-container>
-          </v-col>
-        </v-row>
-
-        <!-- Comment -->
-        <v-row>
-          <v-col class="pa-0 pl-6">
-            <v-textarea
-              v-model="comment.text"
-              :disabled="comment.disabled"
-              rows="4"
-              outlined
-              :placeholder="$t('Comment')"
-              value=""
-              hide-details
-            >
-              <template v-slot:prepend-inner>
-                <v-icon>
-                  mdi-comment
-                </v-icon>
-              </template>
-              <template v-slot:append>
-                <v-btn
-                  icon
-                  text
-                  disabled
-                >
-                  <v-icon>
-                    mdi-microphone
-                  </v-icon>
-                </v-btn>
-              </template>
-            </v-textarea>
           </v-col>
         </v-row>
 
@@ -315,7 +286,7 @@
         </v-row>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -326,10 +297,11 @@ import { Route } from 'vue-router'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import '@/plugins/libphonenumber-js'
 import { MainSearchMethod } from '@/Interfaces'
 import Leads from '@/api/Leads'
+import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 interface TabInterface {
   name: string;
@@ -339,7 +311,7 @@ interface TabInterface {
 }
 
 export default (Vue as VueConstructor<Vue & any>).extend({
-  mixins: [lvovich],
+  mixins: [lvovich, vueScrollOptions],
 
   components: {
     vuescroll
@@ -446,6 +418,8 @@ export default (Vue as VueConstructor<Vue & any>).extend({
   },
 
   created () {
+    this.vueScrollOptions.scrollPanel.speed = 1
+    this.vueScrollOptions.vuescroll.wheelScrollDuration = 350
     const contacts: Contacts = new Contacts()
 
     this.dataLoading = true

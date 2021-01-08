@@ -225,7 +225,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import rules from '@/mixins/rules'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
 import Users, { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'

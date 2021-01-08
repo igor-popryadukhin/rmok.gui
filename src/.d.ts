@@ -20,3 +20,5 @@ declare module 'vue/types/vue' {
     $isDebug: boolean
   }
 }
+
+declare module 'vuescroll/dist/vuescroll-native'

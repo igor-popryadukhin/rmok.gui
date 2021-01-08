@@ -1,25 +1,25 @@
 <template>
-  <div>
+  <v-container class="pa-0" fluid>
     <v-row no-gutters>
       <v-col
         cols="12"
       >
-        <v-btn-toggle
-          v-model="historyFilter.selected"
-          tile
-          color="primary"
-        >
-          <v-btn
-            v-for="(item, key) in historyFilter.items"
-            :key="key"
-            small
-            text
-            :value="item.value"
-          >
-            {{ $t(item.title) }}
-          </v-btn>
-        </v-btn-toggle>
-          <v-list>
+<!--        <v-btn-toggle-->
+<!--          v-model="historyFilter.selected"-->
+<!--          tile-->
+<!--          color="primary"-->
+<!--        >-->
+<!--          <v-btn-->
+<!--            v-for="(item, key) in historyFilter.items"-->
+<!--            :key="key"-->
+<!--            small-->
+<!--            text-->
+<!--            :value="item.value"-->
+<!--          >-->
+<!--            {{ $t(item.title) }}-->
+<!--          </v-btn>-->
+<!--        </v-btn-toggle>-->
+        <v-list>
           <template v-if="history.length === 0 && historyLoading  === true">
             <v-list-item class="text-center">
               <v-spacer />
@@ -35,14 +35,13 @@
             </v-list-item>
           </template>
           <template v-else>
-            <v-list-item
-              v-for="(item, index) in history"
-              :key="index"
-              ripple
-              link
-              selectable
-            >
-              <v-list-item-group>
+            <template v-for="(item, index) in history">
+              <v-divider :key="`v-divider-${index}`"/>
+              <v-list-item
+                :key="`v-list-item-${index}`"
+                link
+                selectable
+              >
                 <v-list-item-avatar>
                   <!-- Comment -->
                   <v-tooltip
@@ -158,51 +157,56 @@
                     </template>
                     <span>{{ $tc('Missed call') }}</span>
                   </v-tooltip>
+
                 </v-list-item-avatar>
-              </v-list-item-group>
-              <v-list-item-group v-if="item.type === 'comment'">
-                <v-list-item-title>{{ item.comment }}</v-list-item-title>
-              </v-list-item-group>
-              <v-list-item-group v-else-if="item.type === 'call'">
-                <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
-                <v-list-item-subtitle class="pt-1">
-                  {{ secondsToHmsDigital(item.session_duration) }}
-                </v-list-item-subtitle>
-              </v-list-item-group>
-              <v-spacer />
-              <v-list-item-group class="mr-5">
-                <span v-if="item.status" class="label" :style="{ 'background-color': item.status_color }">{{ item.status }}</span>
-                <span v-else>Статус не установлен</span>
-              </v-list-item-group>
-              <v-list-item-group>
-                <v-list-item-title>{{ new Date(item.created_at * 1000).toLocaleString() }}</v-list-item-title>
-              </v-list-item-group>
-              <v-list-item-action>
-                <v-btn
-                  v-if="item.type === 'comment'"
-                  icon
-                  :key="`v-list-item-action-${index}`"
-                  :loading="item.actions.edit.loading"
-                  @click.stop="onShowDialogCommentEdit(item)"
-                >
-                  <v-icon>mdi-pencil-box-outline</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else-if="item.type === 'call'"
-                  icon
-                  :key="`v-list-item-action-${index}`"
-                  :loading="item.actions.edit.loading"
-                  @click.stop="onShowDialogCallEdit(item)"
-                >
-                  <v-icon>mdi-pencil-box-outline</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
+                <v-list-item-content style="width: 18%">
+                  <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
+                  <v-list-item-subtitle class="pt-1">
+                    {{ secondsToHmsDigital(item.call_duration) }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-content>
+                  <div class="d-flex flex-row">
+                    <div class="grey--text mr-5">Результат: </div>
+                    <div>
+                      <span class="label" :style="{'background-color': item.status_color}">
+                        {{ item.status }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mt-1">
+                    <div>{{ item.comment }}</div>
+                  </div>
+                </v-list-item-content>
+                <v-spacer />
+                <v-list-item-action>
+                  <v-list-item-action-text v-text="new Date(item.created_at * 1000).toLocaleString()"></v-list-item-action-text>
+                  <v-btn
+                    v-if="item.type === 'comment'"
+                    icon
+                    :key="`v-list-item-action-${index}`"
+                    :loading="item.actions.edit.loading"
+                    @click.stop="onShowDialogCommentEdit(item)"
+                  >
+                    <v-icon>mdi-pencil-box-outline</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-else-if="item.type === 'call'"
+                    icon
+                    :key="`v-list-item-action-${index}`"
+                    :loading="item.actions.edit.loading"
+                    @click.stop="onShowDialogCallEdit(item)"
+                  >
+                    <v-icon>mdi-pencil-box-outline</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </template>
           </template>
         </v-list>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -210,8 +214,8 @@ import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import DCommentEdit from '@/components/Dialogs/DCommentEdit.vue'
-import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
 import '@/plugins/libphonenumber-js'
+import VStatusEditDialog, { StatusInterface } from '@/components/VStatusEditDialog/VStatusEditDialog.vue'
 
 export default Vue.extend({
 
@@ -320,22 +324,20 @@ export default Vue.extend({
       })
     },
 
-    onShowDialogCallEdit ({ id, actions }: any) {
+    onShowDialogCallEdit ({ id, comment, actions }: any) {
       if (this.$store.getters['project/statuses'].length > 0) {
-        this.$dialog.show(DStatusEdit, {
+        this.$dialog.show(VStatusEditDialog, {
           waitForResult: true,
-          title: this.$t('Available statuses'),
           statuses: this.$store.getters['project/statuses'], // Statuses in current project
-          saveTitle: this.$t('Save'),
-          cancelTitle: this.$t('Cancel'),
+          comment,
           width: '60%',
           height: '600',
-          onSave: (status: any) => {
-            console.log(status)
+          onSave: ({ status, comment }: StatusInterface) => {
             actions.edit.loading = true
             new Contacts()
               .updateHistory(id, {
-                status_id: status.id
+                status_id: status.id,
+                comment
               }).then(() => {
                 const element: any = this.history.find((e: any) => e.id === id)
                 if (element) {
@@ -358,7 +360,7 @@ export default Vue.extend({
           contact_id ?? +this.$route.params.contact_id,
           String(this.$route.query.filter) === 'all' ? '' : String(this.$route.query.filter) || '',
           +this.$route.query.history_offset || 0,
-          +this.$route.query.history_count || 50
+          +this.$route.query.history_count || 20
         )
         .then((response) => {
           this.history = response.items.map((e: any) => {
@@ -382,5 +384,14 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="scss">
+.v-list-item__content {
+  align-items: center;
+  align-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  flex: initial !important;
+  overflow: hidden;
+  padding: 12px 0;
+}
 </style>

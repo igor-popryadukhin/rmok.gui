@@ -351,19 +351,48 @@
 import Vue from 'vue'
 import { ContactResponseInterface, Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
 import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
-import { secondsToHms } from '@/utils/datetime'
 import Projects, { ProjectInterface, ProjectResponseItemsInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import { UserInterface } from '@/api/Users'
 import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
 import Leads from '@/api/Leads'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
+import secondsToHms from '@/mixins/secondsToHms'
 
-export default Vue.extend({
+interface DataInterface {
+  filter: any;
+  leads: ContactInterface[];
+  contact: ContactInterface;
+  leadsLoading: boolean;
+  task: any;
+  vueScrollLeads: any;
+  vueScrollTasks: any;
+  paginator: any;
+  leadsCount: number;
+}
+
+interface MethodsInterface {
+  onVueScrollTaskHandleComplete: (data: any) => void
+  onVueScrollLeadsHandleComplete: (data: any) => void
+  onRootMainSearch: (q: string, set: MainSearchMethod) => void
+  onRootMainSearchSelected: (data: ContactInterface) => void
+  onContactItemClick: (contact: ContactInterface) => void
+  onItemDeleteClick: (id: number) => void
+  loadLeads: () => void
+  loadTasks: () => void
+}
+
+interface ComputedInterface {
+  avatar: string;
+  dateRangeText: any[];
+}
+
+export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
 
   mixins: [
-    vueScrollOptions
+    vueScrollOptions,
+    secondsToHms
   ],
 
   components: {
@@ -379,12 +408,6 @@ export default Vue.extend({
       vueScrollTasks: {
         offset: 0,
         opt: { ...vueScrollOptions }
-      },
-      contactDialog: {
-        visible: false,
-        history: {
-          loading: false
-        }
       },
       paginator: {
         perPage: 10,
@@ -411,22 +434,6 @@ export default Vue.extend({
         items: [] as TaskInterface[],
       },
       contactHistory: [] as HistoryInterface[],
-      checkboxSelectedAll: {
-        checked: false,
-        indeterminate: false
-      },
-      buttonDelete: {
-        disabled: true
-      },
-      buttonBlacklist: {
-        disabled: true
-      },
-      buttonImport: {
-        disabled: false
-      },
-      buttonExport: {
-        disabled: true
-      },
       leadsLoading: false,
       leads: [] as ContactInterface[],
       leadsCount: 0,
@@ -459,7 +466,7 @@ export default Vue.extend({
   },
 
   computed: {
-    avatar () {
+    avatar (): string {
       const first: string = this.contact.first_name || ''
       const last: string = this.contact.last_name || ''
       return first.charAt(0) + last.charAt(0)
@@ -476,12 +483,6 @@ export default Vue.extend({
   },
 
   watch: {
-    leads: {
-      handler () {
-        // todo: implementation
-      },
-      deep: true
-    },
 
     // Filter by projects
     'filter.project.selected': {
@@ -539,7 +540,7 @@ export default Vue.extend({
 
     // Paginator
     'paginator.page': {
-      handler (value?: number) {
+      handler (value: number) {
         if (value > 0) {
           const offset: number = Math.ceil(value * this.paginator.perPage - this.paginator.perPage)
           const count: number = this.paginator.perPage
@@ -566,14 +567,6 @@ export default Vue.extend({
       }
     })
 
-    // todo: Restore filter
-    // if (this.$route.query.dates) {
-    //   console.log(new Date(+this.$route.query.dates[0] * 1000))
-    //   this.filter.dataRange.dates = [
-    //     new Date(+this.$route.query.dates[0] * 1000).toISOString().substr(0, 7),
-    //     new Date(+this.$route.query.dates[1] * 1000).toISOString().substr(0, 7)
-    //   ]
-    // }
     this.loadLeads()
     this.loadTasks()
   },
@@ -642,14 +635,13 @@ export default Vue.extend({
      * @param contact
      *
      */
-    onContactItemClick (contact: any) {
+    onContactItemClick (contact: ContactInterface) {
       const id: number = contact.id
       const leads: Contacts = new Contacts()
 
       // Load contact history
       leads.getById(id)
         .then((contact) => {
-          this.contactDialog.visible = true
           this.contact = contact as any
 
           // Changing the response scheme
@@ -662,13 +654,13 @@ export default Vue.extend({
             }
           }
 
-          this.contactDialog.history.loading = true
-          leads.getHistory(id)
-            .then((history: any) => {
-              this.contactHistory = history.items
-            }).finally(() => {
-            this.contactDialog.history.loading = false
-          })
+          // this.contactDialog.history.loading = true
+          // leads.getHistory(id)
+          //   .then((history: any) => {
+          //     this.contactHistory = history.items
+          //   }).finally(() => {
+          //   this.contactDialog.history.loading = false
+          // })
         })
     },
     /* eslint-enable */
@@ -694,23 +686,11 @@ export default Vue.extend({
                   })
 
                 resolve()
-                this.checkboxSelectedAll.checked = false
-                this.checkboxSelectedAll.indeterminate = false
               })
             }
           }
         }
       })
-    },
-
-    secondsToHms (s: number) {
-      return secondsToHms(s)
-    },
-
-    onCall (target: string, contactId: number) {
-      /* eslint-disable */
-      this.$jsSIP.call(target, { contact_id: contactId, target })
-      /* eslint-enable */
     },
 
     loadLeads () {

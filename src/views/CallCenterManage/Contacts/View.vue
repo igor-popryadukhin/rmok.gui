@@ -186,7 +186,7 @@ import { Route } from 'vue-router'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import '@/plugins/libphonenumber-js'
 import { MainSearchMethod } from '@/Interfaces'
 

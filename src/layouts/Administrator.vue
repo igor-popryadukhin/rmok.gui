@@ -182,7 +182,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 
 export default Vue.extend({
   props: {

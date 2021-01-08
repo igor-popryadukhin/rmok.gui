@@ -177,6 +177,7 @@
     "email_not_confirmed": "Адрес электронной почты не подтверждён!"
   },
 
+  "Available statuses": "Доступные статусы",
   "Error connecting to PBX": "Ошибка при подключении к АТС",
   "Cause: {text}": "Причина: {text}",
   "Tune": "Настроить",

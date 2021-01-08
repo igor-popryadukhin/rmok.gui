@@ -582,7 +582,10 @@ const routes: RouteConfig[] = [
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           // todo: Solve the question of how we will change the locale
-          loadLanguageAsync('ru', 'projects').then(() => next())
+          Promise.all([
+            loadLanguageAsync('ru', 'projects'),
+            loadLanguageAsync('ru', 'status-actions')
+          ]).then(() => next())
         }
       }
     ],

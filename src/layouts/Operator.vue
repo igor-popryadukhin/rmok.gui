@@ -232,7 +232,10 @@
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
       >
-        <vuescroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
+        <vuescroll
+          :ops="vueScrollOptions"
+          :style="{ height: `${$screenHeight - 125}px` }"
+          style="width: 100%">
           <router-view/>
         </vuescroll>
       </v-container>
@@ -293,10 +296,11 @@ import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
 import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import Tasks, { TaskGetResponseInterface, TaskInterface, TaskType } from '@/api/Tasks'
 import Projects, { ProjectInterface } from '@/api/Projects'
 import Users from '@/api/Users'
+import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 export default Vue.extend({
   props: {
@@ -307,7 +311,7 @@ export default Vue.extend({
     vuescroll
   },
 
-  mixins: [breadcrumbs],
+  mixins: [breadcrumbs, vueScrollOptions],
 
   data: () => ({
     projectDialog: {

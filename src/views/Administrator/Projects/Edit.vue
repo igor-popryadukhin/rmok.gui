@@ -249,7 +249,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import rules from '@/mixins/rules'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import Users, { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
 import Projects, { ProjectMemberInterface, ProjectInterface } from '@/api/Projects'

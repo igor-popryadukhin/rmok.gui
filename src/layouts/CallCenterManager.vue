@@ -178,7 +178,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 export default Vue.extend({

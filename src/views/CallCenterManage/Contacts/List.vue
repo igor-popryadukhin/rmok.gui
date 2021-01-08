@@ -385,7 +385,7 @@ import { POSITION } from 'vue-toastification'
 import { filter } from '@/Utils'
 import Projects, { ProjectInterface, ProjectResponseItemsInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import { UserInterface } from '@/api/Users'
 

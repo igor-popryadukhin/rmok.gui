@@ -1,5 +1,5 @@
 // import Vue from 'vue'
-// import vuescroll from 'vuescroll'
+// import vuescroll from 'vuescroll/dist/vuescroll-native'
 //
 // // You can set global config here.
 // Vue.use(vuescroll, {

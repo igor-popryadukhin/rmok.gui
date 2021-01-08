@@ -41,10 +41,10 @@ import { Contacts } from '@/api/Contacts'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import VueI18n from 'vue-i18n'
-import DStatusEdit from '@/components/Dialogs/DStatusEdit.vue'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
 import VToast from '@/components/VToast/VToast.vue'
+import VStatusEditDialog, { StatusInterface } from '@/components/VStatusEditDialog/VStatusEditDialog.vue'
 
 interface HistoryDataInterface {
   /* eslint-disable */
@@ -271,18 +271,18 @@ export default Vue.extend({
             .addHistory(contactId, historyData)
             .then((id: number) => {
               if (this.$store.getters['project/statuses'].length > 0) {
-                this.$dialog.show(DStatusEdit, {
+
+                // Диалог статуса звонка
+                this.$dialog.show(VStatusEditDialog, {
                   waitForResult: true,
-                  title: this.$t('Available statuses'),
-                  statuses: this.$store.getters['project/statuses'], // Statuses in current project
-                  saveTitle: this.$t('Save'),
-                  cancelTitle: this.$t('Cancel'),
+                  statuses: this.$store.getters['project/statuses'], // Статусы в текущем проекте
                   width: '60%',
                   height: '600',
-                  onSave: (status: any) => {
+                  onSave: (data: StatusInterface) => {
                     new Contacts()
                       .updateHistory(id, {
-                        status_id: status.id
+                        status_id: data.status.id,
+                        comment: data.comment
                       }).finally(() => {
                       this.$root.$emit('root-contact-history-change')
                     })

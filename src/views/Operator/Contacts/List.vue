@@ -371,7 +371,7 @@ import { POSITION } from 'vue-toastification'
 import { filter } from '@/Utils'
 import Projects, { ProjectInterface, ProjectResponseItemsInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
-import vuescroll from 'vuescroll'
+import vuescroll from 'vuescroll/dist/vuescroll-native'
 import { UserInterface } from '@/api/Users'
 
 interface Contact extends ContactInterface, CheckedInterface {}
