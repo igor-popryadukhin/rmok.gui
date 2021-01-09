@@ -23,7 +23,6 @@
                 :key="`v-list-item-${index}`"
                 link
                 selectable
-                color="red"
               >
                 <v-list-item-avatar>
 
@@ -111,7 +110,7 @@
                   </v-tooltip>
 
                 </v-list-item-avatar>
-                <v-list-item-content style="width: 18%">
+                <v-list-item-content style="max-width: 200px">
                   <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
                   <v-list-item-subtitle class="pt-1">
                     {{ secondsToHmsDigital(item.call_duration) }}
@@ -133,7 +132,6 @@
                     <div>{{ item.comment }}</div>
                   </div>
                 </v-list-item-content>
-                <v-spacer />
                 <v-list-item-action>
                   <v-list-item-action-text v-text="new Date(item.created_at * 1000).toLocaleString()"></v-list-item-action-text>
                   <v-btn
@@ -169,7 +167,7 @@
                     <span>{{ $tc('Comment') }}</span>
                   </v-tooltip>
                 </v-list-item-avatar>
-                <v-list-item-content style="width: 18%">
+                <v-list-item-content style="max-width: 200px">
                   <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
                   <v-list-item-subtitle class="pt-1">
                     {{ secondsToHmsDigital(item.call_duration) }}
@@ -188,7 +186,6 @@
                     <div>{{ item.comment }}</div>
                   </div>
                 </v-list-item-content>
-                <v-spacer />
                 <v-list-item-action>
                   <v-list-item-action-text v-text="new Date(item.created_at * 1000).toLocaleString()"></v-list-item-action-text>
                   <v-btn
@@ -234,7 +231,7 @@
                     <span>{{ $tc('Comment') }}</span>
                   </v-tooltip>
                 </v-list-item-avatar>
-                <v-list-item-content style="width: 18%">
+                <v-list-item-content style="max-width: 200px">
                   <v-list-item-title>{{ item.target }}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content>
@@ -250,7 +247,6 @@
                     <div>{{ item.comment }}</div>
                   </div>
                 </v-list-item-content>
-                <v-spacer />
                 <v-list-item-action>
                   <v-list-item-action-text v-text="new Date(item.created_at * 1000).toLocaleString()"></v-list-item-action-text>
                   <v-btn
@@ -359,11 +355,12 @@ export default Vue.extend({
       })
     },
 
-    onShowDialogCallEdit ({ id, comment, actions }: any) {
+    onShowDialogCallEdit ({ id, comment, actions, status }: any) {
       if (this.$store.getters['project/statuses'].length > 0) {
         this.$dialog.show(VStatusEditDialog, {
           waitForResult: true,
           statuses: this.$store.getters['project/statuses'], // Statuses in current project
+          statusId: status?.id || 0,
           comment,
           width: '60%',
           height: '600',
@@ -396,7 +393,7 @@ export default Vue.extend({
       new Contacts()
         .getHistory(
           +this.$route.params.contact_id,
-          String(this.$route.query.filter) === 'all' ? '' : String(this.$route.query.filter) || '',
+          'all',
           +this.$route.query.history_offset || 0,
           +this.$route.query.history_count || 20
         )
@@ -422,14 +419,6 @@ export default Vue.extend({
 })
 </script>
 
-<style lang="scss">
-.v-list-item__content {
-  align-items: center;
-  align-self: center;
-  display: flex;
-  flex-wrap: wrap;
-  flex: initial !important;
-  overflow: hidden;
-  padding: 12px 0;
-}
+<style lang="scss" scoped>
+
 </style>
