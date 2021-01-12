@@ -1,0 +1,10 @@
+image: docker
+services:
+  - docker:dind
+stages:
+  - deploy
+
+step-deploy-dev:
+  stage: deploy
+  script:
+    - docker build -t app/rmok-dev .
