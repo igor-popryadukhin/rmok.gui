@@ -1,5 +1,5 @@
 <template>
-  <v-container style="background-color: #9C27B0">
+  <v-container>
     <v-row
       v-if="processAuthorization"
       align="center"
