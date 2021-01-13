@@ -6,6 +6,7 @@ build-dev:
   image: node:latest
   stage: build
   script:
+    - echo $RMOK_DEV_SSH_PRIVATE_KEY
     - npm ci
     - npm run build
   artifacts:
@@ -18,6 +19,6 @@ build-dev:
 deploy-dev:
   stage: deploy
   script:
-    - echo "$RMOK_DEV_SSH_PRIVATE_KEY"
+    - echo $RMOK_DEV_SSH_PRIVATE_KEY
   only:
     - develop
