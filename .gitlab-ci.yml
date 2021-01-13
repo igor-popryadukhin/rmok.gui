@@ -1,18 +1,16 @@
-stages:
-  - build
-  - deploy
 
-build dev:
-  image: node:14.13.0
-  stage: build
-  only:
-    - tags
+pages: # задание должно быть именованными страницами
+  image: node:latest
+  stage: deploy
   script:
-    - npm install -g @vue/cli@latest
-    - npm install
+    - npm ci
     - npm run build
+    - mv public public-vue # GitLab Pages хук для каталога public
+    - mv dist public # переименование каталога dist (результат команды npm run build)
+    # опционально, можно активировать поддержку gzip с помощью следующей строки:
+    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec gzip -f -k {} \;
   artifacts:
     paths:
-      # Build folder
-      - dist/
-    expire_in: 1 hour
+      - public # путь к артефакту должен быть /public для GitLab Pages
+  only:
+    - develop
