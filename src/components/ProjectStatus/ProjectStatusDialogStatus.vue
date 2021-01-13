@@ -9,7 +9,7 @@
           v-model="status.name"
           :tabindex="0"
           autofocus
-          label="Наименование статуса"
+          :label="$tc('Status name')"
           @keyup.enter="save(status.name)"
         ></v-text-field>
 

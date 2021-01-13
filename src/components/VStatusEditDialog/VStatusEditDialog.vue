@@ -21,6 +21,7 @@
       <v-tabs-items
         v-model="tabStatus"
       >
+        <!-- Все -->
         <v-tab-item>
           <v-container fluid>
             <v-radio-group
@@ -68,6 +69,7 @@
                 class="mr-10"
               >
                 <v-radio
+                  :ref="`vRadio${status.id}`"
                   :label="status.name"
                   :color="tabItem.color"
                   :id="`v-radio-${status.id}`"
@@ -105,6 +107,10 @@ export default Vue.extend({
     statuses: {
       type: Array
     },
+    statusId: {
+      type: Number,
+      default: 0
+    },
     comment: {
       type: String,
       default: ''
@@ -123,6 +129,7 @@ export default Vue.extend({
 
   data () {
     return {
+      dStatusId: 0,
       dComment: '',
       tabStatus: 0,
       tab: null,
@@ -131,6 +138,13 @@ export default Vue.extend({
   },
 
   created () {
+    for (let i = 0; i < this.statuses.length; i++) {
+      const status = this.statuses[i].items.find((e: any) => e.id === this.statusId)
+      if (typeof status === 'object') {
+        console.log(this.$refs[`vRadio${status.id}`])
+      }
+    }
+
     this.dComment = this.comment
   },
 
