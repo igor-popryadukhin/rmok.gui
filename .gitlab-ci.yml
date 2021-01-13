@@ -6,11 +6,14 @@ build-dev:
   image: node:latest
   stage: build
   script:
-    - npm ci
-    - npm run build
+    - mkdir build
+    - touch one
+    - touch two
+#    - npm ci
+#    - npm run build
   artifacts:
     paths:
-      - dist # путь к артефакту должен быть /public для GitLab Pages
+      - build/
     expire_in: 1 days
   only:
     - develop
@@ -22,6 +25,9 @@ deploy-dev:
     - eval "ssh-agent -s"
     - ssh-add <(echo "$RMOK_DEV_SSH_PRIVATE_KEY")
     - ssh -p22 user@84.201.160.194 "sudo rm -R /var/www/admin/data/www/rmok.online/*"
-    - scp -P22 -r dist/* user@84.201.160.194:/var/www/admin/data/www/rmok.online
+    - scp -P22 -r build/* user@84.201.160.194:/var/www/admin/data/www/rmok.online
+  artifacts:
+    paths:
+      - build/
   only:
     - develop
