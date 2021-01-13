@@ -1,10 +1,18 @@
-image: docker
-services:
-  - docker:dind
 stages:
+  - build
   - deploy
 
-step-deploy-dev:
-  stage: deploy
+build dev:
+  image: node:14.13.0
+  stage: build
+  only:
+    - tags
   script:
-    - docker build -t app/rmok-dev .
+    - npm install -g @vue/cli@latest
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      # Build folder
+      - dist/
+    expire_in: 1 hour
