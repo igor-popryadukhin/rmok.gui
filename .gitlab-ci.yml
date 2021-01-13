@@ -6,7 +6,6 @@ build-dev:
   image: node:latest
   stage: build
   script:
-    - echo $RMOK_DEV_SSH_PRIVATE_KEY
     - npm ci
     - npm run build
   artifacts:
@@ -16,9 +15,12 @@ build-dev:
   only:
     - develop
 
+# Развёртываю production на тестовом сервере (production for test)
 deploy-dev:
   stage: deploy
   script:
-    - echo $RMOK_DEV_SSH_PRIVATE_KEY
+    - ssh-add <(echo "$RMOK_DEV_SSH_PRIVATE_KEY")
+    - ssh -p22 user@84.201.160.194 "sudo rm -R /var/www/admin/data/www/rmok.online/*"
+    - scp -P22 -r dist/* user@84.201.160.194:/var/www/admin/data/www/rmok.online
   only:
     - develop
