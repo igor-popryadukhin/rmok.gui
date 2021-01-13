@@ -6,7 +6,6 @@ build-dev:
   image: node:latest
   stage: build
   script:
-    - mkdir build
     - touch one
     - touch two
 #    - npm ci
