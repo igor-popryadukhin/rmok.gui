@@ -1,6 +1,7 @@
 stages:
   - build
 
+# Build a project for production testing
 build-dev:
   image: node:latest
   stage: build
@@ -8,6 +9,7 @@ build-dev:
     paths:
       - node_modules/
   script:
+    - cat $ENV_DEV >> ./.env
     - npm ci
     - npm run build
   artifacts:
@@ -16,3 +18,22 @@ build-dev:
     expire_in: 1 days
   only:
     - develop
+
+
+# Build a project for production
+build-prod:
+  image: node:latest
+  stage: build
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - cat $ENV_PROD >> ./.env
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 30 days
+  only:
+    - release
