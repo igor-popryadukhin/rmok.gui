@@ -479,6 +479,7 @@ export default Vue.extend({
       new Organizations()
         .update(+this.$route.params.id, putData)
         .then(() => {
+          this.dataChanged = false
           this.$toast.success(this.$tc('The organization was successfully saved.'))
         }).catch((e: ErrorInterface | any) => {
           if (Array.isArray(e.errors)) {
