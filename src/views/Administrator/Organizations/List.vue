@@ -1,121 +1,92 @@
 <template>
   <div>
-    <v-row class="ma-0">
-      <v-toolbar
-        flat
-        class="pl-3"
-      >
-        <v-spacer />
-        <v-tooltip bottom max-width="400">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              icon
-              :to="{ name: 'administrator_organizations_new' }"
-              v-on="on"
-              v-bind="attrs"
+    <v-row no-gutters>
+      <v-col class="pa-0">
+        <v-data-table
+          :headers="dataTableOrganizations.headers"
+          :items="dataTableOrganizations.items"
+          :server-items-length="dataTableOrganizations.totalCount"
+          :page.sync="dataTableOrganizations.page"
+          :items-per-page="dataTableOrganizations.itemsPerPage"
+          :loading="dataTableOrganizations.processLoading"
+          item-key="id"
+          item-class="v-datatable-item"
+          :height="$screenHeight - negativeScreenHeightSize"
+          @pagination="onPaginationChange"
+          :loading-text="$tc('Loading content...')"
+          :no-data-text="$tc('No data available')"
+          disable-sort
+          fixed-header
+          calculate-widths
+          hide-default-footer
+          dense
+        >
+          <template v-slot:top>
+            <v-toolbar
+              class="v-toolbar-header"
+              height="48"
+              flat
             >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <span>{{ $tc('create_organization') }}</span>
-        </v-tooltip>
-      </v-toolbar>
-    </v-row>
-    <v-row class="ma-0">
-      <v-col
-        cols="12"
-      >
-        <template v-if="organizations.length > 0">
-          <v-list>
-            <template
-              v-for="item in organizations"
-            >
-              <v-divider
-                :key="`divider-${item.id}`"
-              />
-              <v-list-item
-                :key="`list-item-${item.id}`"
-                ripple
-                selectable
-                link
+              <v-toolbar-title class="grey--text">
+                Организации
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                :disabled="dataTableOrganizations.processLoading"
+                icon
+                @click="onButtonRefreshClick"
               >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ item.name }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ item.sphere_activity }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-spacer />
-                <v-list-item-group>
-                  <v-list-item-subtitle v-if="item.responsible">
-                    {{ item.responsible.first_name }} {{ item.responsible.last_name }}
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle v-else>
-                    {{ $tc('feckless') }}
-                  </v-list-item-subtitle>
-                </v-list-item-group>
-                <v-list-item-action>
-                  <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        icon
-                        large
-                        v-bind="attrs"
-                        v-on.stop="on"
-                      >
-                        <v-icon>mdi-dots-horizontal</v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item
-                        :to="{ name: 'administrator_organizations_edit', params: { id: item.id } }"
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-square-edit-outline</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Редактировать</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
-                        link
-                        @click.stop="onDeleteItem(item.id)"
-                        disabled
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-delete</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Удалить</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
-          </v-list>
-        </template>
-        <template v-else-if="organizationsProcessLoading">
-          <v-list-item class="text-center">
-            <v-spacer />
-            <span class="grey--text">
-                {{ $tc('Loading content...') }}
-              </span>
-            <v-spacer />
-          </v-list-item>
-        </template>
-        <template v-else>
-          <v-list-item class="text-center">
-            <v-spacer />
-            <span class="grey--text">
-                {{ $tc('organizations_list_empty') }}
-              </span>
-            <v-spacer />
-          </v-list-item>
-        </template>
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+              <v-btn
+                color="primary"
+                :to="{ name: 'administrator_organizations_new' }"
+                v-bind="buttonAdd"
+                icon
+              >
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-toolbar>
+          </template>
+          <template slot="header.name" slot-scope="{ header }">
+            <span class="text-no-wrap">{{ header.text }}</span>
+          </template>
+          <template slot="item" slot-scope="{ item }">
+            <tr class="v-datatable-item">
+              <td class="text-no-wrap">{{ item.name || $tc('No name') }}</td>
+              <td class="text-no-wrap">{{ item.email || '—' }}</td>
+              <td class="text-no-wrap">{{ item.inn || '—' }}</td>
+              <td class="text-no-wrap">{{ item.cpp || '—' }}</td>
+              <td class="text-no-wrap">{{ item.site || '—' }}</td>
+              <td class="text-no-wrap">{{ item.city || '—' }}</td>
+              <td class="text-no-wrap text-right">
+                <v-btn
+                  icon
+                  small
+                  :to="{ name: 'administrator_organizations_edit', params: { id: item.id } }"
+                >
+                  <v-icon>mdi-pencil-box-outline</v-icon>
+                </v-btn>
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-col>
+    </v-row>
+    <v-row no-gutters>
+      <v-col class="d-flex justify-md-space-between">
+        <div>
+          <v-pagination
+            v-model="dataTableOrganizations.page"
+            :length="dataTableOrganizations.pages"
+            total-visible="6"
+            :disabled="dataTableOrganizations.pages === 0"
+          ></v-pagination>
+        </div>
+        <div class="d-flex align-center justify-center">
+          {{ this.dataTableOrganizations.pageStart }}-{{ this.dataTableOrganizations.pageStop }} из {{ this.dataTableOrganizations.totalCount }}
+        </div>
       </v-col>
     </v-row>
   </div>
@@ -123,62 +94,90 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { OrganizationInterface, Organizations } from '@/api/Organizations'
+import Organizations, { OrganizationInterface } from '@/api/Organizations'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
+  beforeRouteLeave (to, from, next) {
+    this.buttonAdd.disabled = true
+    next()
+  },
   data () {
     return {
-      organizationsCount: 0,
-      organizations: [] as OrganizationInterface[],
-      organizationsProcessLoading: false
+      buttonAdd: {
+        disabled: false
+      },
+      negativeScreenHeightSize: 205,
+      dataTableOrganizations: {
+        processLoading: false,
+        page: 1,
+        pages: 0,
+        totalCount: 0,
+        itemsPerPage: 20,
+        pageStart: 0,
+        pageStop: 0,
+        headers: [
+          { text: this.$tc('Name'), align: 'start', sortable: true, value: 'name', width: 'auto' },
+          { text: this.$tc('Email'), align: 'start', sortable: true, value: 'email', width: 'auto' },
+          { text: this.$tc('ITN/TIN'), align: 'start', sortable: true, value: 'inn', width: 'auto' },
+          { text: this.$tc('IEC'), align: 'start', sortable: true, value: 'cpp', width: 'auto' },
+          { text: this.$tc('Site'), align: 'start', sortable: true, value: 'site', width: 'auto' },
+          { text: this.$tc('City'), align: 'start', sortable: true, value: 'city', width: 'auto' },
+          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
+        ],
+        items: [] as OrganizationInterface[]
+      }
+    }
+  },
+
+  watch: {
+    'dataTableOrganizations.page': {
+      handler () {
+        this.fetchOrganizations()
+      }
     }
   },
 
   created () {
-    this.organizationsProcessLoading = true
-    new Organizations()
-      .find()
-      .then(({ count, items }) => {
-        this.organizationsCount = count
-        this.organizations = items
-      }).finally(() => {
-        this.organizationsProcessLoading = false
-      })
+    this.fetchOrganizations()
   },
 
   methods: {
-    onDeleteItem (id: number) {
-      this.$dialog.confirm({
-        text: this.$tc('organization_delete_selected_confirm'),
-        title: this.$tc('confirmation_request'),
-        actions: {
-          false: this.$tc('no'),
-          true: {
-            color: 'red',
-            text: this.$tc('yes'),
-            handle: () => {
-              return new Promise((resolve) => {
-                new Organizations()
-                  .delete(id)
-                  .then(() => {
-                    this.organizations = this.organizations.filter((e: OrganizationInterface) => e.id !== id)
-                    this.$toast.success(this.$t('organization_delete_successfully'), { icon: true })
-                  }).catch((e) => {
-                    const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
-                    this.$toast.error(this.$t('organization_delete_error', { cause }), { icon: true })
-                  }).finally()
+    fetchOrganizations () {
+      this.dataTableOrganizations.processLoading = true
+      const offset = (this.dataTableOrganizations.itemsPerPage * this.dataTableOrganizations.page) - this.dataTableOrganizations.itemsPerPage
+      new Organizations()
+        .find({
+          offset,
+          count: this.dataTableOrganizations.itemsPerPage
+        })
+        .then((response: ResponseInterface) => {
+          this.dataTableOrganizations.totalCount = response.meta.count
+          this.dataTableOrganizations.pages = Math.ceil(response.meta.count / this.dataTableOrganizations.itemsPerPage)
+          this.dataTableOrganizations.items = response.data
+        }).finally(() => {
+          this.dataTableOrganizations.processLoading = false
+        })
+    },
+    onPaginationChange (data: any) {
+      this.dataTableOrganizations.pageStart = data.pageStart + 1
+      this.dataTableOrganizations.pageStop = data.pageStop
+    },
 
-                resolve()
-              })
-            }
-          }
-        }
-      })
+    onButtonRefreshClick () {
+      this.fetchOrganizations()
     }
   }
 })
 </script>
 
-<style scoped>
+<style>
 
+ .v-toolbar-header div {
+   padding: 0 !important;
+ }
+
+ .v-toolbar-header div:last-child {
+   margin-right: 10px;
+ }
 </style>

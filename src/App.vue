@@ -2,10 +2,15 @@
   <div>
     <div class="text-center">
       <v-overlay z-index="150" :value="overlay">
-        <v-progress-circular
-          indeterminate
-          size="64"
-        ></v-progress-circular>
+        <div class="d-flex align-center">
+          <v-progress-circular
+            indeterminate
+            size="64"
+          ></v-progress-circular>
+          <div style="margin-top: 16px">
+            {{ $tc('Loading...') }}
+          </div>
+        </div>
       </v-overlay>
     </div>
     <component
@@ -73,7 +78,7 @@ export default Vue.extend({
         visible: false,
         historyId: 0
       },
-      overlay: false,
+      overlay: true,
       toastId: 0 as number | string,
       organization: {} as ContactInterface,
       RTCToastOptions: {
@@ -448,7 +453,9 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-  html { overflow-y: hidden !important; }
+ html {
+   overflow: auto;
+ }
 
   //.v-overlay {
   //  backdrop-filter: blur(1px);

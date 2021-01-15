@@ -2,6 +2,7 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import AccessTokenInterface from '@/api/Schemas/AccessTokenInterface'
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
 
 interface OrganizationPhoneValueInterface {
   e164: string;
@@ -25,12 +26,16 @@ export interface OrganizationEmailInterface {
 export interface OrganizationInterface {
   id: number;
   name: string;
-  sphere_activity: string;
-  inn: string;
-  cpp: string;
-  site: string;
-  phones?: OrganizationPhoneInterface[] | null;
-  emails?: OrganizationEmailInterface[] | null;
+  sphere_activity?: string;
+  inn?: string;
+  cpp?: string;
+  site?: string;
+  city?: string;
+  address?: string;
+  region?: string;
+  description?: string;
+  phone?: string;
+  email?: string
   responsible: Responsible;
   tags?: OrganizationTagInterface[] | null;
   app?: OrganizationAppInterface;
@@ -58,22 +63,13 @@ export interface OrganizationAppInterface {
 export class Organizations {
   /**
    *
-   * @param q
-   * @param tags
-   * @param offset
-   * @param count
+   * @param params
    */
-  public find (q = '', tags: string[] = [], offset = 0, count = 100): Promise<any> {
-    return new Promise((resolve, reject): Promise<any> | any => {
+  public find (params: any) {
+    return new Promise<ResponseInterface>((resolve, reject): Promise<any> | any => {
       $axios.get('/organizations', {
-        params: {
-          q,
-          offset,
-          count,
-          tags
-        }
-      })
-        .then((response: AxiosResponse) => {
+        params
+      }).then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }
@@ -152,9 +148,10 @@ export class Organizations {
       $axios.put(`/organizations/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            resolve(response.data)
+          } else {
+            reject(response.data)
           }
-          reject(response.data)
         }).catch(reject)
     })
   }
@@ -190,3 +187,5 @@ export class Organizations {
     })
   }
 }
+
+export default Organizations

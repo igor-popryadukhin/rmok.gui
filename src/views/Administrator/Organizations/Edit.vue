@@ -1,335 +1,287 @@
 <template>
-  <div>
-    <v-form
-      ref="form"
-      v-model="form.valid"
-      lazy-validation
-    >
-      <v-container fluid>
+  <v-form
+    ref="form"
+    v-model="form.valid"
+    lazy-validation
+  >
+    <v-row>
+      <v-col
+        cols="12"
+      >
+        <!-- eslint-disable -->
+        <v-text-field
+          v-model="organizationName"
+          :label="$tc('organization_name')"
+          persistent-hint
+          required
+          :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
+        >
+          <template v-slot:prepend>
+            <v-avatar
+              size="60"
+              class="mr-4"
+              style="background-color: #8d3eb1; color: white"
+            >
+              AV
+            </v-avatar>
+          </template>
+        </v-text-field>
 
-        <!-- Основная информация -->
-        <v-row>
-          <v-col
-            cols="12"
+      </v-col>
+    </v-row>
+
+    <!-- Номер телефона и адрес электронной почты -->
+    <v-row>
+      <v-col>
+        <v-text-field
+          v-model="organizationEmail"
+          :label="$t('E-mail address')"
+          :rules="[rules.email]"
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
           >
-            <v-card outlined flat>
-              <v-card-title>{{ $tc('Basic information') }}</v-card-title>
-              <v-card-text>
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <!-- eslint-disable -->
-                    <v-text-field
-                      v-model="organization.name"
-                      :label="$tc('organization_name')"
-                      persistent-hint
-                      required
-                      :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
-                    >
-                      <template v-slot:prepend>
-                        <v-avatar
-                          size="60"
-                          class="mr-4"
-                          style="background-color: #8d3eb1; color: white"
-                        >
-                          AV
-                        </v-avatar>
-                      </template>
-                    </v-text-field>
+            <v-icon class="pl-5 pr-9">mdi-email</v-icon>
+          </template>
+        </v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          v-model="organizationPhone"
+          :label="$t('Phone number')"
+          :rules="[rules.phoneNumber]"
+        >
+        </v-text-field>
+      </v-col>
+    </v-row>
 
-                  </v-col>
-                </v-row>
+    <!-- Site -->
+    <v-row>
+      <v-col
+        cols="12"
+      >
+        <v-text-field
+          v-model="organizationSite"
+          :label="$tc('site')"
+          :placeholder="$tc('site_placeholder')"
+          :rules="[ruleDynamic('[a-zа-я._-]+', $t('rule_only', {val: 'a-zа-я._-'} )).regex]"
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-5 pr-9">mdi-web</v-icon>
+          </template>
+          <template v-slot:prepend-inner>
+            <div style="color: #848484; margin: inherit">http://</div>
+          </template>
+        </v-text-field>
+      </v-col>
+    </v-row>
 
-                <!-- Emails -->
-                <v-row>
-                  <v-col>
-                    <s-emails
-                      v-model="organization.emails"
-                      :text-label="$t('Label')"
-                      :text-email="$t('E-mail address')"
-                      :rules-email="[rules.notBlank, rules.email]"
-                      :rules-label="[rules.notBlank, rules.max_50]"
-                    />
-                  </v-col>
-                </v-row>
-
-                <!-- Phones -->
-                <v-row>
-                  <v-col>
-                    <s-phone-numbers
-                      v-model="organization.phones"
-                      :message-error="$t('Invalid phone number format')"
-                      :rules-number="[rules.notBlank]"
-                      :rules-label="[rules.notBlank, rules.max_50]"
-                      :rules-country-code="[rules.notBlank]"
-                    />
-                  </v-col>
-                </v-row>
-
-                <!-- Site -->
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <v-text-field
-                      v-model="organization.site"
-                      :label="$tc('site')"
-                      :placeholder="$tc('site_placeholder')"
-                      :rules="[ruleDynamic('[a-zа-я._-]+', $t('rule_only', {val: 'a-zа-я._-'} )).regex]"
-                    >
-                      <template
-                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                        v-slot:prepend
-                      >
-                        <v-icon class="pl-5 pr-9">mdi-web</v-icon>
-                      </template>
-                      <template v-slot:prepend-inner>
-                        <div style="color: #848484; margin: inherit">http://</div>
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                </v-row>
-
-                <!-- Requisites -->
-                <v-row>
-                  <v-col
-                    cols="12"
-                    lg="6"
-                    md="6"
-                    sm="12"
-                    xl="12"
-                  >
-                    <v-text-field
-                      v-model="organization.cpp"
-                      :label="$tc('cpp')"
-                      :rules="[
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="6"
+        sm="12"
+        xl="12"
+      >
+        <v-text-field
+          v-model="organizationCpp"
+          :label="$tc('cpp')"
+          :rules="[
                 ruleDynamic(9, $t('The minimum length of the CPP is 9 characters')).min,
                 ruleDynamic(9, $t('The maximum length of the CPP is 9 characters')).max
                 ]"
-                      counter
-                    >
-                      <template
-                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                        v-slot:prepend
-                      >
-                        <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    lg="6"
-                    md="6"
-                    sm="12"
-                    xl="12"
-                  >
-                    <v-text-field
-                      v-model="organization.inn"
-                      :label="$tc('inn')"
-                      :rules="[
+          counter
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
+          </template>
+        </v-text-field>
+      </v-col>
+      <v-col
+        cols="12"
+        lg="6"
+        md="6"
+        sm="12"
+        xl="12"
+      >
+        <v-text-field
+          v-model="organizationInn"
+          :label="$tc('inn')"
+          :rules="[
                 ruleDynamic(9, $t('Minimum length INN 9 characters')).min,
                 ruleDynamic(12, $t('Maximum length ИНН 12 characters')).max,
-
                 ]"
-                      counter
-                    >
-                      <template
-                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                        v-slot:prepend
-                      >
-                        <v-icon class="pl-5 pr-9">mdi-credit-card-multiple</v-icon>
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                </v-row>
+          counter
+        >
+        </v-text-field>
+      </v-col>
+    </v-row>
 
-                <!-- Tags -->
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <v-combobox
-                      v-model="organization.tags"
-                      :items="tags"
-                      item-text="name"
-                      item-value="id"
-                      :label="$tc('tags')"
-                      chips
-                      deletable-chips
-                      return-object
-                      disable-lookup
-                      multiple
-                    >
-                      <template
-                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                        v-slot:prepend
-                      >
-                        <v-icon class="pl-5 pr-9">mdi-tag-multiple</v-icon>
-                      </template>
-                    </v-combobox>
-                  </v-col>
-                </v-row>
-
-                <!-- Responsible -->
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <s-autocomplete-users
-                      v-model="organization.responsible"
-                      :selected-id="organization.responsible ? organization.responsible.id: 0"
-                      :organization-id="organization.id"
-                      display-organization
-                      visible-icon
-                      :rules="[rules.notBlank]"
-                      :label="$tc('responsible')"
-                      roles="r_leader_cc"
-                    >
-                      <template v-slot:no-data>
-                        <v-list-item
-                          link
-                          target="_blank"
-                          :to="{ name: 'administrator_users_new' }"
-                        >
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              Нажмите что бы добавить нового пользователя
-                            </v-list-item-title>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </template>
-                    </s-autocomplete-users>
-                  </v-col>
-                </v-row>
-
-                <!-- Сфера деятельности -->
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <v-textarea
-                      v-model="organization.sphere_activity"
-                      :label="$tc('sphere_activity')"
-                      :rules="[rules.max_3000]"
-                      counter
-                    >
-                      <template
-                        v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                        v-slot:prepend
-                      >
-                        <v-icon class="pl-5 pr-9">mdi-bag-checked</v-icon>
-                      </template>
-                    </v-textarea>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-              <v-card-actions>
-                <v-row>
-                  <v-col
-                    cols="12"
-                    class="text-right"
-                  >
-                    <v-btn
-                      text
-                      tile
-                      :loading="buttonSave.loading"
-                      :disabled="buttonSave.disabled"
-                      @click="onSave"
-                    >
-                      {{ $tc('Save') }}
-                    </v-btn>
-                  </v-col>
-                </v-row>
-
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <!-- Интеграционные данные -->
-        <v-row>
-          <v-col
-            cols="12"
+    <!-- Местоположение -->
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="6"
+        sm="12"
+        xl="12"
+      >
+        <v-text-field
+          v-model="organizationCity"
+          :label="$tc('City')"
+          :rules="[]"
+          counter
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
           >
-            <v-card>
-              <v-card-title>{{ $tc('Developer settings') }}</v-card-title>
-              <v-card-text>
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <v-text-field
-                      v-model="organization.app.name"
-                      :label="$tc('App name')"
-                      persistent-hint
-                      required
-                    >
-                    </v-text-field>
+            <v-icon class="pl-5 pr-9">mdi-city</v-icon>
+          </template>
+        </v-text-field>
+      </v-col>
+      <v-col
+        cols="12"
+        lg="6"
+        md="6"
+        sm="12"
+        xl="12"
+      >
+        <v-text-field
+          v-model="organizationRegion"
+          :label="$tc('Region')"
+          :rules="[]"
+          counter
+        >
+        </v-text-field>
+      </v-col>
+      <v-col
+        cols="12"
+      >
+        <v-text-field
+          v-model="organizationAddress"
+          :label="$tc('Address')"
+          :rules="[]"
+          counter
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-10 pr-10">mdi-blank</v-icon>
+          </template>
+        </v-text-field>
+      </v-col>
+    </v-row>
 
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <v-text-field
-                      v-model="organization.app.client_id"
-                      :label="$tc('Client ID')"
-                      persistent-hint
-                      required
-                    >
-                      <template v-slot:append>
-                        <v-btn
-                          icon
-                          small
-                        >
-                          <v-icon>mdi-content-copy</v-icon>
-                        </v-btn>
-                        <v-btn
-                          icon
-                          small
-                        >
-                          <v-icon>mdi-refresh</v-icon>
-                        </v-btn>
-                      </template>
-                    </v-text-field>
+    <!-- Tags -->
+    <v-row>
+      <v-col
+        cols="12"
+      >
+        <v-combobox
+          v-model="organizationTags"
+          :items="tags"
+          item-text="name"
+          item-value="id"
+          :label="$tc('tags')"
+          chips
+          deletable-chips
+          return-object
+          disable-lookup
+          multiple
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-5 pr-9">mdi-tag-multiple</v-icon>
+          </template>
+        </v-combobox>
+      </v-col>
+    </v-row>
 
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col
-                    cols="12"
-                  >
-                    <v-text-field
-                      :label="$tc('Client Secret')"
-                      disabled
-                    >
-                      <template v-slot:append>
-                        <v-btn
-                          icon
-                          small
-                        >
-                          <v-icon>mdi-content-copy</v-icon>
-                        </v-btn>
-                        <v-btn
-                          icon
-                          small
-                        >
-                          <v-icon>mdi-refresh</v-icon>
-                        </v-btn>
-                      </template>
-                    </v-text-field>
+    <!-- Responsible -->
+    <v-row>
+      <v-col
+        cols="12"
+      >
+        <!--        <s-autocomplete-users-->
+        <!--          v-model="organization.responsible"-->
+        <!--          :selected-id="organization.responsible ? organization.responsible.id: 0"-->
+        <!--          visible-icon-->
+        <!--          :rules="[rules.notBlank]"-->
+        <!--          :label="$tc('responsible')"-->
+        <!--          roles="r_leader_cc"-->
+        <!--        />-->
+      </v-col>
+    </v-row>
 
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-form>
-  </div>
+    <v-row>
+      <v-col
+        cols="12"
+      >
+        <v-textarea
+          v-model="organizationDescription"
+          :label="$tc('Description')"
+          :rules="[rules.lengthMax(3000)]"
+          counter
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-10 pr-10">mdi-blank</v-icon>
+          </template>
+        </v-textarea>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col
+        cols="12"
+      >
+        <v-textarea
+          v-model="organizationSphereActivity"
+          :label="$tc('sphere_activity')"
+          :rules="[rules.lengthMax(3000)]"
+          counter
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-5 pr-9">mdi-bag-checked</v-icon>
+          </template>
+        </v-textarea>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col
+        cols="12"
+        class="text-right"
+      >
+        <v-btn
+          text
+          tile
+          :loading="buttonSave.loading"
+          :disabled="buttonSave.disabled"
+          @click="onSave"
+        >
+          {{ $tc('Save') }}
+        </v-btn>
+      </v-col>
+    </v-row>
+  </v-form>
 </template>
 
 <script lang="ts">
@@ -338,22 +290,13 @@ import rules from '@/mixins/rules'
 import {
   OrganizationInterface,
   Organizations,
-  Responsible,
-  OrganizationTagInterface, OrganizationPhoneInterface, OrganizationEmailInterface
+  OrganizationTagInterface
 } from '@/api/Organizations'
-import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
-import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-import SPhoneNumbers from '@/snippets/SPhoneNumbers/SPhoneNumbers.vue'
-import SEmails from '@/snippets/SEmails/SEmails.vue'
-import { AppInterface } from '@/api/Apps'
+import ErrorInterface from '@/api/Schemas/ErrorInterface'
 
 export default Vue.extend({
   mixins: [rules],
-  components: {
-    SAutocompleteUsers,
-    SPhoneNumbers,
-    SEmails
-  },
+
   data () {
     return {
       regExPatterns: {
@@ -367,221 +310,182 @@ export default Vue.extend({
         valid: false
       },
       /* eslint-disable */
-      phoneNumbers: [] as PhoneNumberInterface[],
-      organization: {
-        id: 0,
-        name: '',
-        site: '',
-        inn: '',
-        cpp: '',
-        sphere_activity: '',
-        emails: [
-          {
-            id: 0,
-            value: '',
-            label: ''
-          }
-        ],
-        phones: [
-          {
-            id: 0,
-            country_code: 'RU',
-            country_calling_code: '7',
-            value: '',
-            label: ''
-          }
-        ],
-        responsible: {
-          first_name: '',
-          id: 0,
-          last_name: ''
-        } as Responsible,
-        tags: [] as OrganizationTagInterface[],
-        app: {
-          id: 0,
-          client_id: '',
-          client_secret: '',
-          created_at: 0
-        }
-      } as OrganizationInterface,
+      dataChanged: false,
+      organizationName: '',
+      organizationInn: '',
+      organizationCpp: '',
+      organizationSite: '',
+      organizationEmail: '',
+      organizationPhone: '',
+      organizationSphereActivity: '',
+      organizationTags: [] as any[],
+      organizationResponsible: 0 as number,
+      organizationCity: '' as string,
+      organizationRegion: '' as string,
+      organizationAddress: '' as string,
+      organizationDescription: '' as string,
       tags: [] as OrganizationTagInterface[],
-      app: {
-        id: 0,
-        name: '',
-        client_id: '',
-        created_at: 0
-      } as AppInterface
       /* eslint-enable */
     }
   },
 
-  created () {
-    // this.$root.$emit('root-loading-data-show')
-
+  beforeRouteEnter (to, from, next) {
     new Organizations()
-      .getById(+this.$route.params.id)
+      .getById(+to.params.id)
       .then((organization: OrganizationInterface) => {
-        /* eslint-disable */
-        this.organization.id = organization.id
-        this.organization.name = organization.name
-        this.organization.emails = organization.emails?.map((e) => e) || []
-        this.organization.phones = organization
-          .phones?.map((e: OrganizationPhoneInterface) => {
-            return {
-              id: e.id,
-              country_code: e.country_code,
-              country_calling_code: e.country_calling_code,
-              label: e.label,
-              value: typeof e.value === 'string' ? e.value : e.value.e164
-            }
-          }) || []
-        this.organization.site = organization.site
-        this.organization.cpp = organization.cpp
-        this.organization.inn = organization.inn
-        this.organization.tags = organization.tags
-        this.organization.responsible = organization.responsible
-        this.organization.sphere_activity = organization.sphere_activity
-        this.organization.app = organization.app
+        next(vm => {
+          vm.organizationName = organization.name
+          vm.organizationEmail = organization.email
+          vm.organizationPhone = organization.phone
+          vm.organizationSite = organization.site
+          vm.organizationCpp = organization.cpp
+          vm.organizationInn = organization.inn
+          vm.organizationTags = organization.tags
+          vm.organizationResponsible = organization.responsible ? organization.responsible.id : 0
+          vm.organizationCity = organization.city
+          vm.organizationRegion = organization.region
+          vm.organizationAddress = organization.address
+          vm.organizationDescription = organization.description
+          vm.organizationSphereActivity = organization.sphere_activity
 
-        if (this.organization.phones.length === 0) {
-          this.organization.phones.push({
-            id: 0,
-            country_code: '',
-            country_calling_code: '',
-            value: '',
-            label: ''
-          } as OrganizationPhoneInterface)
-        }
-
-        if (this.organization.emails.length === 0) {
-          this.organization.emails.push({
-            value: '',
-            label: ''
-          } as OrganizationEmailInterface)
-        }
-        /* eslint-enable */
-      })
-      .finally(() => {
-        new Organizations()
-          .getTags()
-          .then((tags: OrganizationTagInterface[]) => {
-            this.tags = tags
-          })
+          vm.$watch('organizationName', vm.onChanged)
+          vm.$watch('organizationEmail', vm.onChanged)
+          vm.$watch('organizationPhone', vm.onChanged)
+          vm.$watch('organizationSite', vm.onChanged)
+          vm.$watch('organizationCpp', vm.onChanged)
+          vm.$watch('organizationInn', vm.onChanged)
+          vm.$watch('organizationTags', vm.onChanged)
+          vm.$watch('organizationResponsible', vm.onChanged)
+          vm.$watch('organizationCity', vm.onChanged)
+          vm.$watch('organizationRegion', vm.onChanged)
+          vm.$watch('organizationAddress', vm.onChanged)
+          vm.$watch('organizationDescription', vm.onChanged)
+          vm.$watch('organizationSphereActivity', vm.onChanged)
+        })
+      }).catch(() => {
+        next({
+          name: 'not_found'
+        })
       })
   },
+
+  beforeRouteUpdate (to, from, next) {
+    this.fetchOrganization()
+    next()
+  },
+
+  beforeRouteLeave (to, from, next) {
+    if (this.dataChanged) {
+      const answer = window.confirm(this.$tc('Do you want to leave? You have unsaved changes!'))
+      if (answer) {
+        next()
+      } else {
+        next(false)
+      }
+    } else {
+      next()
+    }
+  },
+
   methods: {
-
-    /**
-     * Fired when an clicked on the add email button
-     */
-    onAddEmailClick () {
-      if (!this.organization.emails) {
-        this.organization.emails = []
-      }
-      this.organization.emails.push({
-        value: '',
-        label: ''
-      } as OrganizationEmailInterface)
+    onChanged () {
+      this.dataChanged = true
     },
 
-    /**
-     * Fired when an clicked on the delete email button
-     * @param index
-     */
-    onDeleteEmailClick (index: number) {
-      if (this.organization.emails) {
-        this.organization.emails.splice(index, 1)
-      }
-    },
-
-    /**
-     * Fired when an clicked on the add phone number button
-     */
-    onAddPhoneClick () {
-      /* eslint-disable */
-      if (!this.organization.phones) {
-        this.organization.phones = []
-      }
-      this.organization.phones.push({
-        id: 0,
-        country_code: '',
-        country_calling_code: '',
-        value: '',
-        label: ''
-      } as OrganizationPhoneInterface)
-    },
-
-    /**
-     * Fired when an clicked on the delete phone number button
-     * @param index
-     */
-    onDeletePhoneClick (index: number) {
-      if (this.organization.phones) {
-        this.organization.phones.splice(index, 1)
-      }
-    },
-
-    resetForm () {
-      /* eslint-disable */
-      (this.$refs.form as Vue & { reset: () => boolean }).reset()
-      this.organization.tags = []
-      this.organization.emails = []
-      this.organization.phones = []
-
-      this.organization.phones.push({
-        id: 0,
-        country_code: '',
-        country_calling_code: '',
-        value: '',
-        label: ''
-      })
-      this.organization.emails.push({ value: '', label: '' })
-      /* eslint-enable */
+    fetchOrganization () {
+      new Organizations()
+        .getById(+this.$route.params.id)
+        .then((organization: OrganizationInterface) => {
+          /* eslint-disable */
+          this.organizationName = organization.name
+          this.organizationEmail = organization.email
+          this.organizationPhone = organization.phone
+          this.organizationSite = organization.site
+          this.organizationCpp = organization.cpp
+          this.organizationInn = organization.inn
+          this.organizationTags = organization.tags
+          this.organizationResponsible = organization.responsible ? organization.responsible.id : 0
+          this.organizationCity = organization.city
+          this.organizationRegion = organization.region
+          this.organizationAddress = organization.address
+          this.organizationDescription = organization.description
+          this.organizationSphereActivity = organization.sphere_activity
+          /* eslint-enable */
+        })
+        .finally(() => {
+          new Organizations()
+            .getTags()
+            .then((tags: OrganizationTagInterface[]) => {
+              this.tags = tags
+            })
+        })
     },
 
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
+
+      const putData = {
+        name: this.organizationName.trim(),
+        responsible: this.organizationResponsible // Идентификатор ответственного
+      } as any
+
+      if (this.organizationPhone) {
+        putData.phone = this.organizationPhone
+      }
+
+      if (this.organizationEmail) {
+        putData.email = this.organizationEmail
+      }
+
+      if (this.organizationSite) {
+        putData.site = this.organizationSite
+      }
+
+      if (this.organizationInn) {
+        putData.inn = this.organizationInn
+      }
+
+      if (this.organizationCpp) {
+        putData.cpp = this.organizationCpp
+      }
+
+      if (this.organizationSphereActivity) {
+        putData.sphere_activity = this.organizationSphereActivity
+      }
+
+      if (this.organizationTags) {
+        putData.tags = this.organizationTags
+      }
+
+      if (this.organizationCity) {
+        putData.city = this.organizationCity
+      }
+
+      if (this.organizationRegion) {
+        putData.region = this.organizationRegion
+      }
+
+      if (this.organizationAddress) {
+        putData.address = this.organizationAddress
+      }
+
+      if (this.organizationDescription) {
+        putData.description = this.organizationDescription
+      }
+
       this.buttonSave.loading = true
       new Organizations()
-        .update(+this.$route.params.id, {
-          /* eslint-disable */
-          name: this.organization.name ? this.organization.name.trim() : '',
-          inn: this.organization.inn ? this.organization.inn.trim() : '',
-          cpp: this.organization.cpp ? this.organization.cpp.trim() : '',
-          site: this.organization.site ? this.organization.site.trim() : '',
-          emails: this.organization.emails ? this.organization.emails
-            .map((email: OrganizationEmailInterface) => {
-              return {
-                id: email.id,
-                label: email.label,
-                value: email.value
-              }
-            }) : [],
-          phones: this.organization.phones
-            ?.map((phone: OrganizationPhoneInterface) => {
-              return {
-                id: phone.id,
-                country_code: phone.country_code,
-                country_calling_code: phone.country_calling_code,
-                label: phone.label,
-                value: phone.value
-              }
-            }),
-          sphere_activity: this.organization.sphere_activity || null,
-          tags: this.organization.tags ? this.organization.tags.map((tag: OrganizationTagInterface | string) => {
-            if (typeof tag === 'object') {
-              return tag.id
-            }
-            return tag
-          }) : [],
-          responsible: this.organization.responsible ? this.organization.responsible.id : 0 // 0 = Без ответсвенного
-          /* eslint-enable */
-        }).then(() => {
-          this.$toast.success(this.$tc('organization_saved_successfully'))
-          this.$router.replace('/administrator/organizations')
-        }).catch((e) => {
+        .update(+this.$route.params.id, putData)
+        .then(() => {
+          this.$toast.success(this.$tc('The organization was successfully saved.'))
+        }).catch((e: ErrorInterface | any) => {
+          if (Array.isArray(e.errors)) {
+            e.errors.map((e: any) => {
+              this.$toast.warning(e.message)
+            })
+          }
           this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false

@@ -15,7 +15,7 @@
       <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title class="d-inline-block toolbar-title">
         <div class="hidden-sm-and-down">RMOK</div>
-        <div class="hidden-sm-and-down toolbar-title-subtitle">for administrator</div>
+        <div class="hidden-sm-and-down toolbar-title-subtitle text-lowercase">{{ $tc('For administrator') }}</div>
       </v-toolbar-title>
       <v-spacer/>
       <v-text-field
@@ -170,10 +170,9 @@
     <v-main>
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
+        fluid
       >
-        <vuescroll :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
-          <router-view/>
-        </vuescroll>
+        <router-view/>
       </v-container>
     </v-main>
   </v-app>
@@ -182,15 +181,10 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import vuescroll from 'vuescroll/dist/vuescroll-native'
 
 export default Vue.extend({
   props: {
     source: String
-  },
-
-  components: {
-    vuescroll
   },
 
   mixins: [breadcrumbs],
@@ -236,19 +230,11 @@ export default Vue.extend({
 
   computed: {
     avatar () {
-      const first: string = this.$store.getters['profile/first_name'] || ''
-      const last: string = this.$store.getters['profile/last_name'] || ''
+      const first: string = this.$store.getters['profile/first_name'] || 'N'
+      const last: string = this.$store.getters['profile/last_name'] || 'N'
       return first.charAt(0) + last.charAt(0)
     }
   }
-
-  // watch: {
-  //   $route (to, from) {
-  //     const toDepth = to.path.split('/').length
-  //     const fromDepth = from.path.split('/').length
-  //     this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
-  //   }
-  // },
 })
 </script>
 

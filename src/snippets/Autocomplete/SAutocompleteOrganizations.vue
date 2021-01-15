@@ -82,7 +82,9 @@ export default Vue.extend({
       organizationsSearchQuery: null as null | string,
       organizationsSearchDebounce: debounce((q: string, context: any) => {
         context.loading = true
-        new Organizations().find(q)
+        new Organizations().find({
+          q
+        })
           .then(({ items }) => {
             context.organizations = items
 

@@ -1,4 +1,5 @@
-interface Error {
+export interface Error {
+  code: string;
   message: string;
   property_name: string;
 }
