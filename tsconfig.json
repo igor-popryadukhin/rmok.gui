@@ -16,6 +16,9 @@
       "webpack-env",
       "vuetify"
     ],
+    "typeRoots": [
+      "./node_modules/vuetify/types"
+    ],
     "paths": {
       "@/*": [
         "src/*"

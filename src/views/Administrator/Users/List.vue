@@ -82,6 +82,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { UserInterface, Users } from '@/api/Users'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
   data () {
@@ -129,10 +130,10 @@ export default Vue.extend({
           offset,
           count: this.dataTableUsers.itemsPerPage
         })
-        .then((response: any) => {
-          this.dataTableUsers.totalCount = response.count
+        .then((response: ResponseInterface<{count: number}, UserInterface[]>) => {
+          this.dataTableUsers.totalCount = response.meta.count
           this.dataTableUsers.pages = Math.ceil(response.count / this.dataTableUsers.itemsPerPage)
-          this.dataTableUsers.items = response.items
+          this.dataTableUsers.items = response.data
         }).finally(() => {
           this.usersProcessLoading = false
         })

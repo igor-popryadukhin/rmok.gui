@@ -89,13 +89,8 @@ export class Users {
   public find (params: ParamsFindInterface = {}): Promise<any> {
     return new Promise((resolve, reject): Promise<any> | any => {
       $axios.get('/users', {
-        params: {
-          /* eslint-disable */
-          ...params
-          /* eslint-enable */
-        }
-      })
-        .then((response: AxiosResponse) => {
+        params
+      }).then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }

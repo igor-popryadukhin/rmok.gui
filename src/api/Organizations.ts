@@ -66,7 +66,7 @@ export class Organizations {
    * @param params
    */
   public find (params: any) {
-    return new Promise<ResponseInterface>((resolve, reject): Promise<any> | any => {
+    return new Promise<ResponseInterface<any, OrganizationInterface[]>>((resolve, reject) => {
       $axios.get('/organizations', {
         params
       }).then((response: AxiosResponse) => {

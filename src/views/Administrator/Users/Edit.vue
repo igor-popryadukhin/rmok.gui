@@ -252,7 +252,6 @@
                 v-model="groupSelected"
                 :label="$tc('Group')"
                 visible-icon
-                :rules="[rules.notBlank]"
                 :selected-id="user.group ? user.group.id : 0"
                 :disabled="user.organization === null"
                 :organization-id="user.organization ? user.organization.id : 0"
@@ -275,7 +274,6 @@
           </v-row>
         </div>
 
-
         <div class="text-h6">{{ $tc('Telephony') }}</div>
         <div class="mb-10">
           <v-row>
@@ -285,7 +283,7 @@
               md="12"
             >
               <v-text-field
-                v-model="user.pbx_config.display_name"
+                v-model="pbxConfig.display_name"
                 :label="$tc('SIP phone number')"
                 :hint="$tc('The phone number that is displayed when calling from your PBX')"
                 persistent-hint
@@ -306,11 +304,11 @@
               cols="6"
             >
               <v-text-field
-                v-model="user.pbx_config.server"
+                v-model="pbxConfig.server"
                 :label="$tc('Server address')"
                 :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
                 persistent-hint
-                :rules="[rules.notBlank]"
+                :rules="[]"
                 required
               >
                 <template
@@ -325,13 +323,13 @@
               cols="2"
             >
               <v-text-field
-                v-model="user.pbx_config.port"
+                v-model="pbxConfig.port"
                 :label="$tc('Port')"
                 type="number"
                 persistent-hint
                 required
                 single-line
-                :rules="[rules.positive]"
+                :rules="[]"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -342,11 +340,11 @@
               md="12"
             >
               <v-text-field
-                v-model="user.pbx_config.login"
+                v-model="pbxConfig.login"
                 :label="$tc('Login')"
                 :hint="$tc('Login to access your PBX. For example: 003452')"
                 persistent-hint
-                :rules="[rules.notBlank]"
+                :rules="[]"
                 required
               >
                 <template
@@ -365,12 +363,12 @@
               md="12"
             >
               <v-text-field
-                v-model="user.pbx_config.password"
+                v-model="pbxConfig.password"
                 :label="$tc('Password')"
                 :hint="$tc('PBX access password')"
                 :type="pbxPasswordVisible ? '' : 'password'"
                 persistent-hint
-                :rules="[rules.notBlank]"
+                :rules="[]"
                 required
               >
                 <template
@@ -486,8 +484,17 @@ export default Vue.extend({
           password: '',
           port: 0,
           server: ''
-        },
-      } as UserInterface
+        }
+      } as UserInterface,
+
+      // Конфигурация подключения к АТС
+      pbxConfig: {
+        display_name: '',
+        login: '',
+        password: '',
+        port: 0,
+        server: ''
+      }
       /* eslint-enable */
     }
   },
@@ -496,7 +503,6 @@ export default Vue.extend({
     // Password comparison
     password: {
       handler (password: DataPasswordInterface) {
-        console.log(this.password.isEmpty())
         if (password.value1 === password.value2) {
           password.isValid = true
           this.$refs.password1.resetValidation()
@@ -549,24 +555,27 @@ export default Vue.extend({
       }
       this.buttonSave.loading = true
 
-      // Data for update
-      const data = {
-        /* eslint-disable */
+      const putData = {
         first_name: this.user.first_name.trim(),
         last_name: this.user.last_name.trim(),
         middle_name: this.user.middle_name.trim(),
         login: this.user.login.trim(),
-        password: this.password.value1,
+        password: this.password.value1.trim(),
         phone: this.user.phone.trim(),
         email: this.user.email,
         role: this.user.role?.id,
-        group_id: this.groupSelected.id,
-        pbx_config: this.user.pbx_config
-        /* eslint-enable */
-      } as any & { password?: string }
+        organization_id: this.organizationSelected.id,
+        group_id: this.user.group?.id
+      }
 
+      if (this.pbxConfig.login && this.pbxConfig.password && this.pbxConfig.server && this.pbxConfig.port) {
+        putData.pbx_config = this.pbxConfig
+      }
+
+      this.buttonSave.loading = true
       new Users()
-        .update(+this.$route.params.id, data).then(() => {
+        .update(+this.$route.params.id, putData)
+        .then(() => {
           this.$toast.success(this.$tc('User updated successfully'))
         }).catch((e) => {
           if ('errors' in e) {

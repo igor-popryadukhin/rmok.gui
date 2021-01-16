@@ -1,106 +1,113 @@
 <template>
-  <div>
-    <v-form
-      ref="form"
-      v-model="form.valid"
-      lazy-validation
-    >
-      <v-container>
+  <v-form
+    ref="form"
+    v-model="form.valid"
+    lazy-validation
+  >
+    <!-- FLM -->
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <!-- eslint-disable -->
+        <v-text-field
+          ref="groupName"
+          v-model="groupName"
+          :label="$tc('group_name')"
+          :rules="[rules.notBlank]"
+          persistent-hint
+          @keydown.enter="$refs.sOrganizations.focus"
+        >
+        </v-text-field>
+      </v-col>
+    </v-row>
 
-        <!-- FLM -->
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <!-- eslint-disable -->
-            <v-text-field
-              v-model="group.name"
-              :label="$tc('group_name')"
-              persistent-hint
-              required
-              :rules="[rules.notBlank]"
+    <!-- Organizations -->
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <s-organizations
+          ref="sOrganizations"
+          v-model="organizationSelected"
+          :label="$tc('organization')"
+          :rules="[rules.notBlank]"
+        />
+      </v-col>
+    </v-row>
+
+    <!-- Users -->
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <s-users
+          ref="sUsers"
+          v-model="userSelected"
+          :label="$tc('team_leader')"
+          :disabled="!organizationSelected"
+          :params="{ roles: 'r_team_leader' }"
+          :rules="[rules.notBlank]"
+        >
+          <template v-slot:no-data>
+            <v-list-item
+              link
+              target="_blank"
+              :to="{ name: 'administrator_users_new' }"
             >
-            </v-text-field>
-          </v-col>
-        </v-row>
+              <v-list-item-content>
+                <v-list-item-title>
+                  Нажмите что бы добавить нового пользователя
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
+        </s-users>
+      </v-col>
+    </v-row>
 
-        <!-- Organizations -->
-        <v-row>
-          <v-col
-              cols="12"
-          >
-            <s-autocomplete-organizations
-                v-model="organizationSelected"
-                :label="$tc('organization')"
-            />
-          </v-col>
-        </v-row>
-
-        <!-- Users -->
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <s-autocomplete-users
-              v-model="userSelected"
-              :label="$tc('team_leader')"
-              :disabled="!organizationSelected"
-              :organization-id="organizationSelected ? organizationSelected.id : 0"
-              roles="r_team_leader"
-              display-organization
-            >
-              <template v-slot:no-data>
-                <v-list-item
-                  link
-                  target="_blank"
-                  :to="{ name: 'administrator_users_new' }"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      Нажмите что бы добавить нового пользователя
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-            </s-autocomplete-users>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col
-            cols="12"
-            class="text-right"
-          >
-            <v-btn
-              text
-              tile
-              :loading="buttonSave.loading"
-              :disabled="buttonSave.disabled"
-              @click="onSave"
-            >
-              {{ $tc('add_group') }}
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-form>
-  </div>
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+        class="text-right"
+      >
+        <v-btn
+          text
+          tile
+          :loading="buttonSave.loading"
+          :disabled="buttonSave.disabled"
+          @click="onSave"
+        >
+          {{ $tc('add_group') }}
+        </v-btn>
+      </v-col>
+    </v-row>
+  </v-form>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { Groups } from '@/api/Groups'
-import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
-import SAutocompleteUsers from '@/snippets/Autocomplete/SAutocompleteUsers.vue'
 import { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
+import SUsers from '@/snippets/SUsers/SUsers.vue'
+import SOrganizations from '@/snippets/SOrganizations/SOrganizations.vue'
 
 export default Vue.extend({
   components: {
-    SAutocompleteUsers,
-    SAutocompleteOrganizations
+    SOrganizations,
+    SUsers
   },
+
   mixins: [rules],
 
   data () {
@@ -112,13 +119,18 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      /* eslint-disable */
-      organizationSelected: {} as OrganizationInterface,
-      userSelected: {} as UserInterface,
-      group: {
-        name: ''
+      organizationSelected: null as unknown as OrganizationInterface,
+      userSelected: null as unknown as UserInterface,
+      groupName: ''
+    }
+  },
+
+  watch: {
+    organizationSelected (val: OrganizationInterface) {
+      if (val) {
+        this.$refs.sUsers.focus()
+        this.$refs.sUsers.fetchData({ organization_id: val.id })
       }
-      /* eslint-enable */
     }
   },
 
@@ -133,19 +145,25 @@ export default Vue.extend({
         return
       }
       this.buttonSave.loading = true
+
+      const postData = {
+        name: this.groupName.trim(),
+        team_leader_id: this.userSelected ? this.userSelected.id : 0,
+        organization_id: this.organizationSelected ? this.organizationSelected.id : 0
+      }
+
       new Groups()
-        .add({
-          /* eslint-disable */
-          name: this.group.name.trim(),
-          team_leader_id: this.userSelected ? this.userSelected.id : 0,
-          organization_id: this.organizationSelected ? this.organizationSelected.id : 0
-          /* eslint-enable */
-        }).then(() => {
+        .add(postData)
+        .then(() => {
           this.resetForm()
           this.$toast.success(this.$tc('Group added successfully'))
-          this.$router.replace('/administrator/groups')
         }).catch((e) => {
-          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+          if (Array.isArray(e.errors)) {
+            e.errors.map((e: any) => {
+              this.$toast.warning(e.message)
+            })
+          }
+          this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
         })

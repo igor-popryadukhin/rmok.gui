@@ -232,6 +232,7 @@ import { OrganizationInterface } from '@/api/Organizations'
 import Projects from '@/api/Projects'
 import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
   components: {
@@ -303,9 +304,9 @@ export default Vue.extend({
           q,
           roles: 'r_operator',
           organization_id: this.organizationSelected.id
-        }).then((response) => {
-          this.userSearch.count = response.count
-          this.userSearch.entries = response.items
+        }).then((response: ResponseInterface<{ count: number }, UserInterface[]>) => {
+          this.userSearch.count = response.meta.count
+          this.userSearch.entries = response.data
         }).finally(() => (this.userSearch.loading = false))
     }
   },
@@ -397,9 +398,9 @@ export default Vue.extend({
           roles: 'r_operator',
           offset: 0,
           count: 500
-        }).then((response) => {
-          this.availableMembersCount = response.count
-          this.availableMembers = response.items
+        }).then((response: ResponseInterface<{ count: number }, UserInterface[]>) => {
+          this.availableMembersCount = response.meta.count
+          this.availableMembers = response.data
         }).finally(() => (this.availableMembersLoading = false))
     }
   }

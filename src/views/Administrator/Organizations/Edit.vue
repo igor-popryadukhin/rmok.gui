@@ -193,6 +193,7 @@
           item-text="name"
           item-value="id"
           :label="$tc('tags')"
+          disabled
           chips
           deletable-chips
           return-object
@@ -214,14 +215,14 @@
       <v-col
         cols="12"
       >
-        <!--        <s-autocomplete-users-->
-        <!--          v-model="organization.responsible"-->
-        <!--          :selected-id="organization.responsible ? organization.responsible.id: 0"-->
-        <!--          visible-icon-->
-        <!--          :rules="[rules.notBlank]"-->
-        <!--          :label="$tc('responsible')"-->
-        <!--          roles="r_leader_cc"-->
-        <!--        />-->
+        <s-users
+          ref="sUsers"
+          v-model="organizationResponsible"
+          :label="$tc('Responsible')"
+          :no-data-text="$t('Empty')"
+          :params="{ organization_id: organizationId, q: '', roles: 'r_leader_cc' }"
+          visible-icon
+        />
       </v-col>
     </v-row>
 
@@ -271,6 +272,15 @@
         class="text-right"
       >
         <v-btn
+          v-bind="buttonDelete"
+          color="red"
+          outlined
+          tile
+          @click="onBtnDeleteClick"
+        >
+          {{ $tc('Delete') }}
+        </v-btn>
+        <v-btn
           text
           tile
           :loading="buttonSave.loading"
@@ -293,8 +303,12 @@ import {
   OrganizationTagInterface
 } from '@/api/Organizations'
 import ErrorInterface from '@/api/Schemas/ErrorInterface'
+import { UserInterface } from '@/api/Users'
+import SUsers from '@/snippets/SUsers/SUsers.vue'
 
 export default Vue.extend({
+  components: { SUsers },
+
   mixins: [rules],
 
   data () {
@@ -306,11 +320,17 @@ export default Vue.extend({
         disabled: false,
         loading: false
       },
+      buttonDelete: {
+        disabled: false,
+        loading: false,
+        class: 'mr-2'
+      },
       form: {
         valid: false
       },
       /* eslint-disable */
       dataChanged: false,
+      organizationId: 0,
       organizationName: '',
       organizationInn: '',
       organizationCpp: '',
@@ -319,12 +339,12 @@ export default Vue.extend({
       organizationPhone: '',
       organizationSphereActivity: '',
       organizationTags: [] as any[],
-      organizationResponsible: 0 as number,
+      organizationResponsible: null as unknown as UserInterface,
       organizationCity: '' as string,
       organizationRegion: '' as string,
       organizationAddress: '' as string,
       organizationDescription: '' as string,
-      tags: [] as OrganizationTagInterface[],
+      tags: [] as OrganizationTagInterface[]
       /* eslint-enable */
     }
   },
@@ -334,6 +354,7 @@ export default Vue.extend({
       .getById(+to.params.id)
       .then((organization: OrganizationInterface) => {
         next(vm => {
+          vm.organizationId = organization.id
           vm.organizationName = organization.name
           vm.organizationEmail = organization.email
           vm.organizationPhone = organization.phone
@@ -341,7 +362,7 @@ export default Vue.extend({
           vm.organizationCpp = organization.cpp
           vm.organizationInn = organization.inn
           vm.organizationTags = organization.tags
-          vm.organizationResponsible = organization.responsible ? organization.responsible.id : 0
+          vm.organizationResponsible = organization.responsible ? organization.responsible : null
           vm.organizationCity = organization.city
           vm.organizationRegion = organization.region
           vm.organizationAddress = organization.address
@@ -361,17 +382,18 @@ export default Vue.extend({
           vm.$watch('organizationAddress', vm.onChanged)
           vm.$watch('organizationDescription', vm.onChanged)
           vm.$watch('organizationSphereActivity', vm.onChanged)
+
+          // Загрузка доступных ответственных
+          vm.$refs.sUsers.fetchData({
+            q: organization.responsible ? organization.responsible.first_name : '',
+            organization_id: organization.id
+          })
         })
       }).catch(() => {
         next({
           name: 'not_found'
         })
       })
-  },
-
-  beforeRouteUpdate (to, from, next) {
-    this.fetchOrganization()
-    next()
   },
 
   beforeRouteLeave (to, from, next) {
@@ -392,43 +414,13 @@ export default Vue.extend({
       this.dataChanged = true
     },
 
-    fetchOrganization () {
-      new Organizations()
-        .getById(+this.$route.params.id)
-        .then((organization: OrganizationInterface) => {
-          /* eslint-disable */
-          this.organizationName = organization.name
-          this.organizationEmail = organization.email
-          this.organizationPhone = organization.phone
-          this.organizationSite = organization.site
-          this.organizationCpp = organization.cpp
-          this.organizationInn = organization.inn
-          this.organizationTags = organization.tags
-          this.organizationResponsible = organization.responsible ? organization.responsible.id : 0
-          this.organizationCity = organization.city
-          this.organizationRegion = organization.region
-          this.organizationAddress = organization.address
-          this.organizationDescription = organization.description
-          this.organizationSphereActivity = organization.sphere_activity
-          /* eslint-enable */
-        })
-        .finally(() => {
-          new Organizations()
-            .getTags()
-            .then((tags: OrganizationTagInterface[]) => {
-              this.tags = tags
-            })
-        })
-    },
-
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
 
       const putData = {
-        name: this.organizationName.trim(),
-        responsible: this.organizationResponsible // Идентификатор ответственного
+        name: this.organizationName.trim()
       } as any
 
       if (this.organizationPhone) {
@@ -475,6 +467,10 @@ export default Vue.extend({
         putData.description = this.organizationDescription
       }
 
+      if (this.organizationResponsible) {
+        putData.responsible = this.organizationResponsible.id
+      }
+
       this.buttonSave.loading = true
       new Organizations()
         .update(+this.$route.params.id, putData)
@@ -491,6 +487,10 @@ export default Vue.extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
+    },
+
+    onBtnDeleteClick () {
+      console.log('onBtnDeleteClick')
     }
   }
 })

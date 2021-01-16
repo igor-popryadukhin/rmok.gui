@@ -1,5 +1,6 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 /* eslint-disable */
 
 export interface GroupTeamLeaderInterface {
@@ -31,16 +32,17 @@ export interface GroupFindQueryInterface {
 export class Groups {
   /**
    * Поиск групп
-   * @param query
+   * @param params
    */
-  public find (query: GroupFindQueryInterface = {}): Promise<GroupInterface[] | any> | any {
-    return new Promise((resolve, reject): Promise<GroupInterface[] | any> | any => {
-      $axios.get('/groups', { params: { ...query } })
+  public find (params: GroupFindQueryInterface = {}): Promise<ResponseInterface<any, any> | any> {
+    return new Promise<ResponseInterface<any, any>>((resolve, reject): Promise<GroupInterface[] | any> | any => {
+      $axios.get('/groups', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
+          } else {
+            reject(response.data)
           }
-          resolve(false)
         }).catch(reject)
     })
   }
@@ -106,3 +108,5 @@ export class Groups {
     })
   }
 }
+
+export default Groups

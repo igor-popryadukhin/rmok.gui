@@ -29,87 +29,42 @@
         dense
       ></v-text-field>
 
-      <!-- organizations -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-            :to="{ path: '/administrator/organizations' }"
-          >
-            <v-icon>mdi-office-building</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.administratororganizations') }}</span>
-      </v-tooltip>
-
-      <!-- groups -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            :to="{ path: '/administrator/groups' }"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-account-group</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.administratorgroups') }}</span>
-      </v-tooltip>
-
-      <!-- vuescroll -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            to="/administrator/users"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.administratorusers') }}</span>
-      </v-tooltip>
-
-      <!-- Projects -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            :to="{ path: '/administrator/projects' }"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-projector-screen</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.administrator_projects') }}</span>
-      </v-tooltip>
-
-      <!-- Settings -->
-      <v-tooltip
-        bottom
-        max-width="400"
+      <!-- Организации -->
+      <v-btn
+        class="mr-1"
+        :to="{ name: 'administrator_organizations_list' }"
+        text
       >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            :to="{ name: 'administrator_settings' }"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-cog</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.settings') }}</span>
-      </v-tooltip>
+        {{ $tc('route.administratororganizations') }}
+      </v-btn>
+
+      <!-- Группы -->
+      <v-btn
+        class="mr-1"
+        :to="{ name: 'administrator_groups_list' }"
+        text
+      >
+        {{ $tc('route.administratorgroups') }}
+      </v-btn>
+
+      <!-- Пользователи -->
+      <v-btn
+        class="mr-1"
+        :to="{ name: 'administrator_users_list' }"
+        text
+      >
+        {{ $tc('route.administratorusers') }}
+      </v-btn>
+
+      <!-- Проекты -->
+      <v-btn
+        class="mr-1"
+        :to="{ name: 'administrator_projects_list' }"
+        text
+      >
+        {{ $tc('route.administrator_projects_list') }}
+      </v-btn>
+
       <div style="width: 15px"></div>
 
       <!-- Avatar -->

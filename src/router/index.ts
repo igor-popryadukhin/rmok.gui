@@ -551,7 +551,7 @@ const routes: RouteConfig[] = [
         children: [
           {
             path: '',
-            name: 'administrator_projects',
+            name: 'administrator_projects_list',
             component: () => import(/* webpackChunkName: "administrator-projects-list" */ '../views/Administrator/Projects/List.vue'),
             meta: {
               anonymous: true,

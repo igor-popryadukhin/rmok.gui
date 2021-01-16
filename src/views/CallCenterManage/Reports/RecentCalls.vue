@@ -372,6 +372,7 @@ import Users, { UserInterface } from '@/api/Users'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import ContactHistory from '@/api/ContactHistory'
 import audioPlayer from '@/mixins/audioPlayer'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
@@ -587,8 +588,8 @@ export default Vue.extend({
           roles: 'r_operator',
           count: 1000
         })
-        .then((response) => {
-          this.users = response.items || []
+        .then((response: ResponseInterface<{ count: number }, UserInterface[]>) => {
+          this.users = response.data
           if (this.$routerQuery.hasQuery('owner_id')) {
             const index = this.users.findIndex((user: UserInterface) => user.id === +this.$routerQuery.getQuery('owner_id'))
             if (index > -1) {

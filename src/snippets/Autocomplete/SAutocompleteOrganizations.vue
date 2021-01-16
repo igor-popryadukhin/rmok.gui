@@ -45,6 +45,7 @@
 import Vue from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 import { OrganizationInterface, Organizations } from '@/api/Organizations'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
   model: {
@@ -85,8 +86,8 @@ export default Vue.extend({
         new Organizations().find({
           q
         })
-          .then(({ items }) => {
-            context.organizations = items
+          .then((response: ResponseInterface<any, OrganizationInterface[]>) => {
+            context.organizations = response.data
 
             if (!context.selectOnce) {
               context.selectOnce = true

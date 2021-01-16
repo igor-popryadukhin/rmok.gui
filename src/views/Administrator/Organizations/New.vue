@@ -193,6 +193,7 @@
           item-text="name"
           item-value="id"
           :label="$tc('tags')"
+          disabled
           chips
           deletable-chips
           return-object
@@ -214,14 +215,14 @@
       <v-col
         cols="12"
       >
-<!--        <s-autocomplete-users-->
-<!--          v-model="organization.responsible"-->
-<!--          :selected-id="organization.responsible ? organization.responsible.id: 0"-->
-<!--          visible-icon-->
-<!--          :rules="[rules.notBlank]"-->
-<!--          :label="$tc('responsible')"-->
-<!--          roles="r_leader_cc"-->
-<!--        />-->
+        <s-users
+          ref="sUsers"
+          v-model="organizationResponsible"
+          :label="$tc('Responsible')"
+          :no-data-text="$t('Empty')"
+          :params="{ q: '', roles: 'r_leader_cc' }"
+          visible-icon
+        />
       </v-col>
     </v-row>
 
@@ -289,12 +290,19 @@ import Vue from 'vue'
 import rules from '@/mixins/rules'
 import {
   Organizations,
-  OrganizationTagInterface, OrganizationPhoneInterface, OrganizationEmailInterface
+  OrganizationTagInterface,
+  OrganizationPhoneInterface,
+  OrganizationEmailInterface
 } from '@/api/Organizations'
 import ErrorInterface from '@/api/Schemas/ErrorInterface'
+import { UserInterface } from '@/api/Users'
+import SUsers from '@/snippets/SUsers/SUsers.vue'
 
 export default Vue.extend({
+  components: { SUsers },
+
   mixins: [rules],
+
   data () {
     return {
       regExPatterns: {
@@ -307,7 +315,7 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      /* eslint-disable */
+      users: [] as UserInterface[],
       organizationName: '',
       organizationInn: '',
       organizationCpp: '',
@@ -316,7 +324,7 @@ export default Vue.extend({
       organizationPhone: '',
       organizationSphereActivity: '',
       organizationTags: [] as any[],
-      organizationResponsible: 0 as number,
+      organizationResponsible: null as unknown as UserInterface,
       organizationCity: '' as string,
       organizationRegion: '' as string,
       organizationAddress: '' as string,
@@ -326,13 +334,6 @@ export default Vue.extend({
     }
   },
 
-  created () {
-    new Organizations()
-      .getTags()
-      .then((tags: OrganizationTagInterface[]) => {
-        this.tags = tags
-      })
-  },
   methods: {
 
     /**
@@ -388,17 +389,7 @@ export default Vue.extend({
     resetForm () {
       /* eslint-disable */
       (this.$refs.form as Vue & { reset: () => boolean }).reset()
-      this.organization.tags = []
-      this.organization.emails = [{ value: '', label: '' }]
-      this.organization.phones = [
-        {
-          id: 0,
-          country_code: '',
-          country_calling_code: '',
-          value: '',
-          label: ''
-        }
-      ]
+      this.organizationTags = []
       /* eslint-enable */
     },
 

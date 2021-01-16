@@ -257,6 +257,7 @@ import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import ErrorInterface from '@/api/Schemas/ErrorInterface'
 import statusActions from '@/mixins/statusActions'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
   components: {
@@ -421,11 +422,11 @@ export default Vue.extend({
           roles: 'r_operator,r_team_leader',
           offset: 0,
           count: 500
-        }).then((response) => {
-          this.availableMembersCount = response.count
+        }).then((response: ResponseInterface<{ count: number }, UserInterface[]>) => {
+          this.availableMembersCount = response.meta.count
 
           // Фильтрую участников, для того чтобы в списке доступных, не было текущих участников
-          this.availableMembers = response.items.filter(function (element: UserInterface) {
+          this.availableMembers = response.data.filter(function (element: UserInterface) {
             return this.members.findIndex((member: ProjectMemberInterface) => member.id === element.id) === -1
           }, this)
         }).finally(() => (this.availableMembersLoading = false))

@@ -28,7 +28,7 @@
               flat
             >
               <v-toolbar-title class="grey--text">
-                Организации
+                {{ $tc('Organizations') }}
               </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-btn
@@ -60,6 +60,7 @@
               <td class="text-no-wrap">{{ item.cpp || '—' }}</td>
               <td class="text-no-wrap">{{ item.site || '—' }}</td>
               <td class="text-no-wrap">{{ item.city || '—' }}</td>
+              <td class="text-no-wrap">{{ item.responsible ? `${item.responsible.first_name} ${item.responsible.last_name}` : '—' }}</td>
               <td class="text-no-wrap text-right">
                 <v-btn
                   icon
@@ -123,6 +124,7 @@ export default Vue.extend({
           { text: this.$tc('IEC'), align: 'start', sortable: true, value: 'cpp', width: 'auto' },
           { text: this.$tc('Site'), align: 'start', sortable: true, value: 'site', width: 'auto' },
           { text: this.$tc('City'), align: 'start', sortable: true, value: 'city', width: 'auto' },
+          { text: this.$tc('Responsible'), align: 'start', sortable: true, value: 'responsible', width: 'auto' },
           { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
         ],
         items: [] as OrganizationInterface[]
@@ -151,7 +153,7 @@ export default Vue.extend({
           offset,
           count: this.dataTableOrganizations.itemsPerPage
         })
-        .then((response: ResponseInterface) => {
+        .then((response: ResponseInterface<any, OrganizationInterface[]>) => {
           this.dataTableOrganizations.totalCount = response.meta.count
           this.dataTableOrganizations.pages = Math.ceil(response.meta.count / this.dataTableOrganizations.itemsPerPage)
           this.dataTableOrganizations.items = response.data
@@ -159,6 +161,7 @@ export default Vue.extend({
           this.dataTableOrganizations.processLoading = false
         })
     },
+
     onPaginationChange (data: any) {
       this.dataTableOrganizations.pageStart = data.pageStart + 1
       this.dataTableOrganizations.pageStop = data.pageStop

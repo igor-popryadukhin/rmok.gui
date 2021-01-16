@@ -169,8 +169,8 @@ export default Vue.extend({
               offset: 0,
               count: 50
             })
-            .then(({ items }) => {
-              context.users = items
+            .then(({ data }) => {
+              context.users = data
 
               if (!context.selectOnce) {
                 context.selectOnce = true
