@@ -12,6 +12,9 @@
     :no-data-text="$tc('No data available')"
     :disabled="disabled"
     :rules="rules"
+    :dense="dense"
+    :clearable="clearable"
+    :outlined="outlined"
     disable-lookup
     return-object
     no-filter
@@ -68,6 +71,10 @@ export default Vue.extend({
       type: String,
       default: () => ''
     },
+    dense: {
+      type: Boolean,
+      default: () => false
+    },
     clearable: {
       type: Boolean,
       default: () => false
@@ -110,7 +117,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null,
+      selected: null as unknown as GroupInterface,
       process: false,
       options: [] as GroupInterface[]
     }
@@ -147,6 +154,21 @@ export default Vue.extend({
       if (this.options.findIndex<GroupInterface>((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    /**
+     * Загрузить с сервера для установки текущего значения
+     * @param id
+     */
+    setDefault (id: number) {
+      new Groups()
+        .getById(id)
+        .then((response: GroupInterface) => {
+          this.selected = response
+          if (this.options.findIndex<GroupInterface>(value => value.id === id) === -1) {
+            this.options.push(response)
+          }
+        })
     },
 
     focus () {

@@ -1,5 +1,6 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import { OrganizationInterface } from '@/api/Organizations'
 
 export interface ProfileInterface {
   /* eslint-disable */
@@ -13,6 +14,7 @@ export interface ProfileInterface {
   userpic: null;
   created_at: number;
   role: Role;
+  organization?: OrganizationInterface;
   /* eslint-enable */
 }
 

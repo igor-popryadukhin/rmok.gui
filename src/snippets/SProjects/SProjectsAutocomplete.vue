@@ -12,6 +12,10 @@
     :no-data-text="$tc('No data available')"
     :disabled="disabled"
     :rules="rules"
+    :outlined="outlined"
+    :dense="dense"
+    :clearable="clearable"
+    single-line
     disable-lookup
     return-object
     no-filter
@@ -57,7 +61,7 @@
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
       v-slot:prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account</v-icon>
+      <v-icon class="pl-5 pr-9">mdi-projector-screen</v-icon>
     </template>
   </v-autocomplete>
 </template>
@@ -82,6 +86,10 @@ export default Vue.extend({
       default: () => false
     },
     outlined: {
+      type: Boolean,
+      default: () => false
+    },
+    dense: {
       type: Boolean,
       default: () => false
     },
@@ -115,7 +123,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null,
+      selected: null as unknown as ProjectInterface,
       process: false,
       options: [] as ProjectInterface[]
     }
@@ -152,6 +160,21 @@ export default Vue.extend({
       if (this.options.findIndex<ProjectInterface>((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    /**
+     * Загрузить с сервера для установки текущего значения
+     * @param id
+     */
+    setDefault (id: number) {
+      new Projects()
+        .getById(id)
+        .then((response: ProjectInterface) => {
+          this.selected = response
+          if (this.options.findIndex<ProjectInterface>(value => value.id === id) === -1) {
+            this.options.push(response)
+          }
+        })
     },
 
     focus () {

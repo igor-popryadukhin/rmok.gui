@@ -12,6 +12,10 @@
     :no-data-text="$tc('No data available')"
     :disabled="disabled"
     :rules="rules"
+    :outlined="outlined"
+    :dense="dense"
+    :clearable="clearable"
+    single-line
     disable-lookup
     return-object
     no-filter
@@ -77,6 +81,10 @@ export default Vue.extend({
       default: () => false
     },
     outlined: {
+      type: Boolean,
+      default: () => false
+    },
+    dense: {
       type: Boolean,
       default: () => false
     },
@@ -147,6 +155,21 @@ export default Vue.extend({
       if (this.options.findIndex<OrganizationInterface>((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    /**
+     * Загрузить с сервера для установки текущего значения
+     * @param id
+     */
+    setDefault (id: number) {
+      new Organizations()
+        .getById(id)
+        .then((response: OrganizationInterface) => {
+          this.selected = response
+          if (this.options.findIndex<OrganizationInterface>(value => value.id === id) === -1) {
+            this.options.push(response)
+          }
+        })
     },
 
     focus () {

@@ -57,7 +57,7 @@
                     <v-btn
                       icon
                       small
-                      :to="{ name: 'administrator_organizations_edit', params: { id: item.id } }"
+                      :to="{ name: 'administrator_projects_edit', params: { project_id: item.id } }"
                     >
                       <v-icon>mdi-pencil-box-outline</v-icon>
                     </v-btn>
@@ -86,14 +86,16 @@
             <s-organizations-autocomplete
               ref="sOrganizationsAutocomplete"
               v-model="filter.organization"
-              :label="$tc('Organizations')"
+              :label="$tc('Organization')"
+              outlined
+              dense
             />
           </v-card-text>
           <v-footer absolute class="d-flex justify-md-space-between pa-4 mt-auto">
             <v-pagination
               v-model="dataTableProjects.page"
               :length="dataTableProjects.pages"
-              total-visible="6"
+              total-visible="3"
               :disabled="dataTableProjects.pages === 0"
             ></v-pagination>
             <div class="d-flex align-center justify-center">
@@ -150,6 +152,10 @@ export default Vue.extend({
           this.$routerQuery.setQuery({
             organization_id: val.id
           }).then(this.fetchProjects)
+        } else {
+          this.$routerQuery.removeQuery([
+            'organization_id'
+          ]).then(this.fetchProjects)
         }
       }
     }
@@ -158,6 +164,11 @@ export default Vue.extend({
   mounted () {
     this.fetchProjects()
     this.$refs.sOrganizationsAutocomplete.fetchData()
+
+    // Установка фильтров
+    if (this.$routerQuery.hasQuery('organization_id')) {
+      this.$refs.sOrganizationsAutocomplete.setDefault(this.$routerQuery.getQuery('organization_id', 0))
+    }
   },
 
   methods: {

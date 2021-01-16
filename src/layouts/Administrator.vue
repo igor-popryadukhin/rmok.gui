@@ -90,6 +90,7 @@
             v-for="(item, index) in items"
             :key="index"
             :to="item.to"
+            link
           >
             <v-list-item-icon>
               <v-icon>{{ item.icon }}</v-icon>
@@ -156,14 +157,14 @@ export default Vue.extend({
         name: 'profile',
         icon: 'mdi-account',
         to: {
-          name: 'profile'
+          name: 'administrator_profile'
         }
       },
       {
         name: 'settings',
         icon: 'mdi-cog',
         to: {
-          name: 'settings'
+          name: 'administrator_settings'
         }
       },
       {

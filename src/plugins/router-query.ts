@@ -41,11 +41,12 @@ export class RouterQuery {
    * @param key
    * @param def
    */
-  public getQuery (key: string, def: string | number): string {
+  public getQuery (key: string, def: string | number): string | number {
     if (key in this._vueRouter.currentRoute.query) {
-      return String(this._vueRouter.currentRoute.query[key])
+      const val: any = this._vueRouter.currentRoute.query[key]
+      return typeof val === 'number' ? +val : String(this._vueRouter.currentRoute.query[key])
     } else {
-      return String(def)
+      return typeof def === 'number' ? +def : String(def)
     }
   }
 

@@ -21,5 +21,7 @@
   "For administrator": "Для администратора",
   "The organization was successfully saved.": "Организация успешно сохранена.",
   "Click the add button to add the participant to the project.": "Нажмите кнопку добавить, что бы добавить участника в проект.",
-  "Click the remove button to remove a member from the project.": "Нажмите кнопку удалить, что бы удалить участника из проекта."
+  "Click the remove button to remove a member from the project.": "Нажмите кнопку удалить, что бы удалить участника из проекта.",
+  "All information about the project, history of interaction, will be deleted permanently.": "Вся информация о проекте, история взаимодействия, удалятся без возможности восстановления.",
+  "Deleting a project": "Удаление проекта"
 }

@@ -35,53 +35,7 @@ interface TabInterface {
 export default Vue.extend({
   data () {
     return {
-      tabs: [
-        // {
-        //   name: 'profile',
-        //   icon: 'mdi-account-circle-outline',
-        //   disabled: false,
-        //   to: {
-        //     name: 'profile'
-        //   }
-        // },
-        // {
-        //   name: 'journal',
-        //   icon: 'mdi-history',
-        //   disabled: false,
-        //   to: {
-        //     name: 'journal'
-        //   }
-        // },
-        // {
-        //   name: 'security',
-        //   icon: 'mdi-security',
-        //   disabled: false,
-        //   to: {
-        //     name: 'security'
-        //   }
-        // },
-        // {
-        //   name: 'telephony',
-        //   icon: 'mdi-phone-voip',
-        //   to: {
-        //     name: 'telephony'
-        //   }
-        // },
-        // {
-        //   name: 'headset_configure',
-        //   icon: 'mdi-headset',
-        //   disabled: false,
-        //   to: {
-        //     name: 'headset_configure'
-        //   }
-        // },
-        // {
-        //   name: 'integration',
-        //   icon: 'mdi-api',
-        //   disabled: true,
-        //   to: null
-        // }
-      ] as TabInterface[]
+      tabs: [] as TabInterface[]
     }
   },
 

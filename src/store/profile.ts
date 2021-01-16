@@ -20,13 +20,24 @@ export const profile = {
         id: '',
         name: ''
       } as Role,
-      userpic: null
+      userpic: null,
+      organization: {
+        address: '',
+        description: '',
+        email: '',
+        id: 0,
+        name: '',
+        region: '',
+        site: '',
+        sphere_activity: '',
+        tags: undefined
+      }
       /* eslint-enable */
     } as ProfileInterface
   },
 
   mutations: {
-    set (state: ProfileInterface, payload: ProfileInterface) {
+    set (state: ProfileInterface, payload: ProfileInterface): void {
       /* eslint-disable */
       state.id = payload.id
       state.login = payload.login
@@ -38,6 +49,7 @@ export const profile = {
       state.role = payload.role
       state.userpic = payload.userpic
       state.created_at = payload.created_at
+      state.organization = payload.organization
       /* eslint-enable */
     }
   },
@@ -45,7 +57,8 @@ export const profile = {
   actions: {
     loadProfile ({ commit }: any) {
       return new Promise((resolve) => {
-        new Account().getProfile()
+        new Account()
+          .getProfile()
           .then((profile) => {
             commit('set', profile)
           }).finally(resolve)
@@ -69,7 +82,8 @@ export const profile = {
     role_is_admin (state: ProfileInterface) { return state.role.id === 'r_admin' },
     role_is_leader_cc (state: ProfileInterface) { return state.role.id === 'r_leader_cc' },
     role_is_team_leader (state: ProfileInterface) { return state.role.id === 'r_team_leader' },
-    userpic (state: ProfileInterface) { return state.userpic }
+    userpic (state: ProfileInterface) { return state.userpic },
+    organization (state: ProfileInterface) { return state.organization }
     /* eslint-enable */
   }
 }

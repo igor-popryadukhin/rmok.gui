@@ -5,6 +5,7 @@ import { RoleInterface } from '@/api/Roles'
 import { GroupInterface } from '@/api/Groups'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import {ProjectInterface} from '@/api/Projects';
 
 interface UserOrganizationInterface {
   id: number;
@@ -19,9 +20,10 @@ export interface UserInterface {
   login: string;
   email: string;
   phone: string;
-  role?: RoleInterface | null;
-  group?: GroupInterface | null;
-  organization?: UserOrganizationInterface | null;
+  role?: RoleInterface;
+  group?: GroupInterface;
+  organization?: UserOrganizationInterface;
+  project?: ProjectInterface;
   pbx_config?: PBXInterface;
 }
 

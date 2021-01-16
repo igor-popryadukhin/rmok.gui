@@ -241,6 +241,27 @@
       </v-row>
     </div>
 
+    <div class="text-h6 grey--text">{{ $tc('Project') }}</div>
+    <div class="mb-10">
+      <v-row>
+        <v-col
+          cols="12"
+          lg="6"
+          md="6"
+        >
+          <s-projects-autocomplete
+            ref="sProjectsAutocomplete"
+            v-model="user.project"
+            :label="$tc('User current project')"
+            :params="{
+              organization_id: user.organization ? user.organization.id : 0
+            }"
+            visible-icon
+          />
+        </v-col>
+      </v-row>
+    </div>
+
     <div class="text-h6 grey--text">{{ $tc('Telephony') }}</div>
     <div class="mb-10">
       <v-row>
@@ -405,6 +426,7 @@ import PBXInterface from '@/api/Schemas/PBXInterface'
 import SRoles from '@/snippets/SRoles/SRoles.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 
 interface DataPasswordInterface {
   visible: boolean;
@@ -418,6 +440,7 @@ export default Vue.extend({
   mixins: [rules, countryCodes],
 
   components: {
+    SProjectsAutocomplete,
     SOrganizationsAutocomplete,
     SGroups,
     SRoles
@@ -458,6 +481,7 @@ export default Vue.extend({
         role: null,
         group: null,
         organization: null,
+        project: null,
 
         // Конфигурация подключения к АТС
         pbxConfig: {
@@ -467,7 +491,7 @@ export default Vue.extend({
           port: 0,
           server: ''
         }
-      }
+      } as any
     }
   },
 
@@ -475,7 +499,7 @@ export default Vue.extend({
     new Users()
       .getById(+to.params.id)
       .then((user: UserInterface) => {
-        next((vm: Vue) => {
+        next((vm: any) => {
           vm.user.id = user.id
           vm.user.first_name = user.first_name
           vm.user.last_name = user.last_name
@@ -497,6 +521,10 @@ export default Vue.extend({
             port: 0,
             server: ''
           } as PBXInterface
+
+          if (user.project) {
+            vm.$refs.sProjectsAutocomplete.setDefault(user.project.id)
+          }
 
           if (user.group) {
             vm.$refs.sGroups.pushData(user.group)
@@ -539,7 +567,7 @@ export default Vue.extend({
       }
       this.buttonSave.loading = true
 
-      const putData = {
+      const putData: any = {
         first_name: this.user.first_name.trim(),
         last_name: this.user.last_name.trim(),
         middle_name: this.user.middle_name.trim(),
@@ -547,6 +575,10 @@ export default Vue.extend({
         phone: this.user.phone.trim(),
         email: this.user.email,
         role: this.user.role?.id
+      }
+
+      if (this.user.project) {
+        putData.project_id = this.user.project.id
       }
 
       if (this.user.group) {

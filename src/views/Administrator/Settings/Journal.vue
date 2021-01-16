@@ -1,30 +1,12 @@
 <template>
-  <v-list>
-    <v-list-item link>
-      <v-list-item-content>
-        <v-list-item-title>Single-line item</v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item two-line link>
-      <v-list-item-content>
-        <v-list-item-title>Two-line item</v-list-item-title>
-        <v-list-item-subtitle>Secondary text</v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item three-line link>
-      <v-list-item-content>
-        <v-list-item-title>Three-line item</v-list-item-title>
-        <v-list-item-subtitle>
-          Secondary line text Lorem ipsum dolor sit amet,
-        </v-list-item-subtitle>
-        <v-list-item-subtitle>
-          consectetur adipiscing elit.
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-  </v-list>
+  <div class="d-flex flex-column align-center justify-center" style="height: 300px">
+    <div class="mb-5">
+      <v-icon size="100">{{ $route.meta.icon || 'mdi-cube-outline' }}</v-icon>
+    </div>
+    <div class="mb-5">
+      <span class="grey--text">Страница журнала действий, ещё не реализована.</span>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

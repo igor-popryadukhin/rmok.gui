@@ -78,6 +78,8 @@
   "Group updated successfully.": "Группа успешно обновлена.",
   "System users": "Пользователи системы",
   "Project members": "Участники проекта",
+  "Filter": "Фильтр",
+  "User current project": "Текущий проект пользователя",
 
   "titles": {
     "dashboard": "Основная панель",

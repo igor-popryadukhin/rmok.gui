@@ -488,7 +488,7 @@ const routes: RouteConfig[] = [
           {
             path: 'profile',
             name: 'administrator_profile',
-            component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Administrator/Settings/Profile.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Profile.vue'),
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'administrator',
@@ -498,7 +498,7 @@ const routes: RouteConfig[] = [
           {
             path: 'journal',
             name: 'administrator_journal',
-            component: () => import(/* webpackChunkName: "administrator-settings-journal" */ '../views/Administrator/Settings/Journal.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Journal.vue'),
             meta: {
               icon: 'mdi-history',
               layout: 'administrator',
@@ -508,29 +508,9 @@ const routes: RouteConfig[] = [
           {
             path: 'security',
             name: 'administrator_security',
-            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Administrator/Settings/Security.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Security.vue'),
             meta: {
               icon: 'mdi-security',
-              layout: 'administrator',
-              middleware: []
-            }
-          },
-          {
-            path: 'telephony',
-            name: 'administrator_telephony',
-            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Administrator/Settings/Telephony.vue'),
-            meta: {
-              icon: 'mdi-phone-voip',
-              layout: 'administrator',
-              middleware: []
-            }
-          },
-          {
-            path: 'headset-configure',
-            name: 'administrator_headset_configure',
-            component: () => import(/* webpackChunkName: "administrator-settings-headset-configure" */ '../views/Administrator/Settings/HeadsetConfigure.vue'),
-            meta: {
-              icon: 'mdi-headset',
               layout: 'administrator',
               middleware: []
             }
