@@ -353,7 +353,7 @@ const routes: RouteConfig[] = [
           {
             path: '',
             name: 'administrator_organizations_list',
-            component: () => import(/* webpackChunkName: "administrator-organizations-list" */ '../views/Administrator/Organizations/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -363,7 +363,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_organizations_new',
-            component: () => import(/* webpackChunkName: "administrator-organizations-new" */ '../views/Administrator/Organizations/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/New.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -376,7 +376,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'administrator_organizations_edit',
-            component: () => import(/* webpackChunkName: "administrator-organizations-edit" */ '../views/Administrator/Organizations/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/Edit.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -403,7 +403,7 @@ const routes: RouteConfig[] = [
           {
             path: '',
             name: 'administrator_users_list',
-            component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -413,7 +413,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_users_new',
-            component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Users/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/New.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -422,7 +422,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'administrator_users_edit',
-            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -445,7 +445,7 @@ const routes: RouteConfig[] = [
           {
             path: '',
             name: 'administrator_groups_list',
-            component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Groups/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Groups/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -455,7 +455,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_groups_new',
-            component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Groups/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Groups/New.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -464,7 +464,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'administrator_groups_edit',
-            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Groups/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Groups/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -532,7 +532,7 @@ const routes: RouteConfig[] = [
           {
             path: '',
             name: 'administrator_projects_list',
-            component: () => import(/* webpackChunkName: "administrator-projects-list" */ '../views/Administrator/Projects/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -542,7 +542,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_projects_new',
-            component: () => import(/* webpackChunkName: "administrator-projects-new" */ '../views/Administrator/Projects/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/New.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -551,7 +551,7 @@ const routes: RouteConfig[] = [
           {
             path: ':project_id',
             name: 'administrator_projects_edit',
-            component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '../views/Administrator/Projects/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -631,7 +631,7 @@ const routes: RouteConfig[] = [
             name: 'call_center_manager_contacts',
             component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/List.vue'),
             meta: {
-              anonymous: true,
+              // anonymous: true,
               layout: 'call-center-manager',
               middleware: []
             }
@@ -642,6 +642,15 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "call-center-manager-contacts-new" */ '../views/CallCenterManage/Contacts/New.vue'),
             meta: {
               anonymous: true,
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            name: 'call_center_manager_contacts_edit',
+            path: ':contact_id',
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts-edit" */ '../views/CallCenterManage/Contacts/Edit.vue'),
+            meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
             }
@@ -674,6 +683,7 @@ const routes: RouteConfig[] = [
           }
         ],
         meta: {
+          anonymous: true,
           layout: 'call-center-manager',
           middleware: []
         },
@@ -691,7 +701,6 @@ const routes: RouteConfig[] = [
             name: 'call_center_manager_users',
             component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/List.vue'),
             meta: {
-              anonymous: true,
               layout: 'call-center-manager',
               middleware: [roleRCC]
             }
@@ -699,7 +708,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'call_center_manager_users_new',
-            component: () => import(/* webpackChunkName: "call-center-manager-users-new" */ '../views/CallCenterManage/Users/New.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/New.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -708,7 +717,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'call_center_manager_users_edit',
-            component: () => import(/* webpackChunkName: "call-center-manager-users-edit" */ '../views/CallCenterManage/Users/Edit.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/Edit.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -716,6 +725,7 @@ const routes: RouteConfig[] = [
           }
         ],
         meta: {
+          anonymous: true,
           layout: 'call-center-manager',
           middleware: [roleRCC]
         },

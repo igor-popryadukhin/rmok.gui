@@ -3,6 +3,7 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from './Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
@@ -24,12 +25,12 @@ export class Contacts {
   /**
    * Find contacts
    *
-   * @param query
+   * @param params
    */
-  public search (query: ContactSearchQueryInterface | null = { q: '', offset: 0, count: 100 }): Promise<ContactResponseInterface> {
-    return new Promise((resolve, reject) => {
+  public find<TM, TD>(params: any): Promise<ResponseInterface<TM, TD> | any> {
+    return new Promise<ResponseInterface<TM, TD> | any>((resolve, reject) => {
       $axios.get('/contacts', {
-        params: { ...query }
+        params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
           resolve(response.data)

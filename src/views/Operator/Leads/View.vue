@@ -443,7 +443,7 @@ export default Vue.extend({
 
     onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
-        .search({
+        .find({
           q,
           offset: 0,
           count: 10

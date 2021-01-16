@@ -50,9 +50,16 @@
               hide-default-footer
               dense
             >
+              <template slot="header.name" slot-scope="{ header }">
+               {{ $tc(header.text) }}
+              </template>
+              <template slot="header.organization" slot-scope="{ header }">
+                {{ $tc(header.text) }}
+              </template>
               <template slot="item" slot-scope="{ item }">
                 <tr class="v-datatable-item">
                   <td class="text-no-wrap">{{ item.name }}</td>
+                  <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>
                   <td class="text-no-wrap text-right">
                     <v-btn
                       icon
@@ -138,6 +145,7 @@ export default Vue.extend({
         pageStop: 0,
         headers: [
           { text: 'Name', align: 'start', sortable: true, value: 'name', width: 'auto' },
+          { text: 'Organization', align: 'start', sortable: true, value: 'organization', width: 'auto' },
           { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
         ],
         items: [] as ProjectInterface[]

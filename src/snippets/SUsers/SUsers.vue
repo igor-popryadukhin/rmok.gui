@@ -12,6 +12,10 @@
     :no-data-text="$tc('No data available')"
     :disabled="disabled"
     :rules="rules"
+    :outlined="outlined"
+    :dense="dense"
+    :clearable="clearable"
+    single-line
     disable-lookup
     return-object
     no-filter
@@ -89,6 +93,10 @@ export default Vue.extend({
       type: Boolean,
       default: () => false
     },
+    dense: {
+      type: Boolean,
+      default: () => false
+    },
     params: {
       type: Object,
       default: () => {
@@ -119,7 +127,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null,
+      selected: null as unknown as UserInterface,
       process: false,
       options: [] as UserInterface[]
     }
@@ -156,6 +164,21 @@ export default Vue.extend({
       if (this.options.findIndex<UserInterface>((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    /**
+     * Загрузить с сервера для установки текущего значения
+     * @param id
+     */
+    setDefault (id: number) {
+      new Users()
+        .getById(id)
+        .then((response: UserInterface) => {
+          this.selected = response
+          if (this.options.findIndex<UserInterface>(value => value.id === id) === -1) {
+            this.options.push(response)
+          }
+        })
     },
 
     focus () {

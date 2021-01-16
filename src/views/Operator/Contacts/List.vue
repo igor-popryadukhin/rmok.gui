@@ -591,7 +591,7 @@ export default Vue.extend({
 
     onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
-        .search({
+        .find({
           q,
           offset: 0,
           count: 10
@@ -826,7 +826,7 @@ export default Vue.extend({
 
       this.contactsLoading = true
       new Contacts()
-        .search(query)
+        .find(query)
         .then((contacts: ContactResponseInterface) => {
           this.contactsCount = contacts.count
           this.paginator.pages = Math.ceil(contacts.count / this.paginator.perPage)

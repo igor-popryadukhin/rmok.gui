@@ -429,7 +429,7 @@ export default (Vue as VueConstructor<Vue & any>).extend({
 
     onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
-        .search({
+        .find({
           q,
           offset: 0,
           count: 10

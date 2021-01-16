@@ -15,7 +15,7 @@
       <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title class="d-inline-block toolbar-title">
         <div class="hidden-sm-and-down">RMOK</div>
-        <div class="hidden-sm-and-down toolbar-title-subtitle">Для руководителя колл центра</div>
+        <div class="hidden-sm-and-down toolbar-title-subtitle">{{ $tc('For the head of the call center') }}</div>
       </v-toolbar-title>
       <v-spacer/>
       <v-text-field
@@ -30,64 +30,43 @@
       ></v-text-field>
 
       <!-- Contacts -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-            :to="{ path: '/call-center-manager/contacts' }"
-          >
-            <v-icon>mdi-contacts</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.call_center_manager_contacts') }}</span>
-      </v-tooltip>
+      <v-btn
+        class="mr-1"
+        :to="{ name: 'call_center_manager_contacts' }"
+        text
+      >
+        {{ $tc('route.call_center_manager_contacts') }}
+      </v-btn>
 
       <!-- Users -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            v-on="on"
-            v-bind="attrs"
-            :to="{ path: '/call-center-manager/users' }"
-          >
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.call_center_manager_users') }}</span>
-      </v-tooltip>
+      <v-btn
+        class="mr-1"
+        :to="{ name: 'call_center_manager_users' }"
+        text
+      >
+        {{ $tc('route.call_center_manager_users') }}
+      </v-btn>
 
       <!-- groups -->
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            class="mr-1"
-            :to="{ path: '/call-center-manager/groups' }"
-            v-on="on"
-            v-bind="attrs"
-          >
-            <v-icon>mdi-account-group</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('route.administratorgroups') }}</span>
-      </v-tooltip>
+      <v-btn
+        class="mr-1"
+        :to="{ name: 'call_center_manager_groups' }"
+        text
+      >
+        {{ $tc('route.call_center_manager_groups') }}
+      </v-btn>
 
       <!-- Menu reports -->
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-            icon
             class="mr-3"
             :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
             v-on="on"
             v-bind="attrs"
+            text
           >
-            <v-icon>mdi-chart-areaspline-variant</v-icon>
+            {{ $tc('Statistic') }}
           </v-btn>
         </template>
         <v-list>
