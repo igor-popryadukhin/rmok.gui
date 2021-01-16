@@ -76,6 +76,7 @@
   "found": "Найдено - {count}",
   "Start typing to initialize your search.": "Начните вводить текст для инициализации поиска.",
   "Group updated successfully.": "Группа успешно обновлена.",
+  "System users": "Пользователи системы",
 
   "titles": {
     "dashboard": "Основная панель",

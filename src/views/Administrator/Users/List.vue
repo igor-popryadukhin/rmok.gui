@@ -1,7 +1,7 @@
 <template>
-  <v-container class="pa-0" fluid>
-    <v-row>
-      <v-col>
+  <div>
+    <v-row no-gutters>
+      <v-col class="pa-0">
         <v-data-table
           dense
           :headers="dataTableUsers.headers"
@@ -9,7 +9,7 @@
           :server-items-length="dataTableUsers.totalCount"
           :page.sync="dataTableUsers.page"
           :items-per-page="dataTableUsers.itemsPerPage"
-          :loading="usersProcessLoading"
+          :loading="dataTableUsers.processLoading"
           item-key="id"
           item-class="v-datatable-item"
           disable-sort
@@ -21,13 +21,22 @@
         >
           <template v-slot:top>
             <v-toolbar
-              dense
+              class="v-toolbar-header"
+              height="48"
               flat
             >
               <v-toolbar-title class="grey--text">
-                Пользователи системы
+                {{ $tc('System users') }}
               </v-toolbar-title>
               <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                :disabled="dataTableUsers.processLoading"
+                icon
+                @click="onButtonRefreshClick"
+              >
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
               <v-btn
                 color="primary"
                 :to="{ name: 'administrator_users_new' }"
@@ -46,6 +55,7 @@
               <td class="text-no-wrap">{{ item.last_name || $tc('No last name') }}</td>
               <td class="text-no-wrap">{{ item.middle_name || $tc('No middle name') }}</td>
               <td class="text-no-wrap">{{ item.role ? item.role.name : '—' }}</td>
+              <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>
               <td class="text-no-wrap">{{ item.email || '—' }}</td>
               <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—'}}</td>
               <td class="text-no-wrap text-right">
@@ -62,8 +72,8 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col class="d-flex justify-md-space-between">
+    <v-row no-gutters>
+      <v-col class="d-flex justify-md-space-between pa-0">
         <div>
           <v-pagination
             v-model="dataTableUsers.page"
@@ -76,7 +86,7 @@
         </div>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -88,8 +98,9 @@ export default Vue.extend({
   data () {
     return {
       dataTableUsers: {
+        processLoading: false,
         page: 1,
-        pages: 1,
+        pages: 0,
         totalCount: 0,
         itemsPerPage: 20,
         pageStart: 0,
@@ -99,13 +110,13 @@ export default Vue.extend({
           { text: 'Фамилия', align: 'start', sortable: true, value: 'last_name' },
           { text: 'Отчество', align: 'start', sortable: true, value: 'middle_name' },
           { text: 'Роль', align: 'start', sortable: true, value: 'role' },
+          { text: 'Группа', align: 'start', sortable: true, value: 'group' },
           { text: 'E-Mail', align: 'start', sortable: true, value: 'email', class: 'text-no-warp' },
           { text: 'Организация', align: 'start', sortable: true, value: 'organization' },
           { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
         ],
         items: [] as UserInterface[]
-      },
-      usersProcessLoading: false
+      }
     }
   },
 
@@ -123,7 +134,7 @@ export default Vue.extend({
 
   methods: {
     fetchUsers () {
-      this.usersProcessLoading = true
+      this.dataTableUsers.processLoading = true
       const offset = (this.dataTableUsers.itemsPerPage * this.dataTableUsers.page) - this.dataTableUsers.itemsPerPage
       new Users()
         .find({
@@ -132,12 +143,15 @@ export default Vue.extend({
         })
         .then((response: ResponseInterface<{count: number}, UserInterface[]>) => {
           this.dataTableUsers.totalCount = response.meta.count
-          this.dataTableUsers.pages = Math.ceil(response.count / this.dataTableUsers.itemsPerPage)
+          this.dataTableUsers.pages = Math.ceil(response.meta.count / this.dataTableUsers.itemsPerPage)
           this.dataTableUsers.items = response.data
-        }).finally(() => {
-          this.usersProcessLoading = false
-        })
+        }).finally(() => (this.dataTableUsers.processLoading = false))
     },
+
+    onButtonRefreshClick () {
+      this.fetchUsers()
+    },
+
     onPaginationChange (data: any) {
       this.dataTableUsers.pageStart = data.pageStart + 1
       this.dataTableUsers.pageStop = data.pageStop
@@ -145,3 +159,14 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style>
+
+.v-toolbar-header div {
+  padding: 0 !important;
+}
+
+.v-toolbar-header div:last-child {
+  margin-right: 10px;
+}
+</style>

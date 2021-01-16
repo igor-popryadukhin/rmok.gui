@@ -21,20 +21,11 @@
       slot="item"
       slot-scope="{ item, on, attrs }"
     >
-      <v-list-item
-        class="v-divider"
-        v-on="on"
-        :attrs="attrs"
-        link
-        two-line
-      >
+      <v-list-item class="v-divider" link v-on="on" :attrs="attrs">
         <v-list-item-content>
           <v-list-item-title>
-            {{ item.first_name || $tc('No name') }} {{ item.last_name || $tc('No last name') }}
+            {{ item.name }}
           </v-list-item-title>
-          <v-list-item-subtitle v-if="item.role">
-            {{ item.role.name }}
-          </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </template>
@@ -54,7 +45,7 @@
       slot="selection"
       slot-scope="{ item }"
     >
-      <v-list-item-title>{{ item.first_name || '' }} {{ item.last_name || '' }}</v-list-item-title>
+      <v-list-item-title>{{ item.name }}</v-list-item-title>
     </template>
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
@@ -67,9 +58,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import Users, { UserInterface } from '@/api/Users'
 import { debounce } from 'vuetify/src/util/helpers'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import Groups, { GroupInterface } from '@/api/Groups'
 
 export default Vue.extend({
   props: {
@@ -121,7 +112,7 @@ export default Vue.extend({
       lockSearch: false,
       selected: null,
       process: false,
-      options: [] as UserInterface[]
+      options: [] as GroupInterface[]
     }
   },
 
@@ -144,16 +135,16 @@ export default Vue.extend({
       search(this, Object.assign({}, this.params, params))
     },
 
-    setSelected (data: UserInterface) {
+    setSelected (data: GroupInterface) {
       this.selected = data
     },
 
-    setData (data: UserInterface[]) {
+    setData (data: GroupInterface[]) {
       this.options = data
     },
 
-    pushData (data: UserInterface) {
-      if (this.options.findIndex<UserInterface>((e) => e.id === data.id) === -1) {
+    pushData (data: GroupInterface) {
+      if (this.options.findIndex<GroupInterface>((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
     },
@@ -169,11 +160,12 @@ export default Vue.extend({
  */
 const search = debounce((ctx: any, params: any) => {
   ctx.process = true
-  new Users()
+  new Groups()
     .find(params)
-    .then((response: ResponseInterface<{ count: number }, UserInterface[]>) => {
+    .then((response: ResponseInterface<{ count: number }, GroupInterface[]>) => {
       ctx.hintMessage = ctx.$t('found', { count: response.meta.count })
       ctx.options = response.data
-    }).finally(() => (ctx.process = false))
+    })
+    .finally(() => (ctx.process = false))
 }, 400)
 </script>

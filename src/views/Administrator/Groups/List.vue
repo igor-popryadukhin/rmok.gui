@@ -178,6 +178,13 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style>
 
+.v-toolbar-header div {
+  padding: 0 !important;
+}
+
+.v-toolbar-header div:last-child {
+  margin-right: 10px;
+}
 </style>

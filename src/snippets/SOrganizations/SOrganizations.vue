@@ -51,7 +51,7 @@
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
       v-slot:prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account</v-icon>
+      <v-icon class="pl-5 pr-9">mdi-city-variant</v-icon>
     </template>
   </v-autocomplete>
 </template>
@@ -132,7 +132,7 @@ export default Vue.extend({
 
   methods: {
     fetchData (params = {}) {
-      searchUsers(this, Object.assign({}, this.params, params))
+      search(this, Object.assign({}, this.params, params))
     },
 
     setSelected (data: OrganizationInterface) {
@@ -158,7 +158,7 @@ export default Vue.extend({
 /**
  * Поиск пользователей
  */
-const searchUsers = debounce((ctx: any, params: any) => {
+const search = debounce((ctx: any, params: any) => {
   ctx.process = true
   new Organizations()
     .find(params)
