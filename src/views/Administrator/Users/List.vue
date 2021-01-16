@@ -12,6 +12,8 @@
           :loading="dataTableUsers.processLoading"
           item-key="id"
           item-class="v-datatable-item"
+          :loading-text="$tc('Loading content...')"
+          :no-data-text="$tc('No data available')"
           disable-sort
           fixed-header
           calculate-widths

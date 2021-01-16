@@ -1012,7 +1012,9 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   timer.reset()
   timer.start()
   if (app) {
-    app.$root.$emit('root-loading-data-show')
+    if (to.name !== from.name) {
+      app.$root.$emit('root-loading-data-show')
+    }
   }
 
   if (to.path === '/') {
@@ -1048,15 +1050,17 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   })
 })
 
-router.afterEach(() => {
+router.afterEach((to, from) => {
   timer.stop()
 
-  if (timer.diff() < 800) {
-    setTimeout(() => {
+  if (to.name !== from.name) {
+    if (timer.diff() < 800) {
+      setTimeout(() => {
+        app.$root.$emit('root-loading-data-hide')
+      }, 800)
+    } else {
       app.$root.$emit('root-loading-data-hide')
-    }, 800)
-  } else {
-    app.$root.$emit('root-loading-data-hide')
+    }
   }
 })
 

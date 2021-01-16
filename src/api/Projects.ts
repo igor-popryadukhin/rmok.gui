@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
 
 export interface ProjectOwnerInterface {
   id: number;
@@ -58,19 +59,15 @@ interface ProjectPutDataInterface {
 
 export default class Projects {
   /**
-   * @param q
-   * @param offset
-   * @param count
+   * @param params
    */
-  public find (q = '', offset = 0, count = 100): Promise<ProjectResponseItemsInterface> {
-    return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
+  public find<TM, TD>(params: any): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/projects', {
-        params: {
-          q, offset, count
-        }
+        params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          return resolve(response.data as ProjectResponseItemsInterface)
+          return resolve(response.data)
         }
         reject(response.data)
       }).catch(reject)

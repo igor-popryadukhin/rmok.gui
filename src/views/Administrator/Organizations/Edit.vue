@@ -266,7 +266,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="mb-16">
       <v-col
         cols="12"
         class="text-right"
@@ -274,6 +274,7 @@
         <v-btn
           v-bind="buttonDelete"
           color="red"
+          class="mr-2"
           outlined
           tile
           @click="onBtnDeleteClick"

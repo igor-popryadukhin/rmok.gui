@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <div>
     <v-form
       ref="form"
       lazy-validation
@@ -7,6 +7,8 @@
       <v-row>
         <v-col
           cols="12"
+          md="6"
+          lg="6"
         >
           <v-text-field
             v-model="projectName"
@@ -23,8 +25,11 @@
       <v-row>
         <v-col
           cols="12"
+          md="6"
+          lg="6"
         >
-          <s-autocomplete-organizations
+          <s-organizations-autocomplete
+            ref="sOrganizations"
             v-model="organizationSelected"
             :label="$tc('organization')"
             :rules="[rules.notBlank]"
@@ -33,212 +38,216 @@
       </v-row>
     </v-form>
 
-      <!-- Users -->
-      <v-row>
-        <v-col
-          cols="12"
-        >
-          <h3>{{ $tc('Project participants') }}</h3>
-          <v-row>
-            <v-col cols="6">
-              <v-card outlined>
-                <v-card-subtitle>
-                  {{ $tc('Available members') }}
-                </v-card-subtitle>
-                <v-card-text>
-                  <vuescroll
-                    :ops="vueScrollOptions"
-                    :style="{ height: `${300}px` }"
-                    style="width: 100%"
-                  >
-                    <template v-if="availableMembers.length > 0">
-                      <v-list>
-                        <template v-for="(item, index) in availableMembers">
-                          <v-divider :key="`v-divider-${index}`"/>
-                          <v-list-item
-                            :key="`v-list-item-${index}`"
+    <!-- Users -->
+    <v-row class="mb-5" no-gutters>
+      <v-col
+        cols="12"
+      >
+        <h3>{{ $tc('Project participants') }}</h3>
+        <v-row>
+          <v-col cols="6">
+            <v-card
+              height="400"
+              class="overflow-y-auto v-card"
+              outlined
+            >
+              <v-card-subtitle>
+                {{ $tc('Available members') }}
+              </v-card-subtitle>
+              <v-card-text class="v-card__text">
+                <div>
+                  <template v-if="availableMembers.length > 0">
+                    <v-list>
+                      <template v-for="(item, index) in availableMembers">
+                        <v-divider :key="`v-divider-${index}`"/>
+                        <v-list-item
+                          :key="`v-list-item-${index}`"
+                        >
+                          <v-list-item-avatar
+                            size="30"
+                            color="indigo"
+                            class="headline font-weight-light white--text"
                           >
-                            <v-list-item-avatar
-                              size="30"
-                              color="indigo"
-                              class="headline font-weight-light white--text"
+                            {{ item.first_name.charAt(0) }}
+                          </v-list-item-avatar>
+                          <v-list-item-content>
+                            <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
+                          </v-list-item-content>
+                          <v-list-item-action>
+                            <v-btn
+                              text
+                              small
+                              @click="memberToRight(item)"
                             >
-                              {{ item.first_name.charAt(0) }}
-                            </v-list-item-avatar>
-                            <v-list-item-content>
-                              <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-                            </v-list-item-content>
-                            <v-list-item-action>
-                              <v-btn
-                                text
-                                small
-                                @click="memberToRight(item)"
-                              >
-                                {{ $tc('Add') }}
-                              </v-btn>
-                            </v-list-item-action>
-                          </v-list-item>
-                        </template>
-                      </v-list>
-                    </template>
-                    <template v-else-if="availableMembersLoading && availableMembers.length === 0">
-                      <div class="d-flex pa-0" style="height: 300px">
-                        <v-row
-                          class="fill-height"
-                          align-content="center"
-                          justify="center"
-                          no-gutters
+                              {{ $tc('Add') }}
+                            </v-btn>
+                          </v-list-item-action>
+                        </v-list-item>
+                      </template>
+                    </v-list>
+                  </template>
+                  <template v-else-if="availableMembersLoading && availableMembers.length === 0">
+                    <div class="d-flex pa-0" style="height: 250px">
+                      <v-row
+                        class="fill-height"
+                        align-content="center"
+                        justify="center"
+                        no-gutters
+                      >
+                        <v-col
+                          class="subtitle-1 text-center"
+                          cols="12"
                         >
-                          <v-col
-                            class="subtitle-1 text-center"
-                            cols="12"
-                          >
-                            {{ $tc('Getting available members') }}
-                          </v-col>
-                          <v-col cols="9">
-                            <v-progress-linear
-                              color="deep-purple accent-4"
-                              indeterminate
-                              rounded
-                              height="6"
-                            ></v-progress-linear>
-                          </v-col>
-                        </v-row>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div class="d-flex pa-0" style="height: 300px">
-                        <v-row
-                          class="fill-height"
-                          align-content="center"
-                          justify="center"
-                          no-gutters
+                          {{ $tc('Getting available members') }}
+                        </v-col>
+                        <v-col cols="9">
+                          <v-progress-linear
+                            color="deep-purple accent-4"
+                            indeterminate
+                            rounded
+                            height="6"
+                          ></v-progress-linear>
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="d-flex pa-0" style="height: 250px">
+                      <v-row
+                        class="fill-height"
+                        align-content="center"
+                        justify="center"
+                        no-gutters
+                      >
+                        <v-col
+                          class="subtitle-1 text-center"
+                          cols="12"
                         >
-                          <v-col
-                            class="subtitle-1 text-center"
-                            cols="12"
-                          >
-                            {{ $tc('Empty') }}
-                          </v-col>
-                        </v-row>
-                      </div>
-                    </template>
-                  </vuescroll>
-                </v-card-text>
-              </v-card>
-            </v-col>
-            <v-col cols="6">
-              <v-card outlined>
-                <v-card-subtitle>
-                  {{ $tc('Члены проекта') }}
-                </v-card-subtitle>
-                <v-card-text>
-                  <vuescroll
-                    :ops="vueScrollOptions"
-                    :style="{ height: `${300}px` }"
-                    style="width: 100%"
-                  >
-                    <template v-if="members.length > 0">
-                      <v-list>
-                        <template v-for="(item, index) in members">
-                          <v-divider :key="`v-divider-${index}`"/>
-                          <v-list-item
-                            :key="`v-list-item-${index}`"
-                          >
-                            <v-list-item-avatar
-                              size="30"
-                              color="indigo"
-                              class="headline font-weight-light white--text"
-                            >
-                              {{ item.first_name.charAt(0) }}
-                            </v-list-item-avatar>
-                            <v-list-item-content>
-                              <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-                            </v-list-item-content>
-                            <v-list-item-action>
-                              <v-btn
-                                icon
-                                small
-                                @click="memberToLeft(item)"
-                              >
-                                <v-icon color="red lighten-1">mdi-close</v-icon>
-                              </v-btn>
-                            </v-list-item-action>
-                          </v-list-item>
-                        </template>
-                      </v-list>
-                    </template>
-                    <template v-else>
-                      <div class="d-flex pa-0" style="height: 300px">
-                        <v-row
-                          class="fill-height"
-                          align-content="center"
-                          justify="center"
-                          no-gutters
+                          {{ $tc('Empty') }}
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </template>
+                </div>
+              </v-card-text>
+              <v-divider />
+              <v-footer color="white">
+                <small class="grey--text">{{ $tc('Click the add button to add the participant to the project.') }}</small>
+              </v-footer>
+            </v-card>
+          </v-col>
+          <v-col cols="6">
+            <v-card
+              height="400"
+              class="overflow-y-auto v-card"
+              outlined
+            >
+              <v-card-subtitle>
+                {{ $tc('Project members') }}
+              </v-card-subtitle>
+              <v-card-text class="v-card__text">
+                <template v-if="members.length > 0">
+                  <v-list>
+                    <template v-for="(item, index) in members">
+                      <v-divider :key="`v-divider-${index}`"/>
+                      <v-list-item
+                        :key="`v-list-item-${index}`"
+                      >
+                        <v-list-item-avatar
+                          size="30"
+                          color="indigo"
+                          class="headline font-weight-light white--text"
                         >
-                          <v-col
-                            class="subtitle-1 text-center"
-                            cols="12"
+                          {{ item.first_name.charAt(0) }}
+                        </v-list-item-avatar>
+                        <v-list-item-content>
+                          <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
+                        </v-list-item-content>
+                        <v-list-item-action>
+                          <v-btn
+                            icon
+                            small
+                            @click="memberToLeft(item)"
                           >
-                            {{ $tc('Empty') }}
-                          </v-col>
-                        </v-row>
-                      </div>
+                            <v-icon color="red lighten-1">mdi-close</v-icon>
+                          </v-btn>
+                        </v-list-item-action>
+                      </v-list-item>
                     </template>
-                  </vuescroll>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
+                  </v-list>
+                </template>
+                <template v-else>
+                  <div class="d-flex pa-0" style="height: 250px">
+                    <v-row
+                      class="fill-height"
+                      align-content="center"
+                      justify="center"
+                      no-gutters
+                    >
+                      <v-col
+                        class="subtitle-1 text-center"
+                        cols="12"
+                      >
+                        {{ $tc('Empty') }}
+                      </v-col>
+                    </v-row>
+                  </div>
+                </template>
+              </v-card-text>
+              <v-divider />
+              <v-footer color="white">
+                <small class="grey--text">{{ $tc('Click the remove button to remove a member from the project.') }}</small>
+              </v-footer>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
 
-      <!-- Statuses -->
-      <v-row>
-        <v-col
-          cols="12"
-        >
-          <h3 class="mb-3">Статусы звонков</h3>
-          <project-status v-model="statuses"/>
-        </v-col>
-      </v-row>
+    <!-- Statuses -->
+    <v-row no-gutters>
+      <v-col
+        cols="12"
+      >
+        <h3 class="mb-3">Статусы звонков</h3>
+        <project-status v-model="statuses"/>
+      </v-col>
+    </v-row>
 
-      <v-row>
-        <v-col
-          cols="12"
-          class="text-right"
+    <v-row no-gutters>
+      <v-col
+        cols="12"
+        class="text-right"
+      >
+        <v-btn
+          text
+          tile
+          :loading="buttonSave.loading"
+          :disabled="buttonSave.disabled"
+          @click="onSave"
         >
-          <v-btn
-            text
-            tile
-            :loading="buttonSave.loading"
-            :disabled="buttonSave.disabled"
-            @click="onSave"
-          >
-            {{ $tc('Save') }}
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+          {{ $tc('Save') }}
+        </v-btn>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import rules from '@/mixins/rules'
-import vuescroll from 'vuescroll/dist/vuescroll-native'
-import SAutocompleteOrganizations from '@/snippets/Autocomplete/SAutocompleteOrganizations.vue'
 import Users, { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
 import Projects from '@/api/Projects'
 import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 
 export default Vue.extend({
   components: {
-    SAutocompleteOrganizations,
-    ProjectStatus,
-    vuescroll
+    SOrganizationsAutocomplete,
+    ProjectStatus
   },
 
   mixins: [rules, vueScrollOptions],
@@ -270,6 +279,10 @@ export default Vue.extend({
       organizationSelected: {} as OrganizationInterface
       /* eslint-enable */
     }
+  },
+
+  created () {
+    this.$refs.sOrganizations.fetchData()
   },
 
   watch: {
@@ -408,6 +421,15 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+}
 .empty-list {
   height: 50px;
   width: 100%;

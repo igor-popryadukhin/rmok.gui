@@ -4,6 +4,7 @@ import { AxiosResponse } from 'axios'
 import { RoleInterface } from '@/api/Roles'
 import { GroupInterface } from '@/api/Groups'
 import PBXInterface from '@/api/Schemas/PBXInterface'
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
 
 interface UserOrganizationInterface {
   id: number;
@@ -86,8 +87,8 @@ export class Users {
    *
    * @param params
    */
-  public find (params: ParamsFindInterface = {}): Promise<any> {
-    return new Promise((resolve, reject): Promise<any> | any => {
+  public find<TM, TD>(params: ParamsFindInterface = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/users', {
         params
       }).then((response: AxiosResponse) => {

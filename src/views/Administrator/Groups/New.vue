@@ -31,7 +31,7 @@
         md="6"
         lg="6"
       >
-        <s-organizations
+        <s-organizations-autocomplete
           ref="sOrganizations"
           v-model="organizationSelected"
           :label="$tc('organization')"
@@ -72,7 +72,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="mr-2">
       <v-col
         cols="12"
         md="6"
@@ -100,11 +100,11 @@ import { Groups } from '@/api/Groups'
 import { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
-import SOrganizations from '@/snippets/SOrganizations/SOrganizations.vue'
+import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 
 export default Vue.extend({
   components: {
-    SOrganizations,
+    SOrganizationsAutocomplete,
     SUsers
   },
 

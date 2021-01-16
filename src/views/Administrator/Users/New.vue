@@ -214,7 +214,7 @@
         <v-col
           cols="12"
         >
-          <s-organizations
+          <s-organizations-autocomplete
             ref="sOrganizations"
             v-model="user.organization"
             :label="$tc('organization')"
@@ -365,7 +365,7 @@
       </v-row>
     </div>
 
-    <v-row>
+    <v-row class="mb-16">
       <v-col
         cols="12"
         class="text-right"
@@ -391,7 +391,7 @@ import countryCodes from '@/mixins/countryCodes'
 import { OrganizationInterface } from '@/api/Organizations'
 import SRoles from '@/snippets/SRoles/SRoles.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
-import SOrganizations from '@/snippets/SOrganizations/SOrganizations.vue'
+import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import Users from '@/api/Users'
 
 interface DataPasswordInterface {
@@ -406,7 +406,7 @@ export default Vue.extend({
   mixins: [rules, countryCodes],
 
   components: {
-    SOrganizations,
+    SOrganizationsAutocomplete,
     SGroups,
     SRoles
   },

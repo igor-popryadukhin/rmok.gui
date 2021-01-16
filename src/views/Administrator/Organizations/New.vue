@@ -266,7 +266,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="mb-16">
       <v-col
         cols="12"
         class="text-right"

@@ -19,5 +19,7 @@
   "Getting available members": "Получение доступных участников...",
   "To activate the member search box, select an organization": "Чтобы активировать поле поиска участников, выберите организацию",
   "For administrator": "Для администратора",
-  "The organization was successfully saved.": "Организация успешно сохранена."
+  "The organization was successfully saved.": "Организация успешно сохранена.",
+  "Click the add button to add the participant to the project.": "Нажмите кнопку добавить, что бы добавить участника в проект.",
+  "Click the remove button to remove a member from the project.": "Нажмите кнопку удалить, что бы удалить участника из проекта."
 }
