@@ -61,7 +61,7 @@ export default class Projects {
   /**
    * @param params
    */
-  public find<TM, TD>(params: any): Promise<ResponseInterface<TM, TD>> {
+  public find<TM, TD>(params: any = null): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/projects', {
         params

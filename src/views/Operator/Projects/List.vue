@@ -21,20 +21,20 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import Projects, { ProjectInterface, ProjectResponseItemsInterface } from '@/api/Projects'
+import Projects, { ProjectInterface } from '@/api/Projects'
 
 export default Vue.extend({
   data () {
     return {
-      projects: [] as ProjectInterface[]
+      projects: [] as unknown as ProjectInterface[]
     }
   },
 
   created () {
     new Projects()
-      .find()
-      .then((response: ProjectResponseItemsInterface) => {
-        this.projects = response.items
+      .find<{count: number}, ProjectInterface[]>()
+      .then((response) => {
+        this.projects = response.data
       })
   }
 })

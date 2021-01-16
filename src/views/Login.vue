@@ -124,7 +124,7 @@ export default Vue.extend({
           // Если авторизовался оператор
           if (this.$store.getters['profile/role_is_operator']) {
             this.$router.replace({ name: 'operator_home' })
-            .then(() => {
+            .finally(() => {
               this.$root.$emit('root-loading-projects') // Загрузить проекты, что бы оператор мог выбрать из списка
               this.$root.$emit('root-jssip-initialize') // Инициализация JsSIP
             })

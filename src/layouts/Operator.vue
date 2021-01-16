@@ -578,9 +578,11 @@ export default Vue.extend({
 
     onRootLoadingProjects () {
       new Projects()
-        .find('', 0, 100)
-        .then((response) => {
-          this.projectDialog.projects = response.items.map((e: any) => {
+        .find<{count: number}, ProjectInterface[]>({
+          offset: 0,
+          count: 100
+        }).then((response) => {
+          this.projectDialog.projects = response.data.map((e: any) => {
             e.loading = false
             return e
           }) || []

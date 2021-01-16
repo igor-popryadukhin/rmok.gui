@@ -560,9 +560,9 @@ export default Vue.extend({
 
   created () {
     new Projects()
-    .find()
-    .then((response: ProjectResponseItemsInterface) => {
-      this.filter.project.items = response.items
+    .find<{count: number}, ProjectInterface[]>()
+    .then((response) => {
+      this.filter.project.items = response.data
     }).finally(() => {
       const index: number = this.filter.project.items.findIndex((e: any) => +this.$route.query.project_id === e.id)
       if (index > -1) {
