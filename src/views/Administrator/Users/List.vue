@@ -68,7 +68,6 @@
                   <td class="text-no-wrap">{{ item.role ? item.role.name : '—' }}</td>
                   <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>
                   <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>
-                  <td class="text-no-wrap">{{ item.email || '—' }}</td>
                   <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—'}}</td>
                   <td class="text-no-wrap text-right">
                     <v-btn
@@ -185,7 +184,6 @@ export default Vue.extend({
           { text: 'Роль', align: 'start', sortable: true, value: 'role' },
           { text: 'Проект', align: 'start', sortable: true, value: 'project' },
           { text: 'Группа', align: 'start', sortable: true, value: 'group' },
-          { text: 'E-Mail', align: 'start', sortable: true, value: 'email', class: 'text-no-warp' },
           { text: 'Организация', align: 'start', sortable: true, value: 'organization' },
           { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
         ],

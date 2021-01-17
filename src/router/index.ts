@@ -356,12 +356,12 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'organizations',
-        component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/Layout.vue'),
         children: [
           {
             path: '',
             name: 'administrator_organizations_list',
-            component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -371,7 +371,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_organizations_new',
-            component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/New.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -384,7 +384,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'administrator_organizations_edit',
-            component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/Edit.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -406,12 +406,12 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'users',
-        component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/Layout.vue'),
         children: [
           {
             path: '',
             name: 'administrator_users_list',
-            component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -421,7 +421,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_users_new',
-            component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/New.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -430,7 +430,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'administrator_users_edit',
-            component: () => import(/* webpackChunkName: "administrator-users" */ '../views/Administrator/Users/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -448,12 +448,12 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'groups',
-        component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Users/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/Layout.vue'),
         children: [
           {
             path: '',
             name: 'administrator_groups_list',
-            component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Groups/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Groups/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -463,7 +463,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_groups_new',
-            component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Groups/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Groups/New.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -472,7 +472,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'administrator_groups_edit',
-            component: () => import(/* webpackChunkName: "administrator-groups" */ '../views/Administrator/Groups/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Groups/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -491,12 +491,12 @@ const routes: RouteConfig[] = [
       {
         path: 'settings',
         name: 'administrator_settings',
-        component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Settings/Layout.vue'),
         children: [
           {
             path: 'profile',
             name: 'administrator_profile',
-            component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Profile.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Settings/Profile.vue'),
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'administrator',
@@ -506,7 +506,7 @@ const routes: RouteConfig[] = [
           {
             path: 'journal',
             name: 'administrator_journal',
-            component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Journal.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Settings/Journal.vue'),
             meta: {
               icon: 'mdi-history',
               layout: 'administrator',
@@ -516,7 +516,7 @@ const routes: RouteConfig[] = [
           {
             path: 'security',
             name: 'administrator_security',
-            component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Security.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Settings/Security.vue'),
             meta: {
               icon: 'mdi-security',
               layout: 'administrator',
@@ -535,12 +535,12 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'projects',
-        component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/Layout.vue'),
         children: [
           {
             path: '',
             name: 'administrator_projects_list',
-            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -550,7 +550,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'administrator_projects_new',
-            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/New.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -559,7 +559,7 @@ const routes: RouteConfig[] = [
           {
             path: ':project_id',
             name: 'administrator_projects_edit',
-            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
