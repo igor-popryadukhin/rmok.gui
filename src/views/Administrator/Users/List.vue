@@ -162,6 +162,7 @@ export default Vue.extend({
     SProjectsAutocomplete,
     SOrganizationsAutocomplete
   },
+
   data () {
     return {
       filter: {

@@ -7,8 +7,8 @@ import roleAdmin from '@/middleware/roleAdmin'
 import roleRCC from '@/middleware/roleRCC'
 import roleTeamLeader from '@/middleware/roleTeamLeader.ts'
 import store from '@/store'
-import { app } from '@/main'
-import Timer from '@/classes/Timer'
+// import { app } from '@/main'
+// import Timer from '@/classes/Timer'
 
 Vue.use(VueRouter)
 
@@ -1004,16 +1004,16 @@ export interface MiddlewareContextInterface {
   next: NavigationGuardNext;
 }
 
-const timer = new Timer()
+// const timer = new Timer()
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
-  timer.reset()
-  timer.start()
-  if (app) {
-    if (to.name !== from.name) {
-      app.$root.$emit('root-loading-data-show')
-    }
-  }
+  // timer.reset()
+  // timer.start()
+  // if (app) {
+  //   if (to.name !== from.name) {
+  //     app.$root.$emit('root-loading-data-show')
+  //   }
+  // }
 
   if (to.path === '/') {
     if (store.getters['profile/role_is_team_leader']) {
@@ -1048,18 +1048,18 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   })
 })
 
-router.afterEach((to, from) => {
-  timer.stop()
-
-  if (to.name !== from.name) {
-    if (timer.diff() < 800) {
-      setTimeout(() => {
-        app.$root.$emit('root-loading-data-hide')
-      }, 800)
-    } else {
-      app.$root.$emit('root-loading-data-hide')
-    }
-  }
-})
+// router.afterEach((to, from) => {
+//   timer.stop()
+//
+//   if (to.name !== from.name) {
+//     if (timer.diff() < 800) {
+//       setTimeout(() => {
+//         app.$root.$emit('root-loading-data-hide')
+//       }, 800)
+//     } else {
+//       app.$root.$emit('root-loading-data-hide')
+//     }
+//   }
+// })
 
 export default router

@@ -78,7 +78,7 @@ export default Vue.extend({
         visible: false,
         historyId: 0
       },
-      overlay: true,
+      overlay: false,
       toastId: 0 as number | string,
       organization: {} as ContactInterface,
       RTCToastOptions: {
