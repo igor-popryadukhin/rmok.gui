@@ -343,9 +343,17 @@ const routes: RouteConfig[] = [
   /** Administrator */
   {
     path: '/administrator',
-    name: 'administrator',
     component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Layout.vue'),
     children: [
+      {
+        path: '',
+        name: 'administrator',
+        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Home.vue'),
+        meta: {
+          layout: 'administrator',
+          middleware: [roleAdmin]
+        }
+      },
       {
         path: 'organizations',
         component: () => import(/* webpackChunkName: "administrator-organizations" */ '../views/Administrator/Organizations/Layout.vue'),
