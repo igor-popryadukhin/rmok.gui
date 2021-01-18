@@ -41,7 +41,3 @@ export const app: Vue = new Vue({
   i18n,
   render: (h) => h(App)
 }).$mount('#app')
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-window.app = app
