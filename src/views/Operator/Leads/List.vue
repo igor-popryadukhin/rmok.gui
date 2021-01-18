@@ -1,119 +1,106 @@
 <template>
   <div>
-    <v-card
-      flat
-    >
-      <v-card-text class="pa-0">
-        <v-toolbar
-          flat
-          class="pl-3"
-          height="35"
-        >
-          <v-spacer />
-        </v-toolbar>
-      </v-card-text>
-      <v-row class="ma-0">
+    <v-row class="ma-0">
 
-        <!-- List -->
-        <v-col
-          order-sm="2"
-          order-lg="1"
-          order-md="1"
-          cols="12"
-          md="8"
-          lg="8"
-          class="pa-0"
-        >
-          <v-row>
-            <v-col
-              order="1"
-              cols="12"
-              class="pa-0"
+      <!-- List -->
+      <v-col
+        order-sm="2"
+        order-lg="1"
+        order-md="1"
+        cols="12"
+        md="8"
+        lg="8"
+        class="pt-0"
+      >
+        <!-- Лиды -->
+        <v-row class="mb-3">
+          <v-col
+            order="1"
+            cols="12"
+            class="pa-0 pr-lg-3 pr-md-3"
+          >
+            <v-card
+              height="350"
+              class="overflow-y-auto v-card"
+              elevation="0"
+              outlined
             >
-              <v-card
-                tile
-                elevation="0"
-                class="pa-0"
-              >
-                <v-toolbar dense flat>
-                  <v-toolbar-title>
-                    <h4 style="margin-bottom: -10px">Новые</h4>
-                    <small>Всего: {{ leadsCount }}</small>
-                  </v-toolbar-title>
-                  <v-spacer></v-spacer>
-                </v-toolbar>
-                <v-card-text>
-                  <vuescroll
-                    :ops="vueScrollOptions"
-                    :style="{ height: `${260}px` }"
-                    style="width: 100%"
-                    @handle-scroll-complete="onVueScrollLeadsHandleComplete"
+              <v-card-title>Лиды</v-card-title>
+              <v-card-subtitle>Всего: {{ leadsCount }}</v-card-subtitle>
+              <v-card-text class="v-card__text">
+                <template v-if="leads.length > 0">
+                  <template
+                    v-for="item in leads"
                   >
-                    <template v-if="leads.length > 0">
-                      <template
-                        v-for="item in leads"
-                      >
-                        <v-divider
-                          :key="`divider-${item.id}`"
-                        />
-                        <v-list-item
-                          :key="`list-item-${item.id}`"
-                          ripple
-                          selectable
-                          @click.stop="$router.push({ path: `/operator/leads/${item.id}/script` })"
-                          style="min-height: 35px"
-                        >
-                          <v-list-item-content class="pa-0">
-                            <v-list-item-title>
-                              {{ item.first_name }} {{ item.last_name }}
-                            </v-list-item-title>
-                            <!--                  <v-list-item-subtitle>{{ new Date(item.created_at * 1000).toLocaleDateString() }}</v-list-item-subtitle>-->
-                          </v-list-item-content>
-                          <v-spacer />
-                          <v-list-item-content class="pa-0">
-                            <v-list-item-title
-                              v-if="item.default_phone"
-                              class="text-right"
-                            >{{ item.default_phone.value.international }}
-                            </v-list-item-title>
-                            <v-list-item-title
-                              v-else-if="item.phones.length > 0"
-                              class="text-right"
-                            >{{ item.phones[0].value.international }}
-                            </v-list-item-title>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </template>
-                    </template>
-                    <template v-else-if="leadsLoading && leads.length === 0">
-                      <v-list-item class="text-center">
-                        <v-spacer />
-                        <span class="grey--text">
-                {{ $tc('Loading content...') }}
-              </span>
-                        <v-spacer />
-                      </v-list-item>
-                    </template>
-                    <template v-else>
-                      <v-list-item class="text-center">
-                        <v-spacer />
-                        <span class="grey--text">
+                    <v-divider
+                      :key="`divider-${item.id}`"
+                    />
+                    <v-list-item
+                      :key="`list-item-${item.id}`"
+                      ripple
+                      selectable
+                      @click.stop="$router.push({ path: `/operator/leads/${item.id}/script` })"
+                      style="min-height: 35px"
+                    >
+                      <v-list-item-content class="pa-0">
+                        <v-list-item-title>
+                          {{ item.first_name }} {{ item.last_name }}
+                        </v-list-item-title>
+                        <!--                  <v-list-item-subtitle>{{ new Date(item.created_at * 1000).toLocaleDateString() }}</v-list-item-subtitle>-->
+                      </v-list-item-content>
+                      <v-spacer />
+                      <v-list-item-content class="pa-0">
+                        <v-list-item-title
+                          v-if="item.default_phone"
+                          class="text-right"
+                        >{{ item.default_phone.value.international }}
+                        </v-list-item-title>
+                        <v-list-item-title
+                          v-else-if="item.phones.length > 0"
+                          class="text-right"
+                        >{{ item.phones[0].value.international }}
+                        </v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </template>
+                </template>
+                <template v-else-if="leadsLoading && leads.length === 0">
+                  <v-list-item class="text-center">
+                    <v-spacer />
+                    <span class="grey--text">{{ $tc('Loading content...') }}</span>
+                    <v-spacer />
+                  </v-list-item>
+                </template>
+                <template v-else>
+                  <v-list-item class="text-center">
+                    <v-spacer />
+                    <span class="grey--text">
                 {{ $tc('No leads') }}
               </span>
-                        <v-spacer />
-                      </v-list-item>
-                    </template>
-                  </vuescroll>
-                </v-card-text>
-              </v-card>
-            </v-col>
+                    <v-spacer />
+                  </v-list-item>
+                </template>
+              </v-card-text>
+              <v-footer color="white">
+              </v-footer>
+            </v-card>
+          </v-col>
+        </v-row>
 
-            <v-col
-              order="2"
-              cols="12"
-              class="pa-0"
+        <!-- Задачи -->
+        <v-row class="mb-2">
+          <v-col
+            order="2"
+            cols="12"
+            class="pa-0 pr-lg-3 pr-md-3"
+          >
+            <v-card
+              class="overflow-y-auto v-card"
+              :height="$screenHeight - 500"
+              flat
+              outlined
             >
-              <v-card flat>
+              <v-card-title class="pl-0 pr-0">
                 <v-toolbar dense flat>
                   <v-toolbar-title>
                     <h4>Задачи</h4>
@@ -129,221 +116,214 @@
                     </v-btn>
                   </v-toolbar-items>
                 </v-toolbar>
-                <v-card-text>
-                  <vuescroll
-                    :ops="vueScrollOptions"
-                    :style="{ height: `${380}px` }"
-                    style="width: 100%"
-                    @handle-scroll-complete="onVueScrollTaskHandleComplete"
-                  >
-                    <v-list>
-                      <template v-if="task.items.length > 0">
-                        <template v-for="(task, taskIndex) in task.items">
-                          <v-divider
-                            :key="`v-divider-${taskIndex}`"
-                          />
-                          <v-list-item
-                            :key="`v-list-item-${taskIndex}`"
-                            link
-                            three-line
-                            exact
-                            :style="task.done ? {'text-decoration': 'line-through'} : ''"
-                          >
-                            <v-list-item-avatar>
-                              <v-avatar>
-                                <v-icon v-if="task.type === 'call'">mdi-alpha-c-circle</v-icon>
-                                <v-icon v-if="task.type === 'task'">mdi-alpha-t-circle</v-icon>
-                                <v-icon v-if="task.type === 'meeting'">mdi-alpha-m-circle</v-icon>
-                                <v-icon v-if="task.type === 'letter'">mdi-alpha-e-circle</v-icon>
-                                <v-icon v-if="task.type === 'other'">mdi-alpha-o-circle</v-icon>
-                              </v-avatar>
-                            </v-list-item-avatar>
-                            <v-list-item-content>
-                              <v-list-item-title v-if="task.type === 'call'">{{ $t('Call') }}</v-list-item-title>
-                              <v-list-item-title v-if="task.type === 'task'">{{ $t('Task') }}</v-list-item-title>
-                              <v-list-item-title v-if="task.type === 'meeting'">{{ $t('Meeting') }}</v-list-item-title>
-                              <v-list-item-title v-if="task.type === 'letter'">{{ $t('Letter') }}</v-list-item-title>
-                              <v-list-item-title v-if="task.type === 'other'">{{ $t('Other') }}</v-list-item-title>
-                              <v-list-item-subtitle>
-                                {{ task.description }}
-                              </v-list-item-subtitle>
-                              <v-list-item-subtitle>
-                                Выполнить до {{ new Date(task.planned_for * 1000).toLocaleString() }}
-                              </v-list-item-subtitle>
-                            </v-list-item-content>
-                            <v-spacer />
-                            <v-list-item-content>
-                              <v-list-item-title>Автор</v-list-item-title>
-                              <v-list-item-subtitle v-if="$store.getters['profile/id'] === task.author.id">Вы</v-list-item-subtitle>
-                              <v-list-item-subtitle v-else>{{ task.author.first_name }} {{ task.author.last_name }}</v-list-item-subtitle>
-                              <v-list-item-subtitle>{{ new Date(task.created_at * 1000).toLocaleString() }}</v-list-item-subtitle>
-                            </v-list-item-content>
-                            <v-list-item-action>
-                              <v-menu offset-y>
-                                <template v-slot:activator="{ on, attrs }">
-                                  <v-btn
-                                    icon
-                                    large
-                                    v-bind="attrs"
-                                    v-on.stop="on"
-                                  >
-                                    <v-icon>mdi-dots-horizontal</v-icon>
-                                  </v-btn>
-                                </template>
-                                <v-list>
-                                  <v-list-item
-                                    v-if="task.done"
-                                    link
-                                  >
-                                    <v-list-item-icon>
-                                      <v-icon>mdi-check-bold</v-icon>
-                                    </v-list-item-icon>
-                                    <v-list-item-content>
-                                      <v-list-item-title>Отменить выполнение</v-list-item-title>
-                                    </v-list-item-content>
-                                  </v-list-item>
-                                  <v-list-item
-                                    v-else
-                                    link
-                                  >
-                                    <v-list-item-icon>
-                                      <v-icon>mdi-check-bold</v-icon>
-                                    </v-list-item-icon>
-                                    <v-list-item-content>
-                                      <v-list-item-title>Выполнить</v-list-item-title>
-                                    </v-list-item-content>
-                                  </v-list-item>
-                                </v-list>
-                              </v-menu>
-                            </v-list-item-action>
-                          </v-list-item>
-                        </template>
-                      </template>
-                      <template v-else-if="task.items.length === 0 && task.loading  === true">
-                        <v-list-item class="text-center">
-                          <v-spacer />
-                          <span class="grey--text">{{ $tc('Loading content...') }}</span>
-                          <v-spacer />
-                        </v-list-item>
-                      </template>
-                      <template v-else-if="task.items.length === 0 && task.loading === false">
-                        <v-list-item class="text-center">
-                          <v-spacer />
-                          <span class="grey--text">У вас нет задач</span>
-                          <v-spacer />
-                        </v-list-item>
-                      </template>
-                    </v-list>
-                  </vuescroll>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-col>
+              </v-card-title>
+              <v-card-text class="v-card__text">
+                <v-list>
+                  <template v-if="task.items.length > 0">
+                    <template v-for="(task, taskIndex) in task.items">
+                      <v-divider
+                        :key="`v-divider-${taskIndex}`"
+                      />
+                      <v-list-item
+                        :key="`v-list-item-${taskIndex}`"
+                        link
+                        three-line
+                        exact
+                        :style="task.done ? {'text-decoration': 'line-through'} : ''"
+                      >
+                        <v-list-item-avatar>
+                          <v-avatar>
+                            <v-icon v-if="task.type === 'call'">mdi-alpha-c-circle</v-icon>
+                            <v-icon v-if="task.type === 'task'">mdi-alpha-t-circle</v-icon>
+                            <v-icon v-if="task.type === 'meeting'">mdi-alpha-m-circle</v-icon>
+                            <v-icon v-if="task.type === 'letter'">mdi-alpha-e-circle</v-icon>
+                            <v-icon v-if="task.type === 'other'">mdi-alpha-o-circle</v-icon>
+                          </v-avatar>
+                        </v-list-item-avatar>
+                        <v-list-item-content>
+                          <v-list-item-title v-if="task.type === 'call'">{{ $t('Call') }}</v-list-item-title>
+                          <v-list-item-title v-if="task.type === 'task'">{{ $t('Task') }}</v-list-item-title>
+                          <v-list-item-title v-if="task.type === 'meeting'">{{ $t('Meeting') }}</v-list-item-title>
+                          <v-list-item-title v-if="task.type === 'letter'">{{ $t('Letter') }}</v-list-item-title>
+                          <v-list-item-title v-if="task.type === 'other'">{{ $t('Other') }}</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ task.description }}
+                          </v-list-item-subtitle>
+                          <v-list-item-subtitle>
+                            Выполнить до {{ new Date(task.planned_for * 1000).toLocaleString() }}
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-spacer />
+                        <v-list-item-content>
+                          <v-list-item-title>Автор</v-list-item-title>
+                          <v-list-item-subtitle v-if="$store.getters['profile/id'] === task.author.id">Вы</v-list-item-subtitle>
+                          <v-list-item-subtitle v-else>{{ task.author.first_name }} {{ task.author.last_name }}</v-list-item-subtitle>
+                          <v-list-item-subtitle>{{ new Date(task.created_at * 1000).toLocaleString() }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-list-item-action>
+                          <v-menu offset-y>
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-btn
+                                icon
+                                large
+                                v-bind="attrs"
+                                v-on.stop="on"
+                              >
+                                <v-icon>mdi-dots-horizontal</v-icon>
+                              </v-btn>
+                            </template>
+                            <v-list>
+                              <v-list-item
+                                v-if="task.done"
+                                link
+                              >
+                                <v-list-item-icon>
+                                  <v-icon>mdi-check-bold</v-icon>
+                                </v-list-item-icon>
+                                <v-list-item-content>
+                                  <v-list-item-title>Отменить выполнение</v-list-item-title>
+                                </v-list-item-content>
+                              </v-list-item>
+                              <v-list-item
+                                v-else
+                                link
+                              >
+                                <v-list-item-icon>
+                                  <v-icon>mdi-check-bold</v-icon>
+                                </v-list-item-icon>
+                                <v-list-item-content>
+                                  <v-list-item-title>Выполнить</v-list-item-title>
+                                </v-list-item-content>
+                              </v-list-item>
+                            </v-list>
+                          </v-menu>
+                        </v-list-item-action>
+                      </v-list-item>
+                    </template>
+                  </template>
+                  <template v-else-if="task.items.length === 0 && task.loading  === true">
+                    <v-list-item class="text-center">
+                      <v-spacer />
+                      <span class="grey--text">{{ $tc('Loading content...') }}</span>
+                      <v-spacer />
+                    </v-list-item>
+                  </template>
+                  <template v-else-if="task.items.length === 0 && task.loading === false">
+                    <v-list-item class="text-center">
+                      <v-spacer />
+                      <span class="grey--text">У вас нет задач</span>
+                      <v-spacer />
+                    </v-list-item>
+                  </template>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
 
-        <!-- Filter -->
-        <v-col
-          order-sm="1"
-          order-lg="2"
-          order-md="2"
-          cols="12"
-          md="4"
-          lg="4"
-        >
-          <v-card
-            flat
-            outlined
+      <!-- Filter -->
+      <v-col
+        order-sm="1"
+        order-lg="2"
+        order-md="2"
+        cols="12"
+        md="4"
+        lg="4"
+        class="pt-0"
+      >
+        <v-row>
+          <v-col
+            order="1"
+            cols="12"
+            class="pa-0"
           >
-            <v-card-text class="pt-5">
-              <v-tooltip bottom max-width="400">
-                <template v-slot:activator="{ on }">
-                  <v-combobox
-                    v-model="filter.scenario.selected"
-                    :items="filter.scenario.items"
-                    :disabled="filter.scenario.disabled || filter.scenario.length === 0"
-                    :label="$tc('Scenario')"
-                    item-value="id"
-                    item-text="name"
-                    small-chips
-                    multiple
-                    outlined
-                    dense
-                    v-on="on"
-                  ></v-combobox>
-                </template>
-                <span>{{ $tc('Filter by scenario') }}</span>
-              </v-tooltip>
-              <v-menu
-                ref="filterDataRange"
-                v-model="filter.dataRange.visible"
-                :close-on-content-click="false"
-                :return-value.sync="filter.dataRange.dates"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-width="290px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="dateRangeText"
-                    :label="$t('Date the contact was created')"
-                    persistent-hint
-                    prepend-inner-icon="mdi-calendar"
-                    readonly
-                    outlined
-                    dense
-                    clearable
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker
-                  v-model="filter.dataRange.dates"
-                  no-title
-                  :show-current="false"
-                  :locale="$i18n.locale"
-                  range
+            <v-card
+              flat
+              outlined
+              disabled
+            >
+              <v-card-text class="pt-5">
+                <v-tooltip bottom max-width="400">
+                  <template v-slot:activator="{ on }">
+                    <v-combobox
+                      v-model="filter.scenario.selected"
+                      :items="filter.scenario.items"
+                      :disabled="filter.scenario.disabled || filter.scenario.length === 0"
+                      :label="$tc('Scenario')"
+                      item-value="id"
+                      item-text="name"
+                      small-chips
+                      multiple
+                      outlined
+                      dense
+                      v-on="on"
+                    ></v-combobox>
+                  </template>
+                  <span>{{ $tc('Filter by scenario') }}</span>
+                </v-tooltip>
+                <v-menu
+                  ref="filterDataRange"
+                  v-model="filter.dataRange.visible"
+                  :close-on-content-click="false"
+                  :return-value.sync="filter.dataRange.dates"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="290px"
                 >
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="filter.dataRange.dates = []"
-                    @mouseup="filter.dataRange.visible = false"
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="dateRangeText"
+                      :label="$t('Date the contact was created')"
+                      persistent-hint
+                      prepend-inner-icon="mdi-calendar"
+                      readonly
+                      outlined
+                      dense
+                      clearable
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="filter.dataRange.dates"
+                    no-title
+                    :show-current="false"
+                    :locale="$i18n.locale"
+                    range
                   >
-                    {{ $t('Clear') }}
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="filter.dataRange.visible = false"
-                  >
-                    {{ $t('Cancel') }}
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="$refs.filterDataRange.save(filter.dataRange.dates)"
-                  >
-                    {{ $t('Ok') }}
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-              <div v-if="leadsCount > 0" class="text-center mb-3">
-                <v-pagination
-                  v-model="paginator.page"
-                  :total-visible="5"
-                  :length="paginator.pages"
-                ></v-pagination>
-              </div>
-              <div class="text-left">
-                {{ $tc('Not found | Found {n} contact | Found {n} leads | Found {n} leads', leadsCount) }} <br />
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-card>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="filter.dataRange.dates = []"
+                      @mouseup="filter.dataRange.visible = false"
+                    >
+                      {{ $t('Clear') }}
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="filter.dataRange.visible = false"
+                    >
+                      {{ $t('Cancel') }}
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.filterDataRange.save(filter.dataRange.dates)"
+                    >
+                      {{ $t('Ok') }}
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
@@ -351,14 +331,14 @@
 import Vue from 'vue'
 import { ContactResponseInterface, Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
 import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
-import Projects, { ProjectInterface, ProjectResponseItemsInterface } from '@/api/Projects'
+import Projects, { ProjectInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
-import vuescroll from 'vuescroll/dist/vuescroll-native'
 import { UserInterface } from '@/api/Users'
 import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
 import Leads from '@/api/Leads'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import secondsToHms from '@/mixins/secondsToHms'
+import ErrorInterface from '@/api/Schemas/ErrorInterface'
 
 interface DataInterface {
   filter: any;
@@ -394,10 +374,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
     vueScrollOptions,
     secondsToHms
   ],
-
-  components: {
-    vuescroll
-  },
 
   data () {
     return {
@@ -696,7 +672,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
     loadLeads () {
       const query: ContactSearchQueryInterface = {
         q: this.$routerQuery.getQuery('q', ''),
-        project_id: +this.$routerQuery.getQuery('project_id', '0'),
         user_id: +this.$routerQuery.getQuery('user_id', '0'),
         dates: this.$routerQuery.getQuery('dates', ''),
         offset: this.vueScrollLeads.offset,
@@ -717,16 +692,28 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
 
       this.leadsLoading = true
       new Leads()
-        .get(query)
-        .then((leads) => {
-          this.leadsCount = leads.count
-          leads.items.forEach((contact: ContactInterface) => {
-            if (this.leads.findIndex((c: ContactInterface) => c.id === contact.id) === -1) {
+        .get<{ count: number }, ContactInterface[]>(query)
+        .then((response) => {
+          this.leadsCount = response.meta.count
+          response.data.forEach<ContactInterface>((contact) => {
+            if (this.leads.findIndex<ContactInterface>((c) => c.id === contact.id) === -1) {
               this.leads.push(contact)
             }
           })
-        }).catch((e) => {
-          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).catch((e: ErrorInterface | any) => {
+          if (e.error_code) {
+            switch (e.error_code) {
+              case 'no_project': {
+                this.$toast.warning(e.error_message)
+                break
+              }
+              default: {
+                this.$toast.error(e.error_message)
+              }
+            }
+          } else {
+            this.$toast.error(e.statusText || 'undefined')
+          }
         }).finally(() => {
           this.leadsLoading = false
         })
@@ -765,7 +752,19 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
     }
 
     &-subtitle small {
+      font-size: 14px;
+      color: #848484;
       margin-bottom: -5px;
     }
+  }
+
+  .v-card {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .v-card__text {
+    flex-grow: 1;
+    overflow: auto;
   }
 </style>

@@ -26,44 +26,59 @@
         :label="$t('search')"
         class="mr-4"
         style="max-width: 400px"
+        height="40"
         dense
       ></v-text-field>
 
       <!-- Организации -->
-      <v-btn
-        class="mr-1"
-        :to="{ name: 'administrator_organizations_list' }"
-        text
-      >
-        {{ $tc('route.administratororganizations') }}
-      </v-btn>
 
-      <!-- Группы -->
-      <v-btn
-        class="mr-1"
-        :to="{ name: 'administrator_groups_list' }"
-        text
-      >
-        {{ $tc('route.administratorgroups') }}
-      </v-btn>
-
-      <!-- Пользователи -->
-      <v-btn
-        class="mr-1"
-        :to="{ name: 'administrator_users_list' }"
-        text
-      >
-        {{ $tc('route.administratorusers') }}
-      </v-btn>
-
-      <!-- Проекты -->
-      <v-btn
-        class="mr-1"
-        :to="{ name: 'administrator_projects_list' }"
-        text
-      >
-        {{ $tc('route.administrator_projects_list') }}
-      </v-btn>
+      <v-toolbar-items style="height: 40px">
+        <template
+          v-for="item in mainMenu"
+        >
+          <v-menu
+            v-if="item.menu"
+            :key="item"
+            offset-y
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                class="mr-3"
+                :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
+                v-on="on"
+                v-bind="attrs"
+                text
+              >
+                {{ $tc('Statistic') }}
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="(item, index) in menuReports"
+                :key="index"
+                :to="item.to"
+              >
+                <v-list-item-icon v-if="item.icon">
+                  <v-icon>{{ item.icon }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>{{ $t(item.title) }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ $t(item.subtitle) }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <v-btn
+            v-else
+            :key="item"
+            :class="item.class || ''"
+            :to="item.to"
+            text
+          >
+            {{ $tc('route.' + item.to.name) }}
+          </v-btn>
+        </template>
+      </v-toolbar-items>
 
       <div style="width: 15px"></div>
 
@@ -177,9 +192,28 @@ export default Vue.extend({
     ],
     mainMenu: [
       {
-        icon: 'mdi-contacts',
-        text: 'Contacts',
-        to: ''
+        class: '',
+        to: {
+          name: 'administrator_organizations_list'
+        }
+      },
+      {
+        class: '',
+        to: {
+          name: 'administrator_groups_list'
+        }
+      },
+      {
+        class: '',
+        to: {
+          name: 'administrator_users_list'
+        }
+      },
+      {
+        class: 'mr-4',
+        to: {
+          name: 'administrator_projects_list'
+        }
       }
     ]
   }),

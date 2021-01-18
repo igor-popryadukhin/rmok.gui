@@ -373,6 +373,7 @@ import Projects, { ProjectInterface, ProjectResponseItemsInterface } from '@/api
 import { MainSearchMethod } from '@/Interfaces'
 import vuescroll from 'vuescroll/dist/vuescroll-native'
 import { UserInterface } from '@/api/Users'
+import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
@@ -798,7 +799,10 @@ export default Vue.extend({
 
     onCall (target: string, contactId: number) {
       /* eslint-disable */
-      this.$jsSIP.call(target, { contact_id: contactId, target })
+      this.$jsSIP.call<JSSIPPayloadInterface>(target, {
+        contact_id: contactId,
+        target
+      })
       /* eslint-enable */
     },
 

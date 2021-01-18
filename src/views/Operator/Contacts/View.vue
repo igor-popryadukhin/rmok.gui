@@ -295,6 +295,7 @@ import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import vuescroll from 'vuescroll/dist/vuescroll-native'
 import '@/plugins/libphonenumber-js'
 import { MainSearchMethod } from '@/Interfaces'
+import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 
 interface TabInterface {
   name: string;
@@ -450,7 +451,10 @@ export default (Vue as VueConstructor<Vue & any>).extend({
 
     onCall (target: string, contactId: number) {
       /* eslint-disable */
-      this.$jsSIP.call(target, {contact_id: contactId, target})
+      this.$jsSIP.call<JSSIPPayloadInterface>(target, {
+        contact_id: contactId,
+        target
+      })
       /* eslint-enable */
     },
 

@@ -9,7 +9,7 @@
         height="35"
       >
         <v-tab>
-          Все
+          {{ $tc('All') }}
         </v-tab>
         <v-tab
           v-for="(group, groupIndex) in statuses"
@@ -137,7 +137,7 @@ export default Vue.extend({
     }
   },
 
-  created () {
+  mounted () {
     for (let i = 0; i < this.statuses.length; i++) {
       const status = this.statuses[i].items.find((e: any) => e.id === this.statusId)
       if (typeof status === 'object') {
@@ -155,6 +155,7 @@ export default Vue.extend({
           flat: true,
           text: this.$tc('Cancel'),
           color: 'red',
+          disabled: true,
           handle: () => {
             if (typeof this.onCancel === 'function') {
               this.onCancel()

@@ -3,6 +3,7 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from './Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
@@ -26,8 +27,8 @@ export default class Leads {
    *
    * @param query
    */
-  public get (query: LeadSearchQueryInterface | null = { q: '', offset: 0, count: 100 }): Promise<LeadResponseInterface> {
-    return new Promise<LeadResponseInterface>((resolve, reject) => {
+  public get<MT, DT>(query: LeadSearchQueryInterface | null = { q: '', offset: 0, count: 100 }) {
+    return new Promise<ResponseInterface<MT, DT>>((resolve, reject) => {
       $axios.get('/leads', {
         params: { ...query }
       }).then((response: AxiosResponse) => {

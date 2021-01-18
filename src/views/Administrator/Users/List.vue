@@ -62,9 +62,9 @@
               </template>
               <template slot="item" slot-scope="{ item }">
                 <tr class="v-datatable-item">
-                  <td class="text-no-wrap">{{ item.first_name || $tc('No first name') }}</td>
-                  <td class="text-no-wrap">{{ item.last_name || $tc('No last name') }}</td>
-                  <td class="text-no-wrap">{{ item.middle_name || $tc('No middle name') }}</td>
+                  <td class="text-no-wrap">{{ item.first_name || $tc('—') }}</td>
+                  <td class="text-no-wrap">{{ item.last_name || $tc('—') }}</td>
+                  <td class="text-no-wrap">{{ item.middle_name || $tc('—') }}</td>
                   <td class="text-no-wrap">{{ item.role ? item.role.name : '—' }}</td>
                   <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>
                   <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>

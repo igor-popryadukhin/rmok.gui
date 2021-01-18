@@ -15,6 +15,11 @@ const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call
 const audioElementForSound: HTMLAudioElement = makeAudioElement('audio-jssip-sound')
 
 export type EventHandler = (...args: any[]) => void
+export type EventHandlerConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => void
+export type EventHandlerProgress = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => void
+export type EventHandlerAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => void
+export type EventHandlerEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => void
+export type EventHandlerFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => void
 
 /**
  * Call direction
@@ -113,7 +118,7 @@ export class JsSIP {
     return this._state
   }
 
-  set onSessionConnecting (value: EventHandler) {
+  set onSessionConnecting (value: EventHandlerConnecting) {
     this._onSessionConnecting = value
   }
 
@@ -163,11 +168,11 @@ export class JsSIP {
   private _sessionEndTime: Date = new Date()
 
   private _state: string = JsSIPState.IDLE
-  private _onSessionConnecting?: EventHandler
-  private _onSessionProgress?: EventHandler
-  private _onSessionAccepted?: EventHandler
-  private _onSessionEnded?: EventHandler
-  private _onSessionFailed?: EventHandler
+  private _onSessionConnecting?: EventHandlerConnecting
+  private _onSessionProgress?: EventHandlerProgress
+  private _onSessionAccepted?: EventHandlerAccepted
+  private _onSessionEnded?: EventHandlerEnded
+  private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
     this._timer = new Timer()
@@ -188,7 +193,7 @@ export class JsSIP {
    * @param target
    * @param payload
    */
-  public call (target: string, payload: any = null): RTCSession {
+  public call<PLT> (target: string, payload: PLT): RTCSession {
     this._payload = payload
     if (!this.ua) {
       throw new Error('Initialization required')
@@ -252,7 +257,11 @@ export class JsSIP {
     return this
   }
 
-  public setPayload (payload: any) {
+  getPayload<T> (): T {
+    return this._payload
+  }
+
+  setPayload<T> (payload: T): void {
     this._payload = payload
   }
 
@@ -299,7 +308,7 @@ export class JsSIP {
         this._state = JsSIPState.PROGRESS
 
         if (session.direction === 'incoming') {
-          JsSIP.playSound('ringing.ogg', true)
+          JsSIP.playSound('ringing2.mp3', true)
         }
         this.doSessionProgress(session, event)
       })
@@ -358,7 +367,7 @@ export class JsSIP {
   private doSessionConnecting (session: RTCSession, event: ConnectingEvent) {
     if (typeof this._onSessionConnecting === 'function') {
       try {
-        this._onSessionConnecting(session, event, this._payload)
+        this._onSessionConnecting(this, session, event)
       } catch (e) {
         console.error(e)
       }
@@ -368,7 +377,7 @@ export class JsSIP {
   private doSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     if (typeof this._onSessionAccepted === 'function') {
       try {
-        this._onSessionAccepted(session, event, this._payload)
+        this._onSessionAccepted(this, session, event)
       } catch (e) {
         console.error(e)
       }
@@ -378,7 +387,7 @@ export class JsSIP {
   private doSessionEnded (session: RTCSession, event: EndEvent) {
     if (typeof this._onSessionEnded === 'function') {
       try {
-        this._onSessionEnded(session, event, this._payload)
+        this._onSessionEnded(this, session, event)
       } catch (e) {
         console.error(e)
       }
@@ -388,7 +397,7 @@ export class JsSIP {
   private doSessionFailed (session: RTCSession, event: EndEvent) {
     if (typeof this._onSessionFailed === 'function') {
       try {
-        this._onSessionFailed(session, event, this._payload)
+        this._onSessionFailed(this, session, event)
       } catch (e) {
         console.error(e)
       }
@@ -398,7 +407,7 @@ export class JsSIP {
   private doSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     if (typeof this._onSessionProgress === 'function') {
       try {
-        this._onSessionProgress(session, event, this._payload)
+        this._onSessionProgress(this, session, event)
       } catch (e) {
         console.error(e)
       }

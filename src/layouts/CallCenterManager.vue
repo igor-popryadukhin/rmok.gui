@@ -29,62 +29,53 @@
         dense
       ></v-text-field>
 
-      <!-- Contacts -->
-      <v-btn
-        class="mr-1"
-        :to="{ name: 'call_center_manager_contacts' }"
-        text
-      >
-        {{ $tc('route.call_center_manager_contacts') }}
-      </v-btn>
-
-      <!-- Users -->
-      <v-btn
-        class="mr-1"
-        :to="{ name: 'call_center_manager_users' }"
-        text
-      >
-        {{ $tc('route.call_center_manager_users') }}
-      </v-btn>
-
-      <!-- groups -->
-      <v-btn
-        class="mr-1"
-        :to="{ name: 'call_center_manager_groups' }"
-        text
-      >
-        {{ $tc('route.call_center_manager_groups') }}
-      </v-btn>
-
-      <!-- Menu reports -->
-      <v-menu offset-y>
-        <template v-slot:activator="{ on, attrs }">
+      <v-toolbar-items style="height: 40px">
+        <template
+          v-for="item in mainMenu"
+        >
+          <v-menu
+            v-if="item.menu"
+            :key="item"
+            offset-y
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                class="mr-3"
+                :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
+                v-on="on"
+                v-bind="attrs"
+                text
+              >
+                {{ $tc('Statistic') }}
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="(item, index) in menuReports"
+                :key="index"
+                :to="item.to"
+              >
+                <v-list-item-icon v-if="item.icon">
+                  <v-icon>{{ item.icon }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>{{ $t(item.title) }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ $t(item.subtitle) }}</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-menu>
           <v-btn
-            class="mr-3"
-            :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
-            v-on="on"
-            v-bind="attrs"
+            v-else
+            :key="item"
+            :class="item.class || ''"
+            :to="item.to"
             text
           >
-            {{ $tc('Statistic') }}
+            {{ $tc('route.' + item.to.name) }}
           </v-btn>
         </template>
-        <v-list>
-          <v-list-item
-            v-for="(item, index) in menuReports"
-            :key="index"
-            :to="item.to"
-          >
-            <v-list-item-icon v-if="item.icon">
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ $t(item.title) }}</v-list-item-title>
-              <v-list-item-subtitle>{{ $t(item.subtitle) }}</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      </v-toolbar-items>
 
       <!-- Avatar -->
       <v-menu offset-y>
@@ -202,27 +193,38 @@ export default Vue.extend({
         }
       }
     ],
-    menuReports: [
+    mainMenu: [
       {
-        title: 'route.call_center_manager_reports_recent_calls',
-        subtitle: '',
+        class: '',
         to: {
-          name: 'call_center_manager_reports_recent_calls'
+          name: 'call_center_manager_contacts'
         }
       },
       {
-        title: 'route.call_center_manager_reports_all_calls',
-        subtitle: '',
+        class: '',
         to: {
-          name: 'call_center_manager_reports_all_calls'
+          name: 'call_center_manager_users'
         }
-      }
-    ],
-    mainMenu: [
+      },
       {
-        icon: 'mdi-contacts',
-        text: 'Contacts',
-        to: ''
+        class: '',
+        to: {
+          name: 'call_center_manager_groups'
+        },
+        menu: [
+          {
+            class: '',
+            to: {
+              name: 'call_center_manager_reports_recent_calls'
+            }
+          },
+          {
+            class: '',
+            to: {
+              name: 'call_center_manager_reports_all_calls'
+            }
+          }
+        ]
       }
     ]
   }),
