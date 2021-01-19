@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve --host 0.0.0.0 --port 3000",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "testcafe chrome:headless tests/**/*"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.7.0",
@@ -55,6 +56,7 @@
     "node-sass": "^5.0.0",
     "sass": "^1.29.0",
     "sass-loader": "^10.1.0",
+    "testcafe": "*",
     "typescript": "^4.0.5",
     "vue-cli-plugin-axios": "^0.0.4",
     "vue-cli-plugin-vuetify": "^2.0.7",

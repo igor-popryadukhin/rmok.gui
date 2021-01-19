@@ -1,5 +1,14 @@
 stages:
+  - test
   - build
+
+e2e_tests:
+  stage: test
+  image: circleci/node
+  before_script:
+    - npm install
+  script:
+    - npm test
 
 # Build a project for production testing
 build-dev:
