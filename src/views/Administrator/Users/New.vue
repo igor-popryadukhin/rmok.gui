@@ -57,7 +57,7 @@
             :label="$tc('middle_name')"
             persistent-hint
             required
-            :rules="[rules.notBlank]"
+            :rules="[]"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -219,7 +219,7 @@
             v-model="user.organization"
             :label="$tc('organization')"
             visible-icon
-            :rules="[rules.notBlank]"
+            :rules="[]"
           />
         </v-col>
       </v-row>
@@ -491,7 +491,7 @@ export default Vue.extend({
         return
       }
 
-      const postData = {
+      const postData: any = {
         first_name: this.user.first_name.trim(),
         last_name: this.user.last_name.trim(),
         middle_name: this.user.middle_name.trim(),
@@ -502,6 +502,10 @@ export default Vue.extend({
         role: this.user.role?.id,
         organization_id: this.organizationSelected.id,
         group_id: this.user.group?.id
+      }
+
+      if (this.organizationSelected) {
+        postData.organization_id = this.organizationSelected.id
       }
 
       if (this.user.pbxConfig.login && this.user.pbxConfig.password && this.user.pbxConfig.server && this.user.pbxConfig.port) {

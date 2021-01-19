@@ -14,7 +14,7 @@
           :label="$tc('organization_name')"
           persistent-hint
           required
-          :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
+          :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответствует').regex]"
         >
           <template v-slot:prepend>
             <v-avatar
@@ -336,56 +336,6 @@ export default Vue.extend({
 
   methods: {
 
-    /**
-     * Fired when an clicked on the add email button
-     */
-    onAddEmailClick () {
-      if (!this.organization.emails) {
-        this.organization.emails = []
-      }
-      this.organization.emails.push({
-        value: '',
-        label: ''
-      } as OrganizationEmailInterface)
-    },
-
-    /**
-     * Fired when an clicked on the delete email button
-     * @param index
-     */
-    onDeleteEmailClick (index: number) {
-      if (this.organization.emails) {
-        this.organization.emails.splice(index, 1)
-      }
-    },
-
-    /**
-     * Fired when an clicked on the add phone number button
-     */
-    onAddPhoneClick () {
-      /* eslint-disable */
-      if (!this.organization.phones) {
-        this.organization.phones = []
-      }
-      this.organization.phones.push({
-        id: 0,
-        country_code: '',
-        country_calling_code: '',
-        value: '',
-        label: ''
-      } as OrganizationPhoneInterface)
-    },
-
-    /**
-     * Fired when an clicked on the delete phone number button
-     * @param index
-     */
-    onDeletePhoneClick (index: number) {
-      if (this.organization.phones) {
-        this.organization.phones.splice(index, 1)
-      }
-    },
-
     resetForm () {
       /* eslint-disable */
       (this.$refs.form as Vue & { reset: () => boolean }).reset()
@@ -399,9 +349,12 @@ export default Vue.extend({
       }
 
       const postData = {
-        name: this.organizationName.trim(),
-        responsible: this.organizationResponsible // Идентификатор ответственного
+        name: this.organizationName.trim()
       } as any
+
+      if (this.organizationResponsible) {
+        postData.phone = this.organizationResponsible.id
+      }
 
       if (this.organizationPhone) {
         postData.phone = this.organizationPhone
