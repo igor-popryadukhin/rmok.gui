@@ -83,16 +83,16 @@
             </template>
             <v-list>
               <v-list-item
-                  v-for="(item, index) in item.menu"
-                  :key="`${mainMenuIndex}-${index}`"
-                  :to="item.to"
+                  v-for="(itemMenu, itemMenuIndex) in item.menu"
+                  :key="`${mainMenuIndex}-${itemMenuIndex}`"
+                  :to="itemMenu.to"
               >
-                <v-list-item-icon v-if="item.icon">
-                  <v-icon>{{ item.icon }}</v-icon>
+                <v-list-item-icon v-if="itemMenu.icon">
+                  <v-icon>{{ itemMenu.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t(item.title) }}</v-list-item-title>
-                  <v-list-item-subtitle v-if="item.subtitle">{{ $t(item.subtitle) }}</v-list-item-subtitle>
+                  <v-list-item-title>{{ $t(itemMenu.title) }}</v-list-item-title>
+                  <v-list-item-subtitle v-if="itemMenu.subtitle">{{ $t(item.subtitle) }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -101,6 +101,7 @@
               v-else
               :key="mainMenuIndex"
               :class="item.class || ''"
+              :disabled="item.disabled"
               :to="item.to"
               text
           >
@@ -306,7 +307,6 @@ import { Configurations } from '@/api/Configurations'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
 import { Contacts } from '@/api/Contacts'
-import VStatusEditDialog, { StatusInterface } from '@/components/VStatusEditDialog/VStatusEditDialog.vue'
 import { ConnectedEvent, IncomingRTCSessionEvent, OutgoingRTCSessionEvent, UnRegisteredEvent } from 'jssip/lib/UA'
 import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
 import VToast from '@/components/VToast/VToast.vue'
@@ -314,27 +314,9 @@ import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSessi
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { POSITION } from 'vue-toastification'
 import { JsSIP } from '@/jsSIP/plugin'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
-import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 
 import callMachine from '@/xState/machines/callMachine'
 import { interpret } from 'xstate'
-
-interface HistoryDataInterface {
-  /* eslint-disable */
-  session_start_time: number;
-  session_end_time: number;
-  start_timestamp?: number;
-  end_timestamp?: number;
-  type: string;
-  direction?: string;
-  initiator?: string;
-  target?: string;
-  originator?: string;
-  cause?: string;
-  audio_record_id?: string;
-  /* eslint-enable */
-}
 
 interface PropsInterface {
   source: string;
@@ -369,9 +351,9 @@ interface MethodsInterface {
   onJsSIPRegistrationFailed: (event: any) => void;
   onJsSIPSipEvent: (event: any) => void;
   onJsSIPNewMessage: (event: any) => void;
-  showRTCToast: (displayName: string, phoneNumber: string, id: string | number) => void;
+  showRTCToast: (id: number | string, data: any) => void;
+  updateRTCToast: (id: number | string, data: any) => void;
   newRTCSession: (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => void;
-  updateRTCToast: (toastId: string | number, displayName: string, phoneNumber: string) => void;
   onAnswer: () => void;
   onHangup: () => void;
   addHistory: <T>(contactId: number, historyData: any) => Promise<T>;
@@ -435,9 +417,9 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       mainMenu: [
         { class: '', to: { name: 'operator_leads' } },
         { class: '', to: { name: 'operator_contacts_list' } },
-        { class: '', to: { name: 'operator_calls' } },
-        { class: '', to: { name: 'operator_reports' } },
-        { class: '', to: { name: 'operator_help' } }
+        { class: '', disabled: true, to: { name: 'operator_calls' } },
+        { class: '', disabled: true, to: { name: 'operator_reports' } },
+        { class: '', disabled: true, to: { name: 'operator_help' } }
       ],
       notifications: [] as NotificationInterface[],
       projects: [],
@@ -520,6 +502,9 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
   },
 
   mounted () {
+    this.$root.$on('show-rtc-toast', this.showRTCToast)
+    this.$root.$on('update-rtc-toast', this.updateRTCToast)
+
     this.$root.$on('root-update-notifications', this.onRootNewTasks)
 
     // Инициализация телефонии
@@ -555,6 +540,8 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
   },
 
   beforeDestroy () {
+    this.$root.$off('show-rtc-toast', this.showRTCToast)
+    this.$root.$off('update-rtc-toast', this.updateRTCToast)
     this.$root.$off('root-update-notifications', this.onRootNewTasks)
     this.$root.$off('root-loading-projects', this.onRootLoadingProjects)
     this.$root.$off('root-jssip-initialize', this.jsSIPInitialize)
@@ -702,283 +689,92 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       if (this.$isDebug) {
         console.log('%c%s', 'color: green;', 'JsSIP: Инициализация...')
       }
-      const libphonenumberInitialize = () => import(/* webpackChunkName: "libphonenumber-js-plugin" */ '@/plugins/libphonenumber-js')
-      const jssipInitialize = () => import(/* webpackChunkName: "jssip-plugin" */ '@/jsSIP')
-        .then(() => {
-          if (this.$jsSIP.isConnected) {
-            this.$jsSIP.stop()
-          }
-          new Configurations()
-            .getATEConfigurations()
-            .then((config: PBXInterface) => {
-              /* eslint-disable */
-                  this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
-                    uri: `sip:${config.login}@${config.server}`,
-                    password: config.password,
-                    realm: config.server
-                  }).on('connected', this.onJsSIPConnected)
-                      .on('disconnected', this.onJsSIPDisconnected)
-                      .on('registered', this.onJsSIPRegistered)
-                      .on('registrationFailed', this.onJsSIPRegistrationFailed)
-                      .on('sipEvent', this.onJsSIPSipEvent)
-                      .on('newMessage', this.onJsSIPNewMessage)
-                      .on('newRTCSession', this.newRTCSession)
 
-                  // Event Disconnected can happen later than Connected
-                  setTimeout(() => {
-                    this.$jsSIP.start()
-                  }, 1000)
-                  /* eslint-enable */
-            })
+      if (this.$jsSIP.isConnected) {
+        this.$jsSIP.stop()
+      }
+      new Configurations()
+        .getATEConfigurations()
+        .then((config: PBXInterface) => {
+          /* eslint-disable */
+            this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
+              uri: `sip:${config.login}@${config.server}`,
+              password: config.password,
+              realm: config.server
+            }).on('connected', this.onJsSIPConnected)
+                .on('disconnected', this.onJsSIPDisconnected)
+                .on('registered', this.onJsSIPRegistered)
+                .on('registrationFailed', this.onJsSIPRegistrationFailed)
+                .on('sipEvent', this.onJsSIPSipEvent)
+                .on('newMessage', this.onJsSIPNewMessage)
+                .on('newRTCSession', this.newRTCSession)
 
-          // Глобальные обработчики
-          this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
-            // Слушатель событий в рамках одной сессии
-            session.on('failed', (event: EndEvent) => {
-              this.$toast.error(event.cause)
-            })
-
-            this.callMachineService.send({
-              type: 'CONNECTION',
-              jssip: self,
-              session,
-              event
-            })
-
-            if (this.$isDebug) {
-              console.group('JsSIP: Начало сессии')
-              console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.log(event)
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.groupEnd()
-            }
-          }
-
-          this.$jsSIP.onSessionProgress = async (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-            /* eslint-disable */
-            // Определяю номер телефона
-            let target: string = ''
-            if (session.direction === 'incoming') {
-              target = session.remote_identity.display_name
-            } else {
-              target = self.target
-            }
-
-            this.callMachineService.send({
-              type: 'PROGRESS',
-              jssip: self,
-              session,
-              event
-            })
-
-            if (this.$isDebug) {
-              console.group('JsSIP: В процессе звонка...')
-              console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-              console.log('%c%s', 'color: #ef00ff;', `Номер телефона: ${target}`)
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.log(event)
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.groupEnd()
-            }
-
-
-            if (session.direction === 'incoming') {
-              // Достаю номер телефона из базы данных если есть
-
-              self.setPayload<JSSIPPayloadInterface>({
-                contact_id: 0,
-                target
-              })
-
-              new Contacts()
-                  .getByPhoneNumber<ContactInterface>(target)
-                  .then((response) => {
-                    let displayPoneNumber: string = '...'
-                    if (this.$libPhoneNumberJs.parsePhoneNumber(target)?.isValid) {
-                      const pn = this.$libPhoneNumberJs.parsePhoneNumber(target)
-                      displayPoneNumber = String(pn?.formatNational()) // Форматирую номер телефона
-                    }
-
-                    // Мы обязаны положить значение в полезную нагрузку, что бы потом воспользоваться далее по жизненному циклу
-                    // Реальные данные
-                    self.setPayload<JSSIPPayloadInterface>({
-                      contact_id: response.id,
-                      target
-                    })
-
-                    // Обновляю диалоговое окно
-                    this.updateRTCToast(session.id, `${response.first_name} ${response.last_name}`, displayPoneNumber)
-                  })
-
-              let displayPoneNumber: string = target
-              if (this.$libPhoneNumberJs.parsePhoneNumber(target)?.isValid) {
-                const pn = this.$libPhoneNumberJs.parsePhoneNumber(target)
-                displayPoneNumber = String(pn?.formatNational()) // Форматирую номер телефона
-              }
-
-              // Вскрываю диалоговое окно
-              this.showRTCToast(displayPoneNumber, displayPoneNumber, session.id)
-            }
+            // Event Disconnected can happen later than Connected
+            setTimeout(() => {
+              this.$jsSIP.start()
+            }, 1000)
             /* eslint-enable */
-          }
-
-          // Звонок приняли
-          this.$jsSIP.onSessionAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-            this.callMachineService.send({
-              type: 'ACCEPTED',
-              jssip: self,
-              session,
-              event
-            })
-
-            if (this.$isDebug) {
-              console.group('JsSIP: Принятый')
-              console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.log(event)
-              console.log(session)
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.groupEnd()
-            }
-          }
-
-          this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-            /* eslint-disable */
-            let audioRecordId
-            if (session.direction === 'incoming') {
-              audioRecordId = session._request.headers['X-Call-Filename'][0]['raw']
-            } else {
-              audioRecordId = this.$jsSIP.uuid
-            }
-
-            this.callMachineService.send({
-              type: 'ENDED',
-              jssip: self,
-              session,
-              event
-            })
-
-            this.callMachineService.send({
-              type: session.direction,
-              jssip: self,
-              session,
-              event
-            })
-
-            this.callMachineService.send({
-              type: event.cause,
-              jssip: self,
-              session,
-              event
-            })
-
-            if (this.$isDebug) {
-              console.group('JsSIP: Завершение сессии')
-              console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.log(`X-Call-Filename: ${audioRecordId}`)
-              console.log(event)
-              console.log(session.direction)
-              console.log(session)
-              console.log(self.getPayload())
-              console.log('%c%s', 'color: green;', '----------------------------------------------------')
-              console.groupEnd()
-            }
-
-            if (session.direction === 'incoming') {
-              this.$toast.dismiss(session.id)
-            }
-
-            let historyData = {
-              session_start_time: this.$jsSIP.sessionStartTime.getTime() / 1000,
-              session_end_time: this.$jsSIP.sessionEndTime.getTime() / 1000,
-              start_timestamp: session.start_time ? session.start_time.getTime() / 1000 : null,
-              end_timestamp: session.end_time ? session.end_time.getTime() / 1000 : null,
-              type: 'call',
-              direction: session.direction,
-              originator: event.originator,
-              cause: event.cause,
-              audio_record_id: audioRecordId
-            } as HistoryDataInterface
-
-            // Если АТС не вернула время звонка, удаляем ненужные данные из запроса
-            if (historyData.start_timestamp == null) {
-              delete historyData.start_timestamp  // Время начала разговора не требуется, так как разговор не состоялся.
-              delete historyData.end_timestamp    // Время завершения разговора не требуется, так как разговор не состоялся.
-              delete historyData.audio_record_id  // ID аудиозаписи не требуется, так как разговор не состоялся.
-            }
-
-            if (event.cause === 'Canceled') {
-              historyData.direction = session.direction + '_canceled'
-            }
-
-            let contactId = 0;
-
-            // Внимание!!!
-            // Прежде чем получать значение полезной нагрузки, убедитесь что вы её туда положили
-            contactId = self.getPayload<JSSIPPayloadInterface>().contact_id
-            historyData.target = self.getPayload<JSSIPPayloadInterface>().target
-
-            // if (session.direction === 'incoming' && event.cause === 'Canceled' && event.originator === 'remote') {
-            //   // Входящий, Отменён удалённой стороной
-            //   this.$toast.info('Входящий, Отменён удалённой стороной', { timeout: false })
-            //   // Сохраняем историю пропущенного звонка
-            //   this.addHistory(contactId, historyData)
-            // } else if (session.direction === 'incoming' && event.cause === 'Rejected' && event.originator === 'local') {
-            //   // Входящий, Отменён нашей стороной
-            //   this.addHistory(contactId, historyData)
-            // } else if (session.direction === 'incoming' && event.cause === 'Rejected' && event.originator === 'local') {
-            //   // Входящий, Отменён нашей стороной
-            //   this.addHistory(contactId, historyData)
-            // } else if (session.direction === 'outgoing' && event.cause === 'Canceled' && event.originator === 'local') {
-            //   // Исходящий, Отменён нашей стороной
-            //   this.addHistory(contactId, historyData)
-            // } else if (session.direction === 'outgoing' && event.cause === 'Canceled' && event.originator === 'remote') {
-            //   this.$toast.info('Исходящий, Отменён удалённой стороной', { timeout: false })
-            // } else {
-            //
-            // }
-            this.addHistory<number>(contactId, historyData)
-                .then((historyId: number) => {
-                  if (this.$store.getters['project/statuses'].length > 0) {
-                    // Диалог статуса звонка
-                    this.$dialog.show(VStatusEditDialog, {
-                      waitForResult: true,
-                      statuses: this.$store.getters['project/statuses'], // Статусы в текущем проекте
-                      width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '60%',
-                      height: '600',
-                      onSave: (data: StatusInterface) => {
-                        new Contacts()
-                            .updateHistory(historyId, {
-                              status_id: data.status.id,
-                              comment: data.comment
-                            }).finally(() => {
-                          this.$root.$emit('root-contact-history-change')
-                        })
-                      }
-                    })
-                  } else {
-                    this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
-                  }
-                })
-
-            // Добавление данных в историю.
-            /* eslint-enable */
-          }
-
-          this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-            this.callMachineService.send({
-              type: 'FAILED',
-              jssip: self,
-              session,
-              event
-            })
-          }
         })
 
-      jssipInitialize()
-      libphonenumberInitialize()
+      // Глобальные обработчики
+      this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
+        this.callMachineService.send({
+          type: 'CONNECTION',
+          jssip: self,
+          session,
+          event
+        })
+      }
+
+      this.$jsSIP.onSessionProgress = async (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
+        this.callMachineService.send({
+          type: 'PROGRESS',
+          jssip: self,
+          session,
+          event
+        })
+        /* eslint-enable */
+      }
+
+      // Звонок приняли
+      this.$jsSIP.onSessionAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
+        this.callMachineService.send({
+          type: 'ACCEPTED',
+          jssip: self,
+          session,
+          event
+        })
+
+        if (this.$isDebug) {
+          console.group('JsSIP: Принятый')
+          console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
+          console.log('%c%s', 'color: green;', '----------------------------------------------------')
+          console.log(event)
+          console.log(session)
+          console.log('%c%s', 'color: green;', '----------------------------------------------------')
+          console.groupEnd()
+        }
+      }
+
+      this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
+        this.callMachineService.send({
+          type: 'ENDED',
+          jssip: self,
+          session,
+          event
+        })
+
+        /* eslint-enable */
+      }
+
+      this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
+        this.callMachineService.send({
+          type: 'FAILED',
+          jssip: self,
+          session,
+          event
+        })
+      }
     },
 
     onJsSIPConnected (event: ConnectedEvent) {
@@ -1062,13 +858,13 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       }
     },
 
-    showRTCToast (displayName: string, phoneNumber: string, id: string | number) {
+    showRTCToast ({ id, data }) {
       this.RTCToastOptions.id = id
       this.toastId = this.$toast({
         component: IncomingRTCSession,
         props: {
-          displayName,
-          phoneNumber
+          displayName: data.displayName,
+          phoneNumber: data.displayName
         },
         listeners: {
           answer: this.onAnswer,
@@ -1077,13 +873,13 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       }, this.RTCToastOptions)
     },
 
-    updateRTCToast (toastId: string | number, displayName: string, phoneNumber: string) {
-      this.$toast.update(toastId, {
+    updateRTCToast ({ id, data }) {
+      this.$toast.update(id, {
         content: {
           component: IncomingRTCSession,
           props: {
-            displayName,
-            phoneNumber
+            displayName: data.displayName,
+            phoneNumber: data.phoneNumber
           },
           listeners: {
             answer: this.onAnswer,
@@ -1145,7 +941,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
 
 <style lang="scss">
 .background--header {
-  background-image: linear-gradient(to bottom, #1b4685, #3d4899, #6446a9, #8d3eb1, #b729b1);
+  background-image: linear-gradient(to bottom, #2967d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
 }
 
 .scroll-area {

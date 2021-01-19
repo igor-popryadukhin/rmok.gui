@@ -1,7 +1,8 @@
 <template>
-    <v-form>
-      <v-container>
-
+  <v-form
+    class="pa-2 overflow-y-auto overflow-x-hidden"
+    :style="{height: `${$screenHeight - 130}px`}"
+  >
       <!-- Name -->
         <v-row>
           <v-col
@@ -9,7 +10,7 @@
             lg="6"
             md="12"
           >
-            <div class="text-h6">Профиль</div>
+        <div class="text-h6 grey--text">{{ $tc('Profile') }}</div>
           </v-col>
         </v-row>
         <v-row>
@@ -62,7 +63,7 @@
             lg="6"
             md="12"
           >
-            <div class="text-h6">Контакты</div>
+        <div class="text-h6 grey--text">{{ $tc('Contacts')  }}</div>
           </v-col>
         </v-row>
         <v-row>
@@ -110,6 +111,56 @@
           </v-col>
         </v-row>
 
+    <!-- Organization -->
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <div class="text-h6 grey--text">{{ $tc('Organization') }}</div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          :value="profile.organization ? profile.organization.name : '—'"
+          :label="$tc('Name')"
+          readonly
+        ></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          :value="profile.organization ? profile.organization.city : '—'"
+          :label="$tc('City')"
+          readonly
+        ></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          :value="profile.organization ? profile.organization.address : '—'"
+          :label="$tc('Address')"
+          readonly
+        ></v-text-field>
+      </v-col>
+    </v-row>
+
       <v-row>
         <v-col
           cols="12"
@@ -122,7 +173,6 @@
           >{{ $tc('Save') }}</v-btn>
         </v-col>
       </v-row>
-      </v-container>
     </v-form>
 </template>
 
@@ -144,7 +194,8 @@ export default Vue.extend({
         login: '',
         middle_name: '',
         role: undefined,
-        userpic: null
+        userpic: null,
+        organization: null
       } as ProfileInterface
     }
   },
@@ -157,6 +208,7 @@ export default Vue.extend({
     this.profile.first_name = this.$store.getters['profile/first_name']
     this.profile.last_name = this.$store.getters['profile/last_name']
     this.profile.middle_name = this.$store.getters['profile/middle_name']
+    this.profile.organization = this.$store.getters['profile/organization']
   },
 
   methods: {

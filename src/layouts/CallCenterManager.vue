@@ -51,16 +51,16 @@
             </template>
             <v-list>
               <v-list-item
-                v-for="(item, index) in menuReports"
-                :key="index"
-                :to="item.to"
+                v-for="(itemMenu, itemMenuIndex) in item.menu"
+                :key="itemMenuIndex"
+                :to="itemMenu.to"
               >
                 <v-list-item-icon v-if="item.icon">
-                  <v-icon>{{ item.icon }}</v-icon>
+                  <v-icon>{{ itemMenu.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t(item.title) }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ $t(item.subtitle) }}</v-list-item-subtitle>
+                  <v-list-item-title>{{ $tc(`route.${itemMenu.title}`) }}</v-list-item-title>
+                  <v-list-item-subtitle v-if="itemMenu.subtitle">{{ $t(itemMenu.subtitle) }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -137,9 +137,7 @@
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
         fluid
       >
-        <vuescroll :ops="vueScrollOptions" :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
-          <router-view/>
-        </vuescroll>
+        <router-view/>
       </v-container>
     </v-main>
   </v-app>
@@ -148,16 +146,11 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import vuescroll from 'vuescroll/dist/vuescroll-native'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 export default Vue.extend({
   props: {
     source: String
-  },
-
-  components: {
-    vuescroll
   },
 
   mixins: [breadcrumbs, vueScrollOptions],
@@ -214,12 +207,14 @@ export default Vue.extend({
         menu: [
           {
             class: '',
+            title: 'call_center_manager_reports_recent_calls',
             to: {
               name: 'call_center_manager_reports_recent_calls'
             }
           },
           {
             class: '',
+            title: 'call_center_manager_reports_all_calls',
             to: {
               name: 'call_center_manager_reports_all_calls'
             }
@@ -246,7 +241,7 @@ export default Vue.extend({
 
 <style lang="scss">
   .background--header {
-    background-image: linear-gradient(to bottom, #1b4685, #3d4899, #6446a9, #8d3eb1, #b729b1);
+    background-image: linear-gradient(to bottom, #2967d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
   }
   .scroll-area {
     position: relative;

@@ -207,6 +207,7 @@ export default Vue.extend({
     this.profile.phone = this.$store.getters['profile/phone']
     this.profile.first_name = this.$store.getters['profile/first_name']
     this.profile.last_name = this.$store.getters['profile/last_name']
+    this.profile.middle_name = this.$store.getters['profile/middle_name']
     this.profile.organization = this.$store.getters['profile/organization']
   },
 

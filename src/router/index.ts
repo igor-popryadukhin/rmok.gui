@@ -178,6 +178,16 @@ const routes: RouteConfig[] = [
           },
           {
             path: ':contact_id',
+            name: 'operator_contacts_edit',
+            component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Edit.vue'),
+            meta: { layout: 'operator-layout', middleware: [] },
+            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+              next()
+              store.dispatch('system/country_codes')
+            }
+          },
+          {
+            path: ':contact_id',
             name: 'operator_contacts_view',
             component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
             children: [
@@ -273,7 +283,7 @@ const routes: RouteConfig[] = [
             name: 'operator_settings_telephony',
             component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Telephony.vue'),
             meta: {
-              icon: 'mdi-security',
+              icon: 'mdi-webrtc',
               layout: 'operator-layout',
               middleware: []
             }
@@ -283,7 +293,7 @@ const routes: RouteConfig[] = [
             name: 'operator_settings_headset_configure',
             component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
             meta: {
-              icon: 'mdi-security',
+              icon: 'mdi-headset',
               layout: 'operator-layout',
               middleware: []
             }
@@ -639,7 +649,7 @@ const routes: RouteConfig[] = [
             name: 'call_center_manager_contacts',
             component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/List.vue'),
             meta: {
-              // anonymous: true,
+              anonymous: true,
               layout: 'call-center-manager',
               middleware: []
             }
@@ -691,7 +701,6 @@ const routes: RouteConfig[] = [
           }
         ],
         meta: {
-          anonymous: true,
           layout: 'call-center-manager',
           middleware: []
         },

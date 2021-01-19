@@ -53,12 +53,12 @@
                         <v-list-item-title
                           v-if="item.default_phone"
                           class="text-right"
-                        >{{ item.default_phone.value.international }}
+                        >{{ item.default_phone.international }}
                         </v-list-item-title>
                         <v-list-item-title
                           v-else-if="item.phones.length > 0"
                           class="text-right"
-                        >{{ item.phones[0].value.international }}
+                        >{{ item.phones[0].international }}
                         </v-list-item-title>
                       </v-list-item-content>
                     </v-list-item>
@@ -99,6 +99,7 @@
               :height="$screenHeight - 500"
               flat
               outlined
+              style="min-height: 400px !important;"
             >
               <v-card-title class="pl-0 pr-0">
                 <v-toolbar dense flat>
@@ -454,8 +455,8 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
       },
       set () {
         this.filter.dataRange.dates = []
+      }
     }
-  },
   },
 
   watch: {
@@ -752,9 +753,8 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
     }
 
     &-subtitle small {
-      font-size: 14px;
+      font-size: 12px;
       color: #848484;
-      margin-bottom: -5px;
     }
   }
 

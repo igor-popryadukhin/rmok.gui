@@ -23,10 +23,10 @@
             <template v-slot:prepend>
               <v-avatar
                 size="60"
-                class="mr-4"
-                style="background-color: #8d3eb1; color: white"
+                class="mr-4 primary white--text"
+                style="font-size: 20px"
               >
-                AV
+                {{ user.first_name.charAt(0) }}{{ user.last_name.charAt(0) }}
               </v-avatar>
             </template>
           </v-text-field>

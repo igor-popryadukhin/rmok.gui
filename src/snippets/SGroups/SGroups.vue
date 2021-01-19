@@ -15,6 +15,7 @@
     :dense="dense"
     :clearable="clearable"
     :outlined="outlined"
+    single-line
     disable-lookup
     return-object
     no-filter

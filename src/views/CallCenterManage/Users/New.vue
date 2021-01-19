@@ -26,8 +26,8 @@
               <template v-slot:prepend>
                 <v-avatar
                   size="60"
-                  class="mr-4"
-                  style="background-color: #8d3eb1; color: white"
+                  class="mr-4 primary white--text"
+                  style="font-size: 20px"
                 >
                   <v-btn icon large min-height="60" min-width="60">
                     <v-icon color="white">mdi-camera-outline</v-icon>

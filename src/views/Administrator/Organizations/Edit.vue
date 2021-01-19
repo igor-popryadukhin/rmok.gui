@@ -14,13 +14,13 @@
           :label="$tc('organization_name')"
           persistent-hint
           required
-          :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответвует').regex]"
+          :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответствует').regex]"
         >
           <template v-slot:prepend>
             <v-avatar
               size="60"
-              class="mr-4"
-              style="background-color: #8d3eb1; color: white"
+              class="mr-4 primary white--text"
+              style="font-size: 20px"
             >
               AV
             </v-avatar>

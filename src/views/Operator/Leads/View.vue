@@ -12,7 +12,7 @@
           class="pa-0"
           elevate-on-scroll
         >
-          <v-app-bar-nav-icon style="background-color: #8d3eb1; color: white">
+          <v-app-bar-nav-icon class="primary white--text" style="font-size: 20px">
             {{ avatar }}
           </v-app-bar-nav-icon>
           <v-toolbar-title>
@@ -22,7 +22,7 @@
         </v-app-bar>
         <v-row v-if="contact.default_phone">
           <v-col class="d-flex justify-space-between">
-            <div>{{ contact.default_phone.value.international }}</div>
+            <div>{{ contact.default_phone.international }}</div>
             <v-btn
               v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
               text
@@ -34,11 +34,11 @@
             </v-btn>
             <v-btn
               v-else
-              text
+              :disabled="!$jsSIP.isConnected || !$libPhoneNumberJs.validate(contact.default_phone.raw)"
               color="primary"
+              text
               outlined
-              :disabled="!$jsSIP.isConnected || !$libPhoneNumberJs.validate(contact.default_phone.value.e164)"
-              @click="onCall(contact.default_phone.value.e164, contact.id)"
+              @click="onCall(contact.default_phone.raw, contact.id)"
             >
               {{ $tc('Call') }}
             </v-btn>
@@ -50,9 +50,9 @@
               {{ $t('Loading content...') }}
             </div>
             <v-btn
+              :disabled="true"
               text
               outlined
-              :disabled="true"
             >
               {{ $tc('Call') }}
             </v-btn>
@@ -64,9 +64,9 @@
               Нет номера по умолчанию
             </div>
             <v-btn
-              text
-              outlined
               :disabled="true"
+              tile
+              text
             >
               {{ $tc('Call') }}
             </v-btn>
@@ -103,14 +103,14 @@
                   <v-icon v-if="phoneIndex === 0">mdi-phone</v-icon>
                 </v-list-item-avatar>
                 <v-item-group>
-                  <v-list-item-title>{{ phone.value.international }}</v-list-item-title>
+                  <v-list-item-title>{{ phone.international }}</v-list-item-title>
                   <v-list-item-subtitle>{{ phone.label }}</v-list-item-subtitle>
                 </v-item-group>
                 <v-spacer/>
                 <v-item-group
                 >
                   <template
-                    v-if="!['idle'].includes($jsSIP.state) && $jsSIP.target === phone.value.e164"
+                    v-if="!['idle'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
                   >
                     {{ $jsSIP.sessionStopwatch }}
                   </template>
@@ -146,7 +146,7 @@
                 </v-item-group>
                 <v-list-item-action>
                   <v-btn
-                    v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.value.e164"
+                    v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
                     :key="`phone-cancel-btn-${phoneIndex}`"
                     icon
                     @click="$jsSIP.cancel()"
@@ -157,8 +157,8 @@
                     v-else
                     icon
                     :key="`phone-call-btn-${phoneIndex}`"
-                    :disabled="!$jsSIP.isConnected || ['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.value.e164"
-                    @click="onCall(phone.value.e164, contact.id)"
+                    :disabled="!$jsSIP.isConnected || ['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.raw"
+                    @click="onCall(phone.raw, contact.id)"
                   >
                     <v-icon>mdi-phone</v-icon>
                   </v-btn>
@@ -535,7 +535,6 @@ export default Vue.extend({
 .session-stopwatch {
   font-family: monospace;
   font-size: 1.4rem;
-  color: #9C27B0;
 }
 
 .tab-container {

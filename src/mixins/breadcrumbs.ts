@@ -33,13 +33,17 @@ export default Vue.mixin(Vue.extend({
           crumb.path = crumb.path.replace(`:${param}`, this.$route.params[param])
         }
 
-        crumb.title = this.$i18n.tc('route.' + (item.name || item.path.replace(/^\//s, '').replace(/\//s, '')))
+        if (item.meta.route_breadcrumb_name) {
+          crumb.title = item.meta.route_breadcrumb_name
+        } else {
+          crumb.title = this.$i18n.tc('route.' + (item.name || item.path.replace(/\/|-/sg, '_')).replace(/^_/, ''))
+        }
+
         // is last item?
         if (i === length - 1) {
           crumb.class = 'is-active'
         }
 
-        crumb.title = crumb.title.replace(/[/]/, '')
         crumbs.push(crumb)
       })
       if (crumbs.length > 1) {

@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-0" fluid>
+  <v-container class="pa-0 pt-5" fluid>
     <v-row>
       <v-col class="pt-0 pb-0">
         <div class="d-flex">
@@ -225,7 +225,7 @@
           :loading="historyProcessLoading"
           locale="ru"
           :no-data-text="$tc('No data for the selected period')"
-          :height="$screenHeight - 389"
+          :height="dataTableHistoryHeight"
           @pagination="onPaginationChange"
           dense
           fixed-header
@@ -495,6 +495,13 @@ export default Vue.extend({
         labels: this.pieLabels,
         colors: this.pieColors
       }
+    },
+
+    dataTableHistoryHeight () {
+      if (this.$screenHeight < 900) {
+        return 500
+      }
+      return this.$screenHeight - 400
     }
   },
 

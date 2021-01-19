@@ -8,7 +8,7 @@
         cols="3"
         lg="3"
       >
-        <combo-box-country-calling-code
+        <phone-numbers-country-calling-code
           v-model="item.country_code"
           :key="`item-${item.country_code}`"
           :label="$tc('country_code')"
@@ -23,17 +23,16 @@
             <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-phone</v-icon>
             <v-spacer v-else class="pl-10 pr-10"></v-spacer>
           </template>
-        </combo-box-country-calling-code>
+        </phone-numbers-country-calling-code>
       </v-col>
       <v-col
         cols="3"
         lg="3"
       >
         <v-text-field
-          v-model="item.value"
-          :label="$tc('phone')"
-          :prefix="item.country_calling_code ? `+${item.country_calling_code}` : ''"
-          :rules="rulesNumber ? rulesNumber.concat([() => validate(item.value, item.country_code)]) : [() => validate(item.value, item.country_code)]"
+          v-model="item.raw"
+          :label="$tc('Phone number')"
+          :rules="rulesNumber ? rulesNumber.concat([() => validate(item.raw, item.country_code)]) : [() => validate(item.value, item.country_code)]"
         >
         </v-text-field>
       </v-col>
@@ -71,14 +70,14 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import ComboBoxCountryCallingCode from '@/components/Combobox/ComboBoxCountryCallingCode.vue'
+import PhoneNumbersCountryCallingCode from '@/snippets/SPhoneNumbers/PhoneNumbersCountryCallingCode.vue'
 import parsePhoneNumber from 'libphonenumber-js'
 import { CountryCode } from 'libphonenumber-js/types'
 
 export default Vue.extend({
   name: 'SPhoneNumbers',
   components: {
-    ComboBoxCountryCallingCode
+    PhoneNumbersCountryCallingCode
   },
   model: {
     prop: 'value',
@@ -140,14 +139,14 @@ export default Vue.extend({
       this.doAddPhoneNumber()
     },
 
-    doAddPhoneNumber (id = 0, countryCode = '', countryCallingCode = '', label = '', value = '') {
+    doAddPhoneNumber (id = 0, countryCode = '', countryCallingCode = '', label = '', raw = '') {
       this.phones.push({
         /* eslint-disable */
         id,
         country_code: countryCode,
         country_calling_code: countryCallingCode,
         label,
-        value
+        raw
         /* eslint-enable */
       })
     },

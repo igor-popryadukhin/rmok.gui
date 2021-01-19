@@ -106,7 +106,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { ATEConfigurationInterface, Configurations } from '@/api/Configurations'
+import { Configurations } from '@/api/Configurations'
+import PBXInterface from '@/api/Schemas/PBXInterface'
 
 export default Vue.extend({
   data () {
@@ -122,20 +123,21 @@ export default Vue.extend({
         server: '',
         port: 0
         /* eslint-enable */
-      } as ATEConfigurationInterface
+      } as PBXInterface
     }
   },
-  created () {
+
+  beforeRouteEnter (to, from, next) {
     new Configurations()
       .getATEConfigurations()
-      .then((config: ATEConfigurationInterface) => {
-        /* eslint-disable */
-        this.config.display_name = config.display_name || ''
-        this.config.server = config.server || ''
-        this.config.password = config.password || ''
-        this.config.login = config.login || ''
-        this.config.port = config.port || 8089
-        /* eslint-enable */
+      .then((config: PBXInterface) => {
+        next(vm => {
+          vm.config.display_name = config.display_name || ''
+          vm.config.server = config.server || ''
+          vm.config.password = config.password || ''
+          vm.config.login = config.login || ''
+          vm.config.port = config.port || 8089
+        })
       })
   },
 

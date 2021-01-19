@@ -22,7 +22,7 @@
         </v-app-bar>
         <v-row v-if="contact.default_phone">
           <v-col class="d-flex justify-space-between">
-            <div>{{ contact.default_phone.value.international }}</div>
+            <div>{{ contact.default_phone.international }}</div>
           </v-col>
         </v-row>
         <v-row v-else-if="dataLoading">
@@ -393,6 +393,5 @@ export default (Vue as VueConstructor<Vue & any>).extend({
 .session-stopwatch {
   font-family: monospace;
   font-size: 1.4rem;
-  color: #9C27B0;
 }
 </style>

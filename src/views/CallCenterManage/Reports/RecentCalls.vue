@@ -289,6 +289,7 @@
           locale="ru"
           :no-data-text="$tc('No data for the selected period')"
           @pagination="onHistoryPaginationChange"
+          height="600"
           dense
           fixed-header
           hide-default-footer
@@ -559,6 +560,13 @@ export default Vue.extend({
         labels: this.pieLabels,
         colors: this.pieColors
       }
+    },
+
+    dataTableHistoryHeight () {
+      if (this.$screenHeight < 900) {
+        return 500
+      }
+      return this.$screenHeight - 400
     }
   },
 

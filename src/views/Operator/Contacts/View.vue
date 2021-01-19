@@ -23,25 +23,6 @@
         <v-row v-if="contact.default_phone">
           <v-col class="d-flex justify-space-between">
             <div>{{ contact.default_phone.value.international }}</div>
-            <v-btn
-              v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
-              text
-              outlined
-              color="red"
-              @click="$jsSIP.cancel()"
-            >
-              {{ $tc('To complete') }}
-            </v-btn>
-            <v-btn
-              v-else
-              text
-              color="primary"
-              outlined
-              :disabled="!$jsSIP.isConnected || !$libPhoneNumberJs.validate(contact.default_phone.value.e164)"
-              @click="onCall(contact.default_phone.value.e164, contact.id)"
-            >
-              {{ $tc('Call') }}
-            </v-btn>
           </v-col>
         </v-row>
         <v-row v-else-if="dataLoading">
@@ -49,13 +30,6 @@
             <div>
               {{ $t('Loading content...') }}
             </div>
-            <v-btn
-              text
-              outlined
-              :disabled="true"
-            >
-              {{ $tc('Call') }}
-            </v-btn>
           </v-col>
         </v-row>
         <v-row v-else>
@@ -63,20 +37,9 @@
             <div>
               Нет номера по умолчанию
             </div>
-            <v-btn
-              text
-              outlined
-              :disabled="true"
-            >
-              {{ $tc('Call') }}
-            </v-btn>
           </v-col>
         </v-row>
-        <v-row>
-          <v-col class="session-stopwatch" style="min-height: 50px">
-            {{ $jsSIP.sessionStopwatch }}
-          </v-col>
-        </v-row>
+
         <v-divider/>
 
         <!-- Phones & Emails -->
@@ -107,14 +70,8 @@
                   <v-list-item-subtitle>{{ phone.label }}</v-list-item-subtitle>
                 </v-item-group>
                 <v-spacer/>
-                <v-item-group
-                >
-                  <template
-                    v-if="!['idle'].includes($jsSIP.state) && $jsSIP.target === phone.value.e164"
-                  >
-                    {{ $jsSIP.sessionStopwatch }}
-                  </template>
-                </v-item-group>
+
+                <!-- Select default -->
                 <v-item-group
                 >
                   <v-btn
@@ -144,25 +101,7 @@
                     <v-icon>mdi-star</v-icon>
                   </v-btn>
                 </v-item-group>
-                <v-list-item-action>
-                  <v-btn
-                    v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.value.e164"
-                    :key="`phone-cancel-btn-${phoneIndex}`"
-                    icon
-                    @click="$jsSIP.cancel()"
-                  >
-                    <v-icon color="red">mdi-phone-hangup</v-icon>
-                  </v-btn>
-                  <v-btn
-                    v-else
-                    icon
-                    :key="`phone-call-btn-${phoneIndex}`"
-                    :disabled="!$jsSIP.isConnected || ['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.value.e164"
-                    @click="onCall(phone.value.e164, contact.id)"
-                  >
-                    <v-icon>mdi-phone</v-icon>
-                  </v-btn>
-                </v-list-item-action>
+
               </v-list-item>
 
               <!-- Emails -->
@@ -227,56 +166,11 @@
                 <v-spacer/>
               </v-tab>
             </v-tabs>
-            <v-container class="pb-0" style="min-height: 300px">
-              <vuescroll :style="{ height: `${$screenHeight - 355}px` }" style="width: 99%" >
+            <v-container class="pb-0" style="min-height: 300px;">
+              <vuescroll :style="{ height: `${$screenHeight - 190}px` }" style="width: 99%" >
                 <router-view />
               </vuescroll>
             </v-container>
-          </v-col>
-        </v-row>
-
-        <!-- Comment -->
-        <v-row>
-          <v-col class="pa-0 pl-6">
-            <v-textarea
-              v-model="comment.text"
-              :disabled="comment.disabled"
-              rows="4"
-              outlined
-              :placeholder="$t('Comment')"
-              value=""
-              hide-details
-            >
-              <template v-slot:prepend-inner>
-                <v-icon>
-                  mdi-comment
-                </v-icon>
-              </template>
-              <template v-slot:append>
-                <v-btn
-                  icon
-                  text
-                  disabled
-                >
-                  <v-icon>
-                    mdi-microphone
-                  </v-icon>
-                </v-btn>
-              </template>
-            </v-textarea>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col class="pa-0 pt-3 text-right">
-            <v-btn
-              :disabled="comment.disabled || comment.text === ''"
-              :loading="comment.buttonSave.loading"
-              outlined
-              color="primary"
-              @click="onSaveComment"
-            >
-              {{ $t('Save') }}
-            </v-btn>
           </v-col>
         </v-row>
       </v-col>
@@ -321,27 +215,27 @@ export default (Vue as VueConstructor<Vue & any>).extend({
       tab: null,
       tabs: [
         {
-          name: 'contacts_script',
+          name: 'call_center_manager_contacts_view_script',
           icon: 'mdi-script-text',
           disabled: false,
           to: {
-            name: 'contacts_script'
+            name: 'call_center_manager_contacts_view_script'
           }
         },
         {
-          name: 'contacts_history',
+          name: 'call_center_manager_contacts_view_history',
           icon: 'mdi-history',
           disabled: false,
           to: {
-            name: 'contacts_history'
+            name: 'call_center_manager_contacts_view_history'
           }
         },
         {
-          name: 'contacts_task',
+          name: 'call_center_manager_contacts_view_task',
           icon: 'mdi-clipboard-list',
           disabled: false,
           to: {
-            name: 'contacts_task'
+            name: 'call_center_manager_contacts_view_task'
           }
         }
       ] as TabInterface[],
@@ -362,8 +256,7 @@ export default (Vue as VueConstructor<Vue & any>).extend({
         last_name: '',
         middle_name: '',
         phones: [],
-        user: undefined,
-        created_at: 0
+        user: undefined
       } as ContactInterface
       /* eslint-enable */
     }
@@ -500,6 +393,5 @@ export default (Vue as VueConstructor<Vue & any>).extend({
 .session-stopwatch {
   font-family: monospace;
   font-size: 1.4rem;
-  color: #9C27B0;
 }
 </style>

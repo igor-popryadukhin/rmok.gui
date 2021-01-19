@@ -230,7 +230,7 @@ export default Vue.extend({
 
 <style lang="scss">
   .background--header {
-    background-image: linear-gradient(to bottom, #1b4685, #3d4899, #6446a9, #8d3eb1, #b729b1);
+    background-image: linear-gradient(to bottom, #2967d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
   }
   .scroll-area {
     position: relative;

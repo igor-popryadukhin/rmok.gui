@@ -21,8 +21,8 @@
           <template v-slot:prepend>
             <v-avatar
               size="60"
-              class="mr-4"
-              style="background-color: #8d3eb1; color: white"
+              class="mr-4 primary white--text"
+              style="font-size: 20px"
             >
               <v-btn
                 color="white"
@@ -86,6 +86,62 @@
           :rules-email="[rules.email]"
           :rules-label="[rules.lengthMax(50)]"
         />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="6"
+        sm="12"
+        xl="12"
+      >
+        <v-text-field
+          v-model="contact.city"
+          :label="$tc('City')"
+          :rules="[]"
+          counter
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-5 pr-9">mdi-city</v-icon>
+          </template>
+        </v-text-field>
+      </v-col>
+      <v-col
+        cols="12"
+        lg="6"
+        md="6"
+        sm="12"
+        xl="12"
+      >
+        <v-text-field
+          v-model="contact.region"
+          :label="$tc('Region')"
+          :rules="[]"
+          counter
+        >
+        </v-text-field>
+      </v-col>
+      <v-col
+        cols="12"
+      >
+        <v-text-field
+          v-model="contact.address"
+          :label="$tc('Address')"
+          :rules="[]"
+          counter
+        >
+          <template
+            v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+            v-slot:prepend
+          >
+            <v-icon class="pl-10 pr-10">mdi-blank</v-icon>
+          </template>
+        </v-text-field>
       </v-col>
     </v-row>
 
@@ -156,6 +212,9 @@ export default Vue.extend({
         last_name: '',
         middle_name: '',
         notes: '',
+        city: '',
+        region: '',
+        address: '',
         emails: [
           {
             value: '',
@@ -167,7 +226,7 @@ export default Vue.extend({
             id: 0,
             country_code: 'RU',
             country_calling_code: '7',
-            value: '',
+            raw: '',
             label: ''
           }
         ]
@@ -224,7 +283,7 @@ export default Vue.extend({
         country_code: '',
         id: 0,
         label: '',
-        value: ''
+        raw: ''
       })
     },
 
@@ -240,30 +299,41 @@ export default Vue.extend({
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
       }
+
+      const data: any = {
+        first_name: this.contact.first_name,
+        last_name: this.contact.last_name,
+        middle_name: this.contact.middle_name,
+        emails: this.contact.emails
+          .filter((e) => !(isEmpty(e.value) && isEmpty(e.label)))
+          .map((email) => ({ label: email.label, value: email.value })),
+        phones: this.contact.phones
+          .filter((e: PhoneNumberInterface) => !(isEmpty(e.raw) && isEmpty(e.label)))
+          .map((phone: PhoneNumberInterface) => ({
+            country_code: phone.country_code,
+            country_calling_code: phone.country_calling_code,
+            label: phone.label,
+            raw: phone.raw
+          }))
+      }
+
+      if (this.contact.notes) { data.notes = this.contact.notes }
+      if (this.contact.city) { data.city = this.contact.city }
+      if (this.contact.region) { data.region = this.contact.region }
+      if (this.contact.address) { data.address = this.contact.address }
+
       this.buttonSave.loading = true
       new Contacts()
-        .add({
-          /* eslint-disable */
-          first_name: this.contact.first_name,
-          last_name: this.contact.last_name,
-          middle_name: this.contact.middle_name,
-          emails: this.contact.emails
-            .filter((e) => !(isEmpty(e.value) && isEmpty(e.label)))
-            .map((email) => ({ label: email.label, value: email.value })),
-          phones: this.contact.phones
-            .filter((e: PhoneNumberInterface) => !(isEmpty(e.value) && isEmpty(e.label)))
-            .map((phone: PhoneNumberInterface) => ({
-              country_code: phone.country_code,
-              country_calling_code: phone.country_calling_code,
-              label: phone.label,
-              value: phone.value
-            })),
-          notes: this.contact.notes || null
-          /* eslint-enable */
-        }).then(() => {
+        .add(data)
+        .then(() => {
           this.resetForm()
           this.$toast.success(this.$tc('Contact successfully saved.'))
         }).catch((e) => {
+          if (Array.isArray(e.errors)) {
+            e.errors.map((e: any) => {
+              this.$toast.warning(e.message)
+            })
+          }
           this.$toast.error(e.statusText || e.error_message || 'undefined')
         }).finally(() => {
           this.buttonSave.loading = false
