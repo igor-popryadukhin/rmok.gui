@@ -10,7 +10,8 @@ module.exports = {
     '@vue/typescript/recommended'
   ],
   ignorePatterns: [
-    '**/node_modules/*'
+    '**/node_modules/*',
+    '**/tests/*'
   ],
   parserOptions: {
     ecmaVersion: 2020

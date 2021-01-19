@@ -61,10 +61,11 @@
               text
             >{{ $t('Restore access') }}</v-btn>
             <v-btn
+              id="v-btn-sig-in"
               color="black"
+              :loading="authorization.loading"
               tile
               text
-              :loading="authorization.loading"
               @click="login(authorization.login, authorization.password)"
             >{{ $t('sign_in') }}</v-btn>
           </v-card-actions>
