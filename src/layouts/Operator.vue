@@ -519,6 +519,8 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
         this.current = state
         this.context = state.context
       }).start()
+
+    this.$root.$emit('root-jssip-initialize')
   },
 
   created () {
