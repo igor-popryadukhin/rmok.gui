@@ -5,7 +5,8 @@ import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import roleAdmin from '@/middleware/roleAdmin'
 import roleRCC from '@/middleware/roleRCC'
-import roleTeamLeader from '@/middleware/roleTeamLeader.ts'
+import roleTeamLeader from '@/middleware/roleTeamLeader'
+import roleOperator from '@/middleware/roleOperator'
 import store from '@/store'
 // import { app } from '@/main'
 // import Timer from '@/classes/Timer'
@@ -73,7 +74,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [roleOperator]
         }
       },
       {
@@ -84,13 +85,13 @@ const routes: RouteConfig[] = [
             path: '',
             name: 'operator_calls',
             component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [roleOperator] }
           }
         ],
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [roleOperator]
         }
       },
       {
@@ -103,7 +104,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
             meta: {
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           },
           {
@@ -115,28 +116,28 @@ const routes: RouteConfig[] = [
                 path: 'script',
                 name: 'operator_leads_script',
                 component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [roleOperator] }
               },
               {
                 path: 'history',
                 name: 'operator_leads_history',
                 component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [roleOperator] }
               },
               {
                 path: 'tasks',
                 name: 'operator_leads_task',
                 component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [roleOperator] }
               }
             ],
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [roleOperator] }
           }
         ],
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [roleOperator]
         }
       },
       {
@@ -150,11 +151,11 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           }
         ],
-        meta: { layout: 'operator-layout', middleware: [] }
+        meta: { layout: 'operator-layout', middleware: [roleOperator] }
       },
       {
         path: 'contacts',
@@ -164,13 +165,13 @@ const routes: RouteConfig[] = [
             path: '',
             name: 'operator_contacts_list',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [roleOperator] }
           },
           {
             path: 'new',
             name: 'operator_contacts_new',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
-            meta: { layout: 'operator-layout', middleware: [] },
+            meta: { layout: 'operator-layout', middleware: [roleOperator] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
               store.dispatch('system/country_codes')
@@ -180,7 +181,7 @@ const routes: RouteConfig[] = [
             path: ':contact_id',
             name: 'operator_contacts_edit',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Edit.vue'),
-            meta: { layout: 'operator-layout', middleware: [] },
+            meta: { layout: 'operator-layout', middleware: [roleOperator] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
               store.dispatch('system/country_codes')
@@ -196,22 +197,22 @@ const routes: RouteConfig[] = [
                 path: 'script',
                 name: 'contacts_script',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [roleOperator] }
               },
               {
                 path: 'history',
                 name: 'contacts_history',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [roleOperator] }
               },
               {
                 path: 'tasks',
                 name: 'contacts_task',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [roleOperator] }
               }
             ],
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [roleOperator] }
           }
         ],
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
@@ -221,7 +222,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [roleOperator]
         }
       },
       {
@@ -235,13 +236,13 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           }
         ],
         meta: {
           layout: 'operator-layout',
-          middleware: []
+          middleware: [roleOperator]
         }
       },
       {
@@ -255,7 +256,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           },
           {
@@ -265,7 +266,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-history',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           },
           {
@@ -275,7 +276,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-security',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           },
           {
@@ -285,7 +286,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-webrtc',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           },
           {
@@ -295,7 +296,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-headset',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [roleOperator]
             }
           }
         ],
@@ -305,7 +306,7 @@ const routes: RouteConfig[] = [
         },
         meta: {
           layout: 'operator-layout',
-          middleware: []
+          middleware: [roleOperator]
         }
       },
       {
@@ -314,14 +315,14 @@ const routes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "operator-help" */ '../views/Operator/Help/Index.vue'),
         meta: {
           layout: 'operator-layout',
-          middleware: []
+          middleware: [roleOperator]
         }
       }
     ],
     meta: {
       anonymous: true,
       layout: 'operator-layout',
-      middleware: []
+      middleware: [roleOperator]
     },
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
@@ -510,7 +511,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           },
           {
@@ -520,7 +521,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-history',
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           },
           {
@@ -530,7 +531,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-security',
               layout: 'administrator',
-              middleware: []
+              middleware: [roleAdmin]
             }
           }
         ],
@@ -540,7 +541,7 @@ const routes: RouteConfig[] = [
         },
         meta: {
           layout: 'administrator',
-          middleware: []
+          middleware: [roleAdmin]
         }
       },
       {
@@ -651,7 +652,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'call-center-manager',
-              middleware: []
+              middleware: [roleRCC]
             }
           },
           {
@@ -682,27 +683,27 @@ const routes: RouteConfig[] = [
                 path: 'script',
                 name: 'call_center_manager_contacts_view_script',
                 component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/Script.vue'),
-                meta: { layout: 'call-center-manager', middleware: [] }
+                meta: { layout: 'call-center-manager', middleware: [roleRCC] }
               },
               {
                 path: 'history',
                 name: 'call_center_manager_contacts_view_history',
                 component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/History.vue'),
-                meta: { layout: 'call-center-manager', middleware: [] }
+                meta: { layout: 'call-center-manager', middleware: [roleRCC] }
               },
               {
                 path: 'tasks',
                 name: 'call_center_manager_contacts_view_task',
                 component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/Task.vue'),
-                meta: { layout: 'call-center-manager', middleware: [] }
+                meta: { layout: 'call-center-manager', middleware: [roleRCC] }
               }
             ],
-            meta: { layout: 'call-center-manager', middleware: [] }
+            meta: { layout: 'call-center-manager', middleware: [roleRCC] }
           }
         ],
         meta: {
           layout: 'call-center-manager',
-          middleware: []
+          middleware: [roleRCC]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           // todo: Solve the question of how we will change the locale
@@ -786,7 +787,7 @@ const routes: RouteConfig[] = [
         ],
         meta: {
           layout: 'call-center-manager',
-          middleware: []
+          middleware: [roleRCC]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
           // todo: Solve the question of how we will change the locale
@@ -805,7 +806,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'call-center-manager',
-              middleware: []
+              middleware: [roleRCC]
             }
           },
           {
@@ -815,7 +816,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-history',
               layout: 'call-center-manager',
-              middleware: []
+              middleware: [roleRCC]
             }
           },
           {
@@ -825,7 +826,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-security',
               layout: 'call-center-manager',
-              middleware: []
+              middleware: [roleRCC]
             }
           },
           {
@@ -835,7 +836,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-flask',
               layout: 'call-center-manager',
-              middleware: []
+              middleware: [roleRCC]
             }
           }
         ],
@@ -845,7 +846,7 @@ const routes: RouteConfig[] = [
         },
         meta: {
           layout: 'call-center-manager',
-          middleware: []
+          middleware: [roleRCC]
         }
       }
     ],
@@ -878,7 +879,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "team-leader-reports-recent-calls" */ '../views/TeamLeader/Reports/RecentCalls.vue'),
             meta: {
               layout: 'team-leader',
-              middleware: []
+              middleware: [roleTeamLeader]
             }
           },
           {
@@ -887,7 +888,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "team-leader-reports-all-calls" */ '../views/TeamLeader/Reports/AllCalls.vue'),
             meta: {
               layout: 'team-leader',
-              middleware: []
+              middleware: [roleTeamLeader]
             }
           }
         ],
@@ -954,7 +955,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'team-leader',
-              middleware: []
+              middleware: [roleTeamLeader]
             }
           },
           {
@@ -964,7 +965,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-history',
               layout: 'team-leader',
-              middleware: []
+              middleware: [roleTeamLeader]
             }
           },
           {
@@ -974,7 +975,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-security',
               layout: 'team-leader',
-              middleware: []
+              middleware: [roleTeamLeader]
             }
           }
         ],
@@ -984,7 +985,7 @@ const routes: RouteConfig[] = [
         },
         meta: {
           layout: 'team-leader',
-          middleware: []
+          middleware: [roleTeamLeader]
         }
       }
     ],
