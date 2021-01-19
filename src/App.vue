@@ -102,9 +102,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
- html {
-   overflow: auto;
- }
 
   //.v-overlay {
   //  backdrop-filter: blur(1px);

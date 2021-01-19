@@ -157,9 +157,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="scss">
- html {
-   overflow: hidden !important;
- }
-</style>

@@ -6,3 +6,7 @@
 
 // Customized
 @import "customized/scrollbar";
+
+html {
+  overflow: auto;
+}
