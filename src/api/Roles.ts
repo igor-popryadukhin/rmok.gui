@@ -9,20 +9,20 @@ export interface RoleInterface {
 }
 
 export class Roles {
-  public get (): Promise<RoleInterface[] | any> | any {
-    return new Promise((resolve, reject): Promise<RoleInterface[] | any> | any => {
+  public get<T = RoleInterface> (): Promise<T[] | any> {
+    return new Promise((resolve, reject): Promise<T[] | any> | any => {
       $axios.get('/roles')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }
-          resolve(false)
+          reject(response.data)
         }).catch(reject)
     })
   }
 
-  public getById (id: string): Promise<RoleInterface | any> | any {
-    return new Promise((resolve, reject): Promise<RoleInterface | any> | any => {
+  public getById<T = RoleInterface> (id: string): Promise<T | any> | any {
+    return new Promise<T | any>((resolve, reject) => {
       $axios.get(`/roles/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
@@ -33,3 +33,5 @@ export class Roles {
     })
   }
 }
+
+export default Roles

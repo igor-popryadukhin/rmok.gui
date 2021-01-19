@@ -393,6 +393,8 @@ import SRoles from '@/snippets/SRoles/SRoles.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import Users from '@/api/Users'
+import { RoleInterface } from '@/api/Roles'
+import { GroupInterface } from '@/api/Groups'
 
 interface DataPasswordInterface {
   visible: boolean;
@@ -427,7 +429,6 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      organizationSelected: {} as OrganizationInterface,
       user: {
         first_name: '',
         last_name: '',
@@ -435,9 +436,9 @@ export default Vue.extend({
         login: '',
         email: '',
         phone: '',
-        role: null,
-        group: null,
-        organization: null,
+        role: null as unknown as RoleInterface,
+        group: null as unknown as GroupInterface,
+        organization: null as unknown as OrganizationInterface,
 
         // Конфигурация подключения к АТС
         pbxConfig: {
@@ -494,18 +495,26 @@ export default Vue.extend({
       const postData: any = {
         first_name: this.user.first_name.trim(),
         last_name: this.user.last_name.trim(),
-        middle_name: this.user.middle_name.trim(),
         login: this.user.login.trim(),
         password: this.password.value1.trim(),
         phone: this.user.phone.trim(),
-        email: this.user.email,
-        role: this.user.role?.id,
-        organization_id: this.organizationSelected.id,
-        group_id: this.user.group?.id
+        email: this.user.email
       }
 
-      if (this.organizationSelected) {
-        postData.organization_id = this.organizationSelected.id
+      if (this.user.middle_name) {
+        postData.middle_name = this.user.middle_name.trim()
+      }
+
+      if ('id' in this.user.role) {
+        postData.role = this.user.role.id
+      }
+
+      if ('id' in this.user.organization) {
+        postData.organization_id = this.user.organization.id
+      }
+
+      if ('id' in this.user.group) {
+        postData.role = this.user.group.id
       }
 
       if (this.user.pbxConfig.login && this.user.pbxConfig.password && this.user.pbxConfig.server && this.user.pbxConfig.port) {

@@ -55,9 +55,9 @@
           <v-text-field
             v-model="user.middle_name"
             :label="$tc('middle_name')"
+            :rules="[]"
             persistent-hint
             required
-            :rules="[rules.notBlank]"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -161,7 +161,7 @@
           <v-text-field
             v-model="user.email"
             :label="$tc('email')"
-            :rules="[rules.notBlank, rules.email]"
+            :rules="[rules.email]"
             autocomplete="new-email"
           >
             <template
@@ -181,7 +181,7 @@
             v-model="user.phone"
             :label="$tc('phone')"
             type="tel"
-            :rules="[rules.notBlank, rules.phone_number]"
+            :rules="[rules.phone_number]"
             required
           >
             <template
@@ -215,10 +215,10 @@
         >
           <s-organizations-autocomplete
             ref="sOrganizations"
-            v-model="user.organization"
+            v-model="organizationSelected"
             :label="$tc('organization')"
             :rules="[]"
-            disabled
+            :disabled="user.organization"
             visible-icon
           />
         </v-col>
@@ -234,7 +234,8 @@
             v-model="user.group"
             :label="$tc('Group')"
             visible-icon
-            :disabled="user.organization === null"
+            :disabled="!('id' in user.organization)"
+            :params="sGroupsParams"
           >
           </s-groups>
         </v-col>
@@ -427,6 +428,8 @@ import SRoles from '@/snippets/SRoles/SRoles.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
+import { RoleInterface } from '@/api/Roles'
+import { ProjectInterface } from '@/api/Projects'
 
 interface DataPasswordInterface {
   visible: boolean;
@@ -469,7 +472,7 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      organizationSelected: {} as OrganizationInterface,
+      organizationSelected: {} as unknown as OrganizationInterface,
       user: {
         id: 0,
         first_name: '',
@@ -478,10 +481,10 @@ export default Vue.extend({
         login: '',
         email: '',
         phone: '',
-        role: null,
-        group: null,
-        organization: null,
-        project: null,
+        role: {} as unknown as RoleInterface,
+        group: {} as unknown as GroupInterface,
+        organization: {} as unknown as OrganizationInterface,
+        project: {} as unknown as ProjectInterface,
 
         // Конфигурация подключения к АТС
         pbxConfig: {
@@ -491,7 +494,7 @@ export default Vue.extend({
           port: 0,
           server: ''
         }
-      } as any
+      }
     }
   },
 
@@ -514,7 +517,7 @@ export default Vue.extend({
           vm.user.phone = user.phone
           vm.user.role = user.role
           vm.user.organization = user.organization
-          vm.user.pbx_config = user.pbx_config ?? {
+          vm.user.pbxConfig = user.pbx_config ?? {
             display_name: '',
             login: '',
             password: '',
@@ -555,6 +558,22 @@ export default Vue.extend({
     }
   },
 
+  computed: {
+    sGroupsParams () {
+      const params: any = { organization_id: 0 }
+
+      if ('id' in this.organizationSelected) {
+        params.organization_id = this.organizationSelected.id
+      } else {
+        if ('id' in this.user.organization) {
+          params.organization_id = this.user.organization.id
+        }
+      }
+
+      return params
+    }
+  },
+
   methods: {
 
     resetForm () {
@@ -577,11 +596,15 @@ export default Vue.extend({
         role: this.user.role?.id
       }
 
-      if (this.user.project) {
+      if ('id' in this.user.project) {
         putData.project_id = this.user.project.id
       }
 
-      if (this.user.group) {
+      if ('id' in this.organizationSelected) {
+        putData.organization_id = this.organizationSelected.id
+      }
+
+      if ('id' in this.user.group) {
         putData.group_id = this.user.group.id
       }
 
