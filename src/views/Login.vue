@@ -126,8 +126,9 @@ export default Vue.extend({
             this.$router.replace({ name: 'operator_home' })
             .finally(() => {
               setTimeout(() => {
+                this.$root.$emit('root-jssip-initialize')
                 this.$root.$emit('root-loading-projects') // Загрузить проекты, что бы оператор мог выбрать из списка
-              }, 3000)
+              }, 1000)
             })
           }
 
