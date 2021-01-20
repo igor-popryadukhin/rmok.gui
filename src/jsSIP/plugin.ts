@@ -267,6 +267,7 @@ export class JsSIP {
       realm: config.realm
       /* eslint-enable */
     })
+    this.unInitializeListeners()
     this.initializeListeners()
     return this
   }
@@ -305,90 +306,102 @@ export class JsSIP {
   }
 
   private initializeListeners () {
-    this.ua.on('registered', (event: RegisteredEvent) => {
-      this._processConnectingAndDisconnecting = false
+    this.ua.on('registered', this.onRegistered)
+    this.ua.on('disconnected', this.onDisconnect)
+    this.ua.on('registrationExpiring', this.onRegistrationExpiring)
+    this.ua.on('newRTCSession', this.onNewRTCSession)
+  }
+
+  private unInitializeListeners () {
+    this.ua.off('registered', this.onRegistered)
+    this.ua.off('disconnected', this.onDisconnect)
+    this.ua.off('registrationExpiring', this.onRegistrationExpiring)
+    this.ua.off('newRTCSession', this.onNewRTCSession)
+  }
+
+  private onRegistered () {
+    this._processConnectingAndDisconnecting = false
+  }
+
+  private onDisconnect () {
+    this._processConnectingAndDisconnecting = false
+  }
+
+  private onRegistrationExpiring () {
+    this._processConnectingAndDisconnecting = false
+  }
+
+  private onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
+    this._sessionStartTime = new Date()
+    const session: RTCSession = event.session
+    this._session = event.session
+
+    // Запускается после добавления локального медиа потока RTCSession и
+    // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».
+    session.on('connecting', (event: ConnectingEvent) => {
+      this._state = JsSIPState.CONNECTING
+      this.startRenderSessionStopwatch()
+      this.doSessionConnecting(session, event)
     })
 
-    this.ua.on('disconnected', (event: DisconnectEvent) => {
-      this._processConnectingAndDisconnecting = false
+    // Срабатывает при получении или генерации ответа класса 1XX SIP (> 100) на запрос INVITE
+    session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
+      this._state = JsSIPState.PROGRESS
+
+      if (session.direction === 'incoming') {
+        JsSIP.playSound('ringing2.mp3', true)
+      }
+      this.doSessionProgress(session, event)
     })
 
-    this.ua.on('registrationExpiring', (event) => {
-      this._processConnectingAndDisconnecting = false
+    // Срабатывает, когда вызов принят (2XX получено / отправлено).
+    session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
+      JsSIP.stopSound()
+      JsSIP.playSound('answered.ogg', false)
+      this._state = JsSIPState.ACCEPTED
+      this.doSessionAccepted(session, event)
     })
 
-    this.ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => {
-      this._sessionStartTime = new Date()
-      const session: RTCSession = event.session
-      this._session = event.session
+    // Срабатывает, когда установленный вызов завершается.
+    session.on('ended', (event: EndEvent) => {
+      this._sessionEndTime = new Date()
+      this.stopRenderSessionStopwatch()
+      this._state = JsSIPState.IDLE
+      this.doSessionEnded(session, event)
+    })
 
-      // Запускается после добавления локального медиа потока RTCSession и
-      // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».
-      session.on('connecting', (event: ConnectingEvent) => {
-        this._state = JsSIPState.CONNECTING
-        this.startRenderSessionStopwatch()
-        this.doSessionConnecting(session, event)
-      })
+    // Запускается, когда сеанс не может быть установлен.
+    session.on('failed', (event: EndEvent) => {
+      this._sessionEndTime = new Date()
+      this.stopRenderSessionStopwatch()
 
-      // Срабатывает при получении или генерации ответа класса 1XX SIP (> 100) на запрос INVITE
-      session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
-        this._state = JsSIPState.PROGRESS
-
-        if (session.direction === 'incoming') {
-          JsSIP.playSound('ringing2.mp3', true)
-        }
-        this.doSessionProgress(session, event)
-      })
-
-      // Срабатывает, когда вызов принят (2XX получено / отправлено).
-      session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
-        JsSIP.stopSound()
-        JsSIP.playSound('answered.ogg', false)
-        this._state = JsSIPState.ACCEPTED
-        this.doSessionAccepted(session, event)
-      })
-
-      // Срабатывает, когда установленный вызов завершается.
-      session.on('ended', (event: EndEvent) => {
-        this._sessionEndTime = new Date()
-        this.stopRenderSessionStopwatch()
-        this._state = JsSIPState.IDLE
-        this.doSessionEnded(session, event)
-      })
-
-      // Запускается, когда сеанс не может быть установлен.
-      session.on('failed', (event: EndEvent) => {
-        this._sessionEndTime = new Date()
-        this.stopRenderSessionStopwatch()
-
-        if (session.direction === 'outgoing') {
-          JsSIP.playSound('rejected.mp3')
-        } else {
-          JsSIP.stopSound()
-        }
-
-        this._state = JsSIPState.IDLE
-
-        this.doSessionEnded(session, event)
-        this.doSessionFailed(session, event)
-      })
-
-      // Outgoing media stream
       if (session.direction === 'outgoing') {
-        session.connection.addEventListener('addstream', (e: any) => {
+        JsSIP.playSound('rejected.mp3')
+      } else {
+        JsSIP.stopSound()
+      }
+
+      this._state = JsSIPState.IDLE
+
+      this.doSessionEnded(session, event)
+      this.doSessionFailed(session, event)
+    })
+
+    // Outgoing media stream
+    if (session.direction === 'outgoing') {
+      session.connection.addEventListener('addstream', (e: any) => {
+        audioElementForCall.srcObject = e.stream
+        audioElementForCall.play()
+      })
+    } else {
+      // Incoming media stream
+      session.once('peerconnection', (event: PeerConnectionEvent) => {
+        event.peerconnection.addEventListener('addstream', (e: any) => {
           audioElementForCall.srcObject = e.stream
           audioElementForCall.play()
         })
-      } else {
-        // Incoming media stream
-        session.once('peerconnection', (event: PeerConnectionEvent) => {
-          event.peerconnection.addEventListener('addstream', (e: any) => {
-            audioElementForCall.srcObject = e.stream
-            audioElementForCall.play()
-          })
-        })
-      }
-    })
+      })
+    }
   }
 
   private doSessionConnecting (session: RTCSession, event: ConnectingEvent) {

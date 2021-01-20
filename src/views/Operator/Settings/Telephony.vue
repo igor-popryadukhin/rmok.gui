@@ -93,6 +93,7 @@
             cols="12"
           >
             <v-btn
+              :loading="processSave"
               text
               tile
               @click="onSave"
@@ -115,6 +116,7 @@ export default Vue.extend({
       password: {
         visible: false
       },
+      processSave: false,
       config: {
         /* eslint-disable */
         display_name: '',
@@ -143,12 +145,14 @@ export default Vue.extend({
 
   methods: {
     onSave () {
+      this.processSave = true
       new Configurations()
         .setATEConfigurations(this.config)
         .then(() => {
           this.$root.$emit('root-jssip-set-configuration')
           this.$toast.success(this.$tc('configuration_saved_successfully'))
         })
+        .finally(() => (this.processSave = false))
     }
   }
 })

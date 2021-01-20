@@ -21,6 +21,7 @@ export const profile = {
         name: ''
       } as Role,
       userpic: null,
+      status: '',
       organization: {
         address: '',
         description: '',
@@ -51,16 +52,21 @@ export const profile = {
       state.created_at = payload.created_at
       state.organization = payload.organization
       /* eslint-enable */
+    },
+
+    setStatus (state: ProfileInterface, payload: string): void {
+      state.status = payload
     }
   },
 
   actions: {
-    loadProfile ({ commit }: any) {
-      return new Promise((resolve) => {
+    loadProfile ({ commit }: any): Promise<any> {
+      return new Promise((resolve: any) => {
         new Account()
           .getProfile()
           .then((profile) => {
             commit('set', profile)
+            commit('setStatus', profile.status)
           }).finally(resolve)
       })
     }
@@ -83,6 +89,7 @@ export const profile = {
     role_is_leader_cc (state: ProfileInterface) { return state.role.id === 'r_leader_cc' },
     role_is_team_leader (state: ProfileInterface) { return state.role.id === 'r_team_leader' },
     userpic (state: ProfileInterface) { return state.userpic },
+    status (state: ProfileInterface) { return state.status },
     organization (state: ProfileInterface) { return state.organization }
     /* eslint-enable */
   }

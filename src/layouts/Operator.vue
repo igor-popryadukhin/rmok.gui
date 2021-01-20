@@ -185,19 +185,31 @@
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
+            class="ml-2 mr-2"
             v-on="on"
             v-bind="attrs"
-            :loading="$jsSIP.processConnectingAndDisconnecting"
-            class="ml-2 mr-2"
+            :loading="statusSetProcess"
             icon
             small
-            @click="$jsSIP.isConnected ? $jsSIP.stop() : $jsSIP.start()"
           >
-            <v-icon>mdi-motion-pause</v-icon>
+            <v-icon
+              v-if="$store.getters['profile/status'] === 'available'"
+            >
+              mdi-check-circle-outline
+            </v-icon>
+            <v-icon
+              v-if="$store.getters['profile/status'] === 'do_not_disturb'"
+            >
+              mdi-do-not-disturb
+            </v-icon>
+            <v-icon
+              v-if="$store.getters['profile/status'] === 'coffee_break'"
+            >
+              mdi-pause-circle-outline
+            </v-icon>
           </v-btn>
         </template>
-        <span v-if="$jsSIP.isConnected">Поставить на паузу</span>
-        <span v-else>Продолжить</span>
+        <span>{{ $tc('Current status') }}</span>
       </v-tooltip>
 
       <!-- Avatar -->
@@ -339,8 +351,7 @@ import { Configurations } from '@/api/Configurations'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
 import { Contacts } from '@/api/Contacts'
-import { ConnectedEvent, IncomingRTCSessionEvent, OutgoingRTCSessionEvent, UnRegisteredEvent } from 'jssip/lib/UA'
-import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
+import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent, UnRegisteredEvent } from 'jssip/lib/UA'
 import VToast from '@/components/VToast/VToast.vue'
 import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSession.vue'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
@@ -349,6 +360,7 @@ import { JsSIP } from '@/jsSIP/plugin'
 
 import callMachine from '@/xState/machines/callMachine'
 import { interpret } from 'xstate'
+import Account, { UserStatus } from '@/api/Account'
 
 interface PropsInterface {
   source: string;
@@ -370,6 +382,7 @@ interface DataInterface {
   callMachineService: any
   current: any
   context: any
+  statusSetProcess: boolean
 }
 
 interface MethodsInterface {
@@ -377,15 +390,8 @@ interface MethodsInterface {
   jsSIPSetConfiguration: () => void;
   onRootLoadingProjects: () => void;
   onProjectItemClick: (item: ProjectInterface & { loading: boolean }) => void;
-  onJsSIPConnected: (event: any) => void;
-  onJsSIPDisconnected: (event: any) => void;
-  onJsSIPRegistered: (event: any) => void;
-  onJsSIPRegistrationFailed: (event: any) => void;
-  onJsSIPSipEvent: (event: any) => void;
-  onJsSIPNewMessage: (event: any) => void;
-  showRTCToast: (id: number | string, data: any) => void;
-  updateRTCToast: (id: number | string, data: any) => void;
-  newRTCSession: (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => void;
+  showRTCToast: (data: any) => void;
+  updateRTCToast: (data: any) => void;
   onAnswer: () => void;
   onHangup: () => void;
   addHistory: <T>(contactId: number, historyData: any) => Promise<T>;
@@ -434,7 +440,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
         {
           title: 'Available',
           icon: {
-            name: 'mdi-motion-play',
+            name: 'mdi-check-circle-outline',
             attrs: {
               color: 'green'
             }
@@ -442,6 +448,18 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
           attrs: {
             dense: true,
             link: true
+          },
+          on: {
+            click: () => {
+              (this as any).statusSetProcess = true
+              new Account()
+                .setStatus(UserStatus.AVAILABLE)
+                .finally(() => {
+                  this.$store
+                    .dispatch('profile/loadProfile')
+                    .finally(() => ((this as any).statusSetProcess = false))
+                })
+            }
           }
         },
         {
@@ -455,12 +473,24 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
           attrs: {
             dense: true,
             link: true
+          },
+          on: {
+            click: () => {
+              (this as any).statusSetProcess = true
+              new Account()
+                .setStatus(UserStatus.DO_NOT_DISTURB)
+                .finally(() => {
+                  this.$store
+                    .dispatch('profile/loadProfile')
+                    .finally(() => ((this as any).statusSetProcess = false))
+                })
+            }
           }
         },
         {
           title: 'Break',
           icon: {
-            name: 'mdi-motion-pause',
+            name: 'mdi-pause-circle-outline',
             attrs: {
               color: 'blue'
             }
@@ -468,9 +498,23 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
           attrs: {
             link: true,
             dense: true
+          },
+          on: {
+            click: () => {
+              (this as any).statusSetProcess = true
+              new Account()
+                .setStatus(UserStatus.COFFEE_BREAK)
+                .finally(() => {
+                  this.$store
+                    .dispatch('profile/loadProfile')
+                    .finally(() => ((this as any).statusSetProcess = false))
+                })
+            }
           }
         },
+
         { divider: true },
+
         {
           title: 'Profile',
           icon: {
@@ -562,7 +606,8 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       // Start with the machine's initial state
       current: callMachine.initialState,
       // Start with the machine's initial context
-      context: callMachine.context
+      context: callMachine.context,
+      statusSetProcess: false
     }
   },
 
@@ -806,168 +851,128 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
 
     // Телефония
     jsSIPSetConfiguration () {
+      if (this.$isDebug) {
+        console.log('%c%s', 'color: blue;', 'Инициализация RTC')
+      }
+
       new Configurations()
         .getATEConfigurations()
         .then((config: PBXInterface) => {
-          /* eslint-disable */
-            this.$jsSIP
-              .setConfiguration(`wss://${config.server}:${config.port}/ws`, {
+          // Отключаемся,если подключены
+          if (this.$jsSIP.isConnected) {
+            this.$jsSIP.stop()
+          }
+
+          setTimeout(() => {
+            this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
               uri: `sip:${config.login}@${config.server}`,
               password: config.password,
               realm: config.server
             })
-          // on('connected', this.onJsSIPConnected)
-          //     .on('disconnected', this.onJsSIPDisconnected)
-          //     .on('registered', this.onJsSIPRegistered)
-          //     .on('registrationFailed', this.onJsSIPRegistrationFailed)
-          //     .on('sipEvent', this.onJsSIPSipEvent)
-          //     .on('newMessage', this.onJsSIPNewMessage)
-          //     .on('newRTCSession', this.newRTCSession)
 
-            // Event Disconnected can happen later than Connected
-            /* eslint-enable */
-        })
+            // Глобальные обработчики
+            this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
+              this.callMachineService.send({
+                type: 'CONNECTING',
+                jssip: self,
+                session,
+                event
+              })
+            }
 
-      // Глобальные обработчики
-      this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
-        this.callMachineService.send({
-          type: 'CONNECTION',
-          jssip: self,
-          session,
-          event
-        })
-      }
+            this.$jsSIP.onSessionProgress = async (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
+              this.callMachineService.send({
+                type: 'PROGRESS',
+                jssip: self,
+                session,
+                event
+              })
+              /* eslint-enable */
+            }
 
-      this.$jsSIP.onSessionProgress = async (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-        this.callMachineService.send({
-          type: 'PROGRESS',
-          jssip: self,
-          session,
-          event
-        })
-        /* eslint-enable */
-      }
+            this.$jsSIP.onSessionAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
+              this.callMachineService.send({
+                type: 'ACCEPTED',
+                jssip: self,
+                session,
+                event
+              })
 
-      // Звонок приняли
-      this.$jsSIP.onSessionAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-        this.callMachineService.send({
-          type: 'ACCEPTED',
-          jssip: self,
-          session,
-          event
-        })
-
-        if (this.$isDebug) {
-          console.group('JsSIP: Принятый')
-          console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-          console.log('%c%s', 'color: green;', '----------------------------------------------------')
-          console.log(event)
-          console.log(session)
-          console.log('%c%s', 'color: green;', '----------------------------------------------------')
-          console.groupEnd()
-        }
-      }
-
-      this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-        this.callMachineService.send({
-          type: 'ENDED',
-          jssip: self,
-          session,
-          event
-        })
-
-        /* eslint-enable */
-      }
-
-      this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-        this.callMachineService.send({
-          type: 'FAILED',
-          jssip: self,
-          session,
-          event
-        })
-      }
-    },
-
-    onJsSIPConnected (event: ConnectedEvent) {
-      if (this.$isDebug) {
-        console.group('JsSIP: Соединение установлено.')
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.log(event)
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.groupEnd()
-      }
-    },
-
-    onJsSIPDisconnected (event: DisconnectEvent) {
-      if (this.$isDebug) {
-        console.group('JsSIP: Соединение разорвано.')
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.log(event)
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.groupEnd()
-      }
-    },
-
-    onJsSIPRegistered (event: any) {
-      if (this.$isDebug) {
-        console.group('JsSIP: Зарегистрирован')
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.log(event)
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.groupEnd()
-      }
-    },
-
-    onJsSIPRegistrationFailed (event: UnRegisteredEvent) {
-      if (this.$isDebug) {
-        console.log('%c%s', 'color: red;', 'JsSIP: Ошибка [' + event.cause + ']')
-      }
-
-      // Только в интерфейсе оператора выводим информацию об ошибке при подключении
-      if (this.$store.getters['profile/role_is_operator']) {
-        this.$toast.error({
-          component: VToast,
-          props: {
-            title: this.$tc('Error connecting to PBX'),
-            text: this.$t('Cause: {text}', { text: event.cause }),
-            actions: [
-              {
-                attrs: {
-                  label: this.$tc('Tune'),
-                  style: { color: 'white' }
-                },
-                on: {
-                  click: () => {
-                    this.$router.push({ name: 'operator_settings_telephony' })
-                  }
-                }
+              if (this.$isDebug) {
+                console.group('JsSIP: Принятый')
+                console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
+                console.log('%c%s', 'color: green;', '----------------------------------------------------')
+                console.log(event)
+                console.log(session)
+                console.log('%c%s', 'color: green;', '----------------------------------------------------')
+                console.groupEnd()
               }
-            ]
+            }
+
+            this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
+              this.callMachineService.send({
+                type: 'ENDED',
+                jssip: self,
+                session,
+                event
+              })
+
+              /* eslint-enable */
+            }
+
+            this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
+              this.callMachineService.send({
+                type: 'FAILED',
+                jssip: self,
+                session,
+                event
+              })
+            }
+
+            this.$jsSIP.on('registrationFailed', (event: UnRegisteredEvent) => {
+              this.$toast.error({
+                component: VToast,
+                props: {
+                  title: this.$tc('Error connecting to PBX'),
+                  text: this.$t('Cause: {text}', { text: event.cause }),
+                  actions: [
+                    {
+                      attrs: {
+                        label: this.$tc('Tune'),
+                        style: { color: 'white' }
+                      },
+                      on: {
+                        click: () => {
+                          this.$router.push({ name: 'operator_settings_telephony' })
+                        }
+                      }
+                    }
+                  ]
+                }
+              }, { timeout: false })
+            })
+
+            if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
+              this.$jsSIP.start()
+            }
+          }, 1000)
+        })
+
+      this.$store.subscribe(
+        ({ payload, type }) => {
+          if (type === 'profile/setStatus') {
+            if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(payload)) {
+              if (!this.$jsSIP.isConnected) {
+                this.$jsSIP.start()
+              }
+            } else {
+              if (this.$jsSIP.isConnected) {
+                this.$jsSIP.stop()
+              }
+            }
           }
-        }, { timeout: false })
-      }
-    },
-
-    onJsSIPSipEvent (event: any) {
-      if (this.$isDebug) {
-        console.group()
-        console.log('%c%s', 'color: green;', 'JsSIP: Событие')
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.log(event)
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.groupEnd()
-      }
-    },
-
-    onJsSIPNewMessage (event: any) {
-      if (this.$isDebug) {
-        console.group('JsSIP: Новое сообщение')
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.log(event)
-        console.log('%c%s', 'color: green;', '----------------------------------------------------')
-        console.groupEnd()
-      }
+        }
+      )
     },
 
     showRTCToast ({ id, data }) {
@@ -999,32 +1004,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
           }
         }
       })
-    },
-
-    /**
-     * RTC сессия
-     * @param event
-     */
-    newRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
-      // event.session.on('progress', (e: IncomingEvent | OutgoingEvent) => {
-      //   if (event.session.direction === 'incoming') {
-      //     console.log(event.session.remote_identity.display_name)
-      //   } else {
-      //     console.log(event.session.remote_identity.display_name)
-      //   }
-      // })
-      //
-      // event.session.on('accepted', (e: IncomingEvent | OutgoingEvent) => {
-      //   // todo: Принятый
-      // })
-      //
-      // event.session.on('ended', (e: EndEvent) => {
-      //   // todo: Завершение
-      // })
-      //
-      // event.session.on('failed', (e: EndEvent) => {
-      //   // todo: Завершение с ошибкой
-      // })
     },
 
     onAnswer () {

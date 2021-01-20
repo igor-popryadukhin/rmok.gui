@@ -587,11 +587,11 @@ export default Vue.extend({
       this.buttonSave.loading = true
 
       const putData: any = {
-        first_name: this.user.first_name.trim(),
-        last_name: this.user.last_name.trim(),
-        middle_name: this.user.middle_name.trim(),
-        login: this.user.login.trim(),
-        phone: this.user.phone.trim(),
+        first_name: this.user.first_name,
+        last_name: this.user.last_name,
+        middle_name: this.user.middle_name,
+        login: this.user.login,
+        phone: this.user.phone,
         email: this.user.email,
         role: this.user.role?.id
       }

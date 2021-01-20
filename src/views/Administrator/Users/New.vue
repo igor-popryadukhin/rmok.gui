@@ -493,11 +493,11 @@ export default Vue.extend({
       }
 
       const postData: any = {
-        first_name: this.user.first_name.trim(),
-        last_name: this.user.last_name.trim(),
-        login: this.user.login.trim(),
-        password: this.password.value1.trim(),
-        phone: this.user.phone.trim(),
+        first_name: this.user.first_name,
+        last_name: this.user.last_name,
+        login: this.user.login,
+        password: this.password.value1,
+        phone: this.user.phone,
         email: this.user.email
       }
 

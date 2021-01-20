@@ -2,6 +2,11 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { OrganizationInterface } from '@/api/Organizations'
 
+export enum UserStatus {
+  AVAILABLE = 'available',
+  DO_NOT_DISTURB = 'do_not_disturb',
+  COFFEE_BREAK = 'coffee_break'
+}
 export interface ProfileInterface {
   /* eslint-disable */
   id: number;
@@ -12,6 +17,7 @@ export interface ProfileInterface {
   last_name: string;
   middle_name: string;
   userpic: null;
+  status: string;
   created_at: number;
   role: Role;
   organization?: OrganizationInterface;
@@ -63,4 +69,23 @@ export class Account {
         }).catch(reject)
     })
   }
+
+  /**
+   * Установить статус пользователю
+   *
+   * @param status
+   */
+  public setStatus (status: UserStatus): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/account/status/${status}`)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data)
+          }
+          throw new Error(response.data)
+        }).catch(reject)
+    })
+  }
 }
+
+export default Account

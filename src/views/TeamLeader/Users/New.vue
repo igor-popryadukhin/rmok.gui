@@ -440,9 +440,9 @@ export default Vue.extend({
       new Users()
         .add({
           /* eslint-disable */
-          first_name: this.user.first_name.trim(),
-          last_name: this.user.last_name.trim(),
-          middle_name: this.user.middle_name.trim(),
+          first_name: this.user.first_name,
+          last_name: this.user.last_name,
+          middle_name: this.user.middle_name,
           login: this.user.login.trim(),
           password: this.password.value1,
           phone: this.user.phone.trim(),

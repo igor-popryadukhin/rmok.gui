@@ -1,4 +1,4 @@
-import { createMachine, assign } from 'xstate'
+import { createMachine } from 'xstate'
 import Vue from 'vue'
 import { JsSIP } from '@/jsSIP/plugin'
 import { EndEvent, RTCSession } from 'jssip/lib/RTCSession'
@@ -6,14 +6,14 @@ import { causes } from 'jssip/lib/Constants'
 import { Contacts } from '@/api/Contacts'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
-import VStatusEditDialog, { StatusInterface } from '@/components/VStatusEditDialog/VStatusEditDialog.vue'
+import VStatusEditDialog from '@/components/VStatusEditDialog/VStatusEditDialog.vue'
 
 enum SessionDirection {
   INCOMING = 'incoming',
   OUTGOING = 'outgoing',
 }
 
-type EventConnection = { type: 'CONNECTION', jssip: JsSIP, session: RTCSession, event: any }
+type EventConnection = { type: 'CONNECTING', jssip: JsSIP, session: RTCSession, event: any }
 type EventProgress = { type: 'PROGRESS', jssip: JsSIP, session: RTCSession, event: any }
 type EventAccepted = { type: 'ACCEPTED', jssip: JsSIP, session: RTCSession, event: any }
 type EventEnded = { type: 'ENDED', jssip: JsSIP, session: RTCSession, event: any }
@@ -39,12 +39,12 @@ const callMachine = createMachine<Vue, Event>({
     // В режиме ожидания
     idle: {
       on: {
-        CONNECTION: 'connection', // Происходит когда мы начинаем звонить
+        CONNECTING: 'connecting', // Происходит когда мы начинаем звонить
         PROGRESS: 'progress' // Происходит когда нам звонят
       }
     },
 
-    connection: {
+    connecting: {
       entry (ctx, { jssip, session, event }) {
         // Слушатель событий в рамках одной сессии
         session.on('failed', (event: EndEvent) => {
@@ -210,7 +210,7 @@ const callMachine = createMachine<Vue, Event>({
                 statuses: ctx.$store.getters['project/statuses'], // Статусы в текущем проекте
                 width: ['xs', 'sm'].includes(ctx.$vuetify.breakpoint.name) ? '100%' : '60%',
                 height: '600',
-                onSave: (data: StatusInterface) => {
+                onSave: (data: any) => {
                   new Contacts()
                     .updateHistory(id, {
                       status_id: data.status.id,
