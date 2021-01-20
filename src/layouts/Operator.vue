@@ -342,25 +342,25 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
-import { debounce } from 'vuetify/src/util/helpers'
-import Tasks, { TaskGetResponseInterface, TaskInterface, TaskType } from '@/api/Tasks'
-import Projects, { ProjectInterface } from '@/api/Projects'
+import {MainSearchInterface, NotificationInterface} from '@/Interfaces'
+import {debounce} from 'vuetify/src/util/helpers'
+import Tasks, {TaskGetResponseInterface, TaskInterface, TaskType} from '@/api/Tasks'
+import Projects, {ProjectInterface} from '@/api/Projects'
 import Users from '@/api/Users'
-import { Configurations } from '@/api/Configurations'
+import {Configurations} from '@/api/Configurations'
 import PBXInterface from '@/api/Schemas/PBXInterface'
-import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
-import { Contacts } from '@/api/Contacts'
-import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent, UnRegisteredEvent } from 'jssip/lib/UA'
+import {ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession} from 'jssip/lib/RTCSession'
+import {Contacts} from '@/api/Contacts'
+import {UnRegisteredEvent} from 'jssip/lib/UA'
 import VToast from '@/components/VToast/VToast.vue'
 import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSession.vue'
-import { ToastOptions } from 'vue-toastification/dist/types/src/types'
-import { POSITION } from 'vue-toastification'
-import { JsSIP } from '@/jsSIP/plugin'
+import {ToastOptions} from 'vue-toastification/dist/types/src/types'
+import {POSITION} from 'vue-toastification'
+import {JsSIP} from '@/jsSIP/plugin'
 
 import callMachine from '@/xState/machines/callMachine'
-import { interpret } from 'xstate'
-import Account, { UserStatus } from '@/api/Account'
+import {interpret} from 'xstate'
+import Account, {UserStatus} from '@/api/Account'
 
 interface PropsInterface {
   source: string;
@@ -535,9 +535,31 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
             attrs: {}
           },
           attrs: {
-            dense: true,
-            to: {
-              name: 'login'
+            dense: true
+          },
+          on: {
+            click: () => {
+              this.$dialog.confirm({
+                title: this.$tc('Подтверждение действия.'),
+                text: this.$tc('Вы действительно хотите выйти?'),
+                actions: {
+                  false: {
+                    color: 'red',
+                    text: this.$tc('no')
+                  },
+                  true: {
+                    color: 'primary',
+                    text: this.$tc('yes'),
+                    handle: () => {
+                      if (this.$jsSIP.isConnected) {
+                        this.$jsSIP.stop()
+                      }
+
+                      this.$router.replace({ name: 'login' })
+                    }
+                  }
+                }
+              })
             }
           }
         }

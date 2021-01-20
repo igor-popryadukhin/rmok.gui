@@ -77,7 +77,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import axios, { AxiosResponse } from 'axios'
+import axios, {AxiosResponse} from 'axios'
 
 export default Vue.extend({
   data () {
@@ -147,12 +147,16 @@ export default Vue.extend({
 
           this.processMessage = this.$tc('Login successful!')
           /* eslint-enable */
+        } else {
+          this.processMessage = this.$tc('Authorisation Error!')
         }
       }).catch(() => {
-        this.processAuthorization = false
         this.processMessage = this.$tc('Authorisation Error!')
       }).finally(() => {
-        this.authorization.loading = false
+        setTimeout(() => {
+          this.authorization.loading = false
+          this.processAuthorization = false
+        }, 3000)
       })
     }
   }

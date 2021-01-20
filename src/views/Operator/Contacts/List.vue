@@ -50,7 +50,7 @@
                   </v-btn>
                   <v-btn
                     color="primary"
-                    :to="{ name: 'call_center_manager_contacts_new' }"
+                    :to="{ name: 'operator_contacts_new' }"
                     icon
                   >
                     <v-icon>mdi-plus</v-icon>
@@ -132,8 +132,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Contacts } from '@/api/Contacts'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import {Contacts} from '@/api/Contacts'
+import {ContactInterface} from '@/api/Schemas/ContactInterface'
 
 export default Vue.extend({
   data () {
