@@ -3,7 +3,7 @@ import JsSIP, { UA, WebSocketInterface } from 'jssip'
 
 export interface JsSPConfiguration {
   uri: string;
-  password: string;
+  password?: string;
   display_name?: string | undefined;
   realm?: string;
 }

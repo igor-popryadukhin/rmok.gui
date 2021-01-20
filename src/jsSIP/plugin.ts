@@ -1,14 +1,21 @@
 /* eslint-disable */
 import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
-import {debug, UA} from 'jssip'
+import { debug, UA} from 'jssip'
 import {
-  AnswerOptions, ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, PeerConnectionEvent,
+  AnswerOptions,
+  ConnectingEvent,
+  EndEvent,
+  IncomingEvent,
+  OutgoingEvent,
+  PeerConnectionEvent,
   RTCSession
 } from 'jssip/lib/RTCSession'
-import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
+import {ConnectedEvent, IncomingRTCSessionEvent, OutgoingRTCSessionEvent, RegisteredEvent} from 'jssip/lib/UA'
 import { makeAudioElement } from '@/jsSIP/utils'
 import { Timer } from './Timer'
 import { Debugger } from 'debug'
+import Vue from "vue";
+import {DisconnectEvent} from "jssip/lib/WebSocketInterface";
 
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
@@ -79,8 +86,15 @@ export enum JsSIPState {
 }
 
 export class JsSIP {
+
+  get processConnectingAndDisconnecting(): boolean {
+    return this._processConnectingAndDisconnecting;
+  }
+
+  private _processConnectingAndDisconnecting: boolean
+
   get uuid(): string {
-    return this._uuid;
+    return this._uuid
   }
 
   get sessionStopwatch (): string {
@@ -100,9 +114,8 @@ export class JsSIP {
    */
   get isConnected () {
     try {
-     return this.ua.isConnected()
+      return this.ua.isConnected()
     } catch (e) {
-      console.log('%c%s', 'color: red;', 'User Agent is not defined!')
       return false
     }
   }
@@ -175,6 +188,7 @@ export class JsSIP {
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
+    this._processConnectingAndDisconnecting = false
     this._timer = new Timer()
     this._state = JsSIPState.IDLE
     this.ua = JsSIPFactory.create(url, {
@@ -257,6 +271,12 @@ export class JsSIP {
     return this
   }
 
+  public stop (): void {
+    this._processConnectingAndDisconnecting = true
+    this.ua.stop()
+    this.ua.unregister({ all: true })
+  }
+
   getPayload<T> (): T {
     return this._payload
   }
@@ -265,14 +285,9 @@ export class JsSIP {
     this._payload = payload
   }
 
-  public start (): JsSIP {
+  public start (): void {
+    this._processConnectingAndDisconnecting = true
     this.ua.start()
-    return this
-  }
-
-  public stop (): JsSIP {
-    this.ua.stop()
-    return this
   }
 
   public on (event: string, handler: (...args: any[]) => void): JsSIP {
@@ -290,6 +305,18 @@ export class JsSIP {
   }
 
   private initializeListeners () {
+    this.ua.on('registered', (event: RegisteredEvent) => {
+      this._processConnectingAndDisconnecting = false
+    })
+
+    this.ua.on('disconnected', (event: DisconnectEvent) => {
+      this._processConnectingAndDisconnecting = false
+    })
+
+    this.ua.on('registrationExpiring', (event) => {
+      this._processConnectingAndDisconnecting = false
+    })
+
     this.ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => {
       this._sessionStartTime = new Date()
       const session: RTCSession = event.session

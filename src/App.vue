@@ -73,7 +73,7 @@ export default Vue.extend({
   beforeCreate () {
     this.$store.dispatch('profile/loadProfile')
       .finally(() => {
-        this.$root.$emit('root-jssip-initialize')
+        this.$root.$emit('root-jssip-set-configuration')
       })
     this.$store.dispatch('project/load')
   },

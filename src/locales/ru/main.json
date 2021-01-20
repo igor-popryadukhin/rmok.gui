@@ -81,6 +81,10 @@
   "Filter": "Фильтр",
   "User current project": "Текущий проект пользователя",
   "Created at": "Дата создания",
+  "Available": "Доступен",
+  "Do not disturb": "Не беспокоить",
+  "Break": "Перерыв",
+  "Exit": "Выход",
 
   "titles": {
     "dashboard": "Основная панель",

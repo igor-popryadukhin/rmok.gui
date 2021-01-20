@@ -100,12 +100,13 @@
           <v-btn
               v-else
               :key="mainMenuIndex"
-              :class="item.class || ''"
-              :disabled="item.disabled"
-              :to="item.to"
-              text
+              v-bind="'attrs' in item ? item.attrs : {}"
+              v-on="'on' in item ? item.on : {}"
           >
-            {{ $tc('route.' + item.to.name) }}
+            {{ item.title }}
+            <v-icon v-if="item.icon">
+              {{ item.icon }}
+            </v-icon>
           </v-btn>
         </template>
       </v-toolbar-items>
@@ -179,7 +180,25 @@
         </v-card>
       </v-menu>
 
-      <div style="width: 10px"></div>
+      <v-divider class="mr-2 ml-2" inset vertical />
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-on="on"
+            v-bind="attrs"
+            :loading="$jsSIP.processConnectingAndDisconnecting"
+            class="ml-2 mr-2"
+            icon
+            small
+            @click="$jsSIP.isConnected ? $jsSIP.stop() : $jsSIP.start()"
+          >
+            <v-icon>mdi-motion-pause</v-icon>
+          </v-btn>
+        </template>
+        <span v-if="$jsSIP.isConnected">Поставить на паузу</span>
+        <span v-else>Продолжить</span>
+      </v-tooltip>
 
       <!-- Avatar -->
       <v-menu offset-y min-width="300">
@@ -191,28 +210,41 @@
               v-on="on"
           >
             <v-avatar
-                color="#ff9800e3"
-                style="color: white; font-size: 20px"
-                item
+              color="white"
+              style="color: #3a70d4; font-size: 20px"
+              item
             >
               {{ avatar }}
             </v-avatar>
           </v-btn>
         </template>
-        <v-list>
-          <v-list-item
-              v-for="(item, index) in items"
-              :key="index"
-              :to="item.to"
-              @click="item.click ? item.click : () => {}"
+        <v-list
+          class="pl-0 pr-0"
+          tile
+        >
+          <template
+            v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
           >
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ $t(item.name) }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+            <v-divider v-if="accountMenuItem.divider" :key="accountMenuItemIndex" />
+            <v-subheader
+              v-else-if="accountMenuItem.subheader"
+              :key="accountMenuItemIndex"
+              v-bind="accountMenuItem"
+            >{{ accountMenuItem.title }}</v-subheader>
+            <v-list-item
+              v-else
+              :key="accountMenuItemIndex"
+              v-bind="accountMenuItem.attrs"
+              v-on="accountMenuItem.on"
+            >
+              <v-list-item-icon>
+                <v-icon v-bind="accountMenuItem.icon.attrs">{{ accountMenuItem.icon.name }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ $tc(accountMenuItem.title) }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
         </v-list>
       </v-menu>
 
@@ -330,7 +362,7 @@ interface DataInterface {
   settings: any;
   dialog: any;
   drawer: any;
-  items: any;
+  accountMenuItems: any;
   mainMenu: any[];
   notifications: NotificationInterface[];
   projects: any;
@@ -342,7 +374,7 @@ interface DataInterface {
 
 interface MethodsInterface {
   onRootNewTasks: () => void;
-  jsSIPInitialize: () => void;
+  jsSIPSetConfiguration: () => void;
   onRootLoadingProjects: () => void;
   onProjectItemClick: (item: ProjectInterface & { loading: boolean }) => void;
   onJsSIPConnected: (event: any) => void;
@@ -398,28 +430,114 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       },
       dialog: false,
       drawer: null,
-      items: [
+      accountMenuItems: [
         {
-          name: 'route.operator_settings_profile',
-          icon: 'mdi-account',
-          to: {
-            name: 'operator_settings_profile'
+          title: 'Available',
+          icon: {
+            name: 'mdi-motion-play',
+            attrs: {
+              color: 'green'
+            }
+          },
+          attrs: {
+            dense: true,
+            link: true
           }
         },
         {
-          name: 'exit',
-          icon: 'mdi-exit-run',
-          to: {
-            name: 'login'
+          title: 'Do not disturb',
+          icon: {
+            name: 'mdi-do-not-disturb',
+            attrs: {
+              color: 'red'
+            }
+          },
+          attrs: {
+            dense: true,
+            link: true
+          }
+        },
+        {
+          title: 'Break',
+          icon: {
+            name: 'mdi-motion-pause',
+            attrs: {
+              color: 'blue'
+            }
+          },
+          attrs: {
+            link: true,
+            dense: true
+          }
+        },
+        { divider: true },
+        {
+          title: 'Profile',
+          icon: {
+            name: 'mdi-account',
+            attrs: {}
+          },
+          attrs: {
+            dense: true,
+            to: {
+              name: 'operator_settings_profile'
+            }
+          }
+        },
+        {
+          title: 'Exit',
+          icon: {
+            name: 'mdi-exit-run',
+            attrs: {}
+          },
+          attrs: {
+            dense: true,
+            to: {
+              name: 'login'
+            }
           }
         }
       ],
       mainMenu: [
-        { class: '', to: { name: 'operator_leads' } },
-        { class: '', to: { name: 'operator_contacts_list' } },
-        { class: '', disabled: true, to: { name: 'operator_calls' } },
-        { class: '', disabled: true, to: { name: 'operator_reports' } },
-        { class: '', disabled: true, to: { name: 'operator_help' } }
+        {
+          title: this.$tc('Leads'),
+          attrs: {
+            value: this.$tc('Leads'),
+            text: true,
+            to: { name: 'operator_leads' }
+          }
+        },
+        {
+          title: this.$tc('Contacts'),
+          attrs: {
+            text: true,
+            to: { name: 'operator_contacts_list' }
+          }
+        },
+        {
+          title: this.$tc('Calls'),
+          attrs: {
+            text: true,
+            disabled: true,
+            to: { name: 'operator_calls' }
+          }
+        },
+        {
+          title: this.$tc('Reports'),
+          attrs: {
+            text: true,
+            disabled: true,
+            to: { name: 'operator_reports' }
+          }
+        },
+        {
+          title: this.$tc('Help'),
+          attrs: {
+            text: true,
+            disabled: true,
+            to: { name: 'operator_help' }
+          }
+        }
       ],
       notifications: [] as NotificationInterface[],
       projects: [],
@@ -508,19 +626,19 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
     this.$root.$on('root-update-notifications', this.onRootNewTasks)
 
     // Инициализация телефонии
-    this.$root.$on('root-jssip-initialize', this.jsSIPInitialize)
+    this.$root.$on('root-jssip-set-configuration', this.jsSIPSetConfiguration)
 
     // Событие загрузки проектов для выбора
     this.$root.$on('root-loading-projects', this.onRootLoadingProjects)
 
     this.callMachineService = interpret(callMachine.withContext(this))
     this.callMachineService
-      .onTransition((state) => {
+      .onTransition(state => {
         this.current = state
         this.context = state.context
       }).start()
 
-    this.$root.$emit('root-jssip-initialize')
+    this.$root.$emit('root-jssip-set-configuration')
   },
 
   created () {
@@ -546,7 +664,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
     this.$root.$off('update-rtc-toast', this.updateRTCToast)
     this.$root.$off('root-update-notifications', this.onRootNewTasks)
     this.$root.$off('root-loading-projects', this.onRootLoadingProjects)
-    this.$root.$off('root-jssip-initialize', this.jsSIPInitialize)
+    this.$root.$off('root-jssip-set-configuration', this.jsSIPSetConfiguration)
   },
 
   methods: {
@@ -687,34 +805,26 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
     },
 
     // Телефония
-    jsSIPInitialize () {
-      if (this.$isDebug) {
-        console.log('%c%s', 'color: green;', 'JsSIP: Инициализация...')
-      }
-
-      if (this.$jsSIP.isConnected) {
-        this.$jsSIP.stop()
-      }
+    jsSIPSetConfiguration () {
       new Configurations()
         .getATEConfigurations()
         .then((config: PBXInterface) => {
           /* eslint-disable */
-            this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
+            this.$jsSIP
+              .setConfiguration(`wss://${config.server}:${config.port}/ws`, {
               uri: `sip:${config.login}@${config.server}`,
               password: config.password,
               realm: config.server
-            }).on('connected', this.onJsSIPConnected)
-                .on('disconnected', this.onJsSIPDisconnected)
-                .on('registered', this.onJsSIPRegistered)
-                .on('registrationFailed', this.onJsSIPRegistrationFailed)
-                .on('sipEvent', this.onJsSIPSipEvent)
-                .on('newMessage', this.onJsSIPNewMessage)
-                .on('newRTCSession', this.newRTCSession)
+            })
+          // on('connected', this.onJsSIPConnected)
+          //     .on('disconnected', this.onJsSIPDisconnected)
+          //     .on('registered', this.onJsSIPRegistered)
+          //     .on('registrationFailed', this.onJsSIPRegistrationFailed)
+          //     .on('sipEvent', this.onJsSIPSipEvent)
+          //     .on('newMessage', this.onJsSIPNewMessage)
+          //     .on('newRTCSession', this.newRTCSession)
 
             // Event Disconnected can happen later than Connected
-            setTimeout(() => {
-              this.$jsSIP.start()
-            }, 1000)
             /* eslint-enable */
         })
 

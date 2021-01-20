@@ -146,7 +146,7 @@ export default Vue.extend({
       new Configurations()
         .setATEConfigurations(this.config)
         .then(() => {
-          this.$root.$emit('root-jssip-initialize')
+          this.$root.$emit('root-jssip-set-configuration')
           this.$toast.success(this.$tc('configuration_saved_successfully'))
         })
     }

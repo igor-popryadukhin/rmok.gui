@@ -150,7 +150,7 @@ export default Vue.extend({
         password: this.config.password,
         realm: this.config.server
         /* eslint-enable */
-      }).start()
+      })
       new Configurations()
         .setATEConfigurations(this.config)
         .then(() => {
