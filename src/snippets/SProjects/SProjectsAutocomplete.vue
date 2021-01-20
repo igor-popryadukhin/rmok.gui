@@ -123,7 +123,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null as unknown as ProjectInterface,
+      selected: {} as unknown as ProjectInterface,
       process: false,
       options: [] as ProjectInterface[]
     }

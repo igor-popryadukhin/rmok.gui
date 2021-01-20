@@ -436,9 +436,9 @@ export default Vue.extend({
         login: '',
         email: '',
         phone: '',
-        role: null as unknown as RoleInterface,
-        group: null as unknown as GroupInterface,
-        organization: null as unknown as OrganizationInterface,
+        role: {} as unknown as RoleInterface,
+        group: {} as unknown as GroupInterface,
+        organization: {} as unknown as OrganizationInterface,
 
         // Конфигурация подключения к АТС
         pbxConfig: {

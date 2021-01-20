@@ -127,7 +127,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null as unknown as UserInterface,
+      selected: {} as unknown as UserInterface,
       process: false,
       options: [] as UserInterface[]
     }

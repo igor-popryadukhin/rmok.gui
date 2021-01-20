@@ -118,7 +118,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null as unknown as GroupInterface,
+      selected: {} as unknown as GroupInterface,
       process: false,
       options: [] as GroupInterface[]
     }

@@ -120,8 +120,8 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      organizationSelected: null as unknown as OrganizationInterface,
-      userSelected: null as unknown as UserInterface,
+      organizationSelected: {} as unknown as OrganizationInterface,
+      userSelected: {} as unknown as UserInterface,
       groupName: ''
     }
   },

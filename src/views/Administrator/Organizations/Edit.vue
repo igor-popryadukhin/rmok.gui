@@ -340,7 +340,7 @@ export default Vue.extend({
       organizationPhone: '',
       organizationSphereActivity: '',
       organizationTags: [] as any[],
-      organizationResponsible: null as unknown as UserInterface,
+      organizationResponsible: {} as unknown as UserInterface,
       organizationCity: '' as string,
       organizationRegion: '' as string,
       organizationAddress: '' as string,

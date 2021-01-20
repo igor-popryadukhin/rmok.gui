@@ -436,8 +436,8 @@ export default Vue.extend({
         port: 0,
         server: ''
       } as PBXInterface,
-      userRole: null as unknown as RoleInterface,
-      userGroup: null as unknown as GroupInterface
+      userRole: {} as unknown as RoleInterface,
+      userGroup: {} as unknown as GroupInterface
     }
     /* eslint-enable */
   },

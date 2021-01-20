@@ -26,7 +26,9 @@ export class JsSIPFactory {
       display_name: configuration.display_name,
       register: true,
       realm: configuration.realm || '',
-      contact_uri: configuration.uri
+      contact_uri: configuration.uri,
+      session_timers_refresh_method: 'invite',
+      session_timers: true
     })
   }
 }
