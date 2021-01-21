@@ -138,6 +138,10 @@ export default Vue.extend({
     }
   },
 
+  created () {
+    this.fetchData()
+  },
+
   methods: {
     fetchData (params = {}) {
       search(this, Object.assign({}, this.params, params))
@@ -166,9 +170,9 @@ export default Vue.extend({
         .getById(id)
         .then((response: GroupInterface) => {
           this.selected = response
-          if (this.options.findIndex<GroupInterface>(value => value.id === id) === -1) {
-            this.options.push(response)
-          }
+          // if (this.options.findIndex<GroupInterface>(value => value.id === id) === -1) {
+          //   this.options.push(response)
+          // }
         })
     },
 

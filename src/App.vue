@@ -20,6 +20,19 @@
       @keydown.ctrl="$root.$emit('on-keydown-ctrl')"
       @keyup.ctrl="$root.$emit('on-keyup-ctrl')"
     />
+    <!-- FOR DEVELOPMENT -->
+    <div
+      v-if="screenDevVisible"
+      class="text-grey-5"
+      style="left: 100px; bottom: 30px; display: block; position: absolute; z-index: 5000; font-size: 13px; pointer-events: none;"
+    >
+      <div
+        class="for-dev-info"
+      >
+        <span>screen.width: {{ $vuetify.application.routes }}</span><br>
+      </div>
+    </div>
+    <!-- FOR DEVELOPMENT -->
   </div>
 </template>
 
@@ -39,6 +52,7 @@ export default Vue.extend({
 
   data () {
     return {
+      screenDevVisible: false,
       contactStatusDialog: {
         visible: false,
         historyId: 0
@@ -78,14 +92,18 @@ export default Vue.extend({
     this.$store.dispatch('project/load')
   },
 
-  created () {
+  mounted () {
     this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
+    this.$root.$on('on-keydown-ctrl', this.onKeyDown)
+    this.$root.$on('on-keyup-ctrl', this.onKeyUp)
   },
 
   beforeDestroy () {
     this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
+    this.$root.$off('on-keydown-ctrl', this.onKeyDown)
+    this.$root.$off('on-keyup-ctrl', this.onKeyUp)
   },
 
   methods: {
@@ -96,6 +114,18 @@ export default Vue.extend({
 
     rootLoadingDataHide () {
       this.overlay = false
+    },
+
+    onKeyDown (e: KeyboardEvent) {
+      if (e.code === 'ControlLeft') {
+        this.screenDevVisible = true
+      }
+    },
+
+    onKeyUp (e: KeyboardEvent) {
+      if (e.code === 'ControlLeft') {
+        this.screenDevVisible = false
+      }
     }
   }
 })
@@ -110,4 +140,8 @@ export default Vue.extend({
   //.v-overlay__scrim {
   //  backdrop-filter: blur(1px);
   //}
+
+  .is-dev {
+    padding: 10px;
+  }
 </style>
