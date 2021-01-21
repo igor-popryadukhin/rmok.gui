@@ -330,12 +330,12 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import {ContactResponseInterface, Contacts, ContactSearchQueryInterface} from '@/api/Contacts'
-import {ContactInterface, ContactPhoneInterface, HistoryInterface} from '@/api/Schemas/ContactInterface'
-import Projects, {ProjectInterface} from '@/api/Projects'
-import {MainSearchMethod} from '@/Interfaces'
-import {UserInterface} from '@/api/Users'
-import Tasks, {TaskGetResponseInterface, TaskInterface} from '@/api/Tasks'
+import { ContactResponseInterface, Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
+import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
+import Projects, { ProjectInterface } from '@/api/Projects'
+import { MainSearchMethod } from '@/Interfaces'
+import { UserInterface } from '@/api/Users'
+import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
 import Leads from '@/api/Leads'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import secondsToHms from '@/mixins/secondsToHms'

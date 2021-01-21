@@ -132,8 +132,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import {Contacts} from '@/api/Contacts'
-import {ContactInterface} from '@/api/Schemas/ContactInterface'
+import { Contacts } from '@/api/Contacts'
+import { ContactInterface } from '@/api/Schemas/ContactInterface'
 
 export default Vue.extend({
   data () {
