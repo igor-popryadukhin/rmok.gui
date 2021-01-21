@@ -376,6 +376,12 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
 
   data () {
     return {
+      vueScrollLeads: {
+        offset: 0
+      },
+      vueScrollTasks: {
+        offset: 0
+      },
       paginator: {
         perPage: 10,
         pages: 0,
