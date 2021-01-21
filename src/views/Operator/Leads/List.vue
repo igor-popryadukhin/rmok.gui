@@ -75,8 +75,8 @@
                   <v-list-item class="text-center">
                     <v-spacer />
                     <span class="grey--text">
-                {{ $tc('You have no leads') }}
-              </span>
+                      {{ $tc('You have no leads') }}
+                    </span>
                     <v-spacer />
                   </v-list-item>
                 </template>
@@ -337,7 +337,6 @@ import { MainSearchMethod } from '@/Interfaces'
 import { UserInterface } from '@/api/Users'
 import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
 import Leads from '@/api/Leads'
-import vueScrollOptions from '@/mixins/vueScrollOptions'
 import secondsToHms from '@/mixins/secondsToHms'
 import ErrorInterface from '@/api/Schemas/ErrorInterface'
 
@@ -372,20 +371,11 @@ interface ComputedInterface {
 export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
 
   mixins: [
-    vueScrollOptions,
     secondsToHms
   ],
 
   data () {
     return {
-      vueScrollLeads: {
-        offset: 0,
-        opt: { ...vueScrollOptions }
-      },
-      vueScrollTasks: {
-        offset: 0,
-        opt: { ...vueScrollOptions }
-      },
       paginator: {
         perPage: 10,
         pages: 0,

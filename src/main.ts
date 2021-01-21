@@ -21,7 +21,7 @@ import '@/plugins/vuetify-dialog'
 import '@/plugins/lvovich'
 import '@/plugins/router-query'
 import CleanLayout from '@/layouts/Clean.vue'
-import('@/jsSIP')
+// import('@/jsSIP')
 
 // layouts
 Vue.component('administrator', () => import(/* webpackChunkName: "layout-administrator" */ './layouts/Administrator.vue'))
