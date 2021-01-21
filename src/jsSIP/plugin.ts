@@ -166,6 +166,7 @@ export class JsSIP {
     audioElementForSound.currentTime = 0.0
   }
 
+  private _instance: JsSIP
   private _uuid: string = ''
   private _payload: any = undefined
   private _target: string = ''
@@ -188,6 +189,7 @@ export class JsSIP {
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
+    this._instance = this
     this._processConnectingAndDisconnecting = false
     this._timer = new Timer()
     this._state = JsSIPState.IDLE
@@ -306,17 +308,17 @@ export class JsSIP {
   }
 
   private initializeListeners () {
-    this.ua.on('registered', this.onRegistered)
-    this.ua.on('disconnected', this.onDisconnect)
-    this.ua.on('registrationExpiring', this.onRegistrationExpiring)
-    this.ua.on('newRTCSession', this.onNewRTCSession)
+    this.ua.on('registered', () => (this.onRegistered()))
+    this.ua.on('disconnected', () => this.onDisconnect)
+    this.ua.on('registrationExpiring', () => this.onRegistrationExpiring)
+    this.ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
   }
 
   private unInitializeListeners () {
-    this.ua.off('registered', this.onRegistered)
-    this.ua.off('disconnected', this.onDisconnect)
-    this.ua.off('registrationExpiring', this.onRegistrationExpiring)
-    this.ua.off('newRTCSession', this.onNewRTCSession)
+    this.ua.off('registered', () => (this.onRegistered()))
+    this.ua.off('disconnected', () => this.onDisconnect)
+    this.ua.off('registrationExpiring', () => this.onRegistrationExpiring)
+    this.ua.off('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
   }
 
   private onRegistered () {
