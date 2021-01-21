@@ -165,7 +165,7 @@
                         v-for="(action, actionIndex) in item.actions"
                         :key="actionIndex"
                         link
-                        @click="action.handle(action.arg)"
+                        @click="action.handle(...action.arg)"
                         @mouseup="buttonMenuNotification = false"
                     >
                       <v-list-item-content>
@@ -342,25 +342,25 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import {MainSearchInterface, NotificationInterface} from '@/Interfaces'
-import {debounce} from 'vuetify/src/util/helpers'
-import Tasks, {TaskGetResponseInterface, TaskInterface, TaskType} from '@/api/Tasks'
-import Projects, {ProjectInterface} from '@/api/Projects'
+import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
+import { debounce } from 'vuetify/src/util/helpers'
+import Tasks, { TaskGetResponseInterface, TaskInterface, TaskType } from '@/api/Tasks'
+import Projects, { ProjectInterface } from '@/api/Projects'
 import Users from '@/api/Users'
-import {Configurations} from '@/api/Configurations'
+import { Configurations } from '@/api/Configurations'
 import PBXInterface from '@/api/Schemas/PBXInterface'
-import {ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession} from 'jssip/lib/RTCSession'
-import {Contacts} from '@/api/Contacts'
-import {UnRegisteredEvent} from 'jssip/lib/UA'
+import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
+import { Contacts } from '@/api/Contacts'
+import { UnRegisteredEvent } from 'jssip/lib/UA'
 import VToast from '@/components/VToast/VToast.vue'
 import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSession.vue'
-import {ToastOptions} from 'vue-toastification/dist/types/src/types'
-import {POSITION} from 'vue-toastification'
-import {JsSIP} from '@/jsSIP/plugin'
+import { ToastOptions } from 'vue-toastification/dist/types/src/types'
+import { POSITION } from 'vue-toastification'
+import { JsSIP } from '@/jsSIP/plugin'
 
 import callMachine from '@/xState/machines/callMachine'
-import {interpret} from 'xstate'
-import Account, {UserStatus} from '@/api/Account'
+import { interpret } from 'xstate'
+import Account, { UserStatus } from '@/api/Account'
 
 interface PropsInterface {
   source: string;
@@ -750,6 +750,27 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
               actions: []
             })
           }
+
+          // Проверяем наличие подключения и текущего статуса
+          if (!this.$jsSIP.isConnected && [UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
+            this.notifications.push({
+              type: 'event',
+              icon: 'mdi-alert',
+              color: 'red',
+              title: 'Ошибка',
+              message: 'Требуется настроить RTC',
+              actions: [
+                {
+                  title: 'Настроить',
+                  arg: null,
+                  handle: () => {
+                    this.$router.push({ name: 'operator_settings_telephony' })
+                  }
+                }
+              ]
+            })
+          }
+
           response.items.forEach((task: TaskInterface) => {
             if (!task.done) {
               let title = ''
@@ -880,6 +901,30 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       new Configurations()
         .getATEConfigurations()
         .then((config: PBXInterface) => {
+          // Проверяю наличие данных, сервер может вернуть пустые свойства
+          if (config.server === '' || (config.login === '' && config.password === '')) {
+            return this.$toast.error({
+              component: VToast,
+              props: {
+                title: this.$tc('Error connecting to PBX'),
+                text: this.$t('Cause: {text}', { text: 'Нет параметров!' }),
+                actions: [
+                  {
+                    attrs: {
+                      label: this.$tc('Tune'),
+                      style: { color: 'white' }
+                    },
+                    on: {
+                      click: () => {
+                        this.$router.push({ name: 'operator_settings_telephony' })
+                      }
+                    }
+                  }
+                ]
+              }
+            }, { timeout: false })
+          }
+
           // Отключаемся,если подключены
           if (this.$jsSIP.isConnected) {
             this.$jsSIP.stop()
