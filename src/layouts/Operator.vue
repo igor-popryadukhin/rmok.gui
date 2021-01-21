@@ -361,8 +361,6 @@ import callMachine from '@/xState/machines/callMachine'
 import { interpret } from 'xstate'
 import Account, { UserStatus } from '@/api/Account'
 
-const jsSIPModule = () => import(/* webpackChunkName: "jssip-plugin" */'@/jsSIP')
-
 interface PropsInterface {
   source: string;
 }
@@ -723,6 +721,20 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
         }
       }
     )
+
+    // Notification.requestPermission(function (permission) {
+    //   console.log('Результат запроса прав:', permission)
+    //   setInterval(() => {
+    //     const notification = new Notification('Sex', {
+    //       body: '<div style="background-color: #9C27B0">SEX</div>',
+    //       dir: 'auto'
+    //     })
+    //
+    //     notification.onclick = () => {
+    //       console.log('Вы кликнули!')
+    //     }
+    //   }, 3000)
+    // })
   },
 
   created () {
@@ -769,24 +781,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
           }
 
           // Проверяем наличие подключения и текущего статуса
-          if (!this.$jsSIP.isConnected && [UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
-            this.notifications.push({
-              type: 'event',
-              icon: 'mdi-alert',
-              color: 'red',
-              title: 'Ошибка',
-              message: 'Требуется настроить RTC',
-              actions: [
-                {
-                  title: 'Настроить',
-                  arg: null,
-                  handle: () => {
-                    this.$router.push({ name: 'operator_settings_telephony' })
-                  }
-                }
-              ]
-            })
-          }
 
           response.items.forEach((task: TaskInterface) => {
             if (!task.done) {
@@ -916,134 +910,158 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       }
 
       // Инициализация JSSIP
-      jsSIPModule()
-        .then(() => {
-          new Configurations()
-            .getATEConfigurations()
-            .then((config: PBXInterface) => {
-            // Проверяю наличие данных, сервер может вернуть пустые свойства
-              if (config.server === '' || (config.login === '' && config.password === '')) {
-                return this.$toast.error({
-                  component: VToast,
-                  props: {
-                    title: this.$tc('Error connecting to PBX'),
-                    text: this.$t('Cause: {text}', { text: 'Нет параметров!' }),
-                    actions: [
-                      {
-                        attrs: {
-                          label: this.$tc('Tune'),
-                          style: { color: 'white' }
-                        },
-                        on: {
-                          click: () => {
-                            this.$router.push({ name: 'operator_settings_telephony' })
-                          }
+      new Configurations()
+        .getATEConfigurations()
+        .then((config: PBXInterface) => {
+          // Проверяю наличие данных, сервер может вернуть пустые свойства
+          if (config.server === '' || (config.login === '' && config.password === '')) {
+            return this.$toast.error({
+              component: VToast,
+              props: {
+                title: this.$tc('Error connecting to PBX'),
+                text: this.$t('Cause: {text}', { text: 'Нет параметров!' }),
+                actions: [
+                  {
+                    attrs: {
+                      label: this.$tc('Tune'),
+                      style: { color: 'white' }
+                    },
+                    on: {
+                      click: () => {
+                        this.$router.push({ name: 'operator_settings_telephony' })
+                      }
+                    }
+                  }
+                ]
+              }
+            }, { timeout: false })
+          }
+
+          // Отключаемся,если подключены
+          if (this.$jsSIP.isConnected) {
+            this.$jsSIP.stop()
+          }
+
+          setTimeout(() => {
+            this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
+              uri: `sip:${config.login}@${config.server}`,
+              password: config.password,
+              realm: config.server
+            })
+
+            // Глобальные обработчики
+            this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
+              this.callMachineService.send({
+                type: 'CONNECTING',
+                jssip: self,
+                session,
+                event
+              })
+            }
+
+            this.$jsSIP.onSessionProgress = async (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
+              this.callMachineService.send({
+                type: 'PROGRESS',
+                jssip: self,
+                session,
+                event
+              })
+              /* eslint-enable */
+            }
+
+            this.$jsSIP.onSessionAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
+              this.callMachineService.send({
+                type: 'ACCEPTED',
+                jssip: self,
+                session,
+                event
+              })
+
+              if (this.$isDebug) {
+                console.group('JsSIP: Принятый')
+                console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
+                console.log('%c%s', 'color: green;', '----------------------------------------------------')
+                console.log(event)
+                console.log(session)
+                console.log('%c%s', 'color: green;', '----------------------------------------------------')
+                console.groupEnd()
+              }
+            }
+
+            this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
+              this.callMachineService.send({
+                type: 'ENDED',
+                jssip: self,
+                session,
+                event
+              })
+
+              /* eslint-enable */
+            }
+
+            this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
+              this.callMachineService.send({
+                type: 'FAILED',
+                jssip: self,
+                session,
+                event
+              })
+            }
+
+            this.$jsSIP.on('registrationFailed', (event: UnRegisteredEvent) => {
+              this.$toast.error({
+                component: VToast,
+                props: {
+                  title: this.$tc('Error connecting to PBX'),
+                  text: this.$t('Cause: {text}', { text: event.cause }),
+                  actions: [
+                    {
+                      attrs: {
+                        label: this.$tc('Tune'),
+                        style: { color: 'white' }
+                      },
+                      on: {
+                        click: () => {
+                          this.$router.push({ name: 'operator_settings_telephony' })
                         }
                       }
-                    ]
-                  }
-                }, { timeout: false })
-              }
-
-              // Отключаемся,если подключены
-              if (this.$jsSIP.isConnected) {
-                this.$jsSIP.stop()
-              }
-
-              setTimeout(() => {
-                this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
-                  uri: `sip:${config.login}@${config.server}`,
-                  password: config.password,
-                  realm: config.server
-                })
-
-                // Глобальные обработчики
-                this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
-                  this.callMachineService.send({
-                    type: 'CONNECTING',
-                    jssip: self,
-                    session,
-                    event
-                  })
-                }
-
-                this.$jsSIP.onSessionProgress = async (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-                  this.callMachineService.send({
-                    type: 'PROGRESS',
-                    jssip: self,
-                    session,
-                    event
-                  })
-                /* eslint-enable */
-                }
-
-                this.$jsSIP.onSessionAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-                  this.callMachineService.send({
-                    type: 'ACCEPTED',
-                    jssip: self,
-                    session,
-                    event
-                  })
-
-                  if (this.$isDebug) {
-                    console.group('JsSIP: Принятый')
-                    console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-                    console.log('%c%s', 'color: green;', '----------------------------------------------------')
-                    console.log(event)
-                    console.log(session)
-                    console.log('%c%s', 'color: green;', '----------------------------------------------------')
-                    console.groupEnd()
-                  }
-                }
-
-                this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-                  this.callMachineService.send({
-                    type: 'ENDED',
-                    jssip: self,
-                    session,
-                    event
-                  })
-
-                /* eslint-enable */
-                }
-
-                this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-                  this.callMachineService.send({
-                    type: 'FAILED',
-                    jssip: self,
-                    session,
-                    event
-                  })
-                }
-
-                this.$jsSIP.on('registrationFailed', (event: UnRegisteredEvent) => {
-                  this.$toast.error({
-                    component: VToast,
-                    props: {
-                      title: this.$tc('Error connecting to PBX'),
-                      text: this.$t('Cause: {text}', { text: event.cause }),
-                      actions: [
-                        {
-                          attrs: {
-                            label: this.$tc('Tune'),
-                            style: { color: 'white' }
-                          },
-                          on: {
-                            click: () => {
-                              this.$router.push({ name: 'operator_settings_telephony' })
-                            }
-                          }
-                        }
-                      ]
                     }
-                  }, { timeout: false })
-                })
-
-                if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
-                  this.$jsSIP.start()
+                  ]
                 }
-              }, 1000)
+              }, { timeout: false })
             })
+
+            if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
+              this.$jsSIP.start()
+            }
+          }, 1000)
+
+          setTimeout(() => {
+            const guid = '6f4de608-5e14-4a77-8922-0d2c68d59161'
+            if (!this.$jsSIP.isConnected && [UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
+              this.notifications.push({
+                id: guid,
+                type: 'event',
+                icon: 'mdi-alert',
+                color: 'red',
+                title: 'Ошибка',
+                message: 'Требуется настроить RTC',
+                actions: [
+                  {
+                    title: 'Настроить',
+                    arg: null,
+                    handle: () => {
+                      this.$router.push({ name: 'operator_settings_telephony' })
+                    }
+                  }
+                ]
+              })
+            } else {
+              this.notifications = this.notifications.filter<NotificationInterface>(value => {
+                return value.id !== guid
+              })
+            }
+          }, 5000)
         })
     },
 

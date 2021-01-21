@@ -113,12 +113,9 @@ export class JsSIP {
    * Returns true if the transport is connected, false otherwise.
    */
   get isConnected () {
-    try {
-      return this.ua.isConnected()
-    } catch (e) {
-      return false
-    }
+    return this._ua.isConnected() && this._ua.isRegistered()
   }
+
   get session (): RTCSession | undefined {
     return this._session
   }
@@ -166,12 +163,11 @@ export class JsSIP {
     audioElementForSound.currentTime = 0.0
   }
 
-  private _instance: JsSIP
   private _uuid: string = ''
   private _payload: any = undefined
   private _target: string = ''
   private _session?: RTCSession
-  private ua: UA
+  private _ua: UA
   private _timerId: any = undefined
 
   // Session time
@@ -189,11 +185,10 @@ export class JsSIP {
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
-    this._instance = this
     this._processConnectingAndDisconnecting = false
     this._timer = new Timer()
     this._state = JsSIPState.IDLE
-    this.ua = JsSIPFactory.create(url, {
+    this._ua = JsSIPFactory.create(url, {
       /* eslint-disable */
       uri: config.uri,
       display_name: config.display_name,
@@ -211,13 +206,13 @@ export class JsSIP {
    */
   public call<PLT> (target: string, payload: PLT): RTCSession {
     this._payload = payload
-    if (!this.ua) {
+    if (!this._ua) {
       throw new Error('Initialization required')
     }
     this._target = target
     this._uuid = this.generateUUID()
     /* eslint-disable */
-    return this.ua.call(target, {
+    return this._ua.call(target, {
       extraHeaders: [
         'X-Call-Filename: ' + this._uuid
       ],
@@ -252,7 +247,7 @@ export class JsSIP {
    * Cancel call
    */
   public cancel () {
-    this.ua.terminateSessions()
+    this._ua.terminateSessions()
   }
 
   /**
@@ -261,7 +256,10 @@ export class JsSIP {
    * @param config
    */
   public setConfiguration (url: string, config: JsSPConfiguration) {
-    this.ua = JsSIPFactory.create(url, {
+    this.unInitializeListeners()
+    // @ts-ignore
+    this._ua = null
+    this._ua = JsSIPFactory.create(url, {
       /* eslint-disable */
       uri: config.uri,
       display_name: config.display_name,
@@ -269,15 +267,14 @@ export class JsSIP {
       realm: config.realm
       /* eslint-enable */
     })
-    this.unInitializeListeners()
     this.initializeListeners()
     return this
   }
 
   public stop (): void {
     this._processConnectingAndDisconnecting = true
-    this.ua.stop()
-    this.ua.unregister({ all: true })
+    this._ua.stop()
+    this._ua.unregister({ all: true })
   }
 
   getPayload<T> (): T {
@@ -290,16 +287,16 @@ export class JsSIP {
 
   public start (): void {
     this._processConnectingAndDisconnecting = true
-    this.ua.start()
+    this._ua.start()
   }
 
   public on (event: string, handler: (...args: any[]) => void): JsSIP {
-    (this.ua as UA).addListener(event, handler)
+    (this._ua as UA).addListener(event, handler)
     return this
   }
 
   public off (event: string, handler: (...args: any[]) => void): JsSIP {
-    (this.ua as UA).removeListener(event, handler)
+    (this._ua as UA).removeListener(event, handler)
     return this
   }
 
@@ -308,17 +305,17 @@ export class JsSIP {
   }
 
   private initializeListeners () {
-    this.ua.on('registered', () => (this.onRegistered()))
-    this.ua.on('disconnected', () => this.onDisconnect)
-    this.ua.on('registrationExpiring', () => this.onRegistrationExpiring)
-    this.ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
+    this._ua.on('registered', () => (this.onRegistered()))
+    this._ua.on('disconnected', () => this.onDisconnect)
+    this._ua.on('registrationExpiring', () => this.onRegistrationExpiring)
+    this._ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
   }
 
   private unInitializeListeners () {
-    this.ua.off('registered', () => (this.onRegistered()))
-    this.ua.off('disconnected', () => this.onDisconnect)
-    this.ua.off('registrationExpiring', () => this.onRegistrationExpiring)
-    this.ua.off('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
+    this._ua.off('registered', () => (this.onRegistered()))
+    this._ua.off('disconnected', () => this.onDisconnect)
+    this._ua.off('registrationExpiring', () => this.onRegistrationExpiring)
+    this._ua.off('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
   }
 
   private onRegistered () {

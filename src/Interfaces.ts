@@ -14,6 +14,7 @@ export interface NotificationActionInterface {
 }
 
 export interface NotificationInterface {
+  id?: string;
   type: string;
   icon: string;
   color: string;
