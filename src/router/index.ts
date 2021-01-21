@@ -611,12 +611,12 @@ const routes: RouteConfig[] = [
       {
         path: 'reports',
         name: 'call_center_manager_reports',
-        component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Reports/Layout.vue'),
+        component: () => import(/* webpackChunkName: "call-center-manager-reports" */ '../views/CallCenterManage/Reports/Layout.vue'),
         children: [
           {
             path: 'recent-calls',
             name: 'call_center_manager_reports_recent_calls',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Reports/RecentCalls.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-reports-recent-calls" */ '../views/CallCenterManage/Reports/RecentCalls.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -625,7 +625,7 @@ const routes: RouteConfig[] = [
           {
             path: 'all-calls',
             name: 'call_center_manager_reports_all_calls',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Reports/AllCalls.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-all-calls" */ '../views/CallCenterManage/Reports/AllCalls.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -643,12 +643,12 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'contacts',
-        component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/Layout.vue'),
+        component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/Layout.vue'),
         children: [
           {
             path: '',
             name: 'call_center_manager_contacts',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/List.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/List.vue'),
             meta: {
               anonymous: true,
               layout: 'call-center-manager',
@@ -658,7 +658,7 @@ const routes: RouteConfig[] = [
           {
             name: 'call_center_manager_contacts_new',
             path: 'new',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/New.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/New.vue'),
             meta: {
               anonymous: true,
               layout: 'call-center-manager',
@@ -668,7 +668,7 @@ const routes: RouteConfig[] = [
           {
             name: 'call_center_manager_contacts_edit',
             path: ':contact_id',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/Edit.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts" */ '../views/CallCenterManage/Contacts/Edit.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -677,24 +677,24 @@ const routes: RouteConfig[] = [
           {
             path: ':contact_id',
             name: 'call_center_manager_contacts_view',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/View.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-contacts-view" */ '../views/CallCenterManage/Contacts/View.vue'),
             children: [
               {
                 path: 'script',
                 name: 'call_center_manager_contacts_view_script',
-                component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/Script.vue'),
+                component: () => import(/* webpackChunkName: "call-center-manager-contacts-view" */ '../views/CallCenterManage/Contacts/Script.vue'),
                 meta: { layout: 'call-center-manager', middleware: [roleRCC] }
               },
               {
                 path: 'history',
                 name: 'call_center_manager_contacts_view_history',
-                component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/History.vue'),
+                component: () => import(/* webpackChunkName: "call-center-manager-contacts-view" */ '../views/CallCenterManage/Contacts/History.vue'),
                 meta: { layout: 'call-center-manager', middleware: [roleRCC] }
               },
               {
                 path: 'tasks',
                 name: 'call_center_manager_contacts_view_task',
-                component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Contacts/Task.vue'),
+                component: () => import(/* webpackChunkName: "call-center-manager-contacts-view" */ '../views/CallCenterManage/Contacts/Task.vue'),
                 meta: { layout: 'call-center-manager', middleware: [roleRCC] }
               }
             ],
@@ -712,12 +712,12 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'users',
-        component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Users/Layout.vue'),
+        component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/Layout.vue'),
         children: [
           {
             path: '',
             name: 'call_center_manager_users',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Users/List.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/List.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -726,7 +726,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'call_center_manager_users_new',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Users/New.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/New.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -735,7 +735,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'call_center_manager_users_edit',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Users/Edit.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-users" */ '../views/CallCenterManage/Users/Edit.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -754,12 +754,12 @@ const routes: RouteConfig[] = [
       },
       {
         path: 'groups',
-        component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Groups/Layout.vue'),
+        component: () => import(/* webpackChunkName: "call-center-manager-groups" */ '../views/CallCenterManage/Groups/Layout.vue'),
         children: [
           {
             path: '',
             name: 'call_center_manager_groups',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Groups/List.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-groups" */ '../views/CallCenterManage/Groups/List.vue'),
             meta: {
               anonymous: true,
               layout: 'call-center-manager',
@@ -769,7 +769,7 @@ const routes: RouteConfig[] = [
           {
             path: 'new',
             name: 'call_center_manager_group_new',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Groups/New.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-groups" */ '../views/CallCenterManage/Groups/New.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -778,7 +778,7 @@ const routes: RouteConfig[] = [
           {
             path: ':id',
             name: 'call_center_manager_group_edit',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Groups/Edit.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-groups" */ '../views/CallCenterManage/Groups/Edit.vue'),
             meta: {
               layout: 'call-center-manager',
               middleware: [roleRCC]
@@ -797,12 +797,12 @@ const routes: RouteConfig[] = [
       {
         path: 'settings',
         name: 'call_center_manager_settings',
-        component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Settings/Layout.vue'),
+        component: () => import(/* webpackChunkName: "call-center-manager-settings" */ '../views/CallCenterManage/Settings/Layout.vue'),
         children: [
           {
             path: 'profile',
             name: 'call_center_manager_profile',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Settings/Profile.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-settings" */ '../views/CallCenterManage/Settings/Profile.vue'),
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'call-center-manager',
@@ -812,7 +812,7 @@ const routes: RouteConfig[] = [
           {
             path: 'journal',
             name: 'call_center_manager_journal',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Settings/Journal.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-settings" */ '../views/CallCenterManage/Settings/Journal.vue'),
             meta: {
               icon: 'mdi-history',
               layout: 'call-center-manager',
@@ -822,7 +822,7 @@ const routes: RouteConfig[] = [
           {
             path: 'security',
             name: 'call_center_manager_security',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Settings/Security.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-settings" */ '../views/CallCenterManage/Settings/Security.vue'),
             meta: {
               icon: 'mdi-security',
               layout: 'call-center-manager',
@@ -832,7 +832,7 @@ const routes: RouteConfig[] = [
           {
             path: 'developer-settings',
             name: 'call_center_manager_developer_settings',
-            component: () => import(/* webpackChunkName: "call-center-manager" */ '../views/CallCenterManage/Settings/DeveloperSettings.vue'),
+            component: () => import(/* webpackChunkName: "call-center-manager-settings" */ '../views/CallCenterManage/Settings/DeveloperSettings.vue'),
             meta: {
               icon: 'mdi-flask',
               layout: 'call-center-manager',

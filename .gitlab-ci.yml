@@ -13,6 +13,13 @@ build-dev:
     - cat $ENV_DEV >> ./.env
     - npm ci
     - npm run build
+  after_script:
+    # Send report to email
+    - curl --ssl-reqd --url 'smtps://smtp.gmail.com:465'\
+    - --user '$EMAI_FROM:$EMAI_FROM_PASSWPRD'\
+    - --mail-from '$EMAI_FROM'\
+    - --mail-rcpt '$EMAI_TO' \
+    - --upload-file ./dist/report.html
   artifacts:
     paths:
       - dist/

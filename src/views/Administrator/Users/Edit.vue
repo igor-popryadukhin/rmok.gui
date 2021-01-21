@@ -625,7 +625,7 @@ export default Vue.extend({
           if ('errors' in e) {
             if (Array.isArray(e.errors)) {
               for (const error of e.errors) {
-                this.$toast.warning(error.message)
+                this.$toast.error(error.message)
               }
             }
           }
