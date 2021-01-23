@@ -1,7 +1,7 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
-/* eslint-disable */
+import APIError from '@/api/classes/Error'
 
 export interface GroupTeamLeaderInterface {
   id: number;
@@ -84,14 +84,14 @@ export class Groups {
    * Delete group
    * @param id
    */
-  public delete (id: number): Promise<any> | any {
-    return new Promise((resolve, reject): Promise<any> | any => {
-      $axios.get(`/groups/${id}`)
+  public delete<T = any> (id: number): Promise<APIError | T> {
+    return new Promise<APIError | T>((resolve, reject) => {
+      $axios.delete(`/groups/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

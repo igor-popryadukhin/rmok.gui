@@ -265,5 +265,6 @@
   },
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
-  "yes": "Да"
+  "yes": "Да",
+  "All information about the group and information associated with it will be deleted permanently.": "Вся информация о группе и связанная с ней информация, удалятся без возможности восстановления."
 }

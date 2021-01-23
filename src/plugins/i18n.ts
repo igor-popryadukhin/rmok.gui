@@ -71,23 +71,22 @@ function setI18nLanguage (lang: string) {
 
 /**
  * Lazy loading language packs
- * -------------------------------------------------
+ * ---------------------------------------------
  * @param lang
  * @param name
- * @returns {Promise|Promise<any>|*|PromiseLike<any>}
  */
-export function loadLanguageAsync (lang: string, name: string) {
+export function loadLanguageAsync (lang: string, name: string): Promise<boolean> {
   return new Promise((resolve) => {
     const ln = `${lang}-${name}`
     if (loadedPackages.includes(ln)) {
-      resolve()
+      resolve(true)
       return
     }
     loadedPackages.push(ln)
 
     return import(/* webpackChunkName: "lang-[request]" */ `@/locales/${lang}/${name}.json`).then(
       (messages) => {
-        resolve()
+        resolve(true)
         i18n.mergeLocaleMessage(lang, messages.default)
         return setI18nLanguage(lang)
       }

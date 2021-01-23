@@ -98,6 +98,8 @@ import { UserInterface } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
+import { NavigationGuardNext } from 'vue-router/types/router'
+import APIError from '@/api/classes/Error'
 
 export default Vue.extend({
   components: {
@@ -126,7 +128,7 @@ export default Vue.extend({
     }
   },
 
-  beforeRouteEnter (to, from, next) {
+  beforeRouteEnter (to, from, next: NavigationGuardNext<any>) {
     new Groups()
       .getById(+to.params.id)
       .then(async (response: GroupInterface) => {
@@ -164,7 +166,30 @@ export default Vue.extend({
   methods: {
 
     onBtnDeleteClick () {
-      // todo: Реализовать удаление
+      this.$dialog.confirm({
+        title: this.$tc('Confirmation request'),
+        text: this.$tc('All information about the group and information associated with it will be deleted permanently.'),
+        actions: {
+          false: {
+            color: 'black',
+            text: this.$tc('No')
+          },
+          true: {
+            color: 'red',
+            text: this.$tc('Yes'),
+            handle: () => {
+              new Groups()
+                .delete(+this.$route.params.id)
+                .then(() => {
+                  this.$toast.success(this.$tc('The group was successfully deleted.'))
+                  this.$router.back()
+                }).catch((e: APIError) => {
+                  this.$toast.error(e.message)
+                })
+            }
+          }
+        }
+      })
     },
 
     onSave () {

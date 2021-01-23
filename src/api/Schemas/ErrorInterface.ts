@@ -6,6 +6,6 @@ export interface Error {
 
 export default interface ErrorInterface {
   error_code: string;
-  error_message: number;
+  error_message: string;
   errors?: Error[];
 }
