@@ -387,7 +387,7 @@
       </v-row>
     </div>
 
-    <v-row class="mb-16">
+    <v-row class="pb-16">
       <v-col
         cols="12"
         class="text-right"

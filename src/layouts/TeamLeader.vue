@@ -68,7 +68,7 @@
       </v-menu>
 
       <!-- Avatar -->
-      <v-menu offset-y>
+      <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
@@ -77,27 +77,40 @@
             v-on="on"
           >
             <v-avatar
-              color="#ff9800e3"
-              style="color: white; font-size: 20px"
+              class="avatar"
               item
             >
               {{ avatar }}
             </v-avatar>
           </v-btn>
         </template>
-        <v-list>
-          <v-list-item
-            v-for="(item, index) in items"
-            :key="index"
-            :to="item.to"
+        <v-list
+          class="pl-0 pr-0"
+          tile
+        >
+          <template
+            v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
           >
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ $t(item.name) }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+            <v-divider v-if="accountMenuItem.divider" :key="accountMenuItemIndex" />
+            <v-subheader
+              v-else-if="accountMenuItem.subheader"
+              :key="accountMenuItemIndex"
+              v-bind="accountMenuItem"
+            >{{ accountMenuItem.title }}</v-subheader>
+            <v-list-item
+              v-else
+              :key="accountMenuItemIndex"
+              v-bind="accountMenuItem.attrs"
+              v-on="accountMenuItem.on"
+            >
+              <v-list-item-icon>
+                <v-icon v-bind="accountMenuItem.icon.attrs">{{ accountMenuItem.icon.name }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ $tc(accountMenuItem.title) }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
         </v-list>
       </v-menu>
 
@@ -160,26 +173,49 @@ export default Vue.extend({
     },
     dialog: false,
     drawer: null,
-    items: [
+    accountMenuItems: [
       {
-        name: 'profile',
-        icon: 'mdi-account',
-        to: {
-          name: 'team_leader_profile'
+        title: 'Profile',
+        icon: {
+          name: 'mdi-account',
+          attrs: {}
+        },
+        attrs: {
+          dense: true,
+          to: {
+            name: 'team_leader_profile'
+          }
         }
       },
       {
-        name: 'settings',
-        icon: 'mdi-cog',
-        to: {
-          name: 'team_leader_settings'
-        }
-      },
-      {
-        name: 'exit',
-        icon: 'mdi-exit-run',
-        to: {
-          name: 'login'
+        title: 'Exit',
+        icon: {
+          name: 'mdi-exit-run',
+          attrs: {}
+        },
+        attrs: {
+          dense: true
+        },
+        on: {
+          click: () => {
+            this.$dialog.confirm({
+              title: this.$tc('Подтверждение действия.'),
+              text: this.$tc('Вы действительно хотите выйти?'),
+              actions: {
+                false: {
+                  color: 'red',
+                  text: this.$tc('no')
+                },
+                true: {
+                  color: 'primary',
+                  text: this.$tc('yes'),
+                  handle: () => {
+                    this.$router.replace({ name: 'login' })
+                  }
+                }
+              }
+            })
+          }
         }
       }
     ],

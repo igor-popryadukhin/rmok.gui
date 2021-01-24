@@ -34,11 +34,11 @@
 
       <v-toolbar-items style="height: 40px">
         <template
-          v-for="item in mainMenu"
+          v-for="(item, mainMenuIndex) in mainMenu"
         >
           <v-menu
             v-if="item.menu"
-            :key="item"
+            :key="mainMenuIndex"
             offset-y
           >
             <template v-slot:activator="{ on, attrs }">
@@ -54,16 +54,16 @@
             </template>
             <v-list>
               <v-list-item
-                v-for="(item, index) in menuReports"
-                :key="index"
-                :to="item.to"
+                  v-for="(itemMenu, itemMenuIndex) in item.menu"
+                  :key="`${mainMenuIndex}-${itemMenuIndex}`"
+                  :to="itemMenu.to"
               >
-                <v-list-item-icon v-if="item.icon">
-                  <v-icon>{{ item.icon }}</v-icon>
+                <v-list-item-icon v-if="itemMenu.icon">
+                  <v-icon>{{ itemMenu.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t(item.title) }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ $t(item.subtitle) }}</v-list-item-subtitle>
+                  <v-list-item-title>{{ $t(itemMenu.title) }}</v-list-item-title>
+                  <v-list-item-subtitle v-if="itemMenu.subtitle">{{ $t(item.subtitle) }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -92,28 +92,40 @@
             v-on="on"
           >
             <v-avatar
-              color="#ff9800e3"
-              style="color: white; font-size: 20px"
+              class="avatar"
               item
             >
               {{ avatar }}
             </v-avatar>
           </v-btn>
         </template>
-        <v-list>
-          <v-list-item
-            v-for="(item, index) in items"
-            :key="index"
-            :to="item.to"
-            link
+        <v-list
+          class="pl-0 pr-0"
+          tile
+        >
+          <template
+            v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
           >
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ $t(item.name) }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+            <v-divider v-if="accountMenuItem.divider" :key="accountMenuItemIndex" />
+            <v-subheader
+              v-else-if="accountMenuItem.subheader"
+              :key="accountMenuItemIndex"
+              v-bind="accountMenuItem"
+            >{{ accountMenuItem.title }}</v-subheader>
+            <v-list-item
+              v-else
+              :key="accountMenuItemIndex"
+              v-bind="accountMenuItem.attrs"
+              v-on="accountMenuItem.on"
+            >
+              <v-list-item-icon>
+                <v-icon v-bind="accountMenuItem.icon.attrs">{{ accountMenuItem.icon.name }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ $tc(accountMenuItem.title) }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
         </v-list>
       </v-menu>
 
@@ -138,9 +150,10 @@
         </v-breadcrumbs>
       </template>
     </v-app-bar>
-    <v-main>
+    <v-main class="v-main">
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
+        :style="{ height: `${$screenHeight - 89}px` }"
         fluid
       >
         <router-view/>
@@ -154,69 +167,91 @@ import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
 
 export default Vue.extend({
-  props: {
-    source: String
-  },
-
   mixins: [breadcrumbs],
-  data: () => ({
-    settings: {
-      suppressScrollY: false,
-      suppressScrollX: false,
-      wheelPropagation: false
-    },
-    dialog: false,
-    drawer: null,
-    items: [
-      {
-        name: 'profile',
-        icon: 'mdi-account',
-        to: {
-          name: 'administrator_profile'
-        }
+
+  data () {
+    return {
+      settings: {
+        suppressScrollY: false,
+        suppressScrollX: false,
+        wheelPropagation: false
       },
-      {
-        name: 'settings',
-        icon: 'mdi-cog',
-        to: {
-          name: 'administrator_settings'
+      dialog: false,
+      drawer: null,
+      accountMenuItems: [
+        {
+          title: 'Profile',
+          icon: {
+            name: 'mdi-account',
+            attrs: {}
+          },
+          attrs: {
+            dense: true,
+            to: {
+              name: 'administrator_profile'
+            }
+          }
+        },
+        {
+          title: 'Exit',
+          icon: {
+            name: 'mdi-exit-run',
+            attrs: {}
+          },
+          attrs: {
+            dense: true
+          },
+          on: {
+            click: () => {
+              this.$dialog.confirm({
+                title: this.$tc('Подтверждение действия.'),
+                text: this.$tc('Вы действительно хотите выйти?'),
+                actions: {
+                  false: {
+                    color: 'red',
+                    text: this.$tc('no')
+                  },
+                  true: {
+                    color: 'primary',
+                    text: this.$tc('yes'),
+                    handle: () => {
+                      this.$router.replace({ name: 'login' })
+                    }
+                  }
+                }
+              })
+            }
+          }
         }
-      },
-      {
-        name: 'exit',
-        icon: 'mdi-exit-run',
-        to: {
-          name: 'login'
+      ],
+      mainMenu: [
+        {
+          class: '',
+          to: {
+            name: 'administrator_organizations_list'
+          }
+        },
+        {
+          class: '',
+          to: {
+            name: 'administrator_groups_list'
+          }
+        },
+        {
+          class: '',
+          to: {
+            name: 'administrator_users_list'
+          }
+        },
+        {
+          class: 'mr-4',
+          to: {
+            name: 'administrator_projects_list'
+          }
         }
-      }
-    ],
-    mainMenu: [
-      {
-        class: '',
-        to: {
-          name: 'administrator_organizations_list'
-        }
-      },
-      {
-        class: '',
-        to: {
-          name: 'administrator_groups_list'
-        }
-      },
-      {
-        class: '',
-        to: {
-          name: 'administrator_users_list'
-        }
-      },
-      {
-        class: 'mr-4',
-        to: {
-          name: 'administrator_projects_list'
-        }
-      }
-    ]
-  }),
+      ]
+    }
+  },
 
   computed: {
     avatar () {
@@ -254,5 +289,9 @@ export default Vue.extend({
     100% {
       opacity: 1;
     }
+  }
+
+  .v-main {
+    overflow: auto !important;
   }
 </style>

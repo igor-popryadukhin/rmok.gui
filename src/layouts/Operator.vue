@@ -222,8 +222,7 @@
               v-on="on"
           >
             <v-avatar
-              color="white"
-              style="color: #3a70d4; font-size: 20px"
+              class="avatar"
               item
             >
               {{ avatar }}
