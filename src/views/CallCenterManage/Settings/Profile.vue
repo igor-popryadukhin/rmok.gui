@@ -3,113 +3,114 @@
     class="pa-2 overflow-y-auto overflow-x-hidden"
     :style="{height: `${$screenHeight - 130}px`}"
   >
-      <!-- Name -->
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
+    <!-- Name -->
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
         <div class="text-h6 grey--text">{{ $tc('Profile') }}</div>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-            v-model="profile.first_name"
-              :label="$tc('first_name')"
-              persistent-hint
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-            v-model="profile.last_name"
-              :label="$tc('last_name')"
-              persistent-hint
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-            v-model="profile.middle_name"
-              :label="$tc('middle_name')"
-              persistent-hint
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          v-model="profile.first_name"
+          :label="$tc('first_name')"
+          persistent-hint
+          required
+        ></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          v-model="profile.last_name"
+          :label="$tc('last_name')"
+          persistent-hint
+          required
+        ></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          v-model="profile.middle_name"
+          :label="$tc('middle_name')"
+          persistent-hint
+          required
+        ></v-text-field>
+      </v-col>
+    </v-row>
 
-      <!-- Contacts -->
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-        <div class="text-h6 grey--text">{{ $tc('Contacts')  }}</div>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-            v-model="profile.phone"
-              :label="$tc('contact_number')"
-              persistent-hint
-              required
-            >
-              <template v-slot:append>
-                <v-tooltip bottom max-width="400">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon v-on="on" v-bind="attrs">mdi-help-circle-outline</v-icon>
-                  </template>
-                  <span>{{ $tc('contact_number_tool_tip') }}</span>
-                </v-tooltip>
+    <!-- Contacts -->
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <div class="text-h6 grey--text">{{ $tc('Contacts') }}</div>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          v-model="profile.phone"
+          :label="$tc('contact_number')"
+          persistent-hint
+          required
+        >
+          <template v-slot:append>
+            <v-tooltip bottom max-width="400">
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-on="on" v-bind="attrs">mdi-help-circle-outline</v-icon>
               </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-            v-model="profile.email"
-              :label="$tc('contact_email')"
-              persistent-hint
-            ><template v-slot:append>
-              <v-tooltip bottom max-width="400">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon v-on="on" v-bind="attrs">mdi-help-circle-outline</v-icon>
-                </template>
-                <span>{{ $tc('contact_email_tool_tip') }}</span>
-              </v-tooltip>
-            </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
+              <span>{{ $tc('contact_number_tool_tip') }}</span>
+            </v-tooltip>
+          </template>
+        </v-text-field>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        cols="12"
+        lg="6"
+        md="12"
+      >
+        <v-text-field
+          v-model="profile.email"
+          :label="$tc('contact_email')"
+          persistent-hint
+        >
+          <template v-slot:append>
+            <v-tooltip bottom max-width="400">
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-on="on" v-bind="attrs">mdi-help-circle-outline</v-icon>
+              </template>
+              <span>{{ $tc('contact_email_tool_tip') }}</span>
+            </v-tooltip>
+          </template>
+        </v-text-field>
+      </v-col>
+    </v-row>
 
     <!-- Organization -->
     <v-row>
@@ -161,19 +162,22 @@
       </v-col>
     </v-row>
 
-      <v-row>
-        <v-col
-          cols="12"
-        >
-          <v-btn
-            text
-            tile
-            :loading="profileSaveLoading"
-            @click="onSave"
-          >{{ $tc('Save') }}</v-btn>
-        </v-col>
-      </v-row>
-    </v-form>
+    <v-row>
+      <v-col
+        cols="12"
+      >
+        <v-btn
+          text
+          tile
+          :loading="profileSaveLoading"
+          @click="onSave"
+        >{{ $tc('Save') }}
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <div class="pa-16"/>
+  </v-form>
 </template>
 
 <script lang="ts">

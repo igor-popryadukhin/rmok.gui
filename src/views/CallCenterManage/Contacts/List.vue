@@ -8,9 +8,35 @@
       >
         <v-card
           flat
+          tile
           outlined
         >
           <v-card-text>
+            <v-toolbar
+              class="v-toolbar-header"
+              height="48"
+              flat
+            >
+              <v-toolbar-title class="grey--text">
+                {{ $tc('Contacts') }}
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                :disabled="dataTableContacts.processLoading"
+                icon
+                @click="onButtonRefreshClick"
+              >
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+              <v-btn
+                color="primary"
+                :to="{ name: 'call_center_manager_contacts_new' }"
+                icon
+              >
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-toolbar>
             <v-data-table
               dense
               :headers="dataTableContacts.headers"
@@ -27,37 +53,9 @@
               fixed-header
               calculate-widths
               hide-default-footer
-              :height="$screenHeight - 270"
+              :height="dataTableContactsHeight"
               @pagination="onPaginationChange"
             >
-              <template v-slot:top>
-                <v-toolbar
-                  class="v-toolbar-header"
-                  height="48"
-                  flat
-                >
-                  <v-toolbar-title class="grey--text">
-                    {{ $tc('Contacts') }}
-                  </v-toolbar-title>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="primary"
-                    :disabled="dataTableContacts.processLoading"
-                    icon
-                    @click="onButtonRefreshClick"
-                  >
-                    <v-icon>mdi-refresh</v-icon>
-                  </v-btn>
-                  <v-btn
-                    color="primary"
-                    :to="{ name: 'call_center_manager_contacts_new' }"
-                    icon
-                  >
-                    <v-icon>mdi-plus</v-icon>
-                  </v-btn>
-                </v-toolbar>
-              </template>
-
               <template
                 slot="header.client"
                 slot-scope="{ header }"
@@ -115,6 +113,7 @@
         <v-card
           class="fill-height"
           flat
+          tile
           outlined
         >
           <v-toolbar flat>
@@ -173,6 +172,7 @@ export default Vue.extend({
     SUsers,
     SProjectsAutocomplete
   },
+
   data () {
     return {
       filter: {
@@ -232,6 +232,15 @@ export default Vue.extend({
           ]).then(this.fetchContacts)
         }
       }
+    }
+  },
+
+  computed: {
+    // Вычисляю высоту таблицы
+    dataTableContactsHeight () {
+      let h: number = this.$screenHeight - 210
+      if (h < 640) { h = 640 }
+      return h
     }
   },
 

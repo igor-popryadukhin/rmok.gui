@@ -145,9 +145,10 @@
         </v-breadcrumbs>
       </template>
     </v-app-bar>
-    <v-main>
+    <v-main class="v-main">
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
+        :style="{ height: `${$screenHeight - $headerHeight}px` }"
         fluid
       >
         <router-view/>

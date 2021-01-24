@@ -1,25 +1,13 @@
 <template>
-  <v-container class="pa-0" fluid>
+  <div>
     <v-row>
       <v-col>
-        <v-data-table
-          dense
-          :headers="dataTableUsers.headers"
-          :items="dataTableUsers.items"
-          :server-items-length="dataTableUsers.totalCount"
-          :page.sync="dataTableUsers.page"
-          :items-per-page="dataTableUsers.itemsPerPage"
-          :loading="usersProcessLoading"
-          item-key="id"
-          item-class="v-datatable-item"
-          disable-sort
-          fixed-header
-          calculate-widths
-          hide-default-footer
-          :height="$screenHeight - 270"
-          @pagination="onPaginationChange"
+        <v-card
+          tile
+          flat
+          outlined
         >
-          <template v-slot:top>
+          <v-card-text>
             <v-toolbar
               dense
               flat
@@ -36,40 +24,75 @@
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </v-toolbar>
-          </template>
-          <template slot="item" slot-scope="{ item }">
-            <tr class="v-datatable-item">
-              <td>{{ item.first_name }}</td>
-              <td>{{ item.last_name }}</td>
-              <td>{{ item.middle_name }}</td>
-              <td class="text-no-wrap">{{ item.role ? item.role.name : '-' }}</td>
-              <td>{{ item.email }}</td>
-<!--              <td class="text-no-wrap">{{ item.organization ? item.organization.name : '-'}}</td>-->
-              <td class="text-no-wrap text-right">
-                <v-btn icon small>
-                  <v-icon>mdi-pencil-box-outline</v-icon>
-                </v-btn>
-              </td>
-            </tr>
-          </template>
-        </v-data-table>
+            <v-data-table
+              dense
+              :headers="dataTableUsers.headers"
+              :items="dataTableUsers.items"
+              :server-items-length="dataTableUsers.totalCount"
+              :page.sync="dataTableUsers.page"
+              :items-per-page="dataTableUsers.itemsPerPage"
+              :loading="usersProcessLoading"
+              item-key="id"
+              item-class="v-datatable-item"
+              disable-sort
+              fixed-header
+              calculate-widths
+              hide-default-footer
+              :height="dataTableUsersHeight"
+              @pagination="onPaginationChange"
+            >
+              <template slot="item" slot-scope="{ item }">
+                <tr class="v-datatable-item">
+                  <td>{{ item.first_name }}</td>
+                  <td>{{ item.last_name }}</td>
+                  <td>{{ item.middle_name }}</td>
+                  <td class="text-no-wrap">{{ item.role ? item.role.name : '-' }}</td>
+                  <td>{{ item.email }}</td>
+                  <!--              <td class="text-no-wrap">{{ item.organization ? item.organization.name : '-'}}</td>-->
+                  <td class="text-no-wrap text-right">
+                    <v-btn icon small>
+                      <v-icon>mdi-pencil-box-outline</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+        cols="12"
+        md="3"
+        lg="3"
+      >
+        <v-card
+          class="fill-height"
+          flat
+          tile
+          outlined
+        >
+          <v-toolbar flat>
+            <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text>
+            ***
+          </v-card-text>
+          <v-footer absolute class="d-flex justify-md-space-between pa-4 mt-auto">
+            <v-pagination
+              v-model="dataTableUsers.page"
+              :length="dataTableUsers.pages"
+              total-visible="3"
+              :disabled="dataTableUsers.pages === 0"
+            ></v-pagination>
+            <div class="d-flex align-center justify-center">
+              {{ this.dataTableUsers.pageStart }}-{{ this.dataTableUsers.pageStop }} из {{ this.dataTableUsers.totalCount }}
+            </div>
+          </v-footer>
+        </v-card>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col class="d-flex justify-md-space-between">
-        <div>
-          <v-pagination
-            v-model="dataTableUsers.page"
-            :length="dataTableUsers.pages"
-            total-visible="6"
-          ></v-pagination>
-        </div>
-        <div class="d-flex align-center justify-center">
-          {{ this.dataTableUsers.pageStart }}-{{ this.dataTableUsers.pageStop }} из {{ this.dataTableUsers.totalCount }}
-        </div>
-      </v-col>
-    </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -83,7 +106,7 @@ export default Vue.extend({
       dataTableUsers: {
         page: 1,
         pages: 1,
-        totalCount: 0,
+        totalCount: 0 as number,
         itemsPerPage: 20,
         pageStart: 0,
         pageStop: 0,
@@ -110,6 +133,15 @@ export default Vue.extend({
     }
   },
 
+  computed: {
+    // Вычисляю высоту таблицы
+    dataTableUsersHeight () {
+      let h: number = this.$screenHeight - 210
+      if (h < 640) { h = 640 }
+      return h
+    }
+  },
+
   created () {
     this.fetchUsers()
   },
@@ -124,8 +156,8 @@ export default Vue.extend({
           count: this.dataTableUsers.itemsPerPage
         })
         .then((response: ResponseInterface<{ count: number }, UserInterface[]>) => {
-          this.dataTableUsers.totalCount = response.count
-          this.dataTableUsers.pages = Math.ceil(response.count / this.dataTableUsers.itemsPerPage)
+          this.dataTableUsers.totalCount = response.meta.count
+          this.dataTableUsers.pages = Math.ceil(response.meta.count / this.dataTableUsers.itemsPerPage)
           this.dataTableUsers.items = response.data
         }).finally(() => {
           this.usersProcessLoading = false

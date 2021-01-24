@@ -59,7 +59,7 @@
       </v-col>
     </v-row>
 
-    <v-row class="mb-16">
+    <v-row>
       <v-col
         cols="12"
         md="6"
@@ -87,6 +87,8 @@
         </v-btn>
       </v-col>
     </v-row>
+
+    <div class="pa-16"/>
   </v-form>
 </template>
 

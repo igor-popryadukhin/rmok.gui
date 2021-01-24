@@ -1,16 +1,16 @@
 <template>
   <v-app id="inspire">
     <v-app-bar
+      elevation="2"
+      extension-height="25px"
+      class="background--header"
       app
       dark
       flat
-      elevation="2"
       fixed
       clipped-left
       clipped-right
       extended
-      extension-height="25px"
-      class="background--header"
     >
       <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title class="d-inline-block toolbar-title">
@@ -153,7 +153,7 @@
     <v-main class="v-main">
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
-        :style="{ height: `${$screenHeight - 89}px` }"
+        :style="{ height: `${$screenHeight - $headerHeight}px` }"
         fluid
       >
         <router-view/>
@@ -291,7 +291,4 @@ export default Vue.extend({
     }
   }
 
-  .v-main {
-    overflow: auto !important;
-  }
 </style>

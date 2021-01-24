@@ -9,6 +9,10 @@ Vue.mixin(Vue.extend({
       /* eslint-enable */
     },
 
+    $headerHeight () {
+      return 89 // Высота header
+    },
+
     $locale (): string {
       return 'ru'
     },

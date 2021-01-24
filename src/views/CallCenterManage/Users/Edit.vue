@@ -1,374 +1,374 @@
 <template>
-  <div>
-    <v-form
-      ref="form"
-      v-model="form.valid"
-      lazy-validation
-      class="mr-4"
-    >
-      <div class="text-h6">{{ $tc('Profile') }}</div>
-      <div class="mb-10">
-        <!-- FLM -->
-        <v-row>
-          <v-col
-            cols="12"
-            lg="4"
-            md="4"
-          >
-            <!-- eslint-disable -->
-            <v-text-field
-              v-model="user.first_name"
-              :label="$tc('first_name')"
-              persistent-hint
-              required
-              :rules="[rules.notBlank]"
-            >
-              <template v-slot:prepend>
-                <v-avatar
-                  size="60"
-                  class="mr-4 primary white--text"
-                  style="font-size: 20px"
-                >
-                  AV
-                </v-avatar>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            lg="4"
-            md="4"
-          >
-            <!-- eslint-disable -->
-            <v-text-field
-              v-model="user.last_name"
-              :label="$tc('last_name')"
-              persistent-hint
-              required
-              :rules="[rules.notBlank]"
-            >
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            lg="4"
-            md="4"
-          >
-            <!-- eslint-disable -->
-            <v-text-field
-              v-model="user.middle_name"
-              :label="$tc('middle_name')"
-              persistent-hint
-              required
-              :rules="[rules.notBlank]"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-
-        <!--  -->
-        <v-row>
-          <v-col
-            cols="12"
-            lg="4"
-            md="4"
-          >
-            <v-text-field
-              v-model="user.login"
-              :label="$tc('Login')"
-              :rules="[rules.notBlank]"
-              autocomplete="new-password"
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-account-circle</v-icon>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            lg="4"
-            md="4"
-          >
-            <v-text-field
-              v-model="password.value1"
-              :label="$tc('password')"
-              :type="password.visible ? '' : 'password'"
-              :rules="[]"
-              required
-              autocomplete="new-password"
-            >
-              <template v-slot:append>
-                <v-btn
-                  v-if="password.visible"
-                  icon
-                  small
-                  @click="password.visible = false"
-                >
-                  <v-icon>mdi-eye</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else
-                  small
-                  icon
-                  @click="password.visible = true"
-                >
-                  <v-icon>mdi-eye-off</v-icon>
-                </v-btn>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            lg="4"
-            md="4"
-          >
-            <v-text-field
-              v-model="password.value2"
-              :label="$tc('password')"
-              :type="password.visible ? '' : 'password'"
-              :rules="[]"
-              required
-              autocomplete="new-password"
-            >
-              <template v-slot:append>
-                <v-btn
-                  v-if="password.visible"
-                  icon
-                  small
-                  @click="password.visible = false"
-                >
-                  <v-icon>mdi-eye</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else
-                  small
-                  icon
-                  @click="password.visible = true"
-                >
-                  <v-icon>mdi-eye-off</v-icon>
-                </v-btn>
-              </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
-
-        <!--  -->
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="6"
-          >
-            <v-text-field
-              v-model="user.email"
-              :label="$tc('email')"
-              :rules="[rules.notBlank]"
-              autocomplete="new-email"
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-email</v-icon>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="12"
-            lg="6"
-            md="6"
-          >
-            <v-text-field
-              v-model="user.phone"
-              :label="$tc('phone')"
-              type="tel"
-              :rules="[rules.notBlank]"
-              required
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-phone</v-icon>
-              </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
-
-        <!-- Role -->
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-            lg="6"
-          >
-            <s-role-combo-box
-              v-model="user.role"
-              :label="$tc('Role')"
-              visible-icon
-              :value="user.role"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="6"
-            lg="6"
-          >
-            <s-autocomplete-groups
-              v-model="user.group"
-              :label="$tc('Group')"
-              visible-icon
-              :selected-id="user.group ? user.group.id : 0"
-              :visible-organization-name="false"
-            />
-          </v-col>
-        </v-row>
-      </div>
-
-      <div class="text-h6">{{ $tc('Telephony') }}</div>
-      <div class="mb-10">
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-              v-model="user.pbx_config.display_name"
-              :label="$tc('SIP phone number')"
-              :hint="$tc('The phone number that is displayed when calling from your PBX')"
-              persistent-hint
-              :rules="[assertLength({ max: 20 })]"
-              counter
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-account-circle</v-icon>
-              </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="6"
-          >
-            <v-text-field
-              v-model="user.pbx_config.server"
-              :label="$tc('Server address')"
-              :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
-              persistent-hint
-              :rules="[rules.notBlank]"
-              required
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-domain</v-icon>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col
-            cols="2"
-          >
-            <v-text-field
-              v-model="user.pbx_config.port"
-              :label="$tc('Port')"
-              type="number"
-              persistent-hint
-              required
-              single-line
-              :rules="[rules.positive]"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-              v-model="user.pbx_config.login"
-              :label="$tc('Login')"
-              :hint="$tc('Login to access your PBX. For example: 003452')"
-              persistent-hint
-              :rules="[rules.notBlank]"
-              required
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-account-key</v-icon>
-              </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            lg="6"
-            md="12"
-          >
-            <v-text-field
-              v-model="user.pbx_config.password"
-              :label="$tc('Password')"
-              :hint="$tc('PBX access password')"
-              :type="pbxPasswordVisible ? '' : 'password'"
-              persistent-hint
-              :rules="[rules.notBlank]"
-              required
-            >
-              <template
-                v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-                v-slot:prepend
-              >
-                <v-icon class="pl-5 pr-9">mdi-form-textbox-password</v-icon>
-              </template>
-              <template v-slot:append>
-                <v-btn
-                  v-if="pbxPasswordVisible"
-                  icon
-                  @click="pbxPasswordVisible = false"
-                >
-                  <v-icon>mdi-eye</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else
-                  icon
-                  @click="pbxPasswordVisible = true"
-                >
-                  <v-icon>mdi-eye-off</v-icon>
-                </v-btn>
-              </template>
-            </v-text-field>
-          </v-col>
-        </v-row>
-      </div>
-
+  <v-form
+    ref="form"
+    v-model="form.valid"
+    lazy-validation
+    class="mr-4"
+  >
+    <div class="text-h6">{{ $tc('Profile') }}</div>
+    <div class="mb-10">
+      <!-- FLM -->
       <v-row>
         <v-col
           cols="12"
-          class="text-right"
+          lg="4"
+          md="4"
         >
-          <v-btn
-            text
-            tile
-            :loading="buttonSave.loading"
-            :disabled="buttonSave.disabled"
-            @click="onSave"
+          <!-- eslint-disable -->
+          <v-text-field
+            v-model="user.first_name"
+            :label="$tc('first_name')"
+            persistent-hint
+            required
+            :rules="[rules.notBlank]"
           >
-            {{ $tc('Save') }}
-          </v-btn>
+            <template v-slot:prepend>
+              <v-avatar
+                size="60"
+                class="mr-4 primary white--text"
+                style="font-size: 20px"
+              >
+                AV
+              </v-avatar>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          lg="4"
+          md="4"
+        >
+          <!-- eslint-disable -->
+          <v-text-field
+            v-model="user.last_name"
+            :label="$tc('last_name')"
+            persistent-hint
+            required
+            :rules="[rules.notBlank]"
+          >
+          </v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          lg="4"
+          md="4"
+        >
+          <!-- eslint-disable -->
+          <v-text-field
+            v-model="user.middle_name"
+            :label="$tc('middle_name')"
+            persistent-hint
+            required
+            :rules="[rules.notBlank]"
+          ></v-text-field>
         </v-col>
       </v-row>
-    </v-form>
-  </div>
+
+      <!--  -->
+      <v-row>
+        <v-col
+          cols="12"
+          lg="4"
+          md="4"
+        >
+          <v-text-field
+            v-model="user.login"
+            :label="$tc('Login')"
+            :rules="[rules.notBlank]"
+            autocomplete="new-password"
+          >
+            <template
+              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              v-slot:prepend
+            >
+              <v-icon class="pl-5 pr-9">mdi-account-circle</v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          lg="4"
+          md="4"
+        >
+          <v-text-field
+            v-model="password.value1"
+            :label="$tc('password')"
+            :type="password.visible ? '' : 'password'"
+            :rules="[]"
+            required
+            autocomplete="new-password"
+          >
+            <template v-slot:append>
+              <v-btn
+                v-if="password.visible"
+                icon
+                small
+                @click="password.visible = false"
+              >
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+              <v-btn
+                v-else
+                small
+                icon
+                @click="password.visible = true"
+              >
+                <v-icon>mdi-eye-off</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          lg="4"
+          md="4"
+        >
+          <v-text-field
+            v-model="password.value2"
+            :label="$tc('password')"
+            :type="password.visible ? '' : 'password'"
+            :rules="[]"
+            required
+            autocomplete="new-password"
+          >
+            <template v-slot:append>
+              <v-btn
+                v-if="password.visible"
+                icon
+                small
+                @click="password.visible = false"
+              >
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+              <v-btn
+                v-else
+                small
+                icon
+                @click="password.visible = true"
+              >
+                <v-icon>mdi-eye-off</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+
+      <!--  -->
+      <v-row>
+        <v-col
+          cols="12"
+          lg="6"
+          md="6"
+        >
+          <v-text-field
+            v-model="user.email"
+            :label="$tc('email')"
+            :rules="[rules.notBlank]"
+            autocomplete="new-email"
+          >
+            <template
+              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              v-slot:prepend
+            >
+              <v-icon class="pl-5 pr-9">mdi-email</v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col
+          cols="12"
+          lg="6"
+          md="6"
+        >
+          <v-text-field
+            v-model="user.phone"
+            :label="$tc('phone')"
+            type="tel"
+            :rules="[rules.notBlank]"
+            required
+          >
+            <template
+              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              v-slot:prepend
+            >
+              <v-icon class="pl-5 pr-9">mdi-phone</v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+
+      <!-- Role -->
+      <v-row>
+        <v-col
+          cols="12"
+          md="6"
+          lg="6"
+        >
+          <s-role-combo-box
+            v-model="user.role"
+            :label="$tc('Role')"
+            visible-icon
+            :value="user.role"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+          lg="6"
+        >
+          <s-autocomplete-groups
+            v-model="user.group"
+            :label="$tc('Group')"
+            visible-icon
+            :selected-id="user.group ? user.group.id : 0"
+            :visible-organization-name="false"
+          />
+        </v-col>
+      </v-row>
+    </div>
+
+    <div class="text-h6">{{ $tc('Telephony') }}</div>
+    <div class="mb-10">
+      <v-row>
+        <v-col
+          cols="12"
+          lg="6"
+          md="12"
+        >
+          <v-text-field
+            v-model="user.pbx_config.display_name"
+            :label="$tc('SIP phone number')"
+            :hint="$tc('The phone number that is displayed when calling from your PBX')"
+            persistent-hint
+            :rules="[assertLength({ max: 20 })]"
+            counter
+          >
+            <template
+              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              v-slot:prepend
+            >
+              <v-icon class="pl-5 pr-9">mdi-account-circle</v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="6"
+        >
+          <v-text-field
+            v-model="user.pbx_config.server"
+            :label="$tc('Server address')"
+            :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
+            persistent-hint
+            :rules="[rules.notBlank]"
+            required
+          >
+            <template
+              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              v-slot:prepend
+            >
+              <v-icon class="pl-5 pr-9">mdi-domain</v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col
+          cols="2"
+        >
+          <v-text-field
+            v-model="user.pbx_config.port"
+            :label="$tc('Port')"
+            type="number"
+            persistent-hint
+            required
+            single-line
+            :rules="[rules.positive]"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="12"
+          lg="6"
+          md="12"
+        >
+          <v-text-field
+            v-model="user.pbx_config.login"
+            :label="$tc('Login')"
+            :hint="$tc('Login to access your PBX. For example: 003452')"
+            persistent-hint
+            :rules="[rules.notBlank]"
+            required
+          >
+            <template
+              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              v-slot:prepend
+            >
+              <v-icon class="pl-5 pr-9">mdi-account-key</v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="12"
+          lg="6"
+          md="12"
+        >
+          <v-text-field
+            v-model="user.pbx_config.password"
+            :label="$tc('Password')"
+            :hint="$tc('PBX access password')"
+            :type="pbxPasswordVisible ? '' : 'password'"
+            persistent-hint
+            :rules="[rules.notBlank]"
+            required
+          >
+            <template
+              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
+              v-slot:prepend
+            >
+              <v-icon class="pl-5 pr-9">mdi-form-textbox-password</v-icon>
+            </template>
+            <template v-slot:append>
+              <v-btn
+                v-if="pbxPasswordVisible"
+                icon
+                @click="pbxPasswordVisible = false"
+              >
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+              <v-btn
+                v-else
+                icon
+                @click="pbxPasswordVisible = true"
+              >
+                <v-icon>mdi-eye-off</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+    </div>
+
+    <v-row>
+      <v-col
+        cols="12"
+        class="text-right"
+      >
+        <v-btn
+          text
+          tile
+          :loading="buttonSave.loading"
+          :disabled="buttonSave.disabled"
+          @click="onSave"
+        >
+          {{ $tc('Save') }}
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <div class="pa-16"/>
+  </v-form>
 </template>
 
 <script lang="ts">
@@ -383,6 +383,7 @@ import PBXInterface from '@/api/Schemas/PBXInterface'
 
 export default Vue.extend({
   mixins: [rules, countryCodes],
+
   components: {
     SRoleComboBox,
     SAutocompleteGroups

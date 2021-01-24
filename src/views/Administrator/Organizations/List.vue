@@ -1,27 +1,17 @@
 <template>
   <div>
-    <v-row no-gutters>
-      <v-col class="pa-0">
-        <v-data-table
-          :headers="dataTableOrganizations.headers"
-          :items="dataTableOrganizations.items"
-          :server-items-length="dataTableOrganizations.totalCount"
-          :page.sync="dataTableOrganizations.page"
-          :items-per-page="dataTableOrganizations.itemsPerPage"
-          :loading="dataTableOrganizations.processLoading"
-          item-key="id"
-          item-class="v-datatable-item"
-          :height="$screenHeight - negativeScreenHeightSize"
-          @pagination="onPaginationChange"
-          :loading-text="$tc('Loading content...')"
-          :no-data-text="$tc('No data available')"
-          disable-sort
-          fixed-header
-          calculate-widths
-          hide-default-footer
-          dense
+    <v-row>
+      <v-col
+        cols="12"
+        md="9"
+        lg="9"
+      >
+        <v-card
+          flat
+          tile
+          outlined
         >
-          <template v-slot:top>
+          <v-card-text>
             <v-toolbar
               class="v-toolbar-header"
               height="48"
@@ -48,46 +38,82 @@
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </v-toolbar>
-          </template>
-          <template slot="header.name" slot-scope="{ header }">
-            <span class="text-no-wrap">{{ header.text }}</span>
-          </template>
-          <template slot="item" slot-scope="{ item }">
-            <tr class="v-datatable-item">
-              <td class="text-no-wrap">{{ item.name || $tc('No name') }}</td>
-              <td class="text-no-wrap">{{ item.email || '—' }}</td>
-              <td class="text-no-wrap">{{ item.inn || '—' }}</td>
-              <td class="text-no-wrap">{{ item.cpp || '—' }}</td>
-              <td class="text-no-wrap">{{ item.site || '—' }}</td>
-              <td class="text-no-wrap">{{ item.city || '—' }}</td>
-              <td class="text-no-wrap">{{ item.responsible ? `${item.responsible.first_name} ${item.responsible.last_name}` : '—' }}</td>
-              <td class="text-no-wrap text-right">
-                <v-btn
-                  icon
-                  small
-                  :to="{ name: 'administrator_organizations_edit', params: { id: item.id } }"
-                >
-                  <v-icon>mdi-pencil-box-outline</v-icon>
-                </v-btn>
-              </td>
-            </tr>
-          </template>
-        </v-data-table>
+            <v-data-table
+              :headers="dataTableOrganizations.headers"
+              :items="dataTableOrganizations.items"
+              :server-items-length="dataTableOrganizations.totalCount"
+              :page.sync="dataTableOrganizations.page"
+              :items-per-page="dataTableOrganizations.itemsPerPage"
+              :loading="dataTableOrganizations.processLoading"
+              item-key="id"
+              item-class="v-datatable-item"
+              :height="dataTableOrganizationsHeight"
+              @pagination="onPaginationChange"
+              :loading-text="$tc('Loading content...')"
+              :no-data-text="$tc('No data available')"
+              disable-sort
+              fixed-header
+              calculate-widths
+              hide-default-footer
+              dense
+            >
+              <template slot="header.name" slot-scope="{ header }">
+                <span class="text-no-wrap">{{ header.text }}</span>
+              </template>
+              <template slot="item" slot-scope="{ item }">
+                <tr class="v-datatable-item">
+                  <td class="text-no-wrap">{{ item.name || $tc('No name') }}</td>
+                  <td class="text-no-wrap">{{ item.email || '—' }}</td>
+                  <td class="text-no-wrap">{{ item.inn || '—' }}</td>
+                  <td class="text-no-wrap">{{ item.cpp || '—' }}</td>
+                  <td class="text-no-wrap">{{ item.site || '—' }}</td>
+                  <td class="text-no-wrap">{{ item.city || '—' }}</td>
+                  <td class="text-no-wrap">{{ item.responsible ? `${item.responsible.first_name} ${item.responsible.last_name}` : '—' }}</td>
+                  <td class="text-no-wrap text-right">
+                    <v-btn
+                      icon
+                      small
+                      :to="{ name: 'administrator_organizations_edit', params: { id: item.id } }"
+                    >
+                      <v-icon>mdi-pencil-box-outline</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
       </v-col>
-    </v-row>
-    <v-row no-gutters>
-      <v-col class="d-flex justify-md-space-between">
-        <div>
-          <v-pagination
-            v-model="dataTableOrganizations.page"
-            :length="dataTableOrganizations.pages"
-            total-visible="6"
-            :disabled="dataTableOrganizations.pages === 0"
-          ></v-pagination>
-        </div>
-        <div class="d-flex align-center justify-center">
-          {{ this.dataTableOrganizations.pageStart }}-{{ this.dataTableOrganizations.pageStop }} из {{ this.dataTableOrganizations.totalCount }}
-        </div>
+      <v-col
+        cols="12"
+        md="3"
+        lg="3"
+      >
+        <v-card
+          class="fill-height"
+          flat
+          tile
+          outlined
+        >
+          <v-toolbar flat>
+            <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text>
+            ***
+          </v-card-text>
+          <v-footer absolute class="d-flex justify-md-space-between pa-4 mt-auto">
+            <v-pagination
+              v-model="dataTableOrganizations.page"
+              :length="dataTableOrganizations.pages"
+              total-visible="3"
+              :disabled="dataTableOrganizations.pages === 0"
+            ></v-pagination>
+            <div class="d-flex align-center justify-center">
+              {{ this.dataTableOrganizations.pageStart }}-{{ this.dataTableOrganizations.pageStop }} из {{ this.dataTableOrganizations.totalCount }}
+            </div>
+          </v-footer>
+        </v-card>
       </v-col>
     </v-row>
   </div>
@@ -103,6 +129,7 @@ export default Vue.extend({
     this.buttonAdd.disabled = true
     next()
   },
+
   data () {
     return {
       buttonAdd: {
@@ -137,6 +164,15 @@ export default Vue.extend({
       handler () {
         this.fetchOrganizations()
       }
+    }
+  },
+
+  computed: {
+    // Вычисляю высоту таблицы
+    dataTableOrganizationsHeight () {
+      let h: number = this.$screenHeight - 210
+      if (h < 640) { h = 640 }
+      return h
     }
   },
 
@@ -176,11 +212,11 @@ export default Vue.extend({
 
 <style>
 
- .v-toolbar-header div {
-   padding: 0 !important;
- }
+.v-toolbar-header div {
+  padding: 0 !important;
+}
 
- .v-toolbar-header div:last-child {
-   margin-right: 10px;
- }
+.v-toolbar-header div:last-child {
+  margin-right: 10px;
+}
 </style>

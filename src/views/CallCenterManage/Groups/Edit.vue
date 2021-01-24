@@ -1,61 +1,59 @@
 <template>
-  <div>
-    <v-form
-      ref="form"
-      v-model="form.valid"
-      lazy-validation
-    >
-      <v-container>
+  <v-form
+    ref="form"
+    v-model="form.valid"
+    lazy-validation
+  >
+    <v-container>
 
-        <!-- FLM -->
-        <v-row>
-          <v-col
-            cols="12"
+      <!-- FLM -->
+      <v-row>
+        <v-col
+          cols="12"
+        >
+          <!-- eslint-disable -->
+          <v-text-field
+            v-model="group.name"
+            :label="$tc('group_name')"
+            persistent-hint
+            required
+            :rules="[rules.notBlank]"
           >
-            <!-- eslint-disable -->
-            <v-text-field
-              v-model="group.name"
-              :label="$tc('group_name')"
-              persistent-hint
-              required
-              :rules="[rules.notBlank]"
-            >
-            </v-text-field>
-          </v-col>
-        </v-row>
+          </v-text-field>
+        </v-col>
+      </v-row>
 
-        <v-row>
-          <v-col
-            cols="12"
-          >
-            <s-autocomplete-users
-              v-model="userSelected"
-              :label="$tc('team_leader')"
-              :selected-id="group.team_leader ? group.team_leader.id : 0"
-              roles="r_team_leader"
-            />
-          </v-col>
-        </v-row>
+      <v-row>
+        <v-col
+          cols="12"
+        >
+          <s-autocomplete-users
+            v-model="userSelected"
+            :label="$tc('team_leader')"
+            :selected-id="group.team_leader ? group.team_leader.id : 0"
+            roles="r_team_leader"
+          />
+        </v-col>
+      </v-row>
 
-        <v-row>
-          <v-col
-            cols="12"
-            class="text-right"
+      <v-row>
+        <v-col
+          cols="12"
+          class="text-right"
+        >
+          <v-btn
+            text
+            tile
+            :loading="buttonSave.loading"
+            :disabled="buttonSave.disabled"
+            @click="onSave"
           >
-            <v-btn
-              text
-              tile
-              :loading="buttonSave.loading"
-              :disabled="buttonSave.disabled"
-              @click="onSave"
-            >
-              {{ $tc('Save') }}
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-form>
-  </div>
+            {{ $tc('Save') }}
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-form>
 </template>
 
 <script lang="ts">

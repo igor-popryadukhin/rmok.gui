@@ -178,6 +178,8 @@
         </v-btn>
       </v-col>
     </v-row>
+
+    <div class="pa-16"/>
   </v-form>
 </template>
 
@@ -243,7 +245,7 @@ export default Vue.extend({
           id: 0,
           country_code: 'RU',
           country_calling_code: '7',
-          value: '',
+          raw: '',
           label: ''
         }
       ]

@@ -11,6 +11,7 @@
         lg="9"
       >
         <v-card
+          flat
           tile
           outlined
         >
@@ -243,7 +244,7 @@ export default Vue.extend({
   computed: {
     // Вычисляю высоту таблицы
     dataTableGroupsHeight () {
-      let h = this.$screenHeight - 220
+      let h: number = this.$screenHeight - 210
       if (h < 640) { h = 640 }
       return h
     }

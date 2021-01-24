@@ -3,34 +3,39 @@
     <v-row>
       <v-col
         cols="12"
-        md="8"
-        lg="8"
+        md="9"
+        lg="9"
       >
         <v-card
           flat
+          tile
           outlined
         >
-          <v-toolbar flat>
-            <v-toolbar-title class="grey--text">{{ $tc('Projects') }}</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              :disabled="dataTableProjects.processLoading"
-              icon
-              @click="onButtonRefreshClick"
-            >
-              <v-icon>mdi-refresh</v-icon>
-            </v-btn>
-            <v-btn
-              color="primary"
-              :to="{ name: 'administrator_projects_new' }"
-              v-bind="buttonAdd"
-              icon
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </v-toolbar>
           <v-card-text>
+            <v-toolbar
+              class="v-toolbar-header"
+              height="48"
+              flat
+            >
+              <v-toolbar-title class="grey--text">{{ $tc('Projects') }}</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                :disabled="dataTableProjects.processLoading"
+                icon
+                @click="onButtonRefreshClick"
+              >
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+              <v-btn
+                color="primary"
+                :to="{ name: 'administrator_projects_new' }"
+                v-bind="buttonAdd"
+                icon
+              >
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-toolbar>
             <v-data-table
               :headers="dataTableProjects.headers"
               :items="dataTableProjects.items"
@@ -40,7 +45,7 @@
               :loading="dataTableProjects.processLoading"
               item-key="id"
               item-class="v-datatable-item"
-              :height="$screenHeight - negativeScreenHeightSize"
+              :height="dataTableProjectsHeight"
               @pagination="onPaginationChange"
               :loading-text="$tc('Loading content...')"
               :no-data-text="$tc('No data available')"
@@ -77,12 +82,13 @@
       </v-col>
       <v-col
         cols="12"
-        md="4"
-        lg="4"
+        md="3"
+        lg="3"
       >
         <v-card
           class="fill-height"
           flat
+          tile
           outlined
         >
           <v-toolbar flat>
@@ -131,7 +137,6 @@ export default Vue.extend({
       buttonAdd: {
         disabled: false
       },
-      negativeScreenHeightSize: 236,
       filter: {
         organization: null
       },
@@ -166,6 +171,15 @@ export default Vue.extend({
           ]).then(this.fetchProjects)
         }
       }
+    }
+  },
+
+  computed: {
+    // Вычисляю высоту таблицы
+    dataTableProjectsHeight () {
+      let h: number = this.$screenHeight - 210
+      if (h < 640) { h = 640 }
+      return h
     }
   },
 
@@ -210,7 +224,7 @@ export default Vue.extend({
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .v-toolbar-header div {
   padding: 0 !important;
 }
