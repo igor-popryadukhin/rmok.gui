@@ -51,6 +51,7 @@
     >
       <v-list-item-title>{{ item.name }}</v-list-item-title>
     </template>
+
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
       v-slot:prepend
@@ -95,6 +96,10 @@ export default Vue.extend({
       }
     },
     visibleIcon: {
+      type: Boolean,
+      default: false
+    },
+    visibleFound: {
       type: Boolean,
       default: false
     },
@@ -190,7 +195,7 @@ const search = debounce((ctx: any, params: any) => {
   new Organizations()
     .find(params)
     .then((response: ResponseInterface<{ count: number }, OrganizationInterface[]>) => {
-      ctx.hintMessage = ctx.$t('found', { count: response.meta.count })
+      if (ctx.visibleFound) { ctx.hintMessage = ctx.$t('found', { count: response.meta.count }) }
       ctx.options = response.data
     })
     .finally(() => (ctx.process = false))

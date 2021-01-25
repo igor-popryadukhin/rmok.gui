@@ -2,6 +2,5 @@
   "users_list_empty": "Нет ни одного пользователя",
   "Add user": "Добавить пользователя",
   "User added successfully": "Пользователь успешно добавлен",
-  "User updated successfully": "Пользователь успешно обновлён",
   "error_occurred_while_added_the_user": "Во время добавления пользователя произошла ошибка!\n{cause}"
 }

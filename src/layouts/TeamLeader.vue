@@ -138,11 +138,10 @@
     <v-main>
       <v-container
         class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
+        :style="{ height: `${$screenHeight - $headerHeight}px` }"
         fluid
       >
-        <vuescroll :ops="vueScrollOptions" :style="{ height: `${$screenHeight - 125}px` }" style="width: 100%">
-          <router-view/>
-        </vuescroll>
+        <router-view/>
       </v-container>
     </v-main>
   </v-app>
@@ -151,7 +150,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
-import vuescroll from 'vuescroll/dist/vuescroll-native'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 export default Vue.extend({
@@ -159,90 +157,88 @@ export default Vue.extend({
     source: String
   },
 
-  components: {
-    vuescroll
-  },
-
   mixins: [breadcrumbs, vueScrollOptions],
 
-  data: () => ({
-    settings: {
-      suppressScrollY: false,
-      suppressScrollX: false,
-      wheelPropagation: false
-    },
-    dialog: false,
-    drawer: null,
-    accountMenuItems: [
-      {
-        title: 'Profile',
-        icon: {
-          name: 'mdi-account',
-          attrs: {}
-        },
-        attrs: {
-          dense: true,
-          to: {
-            name: 'team_leader_profile'
-          }
-        }
+  data () {
+    return {
+      settings: {
+        suppressScrollY: false,
+        suppressScrollX: false,
+        wheelPropagation: false
       },
-      {
-        title: 'Exit',
-        icon: {
-          name: 'mdi-exit-run',
-          attrs: {}
+      dialog: false,
+      drawer: null,
+      accountMenuItems: [
+        {
+          title: 'Profile',
+          icon: {
+            name: 'mdi-account',
+            attrs: {}
+          },
+          attrs: {
+            dense: true,
+            to: {
+              name: 'team_leader_profile'
+            }
+          }
         },
-        attrs: {
-          dense: true
-        },
-        on: {
-          click: () => {
-            this.$dialog.confirm({
-              title: this.$tc('Подтверждение действия.'),
-              text: this.$tc('Вы действительно хотите выйти?'),
-              actions: {
-                false: {
-                  color: 'red',
-                  text: this.$tc('no')
-                },
-                true: {
-                  color: 'primary',
-                  text: this.$tc('yes'),
-                  handle: () => {
-                    this.$router.replace({ name: 'login' })
+        {
+          title: 'Exit',
+          icon: {
+            name: 'mdi-exit-run',
+            attrs: {}
+          },
+          attrs: {
+            dense: true
+          },
+          on: {
+            click: () => {
+              this.$dialog.confirm({
+                title: this.$tc('Подтверждение действия.'),
+                text: this.$tc('Вы действительно хотите выйти?'),
+                actions: {
+                  false: {
+                    color: 'red',
+                    text: this.$tc('no')
+                  },
+                  true: {
+                    color: 'primary',
+                    text: this.$tc('yes'),
+                    handle: () => {
+                      this.$router.replace({ name: 'login' })
+                    }
                   }
                 }
-              }
-            })
+              })
+            }
           }
         }
-      }
-    ],
-    menuReports: [
-      {
-        title: 'route.team_leader_reports_recent_calls',
-        subtitle: '',
-        to: {
-          name: 'team_leader_reports_recent_calls'
+      ],
+      menuReports: [
+        {
+          title: 'route.team_leader_reports_recent_calls',
+          subtitle: '',
+          to: {
+            name: 'team_leader_reports_recent_calls'
+          }
+        },
+        {
+          title: 'route.team_leader_reports_all_calls',
+          subtitle: '',
+          to: {
+            name: 'team_leader_reports_all_calls'
+          }
         }
-      },
-      {
-        title: 'route.team_leader_reports_all_calls',
-        subtitle: '',
-        to: {
-          name: 'team_leader_reports_all_calls'
+      ],
+      mainMenu: [
+        {
+          icon: 'mdi-contacts',
+          text: 'Contacts',
+          to: ''
         }
-      }
-    ],
-    mainMenu: [
-      {
-        icon: 'mdi-contacts',
-        text: 'Contacts',
-        to: ''
-      }
-    ]
-  }),
+      ]
+    }
+  },
 
   computed: {
     avatar () {

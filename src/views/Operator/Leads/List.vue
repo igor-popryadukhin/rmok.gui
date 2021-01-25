@@ -738,7 +738,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
 
 <style lang="scss" scoped>
   .border {
-    border-left: 2px #b729b1 solid;
+    border-left: 2px #3A70D4 solid;
     margin-left: 5px;
   }
 

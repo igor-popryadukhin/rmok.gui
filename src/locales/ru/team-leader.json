@@ -3,16 +3,5 @@
   "Range": "Интервал",
   "Manager": "Менеджер",
   "Date the contact was created": "Дата создания контакта",
-  "No data for the selected period": "Нет данных по выбранному периоду",
-  "route": {
-    "team_leaders": "@:Home",
-    "team_leader_users": "@:Users",
-    "team_leader_settings": "@:Settings",
-    "team_leader_profile": "@:Profile",
-    "team_leader_journal": "@:Journal",
-    "team_leader_security": "@:Security",
-    "team_leader_reports": "Статистика",
-    "team_leader_reports_recent_calls": "Статистика по последним вызовам",
-    "team_leader_reports_all_calls": "Статистика по всем вызовам"
-  }
+  "No data for the selected period": "Нет данных по выбранному периоду"
 }
