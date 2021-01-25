@@ -25,8 +25,8 @@
               elevation="0"
               outlined
             >
-              <v-card-title>Лиды</v-card-title>
-              <v-card-subtitle>Всего: {{ leadsCount }}</v-card-subtitle>
+              <v-card-title>{{ $tc('Leads not called') }}</v-card-title>
+              <v-card-subtitle>{{ $tc('Total') }}: {{ leadsCount }}</v-card-subtitle>
               <v-card-text class="v-card__text">
                 <template v-if="leads.length > 0">
                   <template
