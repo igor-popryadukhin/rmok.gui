@@ -16,18 +16,19 @@ import '@/mixins/global'
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import '@/plugins/toast'
 import '@/plugins/cookie'
-import '@/plugins/libphonenumber-js'
-import '@/plugins/vuetify-dialog'
-import '@/plugins/lvovich'
 import '@/plugins/router-query'
 import CleanLayout from '@/layouts/Clean.vue'
-import('@/jsSIP')
+
+import(/* webpackChunkName: "plugin-lvovich", webpackPreload: true */ '@/plugins/lvovich')
+import(/* webpackChunkName: "plugin-vuetify-dialog", webpackPreload: true */ '@/plugins/vuetify-dialog')
+import(/* webpackChunkName: "plugin-libphonenumber-js", webpackPreload: true */ '@/plugins/libphonenumber-js')
+import(/* webpackChunkName: "plugin-jsSIP", webpackPreload: true */ '@/jsSIP')
 
 // layouts
-Vue.component('administrator', () => import(/* webpackChunkName: "layout-administrator" */ './layouts/Administrator.vue'))
-Vue.component('call-center-manager', () => import(/* webpackChunkName: "layout-call-center-manager" */ './layouts/CallCenterManager.vue'))
-Vue.component('team-leader', () => import(/* webpackChunkName: "layout-team-leader" */ './layouts/TeamLeader.vue'))
-Vue.component('operator-layout', () => import(/* webpackChunkName: "layout-operator" */ './layouts/Operator.vue'))
+Vue.component('administrator', () => import(/* webpackPreload: true */ './layouts/Administrator.vue'))
+Vue.component('call-center-manager', () => import(/* webpackPreload: true */ './layouts/CallCenterManager.vue'))
+Vue.component('team-leader', () => import(/* webpackPreload: true */ './layouts/TeamLeader.vue'))
+Vue.component('operator-layout', () => import(/* webpackPreload: true */ './layouts/Operator.vue'))
 Vue.component('clean', CleanLayout)
 
 Vue.config.productionTip = false

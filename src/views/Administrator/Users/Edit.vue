@@ -234,7 +234,7 @@
             v-model="user.group"
             :label="$tc('Group')"
             visible-icon
-            :disabled="!('id' in user.organization)"
+            :disabled="!(user.organization)"
             :params="sGroupsParams"
           >
           </s-groups>
@@ -564,10 +564,10 @@ export default Vue.extend({
     sGroupsParams () {
       const params: any = { organization_id: 0 }
 
-      if ('id' in this.organizationSelected) {
+      if (this.organizationSelected) {
         params.organization_id = this.organizationSelected.id
       } else {
-        if ('id' in this.user.organization) {
+        if (this.user.organization) {
           params.organization_id = this.user.organization.id
         }
       }
