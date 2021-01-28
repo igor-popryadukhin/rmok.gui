@@ -21,10 +21,10 @@ build-dev:
   only:
     - develop
 
-send_email:
-  stage: notify
-  when: on_success
-  script: curl --ssl-reqd --url 'smtps://smtp.gmail.com:465' --user '$EMAI_FROM:$EMAI_FROM_PASSWPRD' --mail-from '$EMAI_FROM' --mail-rcpt '$EMAI_TO' --upload-file ./dist/report.html
+#send_email:
+#  stage: notify
+#  when: on_success
+#  script: curl --ssl-reqd --url 'smtps://smtp.gmail.com:465' --user '$EMAI_FROM:$EMAI_FROM_PASSWPRD' --mail-from '$EMAI_FROM' --mail-rcpt '$EMAI_TO' --upload-file ./dist/report.html
 
 
 # Build a project for production
