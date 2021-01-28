@@ -55,7 +55,7 @@
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
       v-slot:prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account</v-icon>
+      <v-icon class="pl-5 pr-9">mdi-account-group</v-icon>
     </template>
   </v-autocomplete>
 </template>

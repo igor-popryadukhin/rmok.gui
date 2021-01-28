@@ -1,7 +1,7 @@
 <template>
   <v-combobox
     v-model="selected"
-    :items="$store.getters['system/roles']"
+    :items="roles"
     item-text="name"
     item-value="id"
     :label="label"
@@ -29,6 +29,10 @@ export default Vue.extend({
   },
   props: {
     rules: {
+      type: Array,
+      default: () => []
+    },
+    options: {
       type: Array,
       default: () => []
     },
@@ -60,6 +64,14 @@ export default Vue.extend({
 
     value (val) {
       this.selected = val
+    }
+  },
+
+  created () {
+    if (this.options.length === 0) {
+      this.roles = this.$store.getters['system/roles']
+    } else {
+      this.roles = this.options
     }
   }
 })
