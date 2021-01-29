@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-16">
+  <div>
     <v-form
       ref="form"
       lazy-validation
@@ -40,7 +40,7 @@
     </v-form>
 
     <!-- Users -->
-    <v-row class="mb-5" no-gutters>
+    <v-row class="mb-5">
       <v-col
         cols="12"
       >
@@ -219,7 +219,7 @@
       </v-col>
     </v-row>
 
-    <v-row class="mb-16" no-gutters>
+    <v-row class="mb-16">
       <v-col
         cols="12"
       >
@@ -248,6 +248,8 @@
         </div>
       </v-col>
     </v-row>
+
+    <div class="pa-16"/>
   </div>
 </template>
 
@@ -358,6 +360,7 @@ export default Vue.extend({
         .update(+this.$route.params.project_id, {
           /* eslint-disable */
           name: this.projectName.trim(),
+          organization_id: this.$route.params.project_id,
           members: this.members.map((e: ProjectMemberInterface) => e.id),
           statuses: this.statuses.map((e: any) => {
             return {
