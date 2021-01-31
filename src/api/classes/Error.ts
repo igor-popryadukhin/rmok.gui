@@ -12,11 +12,11 @@ interface ErrorInterface {
 }
 
 export default class APIError extends Error {
-  get error_code (): any {
+  get error_code (): string {
     return this._error_code
   }
 
-  set error_code (value: any) {
+  set error_code (value: string) {
     this._error_code = value
   }
 
@@ -44,7 +44,7 @@ export default class APIError extends Error {
     this._errors = value
   }
 
-  private _error_code: any;
+  private _error_code: string;
   private _error_message: string;
   private _debug_message: string;
   private _errors: E[];
@@ -54,7 +54,7 @@ export default class APIError extends Error {
    * @param data
    */
   constructor (data: ErrorInterface) {
-    super(data.error_message)
+    super(data.error_message || 'The structure of the incoming data is broken!')
 
     this._error_code = data.error_code
     this._error_message = data.error_message

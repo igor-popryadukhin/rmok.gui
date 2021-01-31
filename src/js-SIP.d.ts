@@ -7,6 +7,6 @@ import { JsSIP } from '@/jsSIP/plugin'
 declare module 'vue/types/vue' {
   // 3. Объявите расширение для Vue
   interface Vue {
-    $isDebug: boolean;
+    $jsSIP: JsSIP;
   }
 }

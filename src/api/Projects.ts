@@ -2,6 +2,7 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import APIError from "@/api/classes/Error";
 
 export interface ProjectOwnerInterface {
   id: number;
@@ -27,7 +28,7 @@ export interface ProjectInterface {
   name: string;
   comment: string;
   owner: ProjectOwnerInterface;
-  organization: ProjectOrganizationInterface;
+  organization?: ProjectOrganizationInterface;
   members: ProjectMemberInterface[];
   statuses: StatusInterface[];
   created_at: number;
@@ -78,14 +79,14 @@ export default class Projects {
    * Add new project
    * @param data
    */
-  public add (data: ProjectPostDataInterface): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+  public add<DT = any, RT = any>(data: DT): Promise<APIError | RT> {
+    return new Promise<APIError | RT>((resolve, reject) => {
       $axios.post('/projects', data)
         .then((response: AxiosResponse) => {
           if ([200, 201].includes(response.status)) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
       }).catch(reject)
     })
   }
@@ -110,14 +111,14 @@ export default class Projects {
    * @param id
    * @param data
    */
-  public update (id: number, data: ProjectPostDataInterface): Promise<ProjectResponseItemsInterface> {
+  public update<DT = any>(id: number, data: DT): Promise<ProjectResponseItemsInterface> {
     return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
       $axios.put(`/projects/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data as ProjectResponseItemsInterface)
+            return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
@@ -142,14 +143,14 @@ export default class Projects {
    * Удалить проект используя идентификатор проекта
    * @param id
    */
-  public delete (id: number): Promise<any> | any {
-    return new Promise<ProjectInterface | any>((resolve, reject) => {
+  public delete (id: number): Promise<boolean | APIError> {
+    return new Promise<boolean | APIError>((resolve, reject) => {
       $axios.delete(`/projects/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(true)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

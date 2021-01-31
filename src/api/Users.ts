@@ -89,7 +89,7 @@ export class Users {
    *
    * @param params
    */
-  public find<TM, TD>(params: ParamsFindInterface = {}): Promise<ResponseInterface<TM, TD>> {
+  public find<TM, TD>(params: any): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/users', {
         params

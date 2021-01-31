@@ -29,13 +29,13 @@
         dense
       ></v-text-field>
 
-      <v-toolbar-items style="height: 40px">
+      <v-toolbar-items style="height: 40px; margin-right: 16px">
         <template
-          v-for="item in mainMenu"
+          v-for="(mainMenuItem, mainMenuIndex) in mainMenu"
         >
           <v-menu
-            v-if="item.menu"
-            :key="item"
+            v-if="mainMenuItem.menu"
+            :key="mainMenuIndex"
             offset-y
           >
             <template v-slot:activator="{ on, attrs }">
@@ -51,7 +51,7 @@
             </template>
             <v-list>
               <v-list-item
-                v-for="(itemMenu, itemMenuIndex) in item.menu"
+                v-for="(itemMenu, itemMenuIndex) in mainMenuItem.menu"
                 :key="itemMenuIndex"
                 :to="itemMenu.to"
               >
@@ -59,7 +59,7 @@
                   <v-icon>{{ itemMenu.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $tc(`route.${itemMenu.title}`) }}</v-list-item-title>
+                  <v-list-item-title>{{ $tc(itemMenu.title) }}</v-list-item-title>
                   <v-list-item-subtitle v-if="itemMenu.subtitle">{{ $t(itemMenu.subtitle) }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -67,12 +67,10 @@
           </v-menu>
           <v-btn
             v-else
-            :key="item"
-            :class="item.class || ''"
-            :to="item.to"
-            text
+            :key="mainMenuIndex"
+            v-bind="mainMenuItem.attrs"
+            v-text="mainMenuItem.text || 'no text'"
           >
-            {{ $tc('route.' + item.to.name) }}
           </v-btn>
         </template>
       </v-toolbar-items>
@@ -226,40 +224,83 @@ export default Vue.extend({
       ],
       mainMenu: [
         {
-          class: '',
-          to: {
-            name: 'call_center_manager_contacts'
+          text: this.$tc('Contacts'),
+          attrs: {
+            text: true,
+            to: { name: 'call_center_manager_contacts' }
           }
         },
         {
-          class: '',
-          to: {
-            name: 'call_center_manager_users'
+          text: this.$tc('Users'),
+          attrs: {
+            text: true,
+            to: { name: 'call_center_manager_users' }
           }
         },
         {
-          class: '',
-          to: {
-            name: 'call_center_manager_groups'
-          },
-          menu: [
-            {
-              class: '',
-              title: 'call_center_manager_reports_recent_calls',
-              to: {
-                name: 'call_center_manager_reports_recent_calls'
-              }
-            },
-            {
-              class: '',
-              title: 'call_center_manager_reports_all_calls',
-              to: {
-                name: 'call_center_manager_reports_all_calls'
-              }
-            }
-          ]
+          text: this.$tc('Projects'),
+          attrs: {
+            text: true,
+            to: { name: 'call_center_manager_projects_list' }
+          }
+          // menu: [
+          //   {
+          //     class: '',
+          //     title: 'call_center_manager_reports_recent_calls',
+          //     to: {
+          //       name: 'call_center_manager_reports_recent_calls'
+          //     }
+          //   },
+          //   {
+          //     class: '',
+          //     title: 'call_center_manager_reports_all_calls',
+          //     to: {
+          //       name: 'call_center_manager_reports_all_calls'
+          //     }
+          //   }
+          // ]
         }
       ]
+      // mainMenu: [
+      //   {
+      //     class: '',
+      //     to: {
+      //       name: 'call_center_manager_contacts'
+      //     }
+      //   },
+      //   {
+      //     class: '',
+      //     to: {
+      //       name: 'call_center_manager_users'
+      //     }
+      //   },
+      //   {
+      //     class: '',
+      //     title: 'ЯЯЯ',
+      //     to: {
+      //       name: 'call_center_manager_projects_list'
+      //     }
+      //   },
+      //   {
+      //     class: '',
+      //     menu: [
+      //       {
+      //         class: '',
+      //         title: 'call_center_manager_reports_recent_calls',
+      //         to: {
+      //           name: 'call_center_manager_reports_recent_calls'
+      //         }
+      //       },
+      //       {
+      //         class: '',
+      //         title: 'call_center_manager_reports_all_calls',
+      //         to: {
+      //           name: 'call_center_manager_reports_all_calls'
+      //         }
+      //       }
+      //     ]
+      //   }
+      // ]
     }
   },
 

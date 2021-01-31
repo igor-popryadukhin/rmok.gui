@@ -795,6 +795,51 @@ const routes: RouteConfig[] = [
         }
       },
       {
+        path: 'projects',
+        component: () => import(/* webpackChunkName: "call-center-manager-list" */ '../views/CallCenterManage/Projects/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'call_center_manager_projects_list',
+            component: () => import(/* webpackChunkName: "call-center-manager-list" */ '../views/CallCenterManage/Projects/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            path: 'new',
+            name: 'call_center_manager_projects_new',
+            component: () => import(/* webpackChunkName: "call-center-manager-new" */ '../views/CallCenterManage/Projects/New.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          },
+          {
+            path: ':project_id',
+            name: 'call_center_manager_projects_edit',
+            component: () => import(/* webpackChunkName: "call-center-manager-edit" */ '../views/CallCenterManage/Projects/Edit.vue'),
+            meta: {
+              layout: 'call-center-manager',
+              middleware: [roleRCC]
+            }
+          }
+        ],
+        meta: {
+          layout: 'call-center-manager',
+          middleware: [roleRCC]
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          // todo: Solve the question of how we will change the locale
+          Promise.all([
+            loadLanguageAsync('ru', 'projects'),
+            loadLanguageAsync('ru', 'status-actions')
+          ]).then(() => next())
+        }
+      },
+      {
         path: 'settings',
         name: 'call_center_manager_settings',
         component: () => import(/* webpackChunkName: "call-center-manager-settings" */ '../views/CallCenterManage/Settings/Layout.vue'),
