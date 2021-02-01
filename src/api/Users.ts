@@ -6,6 +6,7 @@ import { GroupInterface } from '@/api/Groups'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import ResponseInterface from '@/api/Schemas/ResponseInterface';
 import {ProjectInterface} from '@/api/Projects';
+import APIError from "@/api/classes/Error";
 
 interface UserOrganizationInterface {
   id: number;
@@ -73,14 +74,14 @@ export class Users {
    *
    * @param id
    */
-  public getById (id: number): Promise<UserInterface | any> | any {
-    return new Promise<UserInterface | any>((resolve, reject): Promise<UserInterface | any> | any => {
+  public getById (id: number) {
+    return new Promise<UserInterface>((resolve, reject) => {
       $axios.get(`/users/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
