@@ -6,6 +6,10 @@
   >
     <v-card tile flat>
       <v-card-actions class="d-flex">
+        <div>
+          <v-card-title>{{ user.first_name }} {{ user.last_name }}</v-card-title>
+          <v-card-subtitle>{{ user.role.name }}</v-card-subtitle>
+        </div>
         <v-spacer />
         <v-btn
           v-bind="buttonDelete"
