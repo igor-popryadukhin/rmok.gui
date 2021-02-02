@@ -4,9 +4,10 @@ import { AxiosResponse } from 'axios'
 import { RoleInterface } from '@/api/Roles'
 import { GroupInterface } from '@/api/Groups'
 import PBXInterface from '@/api/Schemas/PBXInterface'
-import ResponseInterface from '@/api/Schemas/ResponseInterface';
-import {ProjectInterface} from '@/api/Projects';
-import APIError from "@/api/classes/Error";
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import {ProjectInterface} from '@/api/Projects'
+import APIError from './classes/APIError'
+
 
 interface UserOrganizationInterface {
   id: number;
