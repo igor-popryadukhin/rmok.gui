@@ -1,88 +1,130 @@
 <template>
   <v-app id="inspire">
+
+    <!-- Nav drawer -->
+    <v-navigation-drawer
+      v-model="drawer"
+      :mini-variant.sync="mini"
+      class="background--drawer"
+      app
+      dark
+    >
+      <v-list-item class="px-2">
+        <v-list-item-avatar class="v-icon--link" color="white">
+          <v-btn
+            icon
+            link
+            color="primary"
+            @click.stop="mini = !mini"
+          >
+            R
+          </v-btn>
+        </v-list-item-avatar>
+        <v-list-item-title>RMOK</v-list-item-title>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <v-list dense>
+        <template
+          v-for="(mainMenuItem, mainMenuIndex) in mainMenu"
+        >
+
+          <v-list-group
+            v-if="mainMenuItem.children"
+            :key="mainMenuIndex"
+            v-model="mainMenuItem.active"
+            no-action
+            color="white"
+          >
+            <template v-slot:activator>
+              <v-list-item-icon>
+                <v-icon v-text="mainMenuItem.icon"></v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ $tc(mainMenuItem.title) }}</v-list-item-title>
+              </v-list-item-content>
+            </template>
+
+            <v-list-item
+              v-for="(mainMenuItemChildren, mainMenuItemChildrenIndex) in mainMenuItem.children"
+              :key="`child-${mainMenuItemChildrenIndex}`"
+              v-bind="mainMenuItemChildren.attrs"
+              link
+            >
+              <v-list-item-title>{{ $tc(mainMenuItemChildren.title) }}</v-list-item-title>
+              <v-list-item-icon>
+                <v-icon v-text="mainMenuItemChildren.icon"></v-icon>
+              </v-list-item-icon>
+            </v-list-item>
+          </v-list-group>
+
+          <v-divider v-else-if="mainMenuItem.divider" :key="mainMenuIndex" />
+
+          <v-list-item
+            v-else
+            :key="mainMenuIndex"
+            v-bind="mainMenuItem.list_item"
+            link
+          >
+            <v-list-item-icon>
+              <v-icon>{{ mainMenuItem.icon }}</v-icon>
+            </v-list-item-icon>
+
+            <v-list-item-content>
+              <v-list-item-title>{{ $tc(mainMenuItem.title) }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+
+      </v-list>
+    </v-navigation-drawer>
+
+    <!-- App bar -->
     <v-app-bar
-      elevation="2"
-      extension-height="25px"
+      elevation="0"
+      :height="$headerHeight"
       class="background--header"
       app
       dark
-      flat
-      fixed
-      clipped-left
-      clipped-right
-      extended
     >
-      <div class="offset-lg-1 offset-md-1"></div>
-      <v-toolbar-title class="d-inline-block toolbar-title">
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title class="d-inline-block toolbar-title mr-md-5 mr-lg-5">
         <div class="hidden-sm-and-down">RMOK</div>
         <div class="hidden-sm-and-down toolbar-title-subtitle text-lowercase">{{ $tc('For administrator') }}</div>
       </v-toolbar-title>
-      <v-spacer/>
+
       <v-text-field
         flat
         solo-inverted
         hide-details
         prepend-inner-icon="mdi-magnify"
-        :label="$t('search')"
+        :label="$t('Search')"
         class="mr-4"
         style="max-width: 400px"
         height="40"
         dense
       ></v-text-field>
 
-      <!-- Организации -->
-
-      <v-toolbar-items style="height: 40px">
-        <template
-          v-for="(item, mainMenuIndex) in mainMenu"
-        >
-          <v-menu
-            v-if="item.menu"
-            :key="mainMenuIndex"
-            offset-y
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                class="mr-3"
-                :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
-                v-on="on"
-                v-bind="attrs"
-                text
-              >
-                {{ $tc('Statistic') }}
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item
-                  v-for="(itemMenu, itemMenuIndex) in item.menu"
-                  :key="`${mainMenuIndex}-${itemMenuIndex}`"
-                  :to="itemMenu.to"
-              >
-                <v-list-item-icon v-if="itemMenu.icon">
-                  <v-icon>{{ itemMenu.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t(itemMenu.title) }}</v-list-item-title>
-                  <v-list-item-subtitle v-if="itemMenu.subtitle">{{ $t(item.subtitle) }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+      <v-spacer />
+      <v-menu
+        :close-on-content-click="false"
+        nudge-left="150"
+      >
+        <template v-slot:activator="{ on, attrs }">
           <v-btn
-            v-else
-            :key="item"
-            :class="item.class || ''"
-            :to="item.to"
-            text
+            class="mr-1 ml-1"
+            icon
+            v-bind="attrs"
+            v-on="on"
           >
-            {{ $tc('route.' + item.to.name) }}
+            <v-icon>mdi-bell</v-icon>
           </v-btn>
         </template>
-      </v-toolbar-items>
+      </v-menu>
 
-      <div style="width: 15px"></div>
+      <div class="d-lg-block d-md-block d-sm-none d-xs-none" style="width: 20px"></div>
 
-      <!-- Avatar -->
       <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -128,32 +170,11 @@
           </template>
         </v-list>
       </v-menu>
-
-      <div class="offset-lg-1 offset-md-1"></div>
-      <template v-slot:extension>
-        <v-breadcrumbs
-          :items="breadcrumbs"
-          class="offset-lg-1 col-lg-10 offset-md-1 col-md-10 pa-0"
-        >
-          <template v-slot:item="{ item }">
-            <v-breadcrumbs-item
-              v-if="!item.latest"
-              ripple
-              :href="item.path"
-            >
-              <span style="color: white !important;">{{ $t(item.title).toUpperCase() }}</span>
-            </v-breadcrumbs-item>
-            <v-breadcrumbs-item v-else>
-              <span style="color: white !important;">{{ $t(item.title).toUpperCase() }}</span>
-            </v-breadcrumbs-item>
-          </template>
-        </v-breadcrumbs>
-      </template>
     </v-app-bar>
-    <v-main class="v-main">
+
+    <!-- Main -->
+    <v-main>
       <v-container
-        class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
-        :style="{ height: `${$screenHeight - $headerHeight}px` }"
         fluid
       >
         <router-view/>
@@ -171,13 +192,19 @@ export default Vue.extend({
 
   data () {
     return {
+      drawer: true,
+      items: [
+        { title: 'Home', icon: 'mdi-home-city' },
+        { title: 'My Account', icon: 'mdi-account' },
+        { title: 'Users', icon: 'mdi-account-group-outline' }
+      ],
+      mini: false,
       settings: {
         suppressScrollY: false,
         suppressScrollX: false,
         wheelPropagation: false
       },
       dialog: false,
-      drawer: null,
       accountMenuItems: [
         {
           title: 'Profile',
@@ -226,28 +253,75 @@ export default Vue.extend({
       ],
       mainMenu: [
         {
-          class: '',
-          to: {
-            name: 'administrator_organizations_list'
+          title: 'Organizations',
+          icon: 'mdi-city',
+          list_item: {
+            to: {
+              name: 'administrator_organizations_list'
+            }
           }
         },
         {
-          class: '',
-          to: {
-            name: 'administrator_groups_list'
+          title: 'Groups',
+          icon: 'mdi-account-group',
+          list_item: {
+            to: {
+              name: 'administrator_groups_list'
+            }
           }
         },
         {
-          class: '',
-          to: {
-            name: 'administrator_users_list'
+          title: 'Users',
+          icon: 'mdi-account-multiple-outline',
+          list_item: {
+            to: {
+              name: 'administrator_users_list'
+            }
           }
         },
         {
-          class: 'mr-4',
-          to: {
-            name: 'administrator_projects_list'
+          title: 'Projects',
+          icon: 'mdi-projector-screen',
+          list_item: {
+            to: {
+              name: 'administrator_projects_list'
+            }
           }
+        },
+        { divider: true },
+        {
+          title: 'Settings',
+          icon: 'mdi-cog-outline',
+          active: true,
+          children: [
+            {
+              title: 'Profile',
+              icon: 'mdi-account',
+              attrs: {
+                to: {
+                  name: 'administrator_profile'
+                }
+              }
+            },
+            {
+              title: 'Journal',
+              icon: 'mdi-history',
+              attrs: {
+                to: {
+                  name: 'administrator_journal'
+                }
+              }
+            },
+            {
+              title: 'Security',
+              icon: 'mdi-security',
+              attrs: {
+                to: {
+                  name: 'administrator_security'
+                }
+              }
+            }
+          ]
         }
       ]
     }
@@ -264,8 +338,21 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+  #myVideo {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+    min-height: 50%;
+    min-width: 50%;
+  }
   .background--header {
-    background-image: linear-gradient(to bottom, #2967d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
+    background-image: linear-gradient(to right, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
+  }
+  .background--drawer {
+    background-image: linear-gradient(to right, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
   }
   .scroll-area {
     position: relative;

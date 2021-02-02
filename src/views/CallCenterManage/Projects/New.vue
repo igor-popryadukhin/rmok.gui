@@ -268,7 +268,7 @@ import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import VInterface from '@/VInterface'
 import { debounce } from 'vuetify/src/util/helpers'
-import APIError from '@/api/classes/Error'
+import APIError from '@/api/classes/APIError'
 
 interface IData {
   projectName: string;

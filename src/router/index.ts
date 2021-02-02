@@ -555,7 +555,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'administrator',
-              middleware: [roleAdmin]
+              middleware: []
             }
           },
           {

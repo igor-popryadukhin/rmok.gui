@@ -82,6 +82,17 @@
               </template>
             </v-data-table>
           </v-card-text>
+          <v-footer color="white" class="d-flex justify-md-space-between pa-4 mt-auto" absolute>
+            <v-pagination
+              v-model="dataTableOrganizations.page"
+              :length="dataTableOrganizations.pages"
+              total-visible="3"
+              :disabled="dataTableOrganizations.pages === 0"
+            ></v-pagination>
+            <div class="d-flex align-center justify-center">
+              {{ this.dataTableOrganizations.pageStart }}-{{ this.dataTableOrganizations.pageStop }} из {{ this.dataTableOrganizations.totalCount }}
+            </div>
+          </v-footer>
         </v-card>
       </v-col>
       <v-col
@@ -102,17 +113,6 @@
           <v-card-text>
             ***
           </v-card-text>
-          <v-footer absolute class="d-flex justify-md-space-between pa-4 mt-auto">
-            <v-pagination
-              v-model="dataTableOrganizations.page"
-              :length="dataTableOrganizations.pages"
-              total-visible="3"
-              :disabled="dataTableOrganizations.pages === 0"
-            ></v-pagination>
-            <div class="d-flex align-center justify-center">
-              {{ this.dataTableOrganizations.pageStart }}-{{ this.dataTableOrganizations.pageStop }} из {{ this.dataTableOrganizations.totalCount }}
-            </div>
-          </v-footer>
         </v-card>
       </v-col>
     </v-row>
@@ -120,11 +120,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { VueConstructor } from 'vue'
 import Organizations, { OrganizationInterface } from '@/api/Organizations'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import VInterface from '@/VInterface'
 
-export default Vue.extend({
+export default (Vue as VueConstructor<VInterface>).extend({
   beforeRouteLeave (to, from, next) {
     this.buttonAdd.disabled = true
     next()
@@ -170,7 +171,7 @@ export default Vue.extend({
   computed: {
     // Вычисляю высоту таблицы
     dataTableOrganizationsHeight () {
-      let h: number = this.$screenHeight - 210
+      let h: number = this.$screenHeight - 170
       if (h < 640) { h = 640 }
       return h
     }

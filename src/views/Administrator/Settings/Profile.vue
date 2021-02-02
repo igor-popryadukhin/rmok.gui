@@ -1,7 +1,6 @@
 <template>
   <v-form
     class="pa-2 overflow-y-auto overflow-x-hidden"
-    :style="{height: `${$screenHeight - 130}px`}"
   >
     <!-- Name -->
     <v-row>

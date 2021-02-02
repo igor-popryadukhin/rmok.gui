@@ -101,7 +101,7 @@ import { OrganizationInterface } from '@/api/Organizations'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import { NavigationGuardNext } from 'vue-router/types/router'
-import APIError from '@/api/classes/Error'
+import APIError from '@/api/classes/APIError'
 
 export default Vue.extend({
   components: {

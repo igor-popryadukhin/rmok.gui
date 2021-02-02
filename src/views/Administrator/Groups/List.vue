@@ -155,7 +155,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { VueConstructor } from 'vue'
 import { GroupInterface, Groups } from '@/api/Groups'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { OrganizationInterface } from '@/api/Organizations'
@@ -163,8 +163,9 @@ import { ProjectInterface } from '@/api/Projects'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
+import VInterface from '@/VInterface'
 
-export default Vue.extend({
+export default (Vue as VueConstructor<VInterface>).extend({
   components: { SGroups, SProjectsAutocomplete, SOrganizationsAutocomplete },
   data () {
     return {
@@ -244,7 +245,7 @@ export default Vue.extend({
   computed: {
     // Вычисляю высоту таблицы
     dataTableGroupsHeight () {
-      let h: number = this.$screenHeight - 210
+      let h: number = this.$screenHeight - 170
       if (h < 640) { h = 640 }
       return h
     }
