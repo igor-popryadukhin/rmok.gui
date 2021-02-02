@@ -2,7 +2,7 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface';
-import APIError from "@/api/classes/Error";
+import APIError from '@/api/classes/APIError';
 
 export interface ProjectOwnerInterface {
   id: number;
@@ -63,14 +63,14 @@ export default class Projects {
    * @param params
    */
   public find<TM, TD>(params: any = null): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+    return new Promise<ResponseInterface<TM, TD>>((resolve: (response: ResponseInterface<TM, TD>) => void, reject) => {
       $axios.get('/projects', {
         params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
           return resolve(response.data)
         }
-        reject(response.data)
+        throw new APIError(response.data)
       }).catch(reject)
     })
   }

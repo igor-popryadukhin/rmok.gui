@@ -1,7 +1,7 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import APIError from '@/api/classes/Error'
+import APIError from '@/api/classes/APIError'
 
 export interface GroupTeamLeaderInterface {
   id: number;

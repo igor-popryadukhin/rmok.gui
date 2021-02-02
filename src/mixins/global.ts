@@ -10,7 +10,7 @@ Vue.mixin(Vue.extend({
     },
 
     $headerHeight () {
-      return 89 // Высота header
+      return 64 // Высота header
     },
 
     $locale (): string {

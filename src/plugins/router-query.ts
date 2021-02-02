@@ -13,7 +13,7 @@ export class RouterQuery {
    * @param query
    */
   setQuery (query: any): Promise<any> {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       const obj = Object.assign({}, this._vueRouter.currentRoute.query)
 
       Object.keys(query).forEach((key: string) => {
@@ -32,7 +32,7 @@ export class RouterQuery {
         params: this._vueRouter.currentRoute.params,
         query: obj
       }).catch((reason) => {
-        console.log(reason)
+        throw new Error(reason)
       }).finally(resolve)
     })
   }
@@ -41,12 +41,12 @@ export class RouterQuery {
    * @param key
    * @param def
    */
-  public getQuery (key: string, def: string | number): string | number {
+  public getQuery<T = string | number> (key: string, def: T): T {
     if (key in this._vueRouter.currentRoute.query) {
       const val: any = this._vueRouter.currentRoute.query[key]
-      return typeof val === 'number' ? +val : String(this._vueRouter.currentRoute.query[key])
+      return val
     } else {
-      return typeof def === 'number' ? +def : String(def)
+      return def
     }
   }
 
@@ -54,7 +54,7 @@ export class RouterQuery {
    * @param names
    */
   public removeQuery (names: string[]) {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       const obj = Object.assign({}, this._vueRouter.currentRoute.query)
 
       names.forEach((key) => {
@@ -66,7 +66,7 @@ export class RouterQuery {
         params: this._vueRouter.currentRoute.params,
         query: obj
       }).catch((reason) => {
-        console.log(reason)
+        throw new Error(reason)
       }).finally(resolve)
     })
   }

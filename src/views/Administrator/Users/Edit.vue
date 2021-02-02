@@ -466,7 +466,6 @@ export default Vue.extend({
 
   data () {
     return {
-      tab: 0,
       password: {
         visible: false,
         isValid: true,
@@ -555,8 +554,6 @@ export default Vue.extend({
             vm.$refs.sOrganizations.setSelected(user.organization)
           }
         })
-      }).catch(reason => {
-        console.log(reason, this)
       })
   },
 
