@@ -2,7 +2,6 @@
   <div>
     <v-tabs
       v-model="tab"
-      color="primary"
     >
       <v-tab :to="{ name: 'administrator_users_edit_main' }">{{ $tc('Base information') }}</v-tab>
       <v-tab :to="{ name: 'administrator_users_edit_project' }">{{ $tc('Project') }}</v-tab>

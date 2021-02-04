@@ -431,8 +431,15 @@ const routes: RouteConfig[] = [
           },
           {
             path: 'new',
-            name: 'administrator_users_new',
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Users/New/Tabs.vue'),
+            children: [
+              {
+                path: '',
+                name: 'administrator_users_new_main',
+                component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Users/New/Main.vue'),
+                meta: { layout: 'administrator', middleware: [] }
+              }
+            ],
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]

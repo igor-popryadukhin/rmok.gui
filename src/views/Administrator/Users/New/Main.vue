@@ -1,18 +1,15 @@
 <template>
-  <v-form
-    ref="form"
-    v-model="form.valid"
-    lazy-validation
-  >
-    <div class="text-h6 grey--text">{{ $tc('Profile') }}</div>
-    <div class="mb-10">
+  <v-container fluid>
+    <v-form
+      ref="form"
+      lazy-validation
+    >
       <v-row>
         <v-col
           cols="12"
           lg="4"
           md="4"
         >
-          <!-- eslint-disable -->
           <v-text-field
             v-model="user.first_name"
             :label="$tc('first_name')"
@@ -26,7 +23,7 @@
                 class="mr-4 primary white--text"
                 style="font-size: 20px"
               >
-                AV
+                {{ user.first_name.charAt(0) }}{{ user.last_name.charAt(0) }}
               </v-avatar>
             </template>
           </v-text-field>
@@ -36,7 +33,6 @@
           lg="4"
           md="4"
         >
-          <!-- eslint-disable -->
           <v-text-field
             v-model="user.last_name"
             :label="$tc('last_name')"
@@ -51,13 +47,12 @@
           lg="4"
           md="4"
         >
-          <!-- eslint-disable -->
           <v-text-field
             v-model="user.middle_name"
             :label="$tc('middle_name')"
+            :rules="[]"
             persistent-hint
             required
-            :rules="[]"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -89,9 +84,8 @@
           <v-text-field
             ref="password1"
             v-model="password.value1"
-            :label="$tc('password')"
-            :type="password.visible ? '' : 'password'"
-            :rules="[rules.notBlank, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+            :label="$tc('Password')"
+            :type="password.visible ? 'text' : 'password'"
             :success="password.isValid"
             required
             autocomplete="new-password"
@@ -124,9 +118,9 @@
           <v-text-field
             ref="password2"
             v-model="password.value2"
-            :label="$tc('password')"
+            :label="$tc('Password')"
             :type="password.visible ? '' : 'password'"
-            :rules="[rules.notBlank, ruleDynamic(password.isValid, $tc('passwords_do_not_match')).val]"
+            :rules="[]"
             :success="password.isValid"
             required
             autocomplete="new-password"
@@ -156,13 +150,14 @@
       <v-row>
         <v-col
           cols="12"
-          lg="6"
-          md="6"
+          lg="4"
+          md="4"
+          xl="4"
         >
           <v-text-field
             v-model="user.email"
             :label="$tc('email')"
-            :rules="[rules.notBlank, rules.email]"
+            :rules="[rules.email]"
             autocomplete="new-email"
           >
             <template
@@ -175,14 +170,15 @@
         </v-col>
         <v-col
           cols="12"
-          lg="6"
-          md="6"
+          lg="4"
+          md="4"
+          xl="4"
         >
           <v-text-field
             v-model="user.phone"
             :label="$tc('phone')"
             type="tel"
-            :rules="[rules.notBlank, rules.phone_number]"
+            :rules="[rules.phone_number]"
             required
           >
             <template
@@ -195,10 +191,13 @@
         </v-col>
       </v-row>
 
-      <!-- Role -->
+      <!-- Роль -->
       <v-row>
         <v-col
           cols="12"
+          md="4"
+          lg="4"
+          xl="4"
         >
           <s-roles
             v-model="user.role"
@@ -210,193 +209,95 @@
         </v-col>
       </v-row>
 
+      <!-- Организация -->
       <v-row>
         <v-col
           cols="12"
+          md="4"
+          lg="4"
+          xl="4"
         >
           <s-organizations-autocomplete
             ref="sOrganizations"
-            v-model="user.organization"
-            :label="$tc('organization')"
+            v-model="organizationSelected"
+            :label="$tc('Organization')"
+            :rules="[rules.notBlank]"
             visible-icon
-            :rules="[]"
           />
         </v-col>
       </v-row>
 
-      <!-- Group -->
+      <!-- Группа -->
       <v-row>
         <v-col
           cols="12"
+          md="4"
+          lg="4"
+          xl="4"
         >
           <s-groups
             ref="sGroups"
             v-model="user.group"
             :label="$tc('Group')"
             visible-icon
-            :disabled="user.organization === null"
+            :disabled="!(user.organization)"
+            :params="sGroupsParams"
           >
           </s-groups>
         </v-col>
       </v-row>
-    </div>
 
-    <div class="text-h6">{{ $tc('Telephony') }}</div>
-    <div class="mb-10">
+      <!-- Сохранить -->
       <v-row>
         <v-col
           cols="12"
-          lg="6"
-          md="12"
+          class="d-flex"
         >
-          <v-text-field
-            v-model="user.pbxConfig.display_name"
-            :label="$tc('SIP phone number')"
-            :hint="$tc('The phone number that is displayed when calling from your PBX')"
-            persistent-hint
-            :rules="[assertLength({ max: 20 })]"
-            counter
+          <v-spacer />
+          <v-btn
+            v-bind="buttonSave"
+            color="primary"
+            text
+            tile
+            outlined
+            @click="onSave"
           >
-            <template
-              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-              v-slot:prepend
-            >
-              <v-icon class="pl-5 pr-9">mdi-account-circle</v-icon>
-            </template>
-          </v-text-field>
+            {{ $tc('Save') }}
+          </v-btn>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col
-          cols="6"
-        >
-          <v-text-field
-            v-model="user.pbxConfig.server"
-            :label="$tc('Server address')"
-            :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
-            persistent-hint
-            :rules="[]"
-            required
-          >
-            <template
-              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-              v-slot:prepend
-            >
-              <v-icon class="pl-5 pr-9">mdi-domain</v-icon>
-            </template>
-          </v-text-field>
-        </v-col>
-        <v-col
-          cols="2"
-        >
-          <v-text-field
-            v-model="user.pbxConfig.port"
-            :label="$tc('Port')"
-            type="number"
-            persistent-hint
-            required
-            single-line
-            :rules="[]"
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col
-          cols="12"
-          lg="6"
-          md="12"
-        >
-          <v-text-field
-            v-model="user.pbxConfig.login"
-            :label="$tc('Login')"
-            :hint="$tc('Login to access your PBX. For example: 003452')"
-            persistent-hint
-            :rules="[]"
-            required
-          >
-            <template
-              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-              v-slot:prepend
-            >
-              <v-icon class="pl-5 pr-9">mdi-account-key</v-icon>
-            </template>
-          </v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col
-          cols="12"
-          lg="6"
-          md="12"
-        >
-          <v-text-field
-            v-model="user.pbxConfig.password"
-            :label="$tc('Password')"
-            :hint="$tc('PBX access password')"
-            :type="pbxPasswordVisible ? '' : 'password'"
-            persistent-hint
-            :rules="[]"
-            required
-          >
-            <template
-              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-              v-slot:prepend
-            >
-              <v-icon class="pl-5 pr-9">mdi-form-textbox-password</v-icon>
-            </template>
-            <template v-slot:append>
-              <v-btn
-                v-if="pbxPasswordVisible"
-                icon
-                @click="pbxPasswordVisible = false"
-              >
-                <v-icon>mdi-eye</v-icon>
-              </v-btn>
-              <v-btn
-                v-else
-                icon
-                @click="pbxPasswordVisible = true"
-              >
-                <v-icon>mdi-eye-off</v-icon>
-              </v-btn>
-            </template>
-          </v-text-field>
-        </v-col>
-      </v-row>
-    </div>
 
-    <v-row>
-      <v-col
-        cols="12"
-        class="text-right"
-      >
-        <v-btn
-          text
-          tile
-          :loading="buttonSave.loading"
-          :disabled="buttonSave.disabled"
-          @click="onSave"
-        >
-          {{ $tc('Save') }}
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <div class="pa-16"/>
-  </v-form>
+      <div class="pa-16"/>
+    </v-form>
+  </v-container>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { VueConstructor } from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
+import { Users } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
+import { GroupInterface } from '@/api/Groups'
 import SRoles from '@/snippets/SRoles/SRoles.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
-import Users from '@/api/Users'
 import { RoleInterface } from '@/api/Roles'
-import { GroupInterface } from '@/api/Groups'
+import { ProjectInterface } from '@/api/Projects'
+import VInterface from '@/VInterface'
+
+interface IRef {
+  [key: string]: any;
+}
+
+interface IData {
+  [key: string]: any
+}
+
+interface VInnerInterface extends VInterface {
+  $data: IData;
+  $refs: IRef;
+}
 
 interface DataPasswordInterface {
   visible: boolean;
@@ -406,8 +307,8 @@ interface DataPasswordInterface {
   isEmpty: () => boolean;
 }
 
-export default Vue.extend({
-  mixins: [rules, countryCodes],
+export default (Vue as VueConstructor<VInnerInterface>).extend({
+  mixins: [rules],
 
   components: {
     SOrganizationsAutocomplete,
@@ -415,23 +316,30 @@ export default Vue.extend({
     SRoles
   },
 
-  data () {
+  data (): IData {
     return {
+      permissions: [],
+      tab: 0,
       password: {
         visible: false,
-        isValid: false,
+        isValid: true,
         value1: '',
-        value2: ''
+        value2: '',
+        isEmpty (): boolean {
+          return Boolean(!this.value1 && !this.value2)
+        }
       } as DataPasswordInterface,
-      pbxPasswordVisible: false,
+      buttonDelete: {
+        disabled: false,
+        loading: false
+      },
       buttonSave: {
         disabled: false,
         loading: false
       },
-      form: {
-        valid: false
-      },
+      organizationSelected: {} as unknown as OrganizationInterface,
       user: {
+        id: 0,
         first_name: '',
         last_name: '',
         middle_name: '',
@@ -441,6 +349,7 @@ export default Vue.extend({
         role: {} as unknown as RoleInterface,
         group: {} as unknown as GroupInterface,
         organization: {} as unknown as OrganizationInterface,
+        project: {} as unknown as ProjectInterface,
 
         // Конфигурация подключения к АТС
         pbxConfig: {
@@ -455,15 +364,6 @@ export default Vue.extend({
   },
 
   watch: {
-    'user.organization': {
-      handler (value: OrganizationInterface) {
-        if (value) {
-          this.$refs.sGroups.fetchData({
-            organization_id: value.id
-          })
-        }
-      }
-    },
     // Password comparison
     password: {
       handler (password: DataPasswordInterface) {
@@ -476,59 +376,82 @@ export default Vue.extend({
         password.isValid = false
       },
       deep: true
+    },
+
+    tab (val: number) {
+      switch (val) {
+        case 3: {
+          this.$router.push({ name: 'administrator_users_edit_permissions' })
+          break
+        }
+        default: this.$router.push({ name: 'administrator_users_edit', params: this.$route.params })
+      }
     }
   },
 
-  mounted () {
-    this.$refs.sOrganizations.fetchData()
+  computed: {
+    sGroupsParams () {
+      const params: any = { organization_id: 0 }
+
+      if (this.organizationSelected) {
+        params.organization_id = this.organizationSelected.id
+      } else {
+        if (this.user.organization) {
+          params.organization_id = this.user.organization.id
+        }
+      }
+
+      return params
+    }
   },
 
   methods: {
-
-    resetForm () {
-      (this.$refs.form as Vue & { reset: () => boolean }).reset()
-    },
-
     onSave () {
-      if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
+      if (!this.$refs.form.validate()) {
         return
       }
+      this.buttonSave.loading = true
 
-      const postData: any = {
+      // Данные запроса
+      const requestData: any = {
         first_name: this.user.first_name,
         last_name: this.user.last_name,
+        middle_name: this.user.middle_name,
         login: this.user.login,
-        password: this.password.value1,
-        phone: this.user.phone,
-        email: this.user.email
+        role: this.user.role?.id
       }
 
-      if (this.user.middle_name) {
-        postData.middle_name = this.user.middle_name.trim()
+      if (this.user.email) {
+        requestData.email = this.user.email
       }
 
-      if ('id' in this.user.role) {
-        postData.role = this.user.role.id
+      if (this.user.phone) {
+        requestData.phone = this.user.phone
       }
 
-      if ('id' in this.user.organization) {
-        postData.organization_id = this.user.organization.id
+      if (this.organizationSelected) {
+        requestData.organization_id = this.organizationSelected.id
       }
 
-      if ('id' in this.user.group) {
-        postData.role = this.user.group.id
+      if (this.user.group) {
+        requestData.group_id = this.user.group.id
       }
 
-      if (this.user.pbxConfig.login && this.user.pbxConfig.password && this.user.pbxConfig.server && this.user.pbxConfig.port) {
-        postData.pbx_config = this.user.pbxConfig
+      if (this.password.value1) {
+        requestData.password = this.password.value1
       }
 
       this.buttonSave.loading = true
       new Users()
-        .add(postData)
-        .then(() => {
-          this.resetForm()
+        .add<{ id: number }>(requestData)
+        .then((response) => {
           this.$toast.success(this.$tc('User added successfully'))
+          this.$router.push({
+            name: 'administrator_users_edit_main',
+            params: {
+              user_id: response.id
+            }
+          })
         }).catch((e) => {
           if ('errors' in e) {
             if (Array.isArray(e.errors)) {
@@ -537,10 +460,8 @@ export default Vue.extend({
               }
             }
           }
-          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
-        }).finally(() => {
-          this.buttonSave.loading = false
-        })
+          this.$toast.error(e.error)
+        }).finally(() => (this.buttonSave.loading = false))
     }
   }
 })

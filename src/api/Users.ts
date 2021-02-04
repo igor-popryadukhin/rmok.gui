@@ -43,11 +43,11 @@ export class Users {
    * Add new user
    * @param data
    */
-  public add (data: any): Promise<any> {
-    return new Promise((resolve, reject): Promise<any> | any => {
+  public add<T = any>(data: any): Promise<T> {
+    return new Promise<T>((resolve, reject): Promise<any> | any => {
       $axios.post('/users', data)
         .then((response: AxiosResponse) => {
-          if (response.status === 201) {
+          if ([200, 201].includes(response.status)) {
             return resolve(response.data)
           }
           reject(response.data)

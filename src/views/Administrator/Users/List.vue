@@ -31,7 +31,7 @@
               </v-btn>
               <v-btn
                 color="primary"
-                :to="{ name: 'administrator_users_new' }"
+                :to="{ name: 'administrator_users_new_main' }"
                 icon
               >
                 <v-icon>mdi-plus</v-icon>
@@ -97,7 +97,7 @@
                     <v-btn
                       icon
                       small
-                      :to="{ name: 'administrator_users_edit', params: { user_id: item.id } }"
+                      :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
                     >
                       <v-icon>mdi-pencil-box-outline</v-icon>
                     </v-btn>

@@ -247,6 +247,29 @@
           </s-groups>
         </v-col>
       </v-row>
+
+      <!-- Сохранить -->
+      <v-row>
+        <v-col
+          cols="12"
+          class="d-flex"
+        >
+          <v-spacer />
+          <v-btn
+            v-bind="buttonSave"
+            color="primary"
+            :disabled="!isChanged"
+            text
+            tile
+            outlined
+            @click="onSave"
+          >
+            {{ $tc('Save') }}
+          </v-btn>
+        </v-col>
+      </v-row>
+
+      <div class="pa-16"/>
     </v-form>
   </v-container>
 </template>
@@ -298,6 +321,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   data (): IData {
     return {
+      old: null,
+      isChanged: false,
       permissions: [],
       tab: 0,
       password: {
@@ -362,13 +387,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           vm.user.phone = user.phone
           vm.user.role = user.role
           vm.user.organization = user.organization
-          vm.user.pbxConfig = user.pbx_config ?? {
-            display_name: '',
-            login: '',
-            password: '',
-            port: 0,
-            server: ''
-          } as PBXInterface
 
           if (user.group) {
             vm.$refs.sGroups.pushData(user.group)
@@ -379,6 +397,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             vm.$refs.sOrganizations.pushData(user.organization)
             vm.$refs.sOrganizations.setSelected(user.organization)
           }
+
+          vm.old = Object.assign({}, vm.user)
         })
       })
   },
@@ -394,6 +414,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           return
         }
         password.isValid = false
+      },
+      deep: true
+    },
+
+    user: {
+      handler (newData: any) {
+        if (JSON.stringify(newData) === JSON.stringify(this.old)) {
+          this.isChanged = false
+        } else {
+          this.isChanged = true
+        }
       },
       deep: true
     },
@@ -438,29 +469,31 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         last_name: this.user.last_name,
         middle_name: this.user.middle_name,
         login: this.user.login,
-        phone: this.user.phone,
-        email: this.user.email,
         role: this.user.role?.id
       }
 
-      if ('id' in this.user.project) {
+      if (this.user.email) {
+        requestData.email = this.user.email
+      }
+
+      if (this.user.phone) {
+        requestData.phone = this.user.phone
+      }
+
+      if (this.user.project) {
         requestData.project_id = this.user.project.id
       }
 
-      if ('id' in this.organizationSelected) {
+      if (this.organizationSelected) {
         requestData.organization_id = this.organizationSelected.id
       }
 
-      if ('id' in this.user.group) {
+      if (this.user.group) {
         requestData.group_id = this.user.group.id
       }
 
       if (this.password.value1) {
         requestData.password = this.password.value1
-      }
-
-      if (this.user.pbxConfig.login && this.user.pbxConfig.password && this.user.pbxConfig.server && this.user.pbxConfig.port) {
-        requestData.pbx_config = this.user.pbxConfig
       }
 
       this.buttonSave.loading = true
