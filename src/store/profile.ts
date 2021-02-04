@@ -1,10 +1,15 @@
 import { Account, ProfileInterface, Role } from '@/api/Account'
 
+interface StateInterface {
+  permissions: string[];
+  [key: string]: any;
+}
+
 export const profile = {
 
   namespaced: true,
 
-  state () {
+  state (): StateInterface {
     return {
       /* eslint-disable */
       id: 0,
@@ -19,9 +24,10 @@ export const profile = {
         attributes: [],
         id: '',
         name: ''
-      } as Role,
+      },
       userpic: null,
       status: '',
+      permissions: [] as string[],
       organization: {
         address: '',
         description: '',
@@ -34,11 +40,11 @@ export const profile = {
         tags: undefined
       }
       /* eslint-enable */
-    } as ProfileInterface
+    }
   },
 
   mutations: {
-    set (state: ProfileInterface, payload: ProfileInterface): void {
+    set (state: StateInterface, payload: ProfileInterface): void {
       /* eslint-disable */
       state.id = payload.id
       state.login = payload.login
@@ -54,8 +60,12 @@ export const profile = {
       /* eslint-enable */
     },
 
-    setStatus (state: ProfileInterface, payload: string): void {
+    setStatus (state: StateInterface, payload: string): void {
       state.status = payload
+    },
+
+    permissions (state: StateInterface, payload: string[]): void {
+      state.permissions = payload
     }
   },
 
@@ -67,30 +77,30 @@ export const profile = {
           .then((profile) => {
             commit('set', profile)
             commit('setStatus', profile.status)
+            commit('permissions', profile.permissions)
           }).finally(resolve)
       })
     }
   },
 
   getters: {
-    /* eslint-disable */
-    id (state: ProfileInterface) { return state.id },
-    first_name (state: ProfileInterface) { return state.first_name },
-    last_name (state: ProfileInterface) { return state.last_name },
-    middle_name (state: ProfileInterface) { return state.middle_name },
-    login (state: ProfileInterface) { return state.login },
-    email (state: ProfileInterface) { return state.email },
-    phone (state: ProfileInterface) { return state.phone },
-    project (state: ProfileInterface) { return state.email },
-    role (state: ProfileInterface) { return state.role },
-    role_id (state: ProfileInterface) { return state.role.id },
-    role_is_operator (state: ProfileInterface) { return state.role.id === 'r_operator' },
-    role_is_admin (state: ProfileInterface) { return state.role.id === 'r_admin' },
-    role_is_leader_cc (state: ProfileInterface) { return state.role.id === 'r_leader_cc' },
-    role_is_team_leader (state: ProfileInterface) { return state.role.id === 'r_team_leader' },
-    userpic (state: ProfileInterface) { return state.userpic },
-    status (state: ProfileInterface) { return state.status },
-    organization (state: ProfileInterface) { return state.organization }
-    /* eslint-enable */
+    id (state: StateInterface): number { return state.id },
+    first_name (state: StateInterface): string { return state.first_name },
+    last_name (state: StateInterface): string { return state.last_name },
+    middle_name (state: StateInterface): string { return state.middle_name },
+    login (state: StateInterface): string { return state.login },
+    email (state: StateInterface): string { return state.email },
+    phone (state: StateInterface): string { return state.phone },
+    project (state: StateInterface): string { return state.email },
+    role (state: StateInterface) { return state.role },
+    role_id (state: StateInterface): string { return state.role.id },
+    role_is_operator (state: StateInterface): boolean { return state.role.id === 'r_operator' },
+    role_is_admin (state: StateInterface): boolean { return state.role.id === 'r_admin' },
+    role_is_leader_cc (state: StateInterface): boolean { return state.role.id === 'r_leader_cc' },
+    role_is_team_leader (state: StateInterface): boolean { return state.role.id === 'r_team_leader' },
+    userpic (state: StateInterface): string { return state.userpic },
+    status (state: StateInterface) { return state.status },
+    organization (state: StateInterface) { return state.organization },
+    permissions (state: StateInterface): string[] { return state.permissions }
   }
 }

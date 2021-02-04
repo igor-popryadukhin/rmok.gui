@@ -30,6 +30,7 @@
         v-on="on"
         :attrs="attrs"
         link
+        @click="$emit('select', item)"
       >
         <v-list-item-content>
           <v-list-item-title>
@@ -119,6 +120,7 @@ export default Vue.extend({
 
   data () {
     return {
+      dParams: {},
       q: null,
       hintMessage: '',
       lockSearch: false,
@@ -130,7 +132,7 @@ export default Vue.extend({
 
   watch: {
     q (q: string) {
-      this.fetchData(Object.assign({}, this.params, { q }))
+      this.fetchData(Object.assign({}, this.dParams, { q }))
     },
 
     selected (value) {
@@ -138,17 +140,25 @@ export default Vue.extend({
     },
 
     value (val: any) {
+      if (val === null) {
+        this.$emit('clear')
+      }
       this.selected = val
     }
   },
 
   created () {
-    this.fetchData()
+    this.dParams = Object.assign({}, this.params)
   },
 
   methods: {
+    onSelect (data: any) {
+      this.$emit('select', data)
+    },
+
     fetchData (params = {}) {
-      search(this, Object.assign({}, this.params, params))
+      this.dParams = Object.assign({}, params)
+      search(this, this.dParams)
     },
 
     setSelected (data: ProjectInterface) {
@@ -174,9 +184,6 @@ export default Vue.extend({
         .getById(id)
         .then((response: ProjectInterface) => {
           this.selected = response
-          // if (this.options.findIndex<ProjectInterface>(value => value.id === id) === -1) {
-          //   this.options.push(response)
-          // }
         })
     },
 

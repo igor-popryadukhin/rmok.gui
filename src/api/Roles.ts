@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 

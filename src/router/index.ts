@@ -440,7 +440,7 @@ const routes: RouteConfig[] = [
           },
           {
             path: ':user_id',
-            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Index.vue'),
+            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Tabs.vue'),
             children: [
               {
                 path: '',

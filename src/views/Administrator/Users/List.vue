@@ -97,7 +97,7 @@
                     <v-btn
                       icon
                       small
-                      :to="{ name: 'administrator_users_edit', params: { id: item.id } }"
+                      :to="{ name: 'administrator_users_edit', params: { user_id: item.id } }"
                     >
                       <v-icon>mdi-pencil-box-outline</v-icon>
                     </v-btn>

@@ -1,8 +1,7 @@
-/* eslint-disable */
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
-import ResponseInterface from '@/api/Schemas/ResponseInterface';
-import APIError from '@/api/classes/APIError';
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import APIError from './classes/APIError'
 
 export interface ProjectOwnerInterface {
   id: number;
@@ -23,6 +22,11 @@ export interface ProjectMemberInterface {
   middle_name?: string;
 }
 
+export interface StatusInterface {
+  id: number;
+  name: number;
+}
+
 export interface ProjectInterface {
   id: number;
   name: string;
@@ -32,11 +36,6 @@ export interface ProjectInterface {
   members: ProjectMemberInterface[];
   statuses: StatusInterface[];
   created_at: number;
-}
-
-export interface StatusInterface {
-  id: number;
-  name: number;
 }
 
 export interface ProjectResponseItemsInterface {
@@ -62,7 +61,7 @@ export default class Projects {
   /**
    * @param params
    */
-  public find<TM, TD>(params: any = null): Promise<ResponseInterface<TM, TD>> {
+  public find<TM, TD> (params: any = null): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve: (response: ResponseInterface<TM, TD>) => void, reject) => {
       $axios.get('/projects', {
         params
@@ -79,7 +78,7 @@ export default class Projects {
    * Add new project
    * @param data
    */
-  public add<DT = any, RT = any>(data: DT): Promise<APIError | RT> {
+  public add<DT = any, RT = any> (data: DT): Promise<APIError | RT> {
     return new Promise<APIError | RT>((resolve, reject) => {
       $axios.post('/projects', data)
         .then((response: AxiosResponse) => {
@@ -87,7 +86,7 @@ export default class Projects {
             return resolve(response.data)
           }
           throw new APIError(response.data)
-      }).catch(reject)
+        }).catch(reject)
     })
   }
 
@@ -111,7 +110,7 @@ export default class Projects {
    * @param id
    * @param data
    */
-  public update<DT = any>(id: number, data: DT): Promise<ProjectResponseItemsInterface> {
+  public update<DT = any> (id: number, data: DT): Promise<ProjectResponseItemsInterface> {
     return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
       $axios.put(`/projects/${id}`, data)
         .then((response: AxiosResponse) => {
@@ -135,6 +134,22 @@ export default class Projects {
             return resolve(response.data)
           }
           reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Получить текущий пользовательский проект по идентификатору пользователя
+   * @param user_id
+   */
+  public getCurrentUserProjectByUserId (user_id: number): Promise<ProjectInterface> {
+    return new Promise<ProjectInterface>((resolve, reject) => {
+      $axios.get(`/projects/user/${user_id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

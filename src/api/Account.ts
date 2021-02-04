@@ -1,6 +1,7 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { OrganizationInterface } from '@/api/Organizations'
+import { PermissionInterface } from '@/api/Permissions'
 
 export enum UserStatus {
   AVAILABLE = 'available',
@@ -20,6 +21,7 @@ export interface ProfileInterface {
   status: string;
   created_at: number;
   role: Role;
+  permissions: PermissionInterface[];
   organization?: OrganizationInterface;
   /* eslint-enable */
 }

@@ -59,14 +59,14 @@ export class Users {
    * @param id
    * @param data
    */
-  public update (id: number, data: any): Promise<any> {
-    return new Promise((resolve, reject): Promise<any> | any => {
-      $axios.put(`/users/${id}`, data)
+  public update (id: number, data: any): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.patch(`/users/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve()
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
