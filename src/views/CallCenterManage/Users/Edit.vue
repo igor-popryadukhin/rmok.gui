@@ -228,26 +228,30 @@
       </v-row>
     </div>
 
-    <div class="text-h6 grey--text">{{ $tc('Project') }}</div>
-    <div class="mb-10">
-      <v-row>
-        <v-col
-          cols="12"
-          lg="4"
-          md="4"
-        >
-          <s-projects-autocomplete
-            ref="sProjectsAutocomplete"
-            v-model="user.project"
-            :label="$tc('User current project')"
-            :params="{
+    <!-- Видимость элемента зависит от разрешений --->
+    <template>
+      <div class="text-h6 grey--text">{{ $tc('Project') }}</div>
+      <div class="mb-10">
+        <v-row>
+          <v-col
+            cols="12"
+            lg="4"
+            md="4"
+          >
+            <s-projects-autocomplete
+              ref="sProjectsAutocomplete"
+              v-model="user.project"
+              :label="$tc('User current project')"
+              :params="{
               organization_id: user.organization ? user.organization.id : 0
             }"
-            visible-icon
-          />
-        </v-col>
-      </v-row>
-    </div>
+              :disabled="!$store.state.profile.permissions.includes('user.set_project')"
+              visible-icon
+            />
+          </v-col>
+        </v-row>
+      </div>
+    </template>
 
     <div class="text-h6 grey--text">{{ $tc('Telephony') }}</div>
     <div class="mb-10">
@@ -514,7 +518,9 @@ export default Vue.extend({
           } as PBXInterface
 
           if (user.project) {
-            vm.$refs.sProjectsAutocomplete.setDefault(user.project.id)
+            if ('sProjectsAutocomplete' in vm.$refs) {
+              vm.$refs.sProjectsAutocomplete.setDefault(user.project.id)
+            }
           }
 
           if (user.group) {

@@ -31,7 +31,7 @@
               </v-btn>
               <v-btn
                 color="primary"
-                :to="{ name: 'administrator_users_new' }"
+                :to="{ name: 'administrator_users_new_main' }"
                 icon
               >
                 <v-icon>mdi-plus</v-icon>
@@ -97,7 +97,7 @@
                     <v-btn
                       icon
                       small
-                      :to="{ name: 'administrator_users_edit', params: { id: item.id } }"
+                      :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
                     >
                       <v-icon>mdi-pencil-box-outline</v-icon>
                     </v-btn>
@@ -106,6 +106,17 @@
               </template>
             </v-data-table>
           </v-card-text>
+          <v-footer color="white" class="d-flex justify-md-space-between pa-4 mt-auto" absolute>
+            <v-pagination
+              v-model="dataTableUsers.page"
+              :length="dataTableUsers.pages"
+              total-visible="6"
+              :disabled="dataTableUsers.pages === 0"
+            ></v-pagination>
+            <div class="d-flex align-center justify-center">
+              {{ this.dataTableUsers.pageStart }}-{{ this.dataTableUsers.pageStop }} из {{ this.dataTableUsers.totalCount }}
+            </div>
+          </v-footer>
         </v-card>
       </v-col>
       <v-col
@@ -115,6 +126,7 @@
       >
         <v-card
           class="fill-height"
+          style="min-height: 500px"
           flat
           tile
           outlined
@@ -153,17 +165,6 @@
               dense
             />
           </v-card-text>
-          <v-footer absolute class="d-flex justify-md-space-between pa-4 mt-auto">
-            <v-pagination
-              v-model="dataTableUsers.page"
-              :length="dataTableUsers.pages"
-              total-visible="6"
-              :disabled="dataTableUsers.pages === 0"
-            ></v-pagination>
-            <div class="d-flex align-center justify-center">
-              {{ this.dataTableUsers.pageStart }}-{{ this.dataTableUsers.pageStop }} из {{ this.dataTableUsers.totalCount }}
-            </div>
-          </v-footer>
         </v-card>
       </v-col>
     </v-row>
@@ -171,7 +172,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { VueConstructor } from 'vue'
 import { UserInterface, Users } from '@/api/Users'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
@@ -180,8 +181,9 @@ import { OrganizationInterface } from '@/api/Organizations'
 import { ProjectInterface } from '@/api/Projects'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import { GroupInterface } from '@/api/Groups'
+import VInterface from '@/VInterface'
 
-export default Vue.extend({
+export default (Vue as VueConstructor<VInterface>).extend({
   components: {
     SGroups,
     SProjectsAutocomplete,
@@ -271,7 +273,7 @@ export default Vue.extend({
   computed: {
     // Вычисляю высоту таблицы
     dataTableUsersHeight () {
-      let h: number = this.$screenHeight - 210
+      let h: number = this.$screenHeight - 170
       if (h < 640) { h = 640 }
       return h
     }

@@ -431,17 +431,49 @@ const routes: RouteConfig[] = [
           },
           {
             path: 'new',
-            name: 'administrator_users_new',
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Users/New/Tabs.vue'),
+            children: [
+              {
+                path: '',
+                name: 'administrator_users_new_main',
+                component: () => import(/* webpackChunkName: "administrator-users-new" */ '../views/Administrator/Users/New/Main.vue'),
+                meta: { layout: 'administrator', middleware: [] }
+              }
+            ],
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
             }
           },
           {
-            path: ':id',
-            name: 'administrator_users_edit',
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Users/Edit.vue'),
+            path: ':user_id',
+            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Tabs.vue'),
+            children: [
+              {
+                path: '',
+                name: 'administrator_users_edit_main',
+                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Main.vue'),
+                meta: { layout: 'administrator', middleware: [] }
+              },
+              {
+                path: 'project',
+                name: 'administrator_users_edit_project',
+                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Project.vue'),
+                meta: { layout: 'administrator', middleware: [] }
+              },
+              {
+                path: 'telephony',
+                name: 'administrator_users_edit_telephony',
+                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Telephony.vue'),
+                meta: { layout: 'administrator', middleware: [] }
+              },
+              {
+                path: 'permissions',
+                name: 'administrator_users_edit_permissions',
+                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Permissions.vue'),
+                meta: { layout: 'administrator', middleware: [] }
+              }
+            ],
             meta: {
               layout: 'administrator',
               middleware: [roleAdmin]
@@ -555,7 +587,7 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'administrator',
-              middleware: [roleAdmin]
+              middleware: []
             }
           },
           {

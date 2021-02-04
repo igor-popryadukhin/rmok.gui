@@ -280,7 +280,7 @@ import vueScrollOptions from '@/mixins/vueScrollOptions'
 import statusActions from '@/mixins/statusActions'
 import VInterface from '@/VInterface'
 import { debounce } from 'vuetify/src/util/helpers'
-import APIError from '@/api/classes/Error'
+import APIError from '@/api/classes/APIError'
 
 interface IData {
   projectName: string;

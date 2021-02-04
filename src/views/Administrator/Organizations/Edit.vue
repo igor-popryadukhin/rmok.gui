@@ -12,9 +12,9 @@
         <v-text-field
           v-model="organizationName"
           :label="$tc('organization_name')"
+          :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответствует').regex]"
           persistent-hint
           required
-          :rules="[rules.notBlank, ruleDynamic(regExPatterns.companyName, 'Не соответствует').regex]"
         >
           <template v-slot:prepend>
             <v-avatar
@@ -37,6 +37,7 @@
           v-model="organizationEmail"
           :label="$t('E-mail address')"
           :rules="[rules.email]"
+          :dark="$vuetify.theme.dark"
         >
           <template
             v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"

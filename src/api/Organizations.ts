@@ -161,7 +161,7 @@ export class Organizations {
    * @param id
    */
   public delete (id: number): Promise<any> {
-    return new Promise((resolve, reject): Promise<any> | any => {
+    return new Promise<void>((resolve, reject): Promise<any> | any => {
       $axios.delete(`/organizations/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
