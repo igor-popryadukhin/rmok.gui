@@ -373,6 +373,15 @@ export default Vue.extend({
                   name: 'administrator_security'
                 }
               }
+            },
+            {
+              title: 'For developer',
+              icon: 'mdi-flask',
+              attrs: {
+                to: {
+                  name: 'administrator_for_developer'
+                }
+              }
             }
           ]
         }

@@ -640,6 +640,16 @@ const routes: RouteConfig[] = [
               layout: 'administrator',
               middleware: [secure]
             }
+          },
+          {
+            path: 'development',
+            name: 'administrator_for_developer',
+            component: () => import(/* webpackChunkName: "administrator-settings-for-developer" */ '../views/Administrator/Settings/DeveloperSettings.vue'),
+            meta: {
+              icon: 'mdi-flask',
+              layout: 'administrator',
+              middleware: [secure]
+            }
           }
         ],
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
