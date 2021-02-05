@@ -38,7 +38,6 @@
               </v-btn>
             </v-toolbar>
             <v-data-table
-              dense
               :headers="dataTableUsers.headers"
               :items="dataTableUsers.items"
               :server-items-length="dataTableUsers.totalCount"
@@ -53,6 +52,7 @@
               fixed-header
               calculate-widths
               hide-default-footer
+              dense
               :height="dataTableUsersHeight"
               @pagination="onPaginationChange"
             >
@@ -95,11 +95,19 @@
                   <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—'}}</td>
                   <td class="text-no-wrap text-right">
                     <v-btn
+                      :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
                       icon
                       small
-                      :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
                     >
                       <v-icon>mdi-pencil-box-outline</v-icon>
+                    </v-btn>
+                    <v-btn
+                      color="red"
+                      icon
+                      small
+                      @click="onDelete(item)"
+                    >
+                      <v-icon>mdi-delete-outline</v-icon>
                     </v-btn>
                   </td>
                 </tr>
@@ -182,6 +190,7 @@ import { ProjectInterface } from '@/api/Projects'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import { GroupInterface } from '@/api/Groups'
 import VInterface from '@/VInterface'
+import VUserDialogDelete from '@/components/VUserDialogDelete/VUserDialogDelete.vue'
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: {
@@ -319,6 +328,26 @@ export default (Vue as VueConstructor<VInterface>).extend({
     onPaginationChange (data: any) {
       this.dataTableUsers.pageStart = data.pageStart + 1
       this.dataTableUsers.pageStop = data.pageStop
+    },
+
+    onDelete (item: UserInterface) {
+      this.$dialog.showAndWait(VUserDialogDelete, {
+        title: this.$tc('Удаление сотрудника'),
+        text: this.$tc('Сотрудник будет удалён, что бы сохранить контакты этого сотрудника, вы можете передать их другому владельцу.'),
+        actions: {
+          false: {
+            color: 'primary',
+            text: this.$tc('Cancel')
+          },
+          true: {
+            color: 'red',
+            text: this.$tc('Delete'),
+            handle: () => {
+              // todo: Реализовать механизм удаления
+            }
+          }
+        }
+      })
     }
   }
 })
