@@ -46,17 +46,19 @@
               </v-list-item-content>
             </template>
 
-            <v-list-item
-              v-for="(mainMenuItemChildren, mainMenuItemChildrenIndex) in mainMenuItem.children"
-              :key="`child-${mainMenuItemChildrenIndex}`"
-              v-bind="mainMenuItemChildren.attrs"
-              link
-            >
-              <v-list-item-title>{{ $tc(mainMenuItemChildren.title) }}</v-list-item-title>
-              <v-list-item-icon>
-                <v-icon v-text="mainMenuItemChildren.icon"></v-icon>
-              </v-list-item-icon>
-            </v-list-item>
+            <template v-for="(mainMenuItemChildren, mainMenuItemChildrenIndex) in mainMenuItem.children">
+              <v-list-item
+                v-if="mainMenuItemChildren.visible"
+                :key="`child-${mainMenuItemChildrenIndex}`"
+                v-bind="mainMenuItemChildren.attrs"
+                link
+              >
+                <v-list-item-title>{{ $tc(mainMenuItemChildren.title) }}</v-list-item-title>
+                <v-list-item-icon>
+                  <v-icon v-text="mainMenuItemChildren.icon"></v-icon>
+                </v-list-item-icon>
+              </v-list-item>
+            </template>
           </v-list-group>
 
           <v-divider v-else-if="mainMenuItem.divider" :key="mainMenuIndex" />
@@ -323,6 +325,7 @@ export default Vue.extend({
             {
               title: 'Last call statistics',
               icon: '',
+              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_reports_recent_calls'
@@ -332,6 +335,7 @@ export default Vue.extend({
             {
               title: 'Statistics for all calls',
               icon: '',
+              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_reports_all_calls'
@@ -350,6 +354,7 @@ export default Vue.extend({
             {
               title: 'Profile',
               icon: 'mdi-account',
+              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_profile'
@@ -359,6 +364,7 @@ export default Vue.extend({
             {
               title: 'Journal',
               icon: 'mdi-history',
+              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_journal'
@@ -368,6 +374,7 @@ export default Vue.extend({
             {
               title: 'Security',
               icon: 'mdi-security',
+              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_security'
@@ -377,6 +384,7 @@ export default Vue.extend({
             {
               title: 'For developer',
               icon: 'mdi-flask',
+              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view'),
               attrs: {
                 to: {
                   name: 'administrator_for_developer'
