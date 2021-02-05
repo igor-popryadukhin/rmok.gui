@@ -76,6 +76,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           granted: attribute.granted
         }).then(() => {
           this.$toast.success(this.$tc('Permission settings saved successfully'))
+          this.$store.dispatch('profile/loadProfile')
         })
         .catch(reason => {
           this.$toast.error(reason.message)

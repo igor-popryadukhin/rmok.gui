@@ -143,13 +143,9 @@ export default Vue.extend({
     }
   },
 
-  created () {
-    this.fetchData()
-  },
-
   methods: {
     fetchData (params = {}) {
-      search(this, Object.assign({}, this.params, params))
+      return search(this, Object.assign({}, this.params, params))
     },
 
     setSelected (data: OrganizationInterface) {
@@ -161,7 +157,7 @@ export default Vue.extend({
     },
 
     pushData (data: OrganizationInterface) {
-      if (this.options.findIndex<OrganizationInterface>((e) => e.id === data.id) === -1) {
+      if (this.options.findIndex((e: OrganizationInterface) => e.id === data.id) === -1) {
         this.options.push(data)
       }
     },
@@ -174,10 +170,8 @@ export default Vue.extend({
       new Organizations()
         .getById(id)
         .then((response: OrganizationInterface) => {
+          this.pushData(response)
           this.selected = response
-          // if (this.options.findIndex<OrganizationInterface>(value => value.id === id) === -1) {
-          //   this.options.push(response)
-          // }
         })
     },
 
@@ -191,13 +185,18 @@ export default Vue.extend({
  * Поиск пользователей
  */
 const search = debounce((ctx: any, params: any) => {
-  ctx.process = true
-  new Organizations()
-    .find(params)
-    .then((response: ResponseInterface<{ count: number }, OrganizationInterface[]>) => {
-      if (ctx.visibleFound) { ctx.hintMessage = ctx.$t('found', { count: response.meta.count }) }
-      ctx.options = response.data
-    })
-    .finally(() => (ctx.process = false))
+  return new Promise<void>(resolve => {
+    ctx.process = true
+    new Organizations()
+      .find(params)
+      .then((response: ResponseInterface<{ count: number }, OrganizationInterface[]>) => {
+        if (ctx.visibleFound) { ctx.hintMessage = ctx.$t('found', { count: response.meta.count }) }
+        ctx.options = response.data
+      })
+      .finally(() => {
+        resolve()
+        ctx.process = false
+      })
+  })
 }, 400)
 </script>

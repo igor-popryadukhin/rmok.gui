@@ -170,7 +170,7 @@ export default Vue.extend({
     },
 
     pushData (data: ProjectInterface) {
-      if (this.options.findIndex<ProjectInterface>((e) => e.id === data.id) === -1) {
+      if (this.options.findIndex((e: ProjectInterface) => e.id === data.id) === -1) {
         this.options.push(data)
       }
     },

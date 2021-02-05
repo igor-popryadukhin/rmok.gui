@@ -26,8 +26,8 @@ import(/* webpackChunkName: "plugin-jsSIP", webpackPreload: true */ '@/jsSIP')
 
 // layouts
 Vue.component('administrator', () => import(/* webpackPreload: true */ './layouts/Administrator.vue'))
-Vue.component('call-center-manager', () => import(/* webpackPreload: true */ './layouts/CallCenterManager.vue'))
-Vue.component('team-leader', () => import(/* webpackPreload: true */ './layouts/TeamLeader.vue'))
+// Vue.component('call-center-manager', () => import(/* webpackPreload: true */ './layouts/CallCenterManager.vue'))
+// Vue.component('team-leader', () => import(/* webpackPreload: true */ './layouts/TeamLeader.vue'))
 Vue.component('operator-layout', () => import(/* webpackPreload: true */ './layouts/Operator.vue'))
 Vue.component('clean', CleanLayout)
 

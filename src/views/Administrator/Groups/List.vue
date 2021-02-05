@@ -1,157 +1,158 @@
 <template>
-  <div>
-    <v-row>
-      <v-col
-        order-lg="1"
-        order-md="1"
-        order-sm="2"
-        order-xl="2"
-        cols="12"
-        md="9"
-        lg="9"
+  <v-row>
+    <v-col
+      class="py-0 pb-md-0 pb-lg-0 pb-xl-0"
+      cols="12"
+      md="9"
+      lg="9"
+      xl="9"
+      order-lg="1"
+      order-md="1"
+      order-sm="2"
+      order-xl="2"
+    >
+      <v-card
+        flat
+        tile
+        outlined
       >
-        <v-card
-          flat
-          tile
-          outlined
-        >
-          <v-card-text>
-            <v-data-table
-              :headers="dataTableGroups.headers"
-              :items="dataTableGroups.items"
-              :server-items-length="dataTableGroups.totalCount"
-              :page.sync="dataTableGroups.page"
-              :items-per-page="dataTableGroups.itemsPerPage"
-              :loading="dataTableGroups.processLoading"
-              item-key="id"
-              item-class="v-datatable-item"
-              :loading-text="$tc('Loading content...')"
-              :no-data-text="$tc('No data available')"
-              :height="dataTableGroupsHeight"
-              disable-sort
-              fixed-header
-              calculate-widths
-              hide-default-footer
-              dense
-            >
-              <template v-slot:top>
-                <v-toolbar
-                  class="v-toolbar-header"
-                  height="48"
-                  flat
+        <v-card-text>
+          <v-data-table
+            :headers="dataTableGroups.headers"
+            :items="dataTableGroups.items"
+            :server-items-length="dataTableGroups.totalCount"
+            :page.sync="dataTableGroups.page"
+            :items-per-page="dataTableGroups.itemsPerPage"
+            :loading="dataTableGroups.processLoading"
+            item-key="id"
+            item-class="v-datatable-item"
+            :loading-text="$tc('Loading content...')"
+            :no-data-text="$tc('No data available')"
+            :height="dataTableGroupsHeight"
+            disable-sort
+            fixed-header
+            calculate-widths
+            hide-default-footer
+            dense
+          >
+            <template v-slot:top>
+              <v-toolbar
+                class="v-toolbar-header"
+                height="48"
+                flat
+              >
+                <v-toolbar-title class="grey--text">
+                  {{ $tc('Groups') }}
+                </v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="primary"
+                  :disabled="dataTableGroups.processLoading"
+                  icon
+                  @click="onButtonRefreshClick"
                 >
-                  <v-toolbar-title class="grey--text">
-                    {{ $tc('Groups') }}
-                  </v-toolbar-title>
-                  <v-spacer></v-spacer>
+                  <v-icon>mdi-refresh</v-icon>
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  :to="{ name: 'administrator_groups_new' }"
+                  v-bind="buttonAdd"
+                  icon
+                >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </v-toolbar>
+            </template>
+            <template slot="header.name" slot-scope="{ header }">
+              <span class="text-no-wrap">{{ header.text }}</span>
+            </template>
+            <template slot="item" slot-scope="{ item }">
+              <tr class="v-datatable-item">
+                <td class="text-no-wrap">{{ item.name || $tc('No name') }}</td>
+                <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>
+                <td class="text-no-wrap">{{ item.team_leader ? `${item.team_leader.first_name} ${item.team_leader.last_name}` : '—' }}</td>
+                <td class="text-no-wrap text-right">
                   <v-btn
-                    color="primary"
-                    :disabled="dataTableGroups.processLoading"
                     icon
-                    @click="onButtonRefreshClick"
+                    small
+                    :to="{ name: 'administrator_groups_edit', params: { id: item.id } }"
                   >
-                    <v-icon>mdi-refresh</v-icon>
+                    <v-icon>mdi-pencil-box-outline</v-icon>
                   </v-btn>
-                  <v-btn
-                    color="primary"
-                    :to="{ name: 'administrator_groups_new' }"
-                    v-bind="buttonAdd"
-                    icon
-                  >
-                    <v-icon>mdi-plus</v-icon>
-                  </v-btn>
-                </v-toolbar>
-              </template>
-              <template slot="header.name" slot-scope="{ header }">
-                <span class="text-no-wrap">{{ header.text }}</span>
-              </template>
-              <template slot="item" slot-scope="{ item }">
-                <tr class="v-datatable-item">
-                  <td class="text-no-wrap">{{ item.name || $tc('No name') }}</td>
-                  <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>
-                  <td class="text-no-wrap">{{ item.team_leader ? `${item.team_leader.first_name} ${item.team_leader.last_name}` : '—' }}</td>
-                  <td class="text-no-wrap text-right">
-                    <v-btn
-                      icon
-                      small
-                      :to="{ name: 'administrator_groups_edit', params: { id: item.id } }"
-                    >
-                      <v-icon>mdi-pencil-box-outline</v-icon>
-                    </v-btn>
-                  </td>
-                </tr>
-              </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col
-        order-lg="2"
-        order-md="2"
-        order-sm="1"
-        order-xl="1"
-        cols="12"
-        md="3"
-        lg="3"
+                </td>
+              </tr>
+            </template>
+          </v-data-table>
+        </v-card-text>
+        <v-footer class="d-flex justify-md-space-between pa-4 mt-auto" color="white">
+          <v-pagination
+            v-model="dataTableGroups.page"
+            :length="dataTableGroups.pages"
+            total-visible="6"
+            :disabled="dataTableGroups.pages === 0"
+          ></v-pagination>
+          <div class="d-flex align-center justify-center">
+            {{ this.dataTableGroups.pageStart }}-{{ this.dataTableGroups.pageStop }} из {{ this.dataTableGroups.totalCount }}
+          </div>
+        </v-footer>
+      </v-card>
+    </v-col>
+    <v-col
+      class="py-0 pt-md pl-md-0 pl-lg-0 pl-xl-0"
+      cols="12"
+      md="3"
+      lg="3"
+      xl="3"
+      order-lg="2"
+      order-md="2"
+      order-sm="1"
+      order-xl="1"
+    >
+      <v-card
+        class="fill-height"
+        tile
+        outlined
       >
-        <v-card
-          class="fill-height"
-          tile
-          outlined
-        >
-          <v-toolbar flat>
-            <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
-            <v-spacer></v-spacer>
-          </v-toolbar>
+        <v-toolbar flat>
+          <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
 
-          <!-- FILTERS -->
-          <v-card-text>
-            <s-organizations-autocomplete
-              ref="sOrganizationsAutocomplete"
-              v-model="filter.organization"
-              :label="$tc('Organization')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-          <v-card-text>
-            <s-projects-autocomplete
-              ref="sProjectsAutocomplete"
-              v-model="filter.project"
-              :label="$tc('Project')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-          <v-card-text>
-            <s-groups
-              ref="sGroupsAutocomplete"
-              v-model="filter.group"
-              :label="$tc('Group')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-          <!-- FILTERS -->
-
-          <v-footer absolute class="d-flex justify-md-space-between pa-4 mt-auto">
-            <v-pagination
-              v-model="dataTableGroups.page"
-              :length="dataTableGroups.pages"
-              total-visible="6"
-              :disabled="dataTableGroups.pages === 0"
-            ></v-pagination>
-            <div class="d-flex align-center justify-center">
-              {{ this.dataTableGroups.pageStart }}-{{ this.dataTableGroups.pageStop }} из {{ this.dataTableGroups.totalCount }}
-            </div>
-          </v-footer>
-        </v-card>
-      </v-col>
-    </v-row>
-  </div>
+        <!-- FILTERS -->
+        <v-card-text>
+          <s-organizations-autocomplete
+            ref="sOrganizationsAutocomplete"
+            v-model="filter.organization"
+            :label="$tc('Organization')"
+            clearable
+            outlined
+            dense
+          />
+        </v-card-text>
+        <v-card-text>
+          <s-projects-autocomplete
+            ref="sProjectsAutocomplete"
+            v-model="filter.project"
+            :label="$tc('Project')"
+            clearable
+            outlined
+            dense
+          />
+        </v-card-text>
+        <v-card-text>
+          <s-groups
+            ref="sGroupsAutocomplete"
+            v-model="filter.group"
+            :label="$tc('Group')"
+            clearable
+            outlined
+            dense
+          />
+        </v-card-text>
+        <!-- FILTERS -->
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -245,7 +246,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
   computed: {
     // Вычисляю высоту таблицы
     dataTableGroupsHeight () {
-      let h: number = this.$screenHeight - 170
+      let h: number = this.$screenHeight - 250
       if (h < 640) { h = 640 }
       return h
     }

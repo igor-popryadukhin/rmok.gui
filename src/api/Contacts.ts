@@ -4,6 +4,7 @@ import { AxiosResponse } from 'axios'
 import { ContactInterface } from './Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import APIError from "@/api/classes/APIError";
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
@@ -128,7 +129,7 @@ export class Contacts {
    * @param id
    */
   public delete (id: number): Promise<unknown> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       $axios.delete(`/contacts/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
@@ -139,29 +140,23 @@ export class Contacts {
     })
   }
 
-  /* eslint-disable */
   /**
    * Retrieve a contact's call history
    * @param contact_id
-   * @param filter
-   * @param offset
-   * @param count
+   * @param params
    */
-  public getHistory (contact_id: number, filter = '', offset = 0, count = 100): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const query: any = {}
-      if (filter) { query.filter = filter }
+  public getHistory<TM, TD>(contact_id: number, params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get(`/contacts/${contact_id}/history`, {
-        params: { offset, count, ...query }
+        params
       }).then((response: AxiosResponse) => {
-        if (response.status !== 200) {
-          reject (response.data)
+        if (response.status === 200) {
+          return resolve(response.data)
         }
-        resolve(response.data)
+        throw new APIError(response.data)
       }).catch(reject)
     })
   }
-  /* eslint-enable */
 
   /**
    * @param historyId

@@ -390,15 +390,20 @@ export default Vue.extend({
      */
     loadHistory () {
       this.historyLoading = true
+
+      // 'all',
+      // +this.$route.query.history_offset || 0,
+      // +this.$route.query.history_count || 20
+      const params: any = {
+        offset: 0,
+        count: 50,
+        type: 'all'
+      }
+
       new Contacts()
-        .getHistory(
-          +this.$route.params.contact_id,
-          'all',
-          +this.$route.query.history_offset || 0,
-          +this.$route.query.history_count || 20
-        )
+        .getHistory(+this.$route.params.contact_id, params)
         .then((response) => {
-          this.history = response.items.map((e: any) => {
+          this.history = response.data.map((e: any) => {
             return Object.assign({
               actions: {
                 edit: {

@@ -189,10 +189,6 @@ const callMachine = createMachine<Vue, Event>({
           historyData.end_timestamp = session.end_time.getTime() / 1000
         }
 
-        if (event.cause === 'Canceled') {
-          historyData.direction = session.direction + '_canceled'
-        }
-
         let contactId = 0
 
         // Внимание!!!

@@ -19,6 +19,7 @@ declare module 'vue/types/vue' {
     setQuery: (query: any) => void
     $routerQuery: RouterQuery
     $isDebug: boolean
+    assertObjectHasAttribute (obj: any, key: string): boolean
   }
 }
 

@@ -1,4 +1,5 @@
 {
+  "Отчёты": "Добавить",
   "Add": "Добавить",
   "Add group": "@:Add группу",
   "Add new task": "@:Add новую задачу",
@@ -115,6 +116,8 @@
   "Start typing to Search": "Начните вводить в поиск",
   "Start typing to initialize your search.": "Начните вводить текст для инициализации поиска.",
   "Statistic": "Статистика",
+  "Last call statistics": "По последним вызовам",
+  "Statistics for all calls": "По всем вызовам",
   "Status": "Статус",
   "Status name": "Название статуса",
   "Status not set": "Статус не установлен",
@@ -139,6 +142,7 @@
   "Total": "Всего",
   "Tune": "Настроить",
   "User added successfully": "Пользователь успешно добавлен",
+  "No data": "Нет данных",
   "User current project": "Текущий проект пользователя",
   "User updated successfully": "Пользователь успешно обновлён",
   "Users": "Пользователи",

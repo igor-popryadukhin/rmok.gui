@@ -1,6 +1,7 @@
 <template>
   <v-row>
     <v-col
+      class="py-0"
       cols="12"
       md="9"
       lg="9"
@@ -57,13 +58,9 @@
             <template slot="header.name" slot-scope="{ header }">
               <span class="text-no-wrap">{{ $tc(header.text) }}</span>
             </template>
-            <template slot="header.organization" slot-scope="{ header }">
-              <span class="text-no-wrap">{{ $tc(header.text) }}</span>
-            </template>
             <template slot="item" slot-scope="{ item }">
               <tr class="v-datatable-item">
                 <td class="text-no-wrap">{{ item.name }}</td>
-                <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>
                 <td class="text-no-wrap text-right">
                   <v-btn
                     icon
@@ -77,12 +74,12 @@
             </template>
           </v-data-table>
         </v-card-text>
-        <v-footer color="white" class="d-flex justify-md-space-between pa-4 mt-auto" absolute>
+        <v-footer class="d-flex justify-md-space-between pa-4 mt-auto" color="white">
           <v-pagination
             v-model="dataTableProjects.page"
             :length="dataTableProjects.pages"
-            total-visible="4"
-            :disabled="dataTableProjects.pages === 0 || dataTableProjects.processLoading"
+            total-visible="5"
+            :disabled="dataTableProjects.pages === 0"
           ></v-pagination>
           <div class="d-flex align-center justify-center">
             {{ this.dataTableProjects.pageStart }}-{{ this.dataTableProjects.pageStop }} из {{ this.dataTableProjects.totalCount }}
@@ -91,13 +88,13 @@
       </v-card>
     </v-col>
     <v-col
+      class="py-0 pl-md-0 pl-lg-0 pl-xl-0"
       cols="12"
       md="3"
       lg="3"
     >
       <v-card
         class="fill-height"
-        style="min-height: 500px"
         flat
         tile
         outlined
@@ -107,14 +104,7 @@
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-card-text>
-          <s-organizations-autocomplete
-            ref="sOrganizationsAutocomplete"
-            v-model="filter.organization"
-            :label="$tc('Organization')"
-            clearable
-            outlined
-            dense
-          />
+          {{ projects }}
         </v-card-text>
       </v-card>
     </v-col>
@@ -124,14 +114,11 @@
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue'
 import Projects, { ProjectInterface } from '@/api/Projects'
-import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import { OrganizationInterface } from '@/api/Organizations'
 import VInterface from '@/VInterface'
+import VDTPaginationEvent from '@/interface/VDTPaginationEvent'
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: {
-    SOrganizationsAutocomplete
-  },
 
   data () {
     return {
@@ -145,13 +132,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
         processLoading: false,
         page: 1,
         pages: 0,
-        totalCount: 0,
+        totalCount: 0 as unknown as number,
         itemsPerPage: 30,
         pageStart: 0,
         pageStop: 0,
         headers: [
           { text: 'Project name', align: 'start', sortable: true, value: 'name', width: 'auto' },
-          { text: 'Organization', align: 'start', sortable: true, value: 'organization', width: 'auto' },
           { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
         ],
         items: [] as ProjectInterface[]
@@ -188,24 +174,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
   computed: {
     // Вычисляю высоту таблицы
     dataTableProjectsHeight () {
-      let h: number = this.$screenHeight - 170
+      let h: number = this.$screenHeight - 250
       if (h < 640) { h = 640 }
       return h
     }
   },
 
   mounted () {
-    this.$refs.sOrganizationsAutocomplete.fetchData()
-
-    // Установка фильтров
-    if (this.$routerQuery.hasQuery('organization_id')) {
-      this.$refs.sOrganizationsAutocomplete.setDefault(+this.$route.query.organization_id)
-    }
-
-    if (this.$routerQuery.hasQuery('page')) {
-      this.dataTableProjects.page = +this.$route.query.page
-    }
-
     this.fetchProjects()
   },
 
@@ -219,22 +194,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
         count: this.dataTableProjects.itemsPerPage
       }
 
-      if (this.$routerQuery.hasQuery('organization_id')) {
-        params.organization_id = this.$route.query.organization_id
-      }
-
       new Projects()
         .find<{ count: number }, ProjectInterface[]>(params)
         .then((response) => {
           this.dataTableProjects.totalCount = response.meta.count
-          this.dataTableProjects.pages = Math.ceil(response.meta.count / this.dataTableProjects.itemsPerPage)
+          this.dataTableProjects.pages = Math.ceil(+response.meta.count / this.dataTableProjects.itemsPerPage)
           this.dataTableProjects.items = response.data
         }).finally(() => {
           this.dataTableProjects.processLoading = false
         })
     },
 
-    onPaginationChange (data: any) {
+    onPaginationChange (data: VDTPaginationEvent) {
       this.dataTableProjects.pageStart = data.pageStart + 1
       this.dataTableProjects.pageStop = data.pageStop
     },

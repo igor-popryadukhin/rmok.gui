@@ -18,7 +18,7 @@
           :label="$tc('group_name')"
           :rules="[rules.notBlank]"
           persistent-hint
-          @keydown.enter="$refs.sOrganizations.focus"
+          @keydown.enter="$refs.sOrganizationsAutocomplete.focus"
         >
         </v-text-field>
       </v-col>
@@ -32,7 +32,7 @@
         lg="6"
       >
         <s-organizations-autocomplete
-          ref="sOrganizations"
+          ref="sOrganizationsAutocomplete"
           v-model="organizationSelected"
           :label="$tc('organization')"
           :rules="[rules.notBlank]"

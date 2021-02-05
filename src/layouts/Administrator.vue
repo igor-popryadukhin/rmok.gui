@@ -62,8 +62,8 @@
           <v-divider v-else-if="mainMenuItem.divider" :key="mainMenuIndex" />
 
           <v-list-item
-            v-else
-            :key="mainMenuIndex"
+            v-else-if="mainMenuItem.visible"
+            :key="`main-menu-list-item-${mainMenuIndex}`"
             v-bind="mainMenuItem.list_item"
             link
           >
@@ -91,7 +91,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="d-inline-block toolbar-title mr-md-5 mr-lg-5">
         <div class="hidden-sm-and-down">RMOK</div>
-        <div class="hidden-sm-and-down toolbar-title-subtitle text-lowercase">{{ $tc('For administrator') }}</div>
+        <div class="hidden-sm-and-down toolbar-title-subtitle text-lowercase">{{ $store.getters['profile/role_name'] }}</div>
       </v-toolbar-title>
 
       <v-text-field
@@ -250,11 +250,23 @@ export default Vue.extend({
             }
           }
         }
-      ],
-      mainMenu: [
+      ]
+    }
+  },
+
+  computed: {
+    avatar () {
+      const first: string = this.$store.getters['profile/first_name'] || 'N'
+      const last: string = this.$store.getters['profile/last_name'] || 'N'
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    mainMenu () {
+      return [
         {
           title: 'Organizations',
           icon: 'mdi-city',
+          visible: this.$store.getters['profile/role_is_admin'], // Этот пункт видят только администраторы
           list_item: {
             to: {
               name: 'administrator_organizations_list'
@@ -262,8 +274,19 @@ export default Vue.extend({
           }
         },
         {
+          title: 'Contacts',
+          icon: 'mdi-contacts',
+          visible: this.$store.getters['profile/permissions'].includes('contact.view'),
+          list_item: {
+            to: {
+              name: 'administrator_contacts'
+            }
+          }
+        },
+        {
           title: 'Groups',
           icon: 'mdi-account-group',
+          visible: true,
           list_item: {
             to: {
               name: 'administrator_groups_list'
@@ -273,6 +296,7 @@ export default Vue.extend({
         {
           title: 'Users',
           icon: 'mdi-account-multiple-outline',
+          visible: true,
           list_item: {
             to: {
               name: 'administrator_users_list'
@@ -282,17 +306,46 @@ export default Vue.extend({
         {
           title: 'Projects',
           icon: 'mdi-projector-screen',
+          visible: true,
           list_item: {
             to: {
               name: 'administrator_projects_list'
             }
           }
         },
+        {
+          title: 'Statistic',
+          icon: 'mdi-chart-arc',
+          visible: this.$store.getters['profile/permissions'].includes('report.view'),
+          list_item: {},
+          active: false,
+          children: [
+            {
+              title: 'Last call statistics',
+              icon: '',
+              attrs: {
+                to: {
+                  name: 'administrator_reports_recent_calls'
+                }
+              }
+            },
+            {
+              title: 'Statistics for all calls',
+              icon: '',
+              attrs: {
+                to: {
+                  name: 'administrator_reports_all_calls'
+                }
+              }
+            }
+          ]
+        },
         { divider: true },
         {
           title: 'Settings',
           icon: 'mdi-cog-outline',
           active: true,
+          visible: true,
           children: [
             {
               title: 'Profile',
@@ -324,14 +377,6 @@ export default Vue.extend({
           ]
         }
       ]
-    }
-  },
-
-  computed: {
-    avatar () {
-      const first: string = this.$store.getters['profile/first_name'] || 'N'
-      const last: string = this.$store.getters['profile/last_name'] || 'N'
-      return first.charAt(0) + last.charAt(0)
     }
   }
 })

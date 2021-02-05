@@ -1,34 +1,36 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import APIError from '@/api/classes/APIError'
 
 export default class Reports {
   /**
    *
    * @param params
    */
-  pie (params = {}): any {
-    return new Promise<any>((resolve, reject) => {
+  pie<T> (params = {}): any {
+    return new Promise<T>((resolve, reject) => {
       $axios.get('/reports/pie', {
         params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
           resolve(response.data)
         } else {
-          reject(response.data)
+          throw new APIError(response.data)
         }
       }).catch(reject)
     })
   }
 
-  history (params = {}): any {
-    return new Promise<any>((resolve, reject) => {
+  history<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/reports/history', {
-        params: { ...params }
+        params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
           resolve(response.data)
         } else {
-          reject(response.data)
+          throw new APIError(response.data)
         }
       }).catch(reject)
     })
