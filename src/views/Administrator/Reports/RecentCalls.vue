@@ -284,7 +284,12 @@
             {{ new Date(item.created_at * 1000).toLocaleString() }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
-            {{ item.contact.first_name }} {{ item.contact.last_name }}
+            <template v-if="item.contact">
+              {{ item.contact.first_name }} {{ item.contact.last_name }}
+            </template>
+            <template v-else>
+              —
+            </template>
           </template>
           <template slot="item.status" slot-scope="{ item }">
             <span class="label" :style="{'background-color': item.status_color}">

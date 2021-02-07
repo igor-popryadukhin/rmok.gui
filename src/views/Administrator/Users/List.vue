@@ -182,7 +182,6 @@
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue'
 import { UserInterface, Users } from '@/api/Users'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import { OrganizationInterface } from '@/api/Organizations'
@@ -190,16 +189,29 @@ import { ProjectInterface } from '@/api/Projects'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import { GroupInterface } from '@/api/Groups'
 import VInterface from '@/VInterface'
-import VUserDialogDelete from '@/components/VUserDialogDelete/VUserDialogDelete.vue'
+import SUserDialogDelete from '@/snippets/SUserDialogDelete/SUserDialogDelete.vue'
 
-export default (Vue as VueConstructor<VInterface>).extend({
+interface IRef {
+  [key: string]: any;
+}
+
+interface IData {
+  [key: string]: any
+}
+
+interface VInnerInterface extends VInterface {
+  $data: IData;
+  $refs: IRef;
+}
+
+export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     SGroups,
     SProjectsAutocomplete,
     SOrganizationsAutocomplete
   },
 
-  data () {
+  data (): IData {
     return {
       filter: {
         organization: null,
@@ -234,48 +246,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       handler () {
         this.fetchUsers()
       }
-    },
-
-    'filter.organization': {
-      handler (val: OrganizationInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            organization_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'organization_id'
-          ]).then(this.fetchUsers)
-        }
-      }
-    },
-
-    'filter.project': {
-      handler (val: ProjectInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            project_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'project_id'
-          ]).then(this.fetchUsers)
-        }
-      }
-    },
-
-    'filter.group': {
-      handler (val: GroupInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            group_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'group_id'
-          ]).then(this.fetchUsers)
-        }
-      }
     }
   },
 
@@ -289,34 +259,95 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   mounted () {
-    this.fetchUsers()
-    this.$refs.sOrganizationsAutocomplete.fetchData()
+    // this.$refs.sOrganizationsAutocomplete.fetchData()
 
+    const promises: Promise<any>[] = []
     // Установка фильтров
-    if (this.$routerQuery.hasQuery('organization_id')) {
-      this.$refs.sOrganizationsAutocomplete.setDefault(this.$routerQuery.getQuery('organization_id', 0))
+    if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
+      promises.push(this.$refs.sOrganizationsAutocomplete.setDefault(this.$route.query.organization_id))
     }
-    if (this.$routerQuery.hasQuery('project_id')) {
-      this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id', 0))
+    if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
+      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$route.query.project_id))
     }
-    if (this.$routerQuery.hasQuery('group_id')) {
-      this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_id', 0))
+    if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$route.query.group_id))
     }
+
+    // Нужно подождать, пока будут установлены все фильтры.
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchUsers()
+
+        // Слежу за изменениями фильтра "Организации"
+        this.$watch('filter.organization', (org: OrganizationInterface) => {
+          if (org) {
+            this.$routerQuery.setQuery({
+              organization_id: org.id
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'organization_id'
+            ]).then(this.fetchUsers)
+          }
+        })
+
+        // Слежу за изменениями фильтра "Проекты"
+        this.$watch('filter.project', (project: ProjectInterface) => {
+          if (project) {
+            this.$routerQuery.setQuery({
+              project_id: project.id
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'project_id'
+            ]).then(this.fetchUsers)
+          }
+        })
+
+        // Слежу за изменениями фильтра "Группы"
+        this.$watch('filter.group', (group: GroupInterface) => {
+          if (group) {
+            this.$routerQuery.setQuery({
+              group_id: group.id
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'group_id'
+            ]).then(this.fetchUsers)
+          }
+        })
+      })
   },
 
   methods: {
     fetchUsers () {
       this.dataTableUsers.processLoading = true
       const offset = (this.dataTableUsers.itemsPerPage * this.dataTableUsers.page) - this.dataTableUsers.itemsPerPage
+
+      const params: any = {
+        offset,
+        count: this.dataTableUsers.itemsPerPage
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
+        params.organization_id = this.$route.query.organization_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
+        params.project_id = this.$route.query.project_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
+        params.group_id = this.$route.query.group_id
+      }
+
       new Users()
-        .find({
-          ...this.$route.query,
-          offset,
-          count: this.dataTableUsers.itemsPerPage
-        })
-        .then((response: ResponseInterface<{count: number}, UserInterface[]>) => {
-          this.dataTableUsers.totalCount = response.meta.count
-          this.dataTableUsers.pages = Math.ceil(response.meta.count / this.dataTableUsers.itemsPerPage)
+        .find<{count: number}, UserInterface[]>(params)
+        .then((response) => {
+          const count: number = response.meta.count || 0
+
+          this.dataTableUsers.totalCount = count
+          this.dataTableUsers.pages = Math.ceil(count / this.dataTableUsers.itemsPerPage)
           this.dataTableUsers.items = response.data
         }).finally(() => (this.dataTableUsers.processLoading = false))
     },
@@ -330,22 +361,36 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.dataTableUsers.pageStop = data.pageStop
     },
 
+    /**
+     * Срабатывает когда в списке "пользователи системы" нажали кнопу удалить пользователя
+     * @param item Элемент массива UserInterface[]
+     */
     onDelete (item: UserInterface) {
-      this.$dialog.showAndWait(VUserDialogDelete, {
-        title: this.$tc('Удаление сотрудника'),
-        text: this.$tc('Сотрудник будет удалён, что бы сохранить контакты этого сотрудника, вы можете передать их другому владельцу.'),
-        actions: {
-          false: {
-            color: 'primary',
-            text: this.$tc('Cancel')
-          },
-          true: {
-            color: 'red',
-            text: this.$tc('Delete'),
-            handle: () => {
-              // todo: Реализовать механизм удаления
-            }
+      this.$dialog.showAndWait(SUserDialogDelete, {
+        title: this.$tc('Removing an employee'),
+        text: this.$tc('The employee will be deleted, in order to save the contacts of this employee, you can transfer them to another owner.'),
+        userDefaultId: this.$store.getters['profile/id'],
+        width: '700px',
+        onDelete: (data: unknown & { user_id: number; option: string }) => {
+          // Процедура удаления пользователя
+          // В полезной нагрузке мы передаём дополнительную информацию
+          // receiver_user_id - идентификатор пользователя, которому будет передан контакт
+          // Если не передать receiver_user_id то в качестве приёмщика, выступает удаляющий
+
+          const payload: any = {}
+
+          if (data.option === 'transfer_contacts_to_an_employee') {
+            payload.receiver_user_id = data.user_id
           }
+
+          new Users()
+            .delete(item.id, payload)
+            .then(() => {
+              this.$toast.success('User deleted successfully')
+              this.fetchUsers()
+            }).catch((e) => {
+              this.$toast.error(e.message)
+            })
         }
       })
     }

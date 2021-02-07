@@ -8,6 +8,7 @@
     :loading="process"
     item-value="id"
     :messages="hintMessage"
+    :error-messages="errorMessages"
     :label="label"
     :no-data-text="$tc('No data available')"
     :disabled="disabled"
@@ -30,7 +31,8 @@
         v-on="on"
         :attrs="attrs"
         link
-        two-line
+        :two-line="!showOrganization"
+        :three-line="showOrganization"
       >
         <v-list-item-content>
           <v-list-item-title>
@@ -38,6 +40,9 @@
           </v-list-item-title>
           <v-list-item-subtitle v-if="item.role">
             {{ item.role.name }}
+          </v-list-item-subtitle>
+          <v-list-item-subtitle v-if="showOrganization && item.organization">
+            {{ item.organization.name }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -114,6 +119,18 @@ export default Vue.extend({
     value: {
       type: Object,
       default: () => null
+    },
+    autoload: {
+      type: Boolean,
+      default: false
+    },
+    showOrganization: {
+      type: Boolean,
+      default: false
+    },
+    errorMessages: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -147,6 +164,12 @@ export default Vue.extend({
     }
   },
 
+  created () {
+    if (this.autoload) {
+      this.fetchData()
+    }
+  },
+
   methods: {
     fetchData (params = {}) {
       search(this, Object.assign({}, this.params, params))
@@ -161,7 +184,7 @@ export default Vue.extend({
     },
 
     pushData (data: UserInterface) {
-      if (this.options.findIndex<UserInterface>((e) => e.id === data.id) === -1) {
+      if (this.options.findIndex((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
     },
@@ -171,14 +194,17 @@ export default Vue.extend({
      * @param id
      */
     setDefault (id: number) {
-      new Users()
-        .getById(id)
-        .then((response: UserInterface) => {
-          this.selected = response
-          if (this.options.findIndex<UserInterface>(value => value.id === id) === -1) {
-            this.options.push(response)
-          }
-        })
+      return new Promise<void>((resolve, reject) => {
+        new Users()
+          .getById(id)
+          .then((response: UserInterface) => {
+            this.selected = response
+            if (this.options.findIndex(value => value.id === id) === -1) {
+              this.options.push(response)
+            }
+            resolve()
+          }).catch(reject)
+      })
     },
 
     focus () {
@@ -193,8 +219,8 @@ export default Vue.extend({
 const search = debounce((ctx: any, params: any) => {
   ctx.process = true
   new Users()
-    .find(params)
-    .then((response: ResponseInterface<{ count: number }, UserInterface[]>) => {
+    .find<{ count: number }, UserInterface[]>(params)
+    .then((response) => {
       ctx.hintMessage = ctx.$t('found', { count: response.meta.count })
       ctx.options = response.data
     }).finally(() => (ctx.process = false))
