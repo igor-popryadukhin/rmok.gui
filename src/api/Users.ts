@@ -72,6 +72,24 @@ export class Users {
   }
 
   /**
+   * Метод удаляет пользователя
+   * @param id идентификатор пользователя
+   * @param payload
+   */
+  public delete (id: number, payload = {}): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.delete(`/users/${id}`, {
+        data: payload
+      }).then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
    *
    * @param id
    */
