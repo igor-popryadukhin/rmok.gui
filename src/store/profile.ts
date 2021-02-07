@@ -84,6 +84,7 @@ export const profile = {
   },
 
   getters: {
+    // Идентификатор текущего аккаунта
     id (state: StateInterface): number { return state.id },
     first_name (state: StateInterface): string { return state.first_name },
     last_name (state: StateInterface): string { return state.last_name },

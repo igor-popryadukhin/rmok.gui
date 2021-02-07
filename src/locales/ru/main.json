@@ -22,7 +22,6 @@
   "Cancel": "Отмена",
   "Cause: {text}": "Причина: {text}",
   "Challenges": "Вызовы",
-  "Changes accepted": "Изменения приняты",
   "Changes saved": "Изменения сохранены",
   "Choose a status first!": "Сначала выберите статус!",
   "City": "Город",
@@ -40,6 +39,7 @@
   "Create access token": "Создать токен доступа",
   "Created at": "Дата создания",
   "Creating a new project": "Создание нового проекта",
+  "Changes accepted": "Изменения приняты",
   "Current status": "Текущий статус",
   "Date": "Дата",
   "Date the contact was created": "Дата создания контакта",
@@ -153,6 +153,7 @@
   "Total": "Всего",
   "Tune": "Настроить",
   "User added successfully": "Пользователь успешно добавлен",
+  "No data": "Нет данных",
   "User current project": "Текущий проект пользователя",
   "User updated successfully": "Пользователь успешно обновлён",
   "Users": "Пользователи",
@@ -325,6 +326,5 @@
   },
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
-  "yes": "Да",
-  "Отчёты": "Добавить"
+  "yes": "Да"
 }

@@ -25,6 +25,8 @@ module.exports = {
   },
 
   chainWebpack: config => {
+    config.plugins.delete('prefetch')
+
     config.plugin('VuetifyLoaderPlugin').tap(args => [{
       match (originalTag, { kebabTag, camelTag, path, component }) {
         if (kebabTag.startsWith('core-')) {

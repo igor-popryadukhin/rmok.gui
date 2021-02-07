@@ -180,11 +180,16 @@ export default Vue.extend({
      * @param id
      */
     setDefault (id: number) {
-      new Projects()
-        .getById(id)
-        .then((response: ProjectInterface) => {
-          this.selected = response
-        })
+      return new Promise<void>((resolve, reject) => {
+        new Projects()
+          .getById(id)
+          .then((response: ProjectInterface) => {
+            this.pushData(response)
+            this.selected = response
+
+            resolve()
+          }).catch(reject)
+      })
     },
 
     focus () {

@@ -167,12 +167,15 @@ export default Vue.extend({
      * @param id
      */
     setDefault (id: number) {
-      new Organizations()
-        .getById(id)
-        .then((response: OrganizationInterface) => {
-          this.pushData(response)
-          this.selected = response
-        })
+      return new Promise<void>((resolve, reject) => {
+        new Organizations()
+          .getById(id)
+          .then((response: OrganizationInterface) => {
+            this.pushData(response)
+            this.selected = response
+            resolve()
+          }).catch(reject)
+      })
     },
 
     focus () {
