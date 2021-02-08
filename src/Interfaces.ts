@@ -7,9 +7,9 @@ export interface CrumbInterface {
 }
 
 export interface NotificationActionInterface {
-  handle: (...arg: any) => void;
+  handle: (context: any) => void;
   title: string;
-  arg: any;
+  context?: any;
   [key: string]: any
 }
 
@@ -21,7 +21,9 @@ export interface NotificationInterface {
   title: string;
   message: string;
   message2?: string;
-  actions: NotificationActionInterface[];
+  context?: Record<string, any>;
+  click?: (e: NotificationInterface, i: number) => void;
+  actions?: NotificationActionInterface[];
 }
 
 export interface MainSearchInterface {

@@ -2,6 +2,8 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import APIError from "@/api/classes/APIError"
+import ResponseInterface from "@/api/Schemas/ResponseInterface"
 
 export enum TaskType {
   CALL = 'call',
@@ -11,37 +13,32 @@ export enum TaskType {
   OTHER = 'other'
 }
 
+interface PerformerInterface {
+  id: number;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+}
+
 export interface TaskInterface {
   id: number;
-  user: TaskUserInterface;
+  performer: PerformerInterface;
   type: string;
   description: string;
   done: boolean;
+  expired: boolean;
   planned_for: number;
   author: TaskAuthorInterface;
   contact?: ContactInterface;
   created_at: number;
 }
 
-interface TaskUserInterface {
-  id: number;
-  first_name: string;
-  last_name: string;
-  middle_name: string;
-}
 
 interface TaskAuthorInterface {
   id: number;
   first_name: string;
   last_name: string;
   middle_name: string;
-}
-
-export interface TaskPostDataInterface {
-  planned_for: number;
-  description: string;
-  contact_id?: number;
-  type: string;
 }
 
 export interface TaskGetResponseInterface {
@@ -60,19 +57,19 @@ interface TaskGetParamsInterface {
 export default class Tasks {
 
   /**
+   * Осуществляет поиск задач по заданным параметрам.
+   *
    * @param params
    */
-  public get (params: TaskGetParamsInterface = {}): Promise<TaskGetResponseInterface> | any {
-    return new Promise((resolve, reject) => {
+  public find<TM = any, TD = any> (params= {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/tasks', {
-        params: {
-          ...params
-        }
+        params
       }).then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
@@ -80,14 +77,66 @@ export default class Tasks {
   /**
    * @param data
    */
-  public add (data: TaskPostDataInterface): Promise<any> | any {
-    return new Promise((resolve, reject) => {
+  public add<T> (data: T): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       $axios.post('/tasks', data)
         .then((response: AxiosResponse) => {
           if ([201, 200].includes(response.status)) {
+            return resolve(response.data.id)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Редактирует задачу
+   *
+   * @param id
+   * @param data
+   */
+  public edit<T = any> (id: number | string, data: T): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.patch(`/tasks/${id}`, data)
+        .then((response: AxiosResponse) => {
+          if ([204, 200].includes(response.status)) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Удалить задачу используя идентификатор
+   *
+   * @param id
+   */
+  public delete (id: number | string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.delete(`/tasks/${id}`)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Возвращает информацию о задачах по их идентификаторам.
+   *
+   * @param id
+   */
+  public getById<T = TaskInterface> (id: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      $axios.get(`/tasks/${id}`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

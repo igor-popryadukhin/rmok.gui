@@ -2,6 +2,7 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from './classes/APIError'
+import { GroupInterface } from '@/api/Groups'
 
 export interface ProjectOwnerInterface {
   id: number;
@@ -35,6 +36,7 @@ export interface ProjectInterface {
   organization?: ProjectOrganizationInterface;
   members: ProjectMemberInterface[];
   statuses: StatusInterface[];
+  users_groups: GroupInterface[];
   created_at: number;
 }
 

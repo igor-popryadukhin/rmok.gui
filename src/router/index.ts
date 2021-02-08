@@ -121,7 +121,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
             meta: {
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           },
           {
@@ -143,7 +143,7 @@ const routes: RouteConfig[] = [
               },
               {
                 path: 'tasks',
-                name: 'operator_leads_task',
+                name: 'operator_leads_tasks',
                 component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
                 meta: { layout: 'operator-layout', middleware: [roleOperator] }
               }
@@ -154,7 +154,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: [roleOperator]
+          middleware: []
         }
       },
       {

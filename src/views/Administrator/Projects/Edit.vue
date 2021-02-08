@@ -242,10 +242,83 @@
       </v-col>
     </v-row>
 
-    <!-- Statuses -->
     <v-row>
       <v-col
         class="py-0"
+        cols="6"
+      >
+        <v-card
+          style="min-height: 250px; max-height: 350px"
+          tile
+          outlined
+          flat
+        >
+          <v-card-title class="grey--text">
+            {{ $tc('Groups of users') }}
+          </v-card-title>
+          <v-card-actions class="px-4">
+            <s-groups
+              ref="sGroupsAutocomplete"
+              :label="$tc('Search')"
+              icon-name="mdi-magnify"
+              visible-icon
+              inner-icon
+              dense
+              v-on:selected="onGroupAutocompleteSelected"
+            />
+          </v-card-actions>
+          <v-card-text class="v-card__text">
+            <template v-if="users_groups.length > 0">
+              <v-list>
+                <template v-for="(item, index) in users_groups">
+                  <v-divider :key="`v-divider-${index}`"/>
+                  <v-list-item
+                    :key="`v-list-item-${index}`"
+                    dense
+                    link
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>{{ item.name }}</v-list-item-title>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn
+                        text
+                        small
+                        @click.stop="onUsersGroupsDeleteClick(item)"
+                      >
+                        {{ $tc('Delete') }}
+                      </v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                </template>
+              </v-list>
+            </template>
+            <template v-else>
+              <div class="d-flex pa-0">
+                <v-row
+                  class="fill-height"
+                  align-content="center"
+                  justify="center"
+                  no-gutters
+                >
+                  <v-col
+                    class="subtitle-1 text-center"
+                    cols="12"
+                  >
+                    {{ $tc('Empty') }}
+                  </v-col>
+                </v-row>
+              </div>
+            </template>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Statuses -->
+    <v-row>
+      <v-col
+        class=""
         cols="12"
       >
         <v-card tile outlined flat>
@@ -307,6 +380,8 @@ import VInterface from '@/VInterface'
 import { debounce } from 'vuetify/src/util/helpers'
 import APIError from '@/api/classes/APIError'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
+import { GroupInterface } from '@/api/Groups'
+import SGroups from '@/snippets/SGroups/SGroups.vue'
 
 interface IRefs {
   [key: string]: any;
@@ -320,6 +395,7 @@ interface IData {
   availableMembers: UserInterface[];
   availableMembersLoading: boolean;
   members: ProjectMemberInterface[];
+  users_groups: GroupInterface[];
   statuses: any[];
   buttonSave: any;
   buttonDelete: any;
@@ -346,6 +422,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       availableMembers: [] as UserInterface[],
       availableMembersLoading: false,
       members: [],
+      users_groups: [],
       statuses: [],
       buttonSave: {
         disabled: false,
@@ -379,8 +456,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
 
           vm.$data.projectName = response.name
-          vm.$data.members = response.members
-          vm.$data.statuses = response.statuses
+          vm.$data.members = response.members || []
+          vm.$data.statuses = response.statuses || []
+          vm.$data.users_groups = response.users_groups || []
         })
       })
   },
@@ -390,6 +468,25 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   methods: {
+
+    /**
+     * Срабатывает когда пользователь кликнул по кнопке удалить в списке "Группы пользователей"
+     **/
+    onUsersGroupsDeleteClick (obj: GroupInterface) {
+      const index: number = this.users_groups.findIndex((e: GroupInterface) => e.id === obj.id)
+      if (index > -1) {
+        this.users_groups.splice(index, 1)
+      }
+    },
+
+    /**
+     * Срабатывает когда пользователь выбрал найденный эелемент в выпадающем списке поиска групп.
+     **/
+    onGroupAutocompleteSelected (obj: GroupInterface) {
+      if (this.users_groups.findIndex((e: GroupInterface) => e.id === obj.id) === -1) {
+        this.users_groups.push(obj)
+      }
+    },
 
     memberToRight (item: UserInterface) {
       const index = this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id)

@@ -1,4 +1,4 @@
-export default interface VInterface extends Vue{
+export default interface VInterface extends Vue {
   $screenHeight: number;
   $headerHeight: number;
   assertObjectHasAttribute (obj: any, key: string): boolean;

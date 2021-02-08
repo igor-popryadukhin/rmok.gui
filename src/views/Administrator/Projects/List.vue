@@ -104,7 +104,7 @@
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-card-text>
-          {{ projects }}
+          ****
         </v-card-text>
       </v-card>
     </v-col>
