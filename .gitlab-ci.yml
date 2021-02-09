@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  DOCKER_HOST: tcp://docker:2375
+  DOCKER_HOST: tcp://84.201.160.194:2376
 
 services:
   - docker:dind
