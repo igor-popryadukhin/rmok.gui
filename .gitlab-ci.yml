@@ -29,7 +29,7 @@ deploy:
   before_script:
     - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
   script:
-    - docker stop $CI_PROJECT_NAME
+    - docker stop $CI_PROJECT_NAME || true
     - docker run -p 3000:80 --rm -d --name $CI_PROJECT_NAME $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID
   only:
     - develop
