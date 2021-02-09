@@ -1,20 +1,35 @@
 stages:
   - build
+  - deploy
 
-# Build a project for production testing
-build-dev:
-  image: node:latest
+variables:
+  DOCKER_HOST: tcp://docker:2375
+
+services:
+  - docker:dind
+
+build:
+  image: docker:latest
   stage: build
-  cache:
-    paths:
-      - node_modules/
+  before_script:
+    - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
   script:
     - cat $ENV_DEV >> ./.env
-    - npm ci
-    - npm run build
-  artifacts:
-    paths:
-      - dist/
-    expire_in: 1 days
+    - docker build -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID .
+    - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID
+  only:
+    - develop
+
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  variables:
+    DOCKER_HOST: tcp://84.201.160.194:2376
+  before_script:
+    - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
+  script:
+    - docker stop $CI_PROJECT_NAME
+    - docker run -p 3000:80 --rm -d --name $CI_PROJECT_NAME $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID
   only:
     - develop
