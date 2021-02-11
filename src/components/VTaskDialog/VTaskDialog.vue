@@ -153,6 +153,7 @@ interface PropsInterface {
   date: Record<string, unknown>;
   time: Record<string, unknown>;
   description: string;
+  onSave: () => void;
 }
 
 interface DataInterface {
@@ -224,9 +225,10 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
       type: Function,
       default: undefined
     },
+
     onCancel: {
       type: Function,
-      default: null
+      default: undefined
     }
   },
 
@@ -266,13 +268,18 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
               if (!this.$refs.form.validate()) {
                 return false
               }
-              (this as any).onSave({
-                date: this.dataDate,
-                time: this.dataTime,
-                type: this.dataType,
-                performer: this.dataPerformer,
-                description: this.dataDescription
-              })
+
+              this.$emit('sex', this)
+
+              return false
+
+              // (this as any).onSave({
+              //   date: this.dataDate,
+              //   time: this.dataTime,
+              //   type: this.dataType,
+              //   performer: this.dataPerformer,
+              //   description: this.dataDescription
+              // })
             }
           }
         }

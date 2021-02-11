@@ -370,6 +370,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         title: this.$tc('Removing an employee'),
         text: this.$tc('The employee will be deleted, in order to save the contacts of this employee, you can transfer them to another owner.'),
         userDefaultId: this.$store.getters['profile/id'],
+        responsibleDisabled: true,
         width: '700px',
         onDelete: (data: unknown & { user_id: number; option: string }) => {
           // Процедура удаления пользователя

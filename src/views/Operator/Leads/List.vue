@@ -24,6 +24,7 @@
               class="overflow-y-auto v-card"
               elevation="0"
               outlined
+              tile
             >
               <v-card-title>{{ $tc('Leads not called') }}</v-card-title>
               <v-card-subtitle>{{ $tc('Total') }}: {{ leadsCount }}</v-card-subtitle>
@@ -88,137 +89,19 @@
         </v-row>
 
         <!-- Задачи -->
-        <v-row class="mb-2">
+        <v-row>
           <v-col
             order="2"
             cols="12"
             class="pa-0 pr-lg-3 pr-md-3"
           >
-            <v-card
-              class="overflow-y-auto v-card"
+            <s-task-list
+              ref="sTaskList"
               :height="$screenHeight - 500"
+              tile
               flat
               outlined
-              style="min-height: 400px !important;"
-            >
-              <v-card-title class="pl-0 pr-0">
-                <v-toolbar dense flat>
-                  <v-toolbar-title>
-                    <h4>Задачи</h4>
-                    <div class="toolbar-subtitle">
-                      <small>Всего: {{ task.count }}</small>
-                      <small>Просроченные: {{ 0 }}</small>
-                    </div>
-                  </v-toolbar-title>
-                  <v-spacer />
-                  <v-toolbar-items>
-                    <v-btn text>
-                      Показать просроченные
-                    </v-btn>
-                  </v-toolbar-items>
-                </v-toolbar>
-              </v-card-title>
-              <v-card-text class="v-card__text">
-                <v-list>
-                  <template v-if="task.items.length > 0">
-                    <template v-for="(task, taskIndex) in task.items">
-                      <v-divider
-                        :key="`v-divider-${taskIndex}`"
-                      />
-                      <v-list-item
-                        :key="`v-list-item-${taskIndex}`"
-                        link
-                        three-line
-                        exact
-                        :style="task.done ? {'text-decoration': 'line-through'} : ''"
-                      >
-                        <v-list-item-avatar>
-                          <v-avatar>
-                            <v-icon v-if="task.type === 'call'">mdi-alpha-c-circle</v-icon>
-                            <v-icon v-if="task.type === 'task'">mdi-alpha-t-circle</v-icon>
-                            <v-icon v-if="task.type === 'meeting'">mdi-alpha-m-circle</v-icon>
-                            <v-icon v-if="task.type === 'letter'">mdi-alpha-e-circle</v-icon>
-                            <v-icon v-if="task.type === 'other'">mdi-alpha-o-circle</v-icon>
-                          </v-avatar>
-                        </v-list-item-avatar>
-                        <v-list-item-content>
-                          <v-list-item-title v-if="task.type === 'call'">{{ $t('Call') }}</v-list-item-title>
-                          <v-list-item-title v-if="task.type === 'task'">{{ $t('Task') }}</v-list-item-title>
-                          <v-list-item-title v-if="task.type === 'meeting'">{{ $t('Meeting') }}</v-list-item-title>
-                          <v-list-item-title v-if="task.type === 'letter'">{{ $t('Letter') }}</v-list-item-title>
-                          <v-list-item-title v-if="task.type === 'other'">{{ $t('Other') }}</v-list-item-title>
-                          <v-list-item-subtitle>
-                            {{ task.description }}
-                          </v-list-item-subtitle>
-                          <v-list-item-subtitle>
-                            Выполнить до {{ new Date(task.planned_for * 1000).toLocaleString() }}
-                          </v-list-item-subtitle>
-                        </v-list-item-content>
-                        <v-spacer />
-                        <v-list-item-content>
-                          <v-list-item-title>Автор</v-list-item-title>
-                          <v-list-item-subtitle v-if="$store.getters['profile/id'] === task.author.id">Вы</v-list-item-subtitle>
-                          <v-list-item-subtitle v-else>{{ task.author.first_name }} {{ task.author.last_name }}</v-list-item-subtitle>
-                          <v-list-item-subtitle>{{ new Date(task.created_at * 1000).toLocaleString() }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                        <v-list-item-action>
-                          <v-menu offset-y>
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-btn
-                                icon
-                                large
-                                v-bind="attrs"
-                                v-on.stop="on"
-                              >
-                                <v-icon>mdi-dots-horizontal</v-icon>
-                              </v-btn>
-                            </template>
-                            <v-list>
-                              <v-list-item
-                                v-if="task.done"
-                                link
-                              >
-                                <v-list-item-icon>
-                                  <v-icon>mdi-check-bold</v-icon>
-                                </v-list-item-icon>
-                                <v-list-item-content>
-                                  <v-list-item-title>Отменить выполнение</v-list-item-title>
-                                </v-list-item-content>
-                              </v-list-item>
-                              <v-list-item
-                                v-else
-                                link
-                              >
-                                <v-list-item-icon>
-                                  <v-icon>mdi-check-bold</v-icon>
-                                </v-list-item-icon>
-                                <v-list-item-content>
-                                  <v-list-item-title>Выполнить</v-list-item-title>
-                                </v-list-item-content>
-                              </v-list-item>
-                            </v-list>
-                          </v-menu>
-                        </v-list-item-action>
-                      </v-list-item>
-                    </template>
-                  </template>
-                  <template v-else-if="task.items.length === 0 && task.loading  === true">
-                    <v-list-item class="text-center">
-                      <v-spacer />
-                      <span class="grey--text">{{ $tc('Loading content...') }}</span>
-                      <v-spacer />
-                    </v-list-item>
-                  </template>
-                  <template v-else-if="task.items.length === 0 && task.loading === false">
-                    <v-list-item class="text-center">
-                      <v-spacer />
-                      <span class="grey--text">У вас нет задач</span>
-                      <v-spacer />
-                    </v-list-item>
-                  </template>
-                </v-list>
-              </v-card-text>
-            </v-card>
+            />
           </v-col>
         </v-row>
       </v-col>
@@ -339,6 +222,7 @@ import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
 import Leads from '@/api/Leads'
 import secondsToHms from '@/mixins/secondsToHms'
 import ErrorInterface from '@/api/Schemas/ErrorInterface'
+import STaskList from '@/snippets/STaskList/STaskList.vue'
 
 interface DataInterface {
   filter: any;
@@ -360,7 +244,6 @@ interface MethodsInterface {
   onContactItemClick: (contact: ContactInterface) => void
   onItemDeleteClick: (id: number) => void
   loadLeads: () => void
-  loadTasks: () => void
 }
 
 interface ComputedInterface {
@@ -369,7 +252,7 @@ interface ComputedInterface {
 }
 
 export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
-
+  components: { STaskList },
   mixins: [
     secondsToHms
   ],
@@ -400,7 +283,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
         user: undefined,
         created_at: 0
         /* eslint-enabled */
-      } as ContactInterface,
+      },
       task: {
         loading: false,
         count: 0,
@@ -526,6 +409,9 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
   mounted() {
     this.$root.$on('root-main-search', this.onRootMainSearch)
     this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
+
+    // Загружаю задачи
+    this.$refs.sTaskList.fetchData()
   },
 
   created () {
@@ -541,7 +427,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
     })
 
     this.loadLeads()
-    this.loadTasks()
   },
 
   beforeDestroy() {
@@ -560,18 +445,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
         if (this.vueScrollLeads.offset < this.leadsCount) {
           this.vueScrollLeads.offset = this.vueScrollLeads.offset + 10
           this.loadLeads()
-        }
-      }
-    },
-
-    /**
-     * Происходит, когда полоса прокрутки списка задач завершил прокрутку
-     **/
-    onVueScrollTaskHandleComplete (data: any) {
-      if (data.process === 1) {
-        if (this.vueScrollTasks.offset < this.task.count) {
-          this.vueScrollTasks.offset = this.vueScrollTasks.offset + 10
-          this.loadTasks()
         }
       }
     },
@@ -713,23 +586,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
           }
         }).finally(() => {
           this.leadsLoading = false
-        })
-    },
-
-    loadTasks () {
-      this.task.loading = true
-      new Tasks()
-        .get({
-          offset: this.vueScrollTasks.offset
-        }).then((response: TaskGetResponseInterface) => {
-          this.task.count = response.count
-          response.items.forEach((task: TaskInterface) => {
-            if (this.task.items.findIndex((t: TaskInterface) => t.id === task.id) === -1) {
-              this.task.items.push(task)
-            }
-          })
-        }).finally(() => {
-          this.task.loading = false
         })
     }
   }

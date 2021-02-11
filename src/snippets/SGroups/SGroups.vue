@@ -20,12 +20,19 @@
     return-object
     no-filter
     persistent-hint
+    @focus="onFocus"
   >
     <template
       slot="item"
       slot-scope="{ item, on, attrs }"
     >
-      <v-list-item class="v-divider" link v-on="on" :attrs="attrs">
+      <v-list-item
+        class="v-divider"
+        v-on="on"
+        :attrs="attrs"
+        link
+        @click="onselect"
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ item.name }}
@@ -51,11 +58,18 @@
     >
       <v-list-item-title>{{ item.name }}</v-list-item-title>
     </template>
+
     <template
-      v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
+      v-if="visibleIcon && innerIcon"
+      v-slot:prepend-inner
+    >
+      <v-icon>{{ iconName }}</v-icon>
+    </template>
+    <template
+      v-else-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
       v-slot:prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account-group</v-icon>
+      <v-icon class="pl-5 pr-9">{{ iconName }}</v-icon>
     </template>
   </v-autocomplete>
 </template>
@@ -94,7 +108,15 @@ export default Vue.extend({
         return {}
       }
     },
+    iconName: {
+      type: String,
+      default: 'mdi-account-group'
+    },
     visibleIcon: {
+      type: Boolean,
+      default: false
+    },
+    innerIcon: {
       type: Boolean,
       default: false
     },
@@ -118,7 +140,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: {} as unknown as GroupInterface,
+      selected: null as GroupInterface | null,
       process: false,
       options: [] as GroupInterface[]
     }
@@ -176,8 +198,27 @@ export default Vue.extend({
       })
     },
 
+    /**
+     * Очистить выбранный элемент
+     */
+    clear () {
+      this.selected = null
+    },
+
     focus () {
       this.$refs.ref.focus()
+    },
+
+    onselect () {
+      setTimeout(() => {
+        this.$emit('selected', this.selected)
+      }, 0)
+    },
+
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
     }
   }
 })

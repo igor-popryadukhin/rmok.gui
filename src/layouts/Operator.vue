@@ -1,16 +1,16 @@
 <template>
   <v-app id="inspire">
     <v-app-bar
-        app
-        dark
-        flat
-        elevation="2"
-        fixed
-        clipped-left
-        clipped-right
-        extended
-        extension-height="25px"
-        class="background--header"
+      app
+      dark
+      flat
+      elevation="2"
+      fixed
+      clipped-left
+      clipped-right
+      extended
+      extension-height="25px"
+      class="background--header"
     >
       <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title>
@@ -20,33 +20,33 @@
 
       <!-- Main search -->
       <v-autocomplete
-          v-model="mainSearch.selected"
-          :items="mainSearch.items"
-          :search-input.sync="mainSearch.q"
-          item-text="title"
-          return-object
-          hide-no-data
-          no-filter
-          clearable
-          disable-lookup
-          flat
-          hide-selected
-          class="mr-4"
-          :label="$t('search')"
-          :loading="mainSearch.loading"
-          hide-details
-          outlined
-          dense
+        v-model="mainSearch.selected"
+        :items="mainSearch.items"
+        :search-input.sync="mainSearch.q"
+        item-text="title"
+        return-object
+        hide-no-data
+        no-filter
+        clearable
+        disable-lookup
+        flat
+        hide-selected
+        class="mr-4"
+        :label="$t('search')"
+        :loading="mainSearch.loading"
+        hide-details
+        outlined
+        dense
       >
         <template
-            v-slot:no-data
+          v-slot:no-data
         >
           <div class="pa-4">
             {{ $t('Your search - {q} - did not match any documents.', {q: mainSearch.q}) }}
           </div>
         </template>
         <template
-            v-slot:prepend-inner
+          v-slot:prepend-inner
         >
           <v-icon>mdi-magnify</v-icon>
         </template>
@@ -63,29 +63,29 @@
 
       <v-toolbar-items style="height: 40px">
         <template
-            v-for="(item, mainMenuIndex) in mainMenu"
+          v-for="(item, mainMenuIndex) in mainMenu"
         >
           <v-menu
-              v-if="item.menu"
-              :key="mainMenuIndex"
-              offset-y
+            v-if="item.menu"
+            :key="mainMenuIndex"
+            offset-y
           >
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                  class="mr-3"
-                  :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
-                  v-on="on"
-                  v-bind="attrs"
-                  text
+                class="mr-3"
+                :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
+                v-on="on"
+                v-bind="attrs"
+                text
               >
                 {{ $tc('Statistic') }}
               </v-btn>
             </template>
             <v-list>
               <v-list-item
-                  v-for="(itemMenu, itemMenuIndex) in item.menu"
-                  :key="`${mainMenuIndex}-${itemMenuIndex}`"
-                  :to="itemMenu.to"
+                v-for="(itemMenu, itemMenuIndex) in item.menu"
+                :key="`${mainMenuIndex}-${itemMenuIndex}`"
+                :to="itemMenu.to"
               >
                 <v-list-item-icon v-if="itemMenu.icon">
                   <v-icon>{{ itemMenu.icon }}</v-icon>
@@ -98,10 +98,10 @@
             </v-list>
           </v-menu>
           <v-btn
-              v-else
-              :key="mainMenuIndex"
-              v-bind="'attrs' in item ? item.attrs : {}"
-              v-on="'on' in item ? item.on : {}"
+            v-else
+            :key="mainMenuIndex"
+            v-bind="'attrs' in item ? item.attrs : {}"
+            v-on="'on' in item ? item.on : {}"
           >
             {{ item.title }}
             <v-icon v-if="item.icon">
@@ -113,60 +113,72 @@
 
       <!-- BELL -->
       <v-menu
-          v-model="buttonMenuNotification"
-          :close-on-content-click="false"
-          nudge-left="150"
+        v-model="buttonMenuNotification"
+        :close-on-content-click="true"
+        nudge-left="150"
       >
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-              class="mr-1 ml-1"
-              icon
-              v-bind="attrs"
-              v-on="on"
+            class="mr-1 ml-1"
+            icon
+            v-bind="attrs"
+            v-on="on"
           >
             <v-icon>mdi-bell</v-icon>
             <v-badge
-                v-if="notifications.length > 0"
-                color="red"
-                :content="notifications.length"
+              v-if="notifications.length > 0"
+              color="red"
+              :content="notifications.length"
             />
           </v-btn>
         </template>
         <v-card v-if="notifications.length > 0">
-          <v-list>
+          <v-list max-width="450">
             <v-list-item
-                v-for="(item, itemIndex) in notifications"
-                :key="itemIndex"
-                link
+              v-for="(item, itemIndex) in notifications"
+              :key="itemIndex"
+              v-on:click="item.click ? item.click(item, itemIndex): null"
+              link
             >
               <v-list-item-avatar>
                 <v-icon :color="item.color">
                   {{ item.icon }}
                 </v-icon>
               </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
-                <v-list-item-subtitle>{{ item.message }}</v-list-item-subtitle>
-                <v-list-item-subtitle v-if="item.message2">{{ item.message2 }}</v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action v-if="item.actions.length > 0">
+
+              <v-tooltip
+                color="primary"
+                max-width="300"
+                bottom
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-list-item-content v-on="on" v-bind="attrs">
+                    <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ item.message }}</v-list-item-subtitle>
+                    <v-list-item-subtitle v-if="item.message2">{{ item.message2 }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                </template>
+                <span>{{ item.message }}</span>
+              </v-tooltip>
+
+              <v-list-item-action v-if="item.actions">
                 <v-menu offset-y>
                   <template v-slot:activator="{ on, attr }">
                     <v-btn
-                        icon
-                        v-on.stop="on"
-                        v-bind="attr"
+                      icon
+                      v-on.stop="on"
+                      v-bind="attr"
                     >
                       <v-icon>mdi-dots-horizontal</v-icon>
                     </v-btn>
                   </template>
-                  <v-list>
+                  <v-list class="pa-0" min-width="150">
                     <v-list-item
-                        v-for="(action, actionIndex) in item.actions"
-                        :key="actionIndex"
-                        link
-                        @click="action.handle(...action.arg)"
-                        @mouseup="buttonMenuNotification = false"
+                      v-for="(action, actionIndex) in item.actions"
+                      :key="actionIndex"
+                      link
+                      @click="action.handle(action.context)"
+                      @mouseup.stop="buttonMenuNotification = false"
                     >
                       <v-list-item-content>
                         <v-list-item-title>{{ action.title }}</v-list-item-title>
@@ -180,7 +192,7 @@
         </v-card>
       </v-menu>
 
-      <v-divider class="mr-2 ml-2" inset vertical />
+      <v-divider class="mr-2 ml-2" inset vertical/>
 
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -216,10 +228,10 @@
       <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-              icon
-              large
-              v-bind="attrs"
-              v-on="on"
+            icon
+            large
+            v-bind="attrs"
+            v-on="on"
           >
             <v-avatar
               class="avatar"
@@ -236,12 +248,13 @@
           <template
             v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
           >
-            <v-divider v-if="accountMenuItem.divider" :key="accountMenuItemIndex" />
+            <v-divider v-if="accountMenuItem.divider" :key="accountMenuItemIndex"/>
             <v-subheader
               v-else-if="accountMenuItem.subheader"
               :key="accountMenuItemIndex"
               v-bind="accountMenuItem"
-            >{{ accountMenuItem.title }}</v-subheader>
+            >{{ accountMenuItem.title }}
+            </v-subheader>
             <v-list-item
               v-else
               :key="accountMenuItemIndex"
@@ -262,14 +275,14 @@
       <div class="offset-lg-1 offset-md-1"></div>
       <template v-slot:extension>
         <v-breadcrumbs
-            :items="breadcrumbs"
-            class="offset-lg-1 col-lg-10 offset-md-1 col-md-10 pa-0"
+          :items="breadcrumbs"
+          class="offset-lg-1 col-lg-10 offset-md-1 col-md-10 pa-0"
         >
           <template v-slot:item="{ item }">
             <v-breadcrumbs-item
-                v-if="!item.latest"
-                ripple
-                :href="item.path"
+              v-if="!item.latest"
+              ripple
+              :href="item.path"
             >
               <span style="color: white !important;">{{ $t(item.title).toUpperCase() }}</span>
             </v-breadcrumbs-item>
@@ -282,17 +295,18 @@
     </v-app-bar>
     <v-main>
       <v-container
-          class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
+        class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
+        fluid
       >
         <router-view/>
       </v-container>
     </v-main>
 
     <v-dialog
-        v-model="projectDialog.visible"
-        persistent
-        :max-width="projectDialogWidth"
-        :disabled="projectDialog.disabled"
+      v-model="projectDialog.visible"
+      persistent
+      :max-width="projectDialogWidth"
+      :disabled="projectDialog.disabled"
     >
       <v-card>
         <v-card-title class="headline">
@@ -300,27 +314,27 @@
         </v-card-title>
         <v-card-text class="pb-10">
           <v-list
-              subheader
-              :disabled="projectDialog.disabled"
+            subheader
+            :disabled="projectDialog.disabled"
           >
             <template
-                v-for="item in projectDialog.projects"
+              v-for="item in projectDialog.projects"
             >
               <v-list-item
-                  :key="`v-list-item-${item.id}`"
-                  link
-                  @click="onProjectItemClick(item)"
+                :key="`v-list-item-${item.id}`"
+                link
+                @click="onProjectItemClick(item)"
               >
                 <v-list-item-title>
                   {{ item.name }}
                 </v-list-item-title>
                 <v-list-item-action>
                   <v-progress-circular
-                      v-if="item.loading"
-                      indeterminate
-                      size="22"
-                      width="2"
-                      color="grey"
+                    v-if="item.loading"
+                    indeterminate
+                    size="22"
+                    width="2"
+                    color="grey"
                   />
                 </v-list-item-action>
               </v-list-item>
@@ -339,11 +353,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { VueConstructor } from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
 import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
-import Tasks, { TaskGetResponseInterface, TaskInterface, TaskType } from '@/api/Tasks'
+import Tasks, { TaskInterface, TaskType } from '@/api/Tasks'
 import Projects, { ProjectInterface } from '@/api/Projects'
 import Users from '@/api/Users'
 import { Configurations } from '@/api/Configurations'
@@ -359,12 +373,13 @@ import { JsSIP } from '@/jsSIP/plugin'
 import callMachine from '@/xState/machines/callMachine'
 import { interpret } from 'xstate'
 import Account, { UserStatus } from '@/api/Account'
+import VInterface from '@/VInterface'
 
-interface PropsInterface {
+interface IProps {
   source: string;
 }
 
-interface DataInterface {
+interface IData {
   toastId: number | string;
   projectDialog: any;
   buttonMenuNotification: any;
@@ -383,7 +398,7 @@ interface DataInterface {
   statusSetProcess: boolean
 }
 
-interface MethodsInterface {
+interface IMethod {
   onRootNewTasks: () => void;
   jsSIPSetConfiguration: () => void;
   onRootLoadingProjects: () => void;
@@ -395,19 +410,19 @@ interface MethodsInterface {
   addHistory: <T>(contactId: number, historyData: any) => Promise<T>;
 }
 
-interface ComputedInterface {
+interface IComputed {
   avatar: string;
   projectDialogWidth: string;
 }
 
-export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, PropsInterface>({
+export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, IComputed, IProps>({
   props: {
     source: String
   },
 
   mixins: [breadcrumbs],
 
-  data () {
+  data (): IData {
     return {
       toastId: 0,
       projectDialog: {
@@ -698,7 +713,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
 
     this.callMachineService = interpret(callMachine.withContext(this))
     this.callMachineService
-      .onTransition(state => {
+      .onTransition((state: any) => {
         this.current = state
         this.context = state.context
       }).start()
@@ -765,8 +780,8 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
   methods: {
     onRootNewTasks () {
       new Tasks()
-        .get()
-        .then((response: TaskGetResponseInterface) => {
+        .find()
+        .then((response) => {
           this.notifications = []
           if (this.$store.getters['project/statuses'].length === 0) {
             this.notifications.push({
@@ -781,7 +796,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
 
           // Проверяем наличие подключения и текущего статуса
 
-          response.items.forEach((task: TaskInterface) => {
+          response.data.forEach((task: TaskInterface) => {
             if (!task.done) {
               let title = ''
               let icon = ''
@@ -815,30 +830,26 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
 
               if (task.type === TaskType.CALL) {
                 this.notifications.push({
-                  type: 'task',
+                  type: 'call',
                   icon,
                   color: 'blue',
                   title,
                   message: task.description,
                   message2: `Позвонить в ${new Date(task.planned_for * 1000).toLocaleString()}`,
-                  actions: [
-                    {
-                      title: 'Позвонить',
-                      arg: task,
-                      handle: (arg: TaskInterface) => {
-                        if (arg.contact) {
-                          this.$router.push({
-                            name: 'operator_leads_script',
-                            params: {
-                              contact_id: String(arg.contact?.id)
-                            }
-                          })
-                        } else {
-                          console.error('Задача для контакта не содержит данные контакта')
-                        }
+                  context: task, // Обрати внимание, context будет передан в функцию обратного вызова click
+                  click: (e: NotificationInterface, i: number) => {
+                    if (this.assertObjectHasAttribute(e.context, 'contact')) {
+                      if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
+                        this.$router.push({
+                          name: 'operator_leads_tasks',
+                          params: { contact_id: e.context?.contact.id },
+                          query: { task_id: e.context?.id }
+                        })
                       }
+                    } else {
+                      console.error('Задача для контакта не содержит данные контакта')
                     }
-                  ]
+                  }
                 })
               } else {
                 this.notifications.push({
@@ -851,7 +862,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
                   actions: [
                     {
                       title: 'Выполнить',
-                      arg: task,
+                      context: task,
                       handle: (arg: TaskInterface) => {
                         new Tasks()
                           .done(arg.id)
@@ -1048,7 +1059,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
                 actions: [
                   {
                     title: 'Настроить',
-                    arg: null,
+                    context: null,
                     handle: () => {
                       this.$router.push({ name: 'operator_settings_telephony' })
                     }
@@ -1056,7 +1067,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
                 ]
               })
             } else {
-              this.notifications = this.notifications.filter<NotificationInterface>(value => {
+              this.notifications = this.notifications.filter((value: NotificationInterface) => {
                 return value.id !== guid
               })
             }

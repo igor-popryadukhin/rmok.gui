@@ -12,6 +12,7 @@
     :label="label"
     :no-data-text="$tc('No data available')"
     :disabled="disabled"
+    :readonly="readonly"
     :rules="rules"
     :outlined="outlined"
     :dense="dense"
@@ -21,6 +22,7 @@
     return-object
     no-filter
     persistent-hint
+    @focus="onFocus"
   >
     <template
       slot="item"
@@ -36,7 +38,7 @@
       >
         <v-list-item-content>
           <v-list-item-title>
-            {{ item.first_name || $tc('No name') }} {{ item.last_name || $tc('No last name') }}
+            {{ item.first_name || '' }} {{ item.last_name || '' }}
           </v-list-item-title>
           <v-list-item-subtitle v-if="item.role">
             {{ item.role.name }}
@@ -91,6 +93,10 @@ export default Vue.extend({
       default: () => false
     },
     disabled: {
+      type: Boolean,
+      default: () => false
+    },
+    readonly: {
       type: Boolean,
       default: () => false
     },
@@ -205,6 +211,12 @@ export default Vue.extend({
             resolve()
           }).catch(reject)
       })
+    },
+
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
     },
 
     focus () {
