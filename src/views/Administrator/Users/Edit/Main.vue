@@ -83,19 +83,19 @@
         >
           <v-text-field
             ref="password1"
-            v-model="password.value1"
+            v-model="user.password"
             :label="$tc('Password')"
-            :type="password.visible ? 'text' : 'password'"
-            :success="password.isValid"
-            required
+            :type="passwordShow ? 'text' : 'password'"
+            :rules="[rules.lengthMinOrZero(6)]"
             autocomplete="new-password"
+            required
           >
             <template v-slot:append>
               <v-btn
-                v-if="password.visible"
+                v-if="passwordShow"
                 icon
                 small
-                @click="password.visible = false"
+                @click="passwordShow = false"
               >
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
@@ -103,7 +103,7 @@
                 v-else
                 small
                 icon
-                @click="password.visible = true"
+                @click="passwordShow = true"
               >
                 <v-icon>mdi-eye-off</v-icon>
               </v-btn>
@@ -117,20 +117,19 @@
         >
           <v-text-field
             ref="password2"
-            v-model="password.value2"
+            v-model="user.password2"
             :label="$tc('Password')"
-            :type="password.visible ? '' : 'password'"
-            :rules="[]"
-            :success="password.isValid"
-            required
+            :type="passwordShow ? '' : 'password'"
+            :rules="[rules.lengthMinOrZero(6)]"
             autocomplete="new-password"
+            required
           >
             <template v-slot:append>
               <v-btn
-                v-if="password.visible"
+                v-if="passwordShow"
                 icon
                 small
-                @click="password.visible = false"
+                @click="passwordShow = false"
               >
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
@@ -138,7 +137,7 @@
                 v-else
                 small
                 icon
-                @click="password.visible = true"
+                @click="passwordShow = true"
               >
                 <v-icon>mdi-eye-off</v-icon>
               </v-btn>
@@ -219,17 +218,30 @@
         >
           <s-organizations-autocomplete
             ref="sOrganizations"
-            v-model="organizationSelected"
+            v-model="user.organization"
             :label="$tc('organization')"
-            :rules="[]"
-            :disabled="Boolean(user.organization)"
+            :disabled="assertObjectHasAttribute(user.organization, 'id')"
             visible-icon
           />
         </v-col>
       </v-row>
 
-      <!-- Группа -->
       <v-row>
+        <v-col
+          cols="12"
+          md="4"
+          lg="4"
+          xl="4"
+        >
+          <s-projects-autocomplete
+            ref="sProjectsAutocomplete"
+            v-model="user.project"
+            :label="$tc('User current project')"
+            :params="sProjectsParams"
+            visible-icon
+            clearable
+          />
+        </v-col>
         <v-col
           cols="12"
           md="4"
@@ -241,7 +253,7 @@
             v-model="user.group"
             :label="$tc('Group')"
             visible-icon
-            :disabled="!(user.organization)"
+            :disabled="!assertObjectHasAttribute(user.organization, 'id')"
             :params="sGroupsParams"
           >
           </s-groups>
@@ -277,19 +289,22 @@
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue'
 import rules from '@/mixins/rules'
-import countryCodes from '@/mixins/countryCodes'
 import { UserInterface, Users } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
 import { GroupInterface } from '@/api/Groups'
-import PBXInterface from '@/api/Schemas/PBXInterface'
 import SRoles from '@/snippets/SRoles/SRoles.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import { RoleInterface } from '@/api/Roles'
 import { ProjectInterface } from '@/api/Projects'
 import VInterface from '@/VInterface'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
+import { isEmpty } from '@/Utils'
 
-interface IRef {
+interface IRefs {
+  sGroups: any,
+  sOrganizations: any,
+  sProjectsAutocomplete: any,
   [key: string]: any;
 }
 
@@ -299,21 +314,16 @@ interface IData {
 
 interface VInnerInterface extends VInterface {
   $data: IData;
-  $refs: IRef;
+  $refs: IRefs;
 }
 
-interface DataPasswordInterface {
-  visible: boolean;
-  isValid: boolean;
-  value1: string;
-  value2: string;
-  isEmpty: () => boolean;
-}
+let oldUser: any = {} // Снимок данных для сравнения объектов
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  mixins: [rules, countryCodes],
+  mixins: [rules],
 
   components: {
+    SProjectsAutocomplete,
     SOrganizationsAutocomplete,
     SGroups,
     SRoles
@@ -321,19 +331,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   data (): IData {
     return {
-      old: null,
       isChanged: false,
       permissions: [],
       tab: 0,
-      password: {
-        visible: false,
-        isValid: true,
-        value1: '',
-        value2: '',
-        isEmpty (): boolean {
-          return Boolean(!this.value1 && !this.value2)
-        }
-      } as DataPasswordInterface,
+      passwordShow: false,
       buttonDelete: {
         disabled: false,
         loading: false
@@ -342,28 +343,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         disabled: false,
         loading: false
       },
-      organizationSelected: {} as unknown as OrganizationInterface,
       user: {
         id: 0,
         first_name: '',
         last_name: '',
         middle_name: '',
         login: '',
+        password: '',
+        password2: '',
         email: '',
         phone: '',
-        role: {} as unknown as RoleInterface,
-        group: {} as unknown as GroupInterface,
-        organization: {} as unknown as OrganizationInterface,
-        project: {} as unknown as ProjectInterface,
-
-        // Конфигурация подключения к АТС
-        pbxConfig: {
-          display_name: '',
-          login: '',
-          password: '',
-          port: 0,
-          server: ''
-        }
+        role: null as unknown as RoleInterface,
+        group: null as unknown as GroupInterface,
+        organization: null as unknown as OrganizationInterface,
+        project: null as unknown as ProjectInterface
       }
     }
   },
@@ -371,56 +364,41 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   beforeRouteEnter (to, from, next) {
     new Users()
       .getById(+to.params.user_id)
-      .then((user: UserInterface) => {
-        next((vm: any) => {
-          vm.user.id = user.id
-          vm.user.first_name = user.first_name
-          vm.user.last_name = user.last_name
-          vm.user.middle_name = user.middle_name
-          vm.user.email = user.email
-          vm.user.login = user.login
-          vm.user.group = user.group ?? {
-            id: 0,
-            name: '',
-            team_leader: null
-          } as GroupInterface
-          vm.user.phone = user.phone
-          vm.user.role = user.role
-          vm.user.organization = user.organization
+      .then((response: UserInterface) => {
+        next(async (vm: VInnerInterface) => {
+          const promises: Promise<any>[] = []
 
-          if (user.group) {
-            vm.$refs.sGroups.pushData(user.group)
-            vm.$refs.sGroups.setSelected(user.group)
+          vm.user.id = response.id
+          vm.user.first_name = response.first_name
+          vm.user.last_name = response.last_name
+          vm.user.middle_name = response.middle_name
+          vm.user.email = response.email
+          vm.user.login = response.login
+          vm.user.phone = response.phone
+          vm.user.role = response.role
+
+          if (vm.assertObjectHasAttribute(response.group, 'id')) {
+            promises.push(vm.$refs.sGroups.setDefault(response.group?.id))
           }
 
-          if (user.organization) {
-            vm.$refs.sOrganizations.pushData(user.organization)
-            vm.$refs.sOrganizations.setSelected(user.organization)
+          if (vm.assertObjectHasAttribute(response.project, 'id')) {
+            promises.push(vm.$refs.sProjectsAutocomplete.setDefault(response.project?.id))
           }
 
-          vm.old = Object.assign({}, vm.user)
+          if (vm.assertObjectHasAttribute(response.organization, 'id')) {
+            promises.push(vm.$refs.sOrganizations.setDefault(response.organization?.id))
+          }
+
+          // Делаем снимок, данных после выполнения всех обещаний
+          await Promise.all(promises).finally(() => (oldUser = Object.assign({}, vm.user)))
         })
       })
   },
 
   watch: {
-    // Password comparison
-    password: {
-      handler (password: DataPasswordInterface) {
-        if (password.value1 === password.value2) {
-          password.isValid = true
-          this.$refs.password1.resetValidation()
-          this.$refs.password2.resetValidation()
-          return
-        }
-        password.isValid = false
-      },
-      deep: true
-    },
-
     user: {
       handler (newData: any) {
-        if (JSON.stringify(newData) === JSON.stringify(this.old)) {
+        if (JSON.stringify(newData) === JSON.stringify(oldUser)) {
           this.isChanged = false
         } else {
           this.isChanged = true
@@ -442,14 +420,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   computed: {
     sGroupsParams () {
-      const params: any = { organization_id: 0 }
+      const params: any = {}
 
-      if (this.organizationSelected) {
-        params.organization_id = this.organizationSelected.id
-      } else {
-        if (this.user.organization) {
-          params.organization_id = this.user.organization.id
-        }
+      if (this.assertObjectHasAttribute(this.user.organization, 'id')) {
+        params.organization_id = this.user.organization.id
+      }
+
+      return params
+    },
+
+    sProjectsParams () {
+      const params: any = {}
+
+      if (this.assertObjectHasAttribute(this.user.organization, 'id')) {
+        params.organization_id = this.user.organization.id
       }
 
       return params
@@ -480,26 +464,28 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         requestData.phone = this.user.phone
       }
 
-      if (this.user.project) {
+      if (this.assertObjectHasAttribute(this.user.project, 'id')) {
         requestData.project_id = this.user.project.id
       }
 
-      if (this.organizationSelected) {
-        requestData.organization_id = this.organizationSelected.id
+      if (this.assertObjectHasAttribute(this.user.organization, 'id')) {
+        requestData.organization_id = this.user.organization.id
       }
 
-      if (this.user.group) {
+      if (this.assertObjectHasAttribute(this.user.group, 'id')) {
         requestData.group_id = this.user.group.id
       }
 
-      if (this.password.value1) {
-        requestData.password = this.password.value1
+      if (this.user.password === this.user.password2 && !isEmpty(this.user.password)) {
+        requestData.password = this.user.password
       }
 
       this.buttonSave.loading = true
       new Users()
         .update(+this.$route.params.user_id, requestData)
         .then(() => {
+          oldUser = Object.assign({}, this.user)
+          this.isChanged = false
           this.$toast.success(this.$tc('User updated successfully'))
         }).catch((e) => {
           if ('errors' in e) {
@@ -510,7 +496,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             }
           }
           this.$toast.error(e.error)
-        }).finally(() => (this.buttonSave.loading = false))
+        }).finally(() => {
+          this.buttonSave.loading = false
+        })
     },
 
     onBtnDeleteClick () {

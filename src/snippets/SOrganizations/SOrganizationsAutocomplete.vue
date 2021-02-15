@@ -20,6 +20,7 @@
     return-object
     no-filter
     persistent-hint
+    @focus="onFocus"
   >
     <template
       slot="item"
@@ -120,6 +121,7 @@ export default Vue.extend({
 
   data () {
     return {
+      dParams: {},
       q: null,
       hintMessage: '',
       lockSearch: false,
@@ -144,6 +146,10 @@ export default Vue.extend({
   },
 
   methods: {
+    setParams (params: any) {
+      this.dParams = Object.assign({}, params)
+    },
+
     fetchData (params = {}) {
       return search(this, Object.assign({}, this.params, params))
     },
@@ -180,6 +186,12 @@ export default Vue.extend({
 
     focus () {
       this.$refs.ref.focus()
+    },
+
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
     }
   }
 })

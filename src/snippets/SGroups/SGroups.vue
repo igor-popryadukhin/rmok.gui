@@ -137,6 +137,7 @@ export default Vue.extend({
 
   data () {
     return {
+      dParams: {},
       q: null,
       hintMessage: '',
       lockSearch: false,
@@ -161,6 +162,10 @@ export default Vue.extend({
   },
 
   methods: {
+    setParams (params: any) {
+      this.dParams = Object.assign({}, params)
+    },
+
     fetchData (params = {}) {
       search(this, Object.assign({}, this.params, params))
     },
