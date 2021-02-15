@@ -531,12 +531,6 @@ const routes: RouteConfig[] = [
                 meta: { layout: 'administrator', middleware: [secure] }
               },
               {
-                path: 'project',
-                name: 'administrator_users_edit_project',
-                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Project.vue'),
-                meta: { layout: 'administrator', middleware: [secure] }
-              },
-              {
                 path: 'telephony',
                 name: 'administrator_users_edit_telephony',
                 component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Telephony.vue'),

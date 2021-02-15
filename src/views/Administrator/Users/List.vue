@@ -1,182 +1,182 @@
 <template>
-  <div>
-    <v-row>
-      <v-col
-        cols="12"
-        md="9"
-        lg="9"
+  <v-row>
+    <v-col
+      class="py-0"
+      cols="12"
+      md="9"
+      lg="9"
+    >
+      <v-card
+        flat
+        tile
+        outlined
       >
-        <v-card
-          flat
-          tile
-          outlined
-        >
-          <v-card-text>
-            <v-toolbar
-              class="v-toolbar-header"
-              height="48"
-              flat
-            >
-              <v-toolbar-title class="grey--text">
-                {{ $tc('System users') }}
-              </v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="primary"
-                :disabled="dataTableUsers.processLoading"
-                icon
-                @click="onButtonRefreshClick"
-              >
-                <v-icon>mdi-refresh</v-icon>
-              </v-btn>
-              <v-btn
-                color="primary"
-                :to="{ name: 'administrator_users_new_main' }"
-                icon
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-            </v-toolbar>
-            <v-data-table
-              :headers="dataTableUsers.headers"
-              :items="dataTableUsers.items"
-              :server-items-length="dataTableUsers.totalCount"
-              :page.sync="dataTableUsers.page"
-              :items-per-page="dataTableUsers.itemsPerPage"
-              :loading="dataTableUsers.processLoading"
-              item-key="id"
-              item-class="v-datatable-item"
-              :loading-text="$tc('Loading content...')"
-              :no-data-text="$tc('No data available')"
-              disable-sort
-              fixed-header
-              calculate-widths
-              hide-default-footer
-              dense
-              :height="dataTableUsersHeight"
-              @pagination="onPaginationChange"
-            >
-              <template slot="header.email" slot-scope="{ header }">
-                <span class="text-no-wrap">{{ header.text }}</span>
-              </template>
-              <template slot="item" slot-scope="{ item }">
-                <tr class="v-datatable-item">
-                  <td class="text-no-wrap">{{ item.first_name || $tc('—') }}</td>
-                  <td class="text-no-wrap">{{ item.last_name || $tc('—') }}</td>
-                  <td class="text-no-wrap">{{ item.middle_name || $tc('—') }}</td>
-                  <td class="text-no-wrap">
-                    {{ item.role ? item.role.name : '—' }}
-                    <template v-if="item.role.id === 'r_operator'">
-                      <v-icon
-                        v-if="item.status === 'available'"
-                        size="18"
-                        color="green"
-                      >
-                        mdi-check-circle-outline
-                      </v-icon>
-                      <v-icon
-                        v-if="item.status === 'do_not_disturb'"
-                        size="18"
-                        color="red"
-                      >
-                        mdi-do-not-disturb
-                      </v-icon>
-                      <v-icon
-                        v-if="item.status === 'coffee_break'"
-                        size="18"
-                        color="blue"
-                      >
-                        mdi-pause-circle-outline
-                      </v-icon>
-                    </template>
-                  </td>
-                  <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>
-                  <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>
-                  <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—'}}</td>
-                  <td class="text-no-wrap text-right">
-                    <v-btn
-                      :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
-                      icon
-                      small
-                    >
-                      <v-icon>mdi-pencil-box-outline</v-icon>
-                    </v-btn>
-                    <v-btn
-                      color="red"
-                      icon
-                      small
-                      @click="onDelete(item)"
-                    >
-                      <v-icon>mdi-delete-outline</v-icon>
-                    </v-btn>
-                  </td>
-                </tr>
-              </template>
-            </v-data-table>
-          </v-card-text>
-          <v-footer color="white" class="d-flex justify-md-space-between pa-4 mt-auto" absolute>
-            <v-pagination
-              v-model="dataTableUsers.page"
-              :length="dataTableUsers.pages"
-              total-visible="6"
-              :disabled="dataTableUsers.pages === 0"
-            ></v-pagination>
-            <div class="d-flex align-center justify-center">
-              {{ this.dataTableUsers.pageStart }}-{{ this.dataTableUsers.pageStop }} из {{ this.dataTableUsers.totalCount }}
-            </div>
-          </v-footer>
-        </v-card>
-      </v-col>
-      <v-col
-        cols="12"
-        md="3"
-        lg="3"
-      >
-        <v-card
-          class="fill-height"
-          style="min-height: 500px"
-          flat
-          tile
-          outlined
-        >
-          <v-toolbar flat>
-            <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
+        <v-card-text>
+          <v-toolbar
+            class="v-toolbar-header"
+            height="48"
+            flat
+          >
+            <v-toolbar-title class="grey--text">
+              {{ $tc('System users') }}
+            </v-toolbar-title>
             <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              :disabled="dataTableUsers.processLoading"
+              icon
+              @click="onButtonRefreshClick"
+            >
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+            <v-btn
+              color="primary"
+              :to="{ name: 'administrator_users_new_main' }"
+              icon
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
           </v-toolbar>
-          <v-card-text>
-            <s-organizations-autocomplete
-              ref="sOrganizationsAutocomplete"
-              v-model="filter.organization"
-              :label="$tc('Organization')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-          <v-card-text>
-            <s-projects-autocomplete
-              ref="sProjectsAutocomplete"
-              v-model="filter.project"
-              :label="$tc('Project')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-          <v-card-text>
-            <s-groups
-              ref="sGroupsAutocomplete"
-              v-model="filter.group"
-              :label="$tc('Группа')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </div>
+          <v-data-table
+            :headers="dataTableUsers.headers"
+            :items="dataTableUsers.items"
+            :server-items-length="dataTableUsers.totalCount"
+            :page.sync="dataTableUsers.page"
+            :items-per-page="dataTableUsers.itemsPerPage"
+            :loading="dataTableUsers.processLoading"
+            item-key="id"
+            item-class="v-datatable-item"
+            :loading-text="$tc('Loading content...')"
+            :no-data-text="$tc('No data available')"
+            disable-sort
+            fixed-header
+            calculate-widths
+            hide-default-footer
+            dense
+            :height="dataTableUsersHeight"
+            @pagination="onPaginationChange"
+          >
+            <template slot="header.email" slot-scope="{ header }">
+              <span class="text-no-wrap">{{ header.text }}</span>
+            </template>
+            <template slot="item" slot-scope="{ item }">
+              <tr class="v-datatable-item">
+                <td class="text-no-wrap">{{ item.first_name || $tc('—') }}</td>
+                <td class="text-no-wrap">{{ item.last_name || $tc('—') }}</td>
+                <td class="text-no-wrap">{{ item.middle_name || $tc('—') }}</td>
+                <td class="text-no-wrap">
+                  {{ item.role ? item.role.name : '—' }}
+                  <template v-if="item.role.id === 'r_operator'">
+                    <v-icon
+                      v-if="item.status === 'available'"
+                      size="18"
+                      color="green"
+                    >
+                      mdi-check-circle-outline
+                    </v-icon>
+                    <v-icon
+                      v-if="item.status === 'do_not_disturb'"
+                      size="18"
+                      color="red"
+                    >
+                      mdi-do-not-disturb
+                    </v-icon>
+                    <v-icon
+                      v-if="item.status === 'coffee_break'"
+                      size="18"
+                      color="blue"
+                    >
+                      mdi-pause-circle-outline
+                    </v-icon>
+                  </template>
+                </td>
+                <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>
+                <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>
+                <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—'}}</td>
+                <td class="text-no-wrap text-right">
+                  <v-btn
+                    :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
+                    icon
+                    small
+                  >
+                    <v-icon>mdi-pencil-box-outline</v-icon>
+                  </v-btn>
+                  <v-btn
+                    color="red"
+                    icon
+                    small
+                    @click="onDelete(item)"
+                  >
+                    <v-icon>mdi-delete-outline</v-icon>
+                  </v-btn>
+                </td>
+              </tr>
+            </template>
+          </v-data-table>
+        </v-card-text>
+        <v-footer color="white" class="d-flex justify-md-space-between pa-4 mt-auto" absolute>
+          <v-pagination
+            v-model="dataTableUsers.page"
+            :length="dataTableUsers.pages"
+            total-visible="6"
+            :disabled="dataTableUsers.pages === 0"
+          ></v-pagination>
+          <div class="d-flex align-center justify-center">
+            {{ this.dataTableUsers.pageStart }}-{{ this.dataTableUsers.pageStop }} из {{ this.dataTableUsers.totalCount }}
+          </div>
+        </v-footer>
+      </v-card>
+    </v-col>
+    <v-col
+      class="py-md-0 py-lg-0 py-xl-0 pl-md-0 pl-lg-0 pl-xl-0"
+      cols="12"
+      md="3"
+      lg="3"
+    >
+      <v-card
+        class="fill-height"
+        style="min-height: 500px"
+        flat
+        tile
+        outlined
+      >
+        <v-toolbar flat>
+          <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-card-text>
+          <s-organizations-autocomplete
+            ref="sOrganizationsAutocomplete"
+            v-model="filter.organization"
+            :label="$tc('Organization')"
+            clearable
+            outlined
+            dense
+          />
+        </v-card-text>
+        <v-card-text>
+          <s-projects-autocomplete
+            ref="sProjectsAutocomplete"
+            v-model="filter.project"
+            :label="$tc('Project')"
+            clearable
+            outlined
+            dense
+          />
+        </v-card-text>
+        <v-card-text>
+          <s-groups
+            ref="sGroupsAutocomplete"
+            v-model="filter.group"
+            :label="$tc('Группа')"
+            clearable
+            outlined
+            dense
+          />
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

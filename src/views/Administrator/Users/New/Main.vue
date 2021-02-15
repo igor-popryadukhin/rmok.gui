@@ -83,19 +83,19 @@
         >
           <v-text-field
             ref="password1"
-            v-model="password.value1"
+            v-model="user.password"
             :label="$tc('Password')"
-            :type="password.visible ? 'text' : 'password'"
-            :success="password.isValid"
-            required
+            :type="passwordShow ? 'text' : 'password'"
+            :rules="[rules.lengthMinOrZero(6)]"
             autocomplete="new-password"
+            required
           >
             <template v-slot:append>
               <v-btn
-                v-if="password.visible"
+                v-if="passwordShow"
                 icon
                 small
-                @click="password.visible = false"
+                @click="passwordShow = false"
               >
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
@@ -103,7 +103,7 @@
                 v-else
                 small
                 icon
-                @click="password.visible = true"
+                @click="passwordShow = true"
               >
                 <v-icon>mdi-eye-off</v-icon>
               </v-btn>
@@ -117,20 +117,19 @@
         >
           <v-text-field
             ref="password2"
-            v-model="password.value2"
+            v-model="user.password2"
             :label="$tc('Password')"
-            :type="password.visible ? '' : 'password'"
-            :rules="[]"
-            :success="password.isValid"
-            required
+            :type="passwordShow ? '' : 'password'"
+            :rules="[rules.lengthMinOrZero(6)]"
             autocomplete="new-password"
+            required
           >
             <template v-slot:append>
               <v-btn
-                v-if="password.visible"
+                v-if="passwordShow"
                 icon
                 small
-                @click="password.visible = false"
+                @click="passwordShow = false"
               >
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
@@ -138,7 +137,7 @@
                 v-else
                 small
                 icon
-                @click="password.visible = true"
+                @click="passwordShow = true"
               >
                 <v-icon>mdi-eye-off</v-icon>
               </v-btn>
@@ -219,16 +218,29 @@
         >
           <s-organizations-autocomplete
             ref="sOrganizations"
-            v-model="organizationSelected"
-            :label="$tc('Organization')"
-            :rules="[rules.notBlank]"
+            v-model="user.organization"
+            :label="$tc('organization')"
+            :disabled="assertObjectHasAttribute(user.organization, 'id')"
             visible-icon
           />
         </v-col>
       </v-row>
 
-      <!-- Группа -->
       <v-row>
+        <v-col
+          cols="12"
+          md="4"
+          lg="4"
+          xl="4"
+        >
+          <s-projects-autocomplete
+            ref="sProjectsAutocomplete"
+            v-model="user.project"
+            :label="$tc('User current project')"
+            visible-icon
+            clearable
+          />
+        </v-col>
         <v-col
           cols="12"
           md="4"
@@ -240,7 +252,7 @@
             v-model="user.group"
             :label="$tc('Group')"
             visible-icon
-            :disabled="!(user.organization)"
+            :disabled="!assertObjectHasAttribute(user.organization, 'id')"
             :params="sGroupsParams"
           >
           </s-groups>
@@ -276,7 +288,7 @@
 import Vue, { VueConstructor } from 'vue'
 import rules from '@/mixins/rules'
 import countryCodes from '@/mixins/countryCodes'
-import { Users } from '@/api/Users'
+import { UserInterface, Users } from '@/api/Users'
 import { OrganizationInterface } from '@/api/Organizations'
 import { GroupInterface } from '@/api/Groups'
 import SRoles from '@/snippets/SRoles/SRoles.vue'
@@ -285,8 +297,13 @@ import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizations
 import { RoleInterface } from '@/api/Roles'
 import { ProjectInterface } from '@/api/Projects'
 import VInterface from '@/VInterface'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
+import { isEmpty } from '@/Utils'
 
-interface IRef {
+interface IRefs {
+  sGroups: any,
+  sOrganizations: any,
+  sProjectsAutocomplete: any,
   [key: string]: any;
 }
 
@@ -296,21 +313,14 @@ interface IData {
 
 interface VInnerInterface extends VInterface {
   $data: IData;
-  $refs: IRef;
-}
-
-interface DataPasswordInterface {
-  visible: boolean;
-  isValid: boolean;
-  value1: string;
-  value2: string;
-  isEmpty: () => boolean;
+  $refs: IRefs;
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   mixins: [rules],
 
   components: {
+    SProjectsAutocomplete,
     SOrganizationsAutocomplete,
     SGroups,
     SRoles
@@ -320,15 +330,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     return {
       permissions: [],
       tab: 0,
-      password: {
-        visible: false,
-        isValid: true,
-        value1: '',
-        value2: '',
-        isEmpty (): boolean {
-          return Boolean(!this.value1 && !this.value2)
-        }
-      } as DataPasswordInterface,
+      passwordShow: false,
       buttonDelete: {
         disabled: false,
         loading: false
@@ -337,47 +339,25 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         disabled: false,
         loading: false
       },
-      organizationSelected: {} as unknown as OrganizationInterface,
       user: {
         id: 0,
         first_name: '',
         last_name: '',
         middle_name: '',
         login: '',
+        password: '',
+        password2: '',
         email: '',
         phone: '',
-        role: {} as unknown as RoleInterface,
-        group: {} as unknown as GroupInterface,
-        organization: {} as unknown as OrganizationInterface,
-        project: {} as unknown as ProjectInterface,
-
-        // Конфигурация подключения к АТС
-        pbxConfig: {
-          display_name: '',
-          login: '',
-          password: '',
-          port: 0,
-          server: ''
-        }
+        role: null as unknown as RoleInterface,
+        group: null as unknown as GroupInterface,
+        organization: null as unknown as OrganizationInterface,
+        project: null as unknown as ProjectInterface
       }
     }
   },
 
   watch: {
-    // Password comparison
-    password: {
-      handler (password: DataPasswordInterface) {
-        if (password.value1 === password.value2) {
-          password.isValid = true
-          this.$refs.password1.resetValidation()
-          this.$refs.password2.resetValidation()
-          return
-        }
-        password.isValid = false
-      },
-      deep: true
-    },
-
     tab (val: number) {
       switch (val) {
         case 3: {
@@ -391,14 +371,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   computed: {
     sGroupsParams () {
-      const params: any = { organization_id: 0 }
+      const params: any = {}
 
-      if (this.organizationSelected) {
-        params.organization_id = this.organizationSelected.id
-      } else {
-        if (this.user.organization) {
-          params.organization_id = this.user.organization.id
-        }
+      if (this.assertObjectHasAttribute(this.user.organization, 'id')) {
+        params.organization_id = this.user.organization.id
       }
 
       return params
@@ -429,16 +405,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         requestData.phone = this.user.phone
       }
 
-      if (this.organizationSelected) {
-        requestData.organization_id = this.organizationSelected.id
+      if (this.assertObjectHasAttribute(this.user.project, 'id')) {
+        requestData.project_id = this.user.project.id
       }
 
-      if (this.user.group) {
+      if (this.assertObjectHasAttribute(this.user.organization, 'id')) {
+        requestData.organization_id = this.user.organization.id
+      }
+
+      if (this.assertObjectHasAttribute(this.user.group, 'id')) {
         requestData.group_id = this.user.group.id
       }
 
-      if (this.password.value1) {
-        requestData.password = this.password.value1
+      if (this.user.password === this.user.password2 && !isEmpty(this.user.password)) {
+        requestData.password = this.user.password
       }
 
       this.buttonSave.loading = true

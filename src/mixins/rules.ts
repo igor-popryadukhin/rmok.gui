@@ -45,6 +45,9 @@ export default Vue.extend({
         lengthMin: (value: number, message = 'Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.') => {
           return (v: string) => isEmpty(v) || (v.length >= value ? true : this.$tc(message, value))
         },
+        lengthMinOrZero: (value: number, message = 'Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.') => {
+          return (v: string) => isEmpty(v) || (v.length >= value ? true : this.$tc(message, value))
+        },
         /* eslint-enable */
       }
     }
