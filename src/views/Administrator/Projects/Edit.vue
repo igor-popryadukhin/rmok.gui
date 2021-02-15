@@ -313,6 +313,24 @@
           </v-card-text>
         </v-card>
       </v-col>
+      <v-col
+        class="py-0 pl-md-0 pl-lg-0 pl-xl-0"
+        cols="6"
+      >
+        <v-card
+          height="100%"
+          outlined
+          flat
+          tile
+        >
+          <v-card-title class="grey--text">
+            {{ $tc('Groups of users') }}
+          </v-card-title>
+          <v-card-text>
+            ***
+          </v-card-text>
+        </v-card>
+      </v-col>
     </v-row>
 
     <!-- Statuses -->
@@ -326,7 +344,7 @@
             Статусы звонков
           </v-card-title>
           <v-card-text>
-            <project-status v-model="statuses"/>
+            <project-status v-model="statuses" />
           </v-card-text>
         </v-card>
       </v-col>
@@ -382,6 +400,7 @@ import APIError from '@/api/classes/APIError'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import { GroupInterface } from '@/api/Groups'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
+import { StatusInterface } from '@/components/ProjectStatus/Interfaces'
 
 interface IRefs {
   [key: string]: any;
@@ -409,6 +428,7 @@ interface VInnerInterface extends VInterface {
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     SOrganizationsAutocomplete,
+    SGroups,
     ProjectStatus
   },
 
@@ -516,6 +536,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
     },
 
+    /**
+     * Происходит, когда нажали на кнопку "Сохранить"
+     **/
     onBtnSaveClick () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
         return
@@ -536,7 +559,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               id: e.id,
               name: e.name,
               color: e.color,
-              children: e.children.map((e: any) => ({id: e.id, name: e.name}))
+              children: e.children.map((e: StatusInterface) => ({
+                id: e.id,
+                name: e.name,
+                actions: e.actions
+              }))
             }
           })
           /* eslint-enable */

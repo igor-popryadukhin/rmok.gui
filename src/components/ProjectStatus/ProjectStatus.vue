@@ -103,7 +103,7 @@
     <project-status-dialog-status
       v-model="dialogStatus.visible"
       :name="dialogStatus.name"
-      :actions="actions"
+      :actions="dialogStatus.actions"
       @save-click="onSaveStatusClick"
     />
   </div>
@@ -113,12 +113,7 @@
 import Vue from 'vue'
 import ProjectStatusDialogGroup from './ProjectStatusDialogGroup.vue'
 import ProjectStatusDialogStatus from './ProjectStatusDialogStatus.vue'
-
-export interface StatusInterface {
-  id: string | number;
-  name: string;
-  action: string | null;
-}
+import { ActionInterface, StatusInterface } from './Interfaces'
 
 interface GroupInterface {
   id: string | number;
@@ -162,7 +157,7 @@ export default Vue.extend({
         visible: false,
         id: '' as number | string,
         name: '',
-        action: '' as null | string
+        actions: [] as ActionInterface[]
       },
       currentGroup: null as GroupInterface | any,
       initiallyOpen: [],
@@ -251,13 +246,17 @@ export default Vue.extend({
       })
     },
 
+    /**
+     * Срабатывает когда пользователь нажал на кнопу сохранения статуса.
+     * @param status
+     */
     onSaveStatusClick (status: StatusInterface) {
       let isEdit = false
-      this.items.forEach((group: GroupInterface) => {
-        const index = group.children.findIndex((status: StatusInterface) => status.id === this.dialogStatus.id)
+      this.items.forEach((e: GroupInterface) => {
+        const index = e.children.findIndex((status: StatusInterface) => status.id === this.dialogStatus.id)
         if (index > -1) {
-          group.children[index].name = status.name
-          group.children[index].action = status.action
+          e.children[index].name = status.name
+          e.children[index].actions = status.actions
           isEdit = true
         }
       })
@@ -268,7 +267,7 @@ export default Vue.extend({
             group.children.push({
               id: this.generateUUID(),
               name: status.name,
-              action: status.action
+              actions: status.actions
             })
           }
         })
@@ -280,12 +279,13 @@ export default Vue.extend({
       this.dialogStatus.id = ''
       this.dialogStatus.name = ''
       this.dialogStatus.visible = true
+      this.dialogStatus.actions = []
     },
 
     onStatusEditClick (item: StatusInterface) {
       this.dialogStatus.id = item.id
       this.dialogStatus.name = item.name
-      this.dialogStatus.action = item.action
+      this.dialogStatus.actions = item.actions
       this.dialogStatus.visible = true
     }
   }

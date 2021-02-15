@@ -33,7 +33,7 @@
                 justify="start"
               >
                 <v-col
-                  v-for="(item, statusIndex) in status.items"
+                  v-for="(item, statusIndex) in status.children"
                   :key="`v-col-status-${statusIndex}`"
                   cols="3"
                   class="mr-10 pa-0 mb-1"
@@ -63,7 +63,7 @@
           >
             <v-row justify="start">
               <v-col
-                v-for="(status, statusIndex) in tabItem.items"
+                v-for="(status, statusIndex) in tabItem.children"
                 :key="`status-${statusIndex}`"
                 cols="auto"
                 class="mr-10"
@@ -139,7 +139,7 @@ export default Vue.extend({
 
   mounted () {
     for (let i = 0; i < this.statuses.length; i++) {
-      const status = this.statuses[i].items.find((e: any) => e.id === this.statusId)
+      const status = this.statuses[i].children.find((e: any) => e.id === this.statusId)
       if (typeof status === 'object') {
         console.log(this.$refs[`vRadio${status.id}`])
       }
