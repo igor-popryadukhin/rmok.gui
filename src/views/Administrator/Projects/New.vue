@@ -301,6 +301,7 @@ import VInterface from '@/VInterface'
 import { debounce } from 'vuetify/src/util/helpers'
 import APIError from '@/api/classes/APIError'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
+import { StatusInterface } from '@/components/ProjectStatus/Interfaces'
 
 interface IData {
   organizationSelected: any,
@@ -399,7 +400,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
           return {
             name: e.name,
             color: e.color,
-            children: e.children.map((e: any) => e.name)
+            children: e.children.map((e: StatusInterface) => {
+              return {
+                name: e.name,
+                actions: e.actions
+              }
+            })
           }
         })
       }
