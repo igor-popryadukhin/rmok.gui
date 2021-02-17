@@ -31,7 +31,7 @@
         >
 
           <v-list-group
-            v-if="mainMenuItem.children"
+            v-if="mainMenuItem.children && mainMenuItem.visible"
             :key="mainMenuIndex"
             v-model="mainMenuItem.active"
             no-action
@@ -268,7 +268,7 @@ export default Vue.extend({
         {
           title: 'Organizations',
           icon: 'mdi-city',
-          visible: this.$store.getters['profile/role_is_admin'], // Этот пункт видят только администраторы
+          visible: this.$permission.isGranted(['section.organization']),
           list_item: {
             to: {
               name: 'administrator_organizations_list'
@@ -278,7 +278,7 @@ export default Vue.extend({
         {
           title: 'Contacts',
           icon: 'mdi-contacts',
-          visible: this.$store.getters['profile/permissions'].includes('contact.view'),
+          visible: this.$permission.isGranted(['section.contact']),
           list_item: {
             to: {
               name: 'administrator_contacts'
@@ -288,7 +288,7 @@ export default Vue.extend({
         {
           title: 'Groups',
           icon: 'mdi-account-group',
-          visible: true,
+          visible: this.$permission.isGranted(['section.groups']),
           list_item: {
             to: {
               name: 'administrator_groups_list'
@@ -298,7 +298,7 @@ export default Vue.extend({
         {
           title: 'Users',
           icon: 'mdi-account-multiple-outline',
-          visible: true,
+          visible: this.$permission.isGranted(['section.users']),
           list_item: {
             to: {
               name: 'administrator_users_list'
@@ -306,9 +306,19 @@ export default Vue.extend({
           }
         },
         {
+          title: 'Roles',
+          icon: 'mdi-account-tie',
+          visible: this.$permission.isSuperAdmin(),
+          list_item: {
+            to: {
+              name: 'administrator_roles_list'
+            }
+          }
+        },
+        {
           title: 'Projects',
           icon: 'mdi-projector-screen',
-          visible: true,
+          visible: this.$permission.isGranted(['section.projects']),
           list_item: {
             to: {
               name: 'administrator_projects_list'
@@ -318,7 +328,7 @@ export default Vue.extend({
         {
           title: 'Statistic',
           icon: 'mdi-chart-arc',
-          visible: this.$store.getters['profile/permissions'].includes('report.view'),
+          visible: this.$permission.isGranted('section.statistics'),
           list_item: {},
           active: false,
           children: [
@@ -384,7 +394,7 @@ export default Vue.extend({
             {
               title: 'For developer',
               icon: 'mdi-flask',
-              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view'),
+              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/super_admin'],
               attrs: {
                 to: {
                   name: 'administrator_for_developer'

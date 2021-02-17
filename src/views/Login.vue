@@ -131,18 +131,8 @@ export default Vue.extend({
                 this.$root.$emit('root-loading-projects') // Загрузить проекты, что бы оператор мог выбрать из списка
               }, 1000)
             })
-          }
-
-          if (this.$store.getters['profile/role_is_team_leader']) {
-            this.$router.replace({ name: 'team_leader' })
-          }
-
-          if (this.$store.getters['profile/role_is_admin']) {
+          } else {
             this.$router.replace({ name: 'administrator' })
-          }
-
-          if (this.$store.getters['profile/role_is_leader_cc']) {
-            this.$router.replace({ name: 'call_center_manager' })
           }
 
           this.processMessage = this.$tc('Login successful!')

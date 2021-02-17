@@ -15,6 +15,7 @@ import '@/mixins/global'
 // Plugins
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import '@/plugins/toast'
+import '@/plugins/permission'
 import '@/plugins/cookie'
 import '@/plugins/router-query'
 import CleanLayout from '@/layouts/Clean.vue'

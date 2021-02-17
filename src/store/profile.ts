@@ -1,7 +1,6 @@
 import { Account, ProfileInterface, Role } from '@/api/Account'
 
 interface StateInterface {
-  permissions: string[];
   [key: string]: any;
 }
 
@@ -20,14 +19,14 @@ export const profile = {
       last_name: '',
       login: '',
       middle_name: '',
+      super_admin: false,
       role: {
-        attributes: [],
+        permissions: [],
         id: '',
         name: ''
       },
       userpic: null,
       status: '',
-      permissions: [] as string[],
       organization: {
         address: '',
         description: '',
@@ -54,6 +53,7 @@ export const profile = {
       state.last_name = payload.last_name
       state.middle_name = payload.middle_name
       state.role = payload.role
+      state.super_admin = payload.super_admin
       state.userpic = payload.userpic
       state.created_at = payload.created_at
       state.organization = payload.organization
@@ -103,6 +103,7 @@ export const profile = {
     userpic (state: StateInterface): string { return state.userpic },
     status (state: StateInterface) { return state.status },
     organization (state: StateInterface) { return state.organization },
-    permissions (state: StateInterface): string[] { return state.permissions }
+    permissions (state: StateInterface): string[] { return state.role.permissions },
+    super_admin (state: StateInterface): boolean { return state.super_admin }
   }
 }

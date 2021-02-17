@@ -35,11 +35,11 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue'
-import Permissions, { AttributeInterface, PermissionInterface } from '@/api/Permissions'
+import Permissions, { PermissionInterface, PermissionGroupInterface } from '@/api/Permissions'
 import VInterface from '@/VInterface'
 
 interface IData {
-  permissions: PermissionInterface[]
+  permissions: PermissionGroupInterface[]
 }
 
 // Расширяю интерфейс
@@ -69,7 +69,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      * Происходит когда пользователь изменил состояние переключателя
      * @param attribute
      */
-    onChangePermission (attribute: AttributeInterface) {
+    onChangePermission (attribute: PermissionInterface) {
       new Permissions()
         .set<{ name: string, granted: boolean }>(+this.$route.params.user_id, {
           name: attribute.name,

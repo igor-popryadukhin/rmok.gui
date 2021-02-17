@@ -1,12 +1,14 @@
 import { loadLanguageAsync } from '@/plugins/i18n'
+import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import secure from '@/middleware/secure'
 import roleOperator from '@/middleware/roleOperator'
-import store from '@/store'
+
 import { Store } from 'vuex'
+import store from '@/store'
 
 Vue.use(VueRouter)
 
@@ -408,8 +410,48 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          loadLanguageAsync('ru', 'organizations').then(() => next())
+          if ($permission.isGranted(['section.organization'])) {
+            next()
+          } else {
+            next({ name: 'access_denied' })
+          }
+        }
+      },
+      {
+        path: 'roles',
+        component: () => import(/* webpackChunkName: "administrator-roles" */ '../views/Administrator/Roles/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'administrator_roles_list',
+            component: () => import(/* webpackChunkName: "administrator-roles-list" */ '../views/Administrator/Roles/List.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: [secure]
+            }
+          },
+          {
+            path: ':id',
+            name: 'administrator_roles_edit',
+            component: () => import(/* webpackChunkName: "administrator-roles-edit" */ '../views/Administrator/Roles/Edit.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: [secure]
+            }
+          }
+        ],
+        meta: {
+          layout: 'administrator',
+          middleware: [secure]
+        },
+        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+          if ($permission.isSuperAdmin()) {
+            next()
+          } else {
+            next({ name: 'access_denied' })
+          }
         }
       },
       {
@@ -486,8 +528,11 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          next()
+          if ($permission.isGranted(['contact.create', 'contact.view', 'contact.edit'])) {
+            next()
+          } else {
+            next({ name: 'access_denied' })
+          }
         }
       },
       {
@@ -554,8 +599,11 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          loadLanguageAsync('ru', 'users').then(() => next())
+          if ($permission.isGranted(['section.users'])) {
+            next()
+          } else {
+            next({ name: 'access_denied' })
+          }
         }
       },
       {
@@ -596,8 +644,11 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          loadLanguageAsync('ru', 'groups').then(() => next())
+          if ($permission.isGranted(['section.groups'])) {
+            next()
+          } else {
+            next({ name: 'access_denied' })
+          }
         }
       },
       {
@@ -693,11 +744,11 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          Promise.all([
-            loadLanguageAsync('ru', 'projects'),
-            loadLanguageAsync('ru', 'status-actions')
-          ]).then(() => next())
+          if ($permission.isGranted(['section.projects'])) {
+            next()
+          } else {
+            next({ name: 'access_denied' })
+          }
         }
       },
       {
@@ -729,8 +780,11 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          next()
+          if ($permission.isGranted(['section.statistics'])) {
+            next()
+          } else {
+            next({ name: 'access_denied' })
+          }
         }
       }
     ],

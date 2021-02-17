@@ -32,7 +32,7 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
 
   if (isRefreshTokenProcess) {
     console.log('%c%s', 'color: red;', `Запрос ${config.url} ожидает обновление токена...`)
-    promises.push(new Promise(async (resolve) => {
+    promises.push(new Promise<void>(async (resolve) => {
       while (isRefreshTokenProcess) {
         await sleep(500)
       }

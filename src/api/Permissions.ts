@@ -2,15 +2,15 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import APIError from './classes/APIError'
 
-export interface AttributeInterface {
+export interface PermissionInterface {
   title: string;
   name: string;
   granted: boolean;
 }
 
-export interface PermissionInterface {
+export interface PermissionGroupInterface {
   title: string;
-  attributes: AttributeInterface[];
+  permissions: PermissionInterface[];
 }
 
 export default class Permissions {
@@ -19,7 +19,7 @@ export default class Permissions {
    *
    * @param id
    */
-  public get<T = PermissionInterface[]> (id: string): Promise<T> {
+  public get<T = PermissionGroupInterface[]> (id: string): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       $axios.get(`/permissions/${id}`)
         .then((response: AxiosResponse) => {
