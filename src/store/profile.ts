@@ -23,6 +23,7 @@ export const profile = {
       role: {
         permissions: [],
         id: '',
+        use: '',
         name: ''
       },
       userpic: null,
@@ -95,6 +96,7 @@ export const profile = {
     project (state: StateInterface): string { return state.email },
     role (state: StateInterface) { return state.role },
     role_id (state: StateInterface) { return state.role.id },
+    role_use (state: StateInterface): string { return state.role.use },
     role_name (state: StateInterface): string { return state.role.name },
     role_is_operator (state: StateInterface): boolean { return state.role.id === 'r_operator' },
     role_is_admin (state: StateInterface): boolean { return state.role.id === 'r_admin' },

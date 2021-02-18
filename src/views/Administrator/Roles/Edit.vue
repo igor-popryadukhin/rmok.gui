@@ -20,6 +20,13 @@
           </v-form>
         </v-card-text>
 
+        <v-card-text class="py-0">
+          <v-select
+            label="Назначение"
+            :items="['Администрирование', 'Для совершения звонков']"
+          />
+        </v-card-text>
+
         <v-card-title class="grey--text">{{ $tc('Permissions') }}</v-card-title>
         <v-card-text class="py-0">
           <v-expansion-panels tile flat focusable>

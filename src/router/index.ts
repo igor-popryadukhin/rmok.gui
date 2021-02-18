@@ -5,7 +5,6 @@ import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import secure from '@/middleware/secure'
-import roleOperator from '@/middleware/roleOperator'
 
 import { Store } from 'vuex'
 import store from '@/store'
@@ -93,7 +92,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: [roleOperator]
+          middleware: []
         }
       },
       {
@@ -104,13 +103,13 @@ const routes: RouteConfig[] = [
             path: '',
             name: 'operator_calls',
             component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [roleOperator] }
+            meta: { layout: 'operator-layout', middleware: [] }
           }
         ],
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: [roleOperator]
+          middleware: []
         }
       },
       {
@@ -135,22 +134,22 @@ const routes: RouteConfig[] = [
                 path: 'script',
                 name: 'operator_leads_script',
                 component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [roleOperator] }
+                meta: { layout: 'operator-layout', middleware: [] }
               },
               {
                 path: 'history',
                 name: 'operator_leads_history',
                 component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [roleOperator] }
+                meta: { layout: 'operator-layout', middleware: [] }
               },
               {
                 path: 'tasks',
                 name: 'operator_leads_tasks',
                 component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [roleOperator] }
+                meta: { layout: 'operator-layout', middleware: [] }
               }
             ],
-            meta: { layout: 'operator-layout', middleware: [roleOperator] }
+            meta: { layout: 'operator-layout', middleware: [] }
           }
         ],
         meta: {
@@ -170,11 +169,11 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           }
         ],
-        meta: { layout: 'operator-layout', middleware: [roleOperator] }
+        meta: { layout: 'operator-layout', middleware: [] }
       },
       {
         path: 'contacts',
@@ -184,13 +183,13 @@ const routes: RouteConfig[] = [
             path: '',
             name: 'operator_contacts_list',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [roleOperator] }
+            meta: { layout: 'operator-layout', middleware: [] }
           },
           {
             path: 'new',
             name: 'operator_contacts_new',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
-            meta: { layout: 'operator-layout', middleware: [roleOperator] },
+            meta: { layout: 'operator-layout', middleware: [] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
               store.dispatch('system/country_codes')
@@ -200,7 +199,7 @@ const routes: RouteConfig[] = [
             path: ':contact_id',
             name: 'operator_contacts_edit',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Edit.vue'),
-            meta: { layout: 'operator-layout', middleware: [roleOperator] },
+            meta: { layout: 'operator-layout', middleware: [] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
               store.dispatch('system/country_codes')
@@ -216,22 +215,22 @@ const routes: RouteConfig[] = [
                 path: 'script',
                 name: 'contacts_script',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [roleOperator] }
+                meta: { layout: 'operator-layout', middleware: [] }
               },
               {
                 path: 'history',
                 name: 'contacts_history',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [roleOperator] }
+                meta: { layout: 'operator-layout', middleware: [] }
               },
               {
                 path: 'tasks',
                 name: 'contacts_task',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [roleOperator] }
+                meta: { layout: 'operator-layout', middleware: [] }
               }
             ],
-            meta: { layout: 'operator-layout', middleware: [roleOperator] }
+            meta: { layout: 'operator-layout', middleware: [] }
           }
         ],
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
@@ -241,7 +240,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: [roleOperator]
+          middleware: []
         }
       },
       {
@@ -255,13 +254,13 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           }
         ],
         meta: {
           layout: 'operator-layout',
-          middleware: [roleOperator]
+          middleware: []
         }
       },
       {
@@ -275,7 +274,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           },
           {
@@ -285,7 +284,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-history',
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           },
           {
@@ -295,7 +294,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-security',
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           },
           {
@@ -305,7 +304,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-webrtc',
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           },
           {
@@ -315,7 +314,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-headset',
               layout: 'operator-layout',
-              middleware: [roleOperator]
+              middleware: []
             }
           }
         ],
@@ -325,7 +324,7 @@ const routes: RouteConfig[] = [
         },
         meta: {
           layout: 'operator-layout',
-          middleware: [roleOperator]
+          middleware: []
         }
       },
       {
@@ -334,14 +333,14 @@ const routes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "operator-help" */ '../views/Operator/Help/Index.vue'),
         meta: {
           layout: 'operator-layout',
-          middleware: [roleOperator]
+          middleware: []
         }
       }
     ],
     meta: {
       anonymous: true,
       layout: 'operator-layout',
-      middleware: [roleOperator]
+      middleware: []
     },
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale

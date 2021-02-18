@@ -119,21 +119,26 @@ export default Vue.extend({
           this.processMessage = this.$tc('Loading profile data...')
           await this.$store.dispatch('profile/loadProfile')
 
-          this.processMessage = this.$tc('Loading projects...')
-          await this.$store.dispatch('project/load')
 
-          // Если авторизовался оператор
-          if (this.$store.getters['profile/role_is_operator']) {
-            this.$router.replace({ name: 'operator_home' })
-            .finally(() => {
-              setTimeout(() => {
-                this.$root.$emit('root-jssip-set-configuration')
-                this.$root.$emit('root-loading-projects') // Загрузить проекты, что бы оператор мог выбрать из списка
-              }, 1000)
-            })
-          } else {
+          if (this.$store.getters['profile/role_use'] === 'for_administration') {
             this.$router.replace({ name: 'administrator' })
+              .finally(() => {
+                this.$root.$emit('root-jssip-set-configuration')
+                this.$root.$emit('root-loading-projects')
+              })
+          } else if (this.$store.getters['profile/role_use'] === 'for_calls') {
+
+            this.processMessage = this.$tc('Loading projects...')
+            await this.$store.dispatch('project/load')
+
+            // Если авторизовался оператор
+            this.$router.replace({ name: 'operator_home' })
+              .finally(() => {
+                this.$root.$emit('root-jssip-set-configuration')
+                this.$root.$emit('root-loading-projects')
+              })
           }
+
 
           this.processMessage = this.$tc('Login successful!')
           /* eslint-enable */

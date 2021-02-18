@@ -45,20 +45,6 @@ export interface ProjectResponseItemsInterface {
   items: ProjectInterface[];
 }
 
-interface ProjectPostDataInterface {
-  name: string;
-  organization_id?: number;
-  members: number[];
-  statuses: [];
-}
-
-interface ProjectPutDataInterface {
-  name: string;
-  organization_id?: number;
-  members: number[];
-  statuses: [];
-}
-
 export default class Projects {
   /**
    * @param params
