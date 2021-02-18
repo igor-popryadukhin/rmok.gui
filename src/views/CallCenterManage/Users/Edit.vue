@@ -504,7 +504,7 @@ export default Vue.extend({
           vm.user.group = user.group ?? {
             id: 0,
             name: '',
-            team_leader: null
+            responsible: null
           } as GroupInterface
           vm.user.phone = user.phone
           vm.user.role = user.role

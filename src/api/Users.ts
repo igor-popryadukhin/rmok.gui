@@ -92,10 +92,11 @@ export class Users {
   /**
    *
    * @param id
+   * @param params
    */
-  public getById (id: number) {
+  public getById (id: number, params = {}) {
     return new Promise<UserInterface>((resolve, reject) => {
-      $axios.get(`/users/${id}`)
+      $axios.get(`/users/${id}`, { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)

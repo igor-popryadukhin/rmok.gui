@@ -30,7 +30,7 @@
           <s-autocomplete-users
             v-model="userSelected"
             :label="$tc('team_leader')"
-            :selected-id="group.team_leader ? group.team_leader.id : 0"
+            :selected-id="group.responsible ? group.responsible.id : 0"
             roles="r_team_leader"
           />
         </v-col>
@@ -83,7 +83,7 @@ export default Vue.extend({
         id: 0,
         name: '',
         organization: undefined,
-        team_leader: undefined
+        responsible: undefined
       } as GroupInterface
       /* eslint-enable */
     }
@@ -94,7 +94,7 @@ export default Vue.extend({
       .getById(+this.$route.params.id)
       .then((group: GroupInterface) => {
         this.group = group
-        this.userSelected = group.team_leader
+        this.userSelected = group.responsible
       })
   },
 

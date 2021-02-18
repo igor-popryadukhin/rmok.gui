@@ -394,7 +394,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         last_name: this.user.last_name,
         middle_name: this.user.middle_name,
         login: this.user.login,
-        role: this.user.role?.id
+        role_id: this.user.role?.id
       }
 
       if (this.user.email) {

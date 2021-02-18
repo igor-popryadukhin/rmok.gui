@@ -66,33 +66,32 @@
                 <td class="text-no-wrap">{{ item.middle_name || $tc('—') }}</td>
                 <td class="text-no-wrap">
                   {{ item.role ? item.role.name : '—' }}
-                  <template v-if="item.role.id === 'r_operator'">
-                    <v-icon
-                      v-if="item.status === 'available'"
-                      size="18"
-                      color="green"
-                    >
-                      mdi-check-circle-outline
-                    </v-icon>
-                    <v-icon
-                      v-if="item.status === 'do_not_disturb'"
-                      size="18"
-                      color="red"
-                    >
-                      mdi-do-not-disturb
-                    </v-icon>
-                    <v-icon
-                      v-if="item.status === 'coffee_break'"
-                      size="18"
-                      color="blue"
-                    >
-                      mdi-pause-circle-outline
-                    </v-icon>
-                  </template>
+<!--                  <template v-if="item.role.id === 'r_operator'">-->
+<!--                    <v-icon-->
+<!--                      v-if="item.status === 'available'"-->
+<!--                      size="18"-->
+<!--                      color="green"-->
+<!--                    >-->
+<!--                      mdi-check-circle-outline-->
+<!--                    </v-icon>-->
+<!--                    <v-icon-->
+<!--                      v-if="item.status === 'do_not_disturb'"-->
+<!--                      size="18"-->
+<!--                      color="red"-->
+<!--                    >-->
+<!--                      mdi-do-not-disturb-->
+<!--                    </v-icon>-->
+<!--                    <v-icon-->
+<!--                      v-if="item.status === 'coffee_break'"-->
+<!--                      size="18"-->
+<!--                      color="blue"-->
+<!--                    >-->
+<!--                      mdi-pause-circle-outline-->
+<!--                    </v-icon>-->
+<!--                  </template>-->
                 </td>
                 <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>
                 <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>
-                <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—'}}</td>
                 <td class="text-no-wrap text-right">
                   <v-btn
                     :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
@@ -233,7 +232,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           { text: 'Роль', align: 'start', sortable: true, value: 'role' },
           { text: 'Проект', align: 'start', sortable: true, value: 'project' },
           { text: 'Группа', align: 'start', sortable: true, value: 'group' },
-          { text: 'Организация', align: 'start', sortable: true, value: 'organization' },
           { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
         ],
         items: [] as UserInterface[]

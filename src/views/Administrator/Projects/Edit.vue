@@ -10,7 +10,7 @@
           cols="12"
         >
           <v-card flat outlined tile>
-            <v-card-text>
+            <v-card-text class="pb-0">
               <v-row>
                 <v-col
                   cols="12"
@@ -19,7 +19,7 @@
                 >
                   <v-text-field
                     v-model="projectName"
-                    :label="$tc('project_name')"
+                    :label="$tc('Project name')"
                     persistent-hint
                     required
                     :rules="[rules.notBlank]"
@@ -29,7 +29,7 @@
               </v-row>
             </v-card-text>
             <v-card-text
-              v-if="$store.getters['profile/role_is_admin']"
+              v-if="$permission.isSuperAdmin"
               class="pt-0"
             >
               <v-row>
@@ -59,6 +59,7 @@
             cols="12"
             md="6"
             lg="6"
+            xl="6"
           >
             <v-card
               height="500"
@@ -166,10 +167,11 @@
             </v-card>
           </v-col>
           <v-col
-            class="pl-md-0 pl-lg-0 pl-xl-0"
+            class="py-0 pl-md-0 pl-lg-0 pl-xl-0"
             cols="12"
             md="6"
             lg="6"
+            xl="6"
           >
             <v-card
               height="100%"

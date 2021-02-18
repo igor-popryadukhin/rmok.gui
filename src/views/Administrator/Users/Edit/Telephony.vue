@@ -207,7 +207,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   beforeRouteEnter (to, from, next) {
     new Users()
-      .getById(+to.params.user_id)
+      .getById(+to.params.user_id, {
+        fields: 'pbx_config'
+      })
       .then((response: UserInterface) => {
         next((vm: VInnerInterface) => {
           vm.$data.pbxConfig = response.pbx_config ?? {

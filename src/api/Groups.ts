@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from '@/api/classes/APIError'
 
-export interface GroupTeamLeaderInterface {
+export interface GroupResponsibleInterface {
   id: number;
   first_name: string;
   last_name: string;
@@ -18,7 +18,7 @@ export interface GroupOrganizationInterface {
 export interface GroupInterface {
   id: number;
   name: string;
-  team_leader?: GroupTeamLeaderInterface | null;
+  responsible?: GroupResponsibleInterface | null;
   organization?: GroupOrganizationInterface | null;
 }
 
@@ -51,12 +51,12 @@ export class Groups {
    * Add a new group to the server
    * @param data
    */
-  public add (data: any): Promise<any> {
-    return new Promise((resolve, reject): Promise<any> | any => {
+  public add (data: any): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       $axios.post('/groups', data)
         .then((response: AxiosResponse) => {
-          if (response.status === 201) {
-            return resolve(response.data)
+          if ([200, 201].includes(response.status)) {
+            return resolve(response.data.id)
           }
           reject(response.data)
         }).catch(reject)

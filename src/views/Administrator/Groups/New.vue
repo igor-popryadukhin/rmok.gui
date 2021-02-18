@@ -14,18 +14,18 @@
         <!-- eslint-disable -->
         <v-text-field
           ref="groupName"
-          v-model="groupName"
-          :label="$tc('group_name')"
+          v-model="group.name"
+          :label="$tc('Group name')"
           :rules="[rules.notBlank]"
           persistent-hint
-          @keydown.enter="$refs.sOrganizationsAutocomplete.focus"
+          @keydown.enter="$refs.sOrganizations.focus"
         >
         </v-text-field>
       </v-col>
     </v-row>
 
     <!-- Organizations -->
-    <v-row>
+    <v-row v-if="$permission.isSuperAdmin">
       <v-col
         cols="12"
         md="6"
@@ -33,7 +33,7 @@
       >
         <s-organizations-autocomplete
           ref="sOrganizationsAutocomplete"
-          v-model="organizationSelected"
+          v-model="group.organization"
           :label="$tc('organization')"
           :rules="[rules.notBlank]"
         />
@@ -49,26 +49,10 @@
       >
         <s-users
           ref="sUsers"
-          v-model="userSelected"
-          :label="$tc('team_leader')"
-          :disabled="!organizationSelected"
-          :params="{ roles: 'r_team_leader' }"
-          :rules="[rules.notBlank]"
-        >
-          <template v-slot:no-data>
-            <v-list-item
-              link
-              target="_blank"
-              :to="{ name: 'administrator_users_new' }"
-            >
-              <v-list-item-content>
-                <v-list-item-title>
-                  Нажмите что бы добавить нового пользователя
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-        </s-users>
+          v-model="group.responsible"
+          :label="$tc('Responsible group')"
+          :rules="[]"
+        />
       </v-col>
     </v-row>
 
@@ -86,7 +70,7 @@
           :disabled="buttonSave.disabled"
           @click="onSave"
         >
-          {{ $tc('add_group') }}
+          {{ $tc('Save') }}
         </v-btn>
       </v-col>
     </v-row>
@@ -96,15 +80,27 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Groups, { GroupOrganizationInterface, GroupResponsibleInterface } from '@/api/Groups'
 import rules from '@/mixins/rules'
-import { Groups } from '@/api/Groups'
-import { UserInterface } from '@/api/Users'
-import { OrganizationInterface } from '@/api/Organizations'
-import SUsers from '@/snippets/SUsers/SUsers.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
+import SUsers from '@/snippets/SUsers/SUsers.vue'
+import VInterface from '@/VInterface'
+import Vue, { VueConstructor } from 'vue'
 
-export default Vue.extend({
+interface IRef {
+  [key: string]: any;
+}
+
+interface IData {
+  [key: string]: any
+}
+
+interface VInnerInterface extends VInterface {
+  $data: IData;
+  $refs: IRef;
+}
+
+export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     SOrganizationsAutocomplete,
     SUsers
@@ -121,14 +117,17 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      organizationSelected: {} as unknown as OrganizationInterface,
-      userSelected: {} as unknown as UserInterface,
-      groupName: ''
+
+      group: {
+        name: null,
+        organization: null as unknown as GroupOrganizationInterface,
+        responsible: null as unknown as GroupResponsibleInterface
+      }
     }
   },
 
   watch: {
-    organizationSelected (val: OrganizationInterface) {
+    'group.organization' (val: GroupOrganizationInterface) {
       if (val) {
         this.$refs.sUsers.focus()
         this.$refs.sUsers.fetchData({ organization_id: val.id })
@@ -148,16 +147,25 @@ export default Vue.extend({
       }
       this.buttonSave.loading = true
 
-      const postData = {
-        name: this.groupName.trim(),
-        team_leader_id: this.userSelected ? this.userSelected.id : 0,
-        organization_id: this.organizationSelected ? this.organizationSelected.id : 0
+      const request = {
+        name: this.group.name
+      } as any
+
+      if (this.assertObjectHasAttribute(this.group.organization, 'id')) {
+        request.organization_id = this.group.organization.id
+      }
+
+      if (this.assertObjectHasAttribute(this.group.responsible, 'id')) {
+        request.responsible_id = this.group.responsible.id
       }
 
       new Groups()
-        .add(postData)
-        .then(() => {
-          this.resetForm()
+        .add(request)
+        .then((id: number) => {
+          this.$router.replace({
+            name: 'administrator_groups_edit',
+            params: { id }
+          })
           this.$toast.success(this.$tc('Group added successfully'))
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
@@ -165,7 +173,7 @@ export default Vue.extend({
               this.$toast.warning(e.message)
             })
           }
-          this.$toast.error(e.statusText || e.error_message || 'undefined')
+          this.$toast.error(e.message)
         }).finally(() => {
           this.buttonSave.loading = false
         })

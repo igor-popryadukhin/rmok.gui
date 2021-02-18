@@ -19,7 +19,7 @@ export const profile = {
       last_name: '',
       login: '',
       middle_name: '',
-      super_admin: false,
+      is_super_admin: false,
       role: {
         permissions: [],
         id: '',
@@ -53,7 +53,7 @@ export const profile = {
       state.last_name = payload.last_name
       state.middle_name = payload.middle_name
       state.role = payload.role
-      state.super_admin = payload.super_admin
+      state.is_super_admin = payload.is_super_admin
       state.userpic = payload.userpic
       state.created_at = payload.created_at
       state.organization = payload.organization
@@ -104,6 +104,6 @@ export const profile = {
     status (state: StateInterface) { return state.status },
     organization (state: StateInterface) { return state.organization },
     permissions (state: StateInterface): string[] { return state.role.permissions },
-    super_admin (state: StateInterface): boolean { return state.super_admin }
+    is_super_admin (state: StateInterface): boolean { return state.is_super_admin }
   }
 }

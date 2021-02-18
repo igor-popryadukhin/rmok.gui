@@ -70,7 +70,7 @@
               <tr class="v-datatable-item">
                 <td class="text-no-wrap">{{ item.name || $tc('No name') }}</td>
                 <td class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>
-                <td class="text-no-wrap">{{ item.team_leader ? `${item.team_leader.first_name} ${item.team_leader.last_name}` : '—' }}</td>
+                <td class="text-no-wrap">{{ item.responsible ? `${item.responsible.first_name} ${item.responsible.last_name}` : '—' }}</td>
                 <td class="text-no-wrap text-right">
                   <v-btn
                     icon
@@ -185,7 +185,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         headers: [
           { text: 'Имя', align: 'start', sortable: false, value: 'name', width: 'auto' },
           { text: 'Организация', align: 'start', sortable: false, value: 'organization' },
-          { text: 'Ответственный', align: 'start', sortable: false, value: 'team_leader' },
+          { text: 'Ответственный', align: 'start', sortable: false, value: 'responsible' },
           { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
         ],
         items: [] as GroupInterface[]

@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <v-form
       ref="form"
       lazy-validation
@@ -20,7 +19,7 @@
                 >
                   <v-text-field
                     v-model="projectName"
-                    :label="$tc('project_name')"
+                    :label="$tc('Project name')"
                     persistent-hint
                     required
                     :rules="[rules.notBlank]"
@@ -30,7 +29,7 @@
               </v-row>
             </v-card-text>
             <v-card-text
-              v-if="$store.getters['profile/role_is_admin']"
+              v-if="$permission.isSuperAdmin"
               class="pt-0"
             >
               <v-row>
@@ -40,7 +39,7 @@
                   lg="6"
                 >
                   <s-organizations-autocomplete
-                    ref="sOrganizations"
+                    ref="sOrganizationsAutocomplete"
                     v-model="organizationSelected"
                     :label="$tc('Organization')"
                     :rules="[rules.notBlank]"
@@ -56,10 +55,9 @@
 
     <!-- Users -->
     <v-row>
-      <v-col>
+      <v-col class="py-0">
         <v-row>
           <v-col
-            class="py-0"
             cols="12"
             md="6"
             lg="6"
@@ -342,7 +340,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
   watch: {
     'availableQ' (q: string) {
-      findAvailableUsers({ q, roles: 'r_operator' }, this)
+      findAvailableUsers({ q }, this)
     }
   },
 
@@ -351,8 +349,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   mounted () {
-    if (this.$store.getters['profile/role_is_admin']) {
-      this.$refs.sOrganizations.fetchData()
+    if (this.$permission.isSuperAdmin) {
+      if (this.assertObjectHasAttribute(this.$refs, 'sOrganizationsAutocomplete')) {
+        this.$refs.sOrganizationsAutocomplete.fetchData()
+      }
     }
   },
 

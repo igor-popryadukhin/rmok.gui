@@ -21,7 +21,7 @@ Vue.mixin(Vue.extend({
 
   methods: {
     assertObjectHasAttribute (obj: any, key: string): boolean {
-      if (obj === null) { return false }
+      if (obj === null || obj === undefined) { return false }
       return {}.hasOwnProperty.call(obj, key)
     }
   }

@@ -14,8 +14,8 @@
         <!-- eslint-disable -->
         <v-text-field
           ref="groupName"
-          v-model="groupName"
-          :label="$tc('group_name')"
+          v-model="group.name"
+          :label="$tc('Group name')"
           :rules="[rules.notBlank]"
           persistent-hint
           @keydown.enter="$refs.sOrganizations.focus"
@@ -32,8 +32,8 @@
         lg="6"
       >
         <s-organizations-autocomplete
-          ref="sOrganizations"
-          v-model="organizationSelected"
+          ref="sOrganizationsAutocomplete"
+          v-model="group.organization"
           :label="$tc('organization')"
           :rules="[rules.notBlank]"
           disabled
@@ -50,11 +50,10 @@
       >
         <s-users
           ref="sUsers"
-          v-model="userSelected"
-          :label="$tc('team_leader')"
-          :disabled="!organizationSelected"
-          :params="{ roles: 'r_team_leader' }"
-          :rules="[rules.notBlank]"
+          v-model="group.responsible"
+          :label="$tc('Responsible group')"
+          :disabled="!group.organization"
+          :rules="[]"
         />
       </v-col>
     </v-row>
@@ -93,17 +92,29 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import VInterface from '@/VInterface'
+import Vue, { VueConstructor } from 'vue'
 import rules from '@/mixins/rules'
-import Groups, { GroupInterface } from '@/api/Groups'
-import { UserInterface } from '@/api/Users'
-import { OrganizationInterface } from '@/api/Organizations'
+import Groups, { GroupInterface, GroupOrganizationInterface, GroupResponsibleInterface } from '@/api/Groups'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import APIError from '@/api/classes/APIError'
 
-export default Vue.extend({
+interface IRef {
+  [key: string]: any;
+}
+
+interface IData {
+  [key: string]: any
+}
+
+interface VInnerInterface extends VInterface {
+  $data: IData;
+  $refs: IRef;
+}
+
+export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     SOrganizationsAutocomplete,
     SUsers
@@ -124,9 +135,12 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      organizationSelected: {} as unknown as OrganizationInterface,
-      userSelected: {} as unknown as UserInterface,
-      groupName: ''
+
+      group: {
+        name: null,
+        organization: null as unknown as GroupOrganizationInterface,
+        responsible: null as unknown as GroupResponsibleInterface
+      }
     }
   },
 
@@ -135,19 +149,22 @@ export default Vue.extend({
       .getById(+to.params.id)
       .then(async (response: GroupInterface) => {
         next(vm => {
-          vm.groupId = response.id
-          vm.groupName = response.name
-          vm.organizationSelected = response.organization
-          vm.userSelected = response.team_leader
+          vm.group.name = response.name
 
           // vm.$watch('organizationName', vm.onChanged)
 
           // Устанавливаю текущие данные в компонент
-          vm.$refs.sOrganizations.pushData(response.organization)
-          vm.$refs.sOrganizations.setSelected(response.organization)
+          if (vm.assertObjectHasAttribute(vm.$refs, 'sOrganizationsAutocomplete')) {
+            if (vm.assertObjectHasAttribute(response.organization, 'id')) {
+              vm.$refs.sOrganizationsAutocomplete.setDefault(response.organization?.id)
+            }
+          }
 
-          vm.$refs.sUsers.pushData(response.team_leader)
-          vm.$refs.sUsers.setSelected(response.team_leader)
+          if (vm.assertObjectHasAttribute(vm.$refs, 'sUsers')) {
+            if (vm.assertObjectHasAttribute(response.responsible, 'id')) {
+              vm.$refs.sUsers.setDefault(response.responsible?.id)
+            }
+          }
         })
       }).catch(() => {
         next({
@@ -201,8 +218,12 @@ export default Vue.extend({
       this.buttonSave.loading = true
 
       const putData = {
-        name: this.groupName.trim(),
-        team_leader_id: this.userSelected ? this.userSelected.id : 0
+        name: this.group.name,
+        responsible_id: this.userSelected ? this.userSelected.id : 0
+      }
+
+      if (this.assertObjectHasAttribute(this.group.responsible, 'id')) {
+        putData.responsible_id = this.group.responsible.id
       }
 
       new Groups()
@@ -215,7 +236,7 @@ export default Vue.extend({
               this.$toast.warning(e.message)
             })
           }
-          this.$toast.error(e.statusText || e.error_message || 'undefined')
+          this.$toast.error(e.message)
         }).finally(() => {
           this.buttonSave.loading = false
         })

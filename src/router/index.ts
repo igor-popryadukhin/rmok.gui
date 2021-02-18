@@ -447,7 +447,7 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isSuperAdmin()) {
+          if ($permission.isSuperAdmin) {
             next()
           } else {
             next({ name: 'access_denied' })
@@ -579,12 +579,6 @@ const routes: RouteConfig[] = [
                 path: 'telephony',
                 name: 'administrator_users_edit_telephony',
                 component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Telephony.vue'),
-                meta: { layout: 'administrator', middleware: [secure] }
-              },
-              {
-                path: 'permissions',
-                name: 'administrator_users_edit_permissions',
-                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Permissions.vue'),
                 meta: { layout: 'administrator', middleware: [secure] }
               }
             ],

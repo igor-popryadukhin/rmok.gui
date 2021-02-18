@@ -278,7 +278,7 @@ export default Vue.extend({
         {
           title: 'Contacts',
           icon: 'mdi-contacts',
-          visible: this.$permission.isGranted(['section.contact']),
+          visible: this.$permission.isGranted(['section.contacts']),
           list_item: {
             to: {
               name: 'administrator_contacts'
@@ -308,7 +308,7 @@ export default Vue.extend({
         {
           title: 'Roles',
           icon: 'mdi-account-tie',
-          visible: this.$permission.isSuperAdmin(),
+          visible: this.$permission.isSuperAdmin,
           list_item: {
             to: {
               name: 'administrator_roles_list'
@@ -394,7 +394,7 @@ export default Vue.extend({
             {
               title: 'For developer',
               icon: 'mdi-flask',
-              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/super_admin'],
+              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/is_super_admin'],
               attrs: {
                 to: {
                   name: 'administrator_for_developer'

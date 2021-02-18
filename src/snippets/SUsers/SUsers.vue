@@ -159,7 +159,7 @@ export default Vue.extend({
 
   watch: {
     q (q: string) {
-      this.fetchData(Object.assign({}, this.params, { q }))
+      this.fetchData({ q })
     },
 
     selected (value) {
@@ -183,7 +183,8 @@ export default Vue.extend({
     },
 
     fetchData (params = {}) {
-      search(this, Object.assign({}, this.params, params))
+      this.dParams = Object.assign({}, this.dParams, params)
+      search(this, this.dParams)
     },
 
     setSelected (data: UserInterface) {

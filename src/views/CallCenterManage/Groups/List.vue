@@ -46,8 +46,8 @@
                   <v-list-item-title>
                     {{ item.name }}
                   </v-list-item-title>
-                  <v-list-item-subtitle v-if="item.team_leader">
-                    {{ item.team_leader.first_name }} {{ item.team_leader.last_name }}
+                  <v-list-item-subtitle v-if="item.responsible">
+                    {{ item.responsible.first_name }} {{ item.responsible.last_name }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
 

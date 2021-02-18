@@ -174,7 +174,7 @@
     <v-row>
       <v-col class="pt-0">
         <v-card flat tile outlined>
-          <v-card-text>
+          <v-card-text class="text-right">
             <v-btn
               text
               tile

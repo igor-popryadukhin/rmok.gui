@@ -9,6 +9,10 @@ enum StrategyEnum {
 }
 
 export class Permission {
+  get isSuperAdmin (): boolean {
+    return this._isSuperAdmin
+  }
+
   private _permissions: string[];
   private _isSuperAdmin: boolean;
 
@@ -39,10 +43,6 @@ export class Permission {
     }
   }
 
-  public isSuperAdmin (): boolean {
-    return this._isSuperAdmin
-  }
-
   private isAffirmative (attribute: string[]): boolean {
     for (let i = 0; i < attribute.length; i++) {
       if (this._permissions.includes(attribute[i])) {
@@ -53,14 +53,14 @@ export class Permission {
   }
 }
 
-const permission: Permission = new Permission(store.getters['profile/permissions'], store.getters['profile/super_admin'])
+const permission: Permission = new Permission(store.getters['profile/permissions'], store.getters['profile/is_super_admin'])
 
 class PermissionPlugin {
   public install () {
     Object.defineProperties(Vue.prototype, {
       $permission: {
         get (): Permission {
-          $permission.initialize(store.getters['profile/permissions'], store.getters['profile/super_admin'])
+          $permission.initialize(store.getters['profile/permissions'], store.getters['profile/is_super_admin'])
           return permission
         }
       }
