@@ -31,7 +31,11 @@ export class Permission {
     this._isSuperAdmin = isSuperAdmin
   }
 
-  public isGranted (attribute: string[], strategy = StrategyEnum.AFFIRMATIVE): boolean {
+  public isGranted (attribute: string[] | string, strategy = StrategyEnum.AFFIRMATIVE): boolean {
+    if (this._isSuperAdmin) {
+      return true
+    }
+
     switch (strategy) {
       case StrategyEnum.AFFIRMATIVE: return this.isAffirmative(attribute)
       case StrategyEnum.PRIORITY: return this.isAffirmative(attribute)
@@ -43,12 +47,17 @@ export class Permission {
     }
   }
 
-  private isAffirmative (attribute: string[]): boolean {
-    for (let i = 0; i < attribute.length; i++) {
-      if (this._permissions.includes(attribute[i])) {
-        return true
+  private isAffirmative (attribute: string[] | string): boolean {
+    if (Array.isArray(attribute)) {
+      for (let i = 0; i < attribute.length; i++) {
+        if (this._permissions.includes(attribute[i])) {
+          return true
+        }
       }
+    } else {
+      return this._permissions.includes(attribute)
     }
+
     return false
   }
 }

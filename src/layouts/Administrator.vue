@@ -328,7 +328,7 @@ export default Vue.extend({
         {
           title: 'Statistic',
           icon: 'mdi-chart-arc',
-          visible: this.$permission.isGranted('section.statistics'),
+          visible: this.$permission.isGranted(['section.statistics']),
           list_item: {},
           active: false,
           children: [

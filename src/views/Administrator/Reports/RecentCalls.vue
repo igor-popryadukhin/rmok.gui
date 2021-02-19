@@ -623,6 +623,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.date = this.$route.query.date
       }
 
+      if (this.assertObjectHasAttribute(this.$route.query, 'owner_id')) {
+        params.owner_id = this.$route.query.owner_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
+        params.contact_created_at = this.$route.query.contact_created_at
+      }
+
       new Reports()
         .history<any, any>(params)
         .then((response) => {
