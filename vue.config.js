@@ -2,6 +2,9 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const package = require('./package.json')
+
 module.exports = {
   devServer: {
     host: '0.0.0.0',
@@ -42,6 +45,9 @@ module.exports = {
       .loader('@kazupon/vue-i18n-loader')
   },
   configureWebpack: config => {
+    config.output.filename = '[name].[contenthash].' + package.version + '.js'
+    config.output.chunkFilename = '[name].[contenthash].' + package.version + '.js'
+
     // remove the existing ForkTsCheckerWebpackPlugin
     config.plugins = config.plugins.filter(
       p => !(p instanceof ForkTsCheckerWebpackPlugin)

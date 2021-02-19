@@ -56,6 +56,7 @@
       <v-col class="py-0">
         <v-row>
           <v-col
+            class="pb-0"
             cols="12"
             md="6"
             lg="6"
@@ -167,7 +168,7 @@
             </v-card>
           </v-col>
           <v-col
-            class="py-0 pl-md-0 pl-lg-0 pl-xl-0"
+            class="pl-md-0 pl-lg-0 pl-xl-0"
             cols="12"
             md="6"
             lg="6"
@@ -244,7 +245,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row v-if="false">
       <v-col
         class="py-0"
         cols="6"
@@ -338,7 +339,7 @@
     <!-- Statuses -->
     <v-row>
       <v-col
-        class=""
+        class="py-0"
         cols="12"
       >
         <v-card tile outlined flat>
