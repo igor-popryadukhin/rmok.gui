@@ -1,4 +1,5 @@
 /* eslint-disable */
+import APIError from "@/api/classes/APIError";
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from './Schemas/ContactInterface'
@@ -34,9 +35,8 @@ export default class Leads {
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
           resolve(response.data)
-        } else {
-          reject(response.data)
         }
+        throw new APIError(response.data)
       }).catch(reject)
     })
   }

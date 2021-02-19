@@ -13,6 +13,11 @@ export default function (context: MiddlewareContextInterface) {
     if (context.to.name === 'login') {
       return context.next()
     }
+
+    if (context.to.name === 'home') {
+      return context.next()
+    }
+
     return context.next({ name: 'access_denied' })
   }
 }
