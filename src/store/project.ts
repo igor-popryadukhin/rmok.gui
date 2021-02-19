@@ -9,7 +9,7 @@ export const project = {
       /* eslint-disable */
       id: 0,
       name: '',
-      comment: '',
+      description: '',
       statuses: [] as StatusInterface[],
       created_at: 0
       /* eslint-enable */

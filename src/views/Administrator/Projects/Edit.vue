@@ -460,7 +460,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   watch: {
     'availableQ' (q: string) {
-      findAvailableUsers({ q, roles: 'r_operator' }, this)
+      findAvailableUsers({ q }, this)
     }
   },
 
@@ -486,7 +486,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   created () {
-    findAvailableUsers({ roles: 'r_operator' }, this)
+    findAvailableUsers({}, this)
   },
 
   methods: {

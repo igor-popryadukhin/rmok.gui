@@ -180,17 +180,10 @@
             :rules="[rules.phone_number]"
             required
           >
-            <template
-              v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-              v-slot:prepend
-            >
-              <v-icon class="pl-5 pr-9">mdi-phone</v-icon>
-            </template>
           </v-text-field>
         </v-col>
       </v-row>
 
-      <!-- Роль -->
       <v-row>
         <v-col
           cols="12"
@@ -198,49 +191,46 @@
           lg="4"
           xl="4"
         >
-          <s-roles
-            v-model="user.role"
-            :label="$tc('Role')"
-            visible-icon
-            :value="user.role ? user.role : null"
-            :rules="[rules.notBlank]"
-          />
-        </v-col>
-      </v-row>
+          <!-- Роль -->
+          <v-row>
+            <v-col>
+              <s-roles
+                v-model="user.role"
+                :label="$tc('Role')"
+                visible-icon
+                :value="user.role ? user.role : null"
+                :rules="[rules.notBlank]"
+              />
+            </v-col>
+          </v-row>
 
-      <!-- Организация -->
-      <v-row>
-        <v-col
-          cols="12"
-          md="4"
-          lg="4"
-          xl="4"
-        >
-          <s-organizations-autocomplete
-            ref="sOrganizations"
-            v-model="user.organization"
-            :label="$tc('organization')"
-            :disabled="assertObjectHasAttribute(user.organization, 'id')"
-            visible-icon
-          />
-        </v-col>
-      </v-row>
+          <!-- Организация -->
+          <v-row>
+            <v-col>
+              <s-organizations-autocomplete
+                ref="sOrganizations"
+                v-model="user.organization"
+                :label="$tc('organization')"
+                :disabled="assertObjectHasAttribute(user.organization, 'id')"
+                visible-icon
+              />
+            </v-col>
+          </v-row>
 
-      <v-row>
-        <v-col
-          cols="12"
-          md="4"
-          lg="4"
-          xl="4"
-        >
-          <s-projects-autocomplete
-            ref="sProjectsAutocomplete"
-            v-model="user.project"
-            :label="$tc('User current project')"
-            :params="sProjectsParams"
-            visible-icon
-            clearable
-          />
+          <!-- Группа -->
+          <v-row>
+            <v-col>
+              <s-groups
+                ref="sGroups"
+                v-model="user.group"
+                :label="$tc('Group')"
+                visible-icon
+                :disabled="!assertObjectHasAttribute(user.organization, 'id')"
+                :params="sGroupsParams"
+              >
+              </s-groups>
+            </v-col>
+          </v-row>
         </v-col>
         <v-col
           cols="12"
@@ -248,15 +238,44 @@
           lg="4"
           xl="4"
         >
-          <s-groups
-            ref="sGroups"
-            v-model="user.group"
-            :label="$tc('Group')"
-            visible-icon
-            :disabled="!assertObjectHasAttribute(user.organization, 'id')"
-            :params="sGroupsParams"
-          >
-          </s-groups>
+          <v-row>
+            <v-col>
+              <s-projects-autocomplete
+                :label="$tc('Available projects')"
+                @select="onAvailableProjectSelect"
+              />
+              <v-list v-if="user.projects.length > 0">
+                <template
+                  v-for="(item, index) in user.projects"
+                >
+                  <v-list-item
+                    :key="`v-list-item-${index}`"
+                    link
+                    dense
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>{{ item.name }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ item.description }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn
+                        text
+                        small
+                        @click.stop="user.projects.splice(index, 1)"
+                      >{{ $tc('Delete') }}</v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-divider :key="`v-divider-${index}`" />
+                </template>
+              </v-list>
+              <div
+                v-else
+                class="d-flex justify-center align-center"
+              >
+                <div>{{ $tc('User has no projects') }}</div>
+              </div>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
 
@@ -287,6 +306,7 @@
 </template>
 
 <script lang="ts">
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import Vue, { VueConstructor } from 'vue'
 import rules from '@/mixins/rules'
 import { UserInterface, Users } from '@/api/Users'
@@ -298,7 +318,6 @@ import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizations
 import { RoleInterface } from '@/api/Roles'
 import { ProjectInterface } from '@/api/Projects'
 import VInterface from '@/VInterface'
-import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import { isEmpty } from '@/Utils'
 
 interface IRefs {
@@ -343,6 +362,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         disabled: false,
         loading: false
       },
+
       user: {
         id: 0,
         first_name: '',
@@ -353,17 +373,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         password2: '',
         email: '',
         phone: '',
-        role: null as unknown as RoleInterface,
-        group: null as unknown as GroupInterface,
-        organization: null as unknown as OrganizationInterface,
-        project: null as unknown as ProjectInterface
+        role: {} as unknown as RoleInterface,
+        group: {} as unknown as GroupInterface,
+        organization: {} as unknown as OrganizationInterface,
+        project: {} as unknown as ProjectInterface,
+        projects: [] as ProjectInterface[]
       }
     }
   },
 
   beforeRouteEnter (to, from, next) {
     new Users()
-      .getById(+to.params.user_id)
+      .getById(+to.params.user_id, {
+        fields: 'projects,organization,role,group'
+      })
       .then((response: UserInterface) => {
         next(async (vm: VInnerInterface) => {
           const promises: Promise<any>[] = []
@@ -376,13 +399,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           vm.user.login = response.login
           vm.user.phone = response.phone
           vm.user.role = response.role
+          vm.user.projects = response.projects
 
           if (vm.assertObjectHasAttribute(response.group, 'id')) {
             promises.push(vm.$refs.sGroups.setDefault(response.group?.id))
-          }
-
-          if (vm.assertObjectHasAttribute(response.project, 'id')) {
-            promises.push(vm.$refs.sProjectsAutocomplete.setDefault(response.project?.id))
           }
 
           if (vm.assertObjectHasAttribute(response.organization, 'id')) {
@@ -390,7 +410,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
 
           // Делаем снимок, данных после выполнения всех обещаний
-          await Promise.all(promises).finally(() => (oldUser = Object.assign({}, vm.user)))
+          await Promise.all(promises).finally(() => (oldUser = JSON.stringify(vm.user)))
         })
       })
   },
@@ -398,7 +418,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   watch: {
     user: {
       handler (newData: any) {
-        if (JSON.stringify(newData) === JSON.stringify(oldUser)) {
+        if (JSON.stringify(newData) === oldUser) {
           this.isChanged = false
         } else {
           this.isChanged = true
@@ -448,41 +468,48 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       this.buttonSave.loading = true
 
       // Данные запроса
-      const requestData: any = {
+      const request: any = {
         first_name: this.user.first_name,
         last_name: this.user.last_name,
         middle_name: this.user.middle_name,
         login: this.user.login,
-        role: this.user.role?.id
+        role_id: this.user.role?.id
       }
 
       if (this.user.email) {
-        requestData.email = this.user.email
+        request.email = this.user.email
       }
 
       if (this.user.phone) {
-        requestData.phone = this.user.phone
+        request.phone = this.user.phone
       }
 
       if (this.assertObjectHasAttribute(this.user.project, 'id')) {
-        requestData.project_id = this.user.project.id
+        request.project_id = this.user.project.id
       }
 
       if (this.assertObjectHasAttribute(this.user.organization, 'id')) {
-        requestData.organization_id = this.user.organization.id
+        request.organization_id = this.user.organization.id
       }
 
       if (this.assertObjectHasAttribute(this.user.group, 'id')) {
-        requestData.group_id = this.user.group.id
+        request.group_id = this.user.group.id
       }
 
       if (this.user.password === this.user.password2 && !isEmpty(this.user.password)) {
-        requestData.password = this.user.password
+        request.password = this.user.password
+      }
+
+      // Проекты в которых пользователь будет учавствовать
+      if (this.user.projects.length > 0) {
+        request.projects = this.user.projects.map((e: ProjectInterface) => e.id)
+      } else {
+        request.projects = []
       }
 
       this.buttonSave.loading = true
       new Users()
-        .update(+this.$route.params.user_id, requestData)
+        .update(+this.$route.params.user_id, request)
         .then(() => {
           oldUser = Object.assign({}, this.user)
           this.isChanged = false
@@ -499,6 +526,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
+    },
+
+    onAvailableProjectSelect (project: ProjectInterface) {
+      if (this.user.projects.findIndex((e: ProjectInterface) => e.id === project.id) === -1) {
+        this.user.projects.push(project)
+      }
     },
 
     onBtnDeleteClick () {

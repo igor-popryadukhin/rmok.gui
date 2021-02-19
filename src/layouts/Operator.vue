@@ -840,7 +840,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
                   click: (e: NotificationInterface, i: number) => {
                     if (this.assertObjectHasAttribute(e.context, 'contact')) {
                       if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
-                        this.$router.push({
+                        this.$router.replace({
                           name: 'operator_leads_tasks',
                           params: { contact_id: e.context?.contact.id },
                           query: { task_id: e.context?.id }

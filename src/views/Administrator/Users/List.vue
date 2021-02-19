@@ -66,29 +66,6 @@
                 <td class="text-no-wrap">{{ item.middle_name || $tc('—') }}</td>
                 <td class="text-no-wrap">
                   {{ item.role ? item.role.name : '—' }}
-<!--                  <template v-if="item.role.id === 'r_operator'">-->
-<!--                    <v-icon-->
-<!--                      v-if="item.status === 'available'"-->
-<!--                      size="18"-->
-<!--                      color="green"-->
-<!--                    >-->
-<!--                      mdi-check-circle-outline-->
-<!--                    </v-icon>-->
-<!--                    <v-icon-->
-<!--                      v-if="item.status === 'do_not_disturb'"-->
-<!--                      size="18"-->
-<!--                      color="red"-->
-<!--                    >-->
-<!--                      mdi-do-not-disturb-->
-<!--                    </v-icon>-->
-<!--                    <v-icon-->
-<!--                      v-if="item.status === 'coffee_break'"-->
-<!--                      size="18"-->
-<!--                      color="blue"-->
-<!--                    >-->
-<!--                      mdi-pause-circle-outline-->
-<!--                    </v-icon>-->
-<!--                  </template>-->
                 </td>
                 <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>
                 <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>

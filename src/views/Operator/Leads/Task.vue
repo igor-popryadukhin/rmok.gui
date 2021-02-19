@@ -16,8 +16,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
   beforeRouteUpdate (to, from, next) {
     this.$refs.sTaskList.fetchData({
       contact_id: to.params.contact_id
-    }).catch(e => e)
-    next()
+    }).finally(() => {
+      next()
+    })
   },
 
   mounted () {
