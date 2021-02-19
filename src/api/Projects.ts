@@ -31,7 +31,7 @@ export interface StatusInterface {
 export interface ProjectInterface {
   id: number;
   name: string;
-  comment: string;
+  description: string;
   owner: ProjectOwnerInterface;
   organization?: ProjectOrganizationInterface;
   members: ProjectMemberInterface[];

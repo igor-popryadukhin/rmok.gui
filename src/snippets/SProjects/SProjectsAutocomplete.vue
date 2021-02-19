@@ -21,6 +21,7 @@
     no-filter
     persistent-hint
     @focus="onFocus"
+    @select="onSelect"
   >
     <template
       slot="item"

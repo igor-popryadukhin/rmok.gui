@@ -273,7 +273,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       default: () => ''
     },
 
-    onSave: Function as PropType<(scope: DTaskInterface) => boolean>,
+    onSave: {
+      type: Function as PropType<(scope: DTaskInterface) => boolean>,
+      default: undefined
+    },
 
     onCancel: {
       type: Function as PropType<() => void>,

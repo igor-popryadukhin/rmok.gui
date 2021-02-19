@@ -247,7 +247,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   methods: {
     vListItemStyleComputed (task: TaskInterface) {
-      const style = {}
+      const style: any = {}
 
       if (task.done) {
         style['text-decoration'] = 'line-through'
@@ -262,9 +262,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       if (item.contact) {
         this.$router.push({
           name: 'operator_leads_tasks',
-          params: { contact_id: item.contact.id },
-          query: { task_id: item.id }
-        }).catch(e => e)
+          params: { contact_id: item.contact.id } as any,
+          query: { task_id: String(item.id) }
+        })
       }
     },
 
@@ -411,25 +411,28 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     fetchData (params = {}) {
-      this.tasksLoading = true
+      return new Promise<void>((resolve, reject) => {
+        this.tasksLoading = true
 
-      const newParams = Object.assign({}, params)
+        const newParams: any = Object.assign({}, params)
 
-      if (this.assertObjectHasAttribute(this.$route.params, 'contact_id')) {
-        if (!this.assertObjectHasAttribute(newParams, 'contact_id')) {
-          newParams.contact_id = this.$route.params.contact_id
+        if (this.assertObjectHasAttribute(this.$route.params, 'contact_id')) {
+          if (!this.assertObjectHasAttribute(newParams, 'contact_id')) {
+            newParams.contact_id = this.$route.params.contact_id
+          }
         }
-      }
 
-      new Tasks()
-        .find<{ count: number; overdue_tasks: number }, TaskInterface[]>(newParams)
-        .then((response) => {
-          this.overdueTasks = response.meta.overdue_tasks
-          this.totalTasks = response.meta.count
-          this.tasks = response.data
-        }).finally(() => {
-          this.tasksLoading = false
-        })
+        new Tasks()
+          .find<{ count: number; overdue_tasks: number }, TaskInterface[]>(newParams)
+          .then((response) => {
+            resolve()
+            this.overdueTasks = Number(response.meta.overdue_tasks)
+            this.totalTasks = Number(response.meta.count)
+            this.tasks = response.data as TaskInterface[]
+          }).finally(() => {
+            this.tasksLoading = false
+          }).catch(reject)
+      })
     }
   }
 })

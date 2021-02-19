@@ -92,7 +92,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [secure]
         }
       },
       {
@@ -103,13 +103,13 @@ const routes: RouteConfig[] = [
             path: '',
             name: 'operator_calls',
             component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [secure] }
           }
         ],
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [secure]
         }
       },
       {
@@ -122,7 +122,7 @@ const routes: RouteConfig[] = [
             component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
             meta: {
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           },
           {
@@ -134,28 +134,28 @@ const routes: RouteConfig[] = [
                 path: 'script',
                 name: 'operator_leads_script',
                 component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'history',
                 name: 'operator_leads_history',
                 component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'tasks',
                 name: 'operator_leads_tasks',
                 component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [secure] }
               }
             ],
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [secure] }
           }
         ],
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [secure]
         }
       },
       {
@@ -169,11 +169,11 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           }
         ],
-        meta: { layout: 'operator-layout', middleware: [] }
+        meta: { layout: 'operator-layout', middleware: [secure] }
       },
       {
         path: 'contacts',
@@ -183,13 +183,13 @@ const routes: RouteConfig[] = [
             path: '',
             name: 'operator_contacts_list',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [secure] }
           },
           {
             path: 'new',
             name: 'operator_contacts_new',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
-            meta: { layout: 'operator-layout', middleware: [] },
+            meta: { layout: 'operator-layout', middleware: [secure] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
               store.dispatch('system/country_codes')
@@ -199,7 +199,7 @@ const routes: RouteConfig[] = [
             path: ':contact_id',
             name: 'operator_contacts_edit',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Edit.vue'),
-            meta: { layout: 'operator-layout', middleware: [] },
+            meta: { layout: 'operator-layout', middleware: [secure] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
               store.dispatch('system/country_codes')
@@ -215,22 +215,22 @@ const routes: RouteConfig[] = [
                 path: 'script',
                 name: 'contacts_script',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'history',
                 name: 'contacts_history',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'tasks',
                 name: 'contacts_task',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [] }
+                meta: { layout: 'operator-layout', middleware: [secure] }
               }
             ],
-            meta: { layout: 'operator-layout', middleware: [] }
+            meta: { layout: 'operator-layout', middleware: [secure] }
           }
         ],
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
@@ -240,7 +240,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'operator-layout',
-          middleware: []
+          middleware: [secure]
         }
       },
       {
@@ -254,13 +254,13 @@ const routes: RouteConfig[] = [
             meta: {
               anonymous: true,
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           }
         ],
         meta: {
           layout: 'operator-layout',
-          middleware: []
+          middleware: [secure]
         }
       },
       {
@@ -274,7 +274,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           },
           {
@@ -284,7 +284,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-history',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           },
           {
@@ -294,7 +294,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-security',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           },
           {
@@ -304,7 +304,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-webrtc',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           },
           {
@@ -314,7 +314,7 @@ const routes: RouteConfig[] = [
             meta: {
               icon: 'mdi-headset',
               layout: 'operator-layout',
-              middleware: []
+              middleware: [secure]
             }
           }
         ],
@@ -324,7 +324,7 @@ const routes: RouteConfig[] = [
         },
         meta: {
           layout: 'operator-layout',
-          middleware: []
+          middleware: [secure]
         }
       },
       {
@@ -333,14 +333,14 @@ const routes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "operator-help" */ '../views/Operator/Help/Index.vue'),
         meta: {
           layout: 'operator-layout',
-          middleware: []
+          middleware: [secure]
         }
       }
     ],
     meta: {
       anonymous: true,
       layout: 'operator-layout',
-      middleware: []
+      middleware: [secure]
     },
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
@@ -527,7 +527,7 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted(['contact.create', 'contact.view', 'contact.edit'])) {
+          if ($permission.isGranted(['section.contacts'])) {
             next()
           } else {
             next({ name: 'access_denied' })
@@ -810,22 +810,6 @@ export interface MiddlewareContextInterface {
 // const timer = new Timer()
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
-  // timer.reset()
-  // timer.start()
-  // if (app) {
-  //   if (to.name !== from.name) {
-  //     app.$root.$emit('root-loading-data-show')
-  //   }
-  // }
-
-  if (to.path === '/') {
-    if (store.getters['profile/role_is_operator']) {
-      return next('/operator')
-    }
-
-    return next({ name: 'administrator' })
-  }
-
   if (!to.meta.middleware) {
     return next()
   }

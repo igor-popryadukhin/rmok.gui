@@ -345,7 +345,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   created () {
-    findAvailableUsers({ roles: 'r_operator' }, this)
+    findAvailableUsers({}, this)
   },
 
   mounted () {

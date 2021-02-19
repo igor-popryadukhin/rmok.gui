@@ -579,7 +579,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
     fetchUsers () {
       new Users()
         .find({
-          roles: 'r_operator',
           count: 1000
         })
         .then((response) => {

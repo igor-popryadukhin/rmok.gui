@@ -26,6 +26,7 @@ export interface UserInterface {
   group?: GroupInterface;
   organization?: UserOrganizationInterface;
   project?: ProjectInterface;
+  projects?: ProjectInterface[];
   pbx_config?: PBXInterface;
 }
 

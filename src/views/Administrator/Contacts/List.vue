@@ -154,7 +154,6 @@
             ref="sUsersAutocomplete"
             v-model="filter.responsible"
             :label="$tc('Responsible')"
-            :params="{ roles: 'r_operator' }"
             clearable
             outlined
             dense
