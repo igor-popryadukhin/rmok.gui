@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  DOCKER_HOST: tcp://docker:2375
+  DOCKER_HOST: ssh://gitlab-runner@194.67.91.197
 
 services:
   - docker:dind
@@ -12,6 +12,11 @@ build:
   image: docker:latest
   stage: build
   before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
     - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
   script:
     - cat $ENV_DEV >> ./.env
