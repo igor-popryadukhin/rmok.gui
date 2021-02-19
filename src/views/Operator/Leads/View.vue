@@ -304,7 +304,6 @@ import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import '@/plugins/libphonenumber-js'
 import { MainSearchMethod } from '@/Interfaces'
 import Leads from '@/api/Leads'
-import vueScrollOptions from '@/mixins/vueScrollOptions'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 import VInterface from '@/VInterface'
 
@@ -316,7 +315,7 @@ interface TabInterface {
 }
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  mixins: [lvovich, vueScrollOptions],
+  mixins: [lvovich],
 
   data () {
     return {
@@ -425,15 +424,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   created () {
-    this.vueScrollOptions.scrollPanel.speed = 1
-    this.vueScrollOptions.vuescroll.wheelScrollDuration = 350
-    const contacts: Contacts = new Contacts()
-
     this.dataLoading = true
-    contacts
+    new Contacts()
       .getById(+this.$route.params.contact_id)
       .then((contact: ContactInterface) => {
-        // this.$route.title = `${contact.first_name} ${contact.last_name}`
         this.contact = contact
       }).finally(() => {
         this.dataLoading = false

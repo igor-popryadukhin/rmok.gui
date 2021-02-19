@@ -406,9 +406,11 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
     }
   },
 
-  mounted() {
+  mounted () {
     this.$root.$on('root-main-search', this.onRootMainSearch)
     this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
+    this.$root.$on('root-load-leads', this.loadLeads)
+    this.$root.$on('root-load-tasks', this.onRootLoadTasks)
 
     // Загружаю задачи
     this.$refs.sTaskList.fetchData()
@@ -432,6 +434,8 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
   beforeDestroy() {
     this.$root.$off('root-main-search', this.onRootMainSearch)
     this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+    this.$root.$off('root-load-leads', this.loadLeads)
+    this.$root.$off('root-load-tasks', this.onRootLoadTasks)
   },
 
   methods: {
@@ -475,7 +479,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
       })
     },
 
-    /* eslint-disable */
     /**
      * Occurs when a contact list item is clicked
      * @param contact
@@ -509,36 +512,10 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
           // })
         })
     },
-    /* eslint-enable */
 
-    onItemDeleteClick (id: number) {
-      this.$dialog.confirm({
-        text: this.$tc('contact_delete_selected_confirm'),
-        title: this.$tc('caution'),
-        actions: {
-          false: this.$tc('no'),
-          true: {
-            color: 'red',
-            text: this.$tc('yes'),
-            handle: () => {
-              return new Promise((resolve) => {
-                new Contacts().delete(id)
-                  .then(() => {
-                    this.leads = this.leads.filter((e) => e.id !== id)
-                    this.$toast.success(this.$t('contact_delete_successfully'), { icon: true })
-                  }).catch((e) => {
-                    const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
-                    this.$toast.error(this.$t('contact_delete_error', { cause }), { icon: true })
-                  })
-
-                resolve()
-              })
-            }
-          }
-        }
-      })
-    },
-
+    /**
+     * Загружает список лидов
+     */
     loadLeads () {
       const query: ContactSearchQueryInterface = {
         q: this.$routerQuery.getQuery('q', ''),
@@ -565,28 +542,16 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
         .get<{ count: number }, ContactInterface[]>(query)
         .then((response) => {
           this.leadsCount = response.meta.count
-          response.data.forEach<ContactInterface>((contact) => {
-            if (this.leads.findIndex<ContactInterface>((c) => c.id === contact.id) === -1) {
-              this.leads.push(contact)
-            }
-          })
-        }).catch((e: ErrorInterface | any) => {
-          if (e.error_code) {
-            switch (e.error_code) {
-              case 'no_project': {
-                this.$toast.warning(e.error_message)
-                break
-              }
-              default: {
-                this.$toast.error(e.error_message)
-              }
-            }
-          } else {
-            this.$toast.error(e.statusText || 'undefined')
-          }
+          this.leads = response.data
+        }).catch((e: Error) => {
+          this.$toast.error(e.message)
         }).finally(() => {
           this.leadsLoading = false
         })
+    },
+
+    onRootLoadTasks () {
+      this.$refs.sTaskList.fetchData()
     }
   }
 })

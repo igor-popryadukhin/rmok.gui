@@ -132,7 +132,7 @@ export default Vue.extend({
             await this.$store.dispatch('project/load')
 
             // Если авторизовался оператор
-            this.$router.replace({ name: 'operator_home' })
+            this.$router.replace({ name: 'operator_leads' })
               .finally(() => {
                 this.$root.$emit('root-jssip-set-configuration')
                 this.$root.$emit('root-loading-projects')

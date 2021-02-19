@@ -659,19 +659,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           this.$root.$emit('root-main-search-selected', value)
         }
       }
-    },
-
-    'projectDialog.projects': {
-      handler (projects: ProjectInterface[] | any) {
-        if (!Array.isArray(projects)) {
-          return
-        }
-        if (projects.length === 0) {
-          return
-        }
-
-        this.projectDialog.visible = true
-      }
     }
   },
 
@@ -897,6 +884,9 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
         }).finally(() => {
           item.loading = false
           this.projectDialog.disabled = false
+
+          this.$root.$emit('root-load-leads')
+          this.$root.$emit('root-load-tasks')
         })
     },
 
@@ -909,7 +899,12 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           this.projectDialog.projects = response.data.map((e: any) => {
             e.loading = false
             return e
-          }) || []
+          })
+
+          // Показать диалог выбора проекта, если таковые имеются
+          if (this.projectDialog.projects.length > 0) {
+            this.projectDialog.visible = true
+          }
         })
     },
 
