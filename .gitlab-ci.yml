@@ -2,13 +2,8 @@ stages:
   - build
   - deploy
 
-services:
-  - docker:dind
-
 build:
   image: docker:latest
-  variables:
-    DOCKER_HOST: ssh://gitlab-runner@194.67.91.197
   stage: build
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
@@ -16,27 +11,25 @@ build:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ls -la
-    - docker version
-    - docker ps
-    - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
   script:
     - cat $ENV_DEV >> ./.env
-    - docker build -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID .
-    - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID
+    - npm ci
   only:
     - develop
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - dist
 
 
 deploy:
+  image: alpine
   stage: deploy
-  image: docker:latest
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-  before_script:
-    - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
   script:
-    - docker stop $CI_PROJECT_NAME || true
-    - docker run -p 3000:80 --rm -d --name $CI_PROJECT_NAME $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID
-  only:
-    - develop
+    - apk add --no-cache rsync openssh
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_dsa
+    - chmod 600 ~/.ssh/id_dsa
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - rsync -rav --delete dist/ gitlab-runner@194.67.91.197:/test
+
