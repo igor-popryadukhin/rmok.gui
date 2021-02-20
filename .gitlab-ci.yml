@@ -3,7 +3,7 @@ stages:
   - deploy
 
 build:
-  image: node:14-alpine
+  image: node:latest
   stage: build
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
