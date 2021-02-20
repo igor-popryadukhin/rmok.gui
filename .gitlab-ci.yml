@@ -3,7 +3,7 @@ stages:
   - deploy
 
 build:
-  image: docker:latest
+  image: node:14-alpine
   stage: build
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
@@ -13,6 +13,7 @@ build:
     - chmod 700 ~/.ssh
   script:
     - cat $ENV_DEV >> ./.env
+    - npm install --progress=false
     - npm ci
   only:
     - develop
