@@ -16,6 +16,7 @@ build:
     - chmod 700 ~/.ssh
     - ls -la
     - docker -H ssh://gitlab-runner@194.67.91.197 version
+    - docker -H ssh://gitlab-runner@194.67.91.197 ps
     - docker -H ssh://gitlab-runner@194.67.91.197 login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
   script:
     - cat $ENV_DEV >> ./.env
