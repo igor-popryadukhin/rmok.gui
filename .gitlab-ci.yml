@@ -17,6 +17,8 @@ build:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
+    - ls -la
+    - docker version
     - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
   script:
     - cat $ENV_DEV >> ./.env
