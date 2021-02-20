@@ -33,11 +33,10 @@ deploy:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
   script:
-    - rsync -rav --delete dist/ gitlab-runner@194.67.91.197:/test
+    - rsync -rav --delete dist/ gitlab-runner@194.67.91.197:/var/www/www-root/data/www/rmok.online
   only:
     - develop
   artifacts:
-    expire_in: 1 week
     paths:
       - dist
 
