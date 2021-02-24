@@ -2,34 +2,41 @@ stages:
   - build
   - deploy
 
-variables:
-  DOCKER_HOST: $DOCKER_HOST
-
-services:
-  - docker:dind
-
 build:
-  image: docker:latest
+  image: node:latest
   stage: build
   before_script:
-    - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
   script:
     - cat $ENV_DEV >> ./.env
-    - docker build -t $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID .
-    - docker push $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID
+    - npm install --progress=false
+    - npm ci
   only:
     - develop
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - dist
 
 
 deploy:
+  image: node:latest
   stage: deploy
-  image: docker:latest
-  variables:
-    DOCKER_HOST: $DOCKER_HOST
   before_script:
-    - docker login -u $GITLAB_USER_LOGIN -p $REGISTRY_TOKEN $CI_REGISTRY
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
   script:
-    - docker stop $CI_PROJECT_NAME || true
-    - docker run -p 3000:80 --rm -d --name $CI_PROJECT_NAME $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:app.$CI_PIPELINE_ID
+    - rsync -rav --delete dist/ gitlab-runner@194.67.91.197:/var/www/www-root/data/www/rmok.online
   only:
     - develop
+  artifacts:
+    paths:
+      - dist
+
