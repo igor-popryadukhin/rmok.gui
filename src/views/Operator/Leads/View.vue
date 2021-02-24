@@ -12,20 +12,20 @@
         tile
         outlined
       >
+        <v-card-title class="mb-2">
+<!--          <v-avatar color="primary">-->
+<!--            <span style="filter: invert(100%);">-->
+<!--              {{ avatar }}-->
+<!--            </span>-->
+<!--          </v-avatar>-->
+          <template v-if="dataLoading">
+            {{ $t('Loading content...') }}
+          </template>
+          <template v-else>
+            {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
+          </template>
+        </v-card-title>
         <v-card-text>
-          <v-app-bar
-            color="white"
-            class="pa-0"
-            elevation="0"
-          >
-            <v-app-bar-nav-icon class="primary white--text" style="font-size: 20px">
-              {{ avatar }}
-            </v-app-bar-nav-icon>
-            <v-toolbar-title>
-              {{ contact.first_name }} {{ contact.last_name }}
-            </v-toolbar-title>
-            <v-spacer/>
-          </v-app-bar>
           <v-row v-if="contact.default_phone">
             <v-col class="d-flex justify-space-between">
               <div>{{ contact.default_phone.international }}</div>
