@@ -45,9 +45,6 @@ module.exports = {
       .loader('@kazupon/vue-i18n-loader')
   },
   configureWebpack: config => {
-    config.output.filename = '[name].[contenthash].' + package.version + '.js'
-    config.output.chunkFilename = '[name].[contenthash].' + package.version + '.js'
-
     // remove the existing ForkTsCheckerWebpackPlugin
     config.plugins = config.plugins.filter(
       p => !(p instanceof ForkTsCheckerWebpackPlugin)
