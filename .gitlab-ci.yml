@@ -31,7 +31,7 @@ deploy:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - ssh-keyscan 194.58.104.82 >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
     #- cat "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
