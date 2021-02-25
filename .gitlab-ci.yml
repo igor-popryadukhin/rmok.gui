@@ -36,7 +36,7 @@ deploy:
     - chmod 644 ~/.ssh/known_hosts
     - echo $SSH_OPEN_KEY >> ~/.ssh/authorized_keys
   script:
-    - rsync -rav --delete ./dist gitlab-runner@194.58.104.82:/home/gitlab-runner/test
+    - rsync -rav --delete ./dist/* gitlab-runner@194.58.104.82:/var/www/www-root/data/www/rmok.online
   only:
     - develop
   artifacts:
