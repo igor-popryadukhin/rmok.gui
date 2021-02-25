@@ -81,83 +81,120 @@
     <v-row>
       <v-col>
         <v-card outlined>
-          <v-card-text class="d-flex justify-lg-space-between">
-            <v-combobox
-              v-model="usersSelected"
-              :items="users"
-              item-value="id"
-              :label="$tc('Users')"
-              :disabled="(users || []).length === 0"
-              clearable
-              return-object
-              dense
-              outlined
-              style="max-width: 350px"
-            >
-              <template v-slot:item="scope">
-                <v-list-item v-on="scope.on">
-                  <v-list-item-title>
-                    {{ scope.item.first_name }} {{ scope.item.last_name }}
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
-              <template v-slot:selection="{ item }">
-                {{ item.first_name }} {{ item.last_name }}
-              </template>
-            </v-combobox>
-            <v-spacer />
-            <v-menu
-              ref="menuContactDateCreated"
-              v-model="menuContactDateCreated"
-              :close-on-content-click="false"
-              :return-value.sync="contactDateCreated"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  v-model="contactDateCreated"
-                  :label="$tc('Date the contact was created')"
-                  prepend-inner-icon="mdi-calendar"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                  outlined
-                  dense
-                  style="max-width: 350px"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                v-model="contactDateCreated"
-                scrollable
-                no-title
-                locale="ru"
+          <v-card-text class="">
+            <v-row>
+              <v-col
+                class="py-0"
+                md="4"
+                lg="4"
+                sm="12"
+                xs="12"
               >
-                <v-spacer></v-spacer>
-                <v-btn
-                  text
-                  color="red"
-                  @click="onSaveContactDateCreatedClick(null)"
+                <v-combobox
+                  v-model="usersSelected"
+                  :items="users"
+                  item-value="id"
+                  :label="$tc('Users')"
+                  :disabled="(users || []).length === 0"
+                  clearable
+                  return-object
+                  dense
+                  outlined
                 >
-                  {{ $tc('Clear') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="menuContactDateCreated = false"
+                  <template v-slot:item="scope">
+                    <v-list-item v-on="scope.on">
+                      <v-list-item-title>
+                        {{ scope.item.first_name }} {{ scope.item.last_name }}
+                      </v-list-item-title>
+                    </v-list-item>
+                  </template>
+                  <template v-slot:selection="{ item }">
+                    {{ item.first_name }} {{ item.last_name }}
+                  </template>
+                </v-combobox>
+              </v-col>
+              <v-col
+                class="py-0"
+                md="4"
+                lg="4"
+                sm="12"
+                xs="12"
+              >
+                <v-combobox
+                  v-model="filter.status.selected"
+                  :items="filter.status.items"
+                  :label="$tc('Фильтр по результату')"
+                  item-text="status_result"
+                  item-value="status_id"
+                  cache-items
+                  return-object
+                  clearable
+                  dense
+                  outlined
+                  v-on="filter.status.on"
                 >
-                  {{ $tc('Cancel') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="onSaveContactDateCreatedClick(contactDateCreated)"
+                </v-combobox>
+              </v-col>
+              <v-col
+                class="py-0"
+                md="4"
+                lg="4"
+                sm="12"
+                xs="12"
+              >
+                <v-menu
+                  ref="menuContactDateCreated"
+                  v-model="menuContactDateCreated"
+                  :close-on-content-click="false"
+                  :return-value.sync="contactDateCreated"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
                 >
-                  OK
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="contactDateCreated"
+                      :label="$tc('Date the contact was created')"
+                      prepend-inner-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="contactDateCreated"
+                    scrollable
+                    no-title
+                    locale="ru"
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="red"
+                      @click="onSaveContactDateCreatedClick(null)"
+                    >
+                      {{ $tc('Clear') }}
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menuContactDateCreated = false"
+                    >
+                      {{ $tc('Cancel') }}
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="onSaveContactDateCreatedClick(contactDateCreated)"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
@@ -398,9 +435,32 @@ export default (Vue as VueConstructor<VInterface>).extend({
       pieLabels: [] as string[],
       pieSeries: [] as number[],
       pieColors: [] as string[],
+      pieData: [] as any[],
 
       usersSelected: null as UserInterface | null,
       users: [] as unknown as UserInterface[],
+
+      filter: {
+        status: {
+          selected: null,
+          items: [],
+          on: {
+            input: (scope: any) => {
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                this.$routerQuery.setQuery({ status_id: scope.status_id })
+                this.fetchDataPie()
+                this.fetchDataHistory()
+              } else {
+                this.$routerQuery.removeQuery(['status_id'])
+                  .finally(() => {
+                    this.fetchDataPie()
+                    this.fetchDataHistory()
+                  })
+              }
+            }
+          }
+        }
+      },
 
       // Data table
       dataTableHistory: {
@@ -539,9 +599,34 @@ export default (Vue as VueConstructor<VInterface>).extend({
   computed: {
     apexchartOptions (): any {
       return {
+        chart: {
+          events: {
+            legendClick: (chartContext: any, seriesIndex: any, config: any) => {
+              const scope: any = this.pieData[seriesIndex]
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                this.filter.status.selected = this.pieData[seriesIndex]
+                this.$routerQuery.setQuery({ status_id: scope.status_id })
+                  .finally(() => {
+                    this.fetchDataPie()
+                    this.fetchDataHistory()
+                  })
+              } else {
+                throw new Error('В объекте scope отсутствует свойство status_id')
+              }
+            }
+          }
+        },
         legend: {
           show: true,
-          position: 'right'
+          position: 'right',
+          markers: {
+            onClick: (chart: any, seriesIndex: any, opts: any) => {
+              console.log('series- ' + seriesIndex + "'s marker was clicked")
+            }
+          },
+          formatter: function (seriesName: string, opts: any) {
+            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
+          }
         },
         labels: this.pieLabels,
         colors: this.pieColors
@@ -575,6 +660,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
     this.fetchUsers()
   },
 
+  mounted () {
+    // this.$watch('filter.status.selected', ({ status_id }) => {
+    //   this.$routerQuery.setQuery({
+    //     status_id
+    //   })
+    // })
+  },
+
   methods: {
     fetchUsers () {
       new Users()
@@ -595,8 +688,27 @@ export default (Vue as VueConstructor<VInterface>).extend({
     // Загрузить график
     fetchDataPie () {
       this.processPieLoading = true
+
+      const params: any = {}
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
+        params.status_id = +this.$route.query.status_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
+        params.date = this.$route.query.date
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'owner_id')) {
+        params.owner_id = +this.$route.query.owner_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
+        params.contact_created_at = +this.$route.query.contact_created_at
+      }
+
       new Reports()
-        .pie(this.$route.query)
+        .pie(params)
         .then((report: any) => {
           this.total_calls = report.total_calls
           this.total_clients = report.total_clients
@@ -605,6 +717,16 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.pieLabels = report.pie_chart.labels || ['']
           this.pieSeries = report.pie_chart.series || [1]
           this.pieColors = report.pie_chart.colors || []
+
+          this.pieData = report.pie_data || []
+          this.filter.status.items = report.pie_data || []
+
+          if (this.$routerQuery.hasQuery('status_id')) {
+            const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
+            if (index > -1) {
+              this.filter.status.selected = this.filter.status.items[index]
+            }
+          }
         }).finally(() => (this.processPieLoading = false))
     },
 
@@ -619,6 +741,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
         type: 'last' // Показать всю историю
       }
 
+      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
+        params.status_id = +this.$route.query.status_id
+      }
+
       if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
         params.date = this.$route.query.date
       }
@@ -629,6 +755,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
         params.contact_created_at = this.$route.query.contact_created_at
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
+        params.history_sort_by = this.$route.query.history_sort_by
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
+        params.history_sort_direction = this.$route.query.history_sort_direction
       }
 
       new Reports()
