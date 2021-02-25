@@ -3,7 +3,7 @@
     <v-row>
       <v-col class="pt-0 pb-0">
         <div class="d-flex">
-          <v-spacer />
+          <v-spacer/>
           <v-btn-toggle
             v-model="filterDate"
             group
@@ -45,8 +45,8 @@
                   v-on="on"
                   :class="/^\d+,\d+/s.test($routerQuery.getQuery('date')) ? 'v-btn--active' : ''"
                 >
-              {{ $tc('Range') }}
-            </v-btn>
+                  {{ $tc('Range') }}
+                </v-btn>
               </template>
               <v-date-picker
                 v-model="dateRange"
@@ -76,91 +76,125 @@
         </div>
       </v-col>
     </v-row>
+
     <!-- Date range -->
     <v-row>
       <v-col>
         <v-card outlined>
-          <v-card-text class="d-flex">
-
-            <!-- Пользователи -->
-            <v-combobox
-              v-model="usersSelected"
-              :items="users"
-              item-value="id"
-                  :label="$tc('Users')"
-              :disabled="(users || []).length === 0"
-              style="max-width: 300px"
-              class="mr-5"
-              clearable
-              return-object
-              dense
-              outlined
-            >
-              <template v-slot:item="scope">
-                <v-list-item v-on="scope.on">
-                    <v-list-item-title>
-                      {{ scope.item.first_name }} {{ scope.item.last_name }}
-                    </v-list-item-title>
-                  </v-list-item>
-              </template>
-              <template v-slot:selection="{ item }">
-                {{ item.first_name }} {{ item.last_name }}
-              </template>
-            </v-combobox>
-
-            <v-spacer />
-            <v-menu
-              ref="menuContactDateCreated"
-              v-model="menuContactDateCreated"
-              :close-on-content-click="false"
-              :return-value.sync="contactDateCreated"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  v-model="contactDateCreated"
-                  :label="$tc('Date the contact was created')"
-                  prepend-inner-icon="mdi-calendar"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                  outlined
-                  dense
-                  style="max-width: 350px"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                v-model="contactDateCreated"
-                scrollable
-                no-title
-                locale="ru"
+          <v-card-text class="">
+            <v-row>
+              <v-col
+                class="py-0"
+                md="4"
+                lg="4"
+                sm="12"
+                xs="12"
               >
-                <v-spacer></v-spacer>
-                <v-btn
-                  text
-                  color="red"
-                  @click="onSaveContactDateCreatedClick(null)"
+                <v-combobox
+                  v-model="usersSelected"
+                  :items="users"
+                  item-value="id"
+                  :label="$tc('Users')"
+                  :disabled="(users || []).length === 0"
+                  clearable
+                  return-object
+                  dense
+                  outlined
                 >
-                  {{ $tc('Clear') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="menuContactDateCreated = false"
+                  <template v-slot:item="scope">
+                    <v-list-item v-on="scope.on">
+                      <v-list-item-title>
+                        {{ scope.item.first_name }} {{ scope.item.last_name }}
+                      </v-list-item-title>
+                    </v-list-item>
+                  </template>
+                  <template v-slot:selection="{ item }">
+                    {{ item.first_name }} {{ item.last_name }}
+                  </template>
+                </v-combobox>
+              </v-col>
+              <v-col
+                class="py-0"
+                md="4"
+                lg="4"
+                sm="12"
+                xs="12"
+              >
+                <v-combobox
+                  v-model="filter.status.selected"
+                  :items="filter.status.items"
+                  :label="$tc('Фильтр по результату')"
+                  item-text="status_result"
+                  item-value="status_id"
+                  cache-items
+                  return-object
+                  clearable
+                  dense
+                  outlined
+                  v-on="filter.status.on"
                 >
-                  {{ $tc('Cancel') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="onSaveContactDateCreatedClick(contactDateCreated)"
+                </v-combobox>
+              </v-col>
+              <v-col
+                class="py-0"
+                md="4"
+                lg="4"
+                sm="12"
+                xs="12"
+              >
+                <v-menu
+                  ref="menuContactDateCreated"
+                  v-model="menuContactDateCreated"
+                  :close-on-content-click="false"
+                  :return-value.sync="contactDateCreated"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
                 >
-                  OK
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="contactDateCreated"
+                      :label="$tc('Date the contact was created')"
+                      prepend-inner-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="contactDateCreated"
+                    scrollable
+                    no-title
+                    locale="ru"
+                  >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="red"
+                      @click="onSaveContactDateCreatedClick(null)"
+                    >
+                      {{ $tc('Clear') }}
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="menuContactDateCreated = false"
+                    >
+                      {{ $tc('Cancel') }}
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="onSaveContactDateCreatedClick(contactDateCreated)"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
@@ -185,14 +219,14 @@
             color="white"
           >
             <v-icon color="white">mdi-cog</v-icon>
-            </v-btn>
+          </v-btn>
           <v-btn
             outlined
             color="white"
           >
             Выгрузить в Excel
-            </v-btn>
-          </v-btn-toggle>
+          </v-btn>
+        </v-btn-toggle>
       </v-col>
     </v-row>
     <v-row>
@@ -214,7 +248,7 @@
           dense
           fixed-header
           hide-default-footer
-                    >
+        >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
             {{ new Date(item.created_at * 1000).toLocaleString() }}
@@ -233,8 +267,15 @@
             </span>
           </template>
           <template slot="item.comment" slot-scope="{ item }">
-            {{ item.comment || '-' }}
-                </template>
+            <v-tooltip color="primary" max-width="300" bottom>
+              <template v-slot:activator="{ on }">
+                <div v-on="on">
+                  {{ item.comment || '-' }}
+                </div>
+              </template>
+              <span>{{ item.comment || '-' }}</span>
+            </v-tooltip>
+          </template>
           <template slot="item.call_duration" slot-scope="{ item }">
             {{ secondsToHmsDigital(item.call_duration) }}
           </template>
@@ -262,14 +303,14 @@
               color="blue-grey"
             >
               <v-btn
-              :value="item"
+                :value="item"
                 color="red"
                 icon
                 small
                 @click="() => { stopSound(); dataTableHistory.items.forEach((e => (e.isPlaying = false))) }"
-            >
+              >
                 <v-icon>mdi-stop</v-icon>
-            </v-btn>
+              </v-btn>
             </v-progress-circular>
           </template>
           <!-- slots item -->
@@ -280,7 +321,7 @@
                 {{ $tc('Loading content...') }}
               </span>
             </div>
-            </template>
+          </template>
         </v-data-table>
       </v-col>
     </v-row>
@@ -288,16 +329,16 @@
 </template>
 
 <script lang="ts">
+import ContactHistory from '@/api/ContactHistory'
+import Reports from '@/api/Reports'
+import Users, { UserInterface } from '@/api/Users'
+import audioPlayer from '@/mixins/audioPlayer'
+import { secondsToHmsDigital } from '@/utils/datetime'
+import VInterface from '@/VInterface'
+import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
 
 import VueApexCharts from 'vue-apexcharts'
-import Reports from '@/api/Reports'
-import { format } from 'date-fns'
-import Users, { UserInterface } from '@/api/Users'
-import { secondsToHmsDigital } from '@/utils/datetime'
-import ContactHistory from '@/api/ContactHistory'
-import audioPlayer from '@/mixins/audioPlayer'
-import VInterface from '@/VInterface'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
@@ -335,6 +376,26 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       usersSelected: null as UserInterface | null,
       users: [] as UserInterface[],
+
+      filter: {
+        status: {
+          selected: null,
+          items: [],
+          on: {
+            input: (scope: any) => {
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                this.$routerQuery.setQuery({ status_id: scope.status_id })
+                this.fetchDataHistory()
+              } else {
+                this.$routerQuery.removeQuery(['status_id'])
+                  .finally(() => {
+                    this.fetchDataHistory()
+                  })
+              }
+            }
+          }
+        }
+      },
 
       // Data table
       dataTableHistory: {
@@ -543,8 +604,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.owner_id = this.$route.query.owner_id
       }
 
+      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
+        params.status_id = this.$route.query.status_id
+      }
+
       if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
         params.contact_created_at = this.$route.query.contact_created_at
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
+        params.history_sort_by = this.$route.query.history_sort_by
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
+        params.history_sort_direction = this.$route.query.history_sort_direction
       }
 
       new Reports()
@@ -556,6 +629,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
             e.isPlaying = false
             return e
           }) || []
+
+          this.filter.status.items = response.meta.statuses
+
+          if (this.$routerQuery.hasQuery('status_id')) {
+            const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
+            if (index > -1) {
+              this.filter.status.selected = this.filter.status.items[index]
+            }
+          }
         }).finally(() => (this.historyProcessLoading = false))
     },
 
@@ -654,6 +736,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
 })
 </script>
 
-<style scoped>
+<style lang="scss">
+  table > tbody > tr > td:nth-child(4) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 200px;
+  }
 
+  table > tbody > tr > td:nth-child(5) {
+    width: auto;
+  }
 </style>
