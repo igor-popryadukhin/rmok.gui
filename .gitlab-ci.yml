@@ -26,13 +26,12 @@ build:
 deploy:
   image: node:latest
   stage: deploy
-  before_script:
+  script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-  script:
     - rsync -rav --delete dist/ gitlab-runner@194.58.104.82:/home/gitlab-runner/test
   only:
     - develop
