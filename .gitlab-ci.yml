@@ -1,45 +1,94 @@
 stages:
-  - build
-  - deploy
+  - build-development
+  - deploy-development
+  - build-production
+  - deploy-production
 
-build:
-  image: node:latest
-  stage: build
-  before_script:
-    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
+cache:
+  policy: pull-push
+  paths:
+    - node_modules/
+
+
+# Development
+build_development:
+  image: node:14.16.0-alpine3.12
+  stage: build-development
   script:
-    - cat $ENV_DEV >> ./.env
+    - cat $VUE_ENV_DEVELOPMENT >> ./.env
     - npm install --progress=false
     - npm run build
   only:
-    - develop
+    - ci-test
   artifacts:
-    expire_in: 1 week
+    expire_in: 30 days
     paths:
       - dist
+  tags:
+    - development
 
-
-deploy:
-  image: node:latest
-  stage: deploy
+deploy_development:
+  stage: deploy-development
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - echo "$SSH_PRIVATE_KEY_DEVELOPMENT" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan 194.58.104.82 >> ~/.ssh/known_hosts
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - echo $SSH_OPEN_KEY >> ~/.ssh/authorized_keys
+    - echo $SSH_OPEN_KEY_DEVELOPMENT > ~/.ssh/authorized_keys
   script:
-    - rsync -rav --delete ./dist/* gitlab-runner@194.58.104.82:/var/www/www-root/data/www/rmok.online
-  only:
-    - develop
+    - rsync -rav --delete ./dist/* gitlab-runner@$HOST_DEVELOPMENT:/var/www/www-root/data/www/rmok.online
   artifacts:
+    expire_in: 30 days
     paths:
       - dist
+  tags:
+    - development
+  only:
+    - ci-test
+
+# Production
+build_production:
+  image: node:14.16.0-alpine3.12
+  stage: build-production
+  script:
+    - cat $VUE_ENV_PRODUCTION > ./.env
+    - npm install --progress=false
+    - npm run build
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - dist
+  when: manual
+  tags:
+    - production
+  only:
+    - ci-test
+
+deploy_production:
+  stage: deploy-production
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY_PRODUCTION" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo $SSH_OPEN_KEY_PRODUCTION > ~/.ssh/authorized_keys
+  script:
+    - rsync -rav --delete ./dist/* gitlab-runner@$HOST_PRODUCTION:/var/www/ui.rmok
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - dist
+  needs:
+    - job: build_production
+      artifacts: true
+  tags:
+    - production
+  only:
+    - ci-test
 
