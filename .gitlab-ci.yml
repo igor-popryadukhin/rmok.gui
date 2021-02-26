@@ -19,7 +19,7 @@ build_development:
     - npm install --progress=false
     - npm run build
   only:
-    - ci-test
+    - develop
   artifacts:
     expire_in: 30 days
     paths:
@@ -47,7 +47,7 @@ deploy_development:
   tags:
     - development
   only:
-    - ci-test
+    - develop
 
 # Production
 build_production:
@@ -65,7 +65,7 @@ build_production:
   tags:
     - production
   only:
-    - ci-test
+    - develop
 
 deploy_production:
   stage: deploy-production
@@ -90,5 +90,5 @@ deploy_production:
   tags:
     - production
   only:
-    - ci-test
+    - develop
 
