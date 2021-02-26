@@ -1,4 +1,5 @@
 {
+  "Client's current time": "Текущее время клиента",
   "Access token": "Токен доступа",
   "Access token generated successfully!": "Токен доступа успешно создан!",
   "User has no projects": "У пользователя нет проектов",
