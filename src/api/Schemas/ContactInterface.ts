@@ -19,6 +19,7 @@ export interface ContactInterface {
   user: any;
   emails: any[];
   phones: ContactPhoneInterface[];
+  current_date_time: number;
   created_at: number;
 }
 

@@ -85,17 +85,15 @@
           </v-row>
           <v-divider/>
         </v-card-text>
-        <v-card-text class="py-0">
+        <v-card-text>
           <!-- Phones & Emails -->
-          <template v-if="dataLoading">
-            <span class="text-center grey--text">
-              {{ $t('Loading content...') }}
-            </span>
-          </template>
+<!--          <template v-if="dataLoading">-->
+<!--            <span class="text-center grey&#45;&#45;text">-->
+<!--              {{ $t('Loading content...') }}-->
+<!--            </span>-->
+<!--          </template>-->
           <v-list
-            v-else
             tile
-            dense
           >
             <!-- Phones -->
             <v-list-item
@@ -197,6 +195,74 @@
                 </v-btn>
               </v-list-item-action>
             </v-list-item>
+
+            <v-divider class="mt-5" />
+
+            <!-- Геолокация -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+              max-height="61"
+            />
+            <v-list-item
+              v-else
+              link
+              selectable
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">mdi-map-marker</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contact.city }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ contact.region }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <!-- Текущее время контакта -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+              max-height="61"
+            ></v-skeleton-loader>
+            <v-list-item
+              v-else
+              link
+              selectable
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">mdi-clock-time-two-outline</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title :key="tick">{{ contactDateTimeNow.toISOString().substr(11, 8) }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Client\'s current time') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <!-- Дата создания контакта -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+              max-height="61"
+            />
+            <v-list-item
+              v-else
+              link
+              selectable
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">mdi-clock</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ new Date(contact.created_at * 1000).toLocaleString() }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Date the contact was created') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-card-text>
       </v-card>
@@ -294,18 +360,18 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue'
-import lvovich from '@/mixins/lvovich'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
-import { Route } from 'vue-router'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
-import { secondsToHmsDigital } from '@/utils/datetime'
-import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-import '@/plugins/libphonenumber-js'
-import { MainSearchMethod } from '@/Interfaces'
 import Leads from '@/api/Leads'
+import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
+import { MainSearchMethod } from '@/Interfaces'
+import lvovich from '@/mixins/lvovich'
+import '@/plugins/libphonenumber-js'
+import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
+import Vue, { VueConstructor } from 'vue'
+import { Route } from 'vue-router'
 
 interface TabInterface {
   name: string;
@@ -370,8 +436,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
         middle_name: '',
         phones: [],
         user: undefined,
+        current_date_time: 0,
         created_at: 0
-      }
+      },
+      tick: 0,
+      contactDateTimeNow: new Date()
       /* eslint-enable */
     }
   },
@@ -413,6 +482,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         .getById(+to.params.contact_id)
         .then((contact: ContactInterface) => {
           this.contact = contact
+          this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
         }).finally(() => {
           this.dataLoading = false
           setTimeout(() => {
@@ -429,10 +499,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
       .getById(+this.$route.params.contact_id)
       .then((contact: ContactInterface) => {
         this.contact = contact
+        this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
       }).finally(() => {
         this.dataLoading = false
         this.$root.$emit('root-loading-data-hide')
       })
+
+    setInterval(() => {
+      this.calculateContactDateTimeNow()
+    }, 1000)
   },
 
   beforeDestroy () {
@@ -441,6 +516,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   methods: {
+
+    calculateContactDateTimeNow () {
+      this.tick = this.tick + 1
+      this.contactDateTimeNow.setSeconds(this.contactDateTimeNow.getSeconds() + 1)
+    },
 
     onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
