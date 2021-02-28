@@ -1,6 +1,6 @@
 stages:
-  - build-development
-  - deploy-development
+  - build-review
+  - deploy-review
   - build-production
   - deploy-production
 
@@ -10,10 +10,10 @@ cache:
     - node_modules/
 
 
-# Development
-build_development:
+# Review
+build_review:
   image: node:14.16.0-alpine3.12
-  stage: build-development
+  stage: build-review
   script:
     - cat $VUE_ENV_DEVELOPMENT >> ./.env
     - npm install --progress=false
@@ -25,29 +25,27 @@ build_development:
     paths:
       - dist
   tags:
-    - development
+    - review
 
-deploy_development:
-  stage: deploy-development
-  before_script:
-    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY_DEVELOPMENT" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - echo $SSH_OPEN_KEY_DEVELOPMENT > ~/.ssh/authorized_keys
+# todo: Test stage
+
+deploy_review:
+  stage: deploy-review
   script:
-    - rsync -rav --delete ./dist/* gitlab-runner@$HOST_DEVELOPMENT:/var/www/www-root/data/www/rmok.online
+    - rsync -rq --delete ./dist/* /var/www/www-root/data/www/rmok.online
   artifacts:
     expire_in: 30 days
     paths:
       - dist
   tags:
-    - development
+    - review
   only:
     - develop
+
+
+
+
+
 
 # Production
 build_production:
@@ -67,19 +65,12 @@ build_production:
   only:
     - develop
 
+# todo: Test stage
+
 deploy_production:
   stage: deploy-production
-  before_script:
-    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY_PRODUCTION" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - echo $SSH_OPEN_KEY_PRODUCTION > ~/.ssh/authorized_keys
   script:
-    - rsync -rav --delete ./dist/* gitlab-runner@$HOST_PRODUCTION:/var/www/ui.rmok
+    - rsync -rq --delete ./dist/* /var/www/ui.rmok
   artifacts:
     expire_in: 30 days
     paths:
