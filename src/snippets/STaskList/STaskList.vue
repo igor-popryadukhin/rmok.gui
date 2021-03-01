@@ -8,9 +8,9 @@
 
     <!-- Tool bar -->
     <v-toolbar
-      height="48"
       extended
-      flat
+      height="48"
+      class="task-toolbar"
     >
       <v-toolbar-title>{{ $tc('Tasks') }}</v-toolbar-title>
 
@@ -24,7 +24,7 @@
         {{ $tc('Add task') }}
       </v-btn>
       <template v-slot:extension>
-        <div class="toolbar-extension">
+        <div class="task-toolbar-extension">
           <small>Всего: {{ totalTasks }}</small>
           <small>Просроченные: {{ overdueTasks }}</small>
         </div>
@@ -439,7 +439,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 </script>
 
 <style lang="scss" scoped>
-  .toolbar {
+  .task-toolbar {
+    flex: none !important;
+    box-shadow: none !important;
+
     &-extension {
       display: flex;
       flex-flow: column;
@@ -449,5 +452,5 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       font-size: 12px;
       color: #848484;
     }
-}
+  }
 </style>
