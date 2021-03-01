@@ -13,11 +13,11 @@
         outlined
       >
         <v-card-title class="mb-2">
-<!--          <v-avatar color="primary">-->
-<!--            <span style="filter: invert(100%);">-->
-<!--              {{ avatar }}-->
-<!--            </span>-->
-<!--          </v-avatar>-->
+          <!--          <v-avatar color="primary">-->
+          <!--            <span style="filter: invert(100%);">-->
+          <!--              {{ avatar }}-->
+          <!--            </span>-->
+          <!--          </v-avatar>-->
           <template v-if="dataLoading">
             {{ $t('Loading content...') }}
           </template>
@@ -87,11 +87,11 @@
         </v-card-text>
         <v-card-text>
           <!-- Phones & Emails -->
-<!--          <template v-if="dataLoading">-->
-<!--            <span class="text-center grey&#45;&#45;text">-->
-<!--              {{ $t('Loading content...') }}-->
-<!--            </span>-->
-<!--          </template>-->
+          <!--          <template v-if="dataLoading">-->
+          <!--            <span class="text-center grey&#45;&#45;text">-->
+          <!--              {{ $t('Loading content...') }}-->
+          <!--            </span>-->
+          <!--          </template>-->
           <v-list
             tile
           >
@@ -206,8 +206,6 @@
             />
             <v-list-item
               v-else
-              link
-              selectable
             >
               <v-list-item-avatar size="30">
                 <v-icon color="primary">mdi-map-marker</v-icon>
@@ -228,14 +226,12 @@
             ></v-skeleton-loader>
             <v-list-item
               v-else
-              link
-              selectable
             >
               <v-list-item-avatar size="30">
                 <v-icon color="primary">mdi-clock-time-two-outline</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title :key="tick">{{ contactDateTimeNow.toISOString().substr(11, 8) }}</v-list-item-title>
+                <v-list-item-title :key="tick">{{ contactDateTimeNow.toISOString().substr(11, 8) }} {{ gmt }}</v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Client\'s current time') }}
                 </v-list-item-subtitle>
@@ -250,8 +246,6 @@
             />
             <v-list-item
               v-else
-              link
-              selectable
             >
               <v-list-item-avatar size="30">
                 <v-icon color="primary">mdi-clock</v-icon>
@@ -437,6 +431,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         phones: [],
         user: undefined,
         current_date_time: 0,
+        timezone_offset: 0,
         created_at: 0
       },
       tick: 0,
@@ -460,6 +455,22 @@ export default (Vue as VueConstructor<VInterface>).extend({
       let h: number = this.$screenHeight - 125
       if (h < 640) { h = 640 }
       return h
+    },
+
+    gmt () {
+      const offset: number | null = this.contact.timezone_offset || null
+
+      if (offset === null) {
+        return ''
+      }
+
+      if (offset > 0) {
+        return `(GMT+${offset})`
+      } else if (offset < 0) {
+        return `(GMT-${offset})`
+      } else {
+        return `(GMT ${offset})`
+      }
     }
   },
 
