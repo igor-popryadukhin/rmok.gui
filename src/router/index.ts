@@ -213,19 +213,19 @@ const routes: RouteConfig[] = [
               {
                 // todo: Deprecated (нет нужды в данном решении)
                 path: 'script',
-                name: 'contacts_script',
+                name: 'operator_contacts_view_script',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
                 meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'history',
-                name: 'contacts_history',
+                name: 'operator_contacts_view_history',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
                 meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'tasks',
-                name: 'contacts_task',
+                name: 'operator_contacts_view_task',
                 component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
                 meta: { layout: 'operator-layout', middleware: [secure] }
               }

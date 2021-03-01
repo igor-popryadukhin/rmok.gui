@@ -46,8 +46,8 @@ export default class Leads {
    *
    * @param contact_id
    */
-  public next (contact_id: number): Promise<number | any> {
-    return new Promise<number | any>((resolve, reject) => {
+  public next (contact_id: number): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       const params: any = {}
       if (contact_id > 0) {
         params.contact_id = contact_id
