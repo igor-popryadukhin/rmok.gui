@@ -62,53 +62,39 @@
       </v-autocomplete>
 
       <v-toolbar-items style="height: 40px">
-        <template
-          v-for="(item, mainMenuIndex) in mainMenu"
-        >
-          <v-menu
-            v-if="item.menu"
-            :key="mainMenuIndex"
-            offset-y
+        <v-tabs background-color="primary" height="40">
+          <v-tab
+            v-for="(item, index) in mainMenu"
+            :id="`v-toolbar-v-tab-${index}`"
+            :key="`v-toolbar-v-tab-${index}`"
+            v-bind="item.attrs"
           >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                class="mr-3"
-                :class="['call_center_manager_reports_recent_calls', 'call_center_manager_reports_all_calls'].includes($route.name) ? 'v-btn--active' : ''"
-                v-on="on"
-                v-bind="attrs"
-                text
-              >
-                {{ $tc('Statistic') }}
-              </v-btn>
+            <template>
+              {{ $tc(item.title) }}
             </template>
-            <v-list>
-              <v-list-item
-                v-for="(itemMenu, itemMenuIndex) in item.menu"
-                :key="`${mainMenuIndex}-${itemMenuIndex}`"
-                :to="itemMenu.to"
+            <template
+              v-if="item.children"
+              v-slot:default
+            >
+              {{ $tc(item.title) }}
+              <v-menu
+                :activator="`#v-toolbar-v-tab-${index}`"
+                offset-y
               >
-                <v-list-item-icon v-if="itemMenu.icon">
-                  <v-icon>{{ itemMenu.icon }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t(itemMenu.title) }}</v-list-item-title>
-                  <v-list-item-subtitle v-if="itemMenu.subtitle">{{ $t(item.subtitle) }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-          <v-btn
-            v-else
-            :key="mainMenuIndex"
-            v-bind="'attrs' in item ? item.attrs : {}"
-            v-on="'on' in item ? item.on : {}"
-          >
-            {{ item.title }}
-            <v-icon v-if="item.icon">
-              {{ item.icon }}
-            </v-icon>
-          </v-btn>
-        </template>
+                <v-list>
+                  <v-list-item
+                    v-for="(childrenItem, childIndex) in item.children"
+                    :key="childIndex"
+                    v-bind="childrenItem.attrs"
+                    v-on="childrenItem.on"
+                  >
+                    <v-list-item-title>{{ $tc(childrenItem.title) }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-tab>
+        </v-tabs>
       </v-toolbar-items>
 
       <!-- BELL -->
@@ -424,6 +410,12 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
   data (): IData {
     return {
+      items: [
+        { title: 'Click Me' },
+        { title: 'Click Me' },
+        { title: 'Click Me' },
+        { title: 'Click Me 2' }
+      ],
       toastId: 0,
       projectDialog: {
         visible: false,
@@ -594,20 +586,40 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           }
         },
         {
-          title: this.$tc('Calls'),
+          title: 'Calls',
+          icon: '',
           attrs: {
-            text: true,
-            disabled: true,
-            to: { name: 'operator_calls' }
+            link: true
           }
         },
         {
-          title: this.$tc('Reports'),
+          title: 'Statistic',
+          icon: 'mdi-chart-arc',
           attrs: {
-            text: true,
-            disabled: true,
-            to: { name: 'operator_reports' }
-          }
+            link: true
+          },
+          children: [
+            {
+              title: 'Recent call statistics',
+              icon: '',
+              visible: true,
+              attrs: {
+                to: {
+                  name: 'operator_reports_recent_calls'
+                }
+              }
+            },
+            {
+              title: 'Statistics for all calls',
+              icon: '',
+              visible: true,
+              attrs: {
+                to: {
+                  name: 'operator_reports_all_calls'
+                }
+              }
+            }
+          ]
         },
         {
           title: this.$tc('Help'),

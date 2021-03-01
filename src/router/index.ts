@@ -248,11 +248,19 @@ const routes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Layout.vue'),
         children: [
           {
-            path: '',
-            name: 'operator_reports',
-            component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Index.vue'),
+            path: 'recent-calls',
+            name: 'operator_reports_recent_calls',
+            component: () => import(/* webpackChunkName: "operator-reports-recent-calls" */ '../views/Operator/Reports/RecentCalls.vue'),
             meta: {
-              anonymous: true,
+              layout: 'operator-layout',
+              middleware: [secure]
+            }
+          },
+          {
+            path: 'all-calls',
+            name: 'operator_reports_all_calls',
+            component: () => import(/* webpackChunkName: "operator-reports-all-calls" */ '../views/Operator/Reports/AllCalls.vue'),
+            meta: {
               layout: 'operator-layout',
               middleware: [secure]
             }
