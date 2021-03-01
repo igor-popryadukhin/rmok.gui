@@ -467,7 +467,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       if (offset > 0) {
         return `(GMT+${offset})`
       } else if (offset < 0) {
-        return `(GMT-${offset})`
+        return `(GMT${offset})`
       } else {
         return `(GMT ${offset})`
       }
