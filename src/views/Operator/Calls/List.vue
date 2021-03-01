@@ -176,7 +176,7 @@
                         </v-list-item-content>
                       </v-list-item>
                       <v-list-item
-                        :to="{ name: 'contacts_history', params: { contact_id: item.id } }"
+                        :to="{ name: 'operator_contacts_view_history', params: { contact_id: item.id } }"
                       >
                         <v-list-item-icon>
                           <v-icon>mdi-history</v-icon>

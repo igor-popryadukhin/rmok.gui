@@ -12,189 +12,153 @@
         tile
         outlined
       >
-        <v-card-title class="mb-2">
-          <!--          <v-avatar color="primary">-->
-          <!--            <span style="filter: invert(100%);">-->
-          <!--              {{ avatar }}-->
-          <!--            </span>-->
-          <!--          </v-avatar>-->
-          <template v-if="dataLoading">
-            {{ $t('Loading content...') }}
-          </template>
-          <template v-else>
+        <v-card-title class="mb-2 py-2">
+          <template>
             {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
           </template>
         </v-card-title>
-        <v-card-text>
-          <v-row v-if="contact.default_phone">
-            <v-col class="d-flex justify-space-between">
-              <div>{{ contact.default_phone.international }}</div>
-              <v-btn
-                v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
-                text
-                outlined
-                color="red"
-                @click="$jsSIP.cancel()"
-              >
-                {{ $tc('To complete') }}
-              </v-btn>
-              <v-btn
-                v-else
-                :disabled="!$jsSIP.isConnected || !$libPhoneNumberJs.validate(contact.default_phone.raw)"
-                color="primary"
-                text
-                outlined
-                @click="onCall(contact.default_phone.raw, contact.id)"
-              >
-                {{ $tc('Call') }}
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row v-else-if="dataLoading">
-            <v-col class="d-flex justify-space-between">
-              <div>
-                {{ $t('Loading content...') }}
-              </div>
-              <v-btn
-                :disabled="true"
-                text
-                outlined
-              >
-                {{ $tc('Call') }}
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row v-else>
-            <v-col class="d-flex justify-space-between">
-              <div>
-                Нет номера по умолчанию
-              </div>
-              <v-btn
-                :disabled="true"
-                tile
-                text
-              >
-                {{ $tc('Call') }}
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col class="session-stopwatch" style="min-height: 50px">
-              {{ $jsSIP.sessionStopwatch }}
-            </v-col>
-          </v-row>
-          <v-divider/>
+        <v-card-subtitle>
+          {{ contact.default_phone.international }}
+        </v-card-subtitle>
+        <v-card-text class="py-0 d-flex justify-space-between">
+          <div class="d-flex align-center">{{ $jsSIP.sessionStopwatch }}</div>
+          <v-btn
+            v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
+            text
+            outlined
+            color="red"
+            @click="$jsSIP.cancel()"
+          >
+            {{ $tc('To complete') }}
+          </v-btn>
+          <v-btn
+            v-else
+            :disabled="!$jsSIP.isConnected || !$libPhoneNumberJs.validate(contact.default_phone.raw)"
+            color="primary"
+            text
+            outlined
+            @click="onCall(contact.default_phone.raw, contact.id)"
+          >
+            {{ $tc('Call') }}
+          </v-btn>
         </v-card-text>
+        <v-divider class="my-4 mx-4"/>
         <v-card-text>
-          <!-- Phones & Emails -->
-          <!--          <template v-if="dataLoading">-->
-          <!--            <span class="text-center grey&#45;&#45;text">-->
-          <!--              {{ $t('Loading content...') }}-->
-          <!--            </span>-->
-          <!--          </template>-->
           <v-list
             tile
           >
-            <!-- Phones -->
-            <v-list-item
-              v-for="(phone, phoneIndex) in contact.phones"
-              :key="`phone-list-item-${phoneIndex}`"
-              ripple
-              link
-              selectable
-            >
-              <v-list-item-avatar size="30">
-                <v-icon v-if="phoneIndex === 0">mdi-phone</v-icon>
-              </v-list-item-avatar>
-              <v-item-group>
-                <v-list-item-title>{{ phone.international }}</v-list-item-title>
-                <v-list-item-subtitle>{{ phone.label }}</v-list-item-subtitle>
-              </v-item-group>
-              <v-spacer/>
-              <v-item-group
+            <!-- Номера телефонов -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+            ></v-skeleton-loader>
+            <template v-else>
+              <v-list-item
+                v-for="(phone, phoneIndex) in contact.phones"
+                :key="`phone-list-item-${phoneIndex}`"
+                ripple
+                link
+                selectable
               >
-                <template
-                  v-if="!['idle'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
+                <v-list-item-avatar>
+                  <v-icon v-if="phoneIndex === 0" color="primary">mdi-phone</v-icon>
+                </v-list-item-avatar>
+                <v-item-group>
+                  <v-list-item-title>{{ phone.international }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ phone.label }}</v-list-item-subtitle>
+                </v-item-group>
+                <v-spacer/>
+                <v-item-group
                 >
-                  {{ $jsSIP.sessionStopwatch }}
-                </template>
-              </v-item-group>
-              <v-item-group
-              >
-                <v-btn
-                  v-if="!contact.default_phone"
-                  :key="`phone-default-btn-${phoneIndex}`"
-                  icon
-                  color="#9e9e9e73"
-                  @click.stop="onDefaultPhoneSet(phone)"
+                  <template
+                    v-if="!['idle'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
+                  >
+                    {{ $jsSIP.sessionStopwatch }}
+                  </template>
+                </v-item-group>
+                <v-item-group
                 >
-                  <v-icon>mdi-star</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else-if="contact.default_phone.id === phone.id"
-                  :key="`phone-default-btn-${phoneIndex}`"
-                  icon
-                  color="#ffc107"
-                >
-                  <v-icon>mdi-star</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else
-                  :key="`phone-default-btn-${phoneIndex}`"
-                  icon
-                  color="#9e9e9e73"
-                  @click.stop="onDefaultPhoneSet(phone)"
-                >
-                  <v-icon>mdi-star</v-icon>
-                </v-btn>
-              </v-item-group>
-              <v-list-item-action>
-                <v-btn
-                  v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
-                  :key="`phone-cancel-btn-${phoneIndex}`"
-                  icon
-                  @click="$jsSIP.cancel()"
-                >
-                  <v-icon color="red">mdi-phone-hangup</v-icon>
-                </v-btn>
-                <v-btn
-                  v-else
-                  icon
-                  :key="`phone-call-btn-${phoneIndex}`"
-                  :disabled="!$jsSIP.isConnected || ['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.raw"
-                  @click="onCall(phone.raw, contact.id)"
-                >
-                  <v-icon>mdi-phone</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
+                  <v-btn
+                    v-if="!contact.default_phone"
+                    :key="`phone-default-btn-${phoneIndex}`"
+                    icon
+                    color="#9e9e9e73"
+                    @click.stop="onDefaultPhoneSet(phone)"
+                  >
+                    <v-icon>mdi-star</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-else-if="contact.default_phone.id === phone.id"
+                    :key="`phone-default-btn-${phoneIndex}`"
+                    icon
+                    color="#ffc107"
+                  >
+                    <v-icon>mdi-star</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-else
+                    :key="`phone-default-btn-${phoneIndex}`"
+                    icon
+                    color="#9e9e9e73"
+                    @click.stop="onDefaultPhoneSet(phone)"
+                  >
+                    <v-icon>mdi-star</v-icon>
+                  </v-btn>
+                </v-item-group>
+                <v-list-item-action>
+                  <v-btn
+                    v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
+                    :key="`phone-cancel-btn-${phoneIndex}`"
+                    icon
+                    @click="$jsSIP.cancel()"
+                  >
+                    <v-icon color="red">mdi-phone-hangup</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-else
+                    icon
+                    :key="`phone-call-btn-${phoneIndex}`"
+                    :disabled="!$jsSIP.isConnected || ['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.raw"
+                    @click="onCall(phone.raw, contact.id)"
+                  >
+                    <v-icon>mdi-phone</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </template>
 
-            <!-- Emails -->
-            <v-list-item
-              v-for="(email, emailIndex) in contact.emails"
-              :key="`email-list-item-${emailIndex}`"
-              ripple
-              link
-              selectable
-            >
-              <v-list-item-avatar size="30">
-                <v-icon v-if="emailIndex === 0">mdi-email</v-icon>
-              </v-list-item-avatar>
-              <v-list-item-group>
-                <v-list-item-title>{{ email.value }}</v-list-item-title>
-                <v-list-item-subtitle>{{ email.label }}</v-list-item-subtitle>
-              </v-list-item-group>
-              <v-spacer />
-              <v-list-item-action>
-                <v-btn
-                  icon
-                  disabled
-                  :key="`mail-to-btn-${emailIndex}`"
-                >
-                  <v-icon>mdi-email</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
+            <!-- Адреса электронной почты -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+            ></v-skeleton-loader>
+            <template v-else>
+              <v-list-item
+                v-for="(email, emailIndex) in contact.emails"
+                :key="`email-list-item-${emailIndex}`"
+                ripple
+                link
+                selectable
+              >
+                <v-list-item-avatar size="30">
+                  <v-icon v-if="emailIndex === 0">mdi-email</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-group>
+                  <v-list-item-title>{{ email.value }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ email.label }}</v-list-item-subtitle>
+                </v-list-item-group>
+                <v-spacer />
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    disabled
+                    :key="`mail-to-btn-${emailIndex}`"
+                  >
+                    <v-icon>mdi-email</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </template>
 
             <v-divider class="mt-5" />
 
@@ -488,7 +452,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       const contacts: Contacts = new Contacts()
 
       this.dataLoading = true
-      this.$root.$emit('root-loading-data-show')
       contacts
         .getById(+to.params.contact_id)
         .then((contact: ContactInterface) => {
@@ -496,9 +459,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
         }).finally(() => {
           this.dataLoading = false
-          setTimeout(() => {
-            this.$root.$emit('root-loading-data-hide')
-          }, 1500)
         })
     }
     next()
@@ -513,7 +473,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
       }).finally(() => {
         this.dataLoading = false
-        this.$root.$emit('root-loading-data-hide')
       })
 
     setInterval(() => {
@@ -598,11 +557,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.saveAndNextLoading = true
       new Leads()
         .next(+this.$route.params.contact_id)
-        .then((contact_id: number) => {
+        .then((contact_id) => {
+          const name = String(this.$route.name)
           this.$router.push({
-            name: this.$route.name,
+            name,
             params: {
-              contact_id
+              contact_id: String(contact_id)
             }
           })
         })
