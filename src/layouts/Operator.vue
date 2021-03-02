@@ -100,7 +100,7 @@
       <!-- BELL -->
       <v-menu
         v-model="buttonMenuNotification"
-        :close-on-content-click="true"
+        :close-on-content-click="false"
         nudge-left="150"
       >
         <template v-slot:activator="{ on, attrs }">
@@ -118,63 +118,85 @@
             />
           </v-btn>
         </template>
-        <v-card v-if="notifications.length > 0">
-          <v-list max-width="450">
-            <v-list-item
-              v-for="(item, itemIndex) in notifications"
-              :key="itemIndex"
-              v-on:click="item.click ? item.click(item, itemIndex): null"
-              link
-            >
-              <v-list-item-avatar>
-                <v-icon :color="item.color">
-                  {{ item.icon }}
-                </v-icon>
-              </v-list-item-avatar>
+        <v-card
+          v-if="notifications.length > 0"
+          class="overflow-y-auto"
+          max-width="600"
+          max-height="500"
+          flat
+          tile
+        >
+          <v-card-text>
+            <v-list dense>
+              <template v-for="(item, itemIndex) in notifications">
+                <v-list-item
+                  :key="itemIndex"
+                  v-on:click="item.click ? item.click(item, itemIndex): null"
+                  :class="item.class || ''"
+                  :style="item.style || {}"
+                  link
+                >
+                  <v-list-item-avatar>
+                    <v-icon :color="item.color">
+                      {{ item.icon }}
+                    </v-icon>
+                  </v-list-item-avatar>
 
-              <v-tooltip
-                color="primary"
-                max-width="300"
-                bottom
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-list-item-content v-on="on" v-bind="attrs">
-                    <v-list-item-title>{{ item.title }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ item.message }}</v-list-item-subtitle>
-                    <v-list-item-subtitle v-if="item.message2">{{ item.message2 }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                </template>
-                <span>{{ item.message }}</span>
-              </v-tooltip>
-
-              <v-list-item-action v-if="item.actions">
-                <v-menu offset-y>
-                  <template v-slot:activator="{ on, attr }">
-                    <v-btn
-                      icon
-                      v-on.stop="on"
-                      v-bind="attr"
-                    >
-                      <v-icon>mdi-dots-horizontal</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list class="pa-0" min-width="150">
-                    <v-list-item
-                      v-for="(action, actionIndex) in item.actions"
-                      :key="actionIndex"
-                      link
-                      @click="action.handle(action.context)"
-                      @mouseup.stop="buttonMenuNotification = false"
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title>{{ action.title }}</v-list-item-title>
+                  <v-tooltip
+                    color="primary"
+                    max-width="500"
+                    bottom
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-list-item-content
+                        v-on="on"
+                        v-bind="attrs"
+                      >
+                        <v-list-item-title v-html="item.title" />
+                        <v-list-item-subtitle v-html="item.message" />
+                        <v-list-item-subtitle v-if="item.message2" v-html="item.message2" />
                       </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
+                    </template>
+                    <template v-if="item.message">
+                      <span class="mb-3" v-html="item.message"></span><br />
+                    </template>
+                    <template v-if="item.message2">
+                      <span>{{ item.message2 }}</span>
+                    </template>
+
+                  </v-tooltip>
+
+                  <v-list-item-action v-if="item.actions">
+                    <v-menu offset-y>
+                      <template v-slot:activator="{ on, attr }">
+                        <v-btn
+                          icon
+                          v-on.stop="on"
+                          v-bind="attr"
+                        >
+                          <v-icon>mdi-dots-horizontal</v-icon>
+                        </v-btn>
+                      </template>
+                      <v-list class="pa-0" min-width="150">
+                        <v-list-item
+                          v-for="(action, actionIndex) in item.actions"
+                          :key="actionIndex"
+                          link
+                          @click="action.handle(action.context)"
+                          @mouseup.stop="buttonMenuNotification = false"
+                        >
+                          <v-list-item-content>
+                            <v-list-item-title>{{ action.title }}</v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-list-item-action>
+                </v-list-item>
+                <v-divider :key="`v-divider-${itemIndex}`" inset/>
+              </template>
+            </v-list>
+          </v-card-text>
         </v-card>
       </v-menu>
 
@@ -801,7 +823,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
               let icon = ''
               switch (task.type) {
                 case TaskType.CALL: {
-                  title = this.$tc('Call')
+                  title = `Позвонить ${this.$moment.utc(task.planned).local().format('Do MMMM, dddd, hh:mm:ss a')}`
                   icon = 'mdi-alpha-c-circle'
                   break
                 }
@@ -828,13 +850,27 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
               }
 
               if (task.type === TaskType.CALL) {
+                let class_ = ''
+
+                if (task.expired) {
+                  class_ = 'task-expired'
+                }
+
+                let message = `${task.contact?.first_name} ${task.contact?.last_name} ${task.contact?.middle_name}`
+                if (this.assertObjectHasAttribute(task.contact, 'last_status')) {
+                  if (task.contact.last_status) {
+                    message = `${message} <strong>(Статус: ${task.contact.last_status.name})</strong>`
+                  }
+                }
+
                 this.notifications.push({
                   type: 'call',
                   icon,
                   color: 'blue',
+                  class: class_,
                   title,
-                  message: task.description,
-                  message2: `Позвонить в ${new Date(task.planned_for * 1000).toLocaleString()}`,
+                  message,
+                  message2: task.description,
                   context: task, // Обрати внимание, context будет передан в функцию обратного вызова click
                   click: (e: NotificationInterface, i: number) => {
                     if (this.assertObjectHasAttribute(e.context, 'contact')) {
@@ -1164,5 +1200,9 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   100% {
     opacity: 1;
   }
+}
+
+.task-expired > * {
+  color: red;
 }
 </style>
