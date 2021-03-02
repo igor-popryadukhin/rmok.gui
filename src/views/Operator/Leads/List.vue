@@ -20,7 +20,7 @@
             class="pa-0 pr-lg-3 pr-md-3"
           >
             <v-card
-              height="350"
+              :height="$screenHeight - 500"
               class="overflow-y-auto v-card"
               elevation="0"
               outlined
@@ -97,7 +97,7 @@
           >
             <s-task-list
               ref="sTaskList"
-              :height="$screenHeight - 500"
+              :height="790"
               tile
               flat
               outlined
@@ -114,98 +114,92 @@
         cols="12"
         md="4"
         lg="4"
-        class="pt-0"
+        class="pt-0 px-0"
       >
-        <v-row>
-          <v-col
-            order="1"
-            cols="12"
-            class="pa-0"
-          >
-            <v-card
-              flat
-              outlined
-              disabled
+        <v-card
+          height="100%"
+          flat
+          tile
+          outlined
+          disabled
+        >
+          <v-card-text class="pt-5">
+            <v-tooltip bottom max-width="400">
+              <template v-slot:activator="{ on }">
+                <v-combobox
+                  v-model="filter.scenario.selected"
+                  :items="filter.scenario.items"
+                  :disabled="filter.scenario.disabled || filter.scenario.length === 0"
+                  :label="$tc('Scenario')"
+                  item-value="id"
+                  item-text="name"
+                  small-chips
+                  multiple
+                  outlined
+                  dense
+                  v-on="on"
+                ></v-combobox>
+              </template>
+              <span>{{ $tc('Filter by scenario') }}</span>
+            </v-tooltip>
+            <v-menu
+              ref="filterDataRange"
+              v-model="filter.dataRange.visible"
+              :close-on-content-click="false"
+              :return-value.sync="filter.dataRange.dates"
+              transition="scale-transition"
+              offset-y
+              max-width="290px"
+              min-width="290px"
             >
-              <v-card-text class="pt-5">
-                <v-tooltip bottom max-width="400">
-                  <template v-slot:activator="{ on }">
-                    <v-combobox
-                      v-model="filter.scenario.selected"
-                      :items="filter.scenario.items"
-                      :disabled="filter.scenario.disabled || filter.scenario.length === 0"
-                      :label="$tc('Scenario')"
-                      item-value="id"
-                      item-text="name"
-                      small-chips
-                      multiple
-                      outlined
-                      dense
-                      v-on="on"
-                    ></v-combobox>
-                  </template>
-                  <span>{{ $tc('Filter by scenario') }}</span>
-                </v-tooltip>
-                <v-menu
-                  ref="filterDataRange"
-                  v-model="filter.dataRange.visible"
-                  :close-on-content-click="false"
-                  :return-value.sync="filter.dataRange.dates"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="290px"
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="dateRangeText"
+                  :label="$t('Date the contact was created')"
+                  persistent-hint
+                  prepend-inner-icon="mdi-calendar"
+                  readonly
+                  outlined
+                  dense
+                  clearable
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="filter.dataRange.dates"
+                no-title
+                :show-current="false"
+                :locale="$i18n.locale"
+                range
+              >
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="filter.dataRange.dates = []"
+                  @mouseup="filter.dataRange.visible = false"
                 >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="dateRangeText"
-                      :label="$t('Date the contact was created')"
-                      persistent-hint
-                      prepend-inner-icon="mdi-calendar"
-                      readonly
-                      outlined
-                      dense
-                      clearable
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="filter.dataRange.dates"
-                    no-title
-                    :show-current="false"
-                    :locale="$i18n.locale"
-                    range
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="filter.dataRange.dates = []"
-                      @mouseup="filter.dataRange.visible = false"
-                    >
-                      {{ $t('Clear') }}
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="filter.dataRange.visible = false"
-                    >
-                      {{ $t('Cancel') }}
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.filterDataRange.save(filter.dataRange.dates)"
-                    >
-                      {{ $t('Ok') }}
-                    </v-btn>
-                  </v-date-picker>
-                </v-menu>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+                  {{ $t('Clear') }}
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="filter.dataRange.visible = false"
+                >
+                  {{ $t('Cancel') }}
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="$refs.filterDataRange.save(filter.dataRange.dates)"
+                >
+                  {{ $t('Ok') }}
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </div>

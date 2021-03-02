@@ -18,6 +18,8 @@ export interface NotificationInterface {
   type: string;
   icon: string;
   color: string;
+  style?: any;
+  class?: string;
   title: string;
   message: string;
   message2?: string;

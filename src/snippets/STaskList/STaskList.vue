@@ -56,11 +56,17 @@
             <v-divider
               :key="`v-divider-${taskIndex}`"
             />
+
+            <v-skeleton-loader
+              v-if="tasksLoading"
+              type="list-item-avatar-two-line"
+              :key="`v-skeleton-loader-${taskIndex}`"
+            />
             <v-list-item
+              v-else
               :key="`v-list-item-${taskIndex}`"
               :style="vListItemStyleComputed(task)"
               link
-              three-line
               exact
               @click.stop="onTaskItemClick(task)"
             >
@@ -74,30 +80,15 @@
                 </v-avatar>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title v-if="task.type === 'call'">{{ $t('Call') }}</v-list-item-title>
+                <v-list-item-title v-if="task.type === 'call'">
+                  {{ `Позвонить ${$moment.utc(task.planned).local().format('Do MMMM, dddd, hh:mm:ss a')}` }}
+                </v-list-item-title>
                 <v-list-item-title v-if="task.type === 'task'">{{ $t('Task') }}</v-list-item-title>
                 <v-list-item-title v-if="task.type === 'meeting'">{{ $t('Meeting') }}</v-list-item-title>
                 <v-list-item-title v-if="task.type === 'letter'">{{ $t('Letter') }}</v-list-item-title>
                 <v-list-item-title v-if="task.type === 'other'">{{ $t('Other') }}</v-list-item-title>
                 <v-list-item-subtitle>
                   {{ task.description || '—' }}
-                </v-list-item-subtitle>
-                <v-list-item-subtitle>
-                  Выполнить до {{ new Date(task.planned_for * 1000).toLocaleString() }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-spacer/>
-              <v-list-item-content>
-                <v-list-item-title>Автор</v-list-item-title>
-                <v-list-item-subtitle v-if="$store.getters['profile/id'] === task.author.id">Вы
-                </v-list-item-subtitle>
-                <v-list-item-subtitle v-else>{{ task.author.first_name }} {{
-                    task.author.last_name
-                  }}
-                </v-list-item-subtitle>
-                <v-list-item-subtitle>{{
-                    new Date(task.created_at * 1000).toLocaleString()
-                  }}
                 </v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>

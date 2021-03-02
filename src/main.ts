@@ -18,6 +18,7 @@ import '@/plugins/toast'
 import '@/plugins/permission'
 import '@/plugins/cookie'
 import '@/plugins/router-query'
+import '@/plugins/moment'
 import CleanLayout from '@/layouts/Clean.vue'
 
 import(/* webpackChunkName: "plugin-lvovich", webpackPreload: true */ '@/plugins/lvovich')
