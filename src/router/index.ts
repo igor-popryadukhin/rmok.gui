@@ -535,7 +535,7 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if (!$permission.isSuperAdmin && $permission.isGranted(['section.contacts'])) {
+          if ($permission.isGranted(['section.contacts'])) {
             next()
           } else {
             next({ name: 'access_denied' })
