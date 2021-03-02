@@ -58,32 +58,11 @@
                 </v-toolbar>
               </template>
 
-              <template
-                slot="header.client"
-                slot-scope="{ header }"
-              >
-                <span class="text-no-wrap">{{ $tc(header.text) }}</span>
-              </template>
-
-<!--              <template-->
-<!--                slot="header.project"-->
-<!--                slot-scope="{ header }"-->
-<!--              >-->
-<!--                <span class="text-no-wrap">{{ $tc(header.text) }}</span>-->
-<!--              </template>-->
-
-<!--              <template-->
-<!--                slot="header.created_at"-->
-<!--                slot-scope="{ header }"-->
-<!--              >-->
-<!--                <span class="text-no-wrap">{{ $tc(header.text) }}</span>-->
-<!--              </template>-->
-
               <template slot="item" slot-scope="{ item }">
                 <tr class="v-datatable-item">
                   <td class="text-no-wrap">{{ item.first_name || '' }} {{ item.last_name || '' }} {{ item.middle_name || '' }}</td>
 <!--                  <td class="text-no-wrap">{{  item.project ? item.project.name : '—' }}</td>-->
-<!--                  <td class="text-no-wrap">{{ new Date(item.created_at * 1000).toLocaleString()  }}</td>-->
+                  <td class="text-no-wrap">{{ new Date(item.created_at * 1000).toLocaleString()  }}</td>
                   <td class="text-no-wrap text-right">
                     <v-btn
                       icon
@@ -148,10 +127,9 @@ export default Vue.extend({
         pageStart: 0,
         pageStop: 0,
         headers: [
-          { text: 'Client', align: 'start', sortable: true, value: 'client', width: '200px' },
-          // { text: 'Project', align: 'start', sortable: true, value: 'project' },
-          // { text: 'Created at', align: 'start', sortable: true, value: 'created_at' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
+          { text: this.$tc('Client'), align: 'start', sortable: true, value: 'client', width: '100%' },
+          { text: this.$tc('Created at'), align: 'start', sortable: true, value: 'created_at', width: 'auto' },
+          { text: '', align: 'end', sortable: true, value: 'actions', width: '1%' }
         ],
         items: [] as ContactInterface[]
       }
