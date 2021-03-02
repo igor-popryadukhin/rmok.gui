@@ -27,7 +27,7 @@
           />
         </v-card-text>
 
-        <v-card-title class="grey--text">{{ $tc('Permissions') }}</v-card-title>
+<!--        <v-card-title class="grey&#45;&#45;text">{{ $tc('Permissions') }}</v-card-title>-->
         <v-card-text class="py-0">
           <v-expansion-panels tile flat focusable>
             <v-expansion-panel

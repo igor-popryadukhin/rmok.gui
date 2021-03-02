@@ -209,7 +209,7 @@
       </v-row>
 
       <!-- Организация -->
-      <v-row>
+      <v-row v-if="$permission.isSuperAdmin">
         <v-col
           cols="12"
           md="4"
@@ -285,20 +285,19 @@
 </template>
 
 <script lang="ts">
-import Vue, { VueConstructor } from 'vue'
-import rules from '@/mixins/rules'
-import countryCodes from '@/mixins/countryCodes'
-import { UserInterface, Users } from '@/api/Users'
-import { OrganizationInterface } from '@/api/Organizations'
 import { GroupInterface } from '@/api/Groups'
-import SRoles from '@/snippets/SRoles/SRoles.vue'
+import { OrganizationInterface } from '@/api/Organizations'
+import { ProjectInterface } from '@/api/Projects'
+import { RoleInterface } from '@/api/Roles'
+import { Users } from '@/api/Users'
+import rules from '@/mixins/rules'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
-import { RoleInterface } from '@/api/Roles'
-import { ProjectInterface } from '@/api/Projects'
-import VInterface from '@/VInterface'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
+import SRoles from '@/snippets/SRoles/SRoles.vue'
 import { isEmpty } from '@/Utils'
+import VInterface from '@/VInterface'
+import Vue, { VueConstructor } from 'vue'
 
 interface IRefs {
   sGroups: any,

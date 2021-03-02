@@ -99,10 +99,13 @@
                           color="indigo"
                           class="headline font-weight-light white--text"
                         >
-                          {{ (item.first_name || '-').charAt(0) }}
+                          <span style="font-size: 14px">
+                            {{ (item.first_name || '-').toUpperCase().charAt(0) }}{{ (item.last_name || '-').toUpperCase().charAt(0) }}
+                          </span>
                         </v-list-item-avatar>
                         <v-list-item-content>
                           <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
+                          <v-list-item-subtitle>{{ item.role.name }}</v-list-item-subtitle>
                         </v-list-item-content>
                         <v-list-item-action>
                           <v-btn

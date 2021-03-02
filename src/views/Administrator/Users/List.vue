@@ -56,19 +56,17 @@
             :height="dataTableUsersHeight"
             @pagination="onPaginationChange"
           >
-            <template slot="header.email" slot-scope="{ header }">
-              <span class="text-no-wrap">{{ header.text }}</span>
-            </template>
             <template slot="item" slot-scope="{ item }">
               <tr class="v-datatable-item">
-                <td class="text-no-wrap">{{ item.first_name || $tc('—') }}</td>
-                <td class="text-no-wrap">{{ item.last_name || $tc('—') }}</td>
-                <td class="text-no-wrap">{{ item.middle_name || $tc('—') }}</td>
+                <td class="text-no-wrap">
+                  {{ item.first_name }} {{ item.last_name }} {{ item.middle_name }}
+                </td>
                 <td class="text-no-wrap">
                   {{ item.role ? item.role.name : '—' }}
                 </td>
                 <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>
-                <td class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>
+                <td v-if="$permission.isGranted('user.view_outside_your_group')" class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>
+                <td v-if="$permission.isSuperAdmin" class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>
                 <td class="text-no-wrap text-right">
                   <v-btn
                     :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
@@ -120,7 +118,7 @@
           <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <v-card-text>
+        <v-card-text v-if="$permission.isSuperAdmin">
           <s-organizations-autocomplete
             ref="sOrganizationsAutocomplete"
             v-model="filter.organization"
@@ -140,7 +138,7 @@
             dense
           />
         </v-card-text>
-        <v-card-text>
+        <v-card-text v-if="$permission.isGranted('user.view_outside_your_group')">
           <s-groups
             ref="sGroupsAutocomplete"
             v-model="filter.group"
@@ -203,13 +201,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         pageStart: 0,
         pageStop: 0,
         headers: [
-          { text: 'Имя', align: 'start', sortable: true, value: 'first_name', width: 'auto' },
-          { text: 'Фамилия', align: 'start', sortable: true, value: 'last_name' },
-          { text: 'Отчество', align: 'start', sortable: true, value: 'middle_name' },
+          { text: 'ФИО', align: 'start', sortable: true, value: 'fio', width: 'auto' },
           { text: 'Роль', align: 'start', sortable: true, value: 'role' },
-          { text: 'Проект', align: 'start', sortable: true, value: 'project' },
-          { text: 'Группа', align: 'start', sortable: true, value: 'group' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
+          { text: 'Текущий проект', align: 'start', sortable: true, value: 'project' }
         ],
         items: [] as UserInterface[]
       }
@@ -231,6 +225,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       if (h < 640) { h = 640 }
       return h
     }
+  },
+
+  created () {
+    // Опционально только для супер администраторов
+    if (this.$permission.isGranted('user.view_outside_your_group')) {
+      this.dataTableUsers.headers.push({ text: 'Группа', align: 'start', sortable: true, value: 'group' })
+    }
+
+    if (this.$permission.isSuperAdmin) {
+      this.dataTableUsers.headers.push({ text: 'Организация', align: 'start', sortable: true, value: 'organization' })
+    }
+
+    // Всегда добавляем в конец
+    this.dataTableUsers.headers.push({ text: '', align: 'end', sortable: true, value: 'actions', width: '100%' })
   },
 
   mounted () {
@@ -315,6 +323,18 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
         params.group_id = this.$route.query.group_id
       }
+
+      // Дополнительные реквизиты
+      params.props = []
+      if (this.$permission.isSuperAdmin) {
+        params.props.push('organization')
+      }
+
+      if (this.$permission.isGranted('user.view_outside_your_group')) {
+        params.props.push('group')
+      }
+
+      params.props.push('project')
 
       new Users()
         .find<{count: number}, UserInterface[]>(params)
