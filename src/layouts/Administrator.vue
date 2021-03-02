@@ -278,7 +278,7 @@ export default Vue.extend({
         {
           title: 'Contacts',
           icon: 'mdi-contacts',
-          visible: !this.$permission.isSuperAdmin && this.$permission.isGranted(['section.contacts']),
+          visible: this.$permission.isGranted(['section.contacts']),
           list_item: {
             to: {
               name: 'administrator_contacts'

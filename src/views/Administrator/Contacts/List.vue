@@ -210,11 +210,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         pageStart: 0,
         pageStop: 0,
         headers: [
-          { text: 'Client', align: 'start', sortable: true, value: 'client', width: '200px' },
-          { text: 'Responsible', align: 'start', sortable: true, value: 'responsible' },
-          { text: 'Project', align: 'start', sortable: true, value: 'project' },
-          { text: 'Created at', align: 'start', sortable: true, value: 'created_at' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
+          { text: 'Client', align: 'start', sortable: true, value: 'client', width: '100%' },
+          { text: 'Responsible', align: 'start', sortable: true, value: 'responsible', width: 'auto' },
+          { text: 'Project', align: 'start', sortable: true, value: 'project', width: 'auto' },
+          { text: 'Created at', align: 'start', sortable: true, value: 'created_at', width: 'auto' },
+          { text: '', align: 'end', sortable: true, value: 'actions', width: 'auto' }
         ],
         items: [] as ContactInterface[]
       }
