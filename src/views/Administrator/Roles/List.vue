@@ -29,6 +29,7 @@
             </v-btn>
             <v-btn
               color="primary"
+              :disabled="!$permission.isGranted('role.create')"
               icon
               @click="onAddClick"
             >
@@ -52,7 +53,6 @@
             hide-default-footer
             dense
             :height="dataTableUsersHeight"
-            @pagination="onPaginationChange"
           >
             <template slot="header.name" slot-scope="{ header }">
               <span class="text-no-wrap">{{ $tc(header.text) }}</span>
@@ -169,23 +169,25 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
         ]
       }).then((name: string) => {
-        new Roles()
-          .add({
-            name
-          }).then((id: number) => {
-            this.$toast.success(this.$tc('Role successfully created'))
-            this.$router.push({
-              name: 'administrator_roles_edit',
-              params: { id }
-            })
-          }).catch((e: APIError) => {
-            if (Array.isArray(e.errors)) {
-              e.errors.map((e: any) => {
-                this.$toast.warning(e.message)
+        if (name) {
+          new Roles()
+            .add({
+              name
+            }).then((id: number) => {
+              this.$toast.success(this.$tc('Role successfully created'))
+              this.$router.push({
+                name: 'administrator_roles_edit',
+                params: { id }
               })
-            }
-            this.$toast.error(e.message)
-          })
+            }).catch((e: APIError) => {
+              if (Array.isArray(e.errors)) {
+                e.errors.map((e: any) => {
+                  this.$toast.warning(e.message)
+                })
+              }
+              this.$toast.error(e.message)
+            })
+        }
       })
     }
   }

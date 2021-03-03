@@ -68,7 +68,7 @@ export class Roles {
    */
   public edit (id: number, data: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      $axios.put(`/roles/${id}`, data)
+      $axios.patch(`/roles/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
             return resolve(response.data)

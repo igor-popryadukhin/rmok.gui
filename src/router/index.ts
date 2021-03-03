@@ -67,7 +67,7 @@ const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "not-found" */ '../views/NotFound.vue'),
     meta: {
       layout: 'clean',
-      middleware: [secure]
+      middleware: []
     }
   },
   {
@@ -454,7 +454,7 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isSuperAdmin) {
+          if ($permission.isGranted('role.view')) {
             next()
           } else {
             next({ name: 'access_denied' })

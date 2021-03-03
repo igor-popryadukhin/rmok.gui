@@ -308,7 +308,7 @@ export default Vue.extend({
         {
           title: 'Roles',
           icon: 'mdi-account-tie',
-          visible: this.$permission.isSuperAdmin,
+          visible: this.$permission.isGranted('role.view'),
           list_item: {
             to: {
               name: 'administrator_roles_list'
