@@ -296,6 +296,8 @@
             <v-menu offset-y>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
+                  text
+                  icon
                   color="primary"
                   v-bind="attrs"
                   v-on="on"
