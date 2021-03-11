@@ -876,7 +876,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
                     if (this.assertObjectHasAttribute(e.context, 'contact')) {
                       if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
                         this.$router.replace({
-                          name: 'operator_leads_tasks',
+                          name: 'operator_contacts_view_tasks',
                           params: { contact_id: e.context?.contact.id },
                           query: { task_id: e.context?.id }
                         })

@@ -252,7 +252,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     onTaskItemClick (item: TaskInterface) {
       if (item.contact) {
         this.$router.push({
-          name: 'operator_leads_tasks',
+          name: 'operator_contacts_view_tasks',
           params: { contact_id: item.contact.id } as any,
           query: { task_id: String(item.id) }
         })

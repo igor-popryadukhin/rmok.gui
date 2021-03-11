@@ -1,46 +1,28 @@
 <template>
-  <v-list>
-    <v-list-item link>
-      <v-list-item-content>
-        <v-list-item-title>Single-line item</v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item link two-line>
-      <v-list-item-content>
-        <v-list-item-title>Two-line item</v-list-item-title>
-        <v-list-item-subtitle>Secondary text</v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item link three-line>
-      <v-list-item-content>
-        <v-list-item-title>Three-line item</v-list-item-title>
-        <v-list-item-subtitle>
-          Secondary line text Lorem ipsum dolor sit amet,
-        </v-list-item-subtitle>
-        <v-list-item-subtitle>
-          consectetur adipiscing elit.
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-  </v-list>
+  <s-task-list
+    ref="sTaskList"
+    flat
+  />
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import breadcrumbs from '@/mixins/breadcrumbs'
+import STaskList from '@/snippets/STaskList/STaskList.vue'
+import Vue, { VueConstructor } from 'vue'
+import VInterface from '@/VInterface'
 
-export default Vue.extend({
-  mixins: [breadcrumbs],
-  data () {
-    return {
-      history: [1, 2, 3, 4, 5]
-    }
+export default (Vue as VueConstructor<VInterface>).extend({
+  components: { STaskList },
+
+  beforeRouteUpdate (to, from, next) {
+    this.$refs.sTaskList.fetchData({
+      contact_id: to.params.contact_id
+    }).finally(() => {
+      next()
+    })
+  },
+
+  mounted () {
+    this.$refs.sTaskList.fetchData()
   }
 })
 </script>
-
-<style scoped>
-
-</style>

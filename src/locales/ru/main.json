@@ -256,6 +256,8 @@
     "operator": "@:Operator",
     "operator_leads": "@:Leads",
     "operator_contacts_list": "@:Contacts",
+    "operator_contacts_view": "@:Contacts",
+    "operator_contacts_view_tasks": "@:Tasks",
     "operator_help": "@:Help",
     "operator_calls": "@:Calls",
     "operator_reports": "@:Reports",
