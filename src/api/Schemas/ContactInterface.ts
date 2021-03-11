@@ -1,3 +1,5 @@
+import { ProjectInterface } from '@/api/Projects'
+
 export interface ContactPhoneInterface {
   id: number;
   label: string;
@@ -16,11 +18,13 @@ export interface ContactInterface {
   region: string;
   address: string;
   default_phone?: ContactPhoneInterface;
+  project?: ProjectInterface;
   user: any;
   emails: any[];
   phones: ContactPhoneInterface[];
   current_date_time: number;
   created_at: number;
+  last_call_at: number | null;
 }
 
 export interface HistoryInterface {

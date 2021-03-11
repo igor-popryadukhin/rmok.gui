@@ -17,7 +17,7 @@
             {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
           </template>
         </v-card-title>
-        <v-card-subtitle>
+        <v-card-subtitle v-if="assertObjectHasAttribute(contact.default_phone, 'international')">
           {{ contact.default_phone.international }}
         </v-card-subtitle>
         <v-card-text class="py-0 d-flex justify-space-between">
@@ -318,6 +318,7 @@
 </template>
 
 <script lang="ts">
+import APIError from '@/api/classes/APIError'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
@@ -376,7 +377,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
       ] as TabInterface[],
       saveAndNextLoading: false,
-      dataLoading: true,
+      dataLoading: false,
       comment: {
         disabled: false,
         text: '',
@@ -446,6 +447,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
     //   return true
     // }
   },
+  beforeRouteEnter (to, from, next) {
+    new Contacts()
+      .getById(+to.params.contact_id)
+      .then((contact: ContactInterface) => {
+        next((vm: VInterface) => {
+          vm.contact = contact
+          vm.contactDateTimeNow = new Date(contact.current_date_time * 1000)
+        })
+      }).catch(() => {
+        next({ name: 'not_found' })
+      })
+  },
 
   beforeRouteUpdate (to, from, next) {
     if (from.params.contact_id !== to.params.contact_id) {
@@ -464,34 +477,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
     next()
   },
 
-  created () {
-    this.dataLoading = true
-    new Contacts()
-      .getById(+this.$route.params.contact_id)
-      .then((contact: ContactInterface) => {
-        this.contact = contact
-        this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
-      }).finally(() => {
-        this.dataLoading = false
-      })
-
-    setInterval(() => {
-      this.calculateContactDateTimeNow()
-    }, 1000)
-  },
-
   beforeDestroy () {
     this.$root.$off('root-main-search', this.onRootMainSearch)
     this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
   },
 
   methods: {
-
-    calculateContactDateTimeNow () {
-      this.tick = this.tick + 1
-      this.contactDateTimeNow.setSeconds(this.contactDateTimeNow.getSeconds() + 1)
-    },
-
     onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
         .find({

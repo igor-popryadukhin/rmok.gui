@@ -66,7 +66,7 @@ export class RouterQuery {
         params: this._vueRouter.currentRoute.params,
         query: obj
       }).catch((reason) => {
-        console.log(reason)
+        return false
       }).finally(resolve)
     })
   }

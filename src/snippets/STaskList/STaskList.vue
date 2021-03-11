@@ -81,7 +81,7 @@
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title v-if="task.type === 'call'">
-                  {{ `Позвонить ${$moment.utc(task.planned).local().format('Do MMMM, dddd, hh:mm:ss a')}` }}
+                  {{ `Позвонить ${$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}` }}
                 </v-list-item-title>
                 <v-list-item-title v-if="task.type === 'task'">{{ $t('Task') }}</v-list-item-title>
                 <v-list-item-title v-if="task.type === 'meeting'">{{ $t('Meeting') }}</v-list-item-title>

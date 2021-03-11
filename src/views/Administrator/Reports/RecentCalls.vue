@@ -278,18 +278,37 @@
           :length="dataTableHistory.pages"
           total-visible="5"
         ></v-pagination>
-        <v-spacer/>
-        <v-btn-toggle background-color="green">
+        <v-spacer />
+
+        <v-btn-toggle color="primary">
+          <v-menu offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                :disabled="dataTableHistory.selected.length === 0"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon>mdi-export</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                link
+                @click="onTransferContactsToAnotherProjectClick"
+              >
+                <v-list-item-title>{{ $tc('Transfer contacts to another project') }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
           <v-btn
+            color="primary"
             outlined
-            tile
-            color="white"
           >
-            <v-icon color="white">mdi-cog</v-icon>
+            <v-icon>mdi-cog</v-icon>
           </v-btn>
           <v-btn
+            color="primary"
             outlined
-            color="white"
           >
             Выгрузить в Excel
           </v-btn>
@@ -316,7 +335,32 @@
           fixed-header
           hide-default-footer
         >
+
+          <template
+            slot="header.checkbox"
+          >
+            <v-checkbox
+              v-model="dataTableHistory.selectedAll"
+              :indeterminate="dataTableHistory.selected.length < dataTableHistory.items.length && dataTableHistory.selected.length > 0"
+              :ripple="false"
+              class="ma-0 pa-0"
+              hide-details
+              dense
+            />
+          </template>
+
           <!-- slots item -->
+          <template slot="item.checkbox" slot-scope="{ item }">
+            <v-checkbox
+              v-if="assertObjectHasAttribute(item.contact, 'id')"
+              v-model="dataTableHistory.selected"
+              :ripple="false"
+              class="ma-0 pa-0"
+              :value="item.id"
+              hide-details
+              dense
+            />
+          </template>
           <template slot="item.created_at" slot-scope="{ item }">
             {{ new Date(item.created_at * 1000).toLocaleString() }}
           </template>
@@ -390,6 +434,9 @@
 </template>
 
 <script lang="ts">
+import APIError from '@/api/classes/APIError'
+import { Contacts } from '@/api/Contacts'
+import SContactExportDialog from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
 import Vue, { VueConstructor } from 'vue'
 
 import VueApexCharts from 'vue-apexcharts'
@@ -399,7 +446,6 @@ import Users, { UserInterface } from '@/api/Users'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import ContactHistory from '@/api/ContactHistory'
 import audioPlayer from '@/mixins/audioPlayer'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import VInterface from '@/VInterface'
 
 Vue.use(VueApexCharts)
@@ -467,9 +513,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
         totalCount: 0,
         page: 1, // Текущая страница
         pages: 0, // Всего страниц
-        itemsPerPage: 100, // Количество данных на страницу
+        itemsPerPage: 100, // Количество данных на страниц
+        selectedAll: false, // Выделить все контакты
+        selected: [],
         items: [],
         headers: [
+          {
+            text: ' ',
+            align: 'start',
+            sortable: false,
+            value: 'checkbox',
+            width: 'auto'
+          },
           {
             text: 'Дата и время',
             align: 'start',
@@ -567,6 +622,26 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
       },
       deep: true
+    },
+
+    'dataTableHistory.selectedAll': {
+      handler (val: boolean) {
+        if (val) {
+          this.dataTableHistory.selected = this.dataTableHistory.items.map((e: any) => e.id)
+        } else {
+          this.dataTableHistory.selected = []
+        }
+      }
+    },
+
+    'dataTableHistory.selected': {
+      handler (selected: any[]) {
+        if (selected.length === this.dataTableHistory.items.length) {
+          this.dataTableHistory.selectedAll = true
+        } else if (selected.length === 0) {
+          this.dataTableHistory.selectedAll = false
+        }
+      }
     },
 
     usersSelected: {
@@ -870,6 +945,57 @@ export default (Vue as VueConstructor<VInterface>).extend({
             item.isPlaying = false
           })
       }
+    },
+
+    /**
+     * Передать контакты в другой проект
+     */
+    async onTransferContactsToAnotherProjectClick () {
+      const instance = await this.$dialog.show(SContactExportDialog, {
+        waitForResult: false,
+        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableHistory.selected.length),
+        persistent: true,
+        width: '700px',
+        // scope - набор опций для передачи контактов
+        onTransfer: (scope: any) => {
+          const data: any = {
+            target_project: scope.target_project.id,
+            target_users: scope.target_users.map((e: UserInterface) => e.id),
+            target_contacts: this.dataTableHistory.selected
+          }
+
+          // В dataTableHistory.selected данные истории
+          this.dataTableHistory.selected.forEach((value, index) => {
+            // Мы обязаны проверит наличие контакта в истории
+            if (this.assertObjectHasAttribute(value.contact, 'id')) {
+              data.target_contacts.push(value.contact.id)
+            }
+          })
+
+          if (this.assertObjectHasAttribute(scope, 'new_date')) {
+            data.new_date = scope.new_date
+          }
+
+          new Contacts()
+            .transfer(data)
+            .then(() => {
+              this.$toast.success(this.$tc('Transfer success'))
+            }).catch((error) => {
+              if (error instanceof APIError) {
+                error.errors.forEach((value) => {
+                  this.$toast.error(this.$tc(value.message))
+                })
+                this.$toast.error(this.$tc(error.error_message))
+              }
+            }).finally(() => {
+              instance.close()
+            })
+        },
+
+        onCancel: () => {
+          instance.close()
+        }
+      })
     },
 
     secondsToHmsDigital (d: number) {

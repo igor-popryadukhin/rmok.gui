@@ -9,7 +9,7 @@ class PermissionPlugin {
     Object.defineProperties(Vue.prototype, {
       $moment: {
         get () {
-          return moment()
+          return moment
         }
       }
     })
