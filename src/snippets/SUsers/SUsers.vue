@@ -17,6 +17,7 @@
     :outlined="outlined"
     :dense="dense"
     :clearable="clearable"
+    :multiple="multiple"
     single-line
     disable-lookup
     return-object
@@ -26,28 +27,19 @@
   >
     <template
       slot="item"
-      slot-scope="{ item, on, attrs }"
+      slot-scope="scope"
     >
-      <v-list-item
-        class="v-divider"
-        v-on="on"
-        :attrs="attrs"
-        link
-        :two-line="!showOrganization"
-        :three-line="showOrganization"
-      >
-        <v-list-item-content>
-          <v-list-item-title>
-            {{ item.first_name || '' }} {{ item.last_name || '' }}
-          </v-list-item-title>
-          <v-list-item-subtitle v-if="item.role">
-            {{ item.role.name }}
-          </v-list-item-subtitle>
-          <v-list-item-subtitle v-if="showOrganization && item.organization">
-            {{ item.organization.name }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
+      <v-list-item-content>
+        <v-list-item-title>
+          {{ scope.item.first_name || '' }} {{ scope.item.last_name || '' }}
+        </v-list-item-title>
+        <v-list-item-subtitle v-if="scope.item.role">
+          {{ scope.item.role.name }}
+        </v-list-item-subtitle>
+        <v-list-item-subtitle v-if="showOrganization && scope.item.organization">
+          {{ scope.item.organization.name }}
+        </v-list-item-subtitle>
+      </v-list-item-content>
     </template>
 
     <template v-slot:append-item>
@@ -63,10 +55,33 @@
 
     <template
       slot="selection"
-      slot-scope="{ item }"
+      slot-scope="{ item, attrs, select }"
     >
-      <v-list-item-title>{{ item.first_name || '' }} {{ item.last_name || '' }}</v-list-item-title>
+      <template v-if="multiple">
+        <v-chip
+          v-bind="attrs"
+          :input-value="select"
+          class="ma-1"
+          color="primary"
+          label
+          close
+          small
+          @click="select"
+          @click:close="chipRemove(item)"
+        >
+          <v-avatar v-if="item.userpic" left>
+            <v-img :lazy-src="item.userpic"></v-img>
+          </v-avatar>
+          {{ item.first_name }} {{ item.last_name }}
+        </v-chip>
+      </template>
+      <template v-else>
+        <v-list-item-title>
+          {{ item.first_name }} {{ item.last_name }}
+        </v-list-item-title>
+      </template>
     </template>
+
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
       v-slot:prepend
@@ -77,16 +92,19 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 import Users, { UserInterface } from '@/api/Users'
 import { debounce } from 'vuetify/src/util/helpers'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
   props: {
     label: {
       type: String,
       default: () => ''
+    },
+    multiple: {
+      type: Boolean,
+      default: () => false
     },
     clearable: {
       type: Boolean,
@@ -123,7 +141,7 @@ export default Vue.extend({
       default: () => []
     },
     value: {
-      type: Object,
+      type: [Object, Array] as PropType<UserInterface | UserInterface[]>,
       default: () => null
     },
     autoload: {
@@ -135,7 +153,7 @@ export default Vue.extend({
       default: false
     },
     errorMessages: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default: () => []
     }
   },
@@ -151,7 +169,7 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: {} as unknown as UserInterface,
+      selected: null as unknown & UserInterface | null,
       process: false,
       options: [] as UserInterface[]
     }
@@ -178,6 +196,13 @@ export default Vue.extend({
   },
 
   methods: {
+    chipRemove (item: UserInterface | null) {
+      if (Array.isArray(this.selected) && item) {
+        const index = this.selected.findIndex((e: UserInterface) => e.id === item.id)
+        if (index >= 0) this.selected.splice(index, 1)
+      }
+    },
+
     setParams (params: any) {
       this.dParams = Object.assign({}, params)
     },
@@ -187,7 +212,7 @@ export default Vue.extend({
       search(this, this.dParams)
     },
 
-    setSelected (data: UserInterface) {
+    setSelected (data: UserInterface | null) {
       this.selected = data
     },
 
@@ -226,7 +251,7 @@ export default Vue.extend({
     },
 
     focus () {
-      this.$refs.ref.focus()
+      (this as any).$refs.ref.focus()
     }
   }
 })

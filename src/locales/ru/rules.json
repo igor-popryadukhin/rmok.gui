@@ -1,26 +1,3 @@
 {
-  "rule_product_name_message_error": "В наименовании присутствуют запрещённые символы!",
-  "rule_product_description_message_error": "В описании присутствуют запрещённые символы!",
-  "rule_max_length_256": "Максимум 256 символов!",
-  "rule_max_length_50": "Максимум 50 символов!",
-  "rule_max_length_3000": "Максимум 3000 символов!",
-  "rule_not_empty": "Поле не должно быть пустым!",
-  "rule_invalid_email": "Неверный адрес электронной почты!",
-  "rule_phone_number": "Неверный  номер телефона для {country} пример {example}",
-  "rule_invalid_phone_number": "Неверный номер телефона!",
-  "rule_value_is_not_equal": "Значение не равны!",
-  "rule_required": "Обязательно к заполнению!",
-  "rule_max_dynamic_length": "Максимум {val}",
-  "rule_min_dynamic_length": "Минимум {val}",
-  "rule_regex_dynamic": "Не соответствует паттерну {val}",
-  "rule_only": "Только: {val}",
-  "The minimum length of the CPP is 9 characters": "Минимальная длина КПП - 9 символов",
-  "The maximum length of the CPP is 9 characters": "Максимальная длина КПП 9 символов",
-  "Minimum length INN 9 characters": "Минимальная длина ИНН 9 символов",
-  "Maximum length ИНН 12 characters": "Максимальная длина ИНН 12 символов",
-  "This value should be positive.": "Значение должно быть положительным.",
-  "This field should not be blank.": "Это поле не должно быть пустым.",
-  "Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.": "Пустое значение | Это значение слишком длинное. Он должен содержать не более {n} символа. | Это значение слишком длинное. Он должен содержать не более {n} символов.",
-  "Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.": "Это значение слишком короткое. Оно должно содержать символ {n} или более. | Это значение слишком короткое. Он должен содержать {n} символов или более. | Это значение слишком короткое. Он должен содержать {n} символов или более.",
-  "Invalid phone number.": "Неправильный номер телефона."
+
 }

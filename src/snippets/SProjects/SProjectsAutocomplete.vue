@@ -15,6 +15,7 @@
     :outlined="outlined"
     :dense="dense"
     :clearable="clearable"
+    :error-messages="errorMessages"
     single-line
     disable-lookup
     return-object
@@ -112,6 +113,10 @@ export default Vue.extend({
     value: {
       type: Object,
       default: () => null
+    },
+    errorMessages: {
+      type: Array,
+      default: () => []
     }
   },
 

@@ -23,6 +23,10 @@ declare module 'vue/types/vue' {
     $permission: Permission
     assertObjectHasAttribute (obj: any, key: string): boolean
   }
+
+  interface VueConstructor {
+    $myGlobal: string
+  }
 }
 
 declare module 'vuescroll/dist/vuescroll-native'

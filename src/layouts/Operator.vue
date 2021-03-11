@@ -823,7 +823,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
               let icon = ''
               switch (task.type) {
                 case TaskType.CALL: {
-                  title = `Позвонить ${this.$moment.utc(task.planned).local().format('Do MMMM, dddd, hh:mm:ss a')}`
+                  title = `Позвонить ${this.$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}`
                   icon = 'mdi-alpha-c-circle'
                   break
                 }

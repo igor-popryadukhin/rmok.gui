@@ -4,7 +4,7 @@ import { AxiosResponse } from 'axios'
 import { ContactInterface } from './Schemas/ContactInterface'
 import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import ResponseInterface from '@/api/Schemas/ResponseInterface';
-import APIError from "@/api/classes/APIError";
+import APIError from '@/api/classes/APIError';
 
 interface Contact extends ContactInterface, CheckedInterface {}
 
@@ -28,7 +28,7 @@ export class Contacts {
    *
    * @param params
    */
-  public find<TM, TD>(params: any): Promise<ResponseInterface<TM, TD> | any> {
+  public find<TM, TD> (params: any): Promise<ResponseInterface<TM, TD> | any> {
     return new Promise<ResponseInterface<TM, TD> | any>((resolve, reject) => {
       $axios.get('/contacts', {
         params
@@ -77,6 +77,22 @@ export class Contacts {
 
   /**
    *
+   * @param data
+   */
+  public transfer (data: any): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.post('/contacts/transfer', data)
+          .then((response: AxiosResponse) => {
+            if ([200, 204].includes(response.status)) {
+              return resolve(response.data)
+            }
+            throw new APIError(response.data)
+          }).catch(reject)
+    })
+  }
+
+  /**
+   *
    * @param id
    */
   public getById (id: number): Promise<ContactInterface> {
@@ -87,7 +103,7 @@ export class Contacts {
             resolve(response.data)
             return
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
@@ -113,7 +129,7 @@ export class Contacts {
    * Get contact by phone number
    * @param number
    */
-  public getByPhoneNumber<T>(number: string): Promise<T> {
+  public getByPhoneNumber<T> (number: string): Promise<T> {
     return new Promise<T | any>((resolve, reject) => {
       $axios.get(`/contacts/${number}`)
         .then((response: AxiosResponse) => {
@@ -145,7 +161,7 @@ export class Contacts {
    * @param contact_id
    * @param params
    */
-  public getHistory<TM, TD>(contact_id: number, params = {}): Promise<ResponseInterface<TM, TD>> {
+  public getHistory<TM, TD> (contact_id: number, params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get(`/contacts/${contact_id}/history`, {
         params
