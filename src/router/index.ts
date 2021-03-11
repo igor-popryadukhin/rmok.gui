@@ -183,12 +183,15 @@ const routes: RouteConfig[] = [
             path: '',
             name: 'operator_contacts_list',
             component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] }
+            meta: {
+              layout: 'operator-layout',
+              middleware: [secure]
+            }
           },
           {
             path: 'new',
             name: 'operator_contacts_new',
-            component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/New.vue'),
+            component: () => import(/* webpackChunkName: "operator-contacts-new" */ '../views/Operator/Contacts/New.vue'),
             meta: { layout: 'operator-layout', middleware: [secure] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
@@ -196,9 +199,9 @@ const routes: RouteConfig[] = [
             }
           },
           {
-            path: ':contact_id',
+            path: ':contact_id/edit',
             name: 'operator_contacts_edit',
-            component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Edit.vue'),
+            component: () => import(/* webpackChunkName: "operator-contacts-edit" */ '../views/Operator/Contacts/Edit.vue'),
             meta: { layout: 'operator-layout', middleware: [secure] },
             beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
               next()
@@ -225,8 +228,8 @@ const routes: RouteConfig[] = [
               },
               {
                 path: 'tasks',
-                name: 'operator_contacts_view_task',
-                component: () => import(/* webpackChunkName: "operator-contacts-view-task" */ '../views/Operator/Contacts/Task.vue'),
+                name: 'operator_contacts_view_tasks',
+                component: () => import(/* webpackChunkName: "operator-contacts-view-tasks" */ '../views/Operator/Contacts/Task.vue'),
                 meta: { layout: 'operator-layout', middleware: [secure] }
               }
             ],
