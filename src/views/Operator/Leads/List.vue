@@ -40,7 +40,7 @@
                       :key="`list-item-${item.id}`"
                       ripple
                       selectable
-                      @click.stop="$router.push({ path: `/operator/leads/${item.id}/script` })"
+                      :to="{ name: 'operator_leads_script', params: { contact_id: item.id } }"
                       style="min-height: 35px"
                     >
                       <v-list-item-content class="pa-0">
@@ -212,10 +212,9 @@ import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api
 import Projects, { ProjectInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
 import { UserInterface } from '@/api/Users'
-import Tasks, { TaskGetResponseInterface, TaskInterface } from '@/api/Tasks'
+import { TaskInterface } from '@/api/Tasks'
 import Leads from '@/api/Leads'
 import secondsToHms from '@/mixins/secondsToHms'
-import ErrorInterface from '@/api/Schemas/ErrorInterface'
 import STaskList from '@/snippets/STaskList/STaskList.vue'
 
 interface DataInterface {
@@ -512,9 +511,9 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
      */
     loadLeads () {
       const query: ContactSearchQueryInterface = {
-        q: this.$routerQuery.getQuery('q', ''),
-        user_id: +this.$routerQuery.getQuery('user_id', '0'),
-        dates: this.$routerQuery.getQuery('dates', ''),
+        q: this.$routerQuery.getQuery('q'),
+        user_id: +this.$routerQuery.getQuery('user_id'),
+        dates: this.$routerQuery.getQuery('dates'),
         offset: this.vueScrollLeads.offset,
         count: 10
       }

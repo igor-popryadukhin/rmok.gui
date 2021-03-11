@@ -37,7 +37,7 @@
             color="primary"
             text
             outlined
-            @click="!assertObjectHasAttribute(contact.default_phone, 'raw') ? onCall(contact.default_phone.raw, contact.id) : null"
+            @click="onCall(contact.default_phone.raw, contact.id)"
           >
             {{ $tc('Call') }}
           </v-btn>
@@ -280,12 +280,12 @@
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
-                  v-on="on"
-                  v-bind="attrs"
-                  :loading="saveAndNextLoading"
                   color="primary"
                   text
                   disabled
+                  v-on="on"
+                  v-bind="attrs"
+                  :loading="saveAndNextLoading"
                   @click="onSaveAndNext"
                 >
                   {{ $t('Save') }}
@@ -462,6 +462,23 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }).catch(() => {
         next({ name: 'not_found' })
       })
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      const contacts: Contacts = new Contacts()
+
+      this.dataLoading = true
+      contacts
+        .getById(+to.params.contact_id)
+        .then((contact: ContactInterface) => {
+          this.contact = contact
+          this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
+        }).finally(() => {
+          this.dataLoading = false
+        })
+    }
+    next()
   },
 
   beforeDestroy () {

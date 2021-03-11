@@ -318,7 +318,6 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
