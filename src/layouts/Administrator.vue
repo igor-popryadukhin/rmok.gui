@@ -53,7 +53,21 @@
                 v-bind="mainMenuItemChildren.attrs"
                 link
               >
-                <v-list-item-title>{{ $tc(mainMenuItemChildren.title) }}</v-list-item-title>
+                <v-tooltip
+                  open-delay="500"
+                  color="primary"
+                  right
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-list-item-title
+                      v-on="on"
+                      v-bind="attrs"
+                    >
+                      {{ $tc(mainMenuItemChildren.title) }}
+                    </v-list-item-title>
+                  </template>
+                  <span>{{ $tc(mainMenuItemChildren.title) }}</span>
+                </v-tooltip>
                 <v-list-item-icon>
                   <v-icon v-text="mainMenuItemChildren.icon"></v-icon>
                 </v-list-item-icon>
@@ -74,7 +88,21 @@
             </v-list-item-icon>
 
             <v-list-item-content>
-              <v-list-item-title>{{ $tc(mainMenuItem.title) }}</v-list-item-title>
+              <v-tooltip
+                open-delay="500"
+                color="primary"
+                right
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-list-item-title
+                    v-on="on"
+                    v-bind="attrs"
+                  >
+                    {{ $tc(mainMenuItem.title) }}
+                  </v-list-item-title>
+                </template>
+                <span>{{ $tc(mainMenuItem.title) }}</span>
+              </v-tooltip>
             </v-list-item-content>
           </v-list-item>
         </template>
@@ -349,6 +377,16 @@ export default Vue.extend({
               attrs: {
                 to: {
                   name: 'administrator_reports_all_calls'
+                }
+              }
+            },
+            {
+              title: 'By the number of calls',
+              icon: '',
+              visible: true,
+              attrs: {
+                to: {
+                  name: 'administrator_reports_call_count'
                 }
               }
             }

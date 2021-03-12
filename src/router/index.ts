@@ -772,7 +772,16 @@ const routes: RouteConfig[] = [
           {
             path: 'all-calls',
             name: 'administrator_reports_all_calls',
-            component: () => import(/* webpackChunkName: "administrator-all-calls" */ '../views/Administrator/Reports/AllCalls.vue'),
+            component: () => import(/* webpackChunkName: "administrator-reports-all-calls" */ '../views/Administrator/Reports/AllCalls.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: [secure]
+            }
+          },
+          {
+            path: 'call-count',
+            name: 'administrator_reports_call_count',
+            component: () => import(/* webpackChunkName: "administrator-reports-call-count" */ '../views/Administrator/Reports/CallCount.vue'),
             meta: {
               layout: 'administrator',
               middleware: [secure]
