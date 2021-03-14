@@ -171,7 +171,7 @@ export default Vue.extend({
       lockSearch: false,
       selected: null as unknown & UserInterface | null,
       process: false,
-      options: [] as UserInterface[]
+      options: [] as unknown & UserInterface[]
     }
   },
 
@@ -200,6 +200,8 @@ export default Vue.extend({
       if (Array.isArray(this.selected) && item) {
         const index = this.selected.findIndex((e: UserInterface) => e.id === item.id)
         if (index >= 0) this.selected.splice(index, 1)
+      } else {
+        this.selected = null
       }
     },
 
@@ -208,7 +210,7 @@ export default Vue.extend({
     },
 
     fetchData (params = {}) {
-      this.dParams = Object.assign({}, this.dParams, params)
+      this.dParams = Object.assign({}, this.params, params)
       search(this, this.dParams)
     },
 
@@ -228,19 +230,34 @@ export default Vue.extend({
 
     /**
      * Загрузить с сервера для установки текущего значения
-     * @param id
+     * @param param
      */
-    setDefault (id: number) {
+    setDefault (param: number | number[]) {
       return new Promise<void>((resolve, reject) => {
-        new Users()
-          .getById(id)
-          .then((response: UserInterface) => {
-            this.selected = response
-            if (this.options.findIndex(value => value.id === id) === -1) {
-              this.options.push(response)
-            }
-            resolve()
-          }).catch(reject)
+        if (Array.isArray(param)) {
+          /*
+            Массив идентификаторов
+            Здесь загружаем массив пользователей
+           */
+          new Users()
+            .getByIds(param)
+            .then((response) => {
+              this.$data.selected = response.data
+              this.$data.options = response.data
+              resolve()
+            }).catch(reject)
+        } else {
+          // Только одного
+          new Users()
+            .getById(param)
+            .then((response: UserInterface) => {
+              this.selected = response
+              if (this.options.findIndex(value => value.id === param) === -1) {
+                this.options.push(response)
+              }
+              resolve()
+            }).catch(reject)
+        }
       })
     },
 

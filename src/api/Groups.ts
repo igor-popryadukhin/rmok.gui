@@ -48,6 +48,24 @@ export class Groups {
   }
 
   /**
+   *
+   * @param ids
+   * @param params
+   */
+  public getByIds<TM, TD = GroupInterface[]> (ids: number[], params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise((resolve, reject): Promise<GroupInterface> | any => {
+      $axios.get('/groups', {
+        params: Object.assign({}, { target_groups: ids }, params)
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          return resolve(response.data)
+        }
+        throw new APIError(response.data)
+      }).catch(reject)
+    })
+  }
+
+  /**
    * Add a new group to the server
    * @param data
    */
