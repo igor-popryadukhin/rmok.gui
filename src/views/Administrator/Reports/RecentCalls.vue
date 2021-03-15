@@ -3,9 +3,9 @@
     <v-row>
       <v-col class="pt-0 pb-0">
         <div class="d-flex">
-          <v-spacer />
+          <v-spacer/>
           <v-btn-toggle
-            v-model="filterDate"
+            v-model="filter.date"
             group
             dense
           >
@@ -80,7 +80,11 @@
     <!-- Date range -->
     <v-row>
       <v-col>
-        <v-card outlined>
+        <v-card
+          outlined
+          tile
+          flat
+        >
           <v-card-text class="">
             <v-row>
               <v-col
@@ -90,28 +94,15 @@
                 sm="12"
                 xs="12"
               >
-                <v-combobox
-                  v-model="usersSelected"
-                  :items="users"
-                  item-value="id"
+                <s-users
+                  ref="sUsersAutocomplete"
+                  v-model="filter.user"
                   :label="$tc('Users')"
-                  :disabled="(users || []).length === 0"
-                  clearable
-                  return-object
-                  dense
+                  :params="{ role_use: 'for_calls' }"
                   outlined
-                >
-                  <template v-slot:item="scope">
-                    <v-list-item v-on="scope.on">
-                      <v-list-item-title>
-                        {{ scope.item.first_name }} {{ scope.item.last_name }}
-                      </v-list-item-title>
-                    </v-list-item>
-                  </template>
-                  <template v-slot:selection="{ item }">
-                    {{ item.first_name }} {{ item.last_name }}
-                  </template>
-                </v-combobox>
+                  dense
+                  clearable
+                />
               </v-col>
               <v-col
                 class="py-0"
@@ -437,6 +428,7 @@
 import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import SContactExportDialog from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
+import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue, { VueConstructor } from 'vue'
 
 import VueApexCharts from 'vue-apexcharts'
@@ -447,12 +439,13 @@ import { secondsToHmsDigital } from '@/utils/datetime'
 import ContactHistory from '@/api/ContactHistory'
 import audioPlayer from '@/mixins/audioPlayer'
 import VInterface from '@/VInterface'
+import { debounce } from 'vuetify/src/util/helpers'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-
+  components: { SUsers },
   mixins: [audioPlayer],
 
   data () {
@@ -487,6 +480,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       users: [] as unknown as UserInterface[],
 
       filter: {
+        date: null as unknown & string | null, // Дата или диапазон дат
+        user: [] as unknown & UserInterface[],
         status: {
           selected: null,
           items: [],
@@ -732,7 +727,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
     this.fetchDataPie()
-    this.fetchUsers()
   },
 
   mounted () {
@@ -744,21 +738,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   methods: {
-    fetchUsers () {
-      new Users()
-        .find({
-          count: 1000
-        })
-        .then((response) => {
-          this.users = response.data
-          if (this.$routerQuery.hasQuery('owner_id')) {
-            const index = this.users.findIndex((user: UserInterface) => user.id === +this.$routerQuery.getQuery('owner_id'))
-            if (index > -1) {
-              this.usersSelected = this.users[index]
-            }
-          }
-        })
-    },
 
     // Загрузить график
     fetchDataPie () {
@@ -1000,11 +979,76 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     secondsToHmsDigital (d: number) {
       return secondsToHmsDigital(d)
+    },
+
+    /**
+     * Инициализировать слежение за изменением фильтров
+     */
+    initializeWatchForFilters () {
+      const debounceDelay = 500 // Задержка выполнения загрузки данных (избавит от дребезга)
+
+      // Фильтрация по пользователям
+      this.$watch('filter.user', debounce((newVal: unknown & UserInterface) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            owner_id: newVal.id
+          }).finally(() => {
+            this.fetchDataPie()
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['owner_id'])
+            .finally(() => {
+              this.fetchDataPie()
+              this.fetchDataHistory()
+            })
+        }
+      }, debounceDelay))
+
+      // Фильтрация по датам
+      this.$watch('filter.date', debounce((newVal: unknown & string) => {
+        const onFetch = () => {
+          this.fetchDataPie()
+          this.fetchDataHistory()
+        }
+        switch (newVal) {
+          case 'today': {
+            this.$routerQuery.setQuery({ date: 'today' }).finally(onFetch)
+            break
+          }
+          case 'yesterday': {
+            this.$routerQuery.setQuery({ date: 'yesterday' }).finally(onFetch)
+            break
+          }
+          case 'this_week': {
+            this.$routerQuery.setQuery({ date: 'this_week' }).finally(onFetch)
+            break
+          }
+          case 'last_week': {
+            this.$routerQuery.setQuery({ date: 'last_week' }).finally(onFetch)
+            break
+          }
+          case 'month': {
+            this.$routerQuery.setQuery({ date: 'month' }).finally(onFetch)
+            break
+          }
+        }
+      }, debounceDelay))
     }
   }
 })
 </script>
 
-<style scoped>
+<style lang="scss">
+  table > tbody > tr > td:nth-child(4) {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 200px;
+  }
 
+  table > tbody > tr > td:nth-child(5) {
+    width: auto;
+  }
 </style>

@@ -5,7 +5,7 @@
         <div class="d-flex">
           <v-spacer/>
           <v-btn-toggle
-            v-model="filterDate"
+            v-model="filter.date"
             group
             dense
           >
@@ -80,7 +80,11 @@
     <!-- Date range -->
     <v-row>
       <v-col>
-        <v-card outlined>
+        <v-card
+          outlined
+          tile
+          flat
+        >
           <v-card-text class="">
             <v-row>
               <v-col
@@ -90,28 +94,15 @@
                 sm="12"
                 xs="12"
               >
-                <v-combobox
-                  v-model="usersSelected"
-                  :items="users"
-                  item-value="id"
+                <s-users
+                  ref="sUsersAutocomplete"
+                  v-model="filter.user"
                   :label="$tc('Users')"
-                  :disabled="(users || []).length === 0"
-                  clearable
-                  return-object
-                  dense
+                  :params="{ role_use: 'for_calls' }"
                   outlined
-                >
-                  <template v-slot:item="scope">
-                    <v-list-item v-on="scope.on">
-                      <v-list-item-title>
-                        {{ scope.item.first_name }} {{ scope.item.last_name }}
-                      </v-list-item-title>
-                    </v-list-item>
-                  </template>
-                  <template v-slot:selection="{ item }">
-                    {{ item.first_name }} {{ item.last_name }}
-                  </template>
-                </v-combobox>
+                  dense
+                  clearable
+                />
               </v-col>
               <v-col
                 class="py-0"
@@ -331,20 +322,22 @@
 <script lang="ts">
 import ContactHistory from '@/api/ContactHistory'
 import Reports from '@/api/Reports'
-import Users, { UserInterface } from '@/api/Users'
+import { UserInterface } from '@/api/Users'
 import audioPlayer from '@/mixins/audioPlayer'
+import SUsers from '@/snippets/SUsers/SUsers.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
 
 import VueApexCharts from 'vue-apexcharts'
+import { debounce } from 'vuetify/src/util/helpers'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-
+  components: { SUsers },
   mixins: [audioPlayer],
 
   data () {
@@ -378,6 +371,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       users: [] as UserInterface[],
 
       filter: {
+        date: null as unknown & string | null, // Дата или диапазон дат
+        user: [] as unknown & UserInterface[],
         status: {
           selected: null,
           items: [],
@@ -460,31 +455,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   watch: {
-    // Отслеживаю изменения данных в filterDate
-    filterDate (value: string | number | undefined) {
-      switch (value) {
-        case 'today': {
-          this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDataHistory)
-          break
-        }
-        case 'yesterday': {
-          this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDataHistory)
-          break
-        }
-        case 'this_week': {
-          this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDataHistory)
-          break
-        }
-        case 'last_week': {
-          this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDataHistory)
-          break
-        }
-        case 'month': {
-          this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDataHistory)
-          break
-        }
-      }
-    },
 
     'dataTableHistory.options': {
       handler ({ sortBy, sortDesc }) {
@@ -503,24 +473,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
       },
       deep: true
-    },
-
-    usersSelected: {
-      handler (user: UserInterface | null) {
-        if (user) {
-          this.$routerQuery.setQuery({
-            owner_id: user.id
-          }).then(() => {
-            this.fetchDataHistory()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['owner_id'])
-            .then(() => {
-              this.fetchDataHistory()
-            })
-        }
-      }
     },
 
     'dataTableHistory.page': {
@@ -551,8 +503,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   created () {
+    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
+  },
+
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
     if (this.$routerQuery.hasQuery('date')) {
-      this.filterDate = this.$routerQuery.getQuery('date')
+      this.filter.date = this.$routerQuery.getQuery('date')
 
       if (/^\d+,\d+/s.test(String(this.filterDate))) {
         const dateRangeStr = String(this.filterDate)
@@ -564,26 +523,24 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     }
 
-    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
-    this.fetchUsers()
+    if (this.$routerQuery.hasQuery('owner_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      this.$routerQuery.getQuery('status_id')
+    }
+
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchDataHistory() // Сначала загружаем данные для диаграммы
+        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
+      })
   },
 
   methods: {
-    fetchUsers () {
-      new Users()
-        .find<{ count: number }, UserInterface[]>({
-          count: 1000
-        })
-        .then((response) => {
-          this.users = response.data
-          if (this.$routerQuery.hasQuery('owner_id')) {
-            const index = this.users.findIndex((user: UserInterface) => user.id === +this.$routerQuery.getQuery('owner_id'))
-            if (index > -1) {
-              this.usersSelected = this.users[index]
-            }
-          }
-        })
-    },
 
     // Загрузить историю
     fetchDataHistory () {
@@ -632,6 +589,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
           this.filter.status.items = response.meta.statuses
 
+          // Устанавливаю ранее сохранённый фильтр
           if (this.$routerQuery.hasQuery('status_id')) {
             const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
             if (index > -1) {
@@ -731,6 +689,56 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     secondsToHmsDigital (d: number) {
       return secondsToHmsDigital(d)
+    },
+
+    /**
+     * Инициализировать слежение за изменением фильтров
+     */
+    initializeWatchForFilters () {
+      const debounceDelay = 500 // Задержка выполнения загрузки данных (избавит от дребезга)
+
+      // Фильтрация по пользователям
+      this.$watch('filter.user', debounce((newVal: unknown & UserInterface) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            owner_id: newVal.id
+          }).then(() => {
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['owner_id'])
+            .then(() => {
+              this.fetchDataHistory()
+            })
+        }
+      }, debounceDelay))
+
+      // Фильтрация по датам
+      this.$watch('filter.date', debounce((newVal: unknown & string) => {
+        switch (newVal) {
+          case 'today': {
+            this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDataHistory)
+            break
+          }
+          case 'yesterday': {
+            this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDataHistory)
+            break
+          }
+          case 'this_week': {
+            this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDataHistory)
+            break
+          }
+          case 'last_week': {
+            this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDataHistory)
+            break
+          }
+          case 'month': {
+            this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDataHistory)
+            break
+          }
+        }
+      }, debounceDelay))
     }
   }
 })

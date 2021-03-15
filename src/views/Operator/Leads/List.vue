@@ -515,7 +515,7 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
         user_id: +this.$routerQuery.getQuery('user_id'),
         dates: this.$routerQuery.getQuery('dates'),
         offset: this.vueScrollLeads.offset,
-        count: 10
+        count: 1000
       }
 
       if (!query.dates) {

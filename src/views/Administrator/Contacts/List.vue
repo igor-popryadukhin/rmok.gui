@@ -222,6 +222,7 @@
             ref="sUsersAutocomplete"
             v-model="filter.responsible"
             :label="$tc('Responsible')"
+            :params="{ role_use: 'for_calls' }"
             clearable
             outlined
             dense
@@ -299,6 +300,7 @@ import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vu
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
+import { debounce } from 'vuetify/src/util/helpers'
 
 interface IRefs {
   sProjectsAutocomplete: any
@@ -616,8 +618,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      * Инициализировать слежку за изменением фильтров
      */
     initializeWatchForFilters () {
+      const debounceDelay = 500 // Задержка, избавит от дребезга
+
       // Фильтрация по проектам
-      this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+      this.$watch('filter.project', debounce((newVal: unknown & ProjectInterface) => {
         if (this.assertObjectHasAttribute(newVal, 'id')) {
           this.$routerQuery.setQuery({
             project_id: newVal.id
@@ -627,10 +631,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             'project_id'
           ]).then(this.fetchContacts)
         }
-      })
+      }, debounceDelay))
 
       // Фильтрация по ответственным
-      this.$watch('filter.responsible', (newVal: unknown & UserInterface) => {
+      this.$watch('filter.responsible', debounce((newVal: unknown & UserInterface) => {
         if (newVal) {
           this.$routerQuery.setQuery({
             responsible_id: newVal.id
@@ -640,10 +644,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             'responsible_id'
           ]).then(this.fetchContacts)
         }
-      })
+      }, debounceDelay))
 
       // Фильтр Задачи
-      this.$watch('filter.task.selected', (newVal: unknown & string) => {
+      this.$watch('filter.task.selected', debounce((newVal: unknown & string) => {
         if (newVal) {
           this.$routerQuery.setQuery({
             task: newVal
@@ -653,10 +657,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             'task'
           ]).then(this.fetchContacts)
         }
-      })
+      }, debounceDelay))
 
       // Фильтр прозвона
-      this.$watch('filter.last_call_at.selected', (newVal: unknown & string) => {
+      this.$watch('filter.last_call_at.selected', debounce((newVal: unknown & string) => {
         if (newVal) {
           // TODO: В будущем могут быть и другие значения.
           let last_call_at = '0'
@@ -680,10 +684,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             'last_call_at'
           ]).then(this.fetchContacts)
         }
-      })
+      }, debounceDelay))
 
       // Фильтрация по дате создания контакта
-      this.$watch('filter.contact_create_date', (newVal: unknown) => {
+      this.$watch('filter.contact_create_date', debounce((newVal: unknown) => {
         if (typeof newVal === 'string') {
           this.$routerQuery.setQuery({
             contact_create_date: this.$moment(newVal).unix()
@@ -693,7 +697,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             'contact_create_date'
           ]).then(this.fetchContacts)
         }
-      })
+      }, debounceDelay))
     }
   }
 })

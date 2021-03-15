@@ -405,7 +405,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       return new Promise<void>((resolve, reject) => {
         this.tasksLoading = true
 
-        const newParams: any = Object.assign({}, params)
+        const newParams: any = Object.assign({ count: 100 }, params)
 
         if (this.assertObjectHasAttribute(this.$route.params, 'contact_id')) {
           if (!this.assertObjectHasAttribute(newParams, 'contact_id')) {

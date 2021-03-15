@@ -313,7 +313,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   mounted () {
-    // поместите любое обещание, для того что ы подождать, прежде чем начнётся загрузка данных для графика
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
     const promises: Promise<any>[] = []
 
     if (this.$routerQuery.hasQuery('date')) {

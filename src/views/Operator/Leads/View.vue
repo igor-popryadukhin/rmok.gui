@@ -13,9 +13,7 @@
         outlined
       >
         <v-card-title class="mb-2 py-2">
-          <template>
-            {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
-          </template>
+          {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
         </v-card-title>
         <v-card-subtitle v-if="assertObjectHasAttribute(contact.default_phone, 'international')">
           {{ contact.default_phone.international }}

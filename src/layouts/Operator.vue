@@ -611,7 +611,8 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           title: 'Calls',
           icon: '',
           attrs: {
-            link: true
+            link: true,
+            disabled: true
           }
         },
         {
