@@ -5,7 +5,7 @@
         <div class="d-flex">
           <v-spacer/>
           <v-btn-toggle
-            v-model="filterDate"
+            v-model="filter.date"
             group
             dense
           >
@@ -133,7 +133,7 @@
     <!-- CHART -->
     <v-row>
       <v-col
-        class="pt-0"
+        class="py-0"
       >
         <v-card
           tile
@@ -171,7 +171,7 @@
               >
                 <v-card-text class="overflow-auto">
                   <apexchart
-                    height="550"
+                    :height="chartHeight"
                     type="bar"
                     :options="apexchartOptions"
                     :series="apexSeries"
@@ -238,36 +238,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       users: [] as UserInterface[],
 
       filter: {
+        date: null as unknown & string | null,
         users: [] as unknown & UserInterface[],
         groups: [] as unknown & GroupInterface[]
-      }
-    }
-  },
-
-  watch: {
-    // Отслеживаю изменения данных в filterDate
-    filterDate (value: string | number | undefined) {
-      switch (value) {
-        case 'today': {
-          this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDiagramData)
-          break
-        }
-        case 'yesterday': {
-          this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDiagramData)
-          break
-        }
-        case 'this_week': {
-          this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDiagramData)
-          break
-        }
-        case 'last_week': {
-          this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDiagramData)
-          break
-        }
-        case 'month': {
-          this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDiagramData)
-          break
-        }
       }
     }
   },
@@ -300,6 +273,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
             options: {}
           }
         ],
+        noData: {
+          text: this.$tc('No data'),
+          align: 'center',
+          verticalAlign: 'middle',
+          offsetX: 0,
+          offsetY: 0,
+          style: {
+            color: undefined,
+            fontSize: '16px',
+            fontFamily: undefined
+          }
+        },
         plotOptions: {
           bar: {
             horizontal: false,
@@ -319,28 +304,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     },
 
-    // Вычисление ширины графика на основе количества данных
-    apexchartWidth (): number {
-      let width = 0
-      const series = this.apexSeries[0].data.length
-      width = series * (this.$screenWidth - 1610) // todo: Обратите внимание, здесь будем вычислять общую ширины
-
-      return width
-    },
-
-    dataTableHistoryHeight () {
+    chartHeight () {
       if (this.$screenHeight < 900) {
         return 500
       }
-      return this.$screenHeight - 300
+      return this.$screenHeight - 370
     }
   },
 
   mounted () {
+    // поместите любое обещание, для того что ы подождать, прежде чем начнётся загрузка данных для графика
     const promises: Promise<any>[] = []
 
     if (this.$routerQuery.hasQuery('date')) {
-      this.filterDate = this.$routerQuery.getQuery('date')
+      this.filter.date = this.$routerQuery.getQuery('date')
 
       if (/^\d+,\d+/s.test(String(this.filterDate))) {
         const dateRangeStr = String(this.filterDate)
@@ -391,10 +368,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.target_groups = this.$route.query.target_groups
       }
 
-      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
-        params.history_sort_direction = this.$route.query.history_sort_direction
-      }
-
       new Reports()
         .callCount<any, any>(params)
         .then((response) => {
@@ -428,17 +401,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
         dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
       }
 
-      this.$routerQuery
-        .setQuery({ date: dr })
-        .then(() => {
-          this.fetchDiagramData()
-        })
+      this.$routerQuery.setQuery({ date: dr }).finally(() => (this.fetchDiagramData()))
     },
 
     /**
      * Инициализировать слежение за изменением фильтров
      */
     initializeWatchForFilters () {
+      const debounceDelay = 500 // Задержка выполнения загрузки данных (избавит от дребезга)
+
       // Фильтрация по пользователям
       this.$watch('filter.users', debounce((newVal: unknown & UserInterface[]) => {
         if (Array.isArray(newVal)) {
@@ -454,7 +425,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
               this.fetchDiagramData()
             })
         }
-      }, 500))
+      }, debounceDelay))
 
       // Фильтрация по группам
       this.$watch('filter.groups', debounce((newVal: unknown & GroupInterface[]) => {
@@ -467,7 +438,33 @@ export default (Vue as VueConstructor<VInterface>).extend({
             'target_groups'
           ]).then(this.fetchDiagramData)
         }
-      }, 500))
+      }, debounceDelay))
+
+      // Фильтрация по датам
+      this.$watch('filter.date', debounce((newVal: unknown & string) => {
+        switch (newVal) {
+          case 'today': {
+            this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDiagramData)
+            break
+          }
+          case 'yesterday': {
+            this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDiagramData)
+            break
+          }
+          case 'this_week': {
+            this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDiagramData)
+            break
+          }
+          case 'last_week': {
+            this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDiagramData)
+            break
+          }
+          case 'month': {
+            this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDiagramData)
+            break
+          }
+        }
+      }, debounceDelay))
     }
   }
 })
