@@ -8,7 +8,7 @@ export default class Reports {
    *
    * @param params
    */
-  pie<T> (params = {}): any {
+  public pie<T> (params = {}): any {
     return new Promise<T>((resolve, reject) => {
       $axios.get('/reports/pie', {
         params: { ...params }
@@ -22,9 +22,23 @@ export default class Reports {
     })
   }
 
-  history<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
+  public history<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/reports/history', {
+        params
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          resolve(response.data)
+        } else {
+          throw new APIError(response.data)
+        }
+      }).catch(reject)
+    })
+  }
+
+  public callCount<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+      $axios.get('/reports/call-count', {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {

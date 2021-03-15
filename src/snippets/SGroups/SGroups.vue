@@ -14,6 +14,7 @@
     :rules="rules"
     :dense="dense"
     :clearable="clearable"
+    :multiple="multiple"
     :outlined="outlined"
     single-line
     disable-lookup
@@ -54,9 +55,28 @@
 
     <template
       slot="selection"
-      slot-scope="{ item }"
+      slot-scope="{ item, attrs, select }"
     >
-      <v-list-item-title>{{ item.name }}</v-list-item-title>
+      <template v-if="multiple">
+        <v-chip
+          v-bind="attrs"
+          :input-value="select"
+          class="ma-1"
+          color="primary"
+          label
+          close
+          small
+          @click="select"
+          @click:close="chipRemove(item)"
+        >
+          {{ item.name }}
+        </v-chip>
+      </template>
+      <template v-else>
+        <v-list-item-title>
+          {{ item.name }}
+        </v-list-item-title>
+      </template>
     </template>
 
     <template
@@ -85,6 +105,10 @@ export default Vue.extend({
     label: {
       type: String,
       default: () => ''
+    },
+    multiple: {
+      type: Boolean,
+      default: () => false
     },
     dense: {
       type: Boolean,
@@ -125,7 +149,7 @@ export default Vue.extend({
       default: () => []
     },
     value: {
-      type: Object,
+      type: [Object, Array],
       default: () => null
     }
   },
@@ -141,9 +165,9 @@ export default Vue.extend({
       q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null as GroupInterface | null,
+      selected: null as unknown & GroupInterface | GroupInterface[] | null, // Одна группа или массив групп, зависит т параметра multiple
       process: false,
-      options: [] as GroupInterface[]
+      options: [] as unknown & GroupInterface[]
     }
   },
 
@@ -179,27 +203,38 @@ export default Vue.extend({
     },
 
     pushData (data: GroupInterface) {
-      if (this.options.findIndex<GroupInterface>((e) => e.id === data.id) === -1) {
+      if (this.options.findIndex((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
     },
 
     /**
      * Загрузить с сервера для установки текущего значения
-     * @param id
+     *
+     * @param ids
      */
-    setDefault (id: number) {
+    setDefault (ids: number | number[]) {
       return new Promise<void>((resolve, reject) => {
-        new Groups()
-          .getById(id)
-          .then((response: GroupInterface) => {
-            this.selected = response
-            if (this.options.findIndex(value => value.id === id) === -1) {
-              this.options.push(response)
-            }
+        if (Array.isArray(ids)) {
+          new Groups()
+            .getByIds(ids)
+            .then((response) => {
+              this.$data.selected = response.data
+              this.$data.options = response.data
+              resolve()
+            }).catch(reject)
+        } else {
+          new Groups()
+            .getById(ids)
+            .then((response: GroupInterface) => {
+              this.selected = response
+              if (this.options.findIndex(value => value.id === ids) === -1) {
+                this.options.push(response)
+              }
 
-            resolve()
-          }).catch(reject)
+              resolve()
+            }).catch(reject)
+        }
       })
     },
 
@@ -223,6 +258,15 @@ export default Vue.extend({
     onFocus () {
       if (this.options.length === 0) {
         this.fetchData()
+      }
+    },
+
+    chipRemove (item: GroupInterface | null) {
+      if (Array.isArray(this.selected) && item) {
+        const index = this.selected.findIndex((e: GroupInterface) => e.id === item.id)
+        if (index >= 0) this.selected.splice(index, 1)
+      } else {
+        this.selected = null
       }
     }
   }

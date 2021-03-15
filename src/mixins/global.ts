@@ -6,6 +6,10 @@ Vue.mixin(Vue.extend({
       return this.$vuetify.breakpoint.height
     },
 
+    $screenWidth () {
+      return this.$vuetify.breakpoint.width
+    },
+
     $headerHeight () {
       return 64 // Высота header
     },

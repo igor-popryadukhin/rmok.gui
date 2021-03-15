@@ -108,10 +108,30 @@ export class Users {
   }
 
   /**
+   * Получить список пользователей по их идентификаторам
+   *
+   * @param ids     Массив идентификаторов пользователей
+   * @param params
+   */
+  public getByIds<TM, TD = unknown & UserInterface[]> (ids: number[], params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+      $axios.get('/users', {
+        params: Object.assign({}, { target_users: ids }, params)
+      })
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
    *
    * @param params
    */
-  public find<TM, TD>(params: any): Promise<ResponseInterface<TM, TD>> {
+  public find<TM, TD> (params: any): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/users', {
         params

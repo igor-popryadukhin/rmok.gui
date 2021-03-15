@@ -12,6 +12,7 @@ declare module 'vue/types/vue' {
 
   interface Vue  {
     $screenHeight: number
+    $screenWidth: number
     $headerHeight: number
     $locale: string
     $cookie: Cookie
