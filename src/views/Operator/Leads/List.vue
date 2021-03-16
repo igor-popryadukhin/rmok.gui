@@ -20,7 +20,7 @@
             class="pa-0 pr-lg-3 pr-md-3"
           >
             <v-card
-              :height="$screenHeight - 500"
+              :height="350"
               class="overflow-y-auto v-card"
               elevation="0"
               outlined
