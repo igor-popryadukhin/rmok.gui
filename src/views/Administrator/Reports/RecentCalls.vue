@@ -574,31 +574,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   watch: {
-    // Отслеживаю изменения данных в filterDate
-    filterDate (value: string | number | undefined) {
-      switch (value) {
-        case 'today': {
-          this.$routerQuery.setQuery({ date: 'today' }).then(this.onFilterDate)
-          break
-        }
-        case 'yesterday': {
-          this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.onFilterDate)
-          break
-        }
-        case 'this_week': {
-          this.$routerQuery.setQuery({ date: 'this_week' }).then(this.onFilterDate)
-          break
-        }
-        case 'last_week': {
-          this.$routerQuery.setQuery({ date: 'last_week' }).then(this.onFilterDate)
-          break
-        }
-        case 'month': {
-          this.$routerQuery.setQuery({ date: 'month' }).then(this.onFilterDate)
-          break
-        }
-      }
-    },
 
     'dataTableHistory.options': {
       handler ({ sortBy, sortDesc }) {
@@ -635,26 +610,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.dataTableHistory.selectedAll = true
         } else if (selected.length === 0) {
           this.dataTableHistory.selectedAll = false
-        }
-      }
-    },
-
-    usersSelected: {
-      handler (user: UserInterface | null) {
-        if (user) {
-          this.$routerQuery.setQuery({
-            owner_id: user.id
-          }).then(() => {
-            this.fetchDataPie()
-            this.fetchDataHistory()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['owner_id'])
-            .then(() => {
-              this.fetchDataPie()
-              this.fetchDataHistory()
-            })
         }
       }
     },
@@ -711,9 +666,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
-  created () {
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
     if (this.$routerQuery.hasQuery('date')) {
-      this.filterDate = this.$routerQuery.getQuery('date')
+      this.filter.date = this.$routerQuery.getQuery('date')
 
       if (/^\d+,\d+/s.test(String(this.filterDate))) {
         const dateRangeStr = String(this.filterDate)
@@ -725,16 +683,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     }
 
-    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
-    this.fetchDataPie()
-  },
+    if (this.$routerQuery.hasQuery('owner_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
+    }
 
-  mounted () {
-    // this.$watch('filter.status.selected', ({ status_id }) => {
-    //   this.$routerQuery.setQuery({
-    //     status_id
-    //   })
-    // })
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchDataPie()
+        this.fetchDataHistory()
+
+        this.initializeWatchForFilters()
+      })
   },
 
   methods: {
