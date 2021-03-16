@@ -8,7 +8,7 @@ const package = require('./package.json')
 module.exports = {
   devServer: {
     host: '0.0.0.0',
-    public: '0.0.0.0:3000',
+    public: 'https://develop.rmok.online',
     disableHostCheck: true
   },
 

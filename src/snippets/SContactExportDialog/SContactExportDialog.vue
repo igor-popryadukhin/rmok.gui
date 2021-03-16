@@ -63,6 +63,7 @@
         v-model="target_users"
         :label="$tc('Users to receive contacts')"
         :error-messages="errors.users"
+        :params="{ role_use: 'for_calls' }"
         dense
         outlined
         multiple

@@ -526,7 +526,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         waitForResult: false,
         subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
         persistent: true,
-        width: '700px',
         // scope - набор опций для передачи контактов
         onTransfer: (scope: SContactExportScopeInterface) => {
           const data: unknown & SContactExportScopeInterface & { target_contacts: number[] } = {

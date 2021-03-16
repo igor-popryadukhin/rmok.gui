@@ -818,98 +818,102 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
           // Проверяем наличие подключения и текущего статуса
 
-          response.data.forEach((task: TaskInterface) => {
-            if (!task.done) {
-              let title = ''
-              let icon = ''
-              switch (task.type) {
-                case TaskType.CALL: {
-                  title = `Позвонить ${this.$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}`
-                  icon = 'mdi-alpha-c-circle'
-                  break
-                }
-                case TaskType.TASK: {
-                  title = this.$tc('Task')
-                  icon = 'mdi-alpha-t-circle'
-                  break
-                }
-                case TaskType.MEETING: {
-                  title = this.$tc('Meeting')
-                  icon = 'mdi-alpha-m-circle'
-                  break
-                }
-                case TaskType.LETTER: {
-                  title = this.$tc('Letter')
-                  icon = 'mdi-alpha-e-circle'
-                  break
-                }
-                case TaskType.OTHER: {
-                  title = this.$tc('Other')
-                  icon = 'mdi-alpha-o-circle'
-                  break
-                }
-              }
-
-              if (task.type === TaskType.CALL) {
-                let class_ = ''
-
-                if (task.expired) {
-                  class_ = 'task-expired'
-                }
-
-                let message = `${task.contact?.first_name} ${task.contact?.last_name} ${task.contact?.middle_name}`
-                if (this.assertObjectHasAttribute(task.contact, 'last_status')) {
-                  if (task.contact.last_status) {
-                    message = `${message} <strong>(Статус: ${task.contact.last_status.name})</strong>`
+          response.data.forEach((task: unknown & TaskInterface) => {
+            if (this.assertObjectHasAttribute(task, 'done')) {
+              if (!task.done) {
+                let title = ''
+                let icon = ''
+                switch (task.type) {
+                  case TaskType.CALL: {
+                    title = `Позвонить ${this.$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}`
+                    icon = 'mdi-alpha-c-circle'
+                    break
+                  }
+                  case TaskType.TASK: {
+                    title = this.$tc('Task')
+                    icon = 'mdi-alpha-t-circle'
+                    break
+                  }
+                  case TaskType.MEETING: {
+                    title = this.$tc('Meeting')
+                    icon = 'mdi-alpha-m-circle'
+                    break
+                  }
+                  case TaskType.LETTER: {
+                    title = this.$tc('Letter')
+                    icon = 'mdi-alpha-e-circle'
+                    break
+                  }
+                  case TaskType.OTHER: {
+                    title = this.$tc('Other')
+                    icon = 'mdi-alpha-o-circle'
+                    break
                   }
                 }
 
-                this.notifications.push({
-                  type: 'call',
-                  icon,
-                  color: 'blue',
-                  class: class_,
-                  title,
-                  message,
-                  message2: task.description,
-                  context: task, // Обрати внимание, context будет передан в функцию обратного вызова click
-                  click: (e: NotificationInterface, i: number) => {
-                    if (this.assertObjectHasAttribute(e.context, 'contact')) {
-                      if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
-                        this.$router.replace({
-                          name: 'operator_contacts_view_tasks',
-                          params: { contact_id: e.context?.contact.id },
-                          query: { task_id: e.context?.id }
-                        })
-                      }
-                    } else {
-                      console.error('Задача для контакта не содержит данные контакта')
+                if (task.type === TaskType.CALL) {
+                  let class_ = ''
+
+                  if (task.expired) {
+                    class_ = 'task-expired'
+                  }
+
+                  let message = `${task.contact?.first_name} ${task.contact?.last_name} ${task.contact?.middle_name}`
+                  if (this.assertObjectHasAttribute(task.contact, 'last_status')) {
+                    if (task.contact.last_status) {
+                      message = `${message} <strong>(Статус: ${task.contact.last_status.name})</strong>`
                     }
                   }
-                })
-              } else {
-                this.notifications.push({
-                  type: 'task',
-                  icon,
-                  color: 'blue',
-                  title,
-                  message: task.description,
-                  message2: `Выполнить до ${new Date(task.planned_for * 1000).toLocaleString()}`,
-                  actions: [
-                    {
-                      title: 'Выполнить',
-                      context: task,
-                      handle: (arg: TaskInterface) => {
-                        new Tasks()
-                          .done(arg.id)
-                          .then(() => {
-                            this.$root.$emit('root-update-notifications')
+
+                  this.notifications.push({
+                    type: 'call',
+                    icon,
+                    color: 'blue',
+                    class: class_,
+                    title,
+                    message,
+                    message2: task.description,
+                    context: task, // Обрати внимание, context будет передан в функцию обратного вызова click
+                    click: (e: NotificationInterface, i: number) => {
+                      if (this.assertObjectHasAttribute(e.context, 'contact')) {
+                        if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
+                          this.$router.replace({
+                            name: 'operator_contacts_view_tasks',
+                            params: { contact_id: e.context?.contact.id },
+                            query: { task_id: e.context?.id }
                           })
+                        }
+                      } else {
+                        console.error('Задача для контакта не содержит данные контакта')
                       }
                     }
-                  ]
-                })
+                  })
+                } else {
+                  this.notifications.push({
+                    type: 'task',
+                    icon,
+                    color: 'blue',
+                    title,
+                    message: task.description,
+                    message2: `Выполнить до ${new Date(task.planned_for * 1000).toLocaleString()}`,
+                    actions: [
+                      {
+                        title: 'Выполнить',
+                        context: task,
+                        handle: (arg: TaskInterface) => {
+                          new Tasks()
+                            .done(arg.id)
+                            .then(() => {
+                              this.$root.$emit('root-update-notifications')
+                            })
+                        }
+                      }
+                    ]
+                  })
+                }
               }
+            } else {
+              this.$toast.error('У задачи отсутствует свойство "done"!')
             }
           })
         })
