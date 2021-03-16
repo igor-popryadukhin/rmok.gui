@@ -19,6 +19,7 @@ import '@/plugins/permission'
 import '@/plugins/cookie'
 import '@/plugins/router-query'
 import '@/plugins/moment'
+import '@/plugins/yandex-metrika'
 import CleanLayout from '@/layouts/Clean.vue'
 
 import(/* webpackChunkName: "plugin-lvovich", webpackPreload: true */ '@/plugins/lvovich')

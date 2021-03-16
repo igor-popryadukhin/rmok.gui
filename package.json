@@ -29,6 +29,7 @@
     "vue-property-decorator": "^9.0.2",
     "vue-router": "^3.4.9",
     "vue-toastification": "^1.7.11",
+    "vue-yandex-metrika": "^1.8.3",
     "vuescroll": "^4.16.1",
     "vuetify": "^2.3.17",
     "vuetify-dialog": "^2.0.12",
