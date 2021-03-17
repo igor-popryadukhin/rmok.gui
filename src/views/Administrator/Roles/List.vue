@@ -80,6 +80,7 @@
 
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
+import RoleUseTypeDialog from '@/components/RoleUseTypeDialog/RoleUseTypeDialog.vue'
 import Vue, { VueConstructor } from 'vue'
 import VInterface from '@/VInterface'
 import Roles, { RoleInterface } from '@/api/Roles'
@@ -155,31 +156,23 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       this.fetchRoles()
     },
 
-    onAddClick () {
-      this.$dialog.prompt({
-        title: this.$tc('Creating a new role'),
-        text: this.$tc('New role name'),
-        actions: [
-          {
-            text: this.$tc('Cancel'),
-            color: 'red'
-          },
-          {
-            text: this.$tc('Save')
-          }
-        ]
-      }).then((name: string) => {
-        if (name) {
+    async onAddClick () {
+      // Показать диалог создания новой роли
+      const instance = await this.$dialog.show(RoleUseTypeDialog, {
+        waitForResult: false,
+        onCreate: (scope: any) => {
           new Roles()
             .add({
-              name
+              name: scope.name,
+              use: scope.use
             }).then((id: number) => {
               this.$toast.success(this.$tc('Role successfully created'))
               this.$router.push({
                 name: 'administrator_roles_edit',
                 params: { id }
               })
-            }).catch((e: APIError) => {
+            })
+            .catch((e: APIError) => {
               if (Array.isArray(e.errors)) {
                 e.errors.map((e: any) => {
                   this.$toast.warning(e.message)
@@ -187,6 +180,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               }
               this.$toast.error(e.message)
             })
+            .finally(() => (instance.close()))
+        },
+        onCancel: () => {
+          instance.close()
         }
       })
     }

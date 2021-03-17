@@ -22,8 +22,11 @@
 
         <v-card-text class="py-0">
           <v-select
-            label="Назначение"
-            :items="['Администрирование', 'Для совершения звонков']"
+            v-model="role_use.selected"
+            :items="role_use.options"
+            :label="$tc('The role is used for')"
+            item-text="title"
+            item-value="value"
           />
         </v-card-text>
 
@@ -93,6 +96,7 @@ interface IRefs {
 interface IData {
   name: string;
   permissions: string[];
+  role_use: unknown & { selected: string | null, options: unknown[] };
 
   [key: string]: any
 }
@@ -106,10 +110,23 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   mixins: [rules],
 
-  data () {
+  data (): IData {
     return {
       name: '',
       permissions: [],
+      role_use: {
+        selected: null,
+        options: [
+          {
+            title: this.$tc('For administration'),
+            value: 'for_administration'
+          },
+          {
+            title: this.$tc('For calls'),
+            value: 'for_calls'
+          }
+        ]
+      },
       buttonDelete: {
         loading: false
       },
@@ -124,8 +141,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       .getById(+to.params.id)
       .then((response) => {
         next((vm: VInnerInterface) => {
-          vm.name = response.name
-          vm.permissions = response.permissions
+          vm.$data.name = response.name
+          vm.$data.permissions = response.permissions
+          vm.$data.role_use.selected = response.use
         })
       }).catch(() => {
         next({

@@ -6,6 +6,7 @@ export interface RoleInterface {
   id: string;
   name: string;
   permissions: string[];
+  use: string;
 }
 
 export class Roles {
