@@ -41,34 +41,12 @@
 
         <!-- Time -->
         <v-col>
-          <v-menu
-            ref="menuTimePicker"
-            v-model="menuTimePicker"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            :return-value.sync="dTime"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="dTime"
-                v-on="on"
-                :label="$tc('Time')"
-                :rules="[rules.notBlank]"
-                readonly
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-if="menuTimePicker"
-              v-model="dTime"
-              format="24hr"
-              :locale="$i18n.locale"
-              @click:minute="$refs.menuTimePicker.save(dTime)"
-            ></v-time-picker>
-          </v-menu>
+          <v-text-field
+            type="time"
+            :label="$tc('Time')"
+            :value="dTime"
+            :rules="[rules.notBlank]"
+          ></v-text-field>
         </v-col>
       </v-row>
 
