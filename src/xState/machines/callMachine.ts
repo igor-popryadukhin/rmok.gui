@@ -10,18 +10,18 @@ import VStatusEditDialog from '@/components/VStatusEditDialog/VStatusEditDialog.
 
 enum SessionDirection {
   INCOMING = 'incoming',
-  OUTGOING = 'outgoing',
+  OUTGOING = 'outgoing'
 }
 
-type EventConnection = { type: 'CONNECTING', jssip: JsSIP, session: RTCSession, event: any }
-type EventProgress = { type: 'PROGRESS', jssip: JsSIP, session: RTCSession, event: any }
-type EventAccepted = { type: 'ACCEPTED', jssip: JsSIP, session: RTCSession, event: any }
-type EventEnded = { type: 'ENDED', jssip: JsSIP, session: RTCSession, event: any }
-type EventFailed = { type: 'FAILED', jssip: JsSIP, session: RTCSession, event: any }
+interface EventConnection { type: 'CONNECTING', jssip: JsSIP, session: RTCSession, event: any }
+interface EventProgress { type: 'PROGRESS', jssip: JsSIP, session: RTCSession, event: any }
+interface EventAccepted { type: 'ACCEPTED', jssip: JsSIP, session: RTCSession, event: any }
+interface EventEnded { type: 'ENDED', jssip: JsSIP, session: RTCSession, event: any }
+interface EventFailed { type: 'FAILED', jssip: JsSIP, session: RTCSession, event: any }
 
-type EventDirection = { type: SessionDirection, jssip: JsSIP, session: RTCSession, event: any }
+interface EventDirection { type: SessionDirection, jssip: JsSIP, session: RTCSession, event: any }
 
-type EventCause = { type: causes, jssip: JsSIP, session: RTCSession, event: any }
+interface EventCause { type: causes, jssip: JsSIP, session: RTCSession, event: any }
 
 export type Event =
     | EventConnection
@@ -47,9 +47,10 @@ const callMachine = createMachine<Vue, Event>({
     connecting: {
       entry (ctx, { jssip, session, event }) {
         // Слушатель событий в рамках одной сессии
-        session.on('failed', (event: EndEvent) => {
-          ctx.$toast.error(event.cause)
-        })
+        // TODO: Реализовать обработчик
+        // session.on('failed', (event: EndEvent) => {
+        //   ctx.$toast.error(event.cause)
+        // })
         if (ctx.$isDebug) {
           console.group('JsSIP: Начало сессии')
           console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
