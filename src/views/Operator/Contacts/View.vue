@@ -456,6 +456,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         // TODO: Фамилия имя отчество в хлебных крошках
         // from.meta.route_breadcrumb_name = `${response.first_name} ${response.last_name} ${response.middle_name}`
         next((vm: VInterface) => {
+          vm.$activity.begin({
+            type: 'card_filling'
+          })
           vm.contact = response
           vm.contactDateTimeNow = new Date(response.current_date_time * 1000)
         })
@@ -467,11 +470,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
   beforeRouteUpdate (to, from, next) {
     if (from.params.contact_id !== to.params.contact_id) {
       const contacts: Contacts = new Contacts()
-
+      this.$activity.end()
       this.dataLoading = true
       contacts
         .getById(+to.params.contact_id)
         .then((contact: ContactInterface) => {
+          this.$activity.begin({
+            type: 'card_filling'
+          })
           this.contact = contact
           this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
         }).finally(() => {
@@ -484,6 +490,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
   beforeDestroy () {
     this.$root.$off('root-main-search', this.onRootMainSearch)
     this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+  },
+
+  destroyed () {
+    this.$activity.end()
   },
 
   methods: {

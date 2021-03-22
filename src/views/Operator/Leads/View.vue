@@ -449,6 +449,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       .getById(+to.params.contact_id)
       .then((contact: ContactInterface) => {
         next((vm: VInterface) => {
+          vm.$activity.begin({
+            type: 'card_filling'
+          })
           vm.contact = contact
           vm.contactDateTimeNow = new Date(contact.current_date_time * 1000)
         })
@@ -459,12 +462,16 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
   beforeRouteUpdate (to, from, next) {
     if (from.params.contact_id !== to.params.contact_id) {
+      this.$activity.end() // Завершаю действие
       const contacts: Contacts = new Contacts()
 
       this.dataLoading = true
       contacts
         .getById(+to.params.contact_id)
         .then((contact: ContactInterface) => {
+          this.$activity.begin({
+            type: 'card_filling'
+          })
           this.contact = contact
           this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
         }).finally(() => {
@@ -474,9 +481,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
     next()
   },
 
+  beforeRouteLeave (to, from, next) {
+    this.$activity.end()
+    next()
+  },
+
   beforeDestroy () {
     this.$root.$off('root-main-search', this.onRootMainSearch)
     this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+  },
+
+  destroyed () {
+    this.$activity.end()
   },
 
   methods: {
