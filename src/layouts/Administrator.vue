@@ -384,6 +384,16 @@ export default Vue.extend({
                   name: 'administrator_reports_call_count'
                 }
               }
+            },
+            {
+              title: 'Activity',
+              icon: '',
+              visible: true,
+              attrs: {
+                to: {
+                  name: 'administrator_reports_activity'
+                }
+              }
             }
           ]
         },

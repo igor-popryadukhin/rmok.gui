@@ -49,4 +49,23 @@ export default class Reports {
       }).catch(reject)
     })
   }
+
+  /**
+   * Статистика активности
+   *
+   * @param params
+   */
+  public activity<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+      $axios.get('/reports/stats-activity', {
+        params
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          resolve(response.data)
+        } else {
+          throw new APIError(response.data)
+        }
+      }).catch(reject)
+    })
+  }
 }
