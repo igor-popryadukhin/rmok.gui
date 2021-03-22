@@ -786,6 +786,15 @@ const routes: RouteConfig[] = [
               layout: 'administrator',
               middleware: [secure]
             }
+          },
+          {
+            path: 'activity',
+            name: 'administrator_reports_activity',
+            component: () => import(/* webpackChunkName: "administrator-reports-activity" */ '../views/Administrator/Reports/Activity.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: [secure]
+            }
           }
         ],
         meta: {
