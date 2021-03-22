@@ -6,7 +6,7 @@ const cookie: Cookie = new Cookie()
 
 const uri = process.env.VUE_APP_PROCESS_ACTIVITY_URI || 'https://example.com'
 const socket = io(uri, {
-  path: '/ws',
+  path: '/activity',
   autoConnect: false,
   reconnection: true,
   query: {},
