@@ -240,7 +240,7 @@ export default {
     height: 17px;
     position: absolute;
     top: 5px;
-    animation-name: socket-fade;
+    animation-name: activity-fade;
     animation-duration: 2s;
     animation-iteration-count: infinite;
   }
@@ -266,7 +266,7 @@ export default {
     margin-left: -15px;
     margin-top: -15px;
 
-    animation-name: socket-pulse;
+    animation-name: activity-pulse;
     animation-duration: 2s;
     animation-iteration-count: infinite;
   }
@@ -456,48 +456,48 @@ export default {
   }
 
   .r1{
-    animation-name: socket-pulse;
+    animation-name: activity-pulse;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-delay: .2s;
   }
 
   .r2{
-    animation-name: socket-pulse;
+    animation-name: activity-pulse;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-delay: .4s;
   }
 
   .r3{
-    animation-name: socket-pulse;
+    animation-name: activity-pulse;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-delay: .6s;
   }
 
   .r1 > .hex-brick{
-    animation-name: socket-fade;
+    animation-name: activity-fade;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-delay: .2s;
   }
 
   .r2 > .hex-brick{
-    animation-name: socket-fade;
+    animation-name: activity-fade;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-delay: .4s;
   }
 
   .r3 > .hex-brick{
-    animation-name: socket-fade;
+    animation-name: activity-fade;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-delay: .6s;
   }
 
-  @keyframes socket-pulse{
+  @keyframes activity-pulse{
     0%{
       transform: scale(1);
     }
@@ -511,7 +511,7 @@ export default {
     }
   }
 
-  @keyframes socket-fade{
+  @keyframes activity-fade{
     0%{
       background: #41b883;
     }

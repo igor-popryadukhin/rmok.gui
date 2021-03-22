@@ -1,4 +1,5 @@
 // 1. Make sure to import 'vue' before declaring augmented types
+import { Activity } from '@/plugins/activity';
 import { Cookie } from './plugins/cookie'
 import { LibPhoneNumberJs } from '@/plugins/libphonenumber-js'
 import { Lvovich } from '@/plugins/lvovich'
@@ -22,6 +23,7 @@ declare module 'vue/types/vue' {
     $routerQuery: RouterQuery
     $isDebug: boolean
     $permission: Permission
+    $activity: Activity
     assertObjectHasAttribute (obj: any, key: string): boolean
   }
 

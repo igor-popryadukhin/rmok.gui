@@ -26,10 +26,10 @@ export function secondsToHms (d: number, titles: TitleOptionsInterface = default
   return hDisplay + mDisplay + sDisplay
 }
 
-export function secondsToHmsDigital (d: number) {
-  const h: number = Math.floor(d / 3600)
-  const m: number = Math.floor(d % 3600 / 60)
-  const s: number = Math.floor(d % 3600 % 60)
+export function secondsToHmsDigital (seconds: number) {
+  const h: number = Math.floor(seconds / 3600)
+  const m: number = Math.floor(seconds % 3600 / 60)
+  const s: number = Math.floor(seconds % 3600 % 60)
 
   return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00')
 }

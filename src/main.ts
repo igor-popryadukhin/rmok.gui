@@ -19,6 +19,7 @@ import '@/plugins/permission'
 import '@/plugins/cookie'
 import '@/plugins/router-query'
 import '@/plugins/moment'
+import '@/plugins/activity'
 import '@/plugins/yandex-metrika'
 import CleanLayout from '@/layouts/Clean.vue'
 
