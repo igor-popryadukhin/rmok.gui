@@ -35,6 +35,7 @@
               @input="menuDatePicker = false"
               @click="$refs.menuDatePicker.save(dDate)"
               :locale="$i18n.locale"
+              :first-day-of-week="1"
             ></v-date-picker>
           </v-menu>
         </v-col>

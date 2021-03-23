@@ -50,6 +50,7 @@
               </template>
               <v-date-picker
                 v-model="dateRange"
+                :first-day-of-week="1"
                 scrollable
                 range
                 no-title

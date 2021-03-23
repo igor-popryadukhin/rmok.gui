@@ -268,6 +268,7 @@
           <h4>{{ $tc('Дата создания контакта') }}</h4>
           <v-date-picker
             v-model="filter.contact_create_date"
+            :first-day-of-week="1"
             locale="ru"
             flat
             no-title

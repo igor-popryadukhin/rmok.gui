@@ -50,10 +50,11 @@
               </template>
               <v-date-picker
                 v-model="dateRange"
+                locale="ru"
+                :first-day-of-week="1"
                 scrollable
                 range
                 no-title
-                locale="ru"
               >
                 <v-spacer></v-spacer>
                 <v-btn

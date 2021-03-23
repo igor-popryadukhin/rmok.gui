@@ -168,9 +168,10 @@
               </template>
               <v-date-picker
                 v-model="filter.dataRange.dates"
-                no-title
+                :first-day-of-week="1"
                 :show-current="false"
                 :locale="$i18n.locale"
+                no-title
                 range
               >
                 <v-spacer></v-spacer>
