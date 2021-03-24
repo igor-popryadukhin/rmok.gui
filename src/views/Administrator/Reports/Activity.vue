@@ -78,7 +78,7 @@
       </v-col>
     </v-row>
 
-    <!-- Date range -->
+    <!-- Фильтры -->
     <v-row>
       <v-col
         class="pt-0"
@@ -92,15 +92,12 @@
             <v-row>
               <v-col
                 class="py-0"
-                md="6"
-                lg="6"
-                sm="12"
-                xs="12"
+                cols="12"
               >
                 <s-users
                   ref="sUsersAutocomplete"
                   v-model="filter.users"
-                  :label="$tc('Users')"
+                  :label="$tc('Employees')"
                   :params="{ role_use: 'for_calls' }"
                   multiple
                   outlined
@@ -108,13 +105,9 @@
                   clearable
                 />
               </v-col>
-
               <v-col
                 class="py-0"
-                md="6"
-                lg="6"
-                sm="12"
-                xs="12"
+                cols="12"
               >
                 <s-groups
                   ref="sGroupsAutocomplete"
@@ -125,6 +118,39 @@
                   multiple
                 />
               </v-col>
+              <v-col
+                class="py-0"
+                cols="12"
+              >
+                <v-select
+                  v-model="filter.actions.selected"
+                  :label="$tc('Actions')"
+                  :items="filter.actions.items"
+                  :disabled="filter.users.length === 0"
+                  item-value="type"
+                  item-text="title"
+                  multiple
+                  outlined
+                  dense
+                  chips
+                >
+                  <template v-slot:selection="{ item, attrs, select }">
+                    <v-chip
+                      v-bind="attrs"
+                      :input-value="select"
+                      class="ma-1"
+                      color="primary"
+                      label
+                      close
+                      small
+                      @click="select"
+                      @click:close="filter.actions.chipRemove(item)"
+                    >
+                      {{ item.title }}
+                    </v-chip>
+                  </template>
+                </v-select>
+              </v-col>
             </v-row>
           </v-card-text>
         </v-card>
@@ -134,6 +160,56 @@
     <!-- CHART -->
     <v-row>
       <v-col
+        class="pt-0"
+      >
+        <v-card
+          tile
+          flat
+          outlined
+        >
+          <v-card-title class="grey--text">{{ $tc('Общее время') }}</v-card-title>
+          <v-card-text
+            v-if="apexRadialBarSeries.length === 0"
+          >
+            <div
+              class="d-flex align-center justify-center"
+              style="height: 250px"
+            >
+              <div>
+                {{ $tc('No data') }}
+              </div>
+            </div>
+          </v-card-text>
+          <v-card-text
+            v-else
+            style="min-height: 250px"
+          >
+            <div class="d-flex justify-space-around">
+              <template
+                v-for="(item, key) in apexRadialBarSeries"
+              >
+                <div
+                  :key="key"
+                >
+                  <apexchart
+                    type="radialBar"
+                    height="240"
+                    :options="item.options"
+                    :series="item.series"
+                  />
+                  <div class="text-center" style="font-size: 16px">
+                    {{ item.percent.toFixed(2) }}%
+                  </div>
+                </div>
+              </template>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col
         class="py-0"
       >
         <v-card
@@ -141,45 +217,14 @@
           flat
           outlined
         >
+          <v-card-title class="grey--text">{{ $tc('По сотрудникам') }}</v-card-title>
           <v-card-text>
-            <v-row v-if="processPieLoading">
-              <v-col>
-                <div
-                  class="d-flex align-center justify-center"
-                  style="min-height: 320px"
-                >
-                  <div>
-                    {{ $tc('Loading content...') }}
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-else-if="total_calls === 0">
-              <v-col>
-                <div
-                  class="d-flex align-center justify-center"
-                  style="min-height: 320px"
-                >
-                  <div>
-                    {{ $tc('No data for the selected period') }}
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-else>
-              <v-col
-                cols="12"
-              >
-                <v-card-text class="overflow-auto">
-                  <apexchart
-                    :height="chartHeight"
-                    type="bar"
-                    :options="apexchartOptions"
-                    :series="apexSeries"
-                  />
-                </v-card-text>
-              </v-col>
-            </v-row>
+            <apexchart
+              height="1000"
+              type="bar"
+              :options="apexchartOptions"
+              :series="apexSeries"
+            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -190,9 +235,11 @@
 <script lang="ts">
 
 import { GroupInterface } from '@/api/Groups'
+import Reports from '@/api/Reports'
 import { UserInterface } from '@/api/Users'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
+import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
@@ -230,26 +277,29 @@ export default (Vue as VueConstructor<VInterface>).extend({
       history_count: 0,
       historyProcessLoading: false,
       pieLabels: [] as string[],
-      apexSeries: [
-        {
-          name: 'Заполнение карточки',
-          data: [1, 21, 2]
-        }, {
-          name: 'Слушает гудки',
-          data: [1, 22, 0]
-        }, {
-          name: 'В разговоре',
-          data: [1, 4, 0]
-        }, {
-          name: 'В режиме ожидания',
-          data: [1, 0, 43]
-        }
-      ],
+
+      reportTypes: [] as unknown[] & { type: string, title: string }[],
+      report: [] as any[],
 
       users: [] as UserInterface[],
 
       filter: {
         date: null as unknown & string | null,
+        actions: {
+          selected: [],
+          items: [] as unknown & { title: string; value: string; }[],
+          /**
+           * Удалить чип
+           */
+          chipRemove: (item: unknown & {title: string; type: string;}) => {
+            if (Array.isArray(this.filter.actions.selected) && item) {
+              const index = this.filter.actions.selected.findIndex((e: string) => e === item.type)
+              if (index >= 0) this.filter.actions.selected.splice(index, 1)
+            } else {
+              this.filter.actions.selected = []
+            }
+          }
+        },
         users: [] as unknown & UserInterface[],
         groups: [] as unknown & GroupInterface[]
       }
@@ -257,24 +307,168 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   computed: {
+    xSeries () {
+      return this.report.map((value: any) => {
+        return value.first_name + ' ' + value.last_name
+      })
+    },
+
+    apexSeries () {
+      const series: any[] = [] // Сюда буду складывать серии
+      this.report.forEach((value: unknown & {activity: any[]; }) => {
+        value.activity.forEach((value1: unknown & {type: string; title: string; seconds: number}) => {
+          const index = series.findIndex(v => v.name === value1.type)
+          if (index > -1) {
+            series[index].data.push(value1.seconds)
+          } else {
+            series.push({
+              name: value1.type,
+              data: [value1.seconds]
+            })
+          }
+        })
+      })
+      return series
+    },
+
+    apexRadialBarSeries () {
+      const reducer = (accumulator: number, currentValue: number) => accumulator + currentValue
+
+      // Для преобразование константы в читаемый вариант
+      const dataLabelsFormatter = (val: string) => {
+        let name = val
+        for (let i = 0; i < this.reportTypes.length; i++) {
+          if (val === this.reportTypes[i].type) {
+            name = this.reportTypes[i].title
+          }
+        }
+        return name
+      }
+
+      let total = 0
+      this.apexSeries.forEach((value: unknown & { name: string; data: number[] }) => {
+        total = total + value.data.reduce(reducer)
+      })
+
+      return this.apexSeries.map((value: unknown & { name: string; data: number[] }) => {
+        const percent = (value.data.reduce(reducer) / total) * 100
+
+        return {
+          series: [value.data.reduce(reducer)],
+          chart: {
+            height: 280,
+            type: 'radialBar'
+          },
+          options: {
+            colors: ['#28bd76'],
+            plotOptions: {
+              radialBar: {
+                startAngle: 0,
+                endAngle: 360 * (Math.round(percent) / 100),
+                hollow: {
+                  margin: 0,
+                  size: '70%',
+                  background: '#133D8A'
+                },
+                track: {
+                  show: true,
+                  startAngle: 0,
+                  endAngle: 360,
+                  background: '#dedede',
+                  strokeWidth: '97%',
+                  opacity: 1,
+                  margin: 5,
+                  dropShadow: {
+                    enabled: false,
+                    top: 0,
+                    left: 0,
+                    blur: 3,
+                    opacity: 0.5
+                  }
+                },
+                dataLabels: {
+                  name: {
+                    show: true,
+                    offsetY: -10,
+                    color: '#fff',
+                    fontSize: '13px',
+                    formatter: dataLabelsFormatter
+                  },
+                  value: {
+                    color: '#fff',
+                    fontSize: '25px',
+                    show: true,
+                    formatter: function (val: number) {
+                      return secondsToHmsDigital(val)
+                    }
+                  },
+                  total: {
+                    show: false,
+                    offsetY: 100,
+                    label: 'Total',
+                    color: '#e52121',
+                    fontSize: '16px',
+                    fontFamily: undefined
+                  }
+                }
+              }
+            },
+            fill: {
+              type: 'gradient',
+              gradient: {
+                shade: 'dark',
+                type: 'vertical',
+                gradientToColors: ['#63ADD0'],
+                stops: [0, 100]
+              }
+            },
+            stroke: {
+              lineCap: 'round'
+            },
+            labels: [value.name]
+          },
+          percent
+        }
+      })
+    },
+
     apexchartOptions (): any {
+      const formatter = (seriesName: string) => {
+        let name = seriesName
+        for (let i = 0; i < this.reportTypes.length; i++) {
+          if (seriesName === this.reportTypes[i].type) {
+            name = this.reportTypes[i].title
+          }
+        }
+        return name
+      }
       return {
         legend: {
           position: 'top',
           horizontalAlign: 'left',
-          offsetX: 40
+          offsetX: 40,
+          formatter
+        },
+        tooltip: {
+          y: {
+            formatter: undefined,
+            title: {
+              formatter
+            }
+          }
         },
         chart: {
           type: 'bar',
-          height: 350,
+          height: '250',
           stacked: true,
           stackType: '100%'
         },
         xaxis: {
-          categories: ['Игорь', 'Вася', 'Женя'],
+          show: true,
+          categories: [...this.xSeries],
           labels: {
-            formatter: function (val) {
-              return val + 'K'
+            formatter: function (val: number) {
+              return val + '%'
             }
           }
         },
@@ -292,7 +486,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
         },
         plotOptions: {
           bar: {
-            horizontal: true
+            horizontal: true,
+            columnWidth: '70%',
+            barHeight: '70%'
+          },
+          area: {
+            fillTo: 'origin'
           }
         }
       }
@@ -321,6 +520,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
           format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
         ]
       }
+    }
+
+    if (this.$routerQuery.hasQuery('actions')) {
+      this.filter.actions.selected = this.$routerQuery.getQuery('actions')
     }
 
     if (this.$routerQuery.hasQuery('target_users')) {
@@ -362,17 +565,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.target_groups = this.$route.query.target_groups
       }
 
-      // new Reports()
-      //   .activity<any, any>(params)
-      //   .then((response) => {
-      //     const responseArray: any = response.data
-      //
-      //     // this.apexSeries = []
-      //     // this.apexSeries.push({
-      //     //   name: 'Marine Sprite',
-      //     //   data: [44, 55, 41, 37, 22, 43, 21]
-      //     // })
-      //   }).finally(() => (this.historyProcessLoading = false))
+      if (this.assertObjectHasAttribute(this.$route.query, 'actions')) {
+        params.actions = this.$route.query.actions
+      }
+
+      new Reports()
+        .activity<any, any>(params)
+        .then((response) => {
+          this.reportTypes = response.meta.types
+          this.filter.actions.items = response.meta.types
+          this.report = response.data
+        }).finally(() => (this.historyProcessLoading = false))
     },
 
     /**
@@ -426,6 +629,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
         } else {
           this.$routerQuery.removeQuery([
             'target_groups'
+          ]).then(this.fetchDiagramData)
+        }
+      }, debounceDelay))
+
+      // Фильтрация по группам
+      this.$watch('filter.actions.selected', debounce((newVal: string[]) => {
+        if (Array.isArray(newVal)) {
+          this.$routerQuery.setQuery({
+            actions: newVal
+          }).then(this.fetchDiagramData)
+        } else {
+          this.$routerQuery.removeQuery([
+            'actions'
           ]).then(this.fetchDiagramData)
         }
       }, debounceDelay))

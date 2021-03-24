@@ -386,7 +386,7 @@ export default Vue.extend({
               }
             },
             {
-              title: 'Activity',
+              title: 'Employment of employees',
               icon: '',
               visible: true,
               attrs: {
