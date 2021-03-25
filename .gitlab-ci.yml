@@ -25,20 +25,20 @@ build_review:
     paths:
       - dist
   tags:
-    - review
+    - vue
 
 # todo: Test stage
 
 deploy_review:
   stage: deploy-review
   script:
-    - rsync -rq --delete ./dist/* /var/www/www-root/data/www/rmok.online
+    - rsync -rq --delete ./dist/* /var/www/rmok.online
   artifacts:
     expire_in: 30 days
     paths:
       - dist
   tags:
-    - review
+    - vue
   only:
     - develop
 

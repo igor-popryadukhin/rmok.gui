@@ -839,6 +839,14 @@ export interface MiddlewareContextInterface {
 // const timer = new Timer()
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
+  if (to.path === '/') {
+    if (store.getters['profile/role_use'] === 'for_administration') {
+      next('/administrator')
+    } else if (store.getters['profile/role_use'] === 'for_calls') {
+      next('/operator')
+    }
+  }
+
   if (!to.meta.middleware) {
     return next()
   }

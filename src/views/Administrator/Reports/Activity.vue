@@ -94,6 +94,19 @@
                 class="py-0"
                 cols="12"
               >
+                <s-groups
+                  ref="sGroupsAutocomplete"
+                  v-model="filter.groups"
+                  :label="$tc('Groups')"
+                  dense
+                  outlined
+                  multiple
+                />
+              </v-col>
+              <v-col
+                class="py-0"
+                cols="12"
+              >
                 <s-users
                   ref="sUsersAutocomplete"
                   v-model="filter.users"
@@ -103,19 +116,6 @@
                   outlined
                   dense
                   clearable
-                />
-              </v-col>
-              <v-col
-                class="py-0"
-                cols="12"
-              >
-                <s-groups
-                  ref="sGroupsAutocomplete"
-                  v-model="filter.groups"
-                  :label="$tc('Groups')"
-                  dense
-                  outlined
-                  multiple
                 />
               </v-col>
               <v-col

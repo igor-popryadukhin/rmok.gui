@@ -114,7 +114,7 @@ export default Vue.extend({
           // @ts-ignore
           this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 600 })
           // @ts-ignore
-          this.$cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
+          this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
 
           this.processMessage = this.$tc('Loading profile data...')
           await this.$store.dispatch('profile/loadProfile')
@@ -128,14 +128,14 @@ export default Vue.extend({
               })
           } else if (this.$store.getters['profile/role_use'] === 'for_calls') {
 
-            this.processMessage = this.$tc('Loading projects...')
-            await this.$store.dispatch('project/load')
-
             // Если авторизовался оператор
             this.$router.replace({ name: 'operator_leads' })
               .finally(() => {
-                this.$root.$emit('root-jssip-set-configuration')
-                this.$root.$emit('root-loading-projects')
+                setTimeout(async () => {
+                  await this.$store.dispatch('project/load')
+                  this.$root.$emit('root-jssip-set-configuration')
+                  this.$root.$emit('root-loading-projects')
+                }, 1000)
               })
           }
 
