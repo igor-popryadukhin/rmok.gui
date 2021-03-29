@@ -257,7 +257,7 @@
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
-              {{ item.contact.first_name }} {{ item.contact.last_name }}
+              <router-link :to="{ name: 'operator_contacts_view_script', params: { contact_id: item.contact.id } }">{{ item.contact.last_name }} {{ item.contact.first_name }}</router-link>
             </template>
             <template v-else>
               —

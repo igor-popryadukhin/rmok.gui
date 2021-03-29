@@ -4,13 +4,14 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Неизданный] - 2021-03-25
+## [Неизданный]
 
 ## Изменено
-- Понедельник первый день в календаре (пока для всех национальностей)
+- Понедельник первый день в календаре (пока для всех национальностей) [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## Добавлено
-- Раздел статистики, "Занятость сотрудников".
+- Раздел статистики, "Занятость сотрудников" [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Переход из статистики в карточку контакта для прозвона [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## [1.0.1] - 2021-03-10
 
