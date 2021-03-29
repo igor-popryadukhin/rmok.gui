@@ -98,6 +98,7 @@
                   ref="sGroupsAutocomplete"
                   v-model="filter.groups"
                   :label="$tc('Groups')"
+                  clearable
                   dense
                   outlined
                   multiple
@@ -126,9 +127,11 @@
                   v-model="filter.actions.selected"
                   :label="$tc('Actions')"
                   :items="filter.actions.items"
-                  :disabled="filter.users.length === 0"
+                  :disabled="isDisabledFilterActions"
                   item-value="type"
                   item-text="title"
+                  cache-items
+                  clearable
                   multiple
                   outlined
                   dense
@@ -259,30 +262,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
       filterDate: undefined,
       menuDateRange: null,
       dateRange: null as string[] | null,
-      menuContactDateCreated: null as boolean | null,
-      contactDateCreated: null,
 
-      page: 1,
-      pageCount: 0,
-      itemsPerPage: 10,
-
-      options: {
-        labels: []
-      },
-
-      processPieLoading: false, // Процесс загрузки изображений
-
-      // Report
-      total_calls: 1, // todo: временно
-      total_clients: 0,
-      history_count: 0,
-      historyProcessLoading: false,
+      processLoading: false,
       pieLabels: [] as string[],
 
-      reportTypes: [] as unknown[] & { type: string, title: string }[],
-      report: [] as any[],
-
-      users: [] as UserInterface[],
+      reportActions: [] as unknown[] & { type: string, title: string }[], // Типы действий отчёта
+      reportItems: [] as any[], // Элементы отчёта
 
       filter: {
         date: null as unknown & string | null,
@@ -308,15 +293,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   computed: {
+
+    isDisabledFilterActions () {
+      return !(this.filter.users.length > 0 || this.filter.groups.length > 0)
+    },
+
     xSeries () {
-      return this.report.map((value: any) => {
+      return this.reportItems.map((value: any) => {
         return value.first_name + ' ' + value.last_name
       })
     },
 
     apexSeries () {
       const series: any[] = [] // Сюда буду складывать серии
-      this.report.forEach((value: unknown & {activity: any[]; }) => {
+      this.reportItems.forEach((value: unknown & {activity: any[]; }) => {
         value.activity.forEach((value1: unknown & {type: string; title: string; seconds: number}) => {
           const index = series.findIndex(v => v.name === value1.type)
           if (index > -1) {
@@ -341,9 +331,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       // Для преобразование константы в читаемый вариант
       const dataLabelsFormatter = (val: string) => {
         let name = val
-        for (let i = 0; i < this.reportTypes.length; i++) {
-          if (val === this.reportTypes[i].type) {
-            name = this.reportTypes[i].title
+        for (let i = 0; i < this.reportActions.length; i++) {
+          if (val === this.reportActions[i].type) {
+            name = this.reportActions[i].title
           }
         }
         return name
@@ -442,9 +432,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
     apexchartOptions (): any {
       const formatter = (seriesName: string) => {
         let name = seriesName
-        for (let i = 0; i < this.reportTypes.length; i++) {
-          if (seriesName === this.reportTypes[i].type) {
-            name = this.reportTypes[i].title
+        for (let i = 0; i < this.reportActions.length; i++) {
+          if (seriesName === this.reportActions[i].type) {
+            name = this.reportActions[i].title
           }
         }
         return name
@@ -504,11 +494,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
           style: {
             colors: ['#fff']
           },
-          formatter: function (val, opt) {
+          formatter: function (val: any, opt: any) {
             return secondsToHms(opt.w.globals.series[opt.seriesIndex][opt.dataPointIndex], {
-              h: 'ч.',
-              m: 'м.',
-              s: 'c.'
+              h: ['ч.', 'ч.', 'ч.'],
+              m: ['м.', 'м.', 'м.'],
+              s: ['c.', 'c.', 'c.']
             })
           },
           offsetX: 0,
@@ -532,7 +522,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
               return ''
             },
             title: {
-              formatter: (val, opt) => {
+              formatter: (val: any, opt: any) => {
                 return secondsToHms(opt.w.globals.series[opt.seriesIndex][opt.dataPointIndex], {
                   // todo: Localise
                   h: ['час', 'часа', 'часов'],
@@ -573,8 +563,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     }
 
-    if (this.$routerQuery.hasQuery('actions')) {
-      this.filter.actions.selected = this.$routerQuery.getQuery('actions')
+    if (this.$routerQuery.hasQuery('target_actions')) {
+      this.filter.actions.selected = this.$routerQuery.getQuery('target_actions')
     }
 
     if (this.$routerQuery.hasQuery('target_users')) {
@@ -594,15 +584,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
       })
   },
 
+  updated (): void {
+    this.initializeWatchForFilters()
+  },
+
   methods: {
-
-    // Загрузить данные для построения диаграммы
+    /**
+     * Загрузить данные для построения диаграммы
+     */
     fetchDiagramData () {
-      this.historyProcessLoading = true
+      this.processLoading = true
 
-      const params: any = {
-        type: 'all' // Показать всю историю
-      }
+      const params: any = {}
 
       if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
         params.date = this.$route.query.date
@@ -616,17 +609,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.target_groups = this.$route.query.target_groups
       }
 
-      if (this.assertObjectHasAttribute(this.$route.query, 'actions')) {
-        params.actions = this.$route.query.actions
+      if (this.assertObjectHasAttribute(this.$route.query, 'target_actions')) {
+        params.target_actions = this.$route.query.target_actions
       }
 
       new Reports()
         .activity<any, any>(params)
         .then((response) => {
-          this.reportTypes = response.meta.types
+          this.reportActions = response.meta.types
           this.filter.actions.items = response.meta.types
-          this.report = response.data
-        }).finally(() => (this.historyProcessLoading = false))
+          this.reportItems = response.data
+        }).finally(() => (this.processLoading = false))
     },
 
     /**
@@ -688,11 +681,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.$watch('filter.actions.selected', debounce((newVal: string[]) => {
         if (Array.isArray(newVal)) {
           this.$routerQuery.setQuery({
-            actions: newVal
+            target_actions: newVal
           }).then(this.fetchDiagramData)
         } else {
           this.$routerQuery.removeQuery([
-            'actions'
+            'target_actions'
           ]).then(this.fetchDiagramData)
         }
       }, debounceDelay))
