@@ -157,7 +157,7 @@
       </v-col>
     </v-row>
 
-    <!-- CHART -->
+    <!-- Общее время -->
     <v-row>
       <v-col
         class="pt-0"
@@ -208,9 +208,10 @@
       </v-col>
     </v-row>
 
+    <!-- По сотрудникам -->
     <v-row>
       <v-col
-        class="py-0"
+        class="py-0 mb-10"
       >
         <v-card
           tile
@@ -239,7 +240,7 @@ import Reports from '@/api/Reports'
 import { UserInterface } from '@/api/Users'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
-import { secondsToHmsDigital } from '@/utils/datetime'
+import { secondsToHms, secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
@@ -331,6 +332,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       return series
     },
 
+    /**
+     * Круговые диаграммы
+     */
     apexRadialBarSeries () {
       const reducer = (accumulator: number, currentValue: number) => accumulator + currentValue
 
@@ -432,6 +436,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       })
     },
 
+    /**
+     * Горизонтальные бары
+     */
     apexchartOptions (): any {
       const formatter = (seriesName: string) => {
         let name = seriesName
@@ -442,20 +449,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
         return name
       }
+
       return {
         legend: {
           position: 'top',
           horizontalAlign: 'left',
           offsetX: 40,
           formatter
-        },
-        tooltip: {
-          y: {
-            formatter: undefined,
-            title: {
-              formatter
-            }
-          }
         },
         chart: {
           type: 'bar',
@@ -464,12 +464,16 @@ export default (Vue as VueConstructor<VInterface>).extend({
           stackType: '100%'
         },
         xaxis: {
-          show: true,
           categories: [...this.xSeries],
           labels: {
-            formatter: function (val: number) {
-              return val + '%'
-            }
+            show: false
+          }
+        },
+        yaxis: {
+          type: 'category',
+          categories: [...this.xSeries],
+          labels: {
+            show: true
           }
         },
         noData: {
@@ -493,15 +497,62 @@ export default (Vue as VueConstructor<VInterface>).extend({
           area: {
             fillTo: 'origin'
           }
+        },
+        dataLabels: {
+          enabled: true,
+          textAnchor: 'start',
+          style: {
+            colors: ['#fff']
+          },
+          formatter: function (val, opt) {
+            return secondsToHms(opt.w.globals.series[opt.seriesIndex][opt.dataPointIndex], {
+              h: 'ч.',
+              m: 'м.',
+              s: 'c.'
+            })
+          },
+          offsetX: 0,
+          dropShadow: {
+            enabled: false
+          }
+        },
+        tooltip: {
+          theme: 'dark',
+          onDatasetHover: {
+            highlightDataSeries: false
+          },
+          items: {
+            display: 'flex'
+          },
+          x: {
+            show: false
+          },
+          y: {
+            formatter: function () {
+              return ''
+            },
+            title: {
+              formatter: (val, opt) => {
+                return secondsToHms(opt.w.globals.series[opt.seriesIndex][opt.dataPointIndex], {
+                  // todo: Localise
+                  h: ['час', 'часа', 'часов'],
+                  m: ['минута', 'минуты', 'минут'],
+                  s: ['секунда', 'секунды', 'секунд']
+                })
+              }
+            }
+          },
+          marker: {
+            show: true
+          },
+          fixed: {
+            enabled: false,
+            position: 'topRight',
+            offsetX: 0,
+            offsetY: 0
+          }
         }
       }
-    },
-
-    chartHeight () {
-      if (this.$screenHeight < 900) {
-        return 500
-      }
-      return this.$screenHeight - 370
     }
   },
 

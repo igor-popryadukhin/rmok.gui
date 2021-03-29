@@ -8,6 +8,7 @@
 
 ## Изменено
 - Понедельник первый день в календаре (пока для всех национальностей) [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Отчёт активности, время в формате `hh:mm:ss` вместо процентов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## Добавлено
 - Раздел статистики, "Занятость сотрудников" [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
