@@ -17,6 +17,21 @@ module.exports = {
     ecmaVersion: 2020
   },
   rules: {
+    indent: ['error', 2, {
+      SwitchCase: 1,
+      MemberExpression: 1,
+      VariableDeclarator: {
+        var: 2,
+        let: 2,
+        const: 3
+      },
+      FunctionDeclaration: {
+        body: 1,
+        parameters: 2
+      },
+      ObjectExpression: 1,
+      ImportDeclaration: 1
+    }],
     'no-control-regex': 'off',
     'no-console': 'off',
     'no-debugger': 'off',
