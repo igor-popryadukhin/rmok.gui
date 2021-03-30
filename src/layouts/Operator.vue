@@ -565,29 +565,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             dense: true
           },
           on: {
-            click: () => {
-              this.$dialog.confirm({
-                title: this.$tc('Подтверждение действия.'),
-                text: this.$tc('Вы действительно хотите выйти?'),
-                actions: {
-                  false: {
-                    color: 'red',
-                    text: this.$tc('no')
-                  },
-                  true: {
-                    color: 'primary',
-                    text: this.$tc('yes'),
-                    handle: () => {
-                      if (this.$jsSIP.isConnected) {
-                        this.$jsSIP.stop()
-                      }
-
-                      this.$router.replace({ name: 'login' })
-                    }
-                  }
-                }
-              })
-            }
+            click: () => this.$router.replace({ name: 'login' })
           }
         }
       ],
