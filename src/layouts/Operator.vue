@@ -93,6 +93,14 @@
                 </v-list>
               </v-menu>
             </template>
+            <template
+              v-if="item.badge"
+            >
+              <v-badge
+                v-if="typeof item.badge === 'function' ? item.badge().visible : item.badge.visible"
+                v-bind="typeof item.badge === 'function' ? item.badge().attrs : item.badge.attrs"
+              />
+            </template>
           </v-tab>
         </v-tabs>
       </v-toolbar-items>
@@ -379,6 +387,7 @@ import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { POSITION } from 'vue-toastification'
 import { JsSIP } from '@/jsSIP/plugin'
 import callMachine from '@/xState/machines/callMachine'
+import { mapGetters } from 'vuex'
 import { interpret } from 'xstate'
 import Account, { UserStatus } from '@/api/Account'
 import VInterface from '@/VInterface'
@@ -396,7 +405,6 @@ interface IData {
   dialog: any;
   drawer: any;
   accountMenuItems: any;
-  mainMenu: any[];
   notifications: NotificationInterface[];
   projects: any;
   RTCToastOptions: ToastOptions,
@@ -410,6 +418,7 @@ interface IMethod {
   onRootNewTasks: () => void;
   jsSIPSetConfiguration: () => void;
   onRootLoadingProjects: () => void;
+  onRootTasksFetchCount: () => void;
   onProjectItemClick: (item: ProjectInterface & { loading: boolean }) => void;
   showRTCToast: (data: any) => void;
   updateRTCToast: (data: any) => void;
@@ -420,6 +429,7 @@ interface IMethod {
 
 interface IComputed {
   avatar: string;
+  mainMenu: any[];
   projectDialogWidth: string;
 }
 
@@ -432,12 +442,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
   data (): IData {
     return {
-      items: [
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me' },
-        { title: 'Click Me 2' }
-      ],
       toastId: 0,
       projectDialog: {
         visible: false,
@@ -569,68 +573,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           }
         }
       ],
-      mainMenu: [
-        {
-          title: this.$tc('Leads'),
-          attrs: {
-            value: this.$tc('Leads'),
-            text: true,
-            to: { name: 'operator_leads' }
-          }
-        },
-        {
-          title: this.$tc('Contacts'),
-          attrs: {
-            text: true,
-            to: { name: 'operator_contacts_list' }
-          }
-        },
-        {
-          title: 'Calls',
-          icon: '',
-          attrs: {
-            link: true,
-            disabled: true
-          }
-        },
-        {
-          title: 'Statistic',
-          icon: 'mdi-chart-arc',
-          attrs: {
-            link: true
-          },
-          children: [
-            {
-              title: 'Recent call statistics',
-              icon: '',
-              visible: true,
-              attrs: {
-                to: {
-                  name: 'operator_reports_recent_calls'
-                }
-              }
-            },
-            {
-              title: 'Statistics for all calls',
-              icon: '',
-              visible: true,
-              attrs: {
-                to: {
-                  name: 'operator_reports_all_calls'
-                }
-              }
-            }
-          ]
-        },
-        {
-          title: this.$tc('Help'),
-          attrs: {
-            text: true,
-            disabled: true,
-            to: { name: 'operator_help' }
-          }
-        }
-      ],
       notifications: [] as NotificationInterface[],
       projects: [],
       RTCToastOptions: {
@@ -676,10 +618,97 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   },
 
   computed: {
+    ...mapGetters({
+      task_pending_count: 'tasks/pending_count'
+    }),
+
     avatar () {
       const first: string = this.$store.getters['profile/first_name'] || ''
       const last: string = this.$store.getters['profile/last_name'] || ''
       return first.charAt(0) + last.charAt(0)
+    },
+
+    mainMenu () {
+      return [
+        {
+          title: this.$tc('Leads'),
+          attrs: {
+            value: this.$tc('Leads'),
+            text: true,
+            to: { name: 'operator_leads' }
+          }
+        },
+        {
+          title: this.$tc('Contacts'),
+          attrs: {
+            text: true,
+            to: { name: 'operator_contacts_list' }
+          }
+        },
+        {
+          title: this.$tc('Tasks'),
+          icon: '',
+          badge: () => { // Может быть как функция возвращающая объект, так и обычный объект
+            let visible = false
+            const attrs: any = {
+              content: this.task_pending_count,
+              inline: true,
+              color: 'red'
+            }
+
+            if (this.task_pending_count > 0) {
+              visible = true
+            }
+
+            return {
+              visible,
+              attrs
+            }
+          },
+          attrs: {
+            link: true,
+            disabled: false,
+            to: { name: 'operator_tasks_list' }
+          }
+        },
+        {
+          title: 'Statistic',
+          icon: 'mdi-chart-arc',
+          attrs: {
+            link: true
+          },
+          children: [
+            {
+              title: 'Recent call statistics',
+              icon: '',
+              visible: true,
+              attrs: {
+                to: {
+                  name: 'operator_reports_recent_calls'
+                }
+              }
+            },
+            {
+              title: 'Statistics for all calls',
+              icon: '',
+              visible: true,
+              attrs: {
+                to: {
+                  name: 'operator_reports_all_calls'
+                }
+              }
+            }
+          ]
+        }
+        // {
+        //   title: this.$tc('Help'),
+        //   attrs: {
+        //     text: true,
+        //     disabled: true,
+        //     to: { name: 'operator_help' }
+        //   }
+        // }
+      ]
     },
 
     // Ширина окна диалога для выбора проекта, зависит от размера экрана
@@ -700,10 +729,11 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   },
 
   mounted () {
+    this.$root.$on('root-tasks-fetch-count', this.onRootTasksFetchCount) // Загрузит информацию о количестве задач
     this.$root.$on('show-rtc-toast', this.showRTCToast)
     this.$root.$on('update-rtc-toast', this.updateRTCToast)
 
-    this.$root.$on('root-update-notifications', this.onRootNewTasks)
+    // TODO: TASKS FETCH DATA
 
     // Инициализация телефонии
     this.$root.$on('root-jssip-set-configuration', this.jsSIPSetConfiguration)
@@ -757,7 +787,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
         if (type === 'project/set') {
           if (payload.statuses) {
             if (payload.statuses.length === 0) {
-              this.$root.$emit('root-update-notifications')
+              // TODO: TASKS FETCH DATA
             }
           }
         }
@@ -765,14 +795,15 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
     )
 
     setTimeout(() => {
-      this.$root.$emit('root-update-notifications')
+      // TODO: TASKS FETCH DATA
+      this.$root.$emit('root-tasks-fetch-count')
     }, 1000)
   },
 
   beforeDestroy () {
+    this.$root.$off('root-tasks-fetch-count', this.onRootTasksFetchCount)
     this.$root.$off('show-rtc-toast', this.showRTCToast)
     this.$root.$off('update-rtc-toast', this.updateRTCToast)
-    this.$root.$off('root-update-notifications', this.onRootNewTasks)
     this.$root.$off('root-loading-projects', this.onRootLoadingProjects)
     this.$root.$off('root-jssip-set-configuration', this.jsSIPSetConfiguration)
   },
@@ -795,103 +826,98 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           }
 
           // Проверяем наличие подключения и текущего статуса
-
           response.data.forEach((task: unknown & TaskInterface) => {
-            if (this.assertObjectHasAttribute(task, 'done')) {
-              if (!task.done) {
-                let title = ''
-                let icon = ''
-                switch (task.type) {
-                  case TaskType.CALL: {
-                    title = `Позвонить ${this.$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}`
-                    icon = 'mdi-alpha-c-circle'
-                    break
-                  }
-                  case TaskType.TASK: {
-                    title = this.$tc('Task')
-                    icon = 'mdi-alpha-t-circle'
-                    break
-                  }
-                  case TaskType.MEETING: {
-                    title = this.$tc('Meeting')
-                    icon = 'mdi-alpha-m-circle'
-                    break
-                  }
-                  case TaskType.LETTER: {
-                    title = this.$tc('Letter')
-                    icon = 'mdi-alpha-e-circle'
-                    break
-                  }
-                  case TaskType.OTHER: {
-                    title = this.$tc('Other')
-                    icon = 'mdi-alpha-o-circle'
-                    break
-                  }
+            if (task.state === 'pending') {
+              let title = ''
+              let icon = ''
+              switch (task.type) {
+                case TaskType.CALL: {
+                  title = `Позвонить ${this.$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}`
+                  icon = 'mdi-alpha-c-circle'
+                  break
                 }
-
-                if (task.type === TaskType.CALL) {
-                  let class_ = ''
-
-                  if (task.expired) {
-                    class_ = 'task-expired'
-                  }
-
-                  let message = `${task.contact?.first_name} ${task.contact?.last_name} ${task.contact?.middle_name}`
-                  if (this.assertObjectHasAttribute(task.contact, 'last_status')) {
-                    if (task.contact.last_status) {
-                      message = `${message} <strong>(Статус: ${task.contact.last_status.name})</strong>`
-                    }
-                  }
-
-                  this.notifications.push({
-                    type: 'call',
-                    icon,
-                    color: 'blue',
-                    class: class_,
-                    title,
-                    message,
-                    message2: task.description,
-                    context: task, // Обрати внимание, context будет передан в функцию обратного вызова click
-                    click: (e: NotificationInterface, i: number) => {
-                      if (this.assertObjectHasAttribute(e.context, 'contact')) {
-                        if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
-                          this.$router.replace({
-                            name: 'operator_contacts_view_tasks',
-                            params: { contact_id: e.context?.contact.id },
-                            query: { task_id: e.context?.id }
-                          })
-                        }
-                      } else {
-                        console.error('Задача для контакта не содержит данные контакта')
-                      }
-                    }
-                  })
-                } else {
-                  this.notifications.push({
-                    type: 'task',
-                    icon,
-                    color: 'blue',
-                    title,
-                    message: task.description,
-                    message2: `Выполнить до ${new Date(task.planned_for * 1000).toLocaleString()}`,
-                    actions: [
-                      {
-                        title: 'Выполнить',
-                        context: task,
-                        handle: (arg: TaskInterface) => {
-                          new Tasks()
-                            .done(arg.id)
-                            .then(() => {
-                              this.$root.$emit('root-update-notifications')
-                            })
-                        }
-                      }
-                    ]
-                  })
+                case TaskType.TASK: {
+                  title = this.$tc('Task')
+                  icon = 'mdi-alpha-t-circle'
+                  break
+                }
+                case TaskType.MEETING: {
+                  title = this.$tc('Meeting')
+                  icon = 'mdi-alpha-m-circle'
+                  break
+                }
+                case TaskType.LETTER: {
+                  title = this.$tc('Letter')
+                  icon = 'mdi-alpha-e-circle'
+                  break
+                }
+                case TaskType.OTHER: {
+                  title = this.$tc('Other')
+                  icon = 'mdi-alpha-o-circle'
+                  break
                 }
               }
-            } else {
-              this.$toast.error('У задачи отсутствует свойство "done"!')
+
+              if (task.type === TaskType.CALL) {
+                let class_ = ''
+
+                if (task.expired) {
+                  class_ = 'task-expired'
+                }
+
+                let message = `${task.contact?.first_name} ${task.contact?.last_name} ${task.contact?.middle_name}`
+                if (this.assertObjectHasAttribute(task.contact, 'last_status')) {
+                  if (task.contact.last_status) {
+                    message = `${message} <strong>(Статус: ${task.contact.last_status.name})</strong>`
+                  }
+                }
+
+                this.notifications.push({
+                  type: 'call',
+                  icon,
+                  color: 'blue',
+                  class: class_,
+                  title,
+                  message,
+                  message2: task.description,
+                  context: task, // Обрати внимание, context будет передан в функцию обратного вызова click
+                  click: (e: NotificationInterface, i: number) => {
+                    if (this.assertObjectHasAttribute(e.context, 'contact')) {
+                      if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
+                        this.$router.replace({
+                          name: 'operator_contacts_view_tasks',
+                          params: { contact_id: e.context?.contact.id },
+                          query: { task_id: e.context?.id }
+                        })
+                      }
+                    } else {
+                      console.error('Задача для контакта не содержит данные контакта')
+                    }
+                  }
+                })
+              } else {
+                this.notifications.push({
+                  type: 'task',
+                  icon,
+                  color: 'blue',
+                  title,
+                  message: task.description,
+                  message2: `Выполнить до ${new Date(task.planned_for * 1000).toLocaleString()}`,
+                  actions: [
+                    {
+                      title: 'Выполнить',
+                      context: task,
+                      handle: (arg: TaskInterface) => {
+                        new Tasks()
+                          .setState(arg.id)
+                          .then(() => {
+                            // TODO: TASKS FETCH DATA
+                          })
+                      }
+                    }
+                  ]
+                })
+              }
             }
           })
         })
@@ -937,6 +963,10 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             this.projectDialog.visible = true
           }
         })
+    },
+
+    onRootTasksFetchCount () {
+      this.$store.dispatch('tasks/fetchCount') // Загрузить количество задач
     },
 
     // Телефония
