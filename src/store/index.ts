@@ -4,6 +4,7 @@ import createPersistedState from 'vuex-persistedstate'
 import { profile } from '@/store/profile'
 import { system } from './system'
 import { project } from '@/store/project'
+import { tasks } from '@/store/tasks'
 
 Vue.use(Vuex)
 
@@ -19,6 +20,7 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
+    tasks,
     profile,
     project,
     system
@@ -54,6 +56,15 @@ export default new Vuex.Store({
     createPersistedState({
       key: 'rmok-project',
       paths: ['project'],
+      storage: {
+        getItem: (key: string) => get(key),
+        setItem: (key, value) => set(key, value),
+        removeItem: (key: string) => remove(key)
+      }
+    }),
+    createPersistedState({
+      key: 'rmok-tasks',
+      paths: ['tasks'],
       storage: {
         getItem: (key: string) => get(key),
         setItem: (key, value) => set(key, value),
