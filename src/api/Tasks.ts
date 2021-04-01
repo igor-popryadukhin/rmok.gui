@@ -2,8 +2,8 @@
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
-import APIError from '@/api/classes/APIError'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import APIError from "@/api/classes/APIError"
+import ResponseInterface from "@/api/Schemas/ResponseInterface"
 
 export enum TaskType {
   CALL = 'call',
@@ -25,13 +25,14 @@ export interface TaskInterface {
   performer: PerformerInterface;
   type: string;
   description: string;
-  state: 'done' | 'pending';
+  done: boolean;
   expired: boolean;
   planned_for: number;
   author: TaskAuthorInterface;
   contact?: ContactInterface;
   created_at: number;
 }
+
 
 interface TaskAuthorInterface {
   id: number;
@@ -70,24 +71,6 @@ export default class Tasks {
           }
           throw new APIError(response.data)
         }).catch(reject)
-    })
-  }
-
-  /**
-   * Получить количество
-   *
-   * @param params
-   */
-  public count<T = {done_count: number; pending_count: number; total: number}> (params= {}): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      $axios.get('/tasks/count', {
-        params
-      }).then((response: AxiosResponse) => {
-        if (response.status === 200) {
-          return resolve(response.data)
-        }
-        throw new APIError(response.data)
-      }).catch(reject)
     })
   }
 
@@ -160,16 +143,30 @@ export default class Tasks {
 
   /**
    * @param taskId
-   * @param state
    */
-  public setState (taskId: number, state: 'done' | 'pending'): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      $axios.get(`/tasks/${taskId}/${state}`)
+  public done (taskId: number): Promise<any> | any {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/tasks/${taskId}/done`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
             return resolve(response.data)
           }
-          throw new APIError(response.data)
+          reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * @param taskId
+   */
+  public notDone (taskId: number): Promise<any> | any {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/tasks/${taskId}/not-done`)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data)
+          }
+          reject(response.data)
         }).catch(reject)
     })
   }
