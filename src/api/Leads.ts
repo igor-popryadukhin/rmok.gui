@@ -1,5 +1,5 @@
 /* eslint-disable */
-import APIError from '@/api/classes/APIError';
+import APIError from "@/api/classes/APIError";
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from './Schemas/ContactInterface'
@@ -28,7 +28,7 @@ export default class Leads {
    *
    * @param query
    */
-  public get<MT, DT> (query: LeadSearchQueryInterface | null = { q: '', offset: 0, count: 100 }) {
+  public get<MT, DT>(query: LeadSearchQueryInterface | null = { q: '', offset: 0, count: 100 }) {
     return new Promise<ResponseInterface<MT, DT>>((resolve, reject) => {
       $axios.get('/leads', {
         params: { ...query }

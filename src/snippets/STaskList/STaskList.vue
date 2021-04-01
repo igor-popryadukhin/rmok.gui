@@ -107,7 +107,7 @@
 
                     <!-- Выполнить/отменить выполнение задачу(чи) -->
                     <v-list-item
-                      v-if="task.state"
+                      v-if="task.done"
                       link
                       @click="onTaskItemActionTaskNotDoneClick(task.id)"
                     >
@@ -229,18 +229,18 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   created () {
-    // TODO: TASKS FETCH DATA
+    this.$root.$on('root-update-notifications', this.fetchData)
   },
 
   destroyed () {
-    // TODO: TASKS FETCH DATA
+    this.$root.$off('root-update-notifications', this.fetchData)
   },
 
   methods: {
     vListItemStyleComputed (task: TaskInterface) {
       const style: any = {}
 
-      if (task.state) {
+      if (task.done) {
         style['text-decoration'] = 'line-through'
       } else if (task.expired) {
         style['background-color'] = '#ff000024'
@@ -261,15 +261,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     onTaskItemActionTaskDoneClick (taskId: number) {
       new Tasks()
-        .setState(taskId)
+        .done(taskId)
         .then(() => {
           const taskIndex = this.tasks.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
-            this.tasks[taskIndex].state = true
+            this.tasks[taskIndex].done = true
             this.tasks.sort((a: TaskInterface) => {
-              return a.state ? 0 : -1
+              return a.done ? 0 : -1
             })
-            // TODO: TASKS FETCH DATA
+            this.$root.$emit('root-update-notifications')
           }
         })
     },
@@ -280,11 +280,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         .then(() => {
           const taskIndex = this.tasks.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
-            this.tasks[taskIndex].state = false
+            this.tasks[taskIndex].done = false
             this.tasks.sort((a: TaskInterface) => {
-              return a.state ? 0 : -1
+              return a.done ? 0 : -1
             })
-            // TODO: TASKS FETCH DATA
+            this.$root.$emit('root-update-notifications')
           }
         })
     },
@@ -327,7 +327,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
                   this.$toast.error(`${e.message}\n${text}`)
                 })
                 .finally(() => {
-                  // TODO: TASKS FETCH DATA // Генерирую глобальное событие, для обновления уведомлений
+                  this.$root.$emit('root-update-notifications') // Генерирую глобальное событие, для обновления уведомлений
                 })
             }
           })
@@ -354,7 +354,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
                   .delete(id)
                   .then(() => {
                     this.$toast.success(this.$tc('Task successfully deleted'))
-                    // TODO: TASKS FETCH DATA
+                    this.$root.$emit('root-update-notifications')
                   }).catch((e: APIError) => {
                     this.$toast.error(e.message)
                   })
@@ -395,7 +395,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               this.$toast.error(`${e.message}\n${text}`)
             })
             .finally(() => {
-              // TODO: TASKS FETCH DATA // Генерирую глобальное событие, для обновления уведомлений
+              this.$root.$emit('root-update-notifications') // Генерирую глобальное событие, для обновления уведомлений
             })
         }
       })
