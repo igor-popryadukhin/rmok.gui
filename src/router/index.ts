@@ -113,6 +113,23 @@ const routes: RouteConfig[] = [
         }
       },
       {
+        path: 'tasks',
+        component: () => import(/* webpackChunkName: "operator-tasks-layout" */ '../views/Operator/Tasks/Layout.vue'),
+        children: [
+          {
+            path: '',
+            name: 'operator_tasks_list',
+            component: () => import(/* webpackChunkName: "operator-tasks-list" */ '../views/Operator/Tasks/List.vue'),
+            meta: { layout: 'operator-layout', middleware: [secure] }
+          }
+        ],
+        meta: {
+          anonymous: true,
+          layout: 'operator-layout',
+          middleware: [secure]
+        }
+      },
+      {
         path: 'leads',
         component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Leads/Layout.vue'),
         children: [

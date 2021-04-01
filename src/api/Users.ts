@@ -8,7 +8,6 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import {ProjectInterface} from '@/api/Projects'
 import APIError from './classes/APIError'
 
-
 interface UserOrganizationInterface {
   id: number;
   name: string;
@@ -44,7 +43,7 @@ export class Users {
    * Add new user
    * @param data
    */
-  public add<T = any>(data: any): Promise<T> {
+  public add<T = any> (data: any): Promise<T> {
     return new Promise<T>((resolve, reject): Promise<any> | any => {
       $axios.post('/users', data)
         .then((response: AxiosResponse) => {
