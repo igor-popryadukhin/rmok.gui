@@ -25,7 +25,7 @@ export interface TaskInterface {
   performer: PerformerInterface;
   type: string;
   description: string;
-  done: boolean;
+  state: 'pending' | 'done';
   expired: boolean;
   planned_for: number;
   author: TaskAuthorInterface;

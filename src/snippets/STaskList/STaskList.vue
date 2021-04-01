@@ -107,7 +107,7 @@
 
                     <!-- Выполнить/отменить выполнение задачу(чи) -->
                     <v-list-item
-                      v-if="task.done"
+                      v-if="task.state"
                       link
                       @click="onTaskItemActionTaskNotDoneClick(task.id)"
                     >
@@ -240,7 +240,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     vListItemStyleComputed (task: TaskInterface) {
       const style: any = {}
 
-      if (task.done) {
+      if (task.state === 'done') {
         style['text-decoration'] = 'line-through'
       } else if (task.expired) {
         style['background-color'] = '#ff000024'
@@ -265,9 +265,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         .then(() => {
           const taskIndex = this.tasks.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
-            this.tasks[taskIndex].done = true
+            this.tasks[taskIndex].state = 'done'
             this.tasks.sort((a: TaskInterface) => {
-              return a.done ? 0 : -1
+              return a.state === 'done' ? 0 : -1
             })
             this.$root.$emit('root-update-notifications')
           }
@@ -280,9 +280,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         .then(() => {
           const taskIndex = this.tasks.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
-            this.tasks[taskIndex].done = false
+            this.tasks[taskIndex].state = 'pending'
             this.tasks.sort((a: TaskInterface) => {
-              return a.done ? 0 : -1
+              return a.state === 'done' ? 0 : -1
             })
             this.$root.$emit('root-update-notifications')
           }
