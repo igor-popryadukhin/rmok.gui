@@ -215,6 +215,11 @@ const callMachine = createMachine<Vue, Event>({
                     }).finally(() => {
                       // Сообщаю, что история может быть обновлена
                       ctx.$root.$emit('root-contact-history-change')
+
+                      if (ctx.$store.getters['system/route_last_full_path']) {
+                        ctx.$router.push(ctx.$store.getters['system/route_last_full_path'])
+                        ctx.$store.commit('system/route_last_full_path', '') // Установить пустое значение, чтобы не было повторения
+                      }
                     })
                 }
               })

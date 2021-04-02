@@ -78,8 +78,8 @@ export default class Tasks {
    *
    * @param params
    */
-  public count<T = {done_count: number; pending_count: number; total: number}> (params= {}): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+  public count<T = unknown & { count: number }> (params = {} as { planned_for?: string; state: 'pending' | 'done' }): Promise<ResponseInterface<null, T>> {
+    return new Promise<ResponseInterface<null, T>>((resolve, reject) => {
       $axios.get('/tasks/count', {
         params
       }).then((response: AxiosResponse) => {

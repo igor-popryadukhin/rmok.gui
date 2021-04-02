@@ -8,6 +8,6 @@ type Data<T> = {
 }
 
 export default interface ResponseInterface<M, D> {
-  meta: Meta<M>;
+  meta?: Meta<M>;
   data: Data<D>;
 }

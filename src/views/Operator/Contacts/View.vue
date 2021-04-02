@@ -13,9 +13,7 @@
         outlined
       >
         <v-card-title class="mb-2 py-2">
-          <template>
             {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
-          </template>
         </v-card-title>
         <v-card-subtitle v-if="assertObjectHasAttribute(contact.default_phone, 'international')">
           {{ contact.default_phone.international }}
@@ -484,6 +482,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.dataLoading = false
         })
     }
+    next()
+  },
+
+  beforeRouteLeave (to, from, next) {
+    this.$activity.end()
     next()
   },
 

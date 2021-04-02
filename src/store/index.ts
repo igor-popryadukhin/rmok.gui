@@ -5,6 +5,7 @@ import { profile } from '@/store/profile'
 import { system } from './system'
 import { project } from '@/store/project'
 import { tasks } from '@/store/tasks'
+import { database } from '@/store/database'
 
 Vue.use(Vuex)
 
@@ -12,9 +13,17 @@ const get = (key: string) => localStorage.getItem(key)
 const set = (key: string, value: string) => localStorage.setItem(key, value)
 const remove = (key: string) => localStorage.getItem(key)
 
+export interface RootStateInterface {
+  root: number
+}
+
 export default new Vuex.Store({
-  state: {
+  state (): RootStateInterface {
+    return {
+      root: 0 // todo: example
+    }
   },
+
   mutations: {
   },
   actions: {
@@ -23,7 +32,8 @@ export default new Vuex.Store({
     tasks,
     profile,
     project,
-    system
+    system,
+    database
   },
   plugins: [
     createPersistedState({
@@ -65,6 +75,15 @@ export default new Vuex.Store({
     createPersistedState({
       key: 'rmok-tasks',
       paths: ['tasks'],
+      storage: {
+        getItem: (key: string) => get(key),
+        setItem: (key, value) => set(key, value),
+        removeItem: (key: string) => remove(key)
+      }
+    }),
+    createPersistedState({
+      key: 'rmok-database',
+      paths: ['database'],
       storage: {
         getItem: (key: string) => get(key),
         setItem: (key, value) => set(key, value),

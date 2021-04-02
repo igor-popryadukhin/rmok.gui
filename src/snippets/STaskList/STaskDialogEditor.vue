@@ -3,7 +3,7 @@
     :actions="actions"
   >
     <template v-slot:title>
-      <v-card-title>{{ $t('Create a new task') }}</v-card-title>
+      <v-card-title>{{ $t('Редактор задач') }}</v-card-title>
     </template>
 
     <!-- Form -->
@@ -43,9 +43,9 @@
         <!-- Time -->
         <v-col>
           <v-text-field
+            v-model="dTime"
             type="time"
             :label="$tc('Time')"
-            :value="dTime"
             :rules="[rules.notBlank]"
           ></v-text-field>
         </v-col>
@@ -117,6 +117,7 @@
 </template>
 
 <script lang="ts">
+import { $moment } from '@/plugins/moment'
 import Vue, { PropType } from 'vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import { UserInterface } from '@/api/Users'
@@ -128,18 +129,29 @@ interface RecordInterface {
 }
 
 export interface DTaskInterface {
-  date: string;
-  time: string;
+  /**
+   * Unixtime
+   **/
+  planned_for: number;
+  /**
+   * Тип задачи
+   **/
   type: RecordInterface;
+  /**
+   * Идентификатор исполнителя
+   **/
   performer_id: number;
+  /**
+   * Описание
+   **/
   description: string;
-  automaticExecution: boolean;
 }
 
 interface IProps {
   performerId: string | number;
   performers: any;
   types: any;
+  plannedForUnixtime: number;
   date: Record<string, unknown>;
   time: Record<string, unknown>;
   description: string;
@@ -150,12 +162,11 @@ interface IProps {
 interface IData {
   menuDatePicker: boolean;
   menuTimePicker: boolean;
-  dDate: undefined;
-  dTime: undefined;
+  dDate: string;
+  dTime: string;
   dType: string;
   dPerformer?: UserInterface;
   dDescription: undefined;
-  dAutomaticExecution: boolean;
 }
 
 interface IMethods {
@@ -176,6 +187,15 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   components: { SUsers },
 
   props: {
+    /**
+     * Запланировано на (в формате Unixtime)
+     */
+    plannedFor: {
+      type: [Number],
+      default: () => {
+        return $moment().add(30, 'minute').unix()
+      }
+    },
 
     // Деактивировать возможность изменять ответственного
     responsibleDisabled: {
@@ -230,22 +250,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       default: () => 'call'
     },
 
-    // Дата
-    date: {
-      type: [Object, String] as PropType<string | Date>,
-      default: () => {
-        const date = new Date()
-        date.setDate(date.getDate() + 1)
-        return date.toISOString().substr(0, 10)
-      }
-    },
-
-    // Время
-    time: {
-      type: [Object, String] as PropType<string | Date>,
-      default: () => new Date().toTimeString().substr(0, 5)
-    },
-
     // Описание
     description: {
       type: String,
@@ -271,8 +275,13 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       dTime: '',
       dType: '',
       dPerformer: null,
-      dDescription: undefined,
-      dAutomaticExecution: false
+      dDescription: undefined
+    }
+  },
+
+  watch: {
+    dTime (v: any) {
+      console.log(v)
     }
   },
 
@@ -298,11 +307,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
               if (!this.$refs.form.validate()) {
                 return false
               }
-
+              console.log(`${this.dDate} ${this.dTime}`)
+              console.log(this.$moment(`${this.dDate} ${this.dTime}`, 'YYYY-MM-DD hh:mm'))
               return this.$props.onSave({
-                date: this.dDate,
-                automaticExecution: false,
-                time: this.dTime,
+                planned_for: this.$moment(`${this.dDate} ${this.dTime}`, 'YYYY-MM-DD hh:mm').unix(), // Unixtime
                 type: this.dType,
                 performer_id: this.dPerformer.id,
                 description: this.dDescription
@@ -321,17 +329,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
 
   mounted () {
-    if (this.time instanceof Date) {
-      this.dTime = this.time.toTimeString().substr(0, 5)
-    } else {
-      this.dTime = this.time
-    }
-
-    if (this.date instanceof Date) {
-      this.dDate = this.date.toTimeString().substr(0, 5)
-    } else {
-      this.dDate = this.date
-    }
+    this.dTime = this.$moment.unix(this.$props.plannedFor).format('hh:mm')
+    this.dDate = this.$moment.unix(this.$props.plannedFor).format('YYYY-MM-DD')
 
     this.dDescription = this.description
     this.dType = this.type
