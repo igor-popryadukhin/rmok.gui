@@ -59,16 +59,6 @@ const routes: RouteConfig[] = [
       middleware: [secure]
     }
   },
-  {
-    path: '/engineering-works',
-    name: 'engineering_works',
-    component: () => import(/* webpackChunkName: "engineering-works" */ '../views/EngineeringWorks.vue'),
-    meta: {
-      layout: 'clean',
-      title: 'documents',
-      middleware: []
-    }
-  },
 
   /** Error Pages */
   {
