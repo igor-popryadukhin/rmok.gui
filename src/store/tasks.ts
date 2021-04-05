@@ -1,8 +1,8 @@
 import Tasks from '@/api/Tasks'
+import { RootStateInterface } from '@/store/index'
+import { ActionContext } from 'vuex'
 
 interface StateInterface {
-  total_count: number;
-  done_count: number;
   pending_count: number;
 }
 
@@ -11,43 +11,34 @@ export const tasks = {
 
   state (): StateInterface {
     return {
-      total_count: 0,
-      done_count: 0,
       pending_count: 0
     }
   },
 
   mutations: {
-    set (state: StateInterface, payload: StateInterface) {
-      state.done_count = payload.done_count
-      state.pending_count = payload.pending_count
-      state.total_count = payload.total_count
+    pending_count (state: StateInterface, payload: number) {
+      state.pending_count = payload
     }
   },
 
   actions: {
-    async fetchCount ({ commit }: any, params = {}) {
+    /**
+     *
+     * @param ctx
+     */
+    async pending_count (ctx: ActionContext<StateInterface, RootStateInterface>) {
       return new Promise<void>((resolve) => {
         new Tasks()
-          .count(params)
+          .count({ state: 'pending' })
           .then((response) => {
-            commit('set', response)
+            ctx.commit('pending_count', response.data.count)
+            resolve()
           })
-          .catch(() => {
-            commit('set', {
-              done_count: 0,
-              pending_count: 0,
-              total_count: 0
-            })
-          })
-          .finally(resolve)
       })
     }
   },
 
   getters: {
-    total_count (state: StateInterface): number { return state.total_count },
-    pending_count (state: StateInterface): number { return state.pending_count },
-    done_count (state: StateInterface): number { return state.done_count }
+    pending_count (state: StateInterface): number { return state.pending_count }
   }
 }

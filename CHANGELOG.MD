@@ -15,6 +15,11 @@
 - Переход из статистики в карточку контакта для прозвона [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Раздел "Задачи" для операторов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
+## Исправлено
+- Переиспользование компонента `s-task-list` [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Изменение в логике `s-task-list` [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Ошибка, при создании и редактировании задач, устанавливалось неверное время. [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+
 ## [1.0.1] - 2021-03-10
 
 ## Добавлено

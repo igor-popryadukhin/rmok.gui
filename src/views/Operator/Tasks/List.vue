@@ -1,192 +1,39 @@
 <template>
-  <v-row>
-    <v-col>
-      <v-row>
-        <v-col
-          class=""
-        >
-          <v-tabs
-            v-model="tabsCurrentItem"
-          >
-            <v-tab
-              v-for="(item, tabIndex) in tabs"
-              :key="tabIndex"
-            >
-              {{ $tc(item.title) }}
-              <v-badge
-                v-if="item.count > 0"
-                :content="item.count"
-                inline
-              ></v-badge>
-            </v-tab>
-          </v-tabs>
-          <v-divider />
-        </v-col>
-      </v-row>
-
-      <!-- Фильтры -->
-      <v-row>
-        <v-col
-          cols="12"
-          class="d-flex flex-wrap justify-start"
-        >
-          <v-text-field
-            v-model="filter.q"
-            :style="filtersStyleComputed"
-            style="max-width: 458px"
-            class="mr-3 mb-3"
-            clearable
-            hide-details
-            outlined
-            dense
-          >
-            <template v-if="filter.q === null || filter.q === ''" v-slot:append>
-              <v-icon>mdi-magnify</v-icon>
-            </template>
-          </v-text-field>
-          <v-select
-            v-model="sort.select"
-            :items="sort.items"
-            :style="filtersStyleComputed"
-            style="max-width: 100px"
-            class="mr-3 mb-3 ml-auto"
-            item-text="title"
-            item-value="value"
-            hide-details
-            outlined
-            dense
-          >
-            <template v-slot:append>
-              <v-icon>mdi-sort-ascending</v-icon>
-            </template>
-          </v-select>
-        </v-col>
-      </v-row>
-
-      <!-- Задачи -->
-      <v-row>
-        <v-col
-          class="py-0"
-        >
-          <v-tabs-items
-            v-model="tabsCurrentItem"
-          >
-            <v-tab-item
-              v-for="(item, tabIndex) in tabs"
-              :key="tabIndex"
-              :transition="false"
-              :reverse-transition="false"
-            >
-              <template v-if="tasks.length === 0 && tasksLoading  === true">
-                <div
-                  class="d-flex align-center justify-center"
-                >
-                  <div class="grey--text">{{ $tc('Loading content...') }}</div>
-                </div>
-              </template>
-              <template v-if="tasks.items.length === 0 && tasksLoading  === false">
-                <div
-                  class="d-flex align-center justify-center"
-                >
-                  <div class="grey--text">{{ $tc('Task list is empty') }}</div>
-                </div>
-              </template>
-              <template v-if="tasks.items.length > 0">
-                <v-list>
-                  <template v-for="(task, taskIndex) in tasks.items">
-                    <v-divider
-                      :key="`v-divider-${taskIndex}`"
-                    />
-
-                    <v-skeleton-loader
-                      v-if="tasksLoading"
-                      type="list-item-three-line"
-                      :key="`v-skeleton-loader-${taskIndex}`"
-                      height="79"
-                    />
-                    <v-list-item
-                      v-else
-                      :key="`v-list-item-${taskIndex}`"
-                      :style="vListItemStyleComputed(task)"
-                      link
-                      exact
-                      @click.stop="onTaskItemClick(task)"
-                    >
-                      <v-list-item-content>
-                        <v-list-item-title v-if="task.type === 'call'">
-                          {{ `Позвонить ${$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}` }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle v-if="task.contact">
-                          {{ task.contact.last_name }} {{ task.contact.first_name }} {{ task.contact.middle_name }}
-                        </v-list-item-subtitle>
-                        <v-list-item-subtitle>
-                          <span
-                            class="label mr-2"
-                            :style="{'background-color': lastContactStatus(task.contact).color }"
-                            :class="lastContactStatus(task.contact).class"
-                          >
-                            {{ lastContactStatus(task.contact).name }}
-                          </span> {{ task.description || '—' }}
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                      <v-list-item-action>
-                        <template v-if="tabsCurrentValue === 'pending' && !tasksLoading">
-                          <v-btn
-                            v-if="task.state === 'pending'"
-                            min-width="100"
-                            tile
-                            ripple
-                            outlined
-                            @click.stop="onTaskItemActionTaskDoneClick(task.id)"
-                          >{{ $tc('Выполнить') }}</v-btn>
-                          <v-btn
-                            v-else-if="task.state === 'done'"
-                            style="opacity: 1!important;"
-                            min-width="100"
-                            tile
-                            ripple
-                            outlined
-                            @click.stop="onTaskItemActionTaskUndoDoneClick(task.id)"
-                          >{{ $tc('Undo') }}</v-btn>
-                        </template>
-                        <template v-else-if="tabsCurrentValue === 'done' && !tasksLoading">
-                          <v-btn
-                            min-width="100"
-                            tile
-                            ripple
-                            outlined
-                            @click.stop="onTaskItemActionTaskUndoDoneClick(task.id)"
-                          >{{ $tc('Undo') }}</v-btn>
-                        </template>
-                      </v-list-item-action>
-                    </v-list-item>
-                  </template>
-                </v-list>
-              </template>
-            </v-tab-item>
-          </v-tabs-items>
-        </v-col>
-      </v-row>
-
-      <v-row v-if="tasks.pages > 1">
-        <v-col class="mb-10">
-          <div class="text-center">
-            <v-pagination
-              v-model="tasks.page"
-              :length="tasks.pages"
-              total-visible="10"
-            ></v-pagination>
-          </div>
-        </v-col>
-      </v-row>
-    </v-col>
-  </v-row>
+  <s-task-list
+    filters-enabled
+    outlined
+  >
+    <template v-slot:item="{ item }">
+      <v-list-item-title
+        v-if="item.type === 'call'"
+        :style="{ color: item.expired ? 'red' : '' }"
+      >
+        {{ `Позвонить ${$moment.unix(item.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}` }}
+      </v-list-item-title>
+      <v-list-item-subtitle v-if="item.contact">
+        {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+      </v-list-item-subtitle>
+      <v-list-item-subtitle>
+                        <span
+                          class="label mr-2"
+                          :style="{'background-color': lastContactStatus(item.contact).color }"
+                          :class="lastContactStatus(item.contact).class"
+                        >
+                            {{ lastContactStatus(item.contact).name }}
+                          </span> {{ item.description || '—' }}
+      </v-list-item-subtitle>
+    </template>
+  </s-task-list>
 </template>
 
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
+import { StatusInterface } from '@/api/Database'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import Tasks, { TaskInterface } from '@/api/Tasks'
+import STaskDialogEditor, { DTaskInterface } from '@/snippets/STaskList/STaskDialogEditor.vue'
+import STaskList from '@/snippets/STaskList/STaskList.vue'
+import { sleep } from '@/Utils'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
@@ -205,7 +52,6 @@ interface IData {
 }
 
 interface IComputed {
-  tabs: unknown & {title: string;count: number;value: any; attrs: any}[];
   [key: string]: any;
 }
 
@@ -219,9 +65,12 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, IComputed, IProps>({
+  components: { STaskList },
 
   data () {
     return {
+      menuDateRange: false,
+      dateRange: null as string[] | null,
       tabsCurrentItem: 0,
       // --------------------
       tasksLoading: false,
@@ -234,7 +83,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       },
       // Фильтры
       filter: {
-        q: null as unknown & string
+        status: 0,
+        planned_for: null,
+        q: null as null | string
       },
       // Сортировка
       sort: {
@@ -253,43 +104,163 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
             value: 'created_asc'
           }
         ] as unknown[] & { title: string; value: string }
-      }
+      },
+
+      btnToggles: [
+        {
+          title: 'For tomorrow',
+          value: 'tomorrow',
+          count: 0,
+          badge: {
+            color: 'red'
+          },
+          params: () => {
+            return {
+              planned_for: 'tomorrow',
+              state: 'pending',
+              status_id: +this.$route.query.status_id || 0
+            }
+          }
+        },
+        {
+          title: 'For today',
+          value: 'today',
+          count: 0,
+          badge: {
+            color: 'red'
+          },
+          params: () => {
+            return {
+              planned_for: 'today',
+              state: 'pending',
+              status_id: +this.$route.query.status_id || 0
+            }
+          }
+        },
+        {
+          title: 'Yesterday\'s',
+          value: 'yesterday',
+          count: 0,
+          badge: {
+            color: 'red'
+          },
+          params: () => {
+            return {
+              planned_for: 'yesterday',
+              state: 'pending',
+              status_id: +this.$route.query.status_id || 0
+            }
+          }
+        },
+        {
+          title: 'The day before yesterday',
+          value: 'the_day_before_yesterday',
+          count: 0,
+          badge: {
+            color: 'red'
+          },
+          params: () => {
+            return {
+              planned_for: 'the_day_before_yesterday',
+              state: 'pending',
+              status_id: +this.$route.query.status_id || 0
+            }
+          }
+        },
+        {
+          title: 'All',
+          value: 'all',
+          count: 0,
+          badge: {
+            color: 'grey'
+          },
+          params: () => {
+            return {
+              state: 'pending',
+              status_id: +this.$route.query.status_id || 0
+            }
+          }
+        }
+      ]
     }
   },
 
   computed: {
     ...mapGetters({
-      task_total_count: 'tasks/total_count',
-      task_done_count: 'tasks/done_count',
       task_pending_count: 'tasks/pending_count'
     }),
+
+    statuses () {
+      const statuses = this.$store.getters['database/statuses'] as StatusInterface[]
+      statuses.unshift({
+        id: 0,
+        name: 'Все'
+      })
+      return statuses
+    },
 
     tabsCurrentValue () {
       return this.tabs[this.tabsCurrentItem].value
     },
 
-    /**
-     * Вкладки
-     */
-    tabs () {
+    itemActions () {
       return [
         {
-          title: 'Выполнить',
-          count: this.task_pending_count,
-          value: 'pending',
-          attrs: {}
+          title: this.$tc('Close'),
+          attrs: {},
+          click: (item: TaskInterface) => {
+            item.state = 'done'
+            new Tasks()
+              .setState(item.id, 'done')
+              .then(() => {
+                this.$store.dispatch('tasks/pending_count')
+              })
+          }
         },
         {
-          title: 'Выполнено',
-          count: this.task_done_count,
-          value: 'done',
-          attrs: {}
-        },
-        {
-          title: 'Все',
-          count: this.task_total_count,
-          value: 'all',
-          attrs: {}
+          title: this.$tc('Edit'),
+          attrs: {},
+          click: (item: TaskInterface) => {
+            new Tasks()
+              .getById(item.id)
+              .then((response) => {
+                this.$dialog.show(STaskDialogEditor, {
+                  waitForResult: true,
+                  width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
+                  persistent: true,
+                  performerId: response.performer.id,
+                  contactId: response.contact?.id,
+                  type: response.type,
+                  plannedFor: response.planned_for, // Передайте дату и время в формате Unixtime
+                  description: response.description, // Передайте описание задачи
+                  responsibleDisabled: true,
+                  onSave: (data: DTaskInterface) => {
+                    // Новые данные задачи
+                    const taskData: any = {
+                      performer_id: data.performer_id,
+                      description: data.description,
+                      planned_for: data.planned_for,
+                      type: data.type,
+                      contact_id: response.contact?.id
+                    }
+
+                    new Tasks()
+                      .edit(item.id, taskData)
+                      .then(() => {
+                        this.$toast.success(this.$tc('Task successfully updated'))
+                        this.fetchTasks()
+                      })
+                      .catch((e: APIError) => {
+                        let text = ''
+                        if (this.assertObjectHasAttribute(e, 'errors')) {
+                          text = e.errors.map(e => e.message).join('\n')
+                        }
+                        this.$toast.error(`${e.message}\n${text}`)
+                      })
+                  }
+                })
+              })
+          }
         }
       ]
     },
@@ -302,16 +273,23 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
 
   },
 
+  created () {
+    this.$store.dispatch('database/fetchStatuses')
+    this.fetchCount()
+  },
+
   mounted () {
     // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
     const promises: Promise<any>[] = []
 
-    if (this.$routerQuery.hasQuery('tab')) {
-      this.tabsCurrentItem = Number(this.$route.query.tab)
+    // Статус контакта
+    if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
+      this.filter.status = +this.$route.query.status_id
     }
 
-    if (this.$routerQuery.hasQuery('page')) {
-      this.tasks.page = Number(this.$route.query.page)
+    // Статус контакта
+    if (this.assertObjectHasAttribute(this.$route.query, 'planned_for')) {
+      this.filter.planned_for = this.$route.query.planned_for
     }
 
     if (this.$routerQuery.hasQuery('q')) {
@@ -332,6 +310,30 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
   },
 
   methods: {
+    /**
+     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
+     * @param dateRange
+     */
+    onSaveDateRangeClick (dateRange: string[]) {
+      this.$refs.menuDateRange.save(dateRange)
+      const date1 = new Date(dateRange[0])
+      const date2 = new Date(dateRange[1])
+
+      let dr = ''
+      if (date1.getTime() < date2.getTime()) {
+        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
+      } else {
+        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
+      }
+
+      this.$routerQuery.setQuery({ planned_for: dr }).finally(() => (this.fetchTasks()))
+    },
+
+    onClearDateRangeClick () {
+      this.menuDateRange = false
+      this.$routerQuery.removeQuery(['planned_for']).finally(() => (this.fetchTasks()))
+    },
+
     lastContactStatus (contact: ContactInterface) {
       if (contact) {
         if (contact.last_status) {
@@ -363,10 +365,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
 
     onTaskItemClick (item: TaskInterface) {
       if (item.contact) {
+        // Сохранить $route.fullPath что бы потом вернуться.
+        this.$store.commit('system/route_last_full_path', this.$route.fullPath)
         this.$router.push({
           name: 'operator_contacts_view_tasks',
-          params: { contact_id: item.contact.id } as any,
-          query: { task_id: String(item.id) }
+          params: { contact_id: item.contact.id } as any
         })
       }
     },
@@ -382,8 +385,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           const taskIndex = this.tasks.items.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
             this.tasks.items[taskIndex].state = 'done'
-            this.$root.$emit('root-tasks-fetch-count')
-            // TODO: TASKS FETCH DATA
+            this.$store.dispatch('tasks/pending_count')
+            this.fetchCount()
 
             setTimeout(() => {
               const taskIndex = this.tasks.items.findIndex((e: TaskInterface) => e.id === taskId && e.state === 'done')
@@ -406,54 +409,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           const taskIndex = this.tasks.items.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
             this.tasks.items[taskIndex].state = 'pending'
-            this.$root.$emit('root-tasks-fetch-count')
-            // TODO: TASKS FETCH DATA
+            this.$store.dispatch('tasks/pending_count')
+            this.fetchCount()
           }
-        })
-    },
-
-    onTaskItemEditClick (id: number) {
-      new Tasks()
-        .getById(id)
-        .then((response) => {
-          const plannedFor = new Date(response.planned_for * 1000)
-          // this.$dialog.show(STaskDialogEditor, {
-          //   waitForResult: true,
-          //   width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
-          //   persistent: true,
-          //   performerId: response.performer.id,
-          //   contactId: response.contact?.id,
-          //   type: response.type,
-          //   date: plannedFor.toISOString().substr(0, 10),
-          //   time: plannedFor.toTimeString().substr(0, 5),
-          //   description: response.description,
-          //   responsibleDisabled: true,
-          //   onSave: (data: any) => {
-          //     const taskData: any = {
-          //       performer_id: data.performer_id,
-          //       description: data.description,
-          //       planned_for: Date.parse(`${data.date} ${data.time}`) / 1000,
-          //       type: data.type,
-          //       contact_id: response.contact?.id
-          //     }
-          //
-          //     new Tasks()
-          //       .edit(id, taskData)
-          //       .then(() => {
-          //         this.$toast.success(this.$tc('Task successfully updated'))
-          //       })
-          //       .catch((e: APIError) => {
-          //         let text = ''
-          //         if (this.assertObjectHasAttribute(e, 'errors')) {
-          //           text = e.errors.map(e => e.message).join('\n')
-          //         }
-          //         this.$toast.error(`${e.message}\n${text}`)
-          //       })
-          //       .finally(() => {
-          //         // TODO: TASKS FETCH DATA // Генерирую глобальное событие, для обновления уведомлений
-          //       })
-          //   }
-          // })
         })
     },
 
@@ -536,10 +494,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           offset
         }, params)
 
-        if (this.assertObjectHasAttribute(this.$route.query, 'tab')) {
-          newParams.state = this.tabs[Number(this.$route.query.tab)].value
-        }
-
         // Поиск по тексту
         if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
           newParams.q = this.$route.query.q
@@ -547,6 +501,21 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
 
         if (this.assertObjectHasAttribute(this.$route.query, 'sort')) {
           newParams.sort = this.$route.query.sort
+        }
+
+        // Статус контакта
+        if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
+          newParams.status_id = this.$route.query.status_id
+        }
+
+        // Статус Задачи
+        if (this.assertObjectHasAttribute(this.$route.query, 'state')) {
+          newParams.state = this.$route.query.state
+        }
+
+        // Статус контакта
+        if (this.assertObjectHasAttribute(this.$route.query, 'planned_for')) {
+          newParams.planned_for = this.$route.query.planned_for
         }
 
         new Tasks()
@@ -566,22 +535,35 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       })
     },
 
+    async fetchCount () {
+      const task = new Tasks()
+      for (let i = 0; i < this.btnToggles.length; i++) {
+        await task.count(this.btnToggles[i].params())
+          .then((value) => {
+            this.btnToggles[i].count = value.data.count
+          })
+        await sleep(100)
+      }
+    },
+
     initializeWatchFilters () {
-      const debounceDelay = 500 // Задержка выполнения загрузки данных (избавит от дребезга)
+      const debounceDelay = 250 // Задержка выполнения загрузки данных (избавит от дребезга)
 
       // Сортировка
-      this.$watch('sort.select', debounce((value: string) => {
+      this.$watch('filter.status', debounce((value: number) => {
         if (value) {
           this.$routerQuery.setQuery({
-            sort: value
+            status_id: value
           }).finally(() => {
             this.fetchTasks()
+            this.fetchCount()
           })
         } else {
           this.$routerQuery
-            .removeQuery(['sort'])
+            .removeQuery(['status_id'])
             .finally(() => {
               this.fetchTasks()
+              this.fetchCount()
             })
         }
       }, debounceDelay))
@@ -620,20 +602,38 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         }
       }, debounceDelay))
 
-      this.$watch('tabsCurrentItem', debounce((newVal: unknown) => {
+      // Фильтрация по датам
+      this.$watch('filter.planned_for', debounce(async (newVal: unknown & string) => {
+        // Удалить пагинацию.
         this.tasks.page = 1
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            tab: newVal
-          }).finally(() => {
-            this.fetchTasks()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['tab'])
-            .finally(() => {
-              this.fetchTasks()
-            })
+        // Удалить статус задачи.
+        if (this.$routerQuery.hasQuery('state')) {
+          await this.$routerQuery.removeQuery(['state'])
+        }
+        switch (newVal) {
+          case 'today': {
+            this.$routerQuery.setQuery({ planned_for: 'today' }).finally(this.fetchTasks)
+            break
+          }
+          case 'yesterday': {
+            this.$routerQuery.setQuery({ planned_for: 'yesterday' }).finally(this.fetchTasks)
+            break
+          }
+          case 'tomorrow': {
+            this.$routerQuery.setQuery({ planned_for: 'tomorrow' }).finally(this.fetchTasks)
+            break
+          }
+          case 'the_day_before_yesterday': {
+            this.$routerQuery.setQuery({ planned_for: 'the_day_before_yesterday' }).finally(this.fetchTasks)
+            break
+          }
+          case 'all': {
+            this.$routerQuery.setQuery({
+              planned_for: 'all',
+              state: 'pending'
+            }).finally(this.fetchTasks)
+            break
+          }
         }
       }, debounceDelay))
     }

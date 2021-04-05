@@ -59,6 +59,16 @@ const routes: RouteConfig[] = [
       middleware: [secure]
     }
   },
+  {
+    path: '/engineering-works',
+    name: 'engineering_works',
+    component: () => import(/* webpackChunkName: "engineering-works" */ '../views/EngineeringWorks.vue'),
+    meta: {
+      layout: 'clean',
+      title: 'documents',
+      middleware: []
+    }
+  },
 
   /** Error Pages */
   {
@@ -145,24 +155,24 @@ const routes: RouteConfig[] = [
           {
             path: ':contact_id',
             name: 'operator_leads_view',
-            component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Leads/View.vue'),
+            component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Contacts/View.vue'),
             children: [
               {
                 path: 'script',
                 name: 'operator_leads_script',
-                component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Leads/Script.vue'),
+                component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Contacts/Script.vue'),
                 meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'history',
                 name: 'operator_leads_history',
-                component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Leads/History.vue'),
+                component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Contacts/History.vue'),
                 meta: { layout: 'operator-layout', middleware: [secure] }
               },
               {
                 path: 'tasks',
                 name: 'operator_leads_tasks',
-                component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Leads/Task.vue'),
+                component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Contacts/Task.vue'),
                 meta: { layout: 'operator-layout', middleware: [secure] }
               }
             ],

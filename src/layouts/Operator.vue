@@ -729,7 +729,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   },
 
   mounted () {
-    this.$root.$on('root-tasks-fetch-count', this.onRootTasksFetchCount) // Загрузит информацию о количестве задач
     this.$root.$on('show-rtc-toast', this.showRTCToast)
     this.$root.$on('update-rtc-toast', this.updateRTCToast)
 
@@ -782,6 +781,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   },
 
   created () {
+    this.$store.dispatch('tasks/pending_count')
     this.$store.subscribe(
       ({ payload, type }) => {
         if (type === 'project/set') {
@@ -796,12 +796,11 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
     setTimeout(() => {
       // TODO: TASKS FETCH DATA
-      this.$root.$emit('root-tasks-fetch-count')
+      this.$store.dispatch('tasks/pending_count')
     }, 1000)
   },
 
   beforeDestroy () {
-    this.$root.$off('root-tasks-fetch-count', this.onRootTasksFetchCount)
     this.$root.$off('show-rtc-toast', this.showRTCToast)
     this.$root.$off('update-rtc-toast', this.updateRTCToast)
     this.$root.$off('root-loading-projects', this.onRootLoadingProjects)
@@ -963,10 +962,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             this.projectDialog.visible = true
           }
         })
-    },
-
-    onRootTasksFetchCount () {
-      this.$store.dispatch('tasks/fetchCount') // Загрузить количество задач
     },
 
     // Телефония
