@@ -14,6 +14,7 @@
 - Раздел статистики, "Занятость сотрудников" [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Переход из статистики в карточку контакта для прозвона [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Раздел "Задачи" для операторов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Строка для поиска пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## Исправлено
 - Переиспользование компонента `s-task-list` [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).

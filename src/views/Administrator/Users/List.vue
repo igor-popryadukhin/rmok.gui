@@ -1,7 +1,6 @@
 <template>
   <v-row>
     <v-col
-      class="py-0"
       cols="12"
       md="9"
       lg="9"
@@ -101,8 +100,9 @@
         </v-footer>
       </v-card>
     </v-col>
+
     <v-col
-      class="py-md-0 py-lg-0 py-xl-0 pl-md-0 pl-lg-0 pl-xl-0"
+      class="pl-md-0 pl-lg-0 pl-xl-0"
       cols="12"
       md="3"
       lg="3"
@@ -118,7 +118,13 @@
           <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <v-card-text v-if="$permission.isSuperAdmin">
+        <v-card-text class="py-0">
+          <app-search-input
+            v-model="filter.q"
+            :label="$tc('Search')"
+          />
+        </v-card-text>
+        <v-card-text v-if="$permission.isSuperAdmin" class="py-1">
           <s-organizations-autocomplete
             ref="sOrganizationsAutocomplete"
             v-model="filter.organization"
@@ -128,7 +134,7 @@
             dense
           />
         </v-card-text>
-        <v-card-text>
+        <v-card-text class="py-1">
           <s-projects-autocomplete
             ref="sProjectsAutocomplete"
             v-model="filter.project"
@@ -138,7 +144,7 @@
             dense
           />
         </v-card-text>
-        <v-card-text v-if="$permission.isGranted('user.view_outside_your_group')">
+        <v-card-text v-if="$permission.isGranted('user.view_outside_your_group')" class="py-1">
           <s-groups
             ref="sGroupsAutocomplete"
             v-model="filter.group"
@@ -154,6 +160,7 @@
 </template>
 
 <script lang="ts">
+import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import Vue, { VueConstructor } from 'vue'
 import { UserInterface, Users } from '@/api/Users'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
@@ -180,6 +187,7 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
+    AppSearchInput,
     SGroups,
     SProjectsAutocomplete,
     SOrganizationsAutocomplete
@@ -188,6 +196,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   data (): IData {
     return {
       filter: {
+        q: '',
         organization: null,
         project: null,
         group: null
@@ -246,12 +255,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     const promises: Promise<any>[] = []
     // Установка фильтров
+    if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
+      this.$data.filter.q = this.$route.query.q
+    }
+
     if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
       promises.push(this.$refs.sOrganizationsAutocomplete.setDefault(this.$route.query.organization_id))
     }
     if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
       promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$route.query.project_id))
     }
+
     if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
       promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$route.query.group_id))
     }
@@ -260,6 +274,19 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     Promise.all(promises)
       .finally(() => {
         this.fetchUsers()
+
+        // Слежу за строкой поиска
+        this.$watch('filter.q', (s: string) => {
+          if (s) {
+            this.$routerQuery.setQuery({
+              q: s
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'q'
+            ]).then(this.fetchUsers)
+          }
+        })
 
         // Слежу за изменениями фильтра "Организации"
         this.$watch('filter.organization', (org: OrganizationInterface) => {
@@ -303,6 +330,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   methods: {
+    /**
+     * Происходит когда пользователь вводит текст в поле поиска.
+     **/
+    onUserSearch (text: string) {
+      console.log(text)
+    },
+
     fetchUsers () {
       this.dataTableUsers.processLoading = true
       const offset = (this.dataTableUsers.itemsPerPage * this.dataTableUsers.page) - this.dataTableUsers.itemsPerPage
@@ -310,6 +344,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       const params: any = {
         offset,
         count: this.dataTableUsers.itemsPerPage
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
+        params.q = this.$route.query.q
       }
 
       if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
