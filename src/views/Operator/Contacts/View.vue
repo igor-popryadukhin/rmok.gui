@@ -13,17 +13,28 @@
         outlined
       >
         <v-card-title class="mb-2 py-2">
-            {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
+          {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
         </v-card-title>
         <v-card-subtitle v-if="assertObjectHasAttribute(contact.default_phone, 'international')">
           {{ contact.default_phone.international }}
         </v-card-subtitle>
-        <v-card-text class="py-0 d-flex justify-space-between">
-          <div class="d-flex align-center">{{ $jsSIP.sessionStopwatch }}</div>
+        <v-card-text class="py-0 d-flex justify-end">
+          <v-btn
+            color="primary"
+            class="mr-2"
+            text
+            outlined
+            small
+            tile
+            @click="onTaskAddClick"
+          >
+            {{ $tc('Add task') }}
+          </v-btn>
           <v-btn
             v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
             text
             outlined
+            small
             color="red"
             @click="$jsSIP.cancel()"
           >
@@ -35,10 +46,15 @@
             color="primary"
             text
             outlined
+            small
+            tile
             @click="onCall(contact.default_phone.raw, contact.id)"
           >
             {{ $tc('Call') }}
           </v-btn>
+        </v-card-text>
+        <v-card-text class="d-flex justify-end pb-0">
+          <span>{{ $jsSIP.sessionStopwatch }}</span>
         </v-card-text>
         <v-divider class="my-4 mx-4"/>
         <v-card-text>
@@ -145,7 +161,7 @@
                   <v-list-item-title>{{ email.value }}</v-list-item-title>
                   <v-list-item-subtitle>{{ email.label }}</v-list-item-subtitle>
                 </v-list-item-group>
-                <v-spacer />
+                <v-spacer/>
                 <v-list-item-action>
                   <v-btn
                     icon
@@ -158,7 +174,7 @@
               </v-list-item>
             </template>
 
-            <v-divider class="mt-5" />
+            <v-divider class="mt-5"/>
 
             <!-- Геолокация -->
             <v-skeleton-loader
@@ -193,7 +209,10 @@
                 <v-icon color="primary">mdi-clock-time-two-outline</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title :key="tick">{{ contactDateTimeNow.toISOString().substr(11, 8) }} {{ gmt }}</v-list-item-title>
+                <v-list-item-title :key="tick">{{ contactDateTimeNow.toISOString().substr(11, 8) }} {{
+                    gmt
+                  }}
+                </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Client\'s current time') }}
                 </v-list-item-subtitle>
@@ -259,15 +278,15 @@
         </v-card-actions>
 
         <v-card-text class="py-0 ">
-          <v-divider />
+          <v-divider/>
         </v-card-text>
 
         <v-card-text class="py-1 flex-grow-1 overflow-y-auto">
-          <router-view />
+          <router-view/>
         </v-card-text>
 
         <v-footer color="white" class="pa-4">
-          <v-spacer />
+          <v-spacer/>
           <v-btn-toggle
             :disabled="comment.disabled || comment.text === ''"
             :loading="comment.buttonSave.loading"
@@ -318,14 +337,17 @@
 </template>
 
 <script lang="ts">
+import APIError from '@/api/classes/APIError'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
+import Tasks from '@/api/Tasks'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 import { MainSearchMethod } from '@/Interfaces'
 import lvovich from '@/mixins/lvovich'
 import '@/plugins/libphonenumber-js'
+import STaskDialogEditor, { DTaskInterface } from '@/snippets/STaskList/STaskDialogEditor.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
@@ -417,7 +439,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     tabsHeight () {
       let h: number = this.$screenHeight - 115
-      if (h < 640) { h = 640 }
+      if (h < 640) {
+        h = 640
+      }
       return h
     },
 
@@ -500,6 +524,38 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   methods: {
+    onTaskAddClick () {
+      this.$dialog.show(STaskDialogEditor, {
+        waitForResult: true,
+        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
+        persistent: true,
+        performerId: this.$store.getters['profile/id'],
+        responsibleDisabled: true,
+        onSave: (data: DTaskInterface) => {
+          const taskData: any = {
+            performer_id: data.performer_id,
+            description: data.description,
+            planned_for: data.planned_for,
+            type: data.type,
+            contact_id: +this.$route.params.contact_id
+          }
+
+          new Tasks()
+            .add<number>(taskData)
+            .then(() => {
+              this.$toast.success(this.$tc('Task successfully created'))
+            }).catch((e: APIError) => {
+              let text = ''
+              if (this.assertObjectHasAttribute(e, 'errors')) {
+                text = e.errors.map(e => e.message).join('\n')
+              }
+              this.$toast.error(`${e.message}\n${text}`)
+            }).finally(() => {
+              this.$store.dispatch('tasks/pending_count')
+            })
+        }
+      })
+    },
     onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
         .find({
