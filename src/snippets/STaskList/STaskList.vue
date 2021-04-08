@@ -89,15 +89,6 @@
         </v-select>
       </template>
       <v-spacer />
-      <template v-if="toolsEnabled">
-        <v-btn
-          color="primary"
-          tile
-          text
-          @click="onTaskAddClick"
-        >{{ $tc('Add') }}</v-btn>
-      </template>
-
     </v-app-bar>
 
     <v-card-text class="py-0" :class="outlined ? '' : 'px-0'">
@@ -671,41 +662,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         }
       })
     },
-
-    onTaskAddClick () {
-      this.$dialog.show(STaskDialogEditor, {
-        waitForResult: true,
-        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
-        persistent: true,
-        performerId: this.$store.getters['profile/id'],
-        responsibleDisabled: true,
-        onSave: (data: DTaskInterface) => {
-          const taskData: any = {
-            performer_id: data.performer_id,
-            description: data.description,
-            planned_for: data.planned_for,
-            type: data.type,
-            contact_id: +this.$route.params.contact_id
-          }
-
-          new Tasks()
-            .add<number>(taskData)
-            .then(() => {
-              this.$toast.success(this.$tc('Task successfully created'))
-              this.fetchTasks()
-              this.fetchCount()
-            })
-            .catch((e: APIError) => {
-              let text = ''
-              if (this.assertObjectHasAttribute(e, 'errors')) {
-                text = e.errors.map(e => e.message).join('\n')
-              }
-              this.$toast.error(`${e.message}\n${text}`)
-            })
-        }
-      })
-    },
-
     fetchTasks (params = {}) {
       return new Promise<void>((resolve, reject) => {
         this.tasksLoading = true
