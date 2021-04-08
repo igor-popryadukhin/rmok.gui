@@ -449,7 +449,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         },
         chart: {
           type: 'bar',
-          height: '250',
+          height: '100%',
           stacked: true,
           stackType: '100%'
         },
