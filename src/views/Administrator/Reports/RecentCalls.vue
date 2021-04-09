@@ -540,7 +540,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           {
             text: 'Комментарий',
             align: 'start',
-            sortable: false,
+            sortable: true,
             value: 'comment'
           },
           {
