@@ -86,107 +86,83 @@
           tile
           flat
         >
-          <v-card-text class="">
-            <v-row>
-              <v-col
-                class="py-0"
-                md="4"
-                lg="4"
-                sm="12"
-                xs="12"
-              >
-                <s-users
-                  ref="sUsersAutocomplete"
-                  v-model="filter.user"
-                  :label="$tc('Users')"
-                  :params="{ role_use: 'for_calls' }"
+          <v-card-text class="d-flex flex-wrap justify-start">
+            <s-users
+              ref="sUsersAutocomplete"
+              v-model="filter.user"
+              :label="$tc('Users')"
+              :params="{ role_use: 'for_calls' }"
+              class="mr-xs-3 mr-sm-3 mr-md-3 mr-lg-3"
+              outlined
+              dense
+              clearable
+            />
+            <v-combobox
+              v-model="filter.status.selected"
+              :items="filter.status.items"
+              :label="$tc('Фильтр по результату')"
+              item-text="status_result"
+              item-value="status_id"
+              class="mr-xs-3 mr-md-3 mr-lg-3"
+              cache-items
+              return-object
+              clearable
+              dense
+              outlined
+              v-on="filter.status.on"
+            >
+            </v-combobox>
+            <v-menu
+              ref="menuContactDateCreated"
+              v-model="menuContactDateCreated"
+              :close-on-content-click="false"
+              :return-value.sync="contactDateCreated"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="contactDateCreated"
+                  :label="$tc('Date the contact was created')"
+                  prepend-inner-icon="mdi-calendar"
+                  v-bind="attrs"
+                  v-on="on"
+                  readonly
                   outlined
                   dense
-                  clearable
-                />
-              </v-col>
-              <v-col
-                class="py-0"
-                md="4"
-                lg="4"
-                sm="12"
-                xs="12"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="contactDateCreated"
+                scrollable
+                no-title
+                locale="ru"
               >
-                <v-combobox
-                  v-model="filter.status.selected"
-                  :items="filter.status.items"
-                  :label="$tc('Фильтр по результату')"
-                  item-text="status_result"
-                  item-value="status_id"
-                  cache-items
-                  return-object
-                  clearable
-                  dense
-                  outlined
-                  v-on="filter.status.on"
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  color="red"
+                  @click="onSaveContactDateCreatedClick(null)"
                 >
-                </v-combobox>
-              </v-col>
-              <v-col
-                class="py-0"
-                md="4"
-                lg="4"
-                sm="12"
-                xs="12"
-              >
-                <v-menu
-                  ref="menuContactDateCreated"
-                  v-model="menuContactDateCreated"
-                  :close-on-content-click="false"
-                  :return-value.sync="contactDateCreated"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="290px"
+                  {{ $tc('Clear') }}
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="menuContactDateCreated = false"
                 >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="contactDateCreated"
-                      :label="$tc('Date the contact was created')"
-                      prepend-inner-icon="mdi-calendar"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      outlined
-                      dense
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="contactDateCreated"
-                    scrollable
-                    no-title
-                    locale="ru"
-                  >
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      text
-                      color="red"
-                      @click="onSaveContactDateCreatedClick(null)"
-                    >
-                      {{ $tc('Clear') }}
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="menuContactDateCreated = false"
-                    >
-                      {{ $tc('Cancel') }}
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="onSaveContactDateCreatedClick(contactDateCreated)"
-                    >
-                      OK
-                    </v-btn>
-                  </v-date-picker>
-                </v-menu>
-              </v-col>
-            </v-row>
+                  {{ $tc('Cancel') }}
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="onSaveContactDateCreatedClick(contactDateCreated)"
+                >
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
           </v-card-text>
         </v-card>
       </v-col>
@@ -243,7 +219,7 @@
         >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
-            {{ new Date(item.created_at * 1000).toLocaleString() }}
+            {{ $moment.unix(item.created_at).format('DD.MM.YYYY HH:mm')  }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">

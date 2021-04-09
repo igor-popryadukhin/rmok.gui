@@ -354,7 +354,7 @@
             />
           </template>
           <template slot="item.created_at" slot-scope="{ item }">
-            {{ new Date(item.created_at * 1000).toLocaleString() }}
+            {{ $moment.unix(item.created_at).format('DD.MM.YYYY HH:mm')  }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
@@ -1003,14 +1003,24 @@ export default (Vue as VueConstructor<VInterface>).extend({
 </script>
 
 <style lang="scss">
-  table > tbody > tr > td:nth-child(4) {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 200px;
-  }
 
-  table > tbody > tr > td:nth-child(5) {
-    width: auto;
+  table > tbody > tr {
+
+    & > td:nth-child(5) {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 200px;
+    }
+
+    & > td:nth-child(6) {
+      overflow: hidden;
+      width: 80px;
+    }
+
+    & > td:nth-child(7) {
+      overflow: hidden;
+      width: 80px;
+    }
   }
 </style>
