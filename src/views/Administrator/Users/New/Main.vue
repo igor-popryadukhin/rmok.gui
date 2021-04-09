@@ -425,12 +425,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         .add<{ id: number }>(requestData)
         .then((response) => {
           this.$toast.success(this.$tc('User added successfully'))
-          this.$router.push({
-            name: 'administrator_users_edit_main',
-            params: {
-              user_id: response.id
-            }
-          })
+          this.$router.push('/administrator/users/')
         }).catch((e) => {
           if ('errors' in e) {
             if (Array.isArray(e.errors)) {
