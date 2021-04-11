@@ -371,7 +371,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         page: 1,
         pages: 0,
         totalCount: 0,
-        itemsPerPage: 25,
+        itemsPerPage: 100,
         pageStart: 0,
         pageStop: 0,
         headers: [
