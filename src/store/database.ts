@@ -14,7 +14,11 @@ export const database = {
   },
 
   mutations: {
-    setStatuses (state: StateInterface, payload: StatusInterface[]) {
+    /**
+     * @param state
+     * @param payload
+     */
+    statuses (state: StateInterface, payload: StatusInterface[]): void {
       state.statuses = payload
     }
   },
@@ -24,14 +28,18 @@ export const database = {
      * Загрузить статусы
      *
      * @param commit
+     * @param params
      */
-    async fetchStatuses ({ commit }: any) {
+    async statuses ({ commit }: any, params = {}): Promise<void> {
       return new Promise<void>((resolve) => {
         new Database()
-          .statuses()
+          .statuses(Object.assign({}, {
+            group: 1 // Группировать
+          }, params))
           .then((response) => {
-            commit('setStatuses', response.data)
-          }).finally(resolve)
+            commit('statuses', response.data)
+            resolve()
+          })
       })
     }
   },

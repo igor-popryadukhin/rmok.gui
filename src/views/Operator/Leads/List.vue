@@ -9,6 +9,7 @@
       cols="12"
       md="8"
       lg="8"
+      class="px-0"
     >
       <!-- Лиды -->
       <v-row>
@@ -21,7 +22,6 @@
             :height="350"
             class="overflow-y-auto v-card"
             elevation="0"
-            outlined
             tile
           >
             <v-card-title>{{ $tc('Leads not called') }}</v-card-title>
@@ -38,7 +38,7 @@
                     :key="`list-item-${item.id}`"
                     ripple
                     selectable
-                    :to="{ name: 'operator_leads_script', params: { contact_id: item.id } }"
+                    :to="{ name: 'operator_contacts_view', params: { contact_id: item.id } }"
                     style="min-height: 35px"
                   >
                     <v-list-item-content class="pa-0">
@@ -86,6 +86,12 @@
         </v-col>
       </v-row>
 
+      <v-row>
+        <v-col class="px-10">
+          <v-divider />
+        </v-col>
+      </v-row>
+
       <!-- Задачи -->
       <v-row>
         <v-col
@@ -95,9 +101,9 @@
         >
           <s-task-list
             :params="taskListParams"
+            filters-enabled
             tile
             flat
-            outlined
             @loaded-data="onTasksLoadedData"
           >
             <template v-slot:item="{ item }">
@@ -139,7 +145,6 @@
         height="100%"
         flat
         tile
-        outlined
         disabled
       >
         <v-card-text class="pt-5">
@@ -225,9 +230,9 @@
 </template>
 
 <script lang="ts">
-import Tasks, { TaskInterface } from '@/api/Tasks'
+import store from '@/store'
 import Vue from 'vue'
-import { ContactResponseInterface, Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
+import { Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
 import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
 import Projects, { ProjectInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
@@ -256,7 +261,6 @@ interface IMethods {
   onContactItemClick: (contact: ContactInterface) => void
   onItemDeleteClick: (id: number) => void
   onTasksLoadedData: (data: any) => void
-  onTaskItemClick: (item: TaskInterface) => void
   loadLeads: () => void
 }
 
@@ -271,6 +275,15 @@ export default Vue.extend<IData, IMethods, IComputed>({
   mixins: [
     secondsToHms
   ],
+
+  async beforeRouteEnter (to, from, next) {
+    // Нужно загрузить задачи до того как страница будет отрисована
+    await store.dispatch('tasks/reset_filter') // Очищаю фильтр
+    store.dispatch('tasks/items', {
+      planned_for: 'today',
+      state: 'pending'
+    }).finally(() => (next()))
+  },
 
   data () {
     return {
@@ -426,10 +439,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
   },
 
   mounted () {
-    this.$root.$on('root-main-search', this.onRootMainSearch)
-    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
     this.$root.$on('root-load-leads', this.loadLeads)
-    this.$root.$on('root-load-tasks', this.onRootLoadTasks)
   },
 
   created () {
@@ -448,10 +458,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
   },
 
   beforeDestroy() {
-    this.$root.$off('root-main-search', this.onRootMainSearch)
-    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
     this.$root.$off('root-load-leads', this.loadLeads)
-    this.$root.$off('root-load-tasks', this.onRootLoadTasks)
   },
 
   methods: {
@@ -469,32 +476,6 @@ export default Vue.extend<IData, IMethods, IComputed>({
           this.loadLeads()
         }
       }
-    },
-
-    onRootMainSearch (q: string, set: MainSearchMethod) {
-      new Contacts()
-        .find({
-          q,
-          offset: 0,
-          count: 10
-        }).then((response: ContactResponseInterface) => {
-        set(response.items.map((e: ContactInterface) => {
-          return {
-            ...e,
-            title: `${e.first_name} ${e.last_name}`,
-            subtitle: e.city
-          }
-        }))
-      })
-    },
-
-    onRootMainSearchSelected (data: ContactInterface) {
-      this.$router.push({
-        name: 'operator_leads_script',
-        params: {
-          contact_id: String(data.id)
-        }
-      })
     },
 
     /**
@@ -566,18 +547,6 @@ export default Vue.extend<IData, IMethods, IComputed>({
         }).finally(() => {
           this.leadsLoading = false
         })
-    },
-
-    /**
-     * Происходит когда нажали на элемент списка задачи.
-     * @param item
-     */
-    onTaskItemClick (item: TaskInterface) {
-      this.$store.commit('system/route_last_full_path', this.$route.fullPath)
-      this.$router.push({
-        name: 'operator_leads_script',
-        params: { contact_id: String(item.contact?.id) }
-      })
     },
 
     lastContactStatus (contact: ContactInterface) {

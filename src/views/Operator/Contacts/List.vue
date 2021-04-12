@@ -1,34 +1,33 @@
 <template>
   <v-row>
     <v-col
+      class="px-0"
       cols="12"
       md="9"
       lg="9"
-      class="py-md-0 py-lg-0"
     >
       <v-card
         flat
         tile
-        outlined
       >
         <v-card-text>
           <v-data-table
-            dense
             :headers="dataTableContacts.headers"
             :items="dataTableContacts.items"
             :server-items-length="dataTableContacts.totalCount"
             :page.sync="dataTableContacts.page"
             :items-per-page="dataTableContacts.itemsPerPage"
             :loading="dataTableContacts.processLoading"
-            item-key="id"
-            item-class="v-datatable-item"
             :loading-text="$tc('Loading content...')"
             :no-data-text="$tc('No data available')"
+            :height="tabsHeight"
+            item-key="id"
+            item-class="v-datatable-item"
             disable-sort
             fixed-header
             calculate-widths
             hide-default-footer
-            :height="tabsHeight"
+            dense
             @pagination="onPaginationChange"
           >
             <template v-slot:top>
@@ -60,8 +59,12 @@
             </template>
 
             <template slot="item" slot-scope="{ item }">
-              <tr class="v-datatable-item" @dblclick="onContactItemDblClick(item)">
-                <td class="text-no-wrap">{{ item.first_name }} {{ item.last_name }} {{ item.middle_name }}</td>
+              <tr class="v-datatable-item">
+                <td class="text-no-wrap">
+                  <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: String(item.id) } }">
+                    {{ item.first_name }} {{ item.last_name }} {{ item.middle_name }}
+                  </router-link>
+                </td>
                 <td class="text-no-wrap">{{ $moment.unix(item.created_at).format('LL') }}</td>
                 <td class="text-no-wrap text-right">
                   <v-btn
@@ -78,27 +81,32 @@
         </v-card-text>
       </v-card>
     </v-col>
+
+    <!-- Фильтр -->
     <v-col
       cols="12"
       md="3"
       lg="3"
-      class="py-md-0 py-lg-0 pl-md-0 pl-lg-0"
+      class="pl-md-0 pl-lg-0"
     >
       <v-card
         class="fill-height"
         flat
         tile
-        outlined
       >
         <v-toolbar flat>
           <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-        <v-footer absolute class="d-flex justify-md-space-between pa-4 mt-auto">
+        <v-footer
+          class="d-flex justify-md-space-between pa-4 mt-auto"
+          color="white"
+          absolute
+        >
           <v-pagination
             v-model="dataTableContacts.page"
             :length="dataTableContacts.pages"
-            total-visible="3"
+            total-visible="4"
             :disabled="dataTableContacts.pages === 0"
           ></v-pagination>
           <div class="d-flex align-center justify-center">
@@ -118,13 +126,15 @@ import { ContactInterface } from '@/api/Schemas/ContactInterface'
 export default Vue.extend({
   data () {
     return {
-      filter: {}, //
+      filter: {
+        q: null
+      },
       dataTableContacts: {
         processLoading: false,
         page: 1,
         pages: 0,
         totalCount: 0,
-        itemsPerPage: 100,
+        itemsPerPage: 50,
         pageStart: 0,
         pageStop: 0,
         headers: [
@@ -185,7 +195,7 @@ export default Vue.extend({
 
     onContactItemDblClick (item: ContactInterface) {
       this.$router.push({
-        name: 'operator_contacts_view_script',
+        name: 'operator_contacts_view',
         params: {
           contact_id: String(item.id)
         }

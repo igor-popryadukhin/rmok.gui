@@ -1,7 +1,6 @@
 <template>
   <v-row>
     <v-col
-      class="py-0"
       cols="12"
       md="9"
       lg="9"
@@ -121,7 +120,9 @@
                     <v-skeleton-loader class="mb-0" height="15" tile type="text" />
                   </template>
                   <template v-else>
-                    {{ item.first_name || '' }} {{ item.last_name || '' }} {{ item.middle_name || '' }}
+                    <router-link :to="{ name: 'administrator_contacts_view', params: { contact_id: item.id } }">
+                      {{ item.last_name }} {{ item.first_name }} {{ item.middle_name }}
+                    </router-link>
                   </template>
                 </td>
                 <td class="text-no-wrap">
@@ -192,7 +193,7 @@
       </v-card>
     </v-col>
     <v-col
-      class="py-0 pl-md-0 pl-lg-0 pl-xl-0"
+      class="pl-md-0 pl-lg-0 pl-xl-0"
       cols="12"
       md="3"
       lg="3"
@@ -375,8 +376,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         pageStart: 0,
         pageStop: 0,
         headers: [
-          { text: ' ', align: 'start', sortable: true, value: 'checkbox' },
-          { text: this.$tc('Client'), align: 'start', sortable: true, value: 'client', width: 'auto' },
+          { text: ' ', align: 'start', sortable: true, value: 'checkbox', width: '40px' },
+          { text: this.$tc('Client'), align: 'start', sortable: true, value: 'client', width: '100%' },
           { text: this.$tc('Responsible'), align: 'start', sortable: true, value: 'responsible', width: 'auto' },
           { text: this.$tc('Project'), align: 'start', sortable: true, value: 'project', width: 'auto' },
           { text: this.$tc('Date and time of the last call'), align: 'start', sortable: true, value: 'last_call_at', width: '133px' },

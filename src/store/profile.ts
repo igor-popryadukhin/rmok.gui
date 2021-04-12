@@ -96,7 +96,7 @@ export const profile = {
     project (state: StateInterface): string { return state.email },
     role (state: StateInterface) { return state.role },
     role_id (state: StateInterface) { return state.role.id },
-    role_use (state: StateInterface): string { return state.role.use },
+    role_use (state: StateInterface): 'for_administration' | 'for_calls' { return state.role.use },
     role_name (state: StateInterface): string { return state.role.name },
     userpic (state: StateInterface): string { return state.userpic },
     status (state: StateInterface) { return state.status },

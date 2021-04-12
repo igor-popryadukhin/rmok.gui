@@ -12,7 +12,6 @@
       extension-height="25px"
       class="background--header"
     >
-      <div class="offset-lg-1 offset-md-1"></div>
       <v-toolbar-title>
         <span class="hidden-sm-and-down">RMOK</span>
       </v-toolbar-title>
@@ -23,7 +22,11 @@
         v-model="mainSearch.selected"
         :items="mainSearch.items"
         :search-input.sync="mainSearch.q"
+        :label="$t('Search')"
+        :loading="mainSearch.loading"
+        class="mr-4"
         item-text="title"
+        disabled
         return-object
         hide-no-data
         no-filter
@@ -31,9 +34,6 @@
         disable-lookup
         flat
         hide-selected
-        class="mr-4"
-        :label="$t('search')"
-        :loading="mainSearch.loading"
         hide-details
         outlined
         dense
@@ -288,11 +288,10 @@
         </v-list>
       </v-menu>
 
-      <div class="offset-lg-1 offset-md-1"></div>
       <template v-slot:extension>
         <v-breadcrumbs
           :items="breadcrumbs"
-          class="offset-lg-1 col-lg-10 offset-md-1 col-md-10 pa-0"
+          class="pa-0"
         >
           <template v-slot:item="{ item }">
             <v-breadcrumbs-item
@@ -311,7 +310,6 @@
     </v-app-bar>
     <v-main>
       <v-container
-        class="offset-lg-1 col-lg-10 offset-md-1 col-md-10"
         fluid
       >
         <router-view/>
@@ -365,27 +363,21 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <s-incoming-r-t-c v-model="incomingDialogVisible"/>
   </v-app>
 </template>
 
 <script lang="ts">
+import jssip from '@/mixins/jssip'
+import SIncomingRTC from '@/snippets/SIncomingRTC/SIncomingRTC.vue'
 import Vue, { VueConstructor } from 'vue'
 import breadcrumbs from '@/mixins/breadcrumbs'
 import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
 import { debounce } from 'vuetify/src/util/helpers'
-import Tasks, { TaskInterface, TaskType } from '@/api/Tasks'
 import Projects, { ProjectInterface } from '@/api/Projects'
 import Users from '@/api/Users'
-import { Configurations } from '@/api/Configurations'
-import PBXInterface from '@/api/Schemas/PBXInterface'
-import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
-import { Contacts } from '@/api/Contacts'
-import { UnRegisteredEvent } from 'jssip/lib/UA'
-import VToast from '@/components/VToast/VToast.vue'
-import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSession.vue'
-import { ToastOptions } from 'vue-toastification/dist/types/src/types'
-import { POSITION } from 'vue-toastification'
-import { JsSIP } from '@/jsSIP/plugin'
+
 import callMachine from '@/xState/machines/callMachine'
 import { mapGetters } from 'vuex'
 import { interpret } from 'xstate'
@@ -393,56 +385,28 @@ import Account, { UserStatus } from '@/api/Account'
 import VInterface from '@/VInterface'
 
 interface IProps {
-  source: string;
+  [key: string]: any;
 }
 
 interface IData {
-  toastId: number | string;
-  projectDialog: any;
-  buttonMenuNotification: any;
-  mainSearch: any;
-  settings: any;
-  dialog: any;
-  drawer: any;
-  accountMenuItems: any;
-  notifications: NotificationInterface[];
-  projects: any;
-  RTCToastOptions: ToastOptions,
-  callMachineService: any
-  current: any
-  context: any
-  statusSetProcess: boolean
+  [key: string]: any;
 }
 
 interface IMethod {
-  onRootNewTasks: () => void;
-  jsSIPSetConfiguration: () => void;
-  onRootLoadingProjects: () => void;
-  onRootTasksFetchCount: () => void;
-  onProjectItemClick: (item: ProjectInterface & { loading: boolean }) => void;
-  showRTCToast: (data: any) => void;
-  updateRTCToast: (data: any) => void;
-  onAnswer: () => void;
-  onHangup: () => void;
-  addHistory: <T>(contactId: number, historyData: any) => Promise<T>;
+  [key: string]: any;
 }
 
 interface IComputed {
-  avatar: string;
-  mainMenu: any[];
-  projectDialogWidth: string;
+  [key: string]: any;
 }
 
 export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, IComputed, IProps>({
-  props: {
-    source: String
-  },
+  components: { SIncomingRTC },
 
-  mixins: [breadcrumbs],
+  mixins: [breadcrumbs, jssip],
 
   data (): IData {
     return {
-      toastId: 0,
       projectDialog: {
         visible: false,
         projects: [] as ProjectInterface[],
@@ -460,12 +424,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           })
         }, 400)
       },
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: false,
-        wheelPropagation: false
-      },
-      dialog: false,
+      statusSetProcess: false,
       drawer: null,
       accountMenuItems: [
         {
@@ -574,30 +533,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
         }
       ],
       notifications: [] as NotificationInterface[],
-      projects: [],
-      RTCToastOptions: {
-        id: '',
-        position: POSITION.TOP_RIGHT,
-        timeout: false,
-        pauseOnFocusLoss: true,
-        pauseOnHover: true,
-        draggable: false,
-        draggablePercent: 0.47,
-        hideProgressBar: false,
-        toastClassName: 'incoming-rtc-toast',
-        closeOnClick: false,
-        closeButton: false,
-        icon: false,
-        rtl: false
-      },
-
-      // xState
-      callMachineService: interpret(callMachine.withContext(this)),
-      // Start with the machine's initial state
-      current: callMachine.initialState,
-      // Start with the machine's initial context
-      context: callMachine.context,
-      statusSetProcess: false
+      projects: []
     }
   },
 
@@ -729,14 +665,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   },
 
   mounted () {
-    this.$root.$on('show-rtc-toast', this.showRTCToast)
-    this.$root.$on('update-rtc-toast', this.updateRTCToast)
-
-    // TODO: TASKS FETCH DATA
-
-    // Инициализация телефонии
-    this.$root.$on('root-jssip-set-configuration', this.jsSIPSetConfiguration)
-
     // Событие загрузки проектов для выбора
     this.$root.$on('root-loading-projects', this.onRootLoadingProjects)
 
@@ -746,8 +674,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
         this.current = state
         this.context = state.context
       }).start()
-
-    this.$root.$emit('root-jssip-set-configuration')
 
     this.$store.subscribe(
       ({ payload, type }) => {
@@ -793,134 +719,10 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
         }
       }
     )
-
-    setTimeout(() => {
-      // TODO: TASKS FETCH DATA
-      this.$store.dispatch('tasks/pending_count')
-    }, 1000)
-  },
-
-  beforeDestroy () {
-    this.$root.$off('show-rtc-toast', this.showRTCToast)
-    this.$root.$off('update-rtc-toast', this.updateRTCToast)
-    this.$root.$off('root-loading-projects', this.onRootLoadingProjects)
-    this.$root.$off('root-jssip-set-configuration', this.jsSIPSetConfiguration)
+    this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
   },
 
   methods: {
-    onRootNewTasks () {
-      new Tasks()
-        .find()
-        .then((response) => {
-          this.notifications = []
-          if (this.$store.getters['project/statuses'].length === 0) {
-            this.notifications.push({
-              type: 'event',
-              icon: 'mdi-alert',
-              color: 'red',
-              title: 'Ошибка проекта!',
-              message: 'У проекта нет статусов',
-              actions: []
-            })
-          }
-
-          // Проверяем наличие подключения и текущего статуса
-          response.data.forEach((task: unknown & TaskInterface) => {
-            if (task.state === 'pending') {
-              let title = ''
-              let icon = ''
-              switch (task.type) {
-                case TaskType.CALL: {
-                  title = `Позвонить ${this.$moment.unix(task.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}`
-                  icon = 'mdi-alpha-c-circle'
-                  break
-                }
-                case TaskType.TASK: {
-                  title = this.$tc('Task')
-                  icon = 'mdi-alpha-t-circle'
-                  break
-                }
-                case TaskType.MEETING: {
-                  title = this.$tc('Meeting')
-                  icon = 'mdi-alpha-m-circle'
-                  break
-                }
-                case TaskType.LETTER: {
-                  title = this.$tc('Letter')
-                  icon = 'mdi-alpha-e-circle'
-                  break
-                }
-                case TaskType.OTHER: {
-                  title = this.$tc('Other')
-                  icon = 'mdi-alpha-o-circle'
-                  break
-                }
-              }
-
-              if (task.type === TaskType.CALL) {
-                let class_ = ''
-
-                if (task.expired) {
-                  class_ = 'task-expired'
-                }
-
-                let message = `${task.contact?.first_name} ${task.contact?.last_name} ${task.contact?.middle_name}`
-                if (this.assertObjectHasAttribute(task.contact, 'last_status')) {
-                  if (task.contact.last_status) {
-                    message = `${message} <strong>(Статус: ${task.contact.last_status.name})</strong>`
-                  }
-                }
-
-                this.notifications.push({
-                  type: 'call',
-                  icon,
-                  color: 'blue',
-                  class: class_,
-                  title,
-                  message,
-                  message2: task.description,
-                  context: task, // Обрати внимание, context будет передан в функцию обратного вызова click
-                  click: (e: NotificationInterface, i: number) => {
-                    if (this.assertObjectHasAttribute(e.context, 'contact')) {
-                      if (this.assertObjectHasAttribute(e.context?.contact, 'id')) {
-                        this.$router.replace({
-                          name: 'operator_contacts_view_tasks',
-                          params: { contact_id: e.context?.contact.id },
-                          query: { task_id: e.context?.id }
-                        })
-                      }
-                    } else {
-                      console.error('Задача для контакта не содержит данные контакта')
-                    }
-                  }
-                })
-              } else {
-                this.notifications.push({
-                  type: 'task',
-                  icon,
-                  color: 'blue',
-                  title,
-                  message: task.description,
-                  message2: `Выполнить до ${new Date(task.planned_for * 1000).toLocaleString()}`,
-                  actions: [
-                    {
-                      title: 'Выполнить',
-                      context: task,
-                      handle: (arg: TaskInterface) => {
-                        new Tasks()
-                          .setState(arg.id)
-                          .then(() => {
-                            // TODO: TASKS FETCH DATA
-                          })
-                      }
-                    }
-                  ]
-                })
-              }
-            }
-          })
-        })
-    },
 
     /**
      * Происходит при каждом клике по элементу списка проектов в диалоговом окне
@@ -962,220 +764,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             this.projectDialog.visible = true
           }
         })
-    },
-
-    // Телефония
-    jsSIPSetConfiguration () {
-      if (this.$isDebug) {
-        console.log('%c%s', 'color: blue;', 'Инициализация RTC')
-      }
-
-      // Инициализация JSSIP
-      new Configurations()
-        .getATEConfigurations()
-        .then((config: PBXInterface) => {
-          // Проверяю наличие данных, сервер может вернуть пустые свойства
-          if (config.server === '' || (config.login === '' && config.password === '')) {
-            return this.$toast.error({
-              component: VToast,
-              props: {
-                title: this.$tc('Error connecting to PBX'),
-                text: this.$t('Cause: {text}', { text: 'Нет параметров!' }),
-                actions: [
-                  {
-                    attrs: {
-                      label: this.$tc('Tune'),
-                      style: { color: 'white' }
-                    },
-                    on: {
-                      click: () => {
-                        this.$router.push({ name: 'operator_settings_telephony' })
-                      }
-                    }
-                  }
-                ]
-              }
-            }, { timeout: false })
-          }
-
-          // Отключаемся,если подключены
-          if (this.$jsSIP.isConnected) {
-            this.$jsSIP.stop()
-          }
-
-          setTimeout(() => {
-            this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
-              uri: `sip:${config.login}@${config.server}`,
-              password: config.password,
-              realm: config.server
-            })
-
-            // Глобальные обработчики
-            this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
-              this.callMachineService.send({
-                type: 'CONNECTING',
-                jssip: self,
-                session,
-                event
-              })
-            }
-
-            this.$jsSIP.onSessionProgress = async (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-              this.callMachineService.send({
-                type: 'PROGRESS',
-                jssip: self,
-                session,
-                event
-              })
-              /* eslint-enable */
-            }
-
-            this.$jsSIP.onSessionAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => {
-              this.callMachineService.send({
-                type: 'ACCEPTED',
-                jssip: self,
-                session,
-                event
-              })
-
-              if (this.$isDebug) {
-                console.group('JsSIP: Принятый')
-                console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-                console.log('%c%s', 'color: green;', '----------------------------------------------------')
-                console.log(event)
-                console.log(session)
-                console.log('%c%s', 'color: green;', '----------------------------------------------------')
-                console.groupEnd()
-              }
-            }
-
-            this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-              this.callMachineService.send({
-                type: 'ENDED',
-                jssip: self,
-                session,
-                event
-              })
-
-              /* eslint-enable */
-            }
-
-            this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-              this.callMachineService.send({
-                type: 'FAILED',
-                jssip: self,
-                session,
-                event
-              })
-            }
-
-            this.$jsSIP.on('registrationFailed', (event: UnRegisteredEvent) => {
-              this.$toast.error({
-                component: VToast,
-                props: {
-                  title: this.$tc('Error connecting to PBX'),
-                  text: this.$t('Cause: {text}', { text: event.cause }),
-                  actions: [
-                    {
-                      attrs: {
-                        label: this.$tc('Tune'),
-                        style: { color: 'white' }
-                      },
-                      on: {
-                        click: () => {
-                          this.$router.push({ name: 'operator_settings_telephony' })
-                        }
-                      }
-                    }
-                  ]
-                }
-              }, { timeout: false })
-            })
-
-            if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
-              this.$jsSIP.start()
-            }
-          }, 1000)
-
-          setTimeout(() => {
-            const guid = '6f4de608-5e14-4a77-8922-0d2c68d59161'
-            if (!this.$jsSIP.isConnected && [UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(this.$store.getters['profile/status'])) {
-              this.notifications.push({
-                id: guid,
-                type: 'event',
-                icon: 'mdi-alert',
-                color: 'red',
-                title: 'Ошибка',
-                message: 'Требуется настроить RTC',
-                actions: [
-                  {
-                    title: 'Настроить',
-                    context: null,
-                    handle: () => {
-                      this.$router.push({ name: 'operator_settings_telephony' })
-                    }
-                  }
-                ]
-              })
-            } else {
-              this.notifications = this.notifications.filter((value: NotificationInterface) => {
-                return value.id !== guid
-              })
-            }
-          }, 5000)
-        })
-    },
-
-    showRTCToast ({ id, data }) {
-      this.RTCToastOptions.id = id
-      this.toastId = this.$toast({
-        component: IncomingRTCSession,
-        props: {
-          displayName: data.displayName,
-          phoneNumber: data.displayName
-        },
-        listeners: {
-          answer: this.onAnswer,
-          hangup: this.onHangup
-        }
-      }, this.RTCToastOptions)
-    },
-
-    updateRTCToast ({ id, data }) {
-      this.$toast.update(id, {
-        content: {
-          component: IncomingRTCSession,
-          props: {
-            displayName: data.displayName,
-            phoneNumber: data.phoneNumber
-          },
-          listeners: {
-            answer: this.onAnswer,
-            hangup: this.onHangup
-          }
-        }
-      })
-    },
-
-    onAnswer () {
-      this.$jsSIP.answer()
-    },
-
-    onHangup () {
-      this.$toast.dismiss(this.toastId)
-      this.$jsSIP.cancel()
-    },
-
-    addHistory<T> (contactId: number, historyData: any): T | any {
-      return new Promise<T>((resolve) => {
-        new Contacts()
-          .addHistory(contactId, historyData)
-          .then((id: T) => {
-            resolve(id)
-          }).finally(() => {
-            this.$root.$emit('root-contact-history-change')
-          })
-      })
     }
   }
 })

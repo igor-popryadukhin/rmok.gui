@@ -1,42 +1,62 @@
 <template>
-  <div>
+  <div :style="styleWrapper">
+    <v-divider />
     <v-tabs
       v-model="tabStatus"
       height="35"
     >
       <v-tab>
-        Все
+        {{ $tc('All') }}
       </v-tab>
       <v-tab
-        v-for="(group, groupIndex) in $store.getters['project/statuses']"
+        v-for="(group, groupIndex) in statuses"
         :key="groupIndex"
       >
         <span :style="{ color: group.color }">{{ group.name }}</span>
       </v-tab>
+      <v-spacer />
+      <v-tooltip bottom max-width="400">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-on="on"
+            v-bind="attrs"
+            color="red"
+            tile
+            text
+            @click="$emit('on-close')"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $tc('Close') }}</span>
+      </v-tooltip>
     </v-tabs>
+    <v-divider />
     <v-tabs-items
       v-model="tabStatus"
     >
       <v-tab-item>
-        <v-container fluid>
+        <v-container class="px-5" fluid>
           <v-radio-group
             column
           >
             <v-row
-              v-for="(status, statusIndex) in $store.getters['project/statuses']"
+              v-for="(status, statusIndex) in statuses"
               :key="`v-row-status-${statusIndex}`"
               justify="start"
+              align="start"
             >
               <v-col
-                v-for="(item, statusIndex) in status.items"
+                v-for="(item, statusIndex) in status.statuses"
                 :key="`v-col-status-${statusIndex}`"
-                cols="3"
-                class="mr-10 pa-0 mb-1"
+                cols="4"
+                class="pa-0 mb-1"
               >
                 <v-radio
                   :key="`v-radio-${statusIndex}`"
                   :color="status.color"
                   :id="`v-radio-${item.id}`"
+                  @change="onRadioChange(item)"
                 >
                   <template v-slot:label>
                     <span :style="{ color: status.color }">{{ item.name }}</span>
@@ -48,41 +68,95 @@
         </v-container>
       </v-tab-item>
       <v-tab-item
-        v-for="(tabItem, tabIndex) in $store.getters['project/statuses']"
+        v-for="(tabItem, tabIndex) in statuses"
         :key="`tab-item-status-${tabIndex}`"
       >
-        <v-radio-group
+        <v-container class="px-5" fluid>
+          <v-radio-group
           :key="`v-radio-group-${tabIndex}`"
           column
         >
-          <v-row justify="start">
+          <v-row>
             <v-col
-              v-for="(status, statusIndex) in tabItem.items"
+              v-for="(status, statusIndex) in tabItem.statuses"
               :key="`status-${statusIndex}`"
-              cols="auto"
-              class="mr-10"
+              cols="4"
             >
               <v-radio
                 :label="status.name"
                 :color="tabItem.color"
                 :id="`v-radio-${status.id}`"
+                @change="onRadioChange(status)"
               ></v-radio>
             </v-col>
           </v-row>
         </v-radio-group>
+        </v-container>
       </v-tab-item>
     </v-tabs-items>
   </div>
 </template>
 
 <script lang="ts">
+import { StatusInterface } from '@/api/Database'
 import Vue from 'vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
+  components: {},
+
+  props: {
+    height: {
+      type: [Number, String],
+      default: 250
+    },
+
+    minHeight: {
+      type: [Number, String],
+      default: 250
+    },
+
+    value: {
+      type: Number,
+      default: null
+    }
+  },
+
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
+
   data () {
     return {
       tabStatus: 0,
-      tab: null
+      tab: null,
+      currentStatus: null as unknown & StatusInterface
+    }
+  },
+
+  computed: {
+    ...mapGetters({
+      statuses: 'database/statuses'
+    }),
+
+    styleWrapper () {
+      return {
+        height: `${this.height}px`,
+        'min-height': `${this.minHeight}px`
+      }
+    }
+  },
+
+  mounted () {
+    this.$watch('currentStatus', (val: any) => {
+      this.$emit('change', val.id)
+    })
+  },
+
+  methods: {
+    onRadioChange (status: any) {
+      this.$data.currentStatus = status
     }
   }
 })

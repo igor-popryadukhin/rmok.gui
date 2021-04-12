@@ -1,24 +1,27 @@
 <template>
   <v-row>
     <v-col
+      :style="leftColumnStyleComputed"
       cols="12"
       md="4"
-      lg="4"
-      class="py-lg-0 py-md-0 pt-sm-0 pt-xl-0"
+      lg="3"
     >
       <v-card
         class="fill-height"
+        :style="leftColumnStyleComputed"
         flat
         tile
-        outlined
       >
-        <v-card-title class="mb-2 py-2">
-          {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
+        <v-card-title class="mb-2 py-2 px-0">
+          {{ contact.last_name }} {{ contact.first_name }} {{ contact.middle_name }}
         </v-card-title>
-        <v-card-subtitle v-if="assertObjectHasAttribute(contact.default_phone, 'international')">
+        <v-card-subtitle
+          v-if="assertObjectHasAttribute(contact.default_phone, 'international')"
+          class="px-0"
+        >
           {{ contact.default_phone.international }}
         </v-card-subtitle>
-        <v-card-text class="py-0 d-flex justify-end">
+        <v-card-text class="py-0 px-0 d-flex justify-end">
           <v-btn
             color="primary"
             class="mr-2"
@@ -35,6 +38,7 @@
             text
             outlined
             small
+            tile
             color="red"
             @click="$jsSIP.cancel()"
           >
@@ -42,7 +46,7 @@
           </v-btn>
           <v-btn
             v-else
-            :disabled="!$jsSIP.isConnected || !assertObjectHasAttribute(contact.default_phone, 'raw') || !$libPhoneNumberJs.validate(contact.default_phone.raw)"
+            :disabled="callBtnIsDisabled"
             color="primary"
             text
             outlined
@@ -53,12 +57,15 @@
             {{ $tc('Call') }}
           </v-btn>
         </v-card-text>
-        <v-card-text class="d-flex justify-end pb-0">
+        <v-card-text class="d-flex justify-end pb-0 px-0">
           <span>{{ $jsSIP.sessionStopwatch }}</span>
         </v-card-text>
-        <v-divider class="my-4 mx-4"/>
-        <v-card-text>
+        <v-divider class="mt-4"/>
+        <v-card-text
+          class="px-0"
+        >
           <v-list
+            :style="leftColumnStyleComputed"
             tile
           >
             <!-- Номера телефонов -->
@@ -79,17 +86,14 @@
                 </v-list-item-avatar>
                 <v-item-group>
                   <v-list-item-title>{{ phone.international }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ phone.label }}</v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="['idle'].includes($jsSIP.state)">
+                    {{ phone.label }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>
+                    {{ $jsSIP.sessionStopwatch }}
+                  </v-list-item-subtitle>
                 </v-item-group>
                 <v-spacer/>
-                <v-item-group
-                >
-                  <template
-                    v-if="!['idle'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
-                  >
-                    {{ $jsSIP.sessionStopwatch }}
-                  </template>
-                </v-item-group>
                 <v-item-group
                 >
                   <v-btn
@@ -132,7 +136,7 @@
                     v-else
                     icon
                     :key="`phone-call-btn-${phoneIndex}`"
-                    :disabled="!$jsSIP.isConnected || ['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.raw"
+                    :disabled="callBtnIsDisabled"
                     @click="onCall(phone.raw, contact.id)"
                   >
                     <v-icon>mdi-phone</v-icon>
@@ -247,25 +251,23 @@
     <v-col
       cols="12"
       md="8"
-      lg="8"
-      class="py-lg-0 py-md-0 pt-sm-0 pt-xl-0 pl-md-0 pl-lg-0 pl-xl-0"
+      lg="9"
+      class="pl-md-0 pl-lg-0"
     >
       <v-card
         :height="tabsHeight"
         class="d-flex flex-column"
         flat
         tile
-        outlined
       >
         <v-card-actions class="px-4">
           <v-tabs
-            v-model="tab"
+            v-model="currentTabIndex"
             height="35"
           >
             <v-tab
               v-for="(tab, tabIndex) in tabs"
               :key="`tab-${tabIndex}`"
-              :to="tab.to"
               :disabled="tab.disabled"
             >
               <v-icon left>
@@ -282,14 +284,52 @@
         </v-card-text>
 
         <v-card-text class="py-1 flex-grow-1 overflow-y-auto">
-          <router-view/>
+          <component
+            :ref="tabs[currentTabIndex].ref"
+            :is="tabs[currentTabIndex].component"
+          />
         </v-card-text>
+
+        <!-- Статусы -->
+
+        <v-fade-transition mode="in-out">
+          <v-card-text v-show="status.visible" class="py-0">
+            <s-contact-statuses
+              v-model="status.status_id"
+              min-height="200"
+              @on-close="status.visible = false"
+            />
+
+            <v-divider/>
+
+            <v-textarea
+              v-model="status.comment"
+              :placeholder="$t('Comment')"
+              rows="4"
+            >
+              <template v-slot:prepend-inner>
+                <v-icon>
+                  mdi-comment
+                </v-icon>
+              </template>
+              <template v-slot:append>
+                <v-btn
+                  icon
+                  text
+                  disabled
+                >
+                  <v-icon>
+                    mdi-microphone
+                  </v-icon>
+                </v-btn>
+              </template>
+            </v-textarea>
+          </v-card-text>
+        </v-fade-transition>
 
         <v-footer color="white" class="pa-4">
           <v-spacer/>
           <v-btn-toggle
-            :disabled="comment.disabled || comment.text === ''"
-            :loading="comment.buttonSave.loading"
             color="primary"
             dense
             tile
@@ -297,13 +337,13 @@
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
-                  color="primary"
-                  text
-                  disabled
                   v-on="on"
                   v-bind="attrs"
                   :loading="saveAndNextLoading"
-                  @click="onSaveAndNext"
+                  :disabled="!status.visible"
+                  color="primary"
+                  text
+                  @click="onSaveClick(status)"
                 >
                   {{ $t('Save') }}
                 </v-btn>
@@ -316,7 +356,7 @@
                   color="primary"
                   v-bind="attrs"
                   v-on="on"
-                  disabled
+                  :disabled="!status.visible"
                   text
                   icon
                 >
@@ -324,7 +364,10 @@
                 </v-btn>
               </template>
               <v-list class="pa-0">
-                <v-list-item link>
+                <v-list-item
+                  link
+                  @click="onSaveAndStayClick(status)"
+                >
                   <v-list-item-title>{{ $tc('Сохранить и остаться') }}</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -344,10 +387,13 @@ import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import Tasks from '@/api/Tasks'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
+import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInterface'
 import { MainSearchMethod } from '@/Interfaces'
 import lvovich from '@/mixins/lvovich'
 import '@/plugins/libphonenumber-js'
-import STaskDialogEditor, { DTaskInterface } from '@/snippets/STaskList/STaskDialogEditor.vue'
+import SContactStatuses from '@/snippets/SContactStatuses/SContactStatuses.vue'
+import STaskDialogEditor from '@/snippets/STaskList/STaskDialogEditor.vue'
+import store from '@/store'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
@@ -358,9 +404,26 @@ interface TabInterface {
   icon: string;
   disabled: boolean;
   to?: string | Route;
+  ref: string;
+  component?: any;
+}
+
+interface IStatus {
+  /** Положительный идентификатор статуса. */
+  status_id: number;
+  /** Положительный идентификатор контакта. */
+  contact_id: number;
+  /** Положительный идентификатор исторической записи. */
+  contact_history_id: number;
+  /** Видимость компонента выбора статуса. */
+  visible: boolean;
+  /** Комментарий */
+  comment: string;
 }
 
 export default (Vue as VueConstructor<VInterface>).extend({
+  components: { SContactStatuses },
+
   mixins: [lvovich],
 
   data () {
@@ -370,7 +433,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         historyId: 0,
         visible: false
       },
-      tab: null,
+      currentTabIndex: 0,
       tabs: [
         {
           name: 'operator_contacts_view_script',
@@ -378,7 +441,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
           disabled: false,
           to: {
             name: 'operator_contacts_view_script'
-          }
+          },
+          ref: 'script',
+          component: () => import('./Script.vue')
         },
         {
           name: 'operator_contacts_view_history',
@@ -386,7 +451,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
           disabled: false,
           to: {
             name: 'operator_contacts_view_history'
-          }
+          },
+          ref: 'history',
+          component: () => import('./History.vue')
         },
         {
           name: 'operator_contacts_view_tasks',
@@ -394,18 +461,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
           disabled: false,
           to: {
             name: 'operator_contacts_view_tasks'
-          }
+          },
+          ref: 'task',
+          component: () => import('./Task.vue')
         }
       ] as TabInterface[],
       saveAndNextLoading: false,
       dataLoading: false,
-      comment: {
-        disabled: false,
-        text: '',
-        buttonSave: {
-          loading: false
-        }
-      },
+      status: {
+        status_id: 0,
+        contact_id: 0,
+        contact_history_id: 0,
+        visible: false,
+        comment: ''
+      } as IStatus,
       contact: {
         city: '',
         default_phone: undefined,
@@ -426,6 +495,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
+  watch: {
+    currentTabIndex (val: number) {
+      this.$routerQuery.setQuery({
+        current_tab_index: val
+      })
+    }
+  },
+
   computed: {
     avatar () {
       const first: string = this.contact.first_name || ''
@@ -439,10 +516,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     tabsHeight () {
       let h: number = this.$screenHeight - 115
-      if (h < 640) {
-        h = 640
+      if (h < 850) {
+        h = 850
       }
       return h
+    },
+
+    /**
+     * Делает кнопку позвонить недоступной, если не выполнены условия
+     **/
+    callBtnIsDisabled () {
+      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
     },
 
     gmt () {
@@ -459,7 +543,22 @@ export default (Vue as VueConstructor<VInterface>).extend({
       } else {
         return `(GMT ${offset})`
       }
+    },
+
+    leftColumnStyleComputed () {
+      return {}
     }
+  },
+
+  created () {
+    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
+      this.currentTabIndex = Number(this.$route.query.current_tab_index)
+    }
+
+    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
+    this.$store.dispatch('database/statuses', {
+      contact_id: this.$route.params.contact_id
+    })
   },
 
   mounted () {
@@ -472,6 +571,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   beforeRouteEnter (to, from, next) {
+    // Сохраняю маршрут, откуда пришёл
+    store.commit('system/route_last_full_path', from.fullPath)
     new Contacts()
       .getById(+to.params.contact_id)
       .then((response: ContactInterface) => {
@@ -503,6 +604,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.contact = contact
           this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
         }).finally(() => {
+          this.tabPageUpdate()
           this.dataLoading = false
         })
     }
@@ -517,6 +619,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
   beforeDestroy () {
     this.$root.$off('root-main-search', this.onRootMainSearch)
     this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
   },
 
   destroyed () {
@@ -524,38 +627,31 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   methods: {
-    onTaskAddClick () {
-      this.$dialog.show(STaskDialogEditor, {
-        waitForResult: true,
-        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
-        persistent: true,
-        performerId: this.$store.getters['profile/id'],
-        responsibleDisabled: true,
-        onSave: (data: DTaskInterface) => {
-          const taskData: any = {
-            performer_id: data.performer_id,
-            description: data.description,
-            planned_for: data.planned_for,
-            type: data.type,
-            contact_id: +this.$route.params.contact_id
-          }
-
-          new Tasks()
-            .add<number>(taskData)
-            .then(() => {
-              this.$toast.success(this.$tc('Task successfully created'))
-            }).catch((e: APIError) => {
-              let text = ''
-              if (this.assertObjectHasAttribute(e, 'errors')) {
-                text = e.errors.map(e => e.message).join('\n')
-              }
-              this.$toast.error(`${e.message}\n${text}`)
-            }).finally(() => {
-              this.$store.dispatch('tasks/pending_count')
-            })
+    /**
+     * Обновит текущую страницу во вкладке
+     **/
+    tabPageUpdate () {
+      // Незамысловатый механизм доступа к методам компонента
+      setTimeout(() => {
+        if (typeof this.$refs[this.tabs[this.currentTabIndex].ref].update === 'function') {
+          this.$refs[this.tabs[this.currentTabIndex].ref].update()
         }
-      })
+      }, 1000)
     },
+
+    /**
+     * Показать статусы
+     */
+    showStatuses () {
+      this.status.visible = true
+    },
+
+    onRootJssipSessionEnded (event: REJssipSessionEndedInterface) {
+      this.showStatuses()
+      this.status.contact_id = event.contact_id
+      this.status.contact_history_id = event.contact_history_id
+    },
+
     onRootMainSearch (q: string, set: MainSearchMethod) {
       new Contacts()
         .find({
@@ -599,28 +695,117 @@ export default (Vue as VueConstructor<VInterface>).extend({
       /* eslint-enable */
     },
 
-    onSaveComment () {
-      /* eslint-disable */
-      this.comment.disabled = true
-      this.comment.buttonSave.loading = true
-      new Contacts()
-        .addHistory(+this.$route.params.contact_id, {
-          type: 'comment',
-          comment: this.comment.text
-        }).then(() => {
-        this.comment.text = ''
-        this.$root.$emit('root-contact-history-change')
-      }).finally(() => {
-        this.comment.disabled = false
-        this.comment.buttonSave.loading = false
+    onTaskAddClick () {
+      this.$dialog.show(STaskDialogEditor, {
+        waitForResult: true,
+        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
+        persistent: true,
+        performerId: this.$store.getters['profile/id'],
+        responsibleDisabled: true,
+        onSave: (data: any) => {
+          const taskData: any = {
+            performer_id: data.performer_id,
+            description: data.description,
+            planned_for: data.planned_for,
+            type: data.type,
+            contact_id: +this.$route.params.contact_id
+          }
+
+          new Tasks()
+            .add<number>(taskData)
+            .then(() => {
+              this.$toast.success(this.$tc('Task successfully created'))
+            }).catch((e: APIError) => {
+              let text = ''
+              if (this.assertObjectHasAttribute(e, 'errors')) {
+                text = e.errors.map(e => e.message).join('\n')
+              }
+              this.$toast.error(`${e.message}\n${text}`)
+            }).finally(() => {
+              this.$store.dispatch('tasks/pending_count')
+              this.$store.dispatch('tasks/items', {
+                contact_id: this.$route.params.contact_id
+              })
+            })
+        }
       })
-      /* eslint-enable */
     },
 
-    onSaveAndNext () {
+    /**
+     * Сохранить статус
+     *
+     * @param status
+     **/
+    async onSaveClick (status: IStatus) {
+      await this.save(status)
+
+      // Переход на страницу откуда пришел
+      if (this.$store.getters['system/route_last_full_path']) {
+        this.$router.push(this.$store.getters['system/route_last_full_path'])
+      }
+
+      // // Если оператор, то открываем страницу со следующим контактом, если таковой имеется.
+      // if (this.$store.getters['profile/role_use'] === 'for_calls') {
+      //   this.nextContact(+this.$route.params.contact_id)
+      // }
+    },
+
+    /**
+     * Сохранить статус и остаться на странице
+     *
+     * @param status
+     **/
+    async onSaveAndStayClick (status: IStatus) {
+      await this.save(status)
+    },
+
+    async save (status: IStatus) {
+      if (!this.validate()) {
+        return
+      }
+
       this.saveAndNextLoading = true
+      return new Promise<void>((resolve) => {
+        new Contacts()
+          .updateHistory(status.contact_history_id, {
+            status_id: status.status_id, // Идентификатор статуса для истории
+            comment: status.comment // Комментарий для истории.
+          }).then(() => {
+          // Через секунду обновляю текущую страницу в Tab
+            setTimeout(() => {
+              this.tabPageUpdate()
+            }, 500)
+
+            // Очистить предыдущий результат выбранного
+            status.contact_id = 0
+            status.contact_history_id = 0
+            status.status_id = 0
+            status.visible = false
+            status.comment = ''
+
+            resolve()
+          }).finally(() => (this.saveAndNextLoading = false))
+      })
+    },
+
+    validate (): boolean {
+      if (this.status.status_id <= 0) {
+        this.$toast.warning('Выберите статус!')
+        return false
+      }
+
+      return true
+    },
+
+    /**
+     * Перейти к следующему контакту
+     * Передайте действительный идентификатор контакта, для того что бы загрузить очередной контакт
+     *
+     * @param current_contact_id
+     */
+    nextContact (current_contact_id: number) {
       new Leads()
-        .next(+this.$route.params.contact_id)
+        .next(current_contact_id)
         .then((contact_id) => {
           const name = String(this.$route.name)
           this.$router.push({
@@ -631,8 +816,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
           })
         })
         .catch(() => {
-          this.$router.replace({
-            name: 'operator_contacts_view'
+          this.$router.push({
+            name: 'operator_leads'
           })
         }).finally(() => {
           this.saveAndNextLoading = false
@@ -642,7 +827,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 
 .tool-bar div {
   padding-left: 0;

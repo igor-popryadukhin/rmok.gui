@@ -9,7 +9,7 @@ const socket = io(uri, {
   path: '/activity',
   autoConnect: false,
   reconnection: true,
-  query: {},
+  filter: {},
   auth: (cb) => {
     // Здесь каждый раз, будем брать актуальный токен доступа
     // eslint-disable-next-line standard/no-callback-literal

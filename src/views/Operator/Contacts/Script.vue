@@ -15,6 +15,15 @@ export default Vue.extend({
     return {
       history: [1, 2, 3, 4, 5]
     }
+  },
+
+  methods: {
+    /**
+     * Метод предназначен для обновления всего компонента
+     **/
+    update () {
+      // todo: implementation
+    }
   }
 })
 </script>

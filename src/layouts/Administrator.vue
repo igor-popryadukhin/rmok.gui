@@ -214,11 +214,11 @@
 </template>
 
 <script lang="ts">
+import jssip from '@/mixins/jssip'
 import Vue from 'vue'
-import breadcrumbs from '@/mixins/breadcrumbs'
 
 export default Vue.extend({
-  mixins: [breadcrumbs],
+  mixins: [jssip],
 
   data () {
     return {

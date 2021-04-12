@@ -122,10 +122,6 @@ export default Vue.extend({
 
           if (this.$store.getters['profile/role_use'] === 'for_administration') {
             this.$router.replace({ name: 'administrator' })
-              .finally(() => {
-                this.$root.$emit('root-jssip-set-configuration')
-                this.$root.$emit('root-loading-projects')
-              })
           } else if (this.$store.getters['profile/role_use'] === 'for_calls') {
 
             // Если авторизовался оператор
@@ -133,7 +129,7 @@ export default Vue.extend({
               .finally(() => {
                 setTimeout(async () => {
                   await this.$store.dispatch('project/load')
-                  this.$root.$emit('root-jssip-set-configuration')
+                  this.$root.$emit('root-jssip-initialize')
                   this.$root.$emit('root-loading-projects')
                 }, 1000)
               })

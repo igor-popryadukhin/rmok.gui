@@ -1,3 +1,4 @@
+import { app } from '@/main'
 import { loadLanguageAsync } from '@/plugins/i18n'
 import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
@@ -147,24 +148,24 @@ const routes: RouteConfig[] = [
             name: 'operator_leads_view',
             component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Contacts/View.vue'),
             children: [
-              {
-                path: 'script',
-                name: 'operator_leads_script',
-                component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Contacts/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [secure] }
-              },
-              {
-                path: 'history',
-                name: 'operator_leads_history',
-                component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Contacts/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [secure] }
-              },
-              {
-                path: 'tasks',
-                name: 'operator_leads_tasks',
-                component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Contacts/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [secure] }
-              }
+              // {
+              //   path: 'script',
+              //   name: 'operator_leads_script',
+              //   component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Contacts/Script.vue'),
+              //   meta: { layout: 'operator-layout', middleware: [secure] }
+              // },
+              // {
+              //   path: 'history',
+              //   name: 'operator_leads_history',
+              //   component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Contacts/History.vue'),
+              //   meta: { layout: 'operator-layout', middleware: [secure] }
+              // },
+              // {
+              //   path: 'tasks',
+              //   name: 'operator_leads_tasks',
+              //   component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Contacts/Task.vue'),
+              //   meta: { layout: 'operator-layout', middleware: [secure] }
+              // }
             ],
             meta: { layout: 'operator-layout', middleware: [secure] }
           }
@@ -230,25 +231,25 @@ const routes: RouteConfig[] = [
             name: 'operator_contacts_view',
             component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
             children: [
-              {
-                // todo: Deprecated (нет нужды в данном решении)
-                path: 'script',
-                name: 'operator_contacts_view_script',
-                component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
-                meta: { layout: 'operator-layout', middleware: [secure] }
-              },
-              {
-                path: 'history',
-                name: 'operator_contacts_view_history',
-                component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
-                meta: { layout: 'operator-layout', middleware: [secure] }
-              },
-              {
-                path: 'tasks',
-                name: 'operator_contacts_view_tasks',
-                component: () => import(/* webpackChunkName: "operator-contacts-view-tasks" */ '../views/Operator/Contacts/Task.vue'),
-                meta: { layout: 'operator-layout', middleware: [secure] }
-              }
+              // {
+              //   // todo: Deprecated (нет нужды в данном решении)
+              //   path: 'script',
+              //   name: 'operator_contacts_view',
+              //   component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
+              //   meta: { layout: 'operator-layout', middleware: [secure] }
+              // },
+              // {
+              //   path: 'history',
+              //   name: 'operator_contacts_view_history',
+              //   component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
+              //   meta: { layout: 'operator-layout', middleware: [secure] }
+              // },
+              // {
+              //   path: 'tasks',
+              //   name: 'operator_contacts_view_tasks',
+              //   component: () => import(/* webpackChunkName: "operator-contacts-view-tasks" */ '../views/Operator/Contacts/Task.vue'),
+              //   meta: { layout: 'operator-layout', middleware: [secure] }
+              // }
             ],
             meta: { layout: 'operator-layout', middleware: [secure] }
           }
@@ -507,7 +508,7 @@ const routes: RouteConfig[] = [
           },
           {
             name: 'administrator_contacts_edit',
-            path: ':contact_id',
+            path: ':contact_id/edit',
             component: () => import(/* webpackChunkName: "administrator-contacts" */ '../views/Administrator/Contacts/Edit.vue'),
             meta: {
               layout: 'administrator',
@@ -526,28 +527,14 @@ const routes: RouteConfig[] = [
           {
             path: ':contact_id',
             name: 'administrator_contacts_view',
-            component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Administrator/Contacts/View.vue'),
-            children: [
-              {
-                path: 'script',
-                name: 'administrator_contacts_view_script',
-                component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Administrator/Contacts/Script.vue'),
-                meta: { layout: 'administrator', middleware: [secure] }
-              },
-              {
-                path: 'history',
-                name: 'administrator_contacts_view_history',
-                component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Administrator/Contacts/History.vue'),
-                meta: { layout: 'administrator', middleware: [secure] }
-              },
-              {
-                path: 'tasks',
-                name: 'administrator_contacts_view_task',
-                component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Administrator/Contacts/Task.vue'),
-                meta: { layout: 'administrator', middleware: [secure] }
-              }
-            ],
-            meta: { layout: 'administrator', middleware: [secure] }
+            component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
+            children: [],
+            meta: { layout: 'administrator', middleware: [secure] },
+            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+              // Проинициализируем WebRTC
+              app.$root.$emit('root-jssip-initialize')
+              next()
+            }
           }
         ],
         meta: {

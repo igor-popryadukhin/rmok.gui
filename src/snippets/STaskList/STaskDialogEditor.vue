@@ -307,10 +307,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
               if (!this.$refs.form.validate()) {
                 return false
               }
-              console.log(`${this.dDate} ${this.dTime}`)
-              console.log(this.$moment(`${this.dDate} ${this.dTime}`, 'YYYY-MM-DD hh:mm'))
               return this.$props.onSave({
-                planned_for: this.$moment(`${this.dDate} ${this.dTime}`, 'YYYY-MM-DD hh:mm').unix(), // Unixtime
+                planned_for: this.$moment(`${this.dDate} ${this.dTime}`, 'YYYY-MM-DD HH:mm').utc().unix(), // Unixtime
                 type: this.dType,
                 performer_id: this.dPerformer.id,
                 description: this.dDescription
@@ -329,7 +327,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
   },
 
   mounted () {
-    this.dTime = this.$moment.unix(this.$props.plannedFor).format('hh:mm')
+    this.dTime = this.$moment.unix(this.$props.plannedFor).format('HH:mm')
     this.dDate = this.$moment.unix(this.$props.plannedFor).format('YYYY-MM-DD')
 
     this.dDescription = this.description

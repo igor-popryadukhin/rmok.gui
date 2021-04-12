@@ -4,7 +4,7 @@ import createPersistedState from 'vuex-persistedstate'
 import { profile } from '@/store/profile'
 import { system } from './system'
 import { project } from '@/store/project'
-import { tasks } from '@/store/tasks'
+import tasks from '@/store/tasks'
 import { database } from '@/store/database'
 
 Vue.use(Vuex)
@@ -17,7 +17,7 @@ export interface RootStateInterface {
   root: number
 }
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state (): RootStateInterface {
     return {
       root: 0 // todo: example
@@ -92,3 +92,5 @@ export default new Vuex.Store({
     })
   ]
 })
+
+export default store

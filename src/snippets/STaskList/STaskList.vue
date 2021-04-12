@@ -6,11 +6,12 @@
     tile
   >
     <v-app-bar
+      v-if="filtersEnabled"
       color="white"
       flat
       tile
     >
-      <template v-if="filtersEnabled">
+      <template>
         <v-btn-toggle
           v-model="filter.planned_for"
           group
@@ -20,12 +21,15 @@
             <v-btn
               :key="item.value"
               :value="item.value"
+              :x-small="['xs', 'sm'].includes($vuetify.breakpoint.name)"
+              :small="['md'].includes($vuetify.breakpoint.name)"
             >
               {{ $tc(item.title) }}
               <v-badge
                 v-if="item.count > 0"
-                :content="item.count"
                 v-bind="item.badge"
+                :content="item.count"
+                :dot="['xs', 'sm'].includes($vuetify.breakpoint.name)"
                 inline
               />
             </v-btn>
@@ -35,7 +39,7 @@
             ref="menuDateRange"
             v-model="menuDateRange"
             :close-on-content-click="false"
-            :return-value.sync="filter.planned_for"
+            :return-value.sync="filter.date_range"
             transition="scale-transition"
             offset-y
             min-width="290px"
@@ -43,8 +47,10 @@
             <template v-slot:activator="{ on }">
               <v-btn
                 v-on="on"
-                :class="/^\d+,\d+/s.test($routerQuery.getQuery('planned_for')) ? 'v-btn--active' : ''"
+                :class="/^\d+,\d+/s.test(String($route.query[prefix('planned_for')])) ? 'v-btn--active' : ''"
                 :value="null"
+                :x-small="['xs', 'sm'].includes($vuetify.breakpoint.name)"
+                :small="['md'].includes($vuetify.breakpoint.name)"
               >
                 <v-icon>mdi-calendar-month-outline</v-icon>
               </v-btn>
@@ -76,7 +82,8 @@
           </v-menu>
         </v-btn-toggle>
         <v-select
-          v-model="filter.status"
+          v-model="filter.status_id"
+          v-if="!['xs', 'sm'].includes($vuetify.breakpoint.name)"
           :items="statuses"
           :label="$tc('Status')"
           style="max-width: 250px; min-width: 250px"
@@ -92,14 +99,14 @@
     </v-app-bar>
 
     <v-card-text class="py-0" :class="outlined ? '' : 'px-0'">
-      <template v-if="tasks.length === 0 && tasksLoading  === true">
+      <template v-if="task_items.length === 0 && tasksLoading  === true">
         <div
           class="d-flex align-center justify-center"
         >
           <div class="grey--text">{{ $tc('Loading content...') }}</div>
         </div>
       </template>
-      <template v-if="tasks.items.length === 0 && tasksLoading  === false">
+      <template v-if="task_items.length === 0 && tasksLoading  === false">
         <div
           class="d-flex flex-wrap align-center justify-center"
           style="height: 400px"
@@ -109,9 +116,9 @@
           </div>
         </div>
       </template>
-      <template v-if="tasks.items.length > 0">
+      <template v-if="task_items.length > 0">
         <v-list>
-          <template v-for="(taskItem, taskIndex) in tasks.items">
+          <template v-for="(taskItem, taskIndex) in task_items">
             <v-divider
               v-if="isVisibleDivider && taskIndex > 0"
               :key="`v-divider-${taskIndex}`"
@@ -189,10 +196,10 @@
     </v-card-text>
 
     <v-card-actions class="d-flex align-center justify-center py-5">
-      <div v-if="tasks.pages > 1" >
+      <div v-if="task_paginator.pages > 1" >
         <v-pagination
-          v-model="tasks.page"
-          :length="tasks.pages"
+          v-model="task_paginator.page"
+          :length="task_paginator.pages"
           total-visible="10"
         ></v-pagination>
       </div>
@@ -210,7 +217,6 @@ import { sleep } from '@/Utils'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
-import { mapGetters } from 'vuex'
 
 interface IProps {
   [key: string]: any;
@@ -249,6 +255,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         return {}
       }
     },
+
     /**
      * Количество задач на страницу
      **/
@@ -256,6 +263,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       type: Number,
       default: 10
     },
+
     /**
      * Включить фильтр
      **/
@@ -276,6 +284,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       }
     },
 
+    paramPrefix: {
+      type: String,
+      default () {
+        return 't_'
+      }
+    },
+
     outlined: {
       type: Boolean,
       default: false
@@ -286,21 +301,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
     return {
       menuDateRange: false,
       dateRange: null as string[] | null,
-      tabsCurrentItem: 0,
       // --------------------
       tasksLoading: false,
-      tasks: {
-        per_page: 10, // Количество на страницу
-        page: 1, // Текущая страница
-        pages: 0, // Всего страниц, зависит от per_page
-        count: 0, // Всего записей
-        items: [] as unknown & TaskInterface[] // Элементы задач
-      },
-      // Фильтры
-      filter: {
-        status: 0,
-        planned_for: null,
-        q: null as null | string
+      task_items: [] as TaskInterface[],
+      task_count: 0,
+      task_paginator: {
+        per_page_count: 25,
+        page: 1,
+        pages: 1
       },
       // Сортировка
       sort: {
@@ -320,6 +328,16 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           }
         ] as unknown[] & { title: string; value: string }
       },
+      // Фильтр
+      filter: {
+        contact_id: 0,
+        q: '',
+        sort: '',
+        status_id: 0,
+        state: '',
+        planned_for: null,
+        date_range: null
+      },
 
       btnToggles: [
         {
@@ -333,7 +351,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
             return {
               planned_for: 'tomorrow',
               state: 'pending',
-              status_id: +this.$route.query.status_id || 0
+              status_id: +this.filter.status_id
             }
           }
         },
@@ -348,7 +366,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
             return {
               planned_for: 'today',
               state: 'pending',
-              status_id: +this.$route.query.status_id || 0
+              status_id: +this.filter.status_id
             }
           }
         },
@@ -363,7 +381,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
             return {
               planned_for: 'yesterday',
               state: 'pending',
-              status_id: +this.$route.query.status_id || 0
+              status_id: +this.filter.status_id
             }
           }
         },
@@ -378,7 +396,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
             return {
               planned_for: 'the_day_before_yesterday',
               state: 'pending',
-              status_id: +this.$route.query.status_id || 0
+              status_id: +this.filter.status_id
             }
           }
         },
@@ -392,7 +410,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           params: () => {
             return {
               state: 'pending',
-              status_id: +this.$route.query.status_id || 0
+              status_id: +this.filter.status_id
             }
           }
         }
@@ -401,12 +419,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
   },
 
   computed: {
-    ...mapGetters({
-      task_pending_count: 'tasks/pending_count'
-    }),
 
     isVisibleDivider () {
-      return this.tasks.items.length > 1
+      return this.task_items.length > 1
     },
 
     statuses () {
@@ -449,40 +464,16 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
 
   created () {
     if (this.$props.filtersEnabled) {
-      this.$store.dispatch('database/fetchStatuses')
-      this.fetchCount()
+      this.$store.dispatch('database/statuses', { group: 0 }) // group: 0 без группировки
     }
+
+    this.update()
   },
 
   mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
-
-    // Статус контакта
-    if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
-      this.filter.status = +this.$route.query.status_id
-    }
-
-    // Статус контакта
-    if (this.assertObjectHasAttribute(this.$route.query, 'planned_for')) {
-      this.filter.planned_for = this.$route.query.planned_for
-    }
-
-    if (this.$routerQuery.hasQuery('q')) {
-      this.filter.q = this.$route.query.q
-    }
-
-    if (this.$routerQuery.hasQuery('sort')) {
-      this.sort.select = this.$route.query.sort
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(async () => {
-        await this.fetchTasks()
-        this.initializeWatchFilters()
-      })
+    this.initializeFiltersFromQuery()
+    this.initializeWatchFilters()
+    this.fetchCount()
   },
 
   methods: {
@@ -502,12 +493,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
       }
 
-      this.$routerQuery.setQuery({ planned_for: dr }).finally(() => (this.fetchTasks()))
+      this.filter.planned_for = dr
+      this.$routerQuery.setQuery({
+        [this.prefix('planned_for')]: dr
+      }).then(() => {
+        this.update()
+      })
     },
 
     onClearDateRangeClick () {
       this.menuDateRange = false
-      this.$routerQuery.removeQuery(['planned_for']).finally(() => (this.fetchTasks()))
+      this.$routerQuery.removeQuery(['planned_for']).finally(() => (this.update()))
     },
 
     lastContactStatus (contact: ContactInterface) {
@@ -542,7 +538,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         // Сохранить $route.fullPath что бы потом вернуться.
         this.$store.commit('system/route_last_full_path', this.$route.fullPath)
         this.$router.push({
-          name: 'operator_contacts_view_script',
+          name: 'operator_contacts_view',
           params: { contact_id: item.contact.id } as any
         })
       }
@@ -556,20 +552,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       new Tasks()
         .setState(taskId, 'done')
         .then(() => {
-          const taskIndex = this.tasks.items.findIndex((e: TaskInterface) => e.id === taskId)
+          const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
-            this.tasks.items[taskIndex].state = 'done'
+            this.task_items[taskIndex].state = 'done'
             this.$store.dispatch('tasks/pending_count')
             this.fetchCount()
 
             setTimeout(() => {
-              const taskIndex = this.tasks.items.findIndex((e: TaskInterface) => e.id === taskId && e.state === 'done')
+              const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId && e.state === 'done')
               if (taskIndex > -1) {
-                this.tasks.items.splice(taskIndex, 1)
+                this.task_items.splice(taskIndex, 1)
               }
 
-              if (this.tasks.items.length === 0) {
-                this.fetchTasks()
+              if (this.task_items.length === 0) {
+                this.update()
               }
             }, 3000)
           }
@@ -580,9 +576,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       new Tasks()
         .setState(taskId, 'pending')
         .then(() => {
-          const taskIndex = this.tasks.items.findIndex((e: TaskInterface) => e.id === taskId)
+          const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId)
           if (taskIndex > -1) {
-            this.tasks.items[taskIndex].state = 'pending'
+            this.task_items[taskIndex].state = 'pending'
             this.$store.dispatch('tasks/pending_count')
             this.fetchCount()
           }
@@ -617,7 +613,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
                 .edit(item.id, taskData)
                 .then(() => {
                   this.$toast.success(this.$tc('Task successfully updated'))
-                  this.fetchTasks()
+                  this.update()
                 })
                 .catch((e: APIError) => {
                   let text = ''
@@ -662,155 +658,180 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         }
       })
     },
-    fetchTasks (params = {}) {
+
+    /**
+     * Параметры которые будут добавлены в фильтр
+     * @param params
+     */
+    update (params = {}) {
       return new Promise<void>((resolve, reject) => {
-        this.tasksLoading = true
-
-        const offset = this.tasks.per_page * this.tasks.page - this.tasks.per_page
-
-        const newParams: any = Object.assign({
-          count: this.tasks.per_page,
-          offset
-        }, params)
-
-        // Поиск по тексту
-        if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
-          newParams.q = this.$route.query.q
+        let offset = this.task_count * this.task_paginator.page - this.task_paginator.per_page_count
+        if (offset < 0) {
+          offset = 0
         }
 
-        if (this.assertObjectHasAttribute(this.$route.query, 'sort')) {
-          newParams.sort = this.$route.query.sort
+        const newParams: any = Object.assign({}, {
+          count: this.task_paginator.per_page_count,
+          offset
+        }, params, this.params)
+
+        // Поиск по тексту
+        if (this.$route.query[this.prefix('q')]) {
+          newParams.q = this.$route.query[this.prefix('q')]
+        }
+
+        if (this.$route.query[this.prefix('sort')]) {
+          newParams.sort = this.$route.query[this.prefix('sort')]
         }
 
         // Статус контакта
-        if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
-          newParams.status_id = this.$route.query.status_id
+        if (this.$route.query[this.prefix('status_id')]) {
+          newParams.status_id = this.$route.query[this.prefix('status_id')]
         }
 
         // Статус Задачи
-        if (this.assertObjectHasAttribute(this.$route.query, 'state')) {
-          newParams.state = this.$route.query.state
+        if (this.$route.query[this.prefix('state')]) {
+          newParams.state = this.$route.query[this.prefix('state')]
         }
 
         // Статус контакта
-        if (this.assertObjectHasAttribute(this.$route.query, 'planned_for')) {
-          newParams.planned_for = this.$route.query.planned_for
+        if (this.$route.query[this.prefix('planned_for')]) {
+          newParams.planned_for = this.$route.query[this.prefix('planned_for')]
         }
 
         new Tasks()
-          .find<{ count: number; }, TaskInterface[]>(Object.assign({}, this.$props.params, newParams))
+          .find<any, TaskInterface[]>(newParams)
           .then((response) => {
+            this.task_count = response.meta?.count
+            this.task_paginator.pages = Math.ceil(response.meta?.count / this.task_paginator.per_page_count)
+            this.task_items = response.data
             resolve()
-            this.tasks.count = response.meta.count
-            this.tasks.pages = Math.ceil(response.meta.count / this.tasks.per_page)
-            this.tasks.items = response.data as TaskInterface[]
-
-            this.$emit('loaded-data', response)
-          }).finally(() => {
-            this.tasksLoading = false
           }).catch(reject)
       })
     },
 
+    /**
+     * Получить количество по фильтрам
+     **/
     async fetchCount () {
-      const task = new Tasks()
-      for (let i = 0; i < this.btnToggles.length; i++) {
-        await task.count(this.btnToggles[i].params())
-          .then((value) => {
-            this.btnToggles[i].count = value.data.count
-          })
-        await sleep(100)
+      if (this.filtersEnabled) {
+        const task = new Tasks()
+        for (let i = 0; i < this.btnToggles.length; i++) {
+          await task.count(Object.assign({}, this.btnToggles[i].params()))
+            .then((value) => {
+              this.btnToggles[i].count = value.data.count
+            })
+          await sleep(100)
+        }
       }
     },
 
-    initializeWatchFilters () {
-      const debounceDelay = 250 // Задержка выполнения загрузки данных (избавит от дребезга)
+    prefix (name: string) {
+      return this.paramPrefix + name
+    },
 
-      // Сортировка
-      this.$watch('filter.status', debounce((value: number) => {
-        if (value) {
-          this.$routerQuery.setQuery({
-            status_id: value
-          }).finally(() => {
-            this.fetchTasks()
-            this.fetchCount()
-          })
+    /**
+     * После перезагрузки страницы восстановит параметры фильтров из адресной строки браузера
+     */
+    initializeFiltersFromQuery () {
+      if (this.$route.query[this.prefix('planned_for')]) {
+        this.filter.planned_for = this.$route.query[this.prefix('planned_for')]
+      }
+
+      if (this.$route.query[this.prefix('q')]) {
+        this.filter.q = this.$route.query[this.prefix('q')]
+      }
+
+      if (this.$route.query[this.prefix('status_id')]) {
+        this.filter.status_id = +this.$route.query[this.prefix('status_id')]
+      }
+
+      if (this.$route.query[this.prefix('state')]) {
+        this.filter.state = this.$route.query[this.prefix('state')]
+      }
+    },
+
+    /**
+     *
+     * @param debounceDelay
+     */
+    initializeWatchFilters (debounceDelay = 200) {
+      // Запланировано на
+      this.$watch('filter.planned_for', debounce((val: string | string[]) => {
+        if (val) {
+          // Зарезервированная константа даты
+          switch (val) {
+            case 'all':
+            case 'the_day_before_yesterday':
+            case 'yesterday':
+            case 'tomorrow':
+            case 'today': {
+              this.$routerQuery.setQuery({
+                [this.prefix('planned_for')]: val
+              }).then(() => {
+                this.update()
+              })
+              break
+            }
+          }
         } else {
-          this.$routerQuery
-            .removeQuery(['status_id'])
-            .finally(() => {
-              this.fetchTasks()
-              this.fetchCount()
-            })
+          this.$routerQuery.removeQuery([
+            this.prefix('planned_for')
+          ]).then(() => {
+            this.update()
+          })
         }
       }, debounceDelay))
 
       // Поиск по тексту
-      this.$watch('filter.q', debounce((value: string) => {
-        this.tasks.page = 1 // Установить первую страницу, если поиск по тексту
-        if (value) {
+      this.$watch('filter.q', debounce((val: string) => {
+        if (val) {
           this.$routerQuery.setQuery({
-            q: value
-          }).finally(() => {
-            this.fetchTasks()
+            [this.prefix('q')]: val
+          }).then(() => {
+            this.update()
           })
         } else {
-          this.$routerQuery
-            .removeQuery(['q'])
-            .finally(() => {
-              this.fetchTasks()
-            })
+          this.$routerQuery.removeQuery([
+            this.prefix('q')
+          ]).then(() => {
+            this.update()
+          })
         }
       }, debounceDelay))
 
-      this.$watch('tasks.page', debounce((page: number) => {
-        if (page) {
+      // Поиск по статусу
+      this.$watch('filter.status_id', debounce((val: string) => {
+        if (val) {
           this.$routerQuery.setQuery({
-            page
-          }).finally(() => {
-            this.fetchTasks()
+            [this.prefix('status_id')]: val
+          }).then(() => {
+            this.update()
           })
         } else {
-          this.$routerQuery
-            .removeQuery(['page'])
-            .finally(() => {
-              this.fetchTasks()
-            })
+          this.$routerQuery.removeQuery([
+            this.prefix('status_id')
+          ]).then(() => {
+            this.update()
+            this.fetchCount()
+          })
         }
       }, debounceDelay))
 
-      // Фильтрация по датам
-      this.$watch('filter.planned_for', debounce(async (newVal: unknown & string) => {
-        // Удалить пагинацию.
-        this.tasks.page = 1
-        // Удалить статус задачи.
-        if (this.$routerQuery.hasQuery('state')) {
-          await this.$routerQuery.removeQuery(['state'])
-        }
-        switch (newVal) {
-          case 'today': {
-            this.$routerQuery.setQuery({ planned_for: 'today' }).finally(this.fetchTasks)
-            break
-          }
-          case 'yesterday': {
-            this.$routerQuery.setQuery({ planned_for: 'yesterday' }).finally(this.fetchTasks)
-            break
-          }
-          case 'tomorrow': {
-            this.$routerQuery.setQuery({ planned_for: 'tomorrow' }).finally(this.fetchTasks)
-            break
-          }
-          case 'the_day_before_yesterday': {
-            this.$routerQuery.setQuery({ planned_for: 'the_day_before_yesterday' }).finally(this.fetchTasks)
-            break
-          }
-          case 'all': {
-            this.$routerQuery.setQuery({
-              planned_for: 'all',
-              state: 'pending'
-            }).finally(this.fetchTasks)
-            break
-          }
+      // Поиск по состоянию.
+      this.$watch('filter.state', debounce((val: string) => {
+        if (val) {
+          this.$routerQuery.setQuery({
+            [this.prefix('state')]: val
+          }).then(() => {
+            this.update()
+          })
+        } else {
+          this.$routerQuery.removeQuery([
+            this.prefix('state')
+          ]).then(() => {
+            this.update()
+          })
         }
       }, debounceDelay))
     }

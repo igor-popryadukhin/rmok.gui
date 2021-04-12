@@ -1,7 +1,8 @@
+import { $moment } from '@/plugins/moment'
 import { createMachine } from 'xstate'
 import Vue from 'vue'
 import { JsSIP } from '@/jsSIP/plugin'
-import { EndEvent, RTCSession } from 'jssip/lib/RTCSession'
+import { RTCSession } from 'jssip/lib/RTCSession'
 import { causes } from 'jssip/lib/Constants'
 import { Contacts } from '@/api/Contacts'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
@@ -171,8 +172,8 @@ const callMachine = createMachine<Vue, Event>({
         }
 
         const historyData = {
-          session_start_time: jssip.sessionStartTime.getTime() / 1000,
-          session_end_time: jssip.sessionEndTime.getTime() / 1000,
+          session_start_time: $moment(jssip.sessionStartTime).unix(),
+          session_end_time: $moment(jssip.sessionEndTime).unix(),
           type: 'call',
           direction: session.direction,
           originator: event.originator,
@@ -186,8 +187,8 @@ const callMachine = createMachine<Vue, Event>({
 
         // Если есть время разговора
         if ((session.start_time) && (session.end_time)) {
-          historyData.start_timestamp = session.start_time.getTime() / 1000
-          historyData.end_timestamp = session.end_time.getTime() / 1000
+          historyData.start_timestamp = $moment(session.start_time).unix()
+          historyData.end_timestamp = $moment(session.end_time).unix()
         }
 
         let contactId = 0

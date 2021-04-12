@@ -81,7 +81,10 @@
     <!-- Date range -->
     <v-row>
       <v-col class="pt-0">
-        <v-card tile flat outlined>
+        <v-card
+          tile
+          flat
+        >
           <v-card-text class="">
             <v-row>
               <v-col
@@ -240,24 +243,26 @@
           :server-items-length="dataTableHistory.totalCount"
           :page.sync="dataTableHistory.page"
           :items-per-page="dataTableHistory.itemsPerPage"
-          item-key="id"
           :options.sync="dataTableHistory.options"
           :loading="historyProcessLoading"
-          locale="ru"
           :no-data-text="$tc('No data for the selected period')"
           :height="dataTableHistoryHeight"
-          @pagination="onPaginationChange"
+          item-key="id"
+          locale="ru"
           dense
           fixed-header
           hide-default-footer
+          @pagination="onPaginationChange"
         >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
-            {{ new Date(item.created_at * 1000).toLocaleString() }}
+            {{ $moment.unix(item.created_at).format('DD.MM.YYYY HH:mm') }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
-              <router-link :to="{ name: 'operator_contacts_view_script', params: { contact_id: item.contact.id } }">{{ item.contact.last_name }} {{ item.contact.first_name }}</router-link>
+              <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">
+                {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+              </router-link>
             </template>
             <template v-else>
               —
@@ -734,14 +739,25 @@ export default (Vue as VueConstructor<VInterface>).extend({
 </script>
 
 <style lang="scss">
-  table > tbody > tr > td:nth-child(4) {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 200px;
-  }
+  table > tbody > tr {
+    & > td:nth-child(1) {
+      white-space: nowrap;
+    }
 
-  table > tbody > tr > td:nth-child(5) {
-    width: auto;
+    & > td:nth-child(2) {
+      white-space: nowrap;
+    }
+
+    & > td:nth-child(3) {
+      white-space: nowrap;
+    }
+
+    & > td:nth-child(4) {
+      width: 100%;
+    }
+
+    & > td:nth-child(5) {
+      width: auto;
+    }
   }
 </style>

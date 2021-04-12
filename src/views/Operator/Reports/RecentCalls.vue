@@ -81,7 +81,10 @@
     <!-- Date range -->
     <v-row>
       <v-col class="pt-0">
-        <v-card tile flat outlined>
+        <v-card
+          tile
+          flat
+        >
           <v-card-text class="">
             <v-row>
               <v-col
@@ -173,7 +176,10 @@
 
     <v-row>
       <v-col class="pt-0">
-        <v-card tile flat outlined>
+        <v-card
+          tile
+          flat
+        >
           <v-card-text>
             <v-row v-if="processPieLoading">
               <v-col>
@@ -291,11 +297,11 @@
         >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
-            {{ new Date(item.created_at * 1000).toLocaleString() }}
+            {{ $moment.unix(item.created_at).format('DD.MM.YYYY HH:mm') }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
-              <router-link :to="{ name: 'operator_contacts_view_script', params: { contact_id: item.contact.id } }">{{ item.contact.last_name }} {{ item.contact.first_name }}</router-link>
+              <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">{{ item.contact.last_name }} {{ item.contact.first_name }}</router-link>
             </template>
             <template v-else>
               —
@@ -369,7 +375,6 @@ import Users, { UserInterface } from '@/api/Users'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import ContactHistory from '@/api/ContactHistory'
 import audioPlayer from '@/mixins/audioPlayer'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import VInterface from '@/VInterface'
 
 Vue.use(VueApexCharts)
@@ -844,6 +849,26 @@ export default (Vue as VueConstructor<VInterface>).extend({
 })
 </script>
 
-<style scoped>
+<style lang="scss">
+table > tbody > tr {
+  & > td:nth-child(1) {
+    white-space: nowrap;
+  }
 
+  & > td:nth-child(2) {
+    white-space: nowrap;
+  }
+
+  & > td:nth-child(3) {
+    white-space: nowrap;
+  }
+
+  & > td:nth-child(4) {
+    width: 100%;
+  }
+
+  & > td:nth-child(5) {
+    width: auto;
+  }
+}
 </style>

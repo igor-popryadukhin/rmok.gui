@@ -13,9 +13,20 @@ export interface CountryCodeInterface {
   region: string;
 }
 
+export interface StatusGroupInterface {
+  id: number;
+  name: string;
+}
+
 export interface StatusInterface {
   id: number;
   name: string;
+  color: string;
+  group?: StatusGroupInterface;
+  statuses?: unknown & {
+    id: number;
+    name: string;
+  };
 }
 
 export class Database {
@@ -37,15 +48,16 @@ export class Database {
   /**
    * Список статусов
    */
-  public statuses<TM = null, TD = StatusInterface[]> (): Promise<ResponseInterface<TM, TD>> {
+  public statuses<TM = null, TD = StatusInterface[]> (params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
-      $axios.get('/database/statuses')
-        .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            resolve(response.data)
-          }
-          throw new APIError(response.data)
-        }).catch(reject)
+      $axios.get('/database/statuses', {
+        params
+      }).then((response: AxiosResponse) => {
+        if (response.status === 200) {
+          resolve(response.data)
+        }
+        throw new APIError(response.data)
+      }).catch(reject)
     })
   }
 }
