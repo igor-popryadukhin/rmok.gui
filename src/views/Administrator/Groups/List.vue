@@ -117,35 +117,13 @@
           <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-
         <!-- FILTERS -->
-        <v-card-text>
-          <s-organizations-autocomplete
-            ref="sOrganizationsAutocomplete"
-            v-model="filter.organization"
-            :label="$tc('Organization')"
-            clearable
-            outlined
-            dense
-          />
-        </v-card-text>
         <v-card-text>
           <s-projects-autocomplete
             ref="sProjectsAutocomplete"
             v-model="filter.project"
             :label="$tc('Project')"
             clearable
-            outlined
-            dense
-          />
-        </v-card-text>
-        <v-card-text>
-          <s-groups
-            ref="sGroupsAutocomplete"
-            v-model="filter.group"
-            :label="$tc('Group')"
-            clearable
-            outlined
             dense
           />
         </v-card-text>
@@ -159,7 +137,6 @@
 import Vue, { VueConstructor } from 'vue'
 import { GroupInterface, Groups } from '@/api/Groups'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { OrganizationInterface } from '@/api/Organizations'
 import { ProjectInterface } from '@/api/Projects'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
@@ -167,7 +144,7 @@ import SGroups from '@/snippets/SGroups/SGroups.vue'
 import VInterface from '@/VInterface'
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: { SGroups, SProjectsAutocomplete, SOrganizationsAutocomplete },
+  components: { SProjectsAutocomplete },
   data () {
     return {
       negativeScreenHeightSize: 220,
@@ -192,28 +169,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
       },
       groupsProcessLoading: false,
       filter: {
-        organization: null,
-        project: null,
-        group: null
+        project: null
       }
     }
   },
 
   watch: {
-    'filter.organization': {
-      handler (val: OrganizationInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            organization_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'organization_id'
-          ]).then(this.fetchUsers)
-        }
-      }
-    },
-
     'filter.project': {
       handler (val: ProjectInterface) {
         if (val) {
@@ -223,20 +184,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         } else {
           this.$routerQuery.removeQuery([
             'project_id'
-          ]).then(this.fetchUsers)
-        }
-      }
-    },
-
-    'filter.group': {
-      handler (val: GroupInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            group_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'group_id'
           ]).then(this.fetchUsers)
         }
       }
