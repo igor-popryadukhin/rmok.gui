@@ -4,7 +4,7 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Неизданный]
+## [v1.0.2] - 2021-04-14
 
 ## Изменено
 - Понедельник первый день в календаре (пока для всех национальностей) [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).

@@ -11,9 +11,11 @@
       flat
       tile
     >
-      <template>
+      <div class="d-flex flex-wrap">
+
         <v-btn-toggle
           v-model="filter.planned_for"
+          class="d-flex flex-wrap justify-start"
           group
           dense
         >
@@ -36,6 +38,48 @@
           </template>
 
           <v-menu
+            v-model="menuSelectStatus"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            min-width="290px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                :x-small="['xs', 'sm'].includes($vuetify.breakpoint.name)"
+                :small="['md'].includes($vuetify.breakpoint.name)"
+                :color="filterSelectedStatus ? filterSelectedStatus.color : ''"
+                outlined
+              >
+                <template v-if="filterSelectedStatus">
+                  {{ filterSelectedStatus.name }}
+                </template>
+                <template v-else>
+                  {{ $tc('Select status') }}
+                </template>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="(item, index) in statuses"
+                :key="index"
+                :value="item.id"
+                :color="item.color"
+                :class="filter.status_id === item.id ? 'v-list-item--active' : ''"
+                link
+                selectable
+                @click="filter.status_id = item.id"
+              >
+                <v-list-item-title>
+                  {{ item.name }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+          <v-menu
             ref="menuDateRange"
             v-model="menuDateRange"
             :close-on-content-click="false"
@@ -53,6 +97,7 @@
                 :small="['md'].includes($vuetify.breakpoint.name)"
               >
                 <v-icon>mdi-calendar-month-outline</v-icon>
+                {{ $tc('Select date') }}
               </v-btn>
             </template>
             <v-date-picker
@@ -81,21 +126,8 @@
             </v-date-picker>
           </v-menu>
         </v-btn-toggle>
-        <v-select
-          v-model="filter.status_id"
-          v-if="!['xs', 'sm'].includes($vuetify.breakpoint.name)"
-          :items="statuses"
-          :label="$tc('Status')"
-          style="max-width: 250px; min-width: 250px"
-          item-text="name"
-          item-value="id"
-          hide-details
-          outlined
-          dense
-        >
-        </v-select>
-      </template>
-      <v-spacer />
+      </div>
+      <v-spacer/>
     </v-app-bar>
 
     <v-card-text class="py-0" :class="outlined ? '' : 'px-0'">
@@ -149,7 +181,9 @@
                     {{ `Позвонить ${$moment.unix(taskItem.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}` }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="taskItem.contact">
-                    {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{ taskItem.contact.middle_name }}
+                    {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{
+                      taskItem.contact.middle_name
+                    }}
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
                           <span
@@ -196,7 +230,7 @@
     </v-card-text>
 
     <v-card-actions class="d-flex align-center justify-center py-5">
-      <div v-if="task_paginator.pages > 1" >
+      <div v-if="task_paginator.pages > 1">
         <v-pagination
           v-model="task_paginator.page"
           :length="task_paginator.pages"
@@ -301,6 +335,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
     return {
       menuDateRange: false,
       dateRange: null as string[] | null,
+
+      menuSelectStatus: false,
       // --------------------
       tasksLoading: false,
       task_items: [] as TaskInterface[],
@@ -401,7 +437,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           }
         },
         {
-          title: 'All',
+          title: 'All tasks',
           value: 'all',
           count: 0,
           badge: {
@@ -409,7 +445,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           },
           params: () => {
             return {
-              state: 'pending',
+              planned_for: 'all',
+              state: 'all',
               status_id: +this.filter.status_id
             }
           }
@@ -425,11 +462,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
     },
 
     statuses () {
-      const statuses = this.$store.getters['database/statuses'] as StatusInterface[]
-      statuses.unshift({
-        id: 0,
-        name: 'Все'
-      })
+      let statuses: any[] = []
+      statuses = statuses.concat(
+        [{
+          id: 0,
+          name: this.$tc('All statuses')
+        }],
+        this.$store.getters['database/statuses_not_grouped'] as StatusInterface[]
+      )
       return statuses
     },
 
@@ -437,6 +477,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       return {
         'min-width': '200px'
       }
+    },
+
+    filterSelectedStatus () {
+      return this.statuses.find((e: StatusInterface) => e.id === this.filter.status_id)
     },
 
     itemActions () {
@@ -463,10 +507,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
   },
 
   created () {
-    if (this.$props.filtersEnabled) {
-      this.$store.dispatch('database/statuses', { group: 0 }) // group: 0 без группировки
-    }
-
     this.update()
   },
 
@@ -504,6 +544,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
     onClearDateRangeClick () {
       this.menuDateRange = false
       this.$routerQuery.removeQuery(['planned_for']).finally(() => (this.update()))
+    },
+
+    onItemSelectedStatus (item: StatusInterface) {
+      this.$toast.info(item.name)
     },
 
     lastContactStatus (contact: ContactInterface) {
@@ -665,11 +709,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
      */
     update (params = {}) {
       return new Promise<void>((resolve, reject) => {
-        let offset = this.task_count * this.task_paginator.page - this.task_paginator.per_page_count
+        let offset = this.task_paginator.per_page_count * this.task_paginator.page - this.task_paginator.per_page_count
         if (offset < 0) {
           offset = 0
         }
-
         const newParams: any = Object.assign({}, {
           count: this.task_paginator.per_page_count,
           offset
@@ -749,6 +792,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       if (this.$route.query[this.prefix('state')]) {
         this.filter.state = this.$route.query[this.prefix('state')]
       }
+
+      if (this.$route.query[this.prefix('page')]) {
+        this.task_paginator.page = +this.$route.query[this.prefix('page')]
+      }
     },
 
     /**
@@ -807,6 +854,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
             [this.prefix('status_id')]: val
           }).then(() => {
             this.update()
+            this.fetchCount()
           })
         } else {
           this.$routerQuery.removeQuery([
@@ -834,6 +882,23 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           })
         }
       }, debounceDelay))
+
+      // Пагинатор
+      this.$watch('task_paginator.page', debounce((val: number) => {
+        if (val) {
+          this.$routerQuery.setQuery({
+            [this.prefix('page')]: val
+          }).then(() => {
+            this.update()
+          })
+        } else {
+          this.$routerQuery.removeQuery([
+            this.prefix('page')
+          ]).then(() => {
+            this.update()
+          })
+        }
+      }, debounceDelay))
     }
   }
 })
@@ -841,9 +906,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
 
 <style lang="scss" scoped>
 
-   .v-btn--example {
-     bottom: 0;
-     position: relative!important;
-     margin: 0 0 16px 16px;
-   }
+.v-btn--example {
+  bottom: 0;
+  position: relative !important;
+  margin: 0 0 16px 16px;
+}
 </style>

@@ -137,7 +137,7 @@ export default Vue.extend({
 
   computed: {
     ...mapGetters({
-      statuses: 'database/statuses'
+      statuses: 'database/statuses_grouped'
     }),
 
     styleWrapper () {

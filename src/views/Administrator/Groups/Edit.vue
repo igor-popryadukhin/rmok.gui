@@ -24,23 +24,6 @@
       </v-col>
     </v-row>
 
-    <!-- Organizations -->
-    <v-row>
-      <v-col
-        cols="12"
-        md="6"
-        lg="6"
-      >
-        <s-organizations-autocomplete
-          ref="sOrganizationsAutocomplete"
-          v-model="group.organization"
-          :label="$tc('organization')"
-          :rules="[rules.notBlank]"
-          disabled
-        />
-      </v-col>
-    </v-row>
-
     <!-- Users -->
     <v-row>
       <v-col
@@ -52,7 +35,7 @@
           ref="sUsers"
           v-model="group.responsible"
           :label="$tc('Responsible group')"
-          :disabled="!group.organization"
+          @change="selectedUser"
           :rules="[]"
         />
       </v-col>
@@ -97,7 +80,7 @@ import Vue, { VueConstructor } from 'vue'
 import rules from '@/mixins/rules'
 import Groups, { GroupInterface, GroupOrganizationInterface, GroupResponsibleInterface } from '@/api/Groups'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
-import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
+import { UserInterface } from '@/api/Users'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import APIError from '@/api/classes/APIError'
 
@@ -116,7 +99,6 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
-    SOrganizationsAutocomplete,
     SUsers
   },
 
@@ -135,6 +117,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       form: {
         valid: false
       },
+      userSelected: 0,
 
       group: {
         name: null,
@@ -150,15 +133,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       .then(async (response: GroupInterface) => {
         next(vm => {
           vm.group.name = response.name
-
-          // vm.$watch('organizationName', vm.onChanged)
-
-          // Устанавливаю текущие данные в компонент
-          if (vm.assertObjectHasAttribute(vm.$refs, 'sOrganizationsAutocomplete')) {
-            if (vm.assertObjectHasAttribute(response.organization, 'id')) {
-              vm.$refs.sOrganizationsAutocomplete.setDefault(response.organization?.id)
-            }
-          }
 
           if (vm.assertObjectHasAttribute(vm.$refs, 'sUsers')) {
             if (vm.assertObjectHasAttribute(response.responsible, 'id')) {
@@ -183,6 +157,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   // },
 
   methods: {
+
+    selectedUser (user: UserInterface) {
+      this.userSelected = user.id
+    },
 
     onBtnDeleteClick () {
       this.$dialog.confirm({
@@ -219,9 +197,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       const putData = {
         name: this.group.name,
-        responsible_id: this.userSelected ? this.userSelected.id : 0
+        responsible_id: this.userSelected ? this.userSelected : 0
       }
-
       if (this.assertObjectHasAttribute(this.group.responsible, 'id')) {
         putData.responsible_id = this.group.responsible.id
       }

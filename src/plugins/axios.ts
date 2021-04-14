@@ -54,7 +54,7 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
           refresh_token: cookie.get('refresh_token')
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {
-            cookie.set('access_token', response.data.access_token, { 'max-age': 600, 'path': '/' })
+            cookie.set('access_token', response.data.access_token, { 'max-age': 86400, 'path': '/' })
             cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
             config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
           }

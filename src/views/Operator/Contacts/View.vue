@@ -722,10 +722,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
               }
               this.$toast.error(`${e.message}\n${text}`)
             }).finally(() => {
-              this.$store.dispatch('tasks/pending_count')
-              this.$store.dispatch('tasks/items', {
-                contact_id: this.$route.params.contact_id
-              })
+              this.tabPageUpdate()
             })
         }
       })

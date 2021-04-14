@@ -294,7 +294,7 @@ const jssip = Vue.extend({
               new Contacts()
                 .addHistory(contactId, historyData)
                 .then((id: number) => {
-                  if (this.$store.getters['database/statuses'].length > 0) {
+                  if (this.$store.getters['database/statuses_grouped'].length > 0) {
                     this.$root.$emit('root-jssip-session-ended', {
                       contact_id: contactId,
                       contact_history_id: id

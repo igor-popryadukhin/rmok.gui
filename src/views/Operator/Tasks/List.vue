@@ -34,15 +34,6 @@ import Vue from 'vue'
 export default Vue.extend({
   components: { STaskList },
 
-  created () {
-    this.$store.commit('tasks/options_page', 1)
-    this.$store.dispatch('tasks/items', {
-      contact_id: 0,
-      state: 'pending',
-      planned_for: 'today'
-    })
-  },
-
   methods: {
 
     lastContactStatus (contact: ContactInterface) {

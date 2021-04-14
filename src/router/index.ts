@@ -17,10 +17,6 @@ const routes: RouteConfig[] = [
     path: '/',
     name: 'home',
     component: Home,
-    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-      // todo: Solve the question of how we will change the locale
-      loadLanguageAsync('ru', 'main').then(() => next())
-    },
     meta: {
       layout: 'default',
       title: 'documents',
@@ -35,10 +31,6 @@ const routes: RouteConfig[] = [
       layout: 'clean',
       breadcrumbs: [],
       middleware: [secure]
-    },
-    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-      // todo: Solve the question of how we will change the locale
-      loadLanguageAsync('ru', 'login').then(() => next())
     }
   },
   {
@@ -254,10 +246,6 @@ const routes: RouteConfig[] = [
             meta: { layout: 'operator-layout', middleware: [secure] }
           }
         ],
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          loadLanguageAsync('ru', 'contacts').then(() => next())
-        },
         meta: {
           anonymous: true,
           layout: 'operator-layout',
@@ -347,10 +335,6 @@ const routes: RouteConfig[] = [
             }
           }
         ],
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          loadLanguageAsync('ru', 'settings').then(() => next())
-        },
         meta: {
           layout: 'operator-layout',
           middleware: [secure]
@@ -374,7 +358,7 @@ const routes: RouteConfig[] = [
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
       store.dispatch('system/roles').then()
-      loadLanguageAsync('ru', 'operator').then(() => next())
+      loadLanguageAsync('ru', 'main').finally(() => next())
     }
   },
 
@@ -705,10 +689,6 @@ const routes: RouteConfig[] = [
             }
           }
         ],
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          // todo: Solve the question of how we will change the locale
-          loadLanguageAsync('ru', 'settings').then(() => next())
-        },
         meta: {
           layout: 'administrator',
           middleware: [secure]
@@ -822,7 +802,7 @@ const routes: RouteConfig[] = [
     beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
       // todo: Solve the question of how we will change the locale
       store.dispatch('system/roles').then()
-      loadLanguageAsync('ru', 'administrator').then(() => next())
+      loadLanguageAsync('ru', 'main').finally(() => next())
     }
   }
 ]

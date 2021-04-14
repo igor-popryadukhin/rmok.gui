@@ -246,7 +246,7 @@
           :options.sync="dataTableHistory.options"
           :loading="historyProcessLoading"
           :no-data-text="$tc('No data for the selected period')"
-          :height="dataTableHistoryHeight"
+          :height="1000"
           item-key="id"
           locale="ru"
           dense

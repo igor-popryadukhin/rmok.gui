@@ -314,7 +314,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
   computed: {
     ...mapGetters({
-      database_statuses: 'database/statuses'
+      database_statuses: 'database/statuses_grouped'
     })
   },
 

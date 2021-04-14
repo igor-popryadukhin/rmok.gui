@@ -1,7 +1,8 @@
 import { Database, StatusInterface } from '@/api/Database'
 
 interface StateInterface {
-  statuses: StatusInterface[];
+  statuses_not_group: StatusInterface[];
+  statuses_grouped: StatusInterface[];
 }
 
 export const database = {
@@ -9,7 +10,8 @@ export const database = {
 
   state (): StateInterface {
     return {
-      statuses: []
+      statuses_not_group: [],
+      statuses_grouped: []
     }
   },
 
@@ -18,8 +20,16 @@ export const database = {
      * @param state
      * @param payload
      */
-    statuses (state: StateInterface, payload: StatusInterface[]): void {
-      state.statuses = payload
+    statuses_not_group (state: StateInterface, payload: StatusInterface[]): void {
+      state.statuses_not_group = payload
+    },
+
+    /**
+     * @param state
+     * @param payload
+     */
+    statuses_grouped (state: StateInterface, payload: StatusInterface[]): void {
+      state.statuses_grouped = payload
     }
   },
 
@@ -32,12 +42,21 @@ export const database = {
      */
     async statuses ({ commit }: any, params = {}): Promise<void> {
       return new Promise<void>((resolve) => {
+        // Загрузка сгруппированных статусов.
         new Database()
-          .statuses(Object.assign({}, {
-            group: 1 // Группировать
-          }, params))
+          .statuses(Object.assign({}, params, {
+            group: 1
+          }))
           .then((response) => {
-            commit('statuses', response.data)
+            commit('statuses_grouped', response.data)
+            resolve()
+          })
+
+        // Загрузка не сгруппированных статусов.
+        new Database()
+          .statuses(Object.assign({}, params))
+          .then((response) => {
+            commit('statuses_not_group', response.data)
             resolve()
           })
       })
@@ -45,6 +64,7 @@ export const database = {
   },
 
   getters: {
-    statuses (state: StateInterface): StatusInterface[] { return state.statuses }
+    statuses_not_grouped (state: StateInterface): StatusInterface[] { return state.statuses_not_group },
+    statuses_grouped (state: StateInterface): StatusInterface[] { return state.statuses_grouped }
   }
 }

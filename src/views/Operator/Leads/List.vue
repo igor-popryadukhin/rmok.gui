@@ -354,9 +354,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
 
     taskListParams () {
       return {
-        state: 'pending',
-        planned_for: 'today',
-        contact_id: this.$route.params.contact_id
+        state: 'pending'
       }
     },
 
@@ -443,17 +441,6 @@ export default Vue.extend<IData, IMethods, IComputed>({
   },
 
   created () {
-    new Projects()
-    .find<{count: number}, ProjectInterface[]>()
-    .then((response) => {
-      this.filter.project.items = response.data
-    }).finally(() => {
-      const index: number = this.filter.project.items.findIndex((e: any) => +this.$route.query.project_id === e.id)
-      if (index > -1) {
-        this.filter.project.selected = this.filter.project.items[index]
-      }
-    })
-
     this.loadLeads()
   },
 

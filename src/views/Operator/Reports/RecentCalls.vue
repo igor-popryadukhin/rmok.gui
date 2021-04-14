@@ -284,16 +284,16 @@
           :server-items-length="dataTableHistory.totalCount"
           :page.sync="dataTableHistory.page"
           :items-per-page="dataTableHistory.itemsPerPage"
-          item-key="id"
           :options.sync="dataTableHistory.options"
           :loading="historyProcessLoading"
-          locale="ru"
+          :height="1000"
           :no-data-text="$tc('No data for the selected period')"
-          @pagination="onHistoryPaginationChange"
-          height="600"
+          item-key="id"
+          locale="ru"
           dense
           fixed-header
           hide-default-footer
+          @pagination="onHistoryPaginationChange"
         >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
@@ -301,7 +301,9 @@
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
-              <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">{{ item.contact.last_name }} {{ item.contact.first_name }}</router-link>
+              <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">
+                {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+              </router-link>
             </template>
             <template v-else>
               —
@@ -607,7 +609,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       if (this.$screenHeight < 900) {
         return 500
       }
-      return this.$screenHeight - 400
+      return this.$screenHeight
     }
   },
 

@@ -90,10 +90,5 @@ export default Vue.extend({
     ruleComparer (val1: number | string | boolean, val2: number | string | boolean, message?: string) {
       return () => val1 === val2 || message || this.$t('rule_value_is_not_equal')
     }
-  },
-
-  beforeRouteEnter (to: Route, from: Route, next: NavigationGuardNext) {
-    // todo: Solve the question of how we will change the locale
-    loadLanguageAsync('ru', 'rules').then(() => next())
   }
 })

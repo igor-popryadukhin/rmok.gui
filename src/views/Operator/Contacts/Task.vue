@@ -79,7 +79,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * Метод предназначен для обновления всего компонента
      **/
     update () {
-      this.$store.dispatch('tasks/pending_count') // Количество задач в статусе pending
+      if (this.$refs.sTaskList) { this.$refs.sTaskList.update() }
     },
 
     lastContactStatus (contact: ContactInterface) {

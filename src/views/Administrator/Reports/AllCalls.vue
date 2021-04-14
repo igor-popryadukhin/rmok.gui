@@ -219,7 +219,7 @@
         >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
-            {{ $moment.unix(item.created_at).format('DD.MM.YYYY HH:mm')  }}
+            {{ $moment.unix(item.created_at).utc().format('DD.MM.YYYY HH:mm')  }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">

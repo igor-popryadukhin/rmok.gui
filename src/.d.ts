@@ -1,4 +1,5 @@
 // 1. Make sure to import 'vue' before declaring augmented types
+import {JsSIP} from '@/jsSIP/plugin';
 import { Activity } from '@/plugins/activity';
 import { Cookie } from './plugins/cookie'
 import { LibPhoneNumberJs } from '@/plugins/libphonenumber-js'
@@ -24,10 +25,12 @@ declare module 'vue/types/vue' {
     $isDebug: boolean
     $permission: Permission
     $activity: Activity
+    $jsSIP: JsSIP;
     assertObjectHasAttribute (obj: any, key: string): boolean
   }
 
   interface VueConstructor {
+    $jsSIP: JsSIP;
     $myGlobal: string
   }
 }
