@@ -310,9 +310,11 @@
             </template>
           </template>
           <template slot="item.status" slot-scope="{ item }">
-            <span class="label" :style="{'background-color': item.status_color}">
-              {{ item.status_result }}
+            <template v-if="item.status">
+              <span class="label" :style="{'background-color': item.status.color}">
+              {{ item.status.name }}
             </span>
+            </template>
           </template>
           <template slot="item.comment" slot-scope="{ item }">
             {{ item.comment || '-' }}
