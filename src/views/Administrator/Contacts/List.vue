@@ -1,302 +1,453 @@
 <template>
-  <v-row>
-    <v-col
-      cols="12"
-      md="9"
-      lg="9"
-    >
-      <v-card
-        flat
-        tile
-        outlined
+  <v-card
+    :height="vCardHeightComputed"
+    flat
+    tile
+  >
+    <v-row>
+      <!-- Основная таблица -->
+      <v-col
+        cols="9"
       >
-        <v-card-text>
-          <v-toolbar
-            class="v-toolbar-header mb-2"
-            height="48"
-            flat
-          >
-            <v-toolbar-title class="grey--text">
-              {{ $tc('Contacts') }}
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn-toggle tile borderless group>
-              <v-menu offset-y>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    :disabled="dataTableContacts.selected.length === 0"
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    <v-icon>mdi-export</v-icon>
-                  </v-btn>
-                </template>
-                <v-list>
-                  <v-list-item
-                    link
-                    @click="onTransferContactsToProjectClick"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>{{ $tc('Transfer contacts to another project') }}</v-list-item-title>
-                      <v-list-item-subtitle>{{ $tc('История и задачи не сохраняются.') }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                  <v-list-item
-                    :disabled="!assertObjectHasAttribute(filter.project, 'id')"
-                    link
-                    @click="onTransferContactToOperatorWithinProjectClick"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>{{ $tc('Передать контакты оператору внутри проекта') }}</v-list-item-title>
-                      <v-list-item-subtitle>{{ $tc('Также передаются: задачи, история.') }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-              <v-btn
-                :disabled="dataTableContacts.processLoading"
-                @click="onButtonRefreshClick"
-              >
-                <v-icon>mdi-refresh</v-icon>
-              </v-btn>
-              <v-btn
-                :to="{ name: 'administrator_contacts_new' }"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-            </v-btn-toggle>
-          </v-toolbar>
-          <v-data-table
-            id="v-data-table"
-            :headers="dataTableContacts.headers"
-            :items="dataTableContacts.items"
-            :server-items-length="dataTableContacts.totalCount"
-            :page.sync="dataTableContacts.page"
-            :items-per-page="dataTableContacts.itemsPerPage"
-            item-key="id"
-            item-class="v-datatable-item"
-            :loading-text="$tc('Loading content...')"
-            :no-data-text="$tc('No data available')"
-            :height="$screenHeight - 100"
-            disable-sort
-            fixed-header
-            calculate-widths
-            hide-default-footer
-            dense
-            @pagination="onPaginationChange"
-          >
-            <template
-              slot="header.checkbox"
+        <v-data-table
+          :headers="dataTableContacts.headers"
+          :items="dataTableContacts.items"
+          :server-items-length="dataTableContacts.totalCount"
+          :page.sync="dataTableContacts.page"
+          :items-per-page="dataTableContacts.itemsPerPage"
+          :loading-text="$tc('Loading content...')"
+          :no-data-text="$tc('No data available')"
+          :height="vDataTableHeightComputed"
+          id="v-data-table"
+          item-key="id"
+          item-class="v-datatable-item"
+          disable-sort
+          fixed-header
+          hide-default-footer
+          dense
+          @pagination="onPaginationChange"
+        >
+          <template v-slot:top>
+            <v-toolbar
+              class="v-toolbar-header mb-2"
+              height="48"
+              flat
             >
               <v-checkbox
                 v-model="dataTableContacts.selectedAll"
-                :indeterminate="dataTableContacts.selected.length < dataTableContacts.items.length && dataTableContacts.selected.length > 0"
-                :ripple="false"
-                class="ma-0 pa-0"
+                :indeterminate="dataTableContacts.selectedIndeterminate"
+                :disabled="dataTableContacts.selectedWhole"
+                class="ml-4 mr-0"
                 hide-details
                 dense
               />
-            </template>
+              <template v-if="dataTableContacts.selected.length === 0">
+                <v-btn
+                  :disabled="dataTableContacts.processLoading"
+                  small
+                  tile
+                  text
+                  @click="onButtonRefreshClick"
+                >
+                  Обновить
+                </v-btn>
+              </template>
 
-            <template slot="item" slot-scope="{ item }">
-              <tr class="v-datatable-item">
-                <td class="text-no-wrap">
-                  <template v-if="dataTableContacts.processLoading">
-                    <v-skeleton-loader class="mb-0" height="15" width="15" tile type="text" />
+              <!-- Импорт -->
+              <template v-if="dataTableContacts.selected.length === 0">
+                <v-menu offset-y>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      v-on="on"
+                      text
+                      tile
+                      small
+                    >
+                      {{ $tc('Import') }}
+                    </v-btn>
                   </template>
-                  <template v-else>
-                    <v-checkbox
-                      v-model="dataTableContacts.selected"
-                      :ripple="false"
-                      class="ma-0 pa-0"
-                      :value="item.id"
-                      hide-details
+                  <v-list
+                    class="py-0"
+                    dense
+                  >
+                    <v-list-item
+                      link
+                      disabled
+                      @click="onImportClick('csv')"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Import from CSV') }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ $tc('Text format') }}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      link
+                      @click="onImportClick('excel')"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Import from Excel') }}</v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </template>
+              <!-- Импорт -->
+
+              <!-- Передача контактов -->
+              <template v-if="dataTableContacts.selected.length > 0">
+                <v-menu offset-y>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      v-on="on"
+                      text
+                      tile
+                      small
+                    >
+                      {{ $tc('Transfer contacts') }}
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item
+                      link
+                      @click="onTransferContactsToProjectClick"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Transfer contacts to another project') }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ $tc('История и задачи не сохраняются.') }}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      :disabled="!assertObjectHasAttribute(filter.project, 'id')"
+                      link
+                      @click="onTransferContactToOperatorWithinProjectClick"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Передать контакты оператору внутри проекта') }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ $tc('Также передаются: задачи, история.') }}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </template>
+              <!-- Передача контактов -->
+
+              <!-- Экспорт -->
+              <template v-if="dataTableContacts.selected.length > 0">
+                <v-menu offset-y>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      v-on="on"
+                      text
+                      tile
+                      small
+                    >
+                      {{ $tc('Export') }}
+                    </v-btn>
+                  </template>
+                  <v-list
+                    class="py-0"
+                    tile
+                  >
+                    <v-list-item
+                      link
+                      disabled
+                      @click="onExportClick('csv')"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Export to CSV') }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ $tc('Text format') }}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      link
+                      @click="onExportClick('excel')"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Export to Excel') }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}</v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </template>
+              <!-- Экспорт -->
+
+              <!--              &lt;!&ndash; Archived &ndash;&gt;-->
+              <!--              <template v-if="dataTableContacts.selected.length > 0">-->
+              <!--                <v-btn-->
+              <!--                  :disabled="dataTableContacts.processLoading"-->
+              <!--                  small-->
+              <!--                  tile-->
+              <!--                  text-->
+              <!--                  @click="onButtonRefreshClick"-->
+              <!--                >-->
+              <!--                  {{ $tc('Архивировать') }}-->
+              <!--                </v-btn>-->
+              <!--              </template>-->
+              <!--              &lt;!&ndash; Archived &ndash;&gt;-->
+
+              <v-spacer/>
+
+              <!-- Paginator -->
+              <app-pagination
+                v-model="dataTableContacts.page"
+                :length="dataTableContacts.pages"
+                :disabled="dataTableContacts.processLoading || dataTableContacts.selectedWhole"
+              >
+                <template v-slot:display>
+                  <v-menu offset-y>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        v-on="on"
+                        tile
+                        text
+                        small
+                      >
+                        {{ dataTableContacts.pageStart }}-{{ dataTableContacts.pageStop }} из {{ dataTableContacts.totalCount }}
+                      </v-btn>
+                    </template>
+                    <v-list
+                      class="py-0"
                       dense
-                    />
-                  </template>
-                </td>
-                <td class="text-no-wrap">
-                  <template v-if="dataTableContacts.processLoading">
-                    <v-skeleton-loader class="mb-0" height="15" tile type="text" />
-                  </template>
-                  <template v-else>
-                    <router-link :to="{ name: 'administrator_contacts_view', params: { contact_id: item.id } }">
-                      {{ item.last_name }} {{ item.first_name }} {{ item.middle_name }}
-                    </router-link>
-                  </template>
-                </td>
-                <td class="text-no-wrap">
-                  <template v-if="dataTableContacts.processLoading">
-                    <v-skeleton-loader class="mb-0" height="15" tile type="text" />
-                  </template>
-                  <template v-else>
-                    {{ item.responsible ? `${item.responsible.first_name} ${item.responsible.last_name}` : '—' }}
-                  </template>
-                </td>
-                <td class="text-no-wrap">
-                  <template v-if="dataTableContacts.processLoading">
-                    <v-skeleton-loader class="mb-0" height="15" tile type="text" />
-                  </template>
-                  <template v-else>
-                    {{ item.project ? item.project.name : '—' }}
-                  </template>
-                </td>
-                <td class="text-no-wrap">
-                  <template v-if="dataTableContacts.processLoading">
-                    <v-skeleton-loader class="mb-0" height="15" width="210" type="text" tile />
-                  </template>
-                  <template v-else>
-                    <span v-if="item.last_call_at">
-                      {{ $moment.unix(item.last_call_at).format('Do MMMM YYYY, в h:mm:ss a')  }}
+                      flat
+                    >
+                      <v-list-item
+                        link
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title>Самые новые</v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                      <v-list-item
+                        link
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title>Самые старые</v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </template>
+              </app-pagination>
+              <!-- Paginator -->
+
+            </v-toolbar>
+
+            <!-- Банеры -->
+            <v-fade-transition>
+              <v-banner
+                v-if="dataTableContacts.selectedAll && !dataTableContacts.selectedIndeterminate"
+                class="mb-1 text-center"
+                outlined
+                single-line
+                sticky
+              >
+                <div>
+                  <span style="font-size: 14px; font-weight: 500;">
+                  {{$tc('All chains selected ({n}) on the page.', dataTableContacts.selectedWhole ? dataTableContacts.totalCount : dataTableContacts.selected.length) }}
+                </span>
+                  <v-btn
+                    color="primary"
+                    class="ml-2"
+                    small
+                    text
+                    tile
+                    @click="dataTableContacts.selectedWhole = !dataTableContacts.selectedWhole"
+                  >
+                    {{ dataTableContacts.selectedWhole ? $tc('Cancel') : $tc('Select all') }}
+                  </v-btn>
+                </div>
+              </v-banner>
+            </v-fade-transition>
+
+            <!-- Прогресс импорта -->
+            <v-fade-transition>
+              <v-banner
+                v-if="importExportProgress.visible"
+                class="mb-1"
+                single-line
+                sticky
+              >
+                <v-progress-linear
+                  v-model="importExportProgress.value"
+                  :indeterminate="importExportProgress.value < 0"
+                  height="10"
+                >
+                </v-progress-linear>
+              </v-banner>
+            </v-fade-transition>
+            <!-- Прогресс импорта -->
+            <!-- Банеры -->
+
+          </template>
+
+          <template slot="item" slot-scope="{ item }">
+            <tr class="v-datatable-item">
+              <td class="text-no-wrap">
+                <v-checkbox
+                  v-model="dataTableContacts.selected"
+                  :ripple="false"
+                  :value="item.id"
+                  :disabled="dataTableContacts.selectedWhole"
+                  class="ma-0 pa-0"
+                  multiple
+                  hide-details
+                  dense
+                />
+              </td>
+              <td class="text-no-wrap">
+                <router-link :to="{ name: 'administrator_contacts_view', params: { contact_id: item.id } }">
+                  {{ item.last_name }} {{ item.first_name }} {{ item.middle_name }}
+                </router-link>
+              </td>
+              <td class="text-no-wrap">
+                {{ item.responsible ? `${item.responsible.first_name} ${item.responsible.last_name}` : '—' }}
+              </td>
+              <td class="text-no-wrap">
+                {{ item.project ? item.project.name : '—' }}
+              </td>
+              <td class="text-no-wrap">
+                  <span v-if="item.last_call_at">
+                      {{ $moment.unix(item.last_call_at).format('Do MMMM YYYY, в h:mm:ss a') }}
                     </span>
-                    <span v-else>
+                <span v-else>
                       —
                     </span>
-                  </template>
-                </td>
-                <td class="text-no-wrap">
-                  <template v-if="dataTableContacts.processLoading">
-                    <v-skeleton-loader class="mb-0" height="15" tile type="text" />
-                  </template>
-                  <template v-else>
-                    <v-btn
-                      icon
-                      small
-                      :to="{ name: 'administrator_contacts_history', params: { contact_id: item.id } }"
-                    >
-                      <v-icon>mdi-history</v-icon>
-                    </v-btn>
-                    <v-btn
-                      icon
-                      small
-                      :to="{ name: 'administrator_contacts_edit', params: { contact_id: item.id } }"
-                    >
-                      <v-icon>mdi-pencil-box-outline</v-icon>
-                    </v-btn>
-                  </template>
-                </td>
-              </tr>
-            </template>
-          </v-data-table>
-        </v-card-text>
-        <v-footer class="d-flex justify-md-space-between pa-4 mt-auto" color="white">
-          <v-pagination
-            v-model="dataTableContacts.page"
-            :length="dataTableContacts.pages"
-            total-visible="5"
-            :disabled="dataTableContacts.pages === 0"
-          ></v-pagination>
-          <div class="d-flex align-center justify-center">
-            {{ this.dataTableContacts.pageStart }}-{{ this.dataTableContacts.pageStop }} из {{ this.dataTableContacts.totalCount }}
-          </div>
-        </v-footer>
-      </v-card>
-    </v-col>
-    <v-col
-      class="pl-md-0 pl-lg-0 pl-xl-0"
-      cols="12"
-      md="3"
-      lg="3"
-    >
-      <v-card
-        class="fill-height"
-        flat
-        tile
-        outlined
+              </td>
+              <td class="text-no-wrap">
+                <v-btn
+                  icon
+                  small
+                  :to="{ name: 'administrator_contacts_history', params: { contact_id: item.id } }"
+                >
+                  <v-icon>mdi-history</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  small
+                  :to="{ name: 'administrator_contacts_edit', params: { contact_id: item.id } }"
+                >
+                  <v-icon>mdi-pencil-box-outline</v-icon>
+                </v-btn>
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-col>
+
+      <!-- Фильтры -->
+      <v-col
+        cols="3"
       >
-        <v-toolbar flat>
-          <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
-          <v-spacer></v-spacer>
-        </v-toolbar>
-        <v-card-text class="pt-0">
-          <s-projects-autocomplete
-            ref="sProjectsAutocomplete"
-            v-model="filter.project"
-            :label="$tc('Project')"
-            clearable
-            outlined
-            dense
-          />
-        </v-card-text>
-        <v-card-text class="pt-0">
-          <s-users
-            ref="sUsersAutocomplete"
-            v-model="filter.responsible"
-            :label="$tc('Responsible')"
-            :params="{ role_use: 'for_calls' }"
-            clearable
-            outlined
-            dense
-          />
-        </v-card-text>
-        <v-card-text class="pt-0">
-          <v-select
-            v-model="filter.task.selected"
-            :items="filter.task.options"
-            :label="$tc('Tasks')"
-            item-text="title"
-            item-value="value"
-            clearable
-            outlined
-            dense
-          >
-            <template v-slot:selection="{ item }">
-              {{ $tc(item.title) }}
-            </template>
-            <template v-slot:item="{ item }">
-              {{ $tc(item.title) }}
-            </template>
-          </v-select>
-        </v-card-text>
-        <v-card-text class="pt-0">
-          <v-select
-            v-model="filter.last_call_at.selected"
-            :items="filter.last_call_at.options"
-            :label="$tc('Прозвонено')"
-            clearable
-            outlined
-            dense
-          >
-            <template v-slot:selection="{ item }">
-              {{ $tc(item) }}
-            </template>
-            <template v-slot:item="{ item }">
-              {{ $tc(item) }}
-            </template>
-          </v-select>
-        </v-card-text>
-        <v-card-text class="pt-0">
-          <h4>{{ $tc('Дата создания контакта') }}</h4>
-          <v-date-picker
-            v-model="filter.contact_create_date"
-            :first-day-of-week="1"
-            locale="ru"
-            flat
-            no-title
-            scrollable
-            full-width
-          >
+        <v-card
+          class="fill-height"
+          flat
+          tile
+        >
+          <v-toolbar flat>
+            <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn
-              text
-              color="primary"
-              @click="filter.contact_create_date = ''"
+          </v-toolbar>
+          <v-card-text class="pt-0">
+            <s-projects-autocomplete
+              ref="sProjectsAutocomplete"
+              v-model="filter.project"
+              :label="$tc('Project')"
+              clearable
+              outlined
+              dense
+            />
+          </v-card-text>
+          <v-card-text class="pt-0">
+            <s-users
+              ref="sUsersAutocomplete"
+              v-model="filter.responsible"
+              :label="$tc('Responsible')"
+              :params="{ role_use: 'for_calls' }"
+              clearable
+              outlined
+              dense
+            />
+          </v-card-text>
+          <v-card-text class="pt-0">
+            <v-select
+              v-model="filter.task.selected"
+              :items="filter.task.options"
+              :label="$tc('Tasks')"
+              item-text="title"
+              item-value="value"
+              clearable
+              outlined
+              dense
             >
-              {{ $tc('Clear') }}
-            </v-btn>
-          </v-date-picker>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+              <template v-slot:selection="{ item }">
+                {{ $tc(item.title) }}
+              </template>
+              <template v-slot:item="{ item }">
+                {{ $tc(item.title) }}
+              </template>
+            </v-select>
+          </v-card-text>
+          <v-card-text class="pt-0">
+            <v-select
+              v-model="filter.last_call_at.selected"
+              :items="filter.last_call_at.options"
+              :label="$tc('Прозвонено')"
+              clearable
+              outlined
+              dense
+            >
+              <template v-slot:selection="{ item }">
+                {{ $tc(item) }}
+              </template>
+              <template v-slot:item="{ item }">
+                {{ $tc(item) }}
+              </template>
+            </v-select>
+          </v-card-text>
+          <v-card-text class="pt-0">
+            <h4>{{ $tc('Дата создания контакта') }}</h4>
+            <v-date-picker
+              v-model="filter.contact_create_date"
+              :first-day-of-week="1"
+              locale="ru"
+              flat
+              no-title
+              scrollable
+              full-width
+            >
+              <v-spacer></v-spacer>
+              <v-btn
+                text
+                color="primary"
+                @click="filter.contact_create_date = ''"
+              >
+                {{ $tc('Clear') }}
+              </v-btn>
+            </v-date-picker>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <input ref="fileInput" type="file" name="name" style="display: none;"/>
+  </v-card>
 </template>
 
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
+import { ContactExportParamsInterface, Contacts } from '@/api/Contacts'
 import { ProjectInterface } from '@/api/Projects'
-import { Contacts } from '@/api/Contacts'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { UserInterface } from '@/api/Users'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import SContactExportDialog, { SContactExportScopeInterface } from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
@@ -307,6 +458,7 @@ import { debounce } from 'vuetify/src/util/helpers'
 interface IRefs {
   sProjectsAutocomplete: any
   sUsersAutocomplete: any
+
   [key: string]: any;
 }
 
@@ -321,6 +473,7 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
+    AppPagination,
     SUsers,
     SProjectsAutocomplete
   },
@@ -372,7 +525,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         page: 1,
         pages: 0,
         totalCount: 0,
-        itemsPerPage: 100,
+        itemsPerPage: 50,
         pageStart: 0,
         pageStop: 0,
         headers: [
@@ -380,23 +533,30 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           { text: this.$tc('Client'), align: 'start', sortable: true, value: 'client', width: '100%' },
           { text: this.$tc('Responsible'), align: 'start', sortable: true, value: 'responsible', width: 'auto' },
           { text: this.$tc('Project'), align: 'start', sortable: true, value: 'project', width: 'auto' },
-          { text: this.$tc('Date and time of the last call'), align: 'start', sortable: true, value: 'last_call_at', width: '133px' },
+          {
+            text: this.$tc('Date and time of the last call'),
+            align: 'start',
+            sortable: true,
+            value: 'last_call_at',
+            width: '133px'
+          },
           { text: '', align: 'end', sortable: false, value: 'actions', width: '88px' }
         ],
         selectedAll: false,
+        selectedWhole: false,
+        selectedIndeterminate: false,
         selected: [],
         items: [] as unknown & ContactInterface[]
+      },
+      // Прогресс импорта
+      importExportProgress: {
+        visible: false,
+        value: 0
       }
     }
   },
 
   watch: {
-    'dataTableContacts.page': {
-      handler () {
-        this.fetchContacts()
-      }
-    },
-
     // Слежу за CheckBox который выделяет все элементы списка
     'dataTableContacts.selectedAll': {
       handler (val: boolean) {
@@ -410,76 +570,43 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     // Идентификаторы выделенных контактов
     'dataTableContacts.selected': {
-      handler (selected: unknown & number[]) {
-        if (selected.length === this.dataTableContacts.items.length) {
+      handler (selected: number[]) {
+        if (selected.length === this.dataTableContacts.itemsPerPage) {
           this.dataTableContacts.selectedAll = true
         } else if (selected.length === 0) {
           this.dataTableContacts.selectedAll = false
         }
+
+        this.dataTableContacts.selectedIndeterminate = this.dataTableContacts.selected.length < this.dataTableContacts.items.length && this.dataTableContacts.selected.length > 0
       }
     }
   },
 
   computed: {
     // Вычисляю высоту таблицы
-    dataTableContactsHeight () {
-      let h: number = this.$screenHeight - 260
-      if (h < 640) { h = 640 }
+    vCardHeightComputed () {
+      const h = 600
+      return h
+    },
+    // Вычисляю высоту таблицы
+    vDataTableHeightComputed () {
+      const h = this.$screenHeight - 150
       return h
     }
   },
 
   mounted () {
-    // this.onTransferContactsToProjectClick()
-    const promises = []
-
-    if (this.$refs.sProjectsAutocomplete) {
-      this.$refs.sProjectsAutocomplete.fetchData()
-    }
-
-    if (this.$refs.sUsersAutocomplete) {
-      this.$refs.sUsersAutocomplete.fetchData()
-    }
-
-    // Установка фильтров
-    if (this.$routerQuery.hasQuery('project_id')) {
-      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('responsible_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('last_call_at')) {
-      switch (this.$routerQuery.getQuery('last_call_at')) {
-        case '0': {
-          this.filter.last_call_at.selected = 'no'
-          break
-        }
-        case '1': {
-          this.filter.last_call_at.selected = 'yes'
-          break
-        }
-      }
-    }
-
-    if (this.$routerQuery.hasQuery('contact_create_date')) {
-      this.filter.contact_create_date = this.$moment.unix(+this.$route.query.contact_create_date).format('YYYY-MM-DD')
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаем данные контактов после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchContacts()
-        this.initializeWatchForFilters()
-      })
+    this.initializeFilters()
   },
 
   methods: {
     fetchContacts () {
       this.dataTableContacts.processLoading = true
-      const offset = (this.dataTableContacts.itemsPerPage * this.dataTableContacts.page) - this.dataTableContacts.itemsPerPage
+      let offset = (this.dataTableContacts.itemsPerPage * this.dataTableContacts.page) - this.dataTableContacts.itemsPerPage
+
+      if (offset < 0) {
+        offset = 0
+      }
 
       const params: any = {
         fields: 'responsible,organization,project',
@@ -508,12 +635,128 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       new Contacts()
-        .find<{count: number}, ContactInterface[]>(params)
+        .find<{ count: number }, ContactInterface[]>(params)
         .then((response) => {
           this.dataTableContacts.totalCount = response.meta.count
           this.dataTableContacts.pages = Math.ceil(response.meta.count / this.dataTableContacts.itemsPerPage)
           this.dataTableContacts.items = response.data
         }).finally(() => (this.dataTableContacts.processLoading = false))
+    },
+
+    /**
+     * При клике на кнопку "Импортировать"
+     **/
+    onImportClick (format: 'excel' | 'csv') {
+      let accept = ''
+      switch (format) {
+        case 'csv': {
+          accept = '.csv'
+          break
+        }
+        case 'excel': {
+          accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
+          break
+        }
+        default: {
+          return this.$toast.error('Import successfully')
+        }
+      }
+
+      this.$fileDialog.open({
+        accept,
+        multiple: false
+      }).then((file: FileList | File) => {
+        if (file instanceof File) {
+          this.importExportProgress.visible = true
+          new Contacts()
+            .import(file, (event: ProgressEvent) => {
+              this.importExportProgress.value = event.loaded / event.total * 100
+            })
+            .then((response) => {
+              this.$toast.success('Импортировано ' + response.data.count_insert_contacts)
+              this.fetchContacts()
+            }).catch((error: Error) => {
+              this.$toast.error(error.message)
+            }).finally(() => {
+            // Для того, что бы увидит 100%
+              setTimeout(() => {
+                this.importExportProgress.visible = false
+              }, 500)
+            })
+        }
+      })
+    },
+
+    /**
+     * При клике на кнопку "Экспортировать"
+     **/
+    onExportClick (format: 'excel' | 'csv') {
+      switch (format) {
+        case 'csv': {
+          break
+        }
+        case 'excel': {
+          break
+        }
+        default: {
+
+        }
+      }
+
+      const params: ContactExportParamsInterface = {
+        filters: [],
+        format,
+        target_contacts: this.dataTableContacts.selectedWhole ? [] : this.$data.dataTableContacts.selected
+      }
+
+      // Задачи
+      if (this.$data.filter.task.selected) {
+        params.filters.push({
+          name: 'tasks',
+          value: this.$data.filter.task.selected
+        })
+      }
+
+      // Проекты
+      if (this.$data.filter.project) {
+        params.filters.push({
+          name: 'project_id',
+          value: this.$data.filter.project.id
+        })
+      }
+
+      // Ответственный
+      if (this.$data.filter.responsible) {
+        params.filters.push({
+          name: 'responsible_id',
+          value: this.$data.filter.responsible.id
+        })
+      }
+
+      // Дата последнего звонка
+      if (this.$data.filter.last_call_at.selected) {
+        params.filters.push({
+          name: 'last_call_at',
+          value: this.$data.filter.last_call_at.selected
+        })
+      }
+
+      // Дата создания контакта
+      if (this.$data.filter.contact_create_date) {
+        params.filters.push({
+          name: 'contact_create_date',
+          value: this.$moment(this.$data.filter.contact_create_date, 'YYYY-MM-DD', false).unix()
+        })
+      }
+
+      this.importExportProgress.value = true
+      this.importExportProgress.value = -1 // Неопределённый
+      new Contacts()
+        .export(params)
+        .finally(() => {
+          this.importExportProgress.value = false
+          this.importExportProgress.value = 0
+        })
     },
 
     onButtonRefreshClick () {
@@ -611,15 +854,73 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     onPaginationChange (data: any) {
-      this.dataTableContacts.pageStart = data.pageStart + 1
+      this.dataTableContacts.pageStart = data.pageStart
       this.dataTableContacts.pageStop = data.pageStop
+    },
+
+    /**
+     * Инициализация фильтров
+     **/
+    initializeFilters () {
+      // this.onTransferContactsToProjectClick()
+      const promises = []
+
+      if (this.$refs.sProjectsAutocomplete) {
+        this.$refs.sProjectsAutocomplete.fetchData()
+      }
+
+      if (this.$refs.sUsersAutocomplete) {
+        this.$refs.sUsersAutocomplete.fetchData()
+      }
+
+      // Установка фильтров
+      if (this.$routerQuery.hasQuery('project_id')) {
+        promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
+      }
+
+      if (this.$routerQuery.hasQuery('responsible_id')) {
+        promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
+      }
+
+      if (this.$routerQuery.hasQuery('last_call_at')) {
+        switch (this.$routerQuery.getQuery('last_call_at')) {
+          case '0': {
+            this.filter.last_call_at.selected = 'no'
+            break
+          }
+          case '1': {
+            this.filter.last_call_at.selected = 'yes'
+            break
+          }
+        }
+      }
+
+      if (this.$routerQuery.hasQuery('contact_create_date')) {
+        this.filter.contact_create_date = this.$moment.unix(+this.$route.query.contact_create_date).format('YYYY-MM-DD')
+      }
+
+      if (this.$route.query.task) {
+        this.$data.filter.task.selected = this.$route.query.task
+      }
+
+      if (+this.$route.query.page) {
+        this.$data.dataTableContacts.page = +this.$route.query.page
+      }
+
+      // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+      // Загружаем данные контактов после инициализации фильтров
+      Promise.all(promises)
+        .finally(() => {
+          this.fetchContacts()
+          this.initializeWatchForFilters()
+        })
     },
 
     /**
      * Инициализировать слежку за изменением фильтров
      */
     initializeWatchForFilters () {
-      const debounceDelay = 500 // Задержка, избавит от дребезга
+      const debounceDelay = 350 // Задержка, избавит от дребезга
 
       // Фильтрация по проектам
       this.$watch('filter.project', debounce((newVal: unknown & ProjectInterface) => {
@@ -661,24 +962,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }, debounceDelay))
 
       // Фильтр прозвона
-      this.$watch('filter.last_call_at.selected', debounce((newVal: unknown & string) => {
+      this.$watch('filter.last_call_at.selected', debounce((newVal: string) => {
         if (newVal) {
-          // TODO: В будущем могут быть и другие значения.
-          let last_call_at = '0'
-
-          switch (newVal) {
-            case 'yes': {
-              last_call_at = '1' // Показать все контакты которым звонили
-              break
-            }
-            case 'no': {
-              last_call_at = '0' // Показать все контакты которым не звонили
-              break
-            }
-          }
-
           this.$routerQuery.setQuery({
-            last_call_at
+            last_call_at: newVal
           }).then(this.fetchContacts)
         } else {
           this.$routerQuery.removeQuery([
@@ -696,6 +983,19 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         } else {
           this.$routerQuery.removeQuery([
             'contact_create_date'
+          ]).then(this.fetchContacts)
+        }
+      }, debounceDelay))
+
+      // Пагинация
+      this.$watch('dataTableContacts.page', debounce((newVal: number) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            page: newVal
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'page'
           ]).then(this.fetchContacts)
         }
       }, debounceDelay))

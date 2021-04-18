@@ -1,6 +1,8 @@
 // 1. Make sure to import 'vue' before declaring augmented types
-import {JsSIP} from '@/jsSIP/plugin';
-import { Activity } from '@/plugins/activity';
+import { JsSIP } from '@/jsSIP/plugin'
+import { Activity } from '@/plugins/activity'
+import { AxiosInstance } from 'axios'
+import moment, {Moment} from 'moment'
 import { Cookie } from './plugins/cookie'
 import { LibPhoneNumberJs } from '@/plugins/libphonenumber-js'
 import { Lvovich } from '@/plugins/lvovich'
@@ -26,6 +28,8 @@ declare module 'vue/types/vue' {
     $permission: Permission
     $activity: Activity
     $jsSIP: JsSIP;
+    $axios: AxiosInstance;
+    $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     assertObjectHasAttribute (obj: any, key: string): boolean
   }
 
