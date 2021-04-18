@@ -22,6 +22,12 @@ export interface ContactSearchQueryInterface {
   count?: number;
 }
 
+export interface ContactExportParamsInterface {
+  filters: any[],
+  format: 'excel' | 'csv',
+  target_contacts: number[]
+}
+
 export class Contacts {
   /**
    * Find contacts
@@ -235,6 +241,77 @@ export class Contacts {
           }
           resolve(response.data)
         }).catch(reject)
+    })
+  }
+
+  /**
+   * Импорт одного или нескольких файлов
+   *
+   * @param fs
+   * @param onUploadProgress
+   */
+  public import<DT = unknown & {count_insert_contacts: number}> (fs: File | FileList, onUploadProgress?: (event: ProgressEvent) => void): Promise<ResponseInterface<unknown, DT>> {
+    return new Promise<ResponseInterface<any, DT>>((resolve, reject) => {
+
+      const upload = (data: any) => {
+        $axios.post('/contacts/import', data, {
+          onUploadProgress
+        }).then((response: AxiosResponse) => {
+            if ([200, 201].includes(response.status)) {
+              resolve(response.data)
+            } else {
+              throw new APIError(response.data)
+            }
+          }).catch(reject)
+      }
+
+      if (fs instanceof File) {
+        const formData = new FormData()
+        formData.append('files', fs)
+        upload(formData)
+      } else if (fs instanceof FileList) {
+        const formData = new FormData()
+        Array.from(fs).forEach((file, index) => {
+          formData.append(`file[${index}]`, file)
+        })
+        upload(formData)
+      } else {
+        throw new Error('Invalid argument')
+      }
+    })
+  }
+
+  /**
+   * Экспорт
+   *
+   * @param params
+   */
+  public export<DT = string> (params: ContactExportParamsInterface): Promise<DT> {
+    return new Promise<DT>((resolve, reject) => {
+      $axios.post('/contacts/export', params, {
+        responseType: 'blob'
+      })
+        .then((response: AxiosResponse) => {
+        if (response.status === 200) {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+
+          if (params.format === 'excel') {
+            link.setAttribute('download', `${new Date().getTime()}.xlsx`);
+          } else if (params.format === 'csv') {
+            link.setAttribute('download', `${new Date().getTime()}.csv`);
+          }
+
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(() => {
+            link.remove()
+          }, 1000)
+        } else {
+          throw new APIError(response.data)
+        }
+      }).catch(reject)
     })
   }
 }

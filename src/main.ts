@@ -21,6 +21,7 @@ import '@/plugins/router-query'
 import '@/plugins/moment'
 import '@/plugins/activity'
 import '@/plugins/yandex-metrika'
+import '@/plugins/file-dialog'
 import CleanLayout from '@/layouts/Clean.vue'
 
 import(/* webpackChunkName: "plugin-lvovich", webpackPreload: true */ '@/plugins/lvovich')
