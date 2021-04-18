@@ -13,6 +13,7 @@ import { sleep } from '@/Utils'
 const config = {
   baseURL: process.env.VUE_APP_API,
   timeout: 30000,
+  withCredentials: true,
   validateStatus (status: number) {
     return status < 500 // Resolve only if the status code is less than 500
   }
@@ -23,6 +24,11 @@ const _axios: AxiosInstance = axios.create(config)
 const cookie: Cookie = new Cookie()
 let isRefreshTokenProcess = false
 const promises: any[] = []
+
+if (process.env.NODE_ENV === 'development') {
+  cookie.set('XDEBUG_SESSION', 'PHPSTORM', { path: '/' })
+}
+
 /* eslint-disable */
 // @ts-ignore
 _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {

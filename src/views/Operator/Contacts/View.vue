@@ -57,7 +57,7 @@
             {{ $tc('Call') }}
           </v-btn>
         </v-card-text>
-        <v-card-text class="d-flex justify-end pb-0 px-0">
+        <v-card-text class="d-flex align-center justify-end pb-0 px-0">
           <span>{{ $jsSIP.sessionStopwatch }}</span>
         </v-card-text>
         <v-divider class="mt-4"/>
@@ -487,7 +487,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
         user: undefined,
         current_date_time: 0,
         timezone_offset: 0,
-        created_at: 0
+        created_at: 0,
+        last_status: null
       },
       tick: 0,
       contactDateTimeNow: new Date()
