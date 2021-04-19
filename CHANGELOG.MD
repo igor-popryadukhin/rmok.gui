@@ -12,6 +12,9 @@
 - Перемещена кнопка добавления задачи в леву часть экрана  [@Programmer900](https://gitlab.com/Programmer900).
 
 ## Добавлено
+- На фронтенде, добавлен функционал автоматического закрытия списка задач, со статусом -pending [@Programmer900](https://gitlab.com/Programmer900).
+
+## Добавлено
 - Раздел статистики, "Занятость сотрудников" [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Переход из статистики в карточку контакта для прозвона [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Раздел "Задачи" для операторов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
