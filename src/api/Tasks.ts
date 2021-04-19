@@ -159,15 +159,17 @@ export default class Tasks {
   }
 
   /**
-   * @param taskId
-   * @param state
+   * Установит статус задачи.
+   *
+   * @param taskId Идентификатор задачи.
+   * @param state Состояние задачи, одно из возможных вариантов `done | pending`.
    */
   public setState (taskId: number, state: 'done' | 'pending'): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.get(`/tasks/${taskId}/${state}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve()
           }
           throw new APIError(response.data)
         }).catch(reject)
