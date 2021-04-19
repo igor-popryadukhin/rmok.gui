@@ -82,12 +82,13 @@ export class Contacts {
   }
 
   /**
+   * Передать контакты по заданным параметрам
    *
-   * @param data
+   * @param params
    */
-  public transfer (data: any): Promise<void> {
+  public transfer (params: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      $axios.post('/contacts/transfer', data)
+      $axios.post('/contacts/transfer', params)
           .then((response: AxiosResponse) => {
             if ([200, 204].includes(response.status)) {
               return resolve(response.data)

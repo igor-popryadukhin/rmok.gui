@@ -41,7 +41,7 @@ export class RouterQuery {
    * @param key
    * @param def
    */
-  public getQuery<T = string | number> (key: string, def = null): T {
+  public getQuery<T = string | number> (key: string, def?: T): T {
     if (key in this._vueRouter.currentRoute.query) {
       const val: any = this._vueRouter.currentRoute.query[key]
       return val
