@@ -96,6 +96,8 @@ import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue, { PropType } from 'vue'
 
 export interface SContactExportScopeInterface {
+  filters: any,
+
   /** Идентификатор проекта */
   target_project?: unknown & number | undefined;
 

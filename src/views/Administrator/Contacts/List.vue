@@ -397,8 +397,8 @@
           </v-card-text>
           <v-card-text class="pt-0">
             <v-select
-              v-model="filter.last_call_at.selected"
-              :items="filter.last_call_at.options"
+              v-model="filter.call_up.selected"
+              :items="filter.call_up.options"
               :label="$tc('Прозвонено')"
               clearable
               outlined
@@ -415,7 +415,7 @@
           <v-card-text class="pt-0">
             <h4>{{ $tc('Дата создания контакта') }}</h4>
             <v-date-picker
-              v-model="filter.contact_create_date"
+              v-model="filter.contact_created_at"
               :first-day-of-week="1"
               locale="ru"
               flat
@@ -427,7 +427,7 @@
               <v-btn
                 text
                 color="primary"
-                @click="filter.contact_create_date = ''"
+                @click="filter.contact_created_at = ''"
               >
                 {{ $tc('Clear') }}
               </v-btn>
@@ -437,7 +437,7 @@
       </v-col>
     </v-row>
 
-    <input ref="fileInput" type="file" name="name" style="display: none;"/>
+    {{ paramFilters }}
   </v-card>
 </template>
 
@@ -489,11 +489,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         responsible: null,
 
         // Фильтрация по дате создания контакта
-        contact_create_date: null,
+        contact_created_at: null,
 
         // Фильтрация по задачам
         task: {
-          selected: null,
+          selected: null as 'available' | 'unavailable' | 'overdue' | 'not_overdue' | null,
           options: [
             {
               title: 'There are tasks',
@@ -515,8 +515,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         },
 
         // Фильтрация по наличию последнего звонка
-        last_call_at: {
-          selected: null,
+        call_up: {
+          selected: null as 'yes' | 'no' | null,
           options: ['yes', 'no']
         }
       },
@@ -563,6 +563,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         if (val) {
           this.dataTableContacts.selected = this.dataTableContacts.items.map((e: unknown & ContactInterface) => e.id)
         } else {
+          this.dataTableContacts.selectedWhole = false
           this.dataTableContacts.selected = []
         }
       }
@@ -579,6 +580,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
         this.dataTableContacts.selectedIndeterminate = this.dataTableContacts.selected.length < this.dataTableContacts.items.length && this.dataTableContacts.selected.length > 0
       }
+    },
+
+    // Идентификаторы выделенных контактов
+    'dataTableContacts.selectedWhole': {
+      handler (val: boolean) {
+        if (val && (this.dataTableContacts.totalCount > 10000)) {
+          this.$toast.warning('Не рекомендуется выделять больше 10 тыс!')
+        }
+      }
     }
   },
 
@@ -592,6 +602,52 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     vDataTableHeightComputed () {
       const h = this.$screenHeight - 150
       return h
+    },
+
+    // Текущие фильтры для запроса на сервер.
+    paramFilters () {
+      const params: any = {}
+
+      // Задачи
+      if (this.$data.filter.task.selected) {
+        switch (this.$data.filter.task.selected) {
+          case 'available':
+          case 'unavailable':
+          case 'overdue':
+          case 'not_overdue':
+            params.tasks = this.$data.filter.task.selected
+            break
+        }
+      }
+
+      // Проекты
+      if (this.$data.filter.project) {
+        params.project_id = this.$data.filter.project.id
+      }
+
+      // Ответственный
+      if (this.$data.filter.responsible) {
+        params.responsible_id = this.$data.filter.responsible.id
+      }
+
+      // Дата последнего звонка
+      if (this.$data.filter.call_up.selected) {
+        switch (this.$data.filter.call_up.selected) {
+          case 'yes':
+            params.call_up = 1
+            break
+          case 'no':
+            params.call_up = 0
+            break
+        }
+      }
+
+      // Дата создания контакта
+      if (this.$data.filter.contact_created_at) {
+        params.contact_created_at = this.$moment(this.$data.filter.contact_created_at, 'YYYY-MM-DD', false).unix()
+      }
+
+      return params
     }
   },
 
@@ -600,6 +656,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   methods: {
+    selectAll () {
+      this.$data.dataTableContacts.selectedAll = true
+    },
+
+    unselectAll () {
+      this.$data.dataTableContacts.selectedAll = false
+    },
+
     fetchContacts () {
       this.dataTableContacts.processLoading = true
       let offset = (this.dataTableContacts.itemsPerPage * this.dataTableContacts.page) - this.dataTableContacts.itemsPerPage
@@ -622,12 +686,21 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         params.responsible_id = this.$routerQuery.getQuery<number>('responsible_id')
       }
 
-      if (this.$routerQuery.hasQuery('last_call_at')) {
-        params.last_call_at = this.$routerQuery.getQuery('last_call_at')
+      if (this.$routerQuery.hasQuery('call_up')) {
+        switch (this.$routerQuery.getQuery<'yes' | 'no'>('call_up')) {
+          case 'yes': {
+            params.call_up = 1
+            break
+          }
+          case 'no': {
+            params.call_up = 0
+            break
+          }
+        }
       }
 
-      if (this.$routerQuery.hasQuery('contact_create_date')) {
-        params.contact_create_date = this.$routerQuery.getQuery('contact_create_date')
+      if (this.$routerQuery.hasQuery('contact_created_at')) {
+        params.contact_created_at = this.$routerQuery.getQuery('contact_created_at')
       }
 
       if (this.$routerQuery.hasQuery('task')) {
@@ -704,49 +777,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       const params: ContactExportParamsInterface = {
-        filters: [],
+        filters: this.paramFilters,
         format,
         target_contacts: this.dataTableContacts.selectedWhole ? [] : this.$data.dataTableContacts.selected
-      }
-
-      // Задачи
-      if (this.$data.filter.task.selected) {
-        params.filters.push({
-          name: 'tasks',
-          value: this.$data.filter.task.selected
-        })
-      }
-
-      // Проекты
-      if (this.$data.filter.project) {
-        params.filters.push({
-          name: 'project_id',
-          value: this.$data.filter.project.id
-        })
-      }
-
-      // Ответственный
-      if (this.$data.filter.responsible) {
-        params.filters.push({
-          name: 'responsible_id',
-          value: this.$data.filter.responsible.id
-        })
-      }
-
-      // Дата последнего звонка
-      if (this.$data.filter.last_call_at.selected) {
-        params.filters.push({
-          name: 'last_call_at',
-          value: this.$data.filter.last_call_at.selected
-        })
-      }
-
-      // Дата создания контакта
-      if (this.$data.filter.contact_create_date) {
-        params.filters.push({
-          name: 'contact_create_date',
-          value: this.$moment(this.$data.filter.contact_create_date, 'YYYY-MM-DD', false).unix()
-        })
       }
 
       this.importExportProgress.value = true
@@ -773,19 +806,27 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         persistent: true,
         // scope - набор опций для передачи контактов
         onTransfer: (scope: SContactExportScopeInterface) => {
-          const data: unknown & SContactExportScopeInterface & { target_contacts: number[] } = {
+          const params: unknown & SContactExportScopeInterface & {
+            filters: unknown,
+            target_contacts: number[]
+          } = {
+            // Параметры фильтров.
+            filters: this.paramFilters,
+            // Проект в который будут переданы контакты.
             target_project: scope.target_project,
+            // Идентификаторы целевых пользователей.
             target_users: scope.target_users,
-            target_contacts: this.dataTableContacts.selected
+            // Передайте пустой массив если хотите передать все контакты.
+            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected
           }
 
           // Опционально меняем дату, в scope.new_date timestamp
           if (this.assertObjectHasAttribute(scope, 'new_date')) {
-            data.new_date = scope.new_date
+            params.new_date = scope.new_date
           }
 
           new Contacts()
-            .transfer(data)
+            .transfer(params)
             .then(() => {
               this.$toast.success(this.$tc('Transfer success'))
             }).catch((error) => {
@@ -820,8 +861,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         // scope - набор опций для передачи контактов
         onTransfer: (scope: SContactExportScopeInterface) => {
           const data: unknown & SContactExportScopeInterface & { target_contacts: number[] } = {
+            // Параметры фильтров
+            filters: this.paramFilters,
+            // Идентификаторы целевых пользователей.
             target_users: scope.target_users,
-            target_contacts: this.dataTableContacts.selected
+            // Передайте пустой массив если хотите передать все контакты.
+            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected
           }
 
           // Опционально меняем дату, в scope.new_date timestamp
@@ -833,6 +878,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             .transfer(data)
             .then(() => {
               this.$toast.success(this.$tc('Transfer success'))
+              this.unselectAll()
             }).catch((error) => {
               if (error instanceof APIError) {
                 error.errors.forEach((value) => {
@@ -882,21 +928,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
       }
 
-      if (this.$routerQuery.hasQuery('last_call_at')) {
-        switch (this.$routerQuery.getQuery('last_call_at')) {
-          case '0': {
-            this.filter.last_call_at.selected = 'no'
-            break
-          }
-          case '1': {
-            this.filter.last_call_at.selected = 'yes'
-            break
-          }
-        }
-      }
+      this.filter.call_up.selected = this.$routerQuery.getQuery<string>('call_up', '')
 
-      if (this.$routerQuery.hasQuery('contact_create_date')) {
-        this.filter.contact_create_date = this.$moment.unix(+this.$route.query.contact_create_date).format('YYYY-MM-DD')
+      if (this.$routerQuery.hasQuery('contact_created_at')) {
+        this.filter.contact_created_at = this.$moment.unix(this.$routerQuery.getQuery<number>('contact_created_at')).format('YYYY-MM-DD')
       }
 
       if (this.$route.query.task) {
@@ -962,27 +997,27 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }, debounceDelay))
 
       // Фильтр прозвона
-      this.$watch('filter.last_call_at.selected', debounce((newVal: string) => {
+      this.$watch('filter.call_up.selected', debounce((newVal: string) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            last_call_at: newVal
+            call_up: newVal
           }).then(this.fetchContacts)
         } else {
           this.$routerQuery.removeQuery([
-            'last_call_at'
+            'call_up'
           ]).then(this.fetchContacts)
         }
       }, debounceDelay))
 
       // Фильтрация по дате создания контакта
-      this.$watch('filter.contact_create_date', debounce((newVal: unknown) => {
+      this.$watch('filter.contact_created_at', debounce((newVal: unknown) => {
         if (typeof newVal === 'string') {
           this.$routerQuery.setQuery({
-            contact_create_date: this.$moment(newVal).unix()
+            contact_created_at: this.$moment(newVal).unix()
           }).then(this.fetchContacts)
         } else {
           this.$routerQuery.removeQuery([
-            'contact_create_date'
+            'contact_created_at'
           ]).then(this.fetchContacts)
         }
       }, debounceDelay))
