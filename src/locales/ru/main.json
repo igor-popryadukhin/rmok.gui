@@ -189,6 +189,7 @@
   "Task successfully created": "Задача успешно создана",
   "Task successfully deleted": "Задача успешно удалена",
   "Task successfully updated": "Задача успешно обновлена",
+  "Is tasks status pending": "Задач, со статусом в ожидании, не найдено.",
   "Task type": "Тип задачи",
   "Tasks": "Задачи",
   "Telephony": "Телефония",

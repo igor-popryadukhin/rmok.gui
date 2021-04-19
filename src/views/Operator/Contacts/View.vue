@@ -385,7 +385,7 @@ import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-import Tasks from '@/api/Tasks'
+import Tasks, { TaskInterface } from '@/api/Tasks'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInterface'
 import { MainSearchMethod } from '@/Interfaces'
@@ -680,6 +680,26 @@ export default (Vue as VueConstructor<VInterface>).extend({
         contact_id: contactId,
         target
       })
+
+      // Формируем объект с параметрами, для поиска задача статуса pending
+      const contactParams = {
+        contact_id: String(this.contact.id),
+        planned_for: 'all',
+        state: 'pending'
+      }
+
+      new Tasks()
+        .find<any, TaskInterface[]>(contactParams)
+        .then(response => response.data)
+        .then(data => {
+          if (data.length) {
+            data.map(t => {
+              new Tasks().setState(t.id, 'done')
+            })
+          } else {
+            this.$toast.success(this.$tc('Is tasks status pending'))
+          }
+        }).catch(e => console.log(e))
       /* eslint-enable */
     },
 
