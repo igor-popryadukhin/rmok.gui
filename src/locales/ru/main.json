@@ -201,6 +201,7 @@
   "The organization was successfully saved.": "Организация успешно сохранена.",
   "The phone number that is displayed when calling from your PBX": "Номер телефона, который отображается при звонке с вашей АТС",
   "The project requires one or more participants": "Для проекта требуется один и более участников",
+  "Project name not defined!": "Не определено имя проекта",
   "The project to which the contacts will be transferred": "Проект в который будут переданы контакты",
   "The role is used for": "Роль используется для",
   "The status cannot be set, because the project is configured incorrectly!": "Статус установить не получится, так как проект настроен неверно!",
