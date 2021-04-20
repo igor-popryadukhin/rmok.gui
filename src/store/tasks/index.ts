@@ -6,11 +6,11 @@ import mutations from './mutations'
 import state, { TasksStateInterface } from './state'
 
 const tasks: Module<TasksStateInterface, RootStateInterface> = {
-  namespaced: true,
-  state,
-  mutations,
   actions,
-  getters
+  getters,
+  mutations,
+  namespaced: true,
+  state
 }
 
 export default tasks

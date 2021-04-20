@@ -134,29 +134,61 @@ export interface DTaskInterface {
 }
 
 export default Vue.extend({
+  computed: {
+
+    actions () {
+      return {
+        cancel: {
+          flat: true,
+          handle: () => {
+            if (typeof (this as any).onCancel === 'function') {
+              (this as any).onCancel()
+            }
+          },
+          text: (this as any).cancelTitle
+        },
+
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof this.onSave === 'function') {
+              if (!this.$refs.form.validate()) {
+                return false
+              }
+              (this as any).onSave({
+                automaticExecution: this.dataAutomaticExecution,
+                date: this.dataDate,
+                description: this.dataDescription,
+                performer: this.dataPerformer,
+                time: this.dataTime,
+                type: this.dataType
+              })
+            }
+          },
+          text: (this as any).saveTitle
+        }
+      }
+    }
+  },
+
+  data () {
+    return {
+      dataAutomaticExecution: false,
+      dataDate: undefined,
+      dataDescription: undefined,
+      dataPerformer: undefined,
+      dataTime: undefined,
+      dataType: undefined,
+      menuDatePicker: false,
+      menuTimePicker: false
+    }
+  },
+
+  methods: {
+  },
+
   props: {
-    title: {
-      type: String,
-      default: 'Title'
-    },
-    subTitle: {
-      type: String,
-      default: ''
-    },
-    performers: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    types: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
     date: {
-      type: Object,
       default: () => {
         return {
           label: 'Date',
@@ -164,8 +196,62 @@ export default Vue.extend({
           readonly: true,
           rules: []
         }
+      },
+      type: Object
+    },
+    description: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    automaticExecution: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    performers: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    cancelTitle: {
+      default: 'Cancel',
+      type: String
+    },
+    subTitle: {
+      default: '',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    title: {
+      type: String,
+      default: 'Title'
+    },
+    on: {
+      default: null,
+      type: Object
+    },
+    onSave: {
+      default: undefined,
+      type: Function
+    },
+    types: {
+      type: Object,
+      default: () => {
+        return {}
       }
     },
+    saveTitle: {
+      default: 'Save',
+      type: String
+    },
+
     time: {
       type: Object,
       default: () => {
@@ -176,93 +262,7 @@ export default Vue.extend({
           rules: []
         }
       }
-    },
-    description: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    automaticExecution: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    saveTitle: {
-      type: String,
-      default: 'Save'
-    },
-    cancelTitle: {
-      type: String,
-      default: 'Cancel'
-    },
-    onSave: {
-      type: Function,
-      default: undefined
-    },
-    onCancel: {
-      type: Function,
-      default: null
-    },
-
-    on: {
-      type: Object,
-      default: null
     }
-  },
-
-  data () {
-    return {
-      menuDatePicker: false,
-      menuTimePicker: false,
-      dataDate: undefined,
-      dataTime: undefined,
-      dataType: undefined,
-      dataPerformer: undefined,
-      dataDescription: undefined,
-      dataAutomaticExecution: false
-    }
-  },
-
-  computed: {
-
-    actions () {
-      return {
-        cancel: {
-          flat: true,
-          text: (this as any).cancelTitle,
-          handle: () => {
-            if (typeof (this as any).onCancel === 'function') {
-              (this as any).onCancel()
-            }
-          }
-        },
-
-        save: {
-          flat: true,
-          text: (this as any).saveTitle,
-          handle: () => {
-            if (typeof this.onSave === 'function') {
-              if (!this.$refs.form.validate()) {
-                return false
-              }
-              (this as any).onSave({
-                date: this.dataDate,
-                time: this.dataTime,
-                type: this.dataType,
-                performer: this.dataPerformer,
-                description: this.dataDescription,
-                automaticExecution: this.dataAutomaticExecution
-              })
-            }
-          }
-        }
-      }
-    }
-  },
-
-  methods: {
   }
 
 })

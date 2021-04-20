@@ -38,7 +38,31 @@ import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 
 export default (Vue as VueConstructor<VInterface>).extend({
+  beforeRouteEnter (to, from, next) {
+    store.commit('tasks/items', [])
+    next()
+  },
+
   components: { STaskList },
+
+  computed: {
+    itemActions () {
+      return [
+        {
+          title: 'Выполнить'
+        }
+      ]
+    },
+
+    taskListParams () {
+      return {
+        contact_id: this.$route.params.contact_id,
+        planned_for: 'all',
+        sort: 'created_desc',
+        state: 'all'
+      }
+    }
+  },
 
   data () {
     return {
@@ -46,57 +70,34 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
-  computed: {
-    taskListParams () {
-      return {
-        sort: 'created_desc',
-        state: 'all',
-        planned_for: 'all',
-        contact_id: this.$route.params.contact_id
-      }
-    },
-
-    itemActions () {
-      return [
-        {
-          title: 'Выполнить'
-        }
-      ]
-    }
-  },
-
-  beforeRouteEnter (to, from, next) {
-    store.commit('tasks/items', [])
-    next()
-  },
-
-  mounted () {
-    this.update()
-  },
-
   methods: {
-    /**
-     * Метод предназначен для обновления всего компонента
-     **/
-    update () {
-      if (this.$refs.sTaskList) { this.$refs.sTaskList.update() }
-    },
 
     lastContactStatus (contact: ContactInterface) {
       if (contact) {
         if (contact.last_status) {
           return {
-            name: contact.last_status.name,
             class: '',
-            color: contact.last_status.color
+            color: contact.last_status.color,
+            name: contact.last_status.name
           }
         }
       }
       return {
-        name: this.$tc('Status not set'),
         class: 'label-outlined label-color-grey',
-        color: ''
+        color: '',
+        name: this.$tc('Status not set')
       }
+    },
+
+    onLoadedData (data: any) {
+      this.$data.taskCount = data.meta.count
+    },
+
+    /**
+     * Метод предназначен для обновления всего компонента
+     **/
+    update () {
+      if (this.$refs.sTaskList) { this.$refs.sTaskList.update() }
     },
 
     vListItemStyleComputed (task: TaskInterface) {
@@ -109,11 +110,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       return style
-    },
-
-    onLoadedData (data: any) {
-      this.$data.taskCount = data.meta.count
     }
+  },
+
+  mounted () {
+    this.update()
   }
 })
 </script>

@@ -111,24 +111,6 @@ import { Configurations } from '@/api/Configurations'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 
 export default Vue.extend({
-  data () {
-    return {
-      password: {
-        visible: false
-      },
-      processSave: false,
-      config: {
-        /* eslint-disable */
-        display_name: '',
-        login: '',
-        password: '',
-        server: '',
-        port: 0
-        /* eslint-enable */
-      } as PBXInterface
-    }
-  },
-
   beforeRouteEnter (to, from, next) {
     new Configurations()
       .getATEConfigurations()
@@ -141,6 +123,24 @@ export default Vue.extend({
           vm.config.port = config.port || 8089
         })
       })
+  },
+
+  data () {
+    return {
+      config: {
+        /* eslint-disable */
+        display_name: '',
+        login: '',
+        password: '',
+        server: '',
+        port: 0
+        /* eslint-enable */
+      } as PBXInterface,
+      password: {
+        visible: false
+      },
+      processSave: false
+    }
   },
 
   methods: {

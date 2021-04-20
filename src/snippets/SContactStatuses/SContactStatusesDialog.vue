@@ -144,64 +144,24 @@ import { Contacts } from '@/api/Contacts'
 
 export default Vue.extend({
 
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  props: {
-    title: {
-      type: String,
-      default: ''
-    },
-    historyId: {
-      type: Number,
-      default: -1
-    },
-    btnCancelVisible: {
-      type: Boolean,
-      default: false
-    },
-    value: {
-      type: Boolean,
-      default: false
-    }
+  created () {
+    // Default value
+    this.dialogVisible = this.value
   },
 
   data () {
     return {
-      tabStatus: 0,
-      currentStatus: null as any,
       comment: {
-        disabled: false,
-        text: '',
         buttonSave: {
           loading: false
-        }
+        },
+        disabled: false,
+        text: ''
       },
-      dialogVisible: false
+      currentStatus: null as any,
+      dialogVisible: false,
+      tabStatus: 0
     }
-  },
-
-  watch: {
-    value (value: boolean) {
-      this.dialogVisible = value
-    },
-
-    dialogVisible (value: boolean) {
-      if (value && this.historyId > 0) {
-        this.onLoadHistory(this.historyId)
-      }
-    }
-  },
-
-  mounted () {
-    this.$on('change', this.onChange)
-  },
-
-  created () {
-    // Default value
-    this.dialogVisible = this.value
   },
 
   methods: {
@@ -210,16 +170,16 @@ export default Vue.extend({
       this.dialogVisible = value
     },
 
-    onRadioChange (status: any) {
-      this.currentStatus = status
-    },
-
     onLoadHistory (id: number) {
       new Contacts()
         .getHistoryById(id)
         .then((data) => {
           this.comment.text = data.comment
         })
+    },
+
+    onRadioChange (status: any) {
+      this.currentStatus = status
     },
 
     onSave () {
@@ -243,6 +203,46 @@ export default Vue.extend({
 
       this.$emit('change', false)
       /* eslint-enable */
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  mounted () {
+    this.$on('change', this.onChange)
+  },
+
+  props: {
+    btnCancelVisible: {
+      default: false,
+      type: Boolean
+    },
+    historyId: {
+      default: -1,
+      type: Number
+    },
+    title: {
+      default: '',
+      type: String
+    },
+    value: {
+      default: false,
+      type: Boolean
+    }
+  },
+
+  watch: {
+    dialogVisible (value: boolean) {
+      if (value && this.historyId > 0) {
+        this.onLoadHistory(this.historyId)
+      }
+    },
+
+    value (value: boolean) {
+      this.dialogVisible = value
     }
   }
 })

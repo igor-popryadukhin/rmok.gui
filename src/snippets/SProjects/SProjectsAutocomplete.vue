@@ -75,92 +75,30 @@ import { debounce } from 'vuetify/src/util/helpers'
 import Projects, { ProjectInterface } from '@/api/Projects'
 
 export default Vue.extend({
-  props: {
-    label: {
-      type: String,
-      default: () => ''
-    },
-    clearable: {
-      type: Boolean,
-      default: () => false
-    },
-    disabled: {
-      type: Boolean,
-      default: () => false
-    },
-    outlined: {
-      type: Boolean,
-      default: () => false
-    },
-    dense: {
-      type: Boolean,
-      default: () => false
-    },
-    params: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    rules: {
-      type: Array,
-      default: () => []
-    },
-    value: {
-      type: Object,
-      default: () => null
-    },
-    errorMessages: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  model: {
-    prop: 'value',
-    event: 'change'
+  created () {
+    this.dParams = Object.assign({}, this.params)
   },
 
   data () {
     return {
       dParams: {},
-      q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: {} as unknown as ProjectInterface,
+      options: [] as ProjectInterface[],
       process: false,
-      options: [] as ProjectInterface[]
+      q: null,
+      selected: {} as unknown as ProjectInterface
     }
-  },
-
-  watch: {
-    q (q: string) {
-      this.fetchData(Object.assign({}, this.dParams, { q }))
-    },
-
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (val: any) {
-      if (val === null) {
-        this.$emit('clear')
-      }
-      this.selected = val
-    }
-  },
-
-  created () {
-    this.dParams = Object.assign({}, this.params)
   },
 
   methods: {
-    setParams (params: any) {
-      this.dParams = Object.assign({}, params)
+    fetchData (params = {}) {
+      this.dParams = Object.assign(this.params, params)
+      search(this, this.dParams)
+    },
+
+    focus () {
+      this.$refs.ref.focus()
     },
 
     onFocus () {
@@ -173,23 +111,14 @@ export default Vue.extend({
       this.$emit('select', data)
     },
 
-    fetchData (params = {}) {
-      this.dParams = Object.assign(this.params, params)
-      search(this, this.dParams)
-    },
-
-    setSelected (data: ProjectInterface) {
-      this.selected = data
-    },
-
-    setData (data: ProjectInterface[]) {
-      this.options = data
-    },
-
     pushData (data: ProjectInterface) {
       if (this.options.findIndex((e: ProjectInterface) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    setData (data: ProjectInterface[]) {
+      this.options = data
     },
 
     /**
@@ -209,8 +138,79 @@ export default Vue.extend({
       })
     },
 
-    focus () {
-      this.$refs.ref.focus()
+    setParams (params: any) {
+      this.dParams = Object.assign({}, params)
+    },
+
+    setSelected (data: ProjectInterface) {
+      this.selected = data
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    clearable: {
+      default: () => false,
+      type: Boolean
+    },
+    dense: {
+      default: () => false,
+      type: Boolean
+    },
+    disabled: {
+      default: () => false,
+      type: Boolean
+    },
+    errorMessages: {
+      default: () => [],
+      type: Array
+    },
+    label: {
+      default: () => '',
+      type: String
+    },
+    outlined: {
+      default: () => false,
+      type: Boolean
+    },
+    params: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: () => null,
+      type: Object
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    }
+  },
+
+  watch: {
+    q (q: string) {
+      this.fetchData(Object.assign({}, this.dParams, { q }))
+    },
+
+    selected (value) {
+      this.$emit('change', value)
+    },
+
+    value (val: any) {
+      if (val === null) {
+        this.$emit('clear')
+      }
+      this.selected = val
     }
   }
 })

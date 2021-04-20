@@ -15,31 +15,34 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  props: {
-    title: {
-      type: String,
-      default: 'Title'
-    },
-    text: {
-      type: String,
-      default: ''
-    },
-    saveTitle: {
-      type: String,
-      default: 'Save'
-    },
-    cancelTitle: {
-      type: String,
-      default: 'Cancel'
-    },
-    onSave: {
-      type: Function,
-      default: null
-    },
-    onCancel: {
-      type: Function,
-      default: null
+  computed: {
+    actions () {
+      return {
+        cancel: {
+          flat: true,
+          handle: () => {
+            if (this.onCancel) {
+              (this.onCancel as () => void)()
+            }
+          },
+          text: this.cancelTitle
+        },
+
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof this.onSave === 'function') {
+              this.onSave(this.dataText)
+            }
+          },
+          text: this.saveTitle
+        }
+      }
     }
+  },
+
+  created () {
+    this.dataText = this.text
   },
 
   data () {
@@ -48,34 +51,31 @@ export default Vue.extend({
     }
   },
 
-  computed: {
-    actions () {
-      return {
-        cancel: {
-          flat: true,
-          text: this.cancelTitle,
-          handle: () => {
-            if (this.onCancel) {
-              (this.onCancel as () => void)()
-            }
-          }
-        },
-
-        save: {
-          flat: true,
-          text: this.saveTitle,
-          handle: () => {
-            if (typeof this.onSave === 'function') {
-              this.onSave(this.dataText)
-            }
-          }
-        }
-      }
+  props: {
+    cancelTitle: {
+      default: 'Cancel',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    onSave: {
+      default: null,
+      type: Function
+    },
+    saveTitle: {
+      default: 'Save',
+      type: String
+    },
+    text: {
+      default: '',
+      type: String
+    },
+    title: {
+      default: 'Title',
+      type: String
     }
-  },
-
-  created () {
-    this.dataText = this.text
   }
 
 })

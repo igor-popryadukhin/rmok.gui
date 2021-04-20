@@ -101,111 +101,67 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import Groups, { GroupInterface } from '@/api/Groups'
 
 export default Vue.extend({
-  props: {
-    label: {
-      type: String,
-      default: () => ''
-    },
-    multiple: {
-      type: Boolean,
-      default: () => false
-    },
-    dense: {
-      type: Boolean,
-      default: () => false
-    },
-    clearable: {
-      type: Boolean,
-      default: () => false
-    },
-    disabled: {
-      type: Boolean,
-      default: () => false
-    },
-    outlined: {
-      type: Boolean,
-      default: () => false
-    },
-    params: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    iconName: {
-      type: String,
-      default: 'mdi-account-group'
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    innerIcon: {
-      type: Boolean,
-      default: false
-    },
-    rules: {
-      type: Array,
-      default: () => []
-    },
-    value: {
-      type: [Object, Array],
-      default: () => null
-    }
-  },
-
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
   data () {
     return {
       dParams: {},
-      q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null as unknown & GroupInterface | GroupInterface[] | null, // Одна группа или массив групп, зависит т параметра multiple
+
+      options: [] as unknown & GroupInterface[],
+
+      // Одна группа или массив групп, зависит т параметра multiple
       process: false,
-      options: [] as unknown & GroupInterface[]
-    }
-  },
-
-  watch: {
-    q (q: string) {
-      this.fetchData(Object.assign({}, this.params, { q }))
-    },
-
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (val: any) {
-      this.selected = val
+      q: null,
+      selected: null as unknown & GroupInterface | GroupInterface[] | null
     }
   },
 
   methods: {
-    setParams (params: any) {
-      this.dParams = Object.assign({}, params)
+
+    chipRemove (item: GroupInterface | null) {
+      if (Array.isArray(this.selected) && item) {
+        const index = this.selected.findIndex((e: GroupInterface) => e.id === item.id)
+        if (index >= 0) this.selected.splice(index, 1)
+      } else {
+        this.selected = null
+      }
+    },
+
+    /**
+     * Очистить выбранный элемент
+     */
+    clear () {
+      this.selected = null
     },
 
     fetchData (params = {}) {
       search(this, Object.assign({}, this.params, params))
     },
 
-    setSelected (data: GroupInterface) {
-      this.selected = data
+    focus () {
+      this.$refs.ref.focus()
     },
 
-    setData (data: GroupInterface[]) {
-      this.options = data
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
+    },
+
+    onselect () {
+      setTimeout(() => {
+        this.$emit('selected', this.selected)
+      }, 0)
     },
 
     pushData (data: GroupInterface) {
       if (this.options.findIndex((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    setData (data: GroupInterface[]) {
+      this.options = data
     },
 
     /**
@@ -238,36 +194,84 @@ export default Vue.extend({
       })
     },
 
-    /**
-     * Очистить выбранный элемент
-     */
-    clear () {
-      this.selected = null
+    setParams (params: any) {
+      this.dParams = Object.assign({}, params)
     },
 
-    focus () {
-      this.$refs.ref.focus()
+    setSelected (data: GroupInterface) {
+      this.selected = data
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    clearable: {
+      default: () => false,
+      type: Boolean
+    },
+    dense: {
+      default: () => false,
+      type: Boolean
+    },
+    disabled: {
+      default: () => false,
+      type: Boolean
+    },
+    iconName: {
+      default: 'mdi-account-group',
+      type: String
+    },
+    innerIcon: {
+      default: false,
+      type: Boolean
+    },
+    label: {
+      default: () => '',
+      type: String
+    },
+    multiple: {
+      default: () => false,
+      type: Boolean
+    },
+    outlined: {
+      default: () => false,
+      type: Boolean
+    },
+    params: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: () => null,
+      type: [Object, Array]
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    }
+  },
+
+  watch: {
+    q (q: string) {
+      this.fetchData(Object.assign({}, this.params, { q }))
     },
 
-    onselect () {
-      setTimeout(() => {
-        this.$emit('selected', this.selected)
-      }, 0)
+    selected (value) {
+      this.$emit('change', value)
     },
 
-    onFocus () {
-      if (this.options.length === 0) {
-        this.fetchData()
-      }
-    },
-
-    chipRemove (item: GroupInterface | null) {
-      if (Array.isArray(this.selected) && item) {
-        const index = this.selected.findIndex((e: GroupInterface) => e.id === item.id)
-        if (index >= 0) this.selected.splice(index, 1)
-      } else {
-        this.selected = null
-      }
+    value (val: any) {
+      this.selected = val
     }
   }
 })

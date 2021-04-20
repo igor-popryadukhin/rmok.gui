@@ -131,43 +131,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
     next()
   },
 
-  data () {
-    return {
-      buttonAdd: {
-        disabled: false
-      },
-      negativeScreenHeightSize: 205,
-      dataTableOrganizations: {
-        processLoading: false,
-        page: 1,
-        pages: 0,
-        totalCount: 0,
-        itemsPerPage: 20,
-        pageStart: 0,
-        pageStop: 0,
-        headers: [
-          { text: this.$tc('Name'), align: 'start', sortable: true, value: 'name', width: 'auto' },
-          { text: this.$tc('Email'), align: 'start', sortable: true, value: 'email', width: 'auto' },
-          { text: this.$tc('ITN/TIN'), align: 'start', sortable: true, value: 'inn', width: 'auto' },
-          { text: this.$tc('IEC'), align: 'start', sortable: true, value: 'cpp', width: 'auto' },
-          { text: this.$tc('Site'), align: 'start', sortable: true, value: 'site', width: 'auto' },
-          { text: this.$tc('City'), align: 'start', sortable: true, value: 'city', width: 'auto' },
-          { text: this.$tc('Responsible'), align: 'start', sortable: true, value: 'responsible', width: 'auto' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
-        ],
-        items: [] as OrganizationInterface[]
-      }
-    }
-  },
-
-  watch: {
-    'dataTableOrganizations.page': {
-      handler () {
-        this.fetchOrganizations()
-      }
-    }
-  },
-
   computed: {
     // Вычисляю высоту таблицы
     dataTableOrganizationsHeight () {
@@ -181,14 +144,43 @@ export default (Vue as VueConstructor<VInterface>).extend({
     this.fetchOrganizations()
   },
 
+  data () {
+    return {
+      buttonAdd: {
+        disabled: false
+      },
+      dataTableOrganizations: {
+        headers: [
+          { align: 'start', sortable: true, text: this.$tc('Name'), value: 'name', width: 'auto' },
+          { align: 'start', sortable: true, text: this.$tc('Email'), value: 'email', width: 'auto' },
+          { align: 'start', sortable: true, text: this.$tc('ITN/TIN'), value: 'inn', width: 'auto' },
+          { align: 'start', sortable: true, text: this.$tc('IEC'), value: 'cpp', width: 'auto' },
+          { align: 'start', sortable: true, text: this.$tc('Site'), value: 'site', width: 'auto' },
+          { align: 'start', sortable: true, text: this.$tc('City'), value: 'city', width: 'auto' },
+          { align: 'start', sortable: true, text: this.$tc('Responsible'), value: 'responsible', width: 'auto' },
+          { align: 'end', sortable: true, text: '', value: 'actions', width: '100%' }
+        ],
+        items: [] as OrganizationInterface[],
+        itemsPerPage: 20,
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 0,
+        processLoading: false,
+        totalCount: 0
+      },
+      negativeScreenHeightSize: 205
+    }
+  },
+
   methods: {
     fetchOrganizations () {
       this.dataTableOrganizations.processLoading = true
       const offset = (this.dataTableOrganizations.itemsPerPage * this.dataTableOrganizations.page) - this.dataTableOrganizations.itemsPerPage
       new Organizations()
         .find({
-          offset,
-          count: this.dataTableOrganizations.itemsPerPage
+          count: this.dataTableOrganizations.itemsPerPage,
+          offset
         })
         .then((response: ResponseInterface<any, OrganizationInterface[]>) => {
           this.dataTableOrganizations.totalCount = response.meta.count
@@ -199,13 +191,21 @@ export default (Vue as VueConstructor<VInterface>).extend({
         })
     },
 
+    onButtonRefreshClick () {
+      this.fetchOrganizations()
+    },
+
     onPaginationChange (data: any) {
       this.dataTableOrganizations.pageStart = data.pageStart + 1
       this.dataTableOrganizations.pageStop = data.pageStop
-    },
+    }
+  },
 
-    onButtonRefreshClick () {
-      this.fetchOrganizations()
+  watch: {
+    'dataTableOrganizations.page': {
+      handler () {
+        this.fetchOrganizations()
+      }
     }
   }
 })

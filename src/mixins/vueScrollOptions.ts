@@ -4,27 +4,27 @@ const vueScrollOptions = Vue.extend({
   data () {
     return {
       vueScrollOptions: {
-        scrollPanel: {
-          initialScrollY: false,
-          initialScrollX: false,
-          scrollingX: false,
-          scrollingY: true,
-          speed: 300,
-          easing: undefined,
-          verticalNativeBarPos: 'right'
-        },
-        vuescroll: {
-          wheelScrollDuration: 500
-        },
         bar: {
           background: '#c912c6',
           keepShow: true
         },
         rail: {
-          opacity: '0.2',
           background: '#c912c6',
           border: '1px solid #cecece',
+          opacity: '0.2',
           size: '10px'
+        },
+        scrollPanel: {
+          easing: undefined,
+          initialScrollX: false,
+          initialScrollY: false,
+          scrollingX: false,
+          scrollingY: true,
+          speed: 300,
+          verticalNativeBarPos: 'right'
+        },
+        vuescroll: {
+          wheelScrollDuration: 500
         }
       }
     }

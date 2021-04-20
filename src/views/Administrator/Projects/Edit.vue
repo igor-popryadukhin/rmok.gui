@@ -429,42 +429,6 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  components: {
-    SOrganizationsAutocomplete,
-    SGroups,
-    ProjectStatus
-  },
-
-  mixins: [rules, vueScrollOptions, statusActions],
-
-  data (): IData {
-    return {
-      organizationSelected: null,
-      availableQ: '',
-      availableMembersCount: 0,
-      availableMembers: [] as UserInterface[],
-      availableMembersLoading: false,
-      members: [],
-      users_groups: [],
-      statuses: [],
-      buttonSave: {
-        disabled: false,
-        loading: false
-      },
-      buttonDelete: {
-        disabled: false,
-        loading: false
-      },
-      projectName: ''
-    }
-  },
-
-  watch: {
-    'availableQ' (q: string) {
-      findAvailableUsers({ q }, this)
-    }
-  },
-
   beforeRouteEnter (to, from, next) {
     new Projects()
       .getById(+to.params.project_id)
@@ -486,28 +450,48 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
   },
 
+  components: {
+    ProjectStatus,
+    SGroups,
+    SOrganizationsAutocomplete
+  },
+
   created () {
     findAvailableUsers({}, this)
   },
 
+  data (): IData {
+    return {
+      availableMembers: [] as UserInterface[],
+      availableMembersCount: 0,
+      availableMembersLoading: false,
+      availableQ: '',
+      buttonDelete: {
+        disabled: false,
+        loading: false
+      },
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      members: [],
+      organizationSelected: null,
+      projectName: '',
+      statuses: [],
+      users_groups: []
+    }
+  },
+
   methods: {
 
-    /**
-     * Срабатывает когда пользователь кликнул по кнопке удалить в списке "Группы пользователей"
-     **/
-    onUsersGroupsDeleteClick (obj: GroupInterface) {
-      const index: number = this.users_groups.findIndex((e: GroupInterface) => e.id === obj.id)
-      if (index > -1) {
-        this.users_groups.splice(index, 1)
+    memberToLeft (item: UserInterface) {
+      const availableMemberIndex = this.availableMembers.findIndex((member: UserInterface | ProjectMemberInterface) => member.id === item.id)
+      if (availableMemberIndex === -1) {
+        this.availableMembers.push(item)
       }
-    },
-
-    /**
-     * Срабатывает когда пользователь выбрал найденный эелемент в выпадающем списке поиска групп.
-     **/
-    onGroupAutocompleteSelected (obj: GroupInterface) {
-      if (this.users_groups.findIndex((e: GroupInterface) => e.id === obj.id) === -1) {
-        this.users_groups.push(obj)
+      const memberIndex = this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id)
+      if (memberIndex > -1) {
+        this.members.splice(memberIndex, 1)
       }
     },
 
@@ -522,21 +506,31 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
     },
 
-    memberToLeft (item: UserInterface) {
-      const availableMemberIndex = this.availableMembers.findIndex((member: UserInterface | ProjectMemberInterface) => member.id === item.id)
-      if (availableMemberIndex === -1) {
-        this.availableMembers.push(item)
-      }
-      const memberIndex = this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id)
-      if (memberIndex > -1) {
-        this.members.splice(memberIndex, 1)
-      }
-    },
-
-    onSelectedUser (item: UserInterface) {
-      if (this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id) === -1) {
-        this.members.push(item)
-      }
+    onBtnDeleteClick () {
+      this.$dialog.confirm({
+        actions: {
+          false: this.$tc('no'),
+          true: {
+            color: 'red',
+            handle: () => {
+              return new Promise<void>((resolve) => {
+                new Projects()
+                  .delete(+this.$route.params.project_id)
+                  .then(() => {
+                    this.$toast.success(this.$tc('Project successfully deleted!'))
+                    this.$router.back()
+                  }).catch((e: APIError) => {
+                    this.$toast.error(e.message)
+                  })
+                resolve()
+              })
+            },
+            text: this.$tc('yes')
+          }
+        },
+        text: this.$tc('All information about the project, history of interaction, will be deleted permanently.'),
+        title: this.$tc('Deleting a project')
+      })
     },
 
     /**
@@ -584,31 +578,37 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         })
     },
 
-    onBtnDeleteClick () {
-      this.$dialog.confirm({
-        title: this.$tc('Deleting a project'),
-        text: this.$tc('All information about the project, history of interaction, will be deleted permanently.'),
-        actions: {
-          false: this.$tc('no'),
-          true: {
-            color: 'red',
-            text: this.$tc('yes'),
-            handle: () => {
-              return new Promise<void>((resolve) => {
-                new Projects()
-                  .delete(+this.$route.params.project_id)
-                  .then(() => {
-                    this.$toast.success(this.$tc('Project successfully deleted!'))
-                    this.$router.back()
-                  }).catch((e: APIError) => {
-                    this.$toast.error(e.message)
-                  })
-                resolve()
-              })
-            }
-          }
-        }
-      })
+    /**
+     * Срабатывает когда пользователь выбрал найденный эелемент в выпадающем списке поиска групп.
+     **/
+    onGroupAutocompleteSelected (obj: GroupInterface) {
+      if (this.users_groups.findIndex((e: GroupInterface) => e.id === obj.id) === -1) {
+        this.users_groups.push(obj)
+      }
+    },
+
+    onSelectedUser (item: UserInterface) {
+      if (this.members.findIndex((member: ProjectMemberInterface) => member.id === item.id) === -1) {
+        this.members.push(item)
+      }
+    },
+
+    /**
+     * Срабатывает когда пользователь кликнул по кнопке удалить в списке "Группы пользователей"
+     **/
+    onUsersGroupsDeleteClick (obj: GroupInterface) {
+      const index: number = this.users_groups.findIndex((e: GroupInterface) => e.id === obj.id)
+      if (index > -1) {
+        this.users_groups.splice(index, 1)
+      }
+    }
+  },
+
+  mixins: [rules, vueScrollOptions, statusActions],
+
+  watch: {
+    'availableQ' (q: string) {
+      findAvailableUsers({ q }, this)
     }
   }
 })

@@ -191,50 +191,6 @@ import SPhoneNumbers from '@/snippets/SPhoneNumbers/SPhoneNumbers.vue'
 import SEmails from '@/snippets/SEmails/SEmails.vue'
 
 export default Vue.extend({
-  mixins: [rules],
-
-  components: {
-    SPhoneNumbers,
-    SEmails
-  },
-
-  data () {
-    return {
-      buttonSave: {
-        disabled: false,
-        loading: false
-      },
-      form: {
-        valid: false
-      },
-      contact: {
-        first_name: '',
-        last_name: '',
-        middle_name: '',
-        notes: '',
-        city: '',
-        region: '',
-        address: '',
-        emails: [
-          {
-            value: '',
-            label: ''
-          }
-        ],
-        phones: [
-          {
-            id: 0,
-            country_code: 'RU',
-            country_calling_code: '7',
-            raw: '',
-            label: ''
-          }
-        ]
-      }
-      /* eslint-enable */
-    }
-  },
-
   beforeRouteEnter (to, from, next) {
     new Contacts()
       .getById(+to.params.contact_id)
@@ -253,6 +209,48 @@ export default Vue.extend({
       })
   },
 
+  components: {
+    SEmails,
+    SPhoneNumbers
+  },
+
+  data () {
+    return {
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      contact: {
+        address: '',
+        city: '',
+        emails: [
+          {
+            label: '',
+            value: ''
+          }
+        ],
+        first_name: '',
+        last_name: '',
+        middle_name: '',
+        notes: '',
+        phones: [
+          {
+            country_calling_code: '7',
+            country_code: 'RU',
+            id: 0,
+            label: '',
+            raw: ''
+          }
+        ],
+        region: ''
+      },
+      form: {
+        valid: false
+      }
+      /* eslint-enable */
+    }
+  },
+
   methods: {
 
     /**
@@ -260,17 +258,9 @@ export default Vue.extend({
      */
     onAddEmailClick () {
       this.contact.emails.push({
-        value: '',
-        label: ''
+        label: '',
+        value: ''
       })
-    },
-
-    /**
-     * Fired when an clicked on the delete email button
-     * @param index
-     */
-    onDeleteEmailClick (index: number) {
-      this.contact.emails.splice(index, 1)
     },
 
     /**
@@ -287,6 +277,14 @@ export default Vue.extend({
     },
 
     /**
+     * Fired when an clicked on the delete email button
+     * @param index
+     */
+    onDeleteEmailClick (index: number) {
+      this.contact.emails.splice(index, 1)
+    },
+
+    /**
      * Fired when an clicked on the delete phone number button
      * @param index
      */
@@ -300,17 +298,17 @@ export default Vue.extend({
       }
 
       const data: any = {
-        first_name: this.contact.first_name,
-        last_name: this.contact.last_name,
-        middle_name: this.contact.middle_name,
         emails: this.contact.emails
           .filter((e) => !(isEmpty(e.value) && isEmpty(e.label)))
           .map((email) => ({ label: email.label, value: email.value })),
+        first_name: this.contact.first_name,
+        last_name: this.contact.last_name,
+        middle_name: this.contact.middle_name,
         phones: this.contact.phones
           .filter((e: PhoneNumberInterface) => !(isEmpty(e.raw) && isEmpty(e.label)))
           .map((phone: PhoneNumberInterface) => ({
-            country_code: phone.country_code,
             country_calling_code: phone.country_calling_code,
+            country_code: phone.country_code,
             label: phone.label,
             raw: phone.raw
           }))
@@ -337,7 +335,9 @@ export default Vue.extend({
           this.buttonSave.loading = false
         })
     }
-  }
+  },
+
+  mixins: [rules]
 })
 </script>
 

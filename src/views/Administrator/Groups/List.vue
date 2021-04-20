@@ -145,32 +145,97 @@ import VInterface from '@/VInterface'
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: { SProjectsAutocomplete },
+  computed: {
+    // Вычисляю высоту таблицы
+    dataTableGroupsHeight () {
+      let h: number = this.$screenHeight - 250
+      if (h < 640) { h = 640 }
+      return h
+    }
+  },
+
+  created () {
+    this.fetchGroups()
+  },
+
   data () {
     return {
-      negativeScreenHeightSize: 220,
       buttonAdd: {
         disabled: false
       },
       dataTableGroups: {
-        page: 1,
-        pages: 1,
-        totalCount: 0,
+        headers: [
+          { align: 'start', sortable: false, text: 'Имя', value: 'name', width: 'auto' },
+          { align: 'start', sortable: false, text: 'Организация', value: 'organization' },
+          { align: 'start', sortable: false, text: 'Ответственный', value: 'responsible' },
+          { align: 'end', sortable: true, text: '', value: 'actions', width: '100%' }
+        ],
+        items: [] as GroupInterface[],
         itemsPerPage: 20,
+        page: 1,
         pageStart: 0,
         pageStop: 0,
+        pages: 1,
         processLoading: false,
-        headers: [
-          { text: 'Имя', align: 'start', sortable: false, value: 'name', width: 'auto' },
-          { text: 'Организация', align: 'start', sortable: false, value: 'organization' },
-          { text: 'Ответственный', align: 'start', sortable: false, value: 'responsible' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
-        ],
-        items: [] as GroupInterface[]
+        totalCount: 0
       },
-      groupsProcessLoading: false,
       filter: {
         project: null
-      }
+      },
+      groupsProcessLoading: false,
+      negativeScreenHeightSize: 220
+    }
+  },
+
+  methods: {
+    fetchGroups () {
+      this.dataTableGroups.processLoading = true
+      const offset = (this.dataTableGroups.itemsPerPage * this.dataTableGroups.page) - this.dataTableGroups.itemsPerPage
+      new Groups()
+        .find({
+          count: this.dataTableGroups.itemsPerPage,
+          offset
+        })
+        .then((response: ResponseInterface<{ count: number }, GroupInterface[]>) => {
+          this.dataTableGroups.totalCount = response.meta.count
+          this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
+          this.dataTableGroups.items = response.data
+        }).finally(() => {
+          this.dataTableGroups.processLoading = false
+        })
+    },
+
+    onButtonRefreshClick () {
+      this.fetchGroups()
+    },
+
+    onDeleteItem (id: number) {
+      this.$dialog.confirm({
+        actions: {
+          false: this.$tc('no'),
+          true: {
+            color: 'red',
+            handle: () => {
+              return new Promise((resolve) => {
+                new Groups()
+                  .delete(id)
+                  .then(() => {
+                    this.groups = this.groups.filter((e: GroupInterface) => e.id !== id)
+                    this.$toast.success(this.$t('group_delete_successfully'), { icon: true })
+                  }).catch((e: any) => {
+                    const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
+                    this.$toast.error(this.$t('group_delete_error', { cause }), { icon: true })
+                  }).finally()
+
+                resolve()
+              })
+            },
+            text: this.$tc('yes')
+          }
+        },
+        text: this.$tc('confirm_group_deletion'),
+        title: this.$tc('confirmation_request')
+      })
     }
   },
 
@@ -187,71 +252,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
           ]).then(this.fetchUsers)
         }
       }
-    }
-  },
-
-  computed: {
-    // Вычисляю высоту таблицы
-    dataTableGroupsHeight () {
-      let h: number = this.$screenHeight - 250
-      if (h < 640) { h = 640 }
-      return h
-    }
-  },
-
-  created () {
-    this.fetchGroups()
-  },
-
-  methods: {
-    onDeleteItem (id: number) {
-      this.$dialog.confirm({
-        text: this.$tc('confirm_group_deletion'),
-        title: this.$tc('confirmation_request'),
-        actions: {
-          false: this.$tc('no'),
-          true: {
-            color: 'red',
-            text: this.$tc('yes'),
-            handle: () => {
-              return new Promise((resolve) => {
-                new Groups()
-                  .delete(id)
-                  .then(() => {
-                    this.groups = this.groups.filter((e: GroupInterface) => e.id !== id)
-                    this.$toast.success(this.$t('group_delete_successfully'), { icon: true })
-                  }).catch((e: any) => {
-                    const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
-                    this.$toast.error(this.$t('group_delete_error', { cause }), { icon: true })
-                  }).finally()
-
-                resolve()
-              })
-            }
-          }
-        }
-      })
-    },
-
-    fetchGroups () {
-      this.dataTableGroups.processLoading = true
-      const offset = (this.dataTableGroups.itemsPerPage * this.dataTableGroups.page) - this.dataTableGroups.itemsPerPage
-      new Groups()
-        .find({
-          offset,
-          count: this.dataTableGroups.itemsPerPage
-        })
-        .then((response: ResponseInterface<{ count: number }, GroupInterface[]>) => {
-          this.dataTableGroups.totalCount = response.meta.count
-          this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
-          this.dataTableGroups.items = response.data
-        }).finally(() => {
-          this.dataTableGroups.processLoading = false
-        })
-    },
-
-    onButtonRefreshClick () {
-      this.fetchGroups()
     }
   }
 })

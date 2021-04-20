@@ -302,19 +302,19 @@ import Vue from 'vue'
 import { Calls } from '@/api/Calls'
 
 export default Vue.extend({
-  data () {
-    return {
-      calls: [],
-      dialogPhone: false
-    }
-  },
-
   created () {
     new Calls()
       .get()
       .then((calls) => {
         this.calls = calls
       })
+  },
+
+  data () {
+    return {
+      calls: [],
+      dialogPhone: false
+    }
   }
 })
 </script>

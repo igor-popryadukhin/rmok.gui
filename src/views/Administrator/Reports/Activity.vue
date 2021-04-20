@@ -257,70 +257,7 @@ Vue.component('apexchart', VueApexCharts)
 export default (Vue as VueConstructor<VInterface>).extend({
   components: { SGroups, SUsers },
 
-  data () {
-    return {
-      filterDate: undefined,
-      menuDateRange: null,
-      dateRange: null as string[] | null,
-
-      processLoading: false,
-      pieLabels: [] as string[],
-
-      reportActions: [] as unknown[] & { type: string, title: string }[], // Типы действий отчёта
-      reportItems: [] as any[], // Элементы отчёта
-
-      filter: {
-        date: null as unknown & string | null,
-        actions: {
-          selected: [],
-          items: [] as unknown & { title: string; value: string; }[],
-          /**
-           * Удалить чип
-           */
-          chipRemove: (item: unknown & {title: string; type: string;}) => {
-            if (Array.isArray(this.filter.actions.selected) && item) {
-              const index = this.filter.actions.selected.findIndex((e: string) => e === item.type)
-              if (index >= 0) this.filter.actions.selected.splice(index, 1)
-            } else {
-              this.filter.actions.selected = []
-            }
-          }
-        },
-        users: [] as unknown & UserInterface[],
-        groups: [] as unknown & GroupInterface[]
-      }
-    }
-  },
-
   computed: {
-
-    isDisabledFilterActions () {
-      return !(this.filter.users.length > 0 || this.filter.groups.length > 0)
-    },
-
-    xSeries () {
-      return this.reportItems.map((value: any) => {
-        return value.first_name + ' ' + value.last_name
-      })
-    },
-
-    apexSeries () {
-      const series: any[] = [] // Сюда буду складывать серии
-      this.reportItems.forEach((value: unknown & {activity: any[]; }) => {
-        value.activity.forEach((value1: unknown & {type: string; title: string; seconds: number}) => {
-          const index = series.findIndex(v => v.name === value1.type)
-          if (index > -1) {
-            series[index].data.push(value1.seconds)
-          } else {
-            series.push({
-              name: value1.type,
-              data: [value1.seconds]
-            })
-          }
-        })
-      })
-      return series
-    },
 
     /**
      * Круговые диаграммы
@@ -348,82 +285,100 @@ export default (Vue as VueConstructor<VInterface>).extend({
         const percent = (value.data.reduce(reducer) / total) * 100
 
         return {
-          series: [value.data.reduce(reducer)],
           chart: {
             height: 280,
             type: 'radialBar'
           },
           options: {
             colors: ['#28bd76'],
+            fill: {
+              gradient: {
+                gradientToColors: ['#63ADD0'],
+                shade: 'dark',
+                stops: [0, 100],
+                type: 'vertical'
+              },
+              type: 'gradient'
+            },
+            labels: [value.name],
             plotOptions: {
               radialBar: {
-                startAngle: 0,
-                endAngle: 360 * (Math.round(percent) / 100),
-                hollow: {
-                  margin: 0,
-                  size: '70%',
-                  background: '#133D8A'
-                },
-                track: {
-                  show: true,
-                  startAngle: 0,
-                  endAngle: 360,
-                  background: '#dedede',
-                  strokeWidth: '97%',
-                  opacity: 1,
-                  margin: 5,
-                  dropShadow: {
-                    enabled: false,
-                    top: 0,
-                    left: 0,
-                    blur: 3,
-                    opacity: 0.5
-                  }
-                },
                 dataLabels: {
                   name: {
-                    show: true,
-                    offsetY: -10,
                     color: '#fff',
                     fontSize: '13px',
-                    formatter: dataLabelsFormatter
+                    formatter: dataLabelsFormatter,
+                    offsetY: -10,
+                    show: true
+                  },
+                  total: {
+                    color: '#e52121',
+                    fontFamily: undefined,
+                    fontSize: '16px',
+                    label: 'Total',
+                    offsetY: 100,
+                    show: false
                   },
                   value: {
                     color: '#fff',
                     fontSize: '25px',
-                    show: true,
                     formatter: function (val: number) {
                       return secondsToHmsDigital(val)
-                    }
-                  },
-                  total: {
-                    show: false,
-                    offsetY: 100,
-                    label: 'Total',
-                    color: '#e52121',
-                    fontSize: '16px',
-                    fontFamily: undefined
+                    },
+                    show: true
                   }
+                },
+                endAngle: 360 * (Math.round(percent) / 100),
+                hollow: {
+                  background: '#133D8A',
+                  margin: 0,
+                  size: '70%'
+                },
+                startAngle: 0,
+                track: {
+                  background: '#dedede',
+                  dropShadow: {
+                    blur: 3,
+                    enabled: false,
+                    left: 0,
+                    opacity: 0.5,
+                    top: 0
+                  },
+                  endAngle: 360,
+                  margin: 5,
+                  opacity: 1,
+                  show: true,
+                  startAngle: 0,
+                  strokeWidth: '97%'
                 }
-              }
-            },
-            fill: {
-              type: 'gradient',
-              gradient: {
-                shade: 'dark',
-                type: 'vertical',
-                gradientToColors: ['#63ADD0'],
-                stops: [0, 100]
               }
             },
             stroke: {
               lineCap: 'round'
-            },
-            labels: [value.name]
+            }
           },
-          percent
+          percent,
+          series: [value.data.reduce(reducer)]
         }
       })
+    },
+
+    apexSeries () {
+      const series: any[] = [] // Сюда буду складывать серии
+      this.reportItems.forEach((value: unknown & {activity: any[]; }) => {
+        value.activity.forEach((value1: unknown & {type: string; title: string; seconds: number}) => {
+          const index = series.findIndex(v => v.name === value1.type)
+          if (index > -1) {
+            series[index].data.push(value1.seconds)
+          } else {
+            series.push({
+              data: [value1.seconds],
+              name: value1.type
+            })
+          }
+        })
+      })
+      return series
     },
 
     /**
@@ -441,59 +396,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       return {
-        legend: {
-          position: 'top',
-          horizontalAlign: 'left',
-          offsetX: 40,
-          formatter
-        },
         chart: {
-          type: 'bar',
           height: '100%',
+          stackType: '100%',
           stacked: true,
-          stackType: '100%'
-        },
-        xaxis: {
-          categories: [...this.xSeries],
-          labels: {
-            show: false
-          }
-        },
-        yaxis: {
-          type: 'category',
-          categories: [...this.xSeries],
-          labels: {
-            show: true
-          }
-        },
-        noData: {
-          text: this.$tc('No data'),
-          align: 'center',
-          verticalAlign: 'middle',
-          offsetX: 0,
-          offsetY: 0,
-          style: {
-            color: undefined,
-            fontSize: '16px',
-            fontFamily: undefined
-          }
-        },
-        plotOptions: {
-          bar: {
-            horizontal: true,
-            columnWidth: '70%',
-            barHeight: '70%'
-          },
-          area: {
-            fillTo: 'origin'
-          }
+          type: 'bar'
         },
         dataLabels: {
-          enabled: true,
-          textAnchor: 'start',
-          style: {
-            colors: ['#fff']
+          dropShadow: {
+            enabled: false
           },
+          enabled: true,
           formatter: function (val: any, opt: any) {
             return secondsToHms(opt.w.globals.series[opt.seriesIndex][opt.dataPointIndex], {
               h: ['ч.', 'ч.', 'ч.'],
@@ -502,18 +415,56 @@ export default (Vue as VueConstructor<VInterface>).extend({
             })
           },
           offsetX: 0,
-          dropShadow: {
-            enabled: false
+          style: {
+            colors: ['#fff']
+          },
+          textAnchor: 'start'
+        },
+        legend: {
+          formatter,
+          horizontalAlign: 'left',
+          offsetX: 40,
+          position: 'top'
+        },
+        noData: {
+          align: 'center',
+          offsetX: 0,
+          offsetY: 0,
+          style: {
+            color: undefined,
+            fontFamily: undefined,
+            fontSize: '16px'
+          },
+          text: this.$tc('No data'),
+          verticalAlign: 'middle'
+        },
+        plotOptions: {
+          area: {
+            fillTo: 'origin'
+          },
+          bar: {
+            barHeight: '70%',
+            columnWidth: '70%',
+            horizontal: true
           }
         },
         tooltip: {
-          theme: 'dark',
-          onDatasetHover: {
-            highlightDataSeries: false
+          fixed: {
+            enabled: false,
+            offsetX: 0,
+            offsetY: 0,
+            position: 'topRight'
           },
           items: {
             display: 'flex'
           },
+          marker: {
+            show: true
+          },
+          onDatasetHover: {
+            highlightDataSeries: false
+          },
+          theme: 'dark',
           x: {
             show: false
           },
@@ -531,61 +482,75 @@ export default (Vue as VueConstructor<VInterface>).extend({
                 })
               }
             }
-          },
-          marker: {
+          }
+        },
+        xaxis: {
+          categories: [...this.xSeries],
+          labels: {
+            show: false
+          }
+        },
+        yaxis: {
+          categories: [...this.xSeries],
+          labels: {
             show: true
           },
-          fixed: {
-            enabled: false,
-            position: 'topRight',
-            offsetX: 0,
-            offsetY: 0
-          }
+          type: 'category'
         }
       }
-    }
-  },
+    },
 
-  mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
+    isDisabledFilterActions () {
+      return !(this.filter.users.length > 0 || this.filter.groups.length > 0)
+    },
 
-    if (this.$routerQuery.hasQuery('date')) {
-      this.filter.date = this.$routerQuery.getQuery('date')
-
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
-      }
-    }
-
-    if (this.$routerQuery.hasQuery('target_actions')) {
-      this.filter.actions.selected = this.$routerQuery.getQuery('target_actions')
-    }
-
-    if (this.$routerQuery.hasQuery('target_users')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('target_users')))
-    }
-
-    if (this.$routerQuery.hasQuery('target_groups')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('target_groups')))
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchDiagramData() // Сначала загружаем данные для диаграммы
-        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
+    xSeries () {
+      return this.reportItems.map((value: any) => {
+        return value.first_name + ' ' + value.last_name
       })
+    }
   },
 
-  updated (): void {
-    this.initializeWatchForFilters()
+  data () {
+    return {
+      dateRange: null as string[] | null,
+      // Элементы отчёта
+      filter: {
+        actions: {
+          /**
+           * Удалить чип
+           */
+          chipRemove: (item: unknown & {title: string; type: string;}) => {
+            if (Array.isArray(this.filter.actions.selected) && item) {
+              const index = this.filter.actions.selected.findIndex((e: string) => e === item.type)
+              if (index >= 0) this.filter.actions.selected.splice(index, 1)
+            } else {
+              this.filter.actions.selected = []
+            }
+          },
+
+          items: [] as unknown & { title: string; value: string; }[],
+
+          selected: []
+        },
+        date: null as unknown & string | null,
+        groups: [] as unknown & GroupInterface[],
+        users: [] as unknown & UserInterface[]
+      },
+
+      filterDate: undefined,
+
+      menuDateRange: null,
+
+      pieLabels: [] as string[],
+
+      processLoading: false,
+
+      reportActions: [] as unknown[] & { type: string, title: string }[],
+
+      // Типы действий отчёта
+      reportItems: [] as any[]
+    }
   },
 
   methods: {
@@ -620,25 +585,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.filter.actions.items = response.meta.types
           this.reportItems = response.data
         }).finally(() => (this.processLoading = false))
-    },
-
-    /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.$routerQuery.setQuery({ date: dr }).finally(() => (this.fetchDiagramData()))
     },
 
     /**
@@ -715,7 +661,68 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }
       }, debounceDelay))
+    },
+
+    /**
+     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
+     * @param dateRange
+     */
+    onSaveDateRangeClick (dateRange: string[]) {
+      this.$refs.menuDateRange.save(dateRange)
+      const date1 = new Date(dateRange[0])
+      const date2 = new Date(dateRange[1])
+
+      let dr = ''
+      if (date1.getTime() < date2.getTime()) {
+        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
+      } else {
+        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
+      }
+
+      this.$routerQuery.setQuery({ date: dr }).finally(() => (this.fetchDiagramData()))
     }
+  },
+
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
+    if (this.$routerQuery.hasQuery('date')) {
+      this.filter.date = this.$routerQuery.getQuery('date')
+
+      if (/^\d+,\d+/s.test(String(this.filterDate))) {
+        const dateRangeStr = String(this.filterDate)
+        const dates = dateRangeStr.split(',', 2)
+        this.dateRange = [
+          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
+          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
+        ]
+      }
+    }
+
+    if (this.$routerQuery.hasQuery('target_actions')) {
+      this.filter.actions.selected = this.$routerQuery.getQuery('target_actions')
+    }
+
+    if (this.$routerQuery.hasQuery('target_users')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('target_users')))
+    }
+
+    if (this.$routerQuery.hasQuery('target_groups')) {
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('target_groups')))
+    }
+
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchDiagramData() // Сначала загружаем данные для диаграммы
+        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
+      })
+  },
+
+  updated (): void {
+    this.initializeWatchForFilters()
   }
 })
 </script>

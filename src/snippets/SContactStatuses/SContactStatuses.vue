@@ -105,36 +105,6 @@ import { mapGetters } from 'vuex'
 export default Vue.extend({
   components: {},
 
-  props: {
-    height: {
-      type: [Number, String],
-      default: 250
-    },
-
-    minHeight: {
-      type: [Number, String],
-      default: 250
-    },
-
-    value: {
-      type: Number,
-      default: null
-    }
-  },
-
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  data () {
-    return {
-      tabStatus: 0,
-      tab: null,
-      currentStatus: null as unknown & StatusInterface
-    }
-  },
-
   computed: {
     ...mapGetters({
       statuses: 'database/statuses_grouped'
@@ -148,15 +118,45 @@ export default Vue.extend({
     }
   },
 
+  data () {
+    return {
+      currentStatus: null as unknown & StatusInterface,
+      tab: null,
+      tabStatus: 0
+    }
+  },
+
+  methods: {
+    onRadioChange (status: any) {
+      this.$data.currentStatus = status
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
   mounted () {
     this.$watch('currentStatus', (val: any) => {
       this.$emit('change', val.id)
     })
   },
 
-  methods: {
-    onRadioChange (status: any) {
-      this.$data.currentStatus = status
+  props: {
+    height: {
+      default: 250,
+      type: [Number, String]
+    },
+
+    minHeight: {
+      default: 250,
+      type: [Number, String]
+    },
+
+    value: {
+      default: null,
+      type: Number
     }
   }
 })

@@ -10,18 +10,26 @@
         cols="9"
       >
         <v-data-table
+          v-model="dataTableContacts.selected"
           :headers="dataTableContacts.headers"
           :items="dataTableContacts.items"
           :server-items-length="dataTableContacts.totalCount"
           :page.sync="dataTableContacts.page"
           :items-per-page="dataTableContacts.itemsPerPage"
           :loading-text="$tc('Loading content...')"
+          :loading="dataTableContacts.processLoading"
           :no-data-text="$tc('No data available')"
           :height="vDataTableHeightComputed"
+          :options.sync="dataTableContacts.options"
+          :item-class="vDataTableItemClass"
+          :sort-by.sync="dataTableContacts.sortBy"
+          :sort-desc.sync="dataTableContacts.sortDesc"
+          :show-select="dataTableContacts.totalCount > 0"
           id="v-data-table"
+          selectable-key="id"
           item-key="id"
-          item-class="v-datatable-item"
-          disable-sort
+          calculate-widths
+          multi-sort
           fixed-header
           hide-default-footer
           dense
@@ -33,14 +41,7 @@
               height="48"
               flat
             >
-              <v-checkbox
-                v-model="dataTableContacts.selectedAll"
-                :indeterminate="dataTableContacts.selectedIndeterminate"
-                :disabled="dataTableContacts.selectedWhole"
-                class="ml-4 mr-0"
-                hide-details
-                dense
-              />
+
               <template v-if="dataTableContacts.selected.length === 0">
                 <v-btn
                   :disabled="dataTableContacts.processLoading"
@@ -288,57 +289,45 @@
 
           </template>
 
-          <template slot="item" slot-scope="{ item }">
-            <tr class="v-datatable-item">
-              <td class="text-no-wrap">
-                <v-checkbox
-                  v-model="dataTableContacts.selected"
-                  :ripple="false"
-                  :value="item.id"
-                  :disabled="dataTableContacts.selectedWhole"
-                  class="ma-0 pa-0"
-                  multiple
-                  hide-details
-                  dense
-                />
-              </td>
-              <td class="text-no-wrap">
-                <router-link :to="{ name: 'administrator_contacts_view', params: { contact_id: item.id } }">
-                  {{ item.last_name }} {{ item.first_name }} {{ item.middle_name }}
-                </router-link>
-              </td>
-              <td class="text-no-wrap">
-                {{ item.responsible ? `${item.responsible.first_name} ${item.responsible.last_name}` : '—' }}
-              </td>
-              <td class="text-no-wrap">
-                {{ item.project ? item.project.name : '—' }}
-              </td>
-              <td class="text-no-wrap">
-                  <span v-if="item.last_call_at">
-                      {{ $moment.unix(item.last_call_at).format('Do MMMM YYYY, в h:mm:ss a') }}
-                    </span>
-                <span v-else>
-                      —
-                    </span>
-              </td>
-              <td class="text-no-wrap">
-                <v-btn
-                  icon
-                  small
-                  :to="{ name: 'administrator_contacts_history', params: { contact_id: item.id } }"
-                >
-                  <v-icon>mdi-history</v-icon>
-                </v-btn>
-                <v-btn
-                  icon
-                  small
-                  :to="{ name: 'administrator_contacts_edit', params: { contact_id: item.id } }"
-                >
-                  <v-icon>mdi-pencil-box-outline</v-icon>
-                </v-btn>
-              </td>
-            </tr>
+          <template slot="item.contact" slot-scope="{ item }">
+            <router-link :to="{ name: 'administrator_contacts_view', params: { contact_id: item.id } }">
+              {{ item.last_name }} {{ item.first_name }} {{ item.middle_name }}
+            </router-link>
           </template>
+
+          <template slot="item.responsible" slot-scope="{ value }">
+            {{ value.last_name }} {{ value.first_name }}
+          </template>
+
+          <template slot="item.project" slot-scope="{ value }">
+            <template v-if="value">
+              {{ value.name }}
+            </template>
+          </template>
+
+          <template slot="item.last_call_at" slot-scope="{ value }">
+            <template v-if="value">
+              {{ $moment.unix(value).format('Do MMMM YYYY, в h:mm:ss a') }}
+            </template>
+          </template>
+
+          <template slot="item.actions" slot-scope="{ item }">
+            <v-btn
+              icon
+              small
+              :to="{ name: 'administrator_contacts_history', params: { contact_id: item.id } }"
+            >
+              <v-icon>mdi-history</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              small
+              :to="{ name: 'administrator_contacts_edit', params: { contact_id: item.id } }"
+            >
+              <v-icon>mdi-pencil-box-outline</v-icon>
+            </v-btn>
+          </template>
+
         </v-data-table>
       </v-col>
 
@@ -436,8 +425,6 @@
         </v-card>
       </v-col>
     </v-row>
-
-    {{ paramFilters }}
   </v-card>
 </template>
 
@@ -453,6 +440,7 @@ import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vu
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
+import { DataOptions } from 'vuetify'
 import { debounce } from 'vuetify/src/util/helpers'
 
 interface IRefs {
@@ -474,135 +462,11 @@ interface VInnerInterface extends VInterface {
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     AppPagination,
-    SUsers,
-    SProjectsAutocomplete
-  },
-
-  data (): IData {
-    return {
-      filter: {
-
-        // Фильтрация по проектам
-        project: null,
-
-        // Фильтрация по владельцу/ответственному
-        responsible: null,
-
-        // Фильтрация по дате создания контакта
-        contact_created_at: null,
-
-        // Фильтрация по задачам
-        task: {
-          selected: null as 'available' | 'unavailable' | 'overdue' | 'not_overdue' | null,
-          options: [
-            {
-              title: 'There are tasks',
-              value: 'available'
-            },
-            {
-              title: 'No tasks',
-              value: 'unavailable'
-            },
-            {
-              title: 'Overdue tasks',
-              value: 'overdue'
-            },
-            {
-              title: 'Not overdue tasks',
-              value: 'not_overdue'
-            }
-          ]
-        },
-
-        // Фильтрация по наличию последнего звонка
-        call_up: {
-          selected: null as 'yes' | 'no' | null,
-          options: ['yes', 'no']
-        }
-      },
-      dataTableContacts: {
-        processLoading: false,
-        page: 1,
-        pages: 0,
-        totalCount: 0,
-        itemsPerPage: 50,
-        pageStart: 0,
-        pageStop: 0,
-        headers: [
-          { text: ' ', align: 'start', sortable: true, value: 'checkbox', width: '40px' },
-          { text: this.$tc('Client'), align: 'start', sortable: true, value: 'client', width: '100%' },
-          { text: this.$tc('Responsible'), align: 'start', sortable: true, value: 'responsible', width: 'auto' },
-          { text: this.$tc('Project'), align: 'start', sortable: true, value: 'project', width: 'auto' },
-          {
-            text: this.$tc('Date and time of the last call'),
-            align: 'start',
-            sortable: true,
-            value: 'last_call_at',
-            width: '133px'
-          },
-          { text: '', align: 'end', sortable: false, value: 'actions', width: '88px' }
-        ],
-        selectedAll: false,
-        selectedWhole: false,
-        selectedIndeterminate: false,
-        selected: [],
-        items: [] as unknown & ContactInterface[]
-      },
-      // Прогресс импорта
-      importExportProgress: {
-        visible: false,
-        value: 0
-      }
-    }
-  },
-
-  watch: {
-    // Слежу за CheckBox который выделяет все элементы списка
-    'dataTableContacts.selectedAll': {
-      handler (val: boolean) {
-        if (val) {
-          this.dataTableContacts.selected = this.dataTableContacts.items.map((e: unknown & ContactInterface) => e.id)
-        } else {
-          this.dataTableContacts.selectedWhole = false
-          this.dataTableContacts.selected = []
-        }
-      }
-    },
-
-    // Идентификаторы выделенных контактов
-    'dataTableContacts.selected': {
-      handler (selected: number[]) {
-        if (selected.length === this.dataTableContacts.itemsPerPage) {
-          this.dataTableContacts.selectedAll = true
-        } else if (selected.length === 0) {
-          this.dataTableContacts.selectedAll = false
-        }
-
-        this.dataTableContacts.selectedIndeterminate = this.dataTableContacts.selected.length < this.dataTableContacts.items.length && this.dataTableContacts.selected.length > 0
-      }
-    },
-
-    // Идентификаторы выделенных контактов
-    'dataTableContacts.selectedWhole': {
-      handler (val: boolean) {
-        if (val && (this.dataTableContacts.totalCount > 10000)) {
-          this.$toast.warning('Не рекомендуется выделять больше 10 тыс!')
-        }
-      }
-    }
+    SProjectsAutocomplete,
+    SUsers
   },
 
   computed: {
-    // Вычисляю высоту таблицы
-    vCardHeightComputed () {
-      const h = 600
-      return h
-    },
-    // Вычисляю высоту таблицы
-    vDataTableHeightComputed () {
-      const h = this.$screenHeight - 150
-      return h
-    },
 
     // Текущие фильтры для запроса на сервер.
     paramFilters () {
@@ -648,23 +512,28 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       return params
+    },
+
+    paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
+      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      return JSON.parse(json)
+    },
+
+    // Вычисляю высоту таблицы
+    vCardHeightComputed () {
+      const h = 600
+      return h
+    },
+
+    // Вычисляю высоту таблицы
+    vDataTableHeightComputed () {
+      const h = this.$screenHeight - 150
+      return h
     }
   },
 
-  mounted () {
-    this.initializeFilters()
-  },
-
-  methods: {
-    selectAll () {
-      this.$data.dataTableContacts.selectedAll = true
-    },
-
-    unselectAll () {
-      this.$data.dataTableContacts.selectedAll = false
-    },
-
-    fetchContacts () {
+  created () {
+    this.fetchContacts = debounce(() => {
       this.dataTableContacts.processLoading = true
       let offset = (this.dataTableContacts.itemsPerPage * this.dataTableContacts.page) - this.dataTableContacts.itemsPerPage
 
@@ -673,9 +542,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       const params: any = {
+        count: this.dataTableContacts.itemsPerPage,
         fields: 'responsible,organization,project',
-        offset,
-        count: this.dataTableContacts.itemsPerPage
+        offset
       }
 
       if (this.$routerQuery.hasQuery('project_id')) {
@@ -707,6 +576,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         params.task = this.$routerQuery.getQuery('task')
       }
 
+      // Формирую параметры сортировки
+      this.dataTableContacts.sortBy.forEach((name: string, index: number) => {
+        params[`sort_by[${name}]`] = this.dataTableContacts.sortDesc[index] ? 'desc' : 'asc'
+      })
+
       new Contacts()
         .find<{ count: number }, ContactInterface[]>(params)
         .then((response) => {
@@ -714,6 +588,337 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           this.dataTableContacts.pages = Math.ceil(response.meta.count / this.dataTableContacts.itemsPerPage)
           this.dataTableContacts.items = response.data
         }).finally(() => (this.dataTableContacts.processLoading = false))
+    }, 50)
+  },
+
+  data (): IData {
+    return {
+      dataTableContacts: {
+        headers: [
+          {
+            align: 'start',
+            class: '',
+            divider: true,
+            sortable: true,
+            text: this.$tc('Client'),
+            value: 'contact',
+            width: '100%'
+          },
+          {
+            align: 'start',
+            class: '',
+            divider: true,
+            sortable: true,
+            text: this.$tc('Responsible'),
+            value: 'responsible',
+            width: 'auto'
+          },
+          {
+            align: 'start',
+            class: '',
+            divider: true,
+            sortable: true,
+            text: this.$tc('Project'),
+            value: 'project',
+            width: 'auto'
+          },
+          {
+            align: 'start',
+            class: '',
+            sortable: true,
+            text: this.$tc('Date and time of the last call'),
+            value: 'last_call_at',
+            width: 'auto'
+          },
+          {
+            align: 'end',
+            class: '',
+            sortable: false,
+            text: '',
+            value: 'actions',
+            width: 'auto'
+          }
+        ],
+        items: [] as unknown & ContactInterface[],
+        itemsPerPage: 50,
+        options: {} as DataOptions,
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 0,
+        processLoading: false,
+        selected: [],
+        selectedAll: false,
+        selectedIndeterminate: false,
+        selectedWhole: false,
+        sortBy: [],
+        sortDesc: [],
+        totalCount: 0
+      },
+      filter: {
+
+        // Фильтрация по наличию последнего звонка
+        call_up: {
+          options: ['yes', 'no'],
+          selected: null as 'yes' | 'no' | null
+        },
+
+        // Фильтрация по дате создания контакта
+        contact_created_at: null,
+
+        // Фильтрация по проектам
+        project: null,
+
+        // Фильтрация по владельцу/ответственному
+        responsible: null,
+
+        // Фильтрация по задачам
+        task: {
+          options: [
+            {
+              title: 'There are tasks',
+              value: 'available'
+            },
+            {
+              title: 'No tasks',
+              value: 'unavailable'
+            },
+            {
+              title: 'Overdue tasks',
+              value: 'overdue'
+            },
+            {
+              title: 'Not overdue tasks',
+              value: 'not_overdue'
+            }
+          ],
+          selected: null as 'available' | 'unavailable' | 'overdue' | 'not_overdue' | null
+        }
+      },
+      // Прогресс импорта
+      importExportProgress: {
+        value: 0,
+        visible: false
+      }
+    }
+  },
+
+  methods: {
+
+    /**
+     * Инициализация фильтров
+     **/
+    initializeFilters () {
+      // this.onTransferContactsToProjectClick()
+      const promises = []
+
+      if (this.$refs.sProjectsAutocomplete) {
+        this.$refs.sProjectsAutocomplete.fetchData()
+      }
+
+      if (this.$refs.sUsersAutocomplete) {
+        this.$refs.sUsersAutocomplete.fetchData()
+      }
+
+      // Установка фильтров
+      if (this.$routerQuery.hasQuery('project_id')) {
+        promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
+      }
+
+      if (this.$routerQuery.hasQuery('responsible_id')) {
+        promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
+      }
+
+      this.filter.call_up.selected = this.$routerQuery.getQuery<string>('call_up', '')
+
+      if (this.$routerQuery.hasQuery('contact_created_at')) {
+        this.filter.contact_created_at = this.$moment.unix(this.$routerQuery.getQuery<number>('contact_created_at')).format('YYYY-MM-DD')
+      }
+
+      if (this.$route.query.task) {
+        this.$data.filter.task.selected = this.$route.query.task
+      }
+
+      if (+this.$route.query.page) {
+        this.$data.dataTableContacts.page = +this.$route.query.page
+      }
+
+      // Восстановление параметров сортировки после перезагрузки страницы
+      if (this.$routerQuery.hasQuery('sort')) {
+        this.paramsSort?.forEach((e: unknown & { sort_by: string, sort_desc: boolean }) => {
+          this.$data.dataTableContacts.options.sortBy.push(e.sort_by)
+          this.$data.dataTableContacts.options.sortDesc.push(e.sort_desc)
+        })
+      }
+
+      // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+      // Загружаем данные контактов после инициализации фильтров
+      Promise.all(promises)
+        .finally(() => {
+          this.fetchContacts()
+          this.initializeWatchForFilters()
+        })
+    },
+
+    /**
+     * Инициализировать слежку за изменением фильтров
+     */
+    initializeWatchForFilters () {
+      const debounceDelay = 350 // Задержка, избавит от дребезга
+
+      // Фильтрация по проектам
+      this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+        this.dataTableContacts.page = 1
+        if (this.assertObjectHasAttribute(newVal, 'id')) {
+          this.$routerQuery.setQuery({
+            project_id: newVal.id
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'project_id'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Фильтрация по ответственным
+      this.$watch('filter.responsible', (newVal: unknown & UserInterface) => {
+        this.dataTableContacts.page = 1
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            responsible_id: newVal.id
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'responsible_id'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Фильтр Задачи
+      this.$watch('filter.task.selected', (newVal: unknown & string) => {
+        this.dataTableContacts.page = 1
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            task: newVal
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'task'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Фильтр прозвона
+      this.$watch('filter.call_up.selected', (newVal: string) => {
+        this.dataTableContacts.page = 1
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            call_up: newVal
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'call_up'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Фильтрация по дате создания контакта
+      this.$watch('filter.contact_created_at', (newVal: unknown) => {
+        this.dataTableContacts.page = 1
+        if (typeof newVal === 'string') {
+          this.$routerQuery.setQuery({
+            contact_created_at: this.$moment(newVal).unix()
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'contact_created_at'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Пагинация
+      this.$watch('dataTableContacts.page', (newVal: number) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            page: newVal
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'page'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
+
+      /**
+       * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableContacts
+       */
+      const dataTableSortUpdate = debounce(() => {
+        const sort = []
+        for (let i = 0; i < Math.min(this.dataTableContacts.sortBy.length, this.dataTableContacts.sortDesc.length); i++) {
+          const sortDesc: string = this.dataTableContacts.sortDesc[i]
+          const sortBy: boolean = this.dataTableContacts.sortBy[i]
+
+          sort.push({ sort_by: sortBy, sort_desc: sortDesc })
+        }
+
+        if (sort.length > 0) {
+          // Преобразовываю в JSON и сохраняю в строку браузера
+          this.$routerQuery.setQuery({
+            sort: JSON.stringify(sort)
+          }).then(() => {
+            this.fetchContacts()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['sort'])
+            .then(() => {
+              this.fetchContacts()
+            })
+        }
+      }, debounceDelay)
+
+      // Поля, по которым буду осуществлять сортировку
+      this.$watch('dataTableContacts.sortBy', dataTableSortUpdate)
+      // Направление сортировки
+      this.$watch('dataTableContacts.sortDesc', dataTableSortUpdate)
+    },
+
+    onButtonRefreshClick () {
+      this.fetchContacts()
+    },
+
+    /**
+     * При клике на кнопку "Экспортировать"
+     **/
+    onExportClick (format: 'excel' | 'csv') {
+      switch (format) {
+        case 'csv': {
+          break
+        }
+        case 'excel': {
+          break
+        }
+        default: {
+
+        }
+      }
+
+      const params: ContactExportParamsInterface = {
+        filters: this.paramFilters,
+        format,
+        target_contacts: this.dataTableContacts.selectedWhole ? [] : this.$data.dataTableContacts.selected.map((e: any) => e.id)
+      }
+
+      this.importExportProgress.value = true
+      this.importExportProgress.value = -1 // Неопределённый
+      new Contacts()
+        .export(params)
+        .finally(() => {
+          this.importExportProgress.value = false
+          this.importExportProgress.value = 0
+        })
     },
 
     /**
@@ -760,93 +965,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
     },
 
-    /**
-     * При клике на кнопку "Экспортировать"
-     **/
-    onExportClick (format: 'excel' | 'csv') {
-      switch (format) {
-        case 'csv': {
-          break
-        }
-        case 'excel': {
-          break
-        }
-        default: {
-
-        }
-      }
-
-      const params: ContactExportParamsInterface = {
-        filters: this.paramFilters,
-        format,
-        target_contacts: this.dataTableContacts.selectedWhole ? [] : this.$data.dataTableContacts.selected
-      }
-
-      this.importExportProgress.value = true
-      this.importExportProgress.value = -1 // Неопределённый
-      new Contacts()
-        .export(params)
-        .finally(() => {
-          this.importExportProgress.value = false
-          this.importExportProgress.value = 0
-        })
-    },
-
-    onButtonRefreshClick () {
-      this.fetchContacts()
-    },
-
-    /**
-     * Передать контакты в другой проект
-     */
-    async onTransferContactsToProjectClick () {
-      const instance = await this.$dialog.show(SContactExportDialog, {
-        waitForResult: false,
-        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
-        persistent: true,
-        // scope - набор опций для передачи контактов
-        onTransfer: (scope: SContactExportScopeInterface) => {
-          const params: unknown & SContactExportScopeInterface & {
-            filters: unknown,
-            target_contacts: number[]
-          } = {
-            // Параметры фильтров.
-            filters: this.paramFilters,
-            // Проект в который будут переданы контакты.
-            target_project: scope.target_project,
-            // Идентификаторы целевых пользователей.
-            target_users: scope.target_users,
-            // Передайте пустой массив если хотите передать все контакты.
-            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected
-          }
-
-          // Опционально меняем дату, в scope.new_date timestamp
-          if (this.assertObjectHasAttribute(scope, 'new_date')) {
-            params.new_date = scope.new_date
-          }
-
-          new Contacts()
-            .transfer(params)
-            .then(() => {
-              this.$toast.success(this.$tc('Transfer success'))
-            }).catch((error) => {
-              if (error instanceof APIError) {
-                error.errors.forEach((value) => {
-                  this.$toast.error(this.$tc(value.message))
-                })
-                this.$toast.error(this.$tc(error.error_message))
-              }
-            }).finally(() => {
-              this.dataTableContacts.selected = [] // Отменить выделение всех контактов
-              this.fetchContacts() // Обновить список контактов
-              instance.close() // Закрыть диалог
-            })
-        },
-
-        onCancel: () => {
-          instance.close()
-        }
-      })
+    onPaginationChange (data: any) {
+      this.dataTableContacts.pageStart = data.pageStart
+      this.dataTableContacts.pageStop = data.pageStop
     },
 
     /**
@@ -854,19 +975,22 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      */
     async onTransferContactToOperatorWithinProjectClick () {
       const instance = await this.$dialog.show(SContactExportDialog, {
-        waitForResult: false,
-        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
-        persistent: true,
-        project_id: this.filter.project.id,
+
+        onCancel: () => {
+          instance.close()
+        },
+
         // scope - набор опций для передачи контактов
         onTransfer: (scope: SContactExportScopeInterface) => {
           const data: unknown & SContactExportScopeInterface & { target_contacts: number[] } = {
             // Параметры фильтров
             filters: this.paramFilters,
-            // Идентификаторы целевых пользователей.
-            target_users: scope.target_users,
+
             // Передайте пустой массив если хотите передать все контакты.
-            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected
+            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected.map((e: any) => e.id),
+
+            // Идентификаторы целевых пользователей.
+            target_users: scope.target_users
           }
 
           // Опционально меняем дату, в scope.new_date timestamp
@@ -893,153 +1017,133 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             })
         },
 
-        onCancel: () => {
-          instance.close()
-        }
+        persistent: true,
+
+        project_id: this.filter.project.id,
+
+        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
+
+        waitForResult: false
       })
     },
 
-    onPaginationChange (data: any) {
-      this.dataTableContacts.pageStart = data.pageStart
-      this.dataTableContacts.pageStop = data.pageStop
-    },
-
     /**
-     * Инициализация фильтров
-     **/
-    initializeFilters () {
-      // this.onTransferContactsToProjectClick()
-      const promises = []
-
-      if (this.$refs.sProjectsAutocomplete) {
-        this.$refs.sProjectsAutocomplete.fetchData()
-      }
-
-      if (this.$refs.sUsersAutocomplete) {
-        this.$refs.sUsersAutocomplete.fetchData()
-      }
-
-      // Установка фильтров
-      if (this.$routerQuery.hasQuery('project_id')) {
-        promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
-      }
-
-      if (this.$routerQuery.hasQuery('responsible_id')) {
-        promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
-      }
-
-      this.filter.call_up.selected = this.$routerQuery.getQuery<string>('call_up', '')
-
-      if (this.$routerQuery.hasQuery('contact_created_at')) {
-        this.filter.contact_created_at = this.$moment.unix(this.$routerQuery.getQuery<number>('contact_created_at')).format('YYYY-MM-DD')
-      }
-
-      if (this.$route.query.task) {
-        this.$data.filter.task.selected = this.$route.query.task
-      }
-
-      if (+this.$route.query.page) {
-        this.$data.dataTableContacts.page = +this.$route.query.page
-      }
-
-      // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-      // Загружаем данные контактов после инициализации фильтров
-      Promise.all(promises)
-        .finally(() => {
-          this.fetchContacts()
-          this.initializeWatchForFilters()
-        })
-    },
-
-    /**
-     * Инициализировать слежку за изменением фильтров
+     * Передать контакты в другой проект
      */
-    initializeWatchForFilters () {
-      const debounceDelay = 350 // Задержка, избавит от дребезга
+    async onTransferContactsToProjectClick () {
+      const instance = await this.$dialog.show(SContactExportDialog, {
 
-      // Фильтрация по проектам
-      this.$watch('filter.project', debounce((newVal: unknown & ProjectInterface) => {
-        if (this.assertObjectHasAttribute(newVal, 'id')) {
-          this.$routerQuery.setQuery({
-            project_id: newVal.id
-          }).then(this.fetchContacts)
-        } else {
-          this.$routerQuery.removeQuery([
-            'project_id'
-          ]).then(this.fetchContacts)
-        }
-      }, debounceDelay))
+        onCancel: () => {
+          instance.close()
+        },
 
-      // Фильтрация по ответственным
-      this.$watch('filter.responsible', debounce((newVal: unknown & UserInterface) => {
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            responsible_id: newVal.id
-          }).then(this.fetchContacts)
-        } else {
-          this.$routerQuery.removeQuery([
-            'responsible_id'
-          ]).then(this.fetchContacts)
-        }
-      }, debounceDelay))
+        // scope - набор опций для передачи контактов
+        onTransfer: (scope: SContactExportScopeInterface) => {
+          const params: unknown & SContactExportScopeInterface & {
+            filters: unknown,
+            target_contacts: number[]
+          } = {
+            // Параметры фильтров.
+            filters: this.paramFilters,
 
-      // Фильтр Задачи
-      this.$watch('filter.task.selected', debounce((newVal: unknown & string) => {
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            task: newVal
-          }).then(this.fetchContacts)
-        } else {
-          this.$routerQuery.removeQuery([
-            'task'
-          ]).then(this.fetchContacts)
-        }
-      }, debounceDelay))
+            // Передайте пустой массив если хотите передать все контакты.
+            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected.map((e: any) => e.id),
 
-      // Фильтр прозвона
-      this.$watch('filter.call_up.selected', debounce((newVal: string) => {
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            call_up: newVal
-          }).then(this.fetchContacts)
-        } else {
-          this.$routerQuery.removeQuery([
-            'call_up'
-          ]).then(this.fetchContacts)
-        }
-      }, debounceDelay))
+            // Проект в который будут переданы контакты.
+            target_project: scope.target_project,
 
-      // Фильтрация по дате создания контакта
-      this.$watch('filter.contact_created_at', debounce((newVal: unknown) => {
-        if (typeof newVal === 'string') {
-          this.$routerQuery.setQuery({
-            contact_created_at: this.$moment(newVal).unix()
-          }).then(this.fetchContacts)
-        } else {
-          this.$routerQuery.removeQuery([
-            'contact_created_at'
-          ]).then(this.fetchContacts)
-        }
-      }, debounceDelay))
+            // Идентификаторы целевых пользователей.
+            target_users: scope.target_users
+          }
 
-      // Пагинация
-      this.$watch('dataTableContacts.page', debounce((newVal: number) => {
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            page: newVal
-          }).then(this.fetchContacts)
-        } else {
-          this.$routerQuery.removeQuery([
-            'page'
-          ]).then(this.fetchContacts)
+          // Опционально меняем дату, в scope.new_date timestamp
+          if (this.assertObjectHasAttribute(scope, 'new_date')) {
+            params.new_date = scope.new_date
+          }
+
+          new Contacts()
+            .transfer(params)
+            .then(() => {
+              this.$toast.success(this.$tc('Transfer success'))
+            }).catch((error) => {
+              if (error instanceof APIError) {
+                error.errors.forEach((value) => {
+                  this.$toast.error(this.$tc(value.message))
+                })
+                this.$toast.error(this.$tc(error.error_message))
+              }
+            }).finally(() => {
+              this.dataTableContacts.selected = [] // Отменить выделение всех контактов
+              this.fetchContacts() // Обновить список контактов
+              instance.close() // Закрыть диалог
+            })
+        },
+
+        persistent: true,
+
+        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
+
+        waitForResult: false
+      })
+    },
+
+    selectAll () {
+      this.$data.dataTableContacts.selectedAll = true
+    },
+
+    unselectAll () {
+      this.$data.dataTableContacts.selectedAll = false
+    },
+
+    vDataTableItemClass (scope: any) {
+      return 'v-dt-item'
+    }
+  },
+
+  mounted () {
+    this.initializeFilters()
+  },
+
+  watch: {
+    /**
+     * Идентификаторы выделенных контактов
+     *
+     **/
+    'dataTableContacts.selected': {
+      handler (selected: number[]) {
+        if (selected.length === this.dataTableContacts.itemsPerPage) {
+          this.dataTableContacts.selectedAll = true
+        } else if (selected.length === 0) {
+          this.dataTableContacts.selectedAll = false
         }
-      }, debounceDelay))
+
+        this.dataTableContacts.selectedIndeterminate = this.dataTableContacts.selected.length < this.dataTableContacts.items.length && this.dataTableContacts.selected.length > 0
+      }
+    },
+
+    // Идентификаторы выделенных контактов
+    'dataTableContacts.selectedWhole': {
+      handler (val: boolean) {
+        if (val && (this.dataTableContacts.totalCount > 10000)) {
+          this.$toast.warning('Не рекомендуется выделять больше 10 тыс!')
+        }
+
+        if (!val) {
+          this.dataTableContacts.selected = []
+        }
+      }
     }
   }
 })
 </script>
 
 <style lang="scss">
+
+.v-dt-item {
+  & > td {
+    white-space:nowrap;
+  }
+}
 
 .v-toolbar-header div {
   padding: 0 !important;
@@ -1055,11 +1159,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 }
 
 #v-data-table table tbody tr {
-  & td:nth-child(1) {
-    max-width: 1px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 
   & td:nth-child(2) {
     max-width: 100px;

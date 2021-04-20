@@ -207,64 +207,60 @@ Vue.component('apexchart', VueApexCharts)
 export default (Vue as VueConstructor<VInterface>).extend({
   components: { SGroups, SUsers },
 
-  data () {
-    return {
-      filterDate: undefined,
-      menuDateRange: null,
-      dateRange: null as string[] | null,
-      menuContactDateCreated: null as boolean | null,
-      contactDateCreated: null,
-
-      page: 1,
-      pageCount: 0,
-      itemsPerPage: 10,
-
-      options: {
-        labels: []
-      },
-
-      processPieLoading: false, // Процесс загрузки изображений
-
-      // Report
-      total_calls: 1, // todo: временно
-      total_clients: 0,
-      history_count: 0,
-      historyProcessLoading: false,
-      pieLabels: [] as string[],
-      apexSeries: [{
-        data: []
-      }],
-      pieColors: [] as string[],
-
-      users: [] as UserInterface[],
-
-      filter: {
-        date: null as unknown & string | null,
-        users: [] as unknown & UserInterface[],
-        groups: [] as unknown & GroupInterface[]
-      }
-    }
-  },
-
   computed: {
     apexchartOptions (): any {
       return {
-        legend: {
-          show: true,
-          position: 'left'
-        },
         chart: {
-          type: 'bar',
-          width: 5000,
-          zoom: {
-            enabled: false
-          },
+
+          // Повторно визуализируйте диаграмму при изменении размера элемента или размера родительского элемента.
+          // Полезно в условиях, когда размер контейнера диаграммы изменяется после перезагрузки страницы.
+          redrawOnParentResize: true,
+
           // Выполните повторную визуализацию диаграммы при изменении размера окна, в котором отображается диаграмма.
           // Полезно при рендеринге диаграммы в окнах iframe.
           redrawOnWindowResize: true,
-          // Повторно визуализируйте диаграмму при изменении размера элемента или размера родительского элемента.
-          // Полезно в условиях, когда размер контейнера диаграммы изменяется после перезагрузки страницы.
-          redrawOnParentResize: true
+
+          type: 'bar',
+
+          width: 5000,
+
+          zoom: {
+            enabled: false
+          }
+        },
+        legend: {
+          position: 'left',
+          show: true
+        },
+
+        noData: {
+          align: 'center',
+          offsetX: 0,
+          offsetY: 0,
+          style: {
+            color: undefined,
+            fontFamily: undefined,
+            fontSize: '16px'
+          },
+          text: this.$tc('No data'),
+          verticalAlign: 'middle'
+        },
+
+        plotOptions: {
+          bar: {
+            barHeight: 90,
+            columnWidth: 90,
+            dataLabels: {
+              hideOverflowingLabels: false,
+              maxItems: 100,
+              orientation: 'horizontal',
+              position: 'bottom'
+            },
+            distributed: true,
+            horizontal: false,
+            rangeBarGroupRows: false,
+            rangeBarOverlap: false
+          }
         },
         // Точка останова - это максимальная ширина экрана, при которой исходный объект конфигурации будет
         // переопределен объектом конфигурации
@@ -273,35 +269,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
             breakpoint: undefined,
             options: {}
           }
-        ],
-        noData: {
-          text: this.$tc('No data'),
-          align: 'center',
-          verticalAlign: 'middle',
-          offsetX: 0,
-          offsetY: 0,
-          style: {
-            color: undefined,
-            fontSize: '16px',
-            fontFamily: undefined
-          }
-        },
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            columnWidth: 90,
-            barHeight: 90,
-            distributed: true,
-            rangeBarOverlap: false,
-            rangeBarGroupRows: false,
-            dataLabels: {
-              position: 'bottom',
-              maxItems: 100,
-              hideOverflowingLabels: false,
-              orientation: 'horizontal'
-            }
-          }
-        }
+        ]
       }
     },
 
@@ -313,38 +281,51 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
-  mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
+  data () {
+    return {
+      apexSeries: [{
+        data: []
+      }],
+      contactDateCreated: null,
+      dateRange: null as string[] | null,
+      filter: {
+        date: null as unknown & string | null,
+        groups: [] as unknown & GroupInterface[],
+        users: [] as unknown & UserInterface[]
+      },
+      filterDate: undefined,
 
-    if (this.$routerQuery.hasQuery('date')) {
-      this.filter.date = this.$routerQuery.getQuery('date')
+      historyProcessLoading: false,
+      history_count: 0,
+      itemsPerPage: 10,
 
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
-      }
+      menuContactDateCreated: null as boolean | null,
+
+      menuDateRange: null,
+
+      options: {
+        labels: []
+      },
+
+      page: 1,
+
+      pageCount: 0,
+
+      pieColors: [] as string[],
+
+      pieLabels: [] as string[],
+
+      processPieLoading: false,
+
+      // Процесс загрузки изображений
+      // Report
+      total_calls: 1,
+
+      // todo: временно
+      total_clients: 0,
+
+      users: [] as UserInterface[]
     }
-
-    if (this.$routerQuery.hasQuery('target_users')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('target_users')))
-    }
-
-    if (this.$routerQuery.hasQuery('target_groups')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('target_groups')))
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchDiagramData() // Сначала загружаем данные для диаграммы
-        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
-      })
   },
 
   methods: {
@@ -384,25 +365,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
             })
           })
         }).finally(() => (this.historyProcessLoading = false))
-    },
-
-    /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.$routerQuery.setQuery({ date: dr }).finally(() => (this.fetchDiagramData()))
     },
 
     /**
@@ -466,7 +428,60 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }
       }, debounceDelay))
+    },
+
+    /**
+     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
+     * @param dateRange
+     */
+    onSaveDateRangeClick (dateRange: string[]) {
+      this.$refs.menuDateRange.save(dateRange)
+      const date1 = new Date(dateRange[0])
+      const date2 = new Date(dateRange[1])
+
+      let dr = ''
+      if (date1.getTime() < date2.getTime()) {
+        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
+      } else {
+        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
+      }
+
+      this.$routerQuery.setQuery({ date: dr }).finally(() => (this.fetchDiagramData()))
     }
+  },
+
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
+    if (this.$routerQuery.hasQuery('date')) {
+      this.filter.date = this.$routerQuery.getQuery('date')
+
+      if (/^\d+,\d+/s.test(String(this.filterDate))) {
+        const dateRangeStr = String(this.filterDate)
+        const dates = dateRangeStr.split(',', 2)
+        this.dateRange = [
+          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
+          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
+        ]
+      }
+    }
+
+    if (this.$routerQuery.hasQuery('target_users')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('target_users')))
+    }
+
+    if (this.$routerQuery.hasQuery('target_groups')) {
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('target_groups')))
+    }
+
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchDiagramData() // Сначала загружаем данные для диаграммы
+        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
+      })
   }
 })
 </script>

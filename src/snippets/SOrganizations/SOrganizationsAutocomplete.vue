@@ -69,103 +69,41 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import Organizations, { OrganizationInterface } from '@/api/Organizations'
 
 export default Vue.extend({
-  props: {
-    label: {
-      type: String,
-      default: () => ''
-    },
-    clearable: {
-      type: Boolean,
-      default: () => false
-    },
-    disabled: {
-      type: Boolean,
-      default: () => false
-    },
-    outlined: {
-      type: Boolean,
-      default: () => false
-    },
-    dense: {
-      type: Boolean,
-      default: () => false
-    },
-    params: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    visibleFound: {
-      type: Boolean,
-      default: false
-    },
-    rules: {
-      type: Array,
-      default: () => []
-    },
-    value: {
-      type: Object,
-      default: () => null
-    }
-  },
-
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
   data () {
     return {
       dParams: {},
-      q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null,
+      options: [] as OrganizationInterface[],
       process: false,
-      options: [] as OrganizationInterface[]
-    }
-  },
-
-  watch: {
-    q (q: string) {
-      this.fetchData(Object.assign({}, this.params, { q }))
-    },
-
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (val: any) {
-      this.selected = val
+      q: null,
+      selected: null
     }
   },
 
   methods: {
-    setParams (params: any) {
-      this.dParams = Object.assign({}, params)
-    },
-
     fetchData (params = {}) {
       return search(this, Object.assign({}, this.params, params))
     },
 
-    setSelected (data: OrganizationInterface) {
-      this.selected = data
+    focus () {
+      this.$refs.ref.focus()
     },
 
-    setData (data: OrganizationInterface[]) {
-      this.options = data
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
     },
 
     pushData (data: OrganizationInterface) {
       if (this.options.findIndex((e: OrganizationInterface) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    setData (data: OrganizationInterface[]) {
+      this.options = data
     },
 
     /**
@@ -184,14 +122,76 @@ export default Vue.extend({
       })
     },
 
-    focus () {
-      this.$refs.ref.focus()
+    setParams (params: any) {
+      this.dParams = Object.assign({}, params)
     },
 
-    onFocus () {
-      if (this.options.length === 0) {
-        this.fetchData()
-      }
+    setSelected (data: OrganizationInterface) {
+      this.selected = data
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    clearable: {
+      default: () => false,
+      type: Boolean
+    },
+    dense: {
+      default: () => false,
+      type: Boolean
+    },
+    disabled: {
+      default: () => false,
+      type: Boolean
+    },
+    label: {
+      default: () => '',
+      type: String
+    },
+    outlined: {
+      default: () => false,
+      type: Boolean
+    },
+    params: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: () => null,
+      type: Object
+    },
+    visibleFound: {
+      default: false,
+      type: Boolean
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    }
+  },
+
+  watch: {
+    q (q: string) {
+      this.fetchData(Object.assign({}, this.params, { q }))
+    },
+
+    selected (value) {
+      this.$emit('change', value)
+    },
+
+    value (val: any) {
+      this.selected = val
     }
   }
 })

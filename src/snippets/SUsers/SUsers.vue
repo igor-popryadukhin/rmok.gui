@@ -97,101 +97,21 @@ import Users, { UserInterface } from '@/api/Users'
 import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
-  props: {
-    label: {
-      type: String,
-      default: () => ''
-    },
-    multiple: {
-      type: Boolean,
-      default: () => false
-    },
-    clearable: {
-      type: Boolean,
-      default: () => false
-    },
-    disabled: {
-      type: Boolean,
-      default: () => false
-    },
-    readonly: {
-      type: Boolean,
-      default: () => false
-    },
-    outlined: {
-      type: Boolean,
-      default: () => false
-    },
-    dense: {
-      type: Boolean,
-      default: () => false
-    },
-    params: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    rules: {
-      type: Array,
-      default: () => []
-    },
-    value: {
-      type: [Object, Array] as PropType<UserInterface | UserInterface[]>,
-      default: () => null
-    },
-    autoload: {
-      type: Boolean,
-      default: false
-    },
-    showOrganization: {
-      type: Boolean,
-      default: false
-    },
-    errorMessages: {
-      type: Array as PropType<string[]>,
-      default: () => []
+  created () {
+    if (this.autoload) {
+      this.fetchData()
     }
-  },
-
-  model: {
-    prop: 'value',
-    event: 'change'
   },
 
   data () {
     return {
       dParams: {},
-      q: null,
       hintMessage: '',
       lockSearch: false,
-      selected: null as unknown & UserInterface | null,
+      options: [] as unknown & UserInterface[],
       process: false,
-      options: [] as unknown & UserInterface[]
-    }
-  },
-
-  watch: {
-    q (q: string) {
-      this.fetchData({ q })
-    },
-
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (val: any) {
-      this.selected = val
-    }
-  },
-
-  created () {
-    if (this.autoload) {
-      this.fetchData()
+      q: null,
+      selected: null as unknown & UserInterface | null
     }
   },
 
@@ -205,27 +125,29 @@ export default Vue.extend({
       }
     },
 
-    setParams (params: any) {
-      this.dParams = Object.assign({}, params)
-    },
-
     fetchData (params = {}) {
       this.dParams = Object.assign({}, this.params, params)
       search(this, this.dParams)
     },
 
-    setSelected (data: UserInterface | null) {
-      this.selected = data
+    focus () {
+      (this as any).$refs.ref.focus()
     },
 
-    setData (data: UserInterface[]) {
-      this.options = data
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
     },
 
     pushData (data: UserInterface) {
       if (this.options.findIndex((e) => e.id === data.id) === -1) {
         this.options.push(data)
       }
+    },
+
+    setData (data: UserInterface[]) {
+      this.options = data
     },
 
     /**
@@ -261,14 +183,92 @@ export default Vue.extend({
       })
     },
 
-    onFocus () {
-      if (this.options.length === 0) {
-        this.fetchData()
-      }
+    setParams (params: any) {
+      this.dParams = Object.assign({}, params)
     },
 
-    focus () {
-      (this as any).$refs.ref.focus()
+    setSelected (data: UserInterface | null) {
+      this.selected = data
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    autoload: {
+      default: false,
+      type: Boolean
+    },
+    clearable: {
+      default: () => false,
+      type: Boolean
+    },
+    dense: {
+      default: () => false,
+      type: Boolean
+    },
+    disabled: {
+      default: () => false,
+      type: Boolean
+    },
+    errorMessages: {
+      default: () => [],
+      type: Array as PropType<string[]>
+    },
+    label: {
+      default: () => '',
+      type: String
+    },
+    multiple: {
+      default: () => false,
+      type: Boolean
+    },
+    outlined: {
+      default: () => false,
+      type: Boolean
+    },
+    params: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    readonly: {
+      default: () => false,
+      type: Boolean
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    showOrganization: {
+      default: false,
+      type: Boolean
+    },
+    value: {
+      default: () => null,
+      type: [Object, Array] as PropType<UserInterface | UserInterface[]>
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    }
+  },
+
+  watch: {
+    q (q: string) {
+      this.fetchData({ q })
+    },
+
+    selected (value) {
+      this.$emit('change', value)
+    },
+
+    value (val: any) {
+      this.selected = val
     }
   }
 })

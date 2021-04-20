@@ -140,61 +140,32 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
-  name: 'SContactExportDialog',
-
-  components: { SUsers, SProjectsAutocomplete },
-
-  props: {
-    subtitle: {
-      type: String,
-      default: ''
-    },
-    project_id: {
-      type: Number,
-      default: () => 0
-    },
-    onTransfer: {
-      type: Function as PropType<Transfer>,
-      default: null,
-      validator (fn: Transfer) {
-        return !!fn
-      }
-    },
-
-    onCancel: {
-      type: Function,
-      default: null
-    },
-    width: {
-      type: String,
-      default: () => '100%'
-    }
-  },
-
-  data (): IData {
-    return {
-      menu_date_picker: false,
-      errors: {
-        project: [],
-        users: []
-      },
-      target_project: null,
-      target_users: [],
-      new_date: ''
-    }
-  },
+  components: { SProjectsAutocomplete, SUsers },
 
   computed: {
     notBlank: (value: any) => !!value || this.$t('This field should not be blank.')
   },
 
-  mounted () {
-    if (this.$props.project_id > 0) {
-      this.$refs.sProjectAutocomplete.setDefault(this.$props.project_id)
+  data (): IData {
+    return {
+      errors: {
+        project: [],
+        users: []
+      },
+      menu_date_picker: false,
+      new_date: '',
+      target_project: null,
+      target_users: []
     }
   },
 
   methods: {
+    cancel () {
+      if (typeof this.onCancel === 'function') {
+        this.onCancel()
+      }
+    },
+
     exportClick () {
       if (!this.target_project) {
         this.errors.project = [this.$tc('This field should not be blank.')]
@@ -222,12 +193,41 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
         this.onTransfer(scope)
       }
+    }
+  },
+
+  mounted () {
+    if (this.$props.project_id > 0) {
+      this.$refs.sProjectAutocomplete.setDefault(this.$props.project_id)
+    }
+  },
+
+  name: 'SContactExportDialog',
+
+  props: {
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    onTransfer: {
+      default: null,
+      type: Function as PropType<Transfer>,
+      validator (fn: Transfer) {
+        return !!fn
+      }
+    },
+    project_id: {
+      default: () => 0,
+      type: Number
     },
 
-    cancel () {
-      if (typeof this.onCancel === 'function') {
-        this.onCancel()
-      }
+    subtitle: {
+      default: '',
+      type: String
+    },
+    width: {
+      default: () => '100%',
+      type: String
     }
   }
 

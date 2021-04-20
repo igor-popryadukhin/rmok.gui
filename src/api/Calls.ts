@@ -8,7 +8,7 @@ export class Calls {
   public get (offset = 0, count = 100): Promise<any> {
     return new Promise((resolve, reject) => {
       $axios.get('/calls', {
-        params: { offset, count }
+        params: { count, offset }
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
           reject(response.data)

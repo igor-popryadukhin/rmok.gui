@@ -22,41 +22,45 @@
 
 <script>
 export default {
-  name: 'AppPagination',
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  props: {
-
-    length: {
-      type: Number,
-      required: true
-    },
-
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-
-    value: {
-      type: Number,
-      required: false,
-      default: 0
-    }
-  },
-
   data () {
     return {
       dPage: this.value
     }
   },
 
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  name: 'AppPagination',
+
+  props: {
+
+    disabled: {
+      default: false,
+      type: Boolean
+    },
+
+    length: {
+      required: true,
+      type: Number
+    },
+
+    value: {
+      default: 0,
+      required: false,
+      type: Number
+    }
+  },
+
   watch: {
     dPage (val) {
       this.$emit('change', val)
+    },
+
+    value (val) {
+      this.dPage = this.value
     }
   }
 }

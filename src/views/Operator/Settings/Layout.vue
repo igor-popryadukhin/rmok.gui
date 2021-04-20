@@ -33,12 +33,6 @@ interface TabInterface {
 }
 
 export default Vue.extend({
-  data () {
-    return {
-      tabs: [] as TabInterface[]
-    }
-  },
-
   created () {
     // Данная конструкция позволяет построить массив дочерних маршрутов, опираясь на имя родительского маршрута
     const tree = (node: Route, handler: (a: Route) => void) => {
@@ -55,14 +49,20 @@ export default Vue.extend({
       tree(e, (route: Route) => {
         if (/^operator_settings.*?$/.test(route.name)) {
           this.tabs.push({
-            name: this.$tc(route.name || ''),
-            icon: route.meta.icon,
             disabled: false,
+            icon: route.meta.icon,
+            name: this.$tc(route.name || ''),
             to: route
           })
         }
       })
     })
+  },
+
+  data () {
+    return {
+      tabs: [] as TabInterface[]
+    }
   }
 })
 </script>

@@ -104,37 +104,50 @@ export interface StatusInterface {
 }
 
 export default Vue.extend({
-  props: {
-    statuses: {
-      type: Array
-    },
-    statusId: {
-      type: Number,
-      default: 0
-    },
-    comment: {
-      type: String,
-      default: ''
-    },
+  computed: {
+    actions () {
+      return {
+        cancel: {
+          color: 'red',
+          disabled: true,
+          flat: true,
+          handle: () => {
+            if (typeof this.onCancel === 'function') {
+              this.onCancel()
+            }
+          },
+          text: this.$tc('Cancel')
+        },
 
-    // Обратные вызовы
-    onSave: {
-      type: Function,
-      default: null
-    },
-    onCancel: {
-      type: Function,
-      default: null
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof this.onSave === 'function') {
+              this.onSave({
+                comment: this.dComment,
+                status: this.selected
+              })
+            }
+          },
+          text: this.$tc('Save')
+        }
+      }
     }
   },
 
   data () {
     return {
-      dStatusId: 0,
       dComment: '',
-      tabStatus: 0,
+      dStatusId: 0,
+      selected: undefined,
       tab: null,
-      selected: undefined
+      tabStatus: 0
+    }
+  },
+
+  methods: {
+    onRadioChange (status: any) {
+      (this as any).selected = status
     }
   },
 
@@ -142,40 +155,28 @@ export default Vue.extend({
     this.dComment = this.comment
   },
 
-  computed: {
-    actions () {
-      return {
-        cancel: {
-          flat: true,
-          text: this.$tc('Cancel'),
-          color: 'red',
-          disabled: true,
-          handle: () => {
-            if (typeof this.onCancel === 'function') {
-              this.onCancel()
-            }
-          }
-        },
+  props: {
+    comment: {
+      default: '',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    // Обратные вызовы
+    onSave: {
+      default: null,
+      type: Function
+    },
 
-        save: {
-          flat: true,
-          text: this.$tc('Save'),
-          handle: () => {
-            if (typeof this.onSave === 'function') {
-              this.onSave({
-                status: this.selected,
-                comment: this.dComment
-              })
-            }
-          }
-        }
-      }
-    }
-  },
+    statusId: {
+      default: 0,
+      type: Number
+    },
 
-  methods: {
-    onRadioChange (status: any) {
-      (this as any).selected = status
+    statuses: {
+      type: Array
     }
   }
 

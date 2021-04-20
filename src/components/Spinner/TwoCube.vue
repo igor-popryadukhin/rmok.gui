@@ -7,30 +7,30 @@
 
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
+  computed: {
+    cubeStyles () {
+      return {
+        animationDuration: this.duration,
+        animationName: 'sk-cubemove',
+        backgroundColor: this.background
+      }
     },
+    styles () {
+      return {
+        height: this.size,
+        width: this.size
+      }
+    }
+  },
+  props: {
     background: {
       default: '#41b883'
     },
     duration: {
       default: '1.8s'
-    }
-  },
-  computed: {
-    cubeStyles () {
-      return {
-        backgroundColor: this.background,
-        animationName: 'sk-cubemove',
-        animationDuration: this.duration
-      }
     },
-    styles () {
-      return {
-        width: this.size,
-        height: this.size
-      }
+    size: {
+      default: '40px'
     }
   }
 }

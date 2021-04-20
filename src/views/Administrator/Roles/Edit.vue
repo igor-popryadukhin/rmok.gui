@@ -108,34 +108,6 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
 
-  mixins: [rules],
-
-  data (): IData {
-    return {
-      name: '',
-      permissions: [],
-      role_use: {
-        selected: null,
-        options: [
-          {
-            title: this.$tc('For administration'),
-            value: 'for_administration'
-          },
-          {
-            title: this.$tc('For calls'),
-            value: 'for_calls'
-          }
-        ]
-      },
-      buttonDelete: {
-        loading: false
-      },
-      buttonSave: {
-        loading: false
-      }
-    }
-  },
-
   beforeRouteEnter (to, from, next) {
     new Roles()
       .getById(+to.params.id)
@@ -165,7 +137,62 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     }
   },
 
+  data (): IData {
+    return {
+      buttonDelete: {
+        loading: false
+      },
+      buttonSave: {
+        loading: false
+      },
+      name: '',
+      permissions: [],
+      role_use: {
+        options: [
+          {
+            title: this.$tc('For administration'),
+            value: 'for_administration'
+          },
+          {
+            title: this.$tc('For calls'),
+            value: 'for_calls'
+          }
+        ],
+        selected: null
+      }
+    }
+  },
+
   methods: {
+
+    onBtnDeleteClick () {
+      this.$dialog.confirm({
+        actions: {
+          false: {
+            color: 'black',
+            text: this.$tc('No')
+          },
+          true: {
+            color: 'red',
+            handle: () => {
+              new Roles()
+                .delete(+this.$route.params.id)
+                .then(() => {
+                  this.$toast.success(this.$tc('Role successfully deleted'))
+                  this.$router.replace({ name: 'administrator_roles_list' })
+                }).catch((e: APIError) => {
+                  this.$toast.error(e.message)
+                }).finally(() => {
+                  this.buttonSave.loading = false
+                })
+            },
+            text: this.$tc('Yes')
+          }
+        },
+        text: this.$tc('All information about the role and information associated with it will be deleted permanently.'),
+        title: this.$tc('Confirmation request')
+      })
+    },
 
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
@@ -204,37 +231,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
-    },
-
-    onBtnDeleteClick () {
-      this.$dialog.confirm({
-        title: this.$tc('Confirmation request'),
-        text: this.$tc('All information about the role and information associated with it will be deleted permanently.'),
-        actions: {
-          false: {
-            color: 'black',
-            text: this.$tc('No')
-          },
-          true: {
-            color: 'red',
-            text: this.$tc('Yes'),
-            handle: () => {
-              new Roles()
-                .delete(+this.$route.params.id)
-                .then(() => {
-                  this.$toast.success(this.$tc('Role successfully deleted'))
-                  this.$router.replace({ name: 'administrator_roles_list' })
-                }).catch((e: APIError) => {
-                  this.$toast.error(e.message)
-                }).finally(() => {
-                  this.buttonSave.loading = false
-                })
-            }
-          }
-        }
-      })
     }
-  }
+  },
+
+  mixins: [rules]
 })
 </script>
 

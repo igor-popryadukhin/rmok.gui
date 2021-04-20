@@ -6,39 +6,31 @@
 </template>
 <script>
 export default {
-  props: {
-    size: {
-      default: '90px'
-    },
-    color: {
-      default: '#41b883'
-    }
-  },
   computed: {
-    outerWidth () {
-      const size = parseInt(this.size)
-      return this.calcWidth(size)
+    innerStyles () {
+      const size = this.calcWidth(this.outerWidth) + 'px'
+      return {
+        border: '2px solid ' + this.color,
+        height: size,
+        width: size
+      }
     },
     outerStyles () {
       const size = this.outerWidth + 'px'
       return {
         border: '2px solid ' + this.color,
-        width: size,
-        height: size
+        height: size,
+        width: size
       }
     },
-    innerStyles () {
-      const size = this.calcWidth(this.outerWidth) + 'px'
-      return {
-        border: '2px solid ' + this.color,
-        width: size,
-        height: size
-      }
+    outerWidth () {
+      const size = parseInt(this.size)
+      return this.calcWidth(size)
     },
     styles () {
       return {
-        width: this.size,
-        height: this.size
+        height: this.size,
+        width: this.size
       }
     }
   },
@@ -48,6 +40,14 @@ export default {
       const s = Math.abs(Math.cos(r))
       const c = Math.abs(Math.sin(r))
       return (outerWidth * c - outerWidth * s) / (Math.pow(c, 2) - Math.pow(s, 2))
+    }
+  },
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '90px'
     }
   }
 }

@@ -315,159 +315,15 @@ Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: { SUsers },
-  mixins: [audioPlayer],
-
-  data () {
-    return {
-      filterDate: undefined,
-      menuDateRange: null,
-      dateRange: null as string[] | null,
-      menuContactDateCreated: null as boolean | null,
-      contactDateCreated: null,
-
-      page: 1,
-      pageCount: 0,
-      itemsPerPage: 10,
-
-      options: {
-        labels: []
-      },
-
-      processPieLoading: false, // Процесс загрузки изображений
-
-      // Report
-      total_calls: 0,
-      total_clients: 0,
-      history_count: 0,
-      historyProcessLoading: false,
-      pieLabels: [] as string[],
-      pieSeries: [] as number[],
-      pieColors: [] as string[],
-
-      usersSelected: null as UserInterface | null,
-      users: [] as UserInterface[],
-
-      filter: {
-        date: null as unknown & string | null, // Дата или диапазон дат
-        user: [] as unknown & UserInterface[],
-        status: {
-          selected: null,
-          items: [],
-          on: {
-            input: (scope: any) => {
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                this.fetchDataHistory()
-              } else {
-                this.$routerQuery.removeQuery(['status_id'])
-                  .finally(() => {
-                    this.fetchDataHistory()
-                  })
-              }
-            }
-          }
-        }
-      },
-
-      // Data table
-      dataTableHistory: {
-        page: 1,
-        pages: 1,
-        totalCount: 0,
-        itemsPerPage: 100,
-        pageStart: 0,
-        pageStop: 0,
-        items: [],
-        headers: [
-          {
-            text: 'Дата и время',
-            align: 'start',
-            sortable: true,
-            value: 'created_at'
-          },
-          {
-            text: 'Клиент',
-            sortable: true,
-            value: 'contact'
-          },
-          {
-            text: 'Результат',
-            sortable: true,
-            value: 'status'
-          },
-          {
-            text: 'Комментарий',
-            align: 'start',
-            sortable: true,
-            value: 'comment'
-          },
-          {
-            text: 'Длительность разговора',
-            align: 'end',
-            sortable: false,
-            value: 'call_duration'
-          },
-          {
-            text: 'Общее время сессии',
-            align: 'end',
-            sortable: false,
-            value: 'session_duration'
-          },
-          {
-            text: 'Менеджер',
-            sortable: false,
-            value: 'owner'
-          },
-          {
-            text: 'Запись',
-            align: 'end',
-            sortable: false,
-            value: 'record'
-          }
-        ],
-        options: {}
-      },
-      loading: true
-    }
-  },
-
-  watch: {
-
-    'dataTableHistory.options': {
-      handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
-        }
-      },
-      deep: true
-    },
-
-    'dataTableHistory.page': {
-      handler (page: number) {
-        this.$routerQuery.setQuery({ history_page: page })
-      }
-    }
-  },
-
   computed: {
     apexchartOptions (): any {
       return {
-        legend: {
-          show: true,
-          position: 'right'
-        },
+        colors: this.pieColors,
         labels: this.pieLabels,
-        colors: this.pieColors
+        legend: {
+          position: 'right',
+          show: true
+        }
       }
     },
 
@@ -483,38 +339,132 @@ export default (Vue as VueConstructor<VInterface>).extend({
     this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
   },
 
-  mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
+  data () {
+    return {
+      contactDateCreated: null,
+      // Data table
+      dataTableHistory: {
+        headers: [
+          {
+            align: 'start',
+            sortable: true,
+            text: 'Дата и время',
+            value: 'created_at'
+          },
+          {
+            sortable: true,
+            text: 'Клиент',
+            value: 'contact'
+          },
+          {
+            sortable: true,
+            text: 'Результат',
+            value: 'status'
+          },
+          {
+            align: 'start',
+            sortable: true,
+            text: 'Комментарий',
+            value: 'comment'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Длительность разговора',
+            value: 'call_duration'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Общее время сессии',
+            value: 'session_duration'
+          },
+          {
+            sortable: false,
+            text: 'Менеджер',
+            value: 'owner'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Запись',
+            value: 'record'
+          }
+        ],
+        items: [],
+        itemsPerPage: 100,
+        options: {},
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 1,
+        totalCount: 0
+      },
 
-    if (this.$routerQuery.hasQuery('date')) {
-      this.filter.date = this.$routerQuery.getQuery('date')
+      dateRange: null as string[] | null,
 
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
-      }
+      filter: {
+        date: null as unknown & string | null,
+        status: {
+          items: [],
+          on: {
+            input: (scope: any) => {
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                this.$routerQuery.setQuery({ status_id: scope.status_id })
+                this.fetchDataHistory()
+              } else {
+                this.$routerQuery.removeQuery(['status_id'])
+                  .finally(() => {
+                    this.fetchDataHistory()
+                  })
+              }
+            }
+          },
+          selected: null
+        },
+        // Дата или диапазон дат
+        user: [] as unknown & UserInterface[]
+      },
+
+      filterDate: undefined,
+
+      historyProcessLoading: false,
+
+      history_count: 0,
+
+      itemsPerPage: 10,
+
+      loading: true,
+
+      menuContactDateCreated: null as boolean | null,
+
+      menuDateRange: null,
+
+      options: {
+        labels: []
+      },
+
+      page: 1,
+
+      pageCount: 0,
+
+      pieColors: [] as string[],
+
+      pieLabels: [] as string[],
+
+      pieSeries: [] as number[],
+
+      processPieLoading: false,
+
+      // Процесс загрузки изображений
+      // Report
+      total_calls: 0,
+
+      total_clients: 0,
+
+      users: [] as UserInterface[],
+      usersSelected: null as UserInterface | null
     }
-
-    if (this.$routerQuery.hasQuery('owner_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('status_id')) {
-      this.$routerQuery.getQuery('status_id')
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchDataHistory() // Сначала загружаем данные для диаграммы
-        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
-      })
   },
 
   methods: {
@@ -525,8 +475,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
 
       const params: any = {
-        offset,
         count: this.dataTableHistory.itemsPerPage,
+        offset,
         type: 'all' // Показать всю историю
       }
 
@@ -577,98 +527,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.$routerQuery
-        .setQuery({ date: dr })
-        .then(() => {
-          this.fetchDataHistory()
-        })
-    },
-
-    /**
-     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
-     * @param dateStr
-     */
-    onSaveContactDateCreatedClick (dateStr: string | null) {
-      if (!dateStr) {
-        this.$routerQuery
-          .removeQuery(['contact_created_at'])
-          .finally(() => {
-            this.fetchDataHistory()
-          })
-        this.$refs.menuContactDateCreated.save(null)
-        return
-      }
-
-      this.$refs.menuContactDateCreated.save(dateStr)
-      this.$routerQuery
-        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
-        .finally(() => {
-          this.fetchDataHistory()
-        })
-    },
-
-    onHistoryItemRecordPlay (item: any) {
-      this.stopSound()
-      this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-      item.isPlaying = true
-      item.playingProgress = 0
-
-      if (item.audioUrl) {
-        this.playSound(item.audioUrl, false, {
-          onEnded: () => {
-            this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-          },
-          onProgressUpdate: (progress: number) => {
-            item.playingProgress = progress
-            this.$forceUpdate()
-          }
-        })
-      } else {
-        new ContactHistory()
-          .getAudioFile(item.id)
-          .then((response: any) => {
-            item.audioUrl = response.url
-            this.playSound(response.url, false, {
-              onEnded: () => {
-                this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-              },
-              onProgressUpdate: (progress: number) => {
-                item.playingProgress = progress
-                this.$forceUpdate()
-              }
-            })
-          }).catch((e) => {
-            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
-            item.isPlaying = false
-          })
-      }
-    },
-
-    onPaginationChange (data: any) {
-      this.dataTableHistory.pageStart = data.pageStart + 1
-      this.dataTableHistory.pageStop = data.pageStop
-    },
-
-    secondsToHmsDigital (d: number) {
-      return secondsToHmsDigital(d)
-    },
-
-    /**
      * Инициализировать слежение за изменением фильтров
      */
     initializeWatchForFilters () {
@@ -716,6 +574,162 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }
       }, debounceDelay))
+    },
+
+    onHistoryItemRecordPlay (item: any) {
+      this.stopSound()
+      this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+      item.isPlaying = true
+      item.playingProgress = 0
+
+      if (item.audioUrl) {
+        this.playSound(item.audioUrl, false, {
+          onEnded: () => {
+            this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+          },
+          onProgressUpdate: (progress: number) => {
+            item.playingProgress = progress
+            this.$forceUpdate()
+          }
+        })
+      } else {
+        new ContactHistory()
+          .getAudioFile(item.id)
+          .then((response: any) => {
+            item.audioUrl = response.url
+            this.playSound(response.url, false, {
+              onEnded: () => {
+                this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+              },
+              onProgressUpdate: (progress: number) => {
+                item.playingProgress = progress
+                this.$forceUpdate()
+              }
+            })
+          }).catch((e) => {
+            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+            item.isPlaying = false
+          })
+      }
+    },
+
+    onPaginationChange (data: any) {
+      this.dataTableHistory.pageStart = data.pageStart + 1
+      this.dataTableHistory.pageStop = data.pageStop
+    },
+
+    /**
+     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
+     * @param dateStr
+     */
+    onSaveContactDateCreatedClick (dateStr: string | null) {
+      if (!dateStr) {
+        this.$routerQuery
+          .removeQuery(['contact_created_at'])
+          .finally(() => {
+            this.fetchDataHistory()
+          })
+        this.$refs.menuContactDateCreated.save(null)
+        return
+      }
+
+      this.$refs.menuContactDateCreated.save(dateStr)
+      this.$routerQuery
+        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
+        .finally(() => {
+          this.fetchDataHistory()
+        })
+    },
+
+    /**
+     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
+     * @param dateRange
+     */
+    onSaveDateRangeClick (dateRange: string[]) {
+      this.$refs.menuDateRange.save(dateRange)
+      const date1 = new Date(dateRange[0])
+      const date2 = new Date(dateRange[1])
+
+      let dr = ''
+      if (date1.getTime() < date2.getTime()) {
+        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
+      } else {
+        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
+      }
+
+      this.$routerQuery
+        .setQuery({ date: dr })
+        .then(() => {
+          this.fetchDataHistory()
+        })
+    },
+
+    secondsToHmsDigital (d: number) {
+      return secondsToHmsDigital(d)
+    }
+  },
+
+  mixins: [audioPlayer],
+
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
+    if (this.$routerQuery.hasQuery('date')) {
+      this.filter.date = this.$routerQuery.getQuery('date')
+
+      if (/^\d+,\d+/s.test(String(this.filterDate))) {
+        const dateRangeStr = String(this.filterDate)
+        const dates = dateRangeStr.split(',', 2)
+        this.dateRange = [
+          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
+          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
+        ]
+      }
+    }
+
+    if (this.$routerQuery.hasQuery('owner_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      this.$routerQuery.getQuery('status_id')
+    }
+
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchDataHistory() // Сначала загружаем данные для диаграммы
+        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
+      })
+  },
+
+  watch: {
+
+    'dataTableHistory.options': {
+      deep: true,
+      handler ({ sortBy, sortDesc }) {
+        if (Array.isArray(sortBy)) {
+          if (sortBy.length > 0) {
+            this.$routerQuery.setQuery({
+              history_sort_by: sortBy.join(','),
+              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
+            }).then(() => (this.fetchDataHistory()))
+          } else {
+            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
+            this.$routerQuery
+              .removeQuery(['history_sort_by', 'history_sort_direction'])
+              .then(() => (this.fetchDataHistory()))
+          }
+        }
+      }
+    },
+
+    'dataTableHistory.page': {
+      handler (page: number) {
+        this.$routerQuery.setQuery({ history_page: page })
+      }
     }
   }
 })

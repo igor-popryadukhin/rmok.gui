@@ -10,29 +10,29 @@
 
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
+  computed: {
+    rectStyles () {
+      return {
+        animationDuration: this.duration,
+        backgroundColor: this.background
+      }
     },
+    styles () {
+      return {
+        height: this.size,
+        width: this.size
+      }
+    }
+  },
+  props: {
     background: {
       default: '#41b883'
     },
     duration: {
       default: '1.2s'
-    }
-  },
-  computed: {
-    rectStyles () {
-      return {
-        backgroundColor: this.background,
-        animationDuration: this.duration
-      }
     },
-    styles () {
-      return {
-        width: this.size,
-        height: this.size
-      }
+    size: {
+      default: '40px'
     }
   }
 }

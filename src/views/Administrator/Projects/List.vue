@@ -120,57 +120,6 @@ import VDTPaginationEvent from '@/interface/VDTPaginationEvent'
 
 export default (Vue as VueConstructor<VInterface>).extend({
 
-  data () {
-    return {
-      buttonAdd: {
-        disabled: false
-      },
-      filter: {
-        organization: null
-      },
-      dataTableProjects: {
-        processLoading: false,
-        page: 1,
-        pages: 0,
-        totalCount: 0 as unknown as number,
-        itemsPerPage: 30,
-        pageStart: 0,
-        pageStop: 0,
-        headers: [
-          { text: 'Project name', align: 'start', sortable: true, value: 'name', width: 'auto' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
-        ],
-        items: [] as ProjectInterface[]
-      }
-    }
-  },
-
-  watch: {
-    'filter.organization': {
-      handler (val: OrganizationInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            organization_id: val.id
-          }).then(this.fetchProjects)
-        } else {
-          this.$routerQuery.removeQuery([
-            'organization_id'
-          ]).then(this.fetchProjects)
-        }
-      }
-    },
-
-    'dataTableProjects.page': {
-      handler (page: number) {
-        if (page) {
-          this.$routerQuery.setQuery({
-            page
-          }).then(this.fetchProjects)
-        }
-      }
-    }
-  },
-
   computed: {
     // Вычисляю высоту таблицы
     dataTableProjectsHeight () {
@@ -180,8 +129,29 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
-  mounted () {
-    this.fetchProjects()
+  data () {
+    return {
+      buttonAdd: {
+        disabled: false
+      },
+      dataTableProjects: {
+        headers: [
+          { align: 'start', sortable: true, text: 'Project name', value: 'name', width: 'auto' },
+          { align: 'end', sortable: true, text: '', value: 'actions', width: '100%' }
+        ],
+        items: [] as ProjectInterface[],
+        itemsPerPage: 30,
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 0,
+        processLoading: false,
+        totalCount: 0 as unknown as number
+      },
+      filter: {
+        organization: null
+      }
+    }
   },
 
   methods: {
@@ -190,8 +160,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       const offset = (this.dataTableProjects.itemsPerPage * this.dataTableProjects.page) - this.dataTableProjects.itemsPerPage
 
       const params: any = {
-        offset,
-        count: this.dataTableProjects.itemsPerPage
+        count: this.dataTableProjects.itemsPerPage,
+        offset
       }
 
       new Projects()
@@ -205,13 +175,43 @@ export default (Vue as VueConstructor<VInterface>).extend({
         })
     },
 
+    onButtonRefreshClick () {
+      this.fetchProjects()
+    },
+
     onPaginationChange (data: VDTPaginationEvent) {
       this.dataTableProjects.pageStart = data.pageStart + 1
       this.dataTableProjects.pageStop = data.pageStop
+    }
+  },
+
+  mounted () {
+    this.fetchProjects()
+  },
+
+  watch: {
+    'dataTableProjects.page': {
+      handler (page: number) {
+        if (page) {
+          this.$routerQuery.setQuery({
+            page
+          }).then(this.fetchProjects)
+        }
+      }
     },
 
-    onButtonRefreshClick () {
-      this.fetchProjects()
+    'filter.organization': {
+      handler (val: OrganizationInterface) {
+        if (val) {
+          this.$routerQuery.setQuery({
+            organization_id: val.id
+          }).then(this.fetchProjects)
+        } else {
+          this.$routerQuery.removeQuery([
+            'organization_id'
+          ]).then(this.fetchProjects)
+        }
+      }
     }
   }
 })

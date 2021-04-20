@@ -33,44 +33,44 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'SIncomingRTC',
-
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  props: {
-
-    displayName: {
-      type: String,
-      default: ''
-    },
-
-    phoneNumber: {
-      type: String,
-      default: ''
-    },
-
-    value: {
-      type: Boolean,
-      default: false
-    }
-  },
-
   data () {
     return {
       sheetDisplay: false
     }
   },
 
-  watch: {
-    value (val: boolean) {
-      this.sheetDisplay = val
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  name: 'SIncomingRTC',
+
+  props: {
+
+    displayName: {
+      default: '',
+      type: String
     },
 
+    phoneNumber: {
+      default: '',
+      type: String
+    },
+
+    value: {
+      default: false,
+      type: Boolean
+    }
+  },
+
+  watch: {
     sheetDisplay (val: boolean) {
       this.$emit('change', val)
+    },
+
+    value (val: boolean) {
+      this.sheetDisplay = val
     }
   }
 })

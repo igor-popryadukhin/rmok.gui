@@ -279,76 +279,159 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, IComputed, IProps>({
 
-  props: {
-    /**
-     * Дополнительные параметры передаваемые конечной точке (имеет наивысший приоритет)
-     **/
-    params: {
-      type: Object,
-      default () {
-        return {}
+  computed: {
+
+    filterSelectedStatus () {
+      return this.statuses.find((e: StatusInterface) => e.id === this.filter.status_id)
+    },
+
+    filtersStyleComputed () {
+      return {
+        'min-width': '200px'
       }
     },
 
-    /**
-     * Количество задач на страницу
-     **/
-    perPage: {
-      type: Number,
-      default: 10
+    isVisibleDivider () {
+      return this.task_items.length > 1
     },
 
-    /**
-     * Включить фильтр
-     **/
-    filtersEnabled: {
-      type: Boolean,
-      default () {
-        return false
-      }
+    itemActions () {
+      return [
+        {
+          attrs: {},
+          click: (item: TaskInterface) => {
+            item.state = 'done'
+            new Tasks()
+              .setState(item.id, 'done')
+              .then(() => {
+                this.$store.dispatch('tasks/pending_count')
+              })
+          },
+          title: this.$tc('Close')
+        },
+        {
+          attrs: {},
+          click: this.onTaskItemEditClick,
+          title: this.$tc('Edit')
+        }
+      ]
     },
 
-    /**
-     * Включить инструменты
-     **/
-    toolsEnabled: {
-      type: Boolean,
-      default () {
-        return false
-      }
-    },
-
-    paramPrefix: {
-      type: String,
-      default () {
-        return 't_'
-      }
-    },
-
-    outlined: {
-      type: Boolean,
-      default: false
+    statuses () {
+      let statuses: any[] = []
+      statuses = statuses.concat(
+        [{
+          id: 0,
+          name: this.$tc('All statuses')
+        }],
+        this.$store.getters['database/statuses_not_grouped'] as StatusInterface[]
+      )
+      return statuses
     }
+  },
+
+  created () {
+    this.update()
   },
 
   data () {
     return {
-      menuDateRange: false,
+      btnToggles: [
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: 'tomorrow',
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'For tomorrow',
+          value: 'tomorrow'
+        },
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: 'today',
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'For today',
+          value: 'today'
+        },
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: 'yesterday',
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'Yesterday\'s',
+          value: 'yesterday'
+        },
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: 'the_day_before_yesterday',
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'The day before yesterday',
+          value: 'the_day_before_yesterday'
+        },
+        {
+          badge: {
+            color: 'grey'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: 'all',
+              state: 'all',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'All tasks',
+          value: 'all'
+        }
+      ],
       dateRange: null as string[] | null,
 
-      menuSelectStatus: false,
-      // --------------------
-      tasksLoading: false,
-      task_items: [] as TaskInterface[],
-      task_count: 0,
-      task_paginator: {
-        per_page_count: 25,
-        page: 1,
-        pages: 1
+      // Фильтр
+      filter: {
+        contact_id: 0,
+        date_range: null,
+        planned_for: null,
+        q: '',
+        sort: '',
+        state: '',
+        status_id: 0
       },
+
+      menuDateRange: false,
+
+      menuSelectStatus: false,
+
       // Сортировка
       sort: {
-        select: 'created_desc',
         items: [
           {
             title: 'По умолчанию',
@@ -362,396 +445,26 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
             title: 'Сначала старые',
             value: 'created_asc'
           }
-        ] as unknown[] & { title: string; value: string }
-      },
-      // Фильтр
-      filter: {
-        contact_id: 0,
-        q: '',
-        sort: '',
-        status_id: 0,
-        state: '',
-        planned_for: null,
-        date_range: null
+        ] as unknown[] & { title: string; value: string },
+        select: 'created_desc'
       },
 
-      btnToggles: [
-        {
-          title: 'For tomorrow',
-          value: 'tomorrow',
-          count: 0,
-          badge: {
-            color: 'red'
-          },
-          params: () => {
-            return {
-              planned_for: 'tomorrow',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          }
-        },
-        {
-          title: 'For today',
-          value: 'today',
-          count: 0,
-          badge: {
-            color: 'red'
-          },
-          params: () => {
-            return {
-              planned_for: 'today',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          }
-        },
-        {
-          title: 'Yesterday\'s',
-          value: 'yesterday',
-          count: 0,
-          badge: {
-            color: 'red'
-          },
-          params: () => {
-            return {
-              planned_for: 'yesterday',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          }
-        },
-        {
-          title: 'The day before yesterday',
-          value: 'the_day_before_yesterday',
-          count: 0,
-          badge: {
-            color: 'red'
-          },
-          params: () => {
-            return {
-              planned_for: 'the_day_before_yesterday',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          }
-        },
-        {
-          title: 'All tasks',
-          value: 'all',
-          count: 0,
-          badge: {
-            color: 'grey'
-          },
-          params: () => {
-            return {
-              planned_for: 'all',
-              state: 'all',
-              status_id: +this.filter.status_id
-            }
-          }
-        }
-      ]
+      task_count: 0,
+
+      task_items: [] as TaskInterface[],
+
+      task_paginator: {
+        page: 1,
+        pages: 1,
+        per_page_count: 25
+      },
+
+      // --------------------
+      tasksLoading: false
     }
-  },
-
-  computed: {
-
-    isVisibleDivider () {
-      return this.task_items.length > 1
-    },
-
-    statuses () {
-      let statuses: any[] = []
-      statuses = statuses.concat(
-        [{
-          id: 0,
-          name: this.$tc('All statuses')
-        }],
-        this.$store.getters['database/statuses_not_grouped'] as StatusInterface[]
-      )
-      return statuses
-    },
-
-    filtersStyleComputed () {
-      return {
-        'min-width': '200px'
-      }
-    },
-
-    filterSelectedStatus () {
-      return this.statuses.find((e: StatusInterface) => e.id === this.filter.status_id)
-    },
-
-    itemActions () {
-      return [
-        {
-          title: this.$tc('Close'),
-          attrs: {},
-          click: (item: TaskInterface) => {
-            item.state = 'done'
-            new Tasks()
-              .setState(item.id, 'done')
-              .then(() => {
-                this.$store.dispatch('tasks/pending_count')
-              })
-          }
-        },
-        {
-          title: this.$tc('Edit'),
-          attrs: {},
-          click: this.onTaskItemEditClick
-        }
-      ]
-    }
-  },
-
-  created () {
-    this.update()
-  },
-
-  mounted () {
-    this.initializeFiltersFromQuery()
-    this.initializeWatchFilters()
-    this.fetchCount()
   },
 
   methods: {
-    /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.filter.planned_for = dr
-      this.$routerQuery.setQuery({
-        [this.prefix('planned_for')]: dr
-      }).then(() => {
-        this.update()
-      })
-    },
-
-    onClearDateRangeClick () {
-      this.menuDateRange = false
-      this.$routerQuery.removeQuery(['planned_for']).finally(() => (this.update()))
-    },
-
-    onItemSelectedStatus (item: StatusInterface) {
-      this.$toast.info(item.name)
-    },
-
-    lastContactStatus (contact: ContactInterface) {
-      if (contact) {
-        if (contact.last_status) {
-          return {
-            name: contact.last_status.name,
-            class: '',
-            color: contact.last_status.color
-          }
-        }
-      }
-      return {
-        name: this.$tc('Status not set'),
-        class: 'label-outlined label-color-grey',
-        color: ''
-      }
-    },
-
-    vListItemStyleComputed (item: TaskInterface) {
-      const style: any = {}
-
-      if (item.state === 'done') {
-        style.opacity = 0.5
-      }
-
-      return style
-    },
-
-    onTaskItemClick (item: TaskInterface) {
-      if (item.contact) {
-        // Сохранить $route.fullPath что бы потом вернуться.
-        this.$store.commit('system/route_last_full_path', this.$route.fullPath)
-        this.$router.push({
-          name: 'operator_contacts_view',
-          params: { contact_id: item.contact.id } as any
-        })
-      }
-    },
-
-    /**
-     * Происходит когда нажали на кнопу Done | Выполнить
-     * @param taskId
-     */
-    onTaskItemActionTaskDoneClick (taskId: number) {
-      new Tasks()
-        .setState(taskId, 'done')
-        .then(() => {
-          const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId)
-          if (taskIndex > -1) {
-            this.task_items[taskIndex].state = 'done'
-            this.$store.dispatch('tasks/pending_count')
-            this.fetchCount()
-
-            setTimeout(() => {
-              const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId && e.state === 'done')
-              if (taskIndex > -1) {
-                this.task_items.splice(taskIndex, 1)
-              }
-
-              if (this.task_items.length === 0) {
-                this.update()
-              }
-            }, 3000)
-          }
-        })
-    },
-
-    onTaskItemActionTaskUndoDoneClick (taskId: number) {
-      new Tasks()
-        .setState(taskId, 'pending')
-        .then(() => {
-          const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId)
-          if (taskIndex > -1) {
-            this.task_items[taskIndex].state = 'pending'
-            this.$store.dispatch('tasks/pending_count')
-            this.fetchCount()
-          }
-        })
-    },
-
-    onTaskItemEditClick (item: TaskInterface) {
-      new Tasks()
-        .getById(item.id)
-        .then((response) => {
-          this.$dialog.show(STaskDialogEditor, {
-            waitForResult: true,
-            width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
-            persistent: true,
-            performerId: response.performer.id,
-            contactId: response.contact?.id,
-            type: response.type,
-            plannedFor: response.planned_for, // Передайте дату и время в формате Unixtime
-            description: response.description, // Передайте описание задачи
-            responsibleDisabled: true,
-            onSave: (data: DTaskInterface) => {
-              // Новые данные задачи
-              const taskData: any = {
-                performer_id: data.performer_id,
-                description: data.description,
-                planned_for: data.planned_for,
-                type: data.type,
-                contact_id: response.contact?.id
-              }
-
-              new Tasks()
-                .edit(item.id, taskData)
-                .then(() => {
-                  this.$toast.success(this.$tc('Task successfully updated'))
-                  this.update()
-                })
-                .catch((e: APIError) => {
-                  let text = ''
-                  if (this.assertObjectHasAttribute(e, 'errors')) {
-                    text = e.errors.map(e => e.message).join('\n')
-                  }
-                  this.$toast.error(`${e.message}\n${text}`)
-                })
-            }
-          })
-        })
-    },
-
-    onTaskItemDeleteClick (id: number) {
-      this.$dialog.confirm({
-        title: this.$tc('Deleting task'),
-        text: this.$tc('All information about the task, the history of interaction will be deleted permanently.'),
-        actions: {
-          false: {
-            color: 'red',
-            outlined: true,
-            flat: true,
-            tile: true,
-            text: this.$tc('no')
-          },
-          true: {
-            text: this.$tc('yes'),
-            handle: () => {
-              return new Promise<void>((resolve) => {
-                new Tasks()
-                  .delete(id)
-                  .then(() => {
-                    this.$toast.success(this.$tc('Task successfully deleted'))
-                    // TODO: TASKS FETCH DATA
-                  }).catch((e: APIError) => {
-                    this.$toast.error(e.message)
-                  })
-                resolve()
-              })
-            }
-          }
-        }
-      })
-    },
-
-    /**
-     * Параметры которые будут добавлены в фильтр
-     * @param params
-     */
-    update (params = {}) {
-      return new Promise<void>((resolve, reject) => {
-        let offset = this.task_paginator.per_page_count * this.task_paginator.page - this.task_paginator.per_page_count
-        if (offset < 0) {
-          offset = 0
-        }
-        const newParams: any = Object.assign({}, {
-          count: this.task_paginator.per_page_count,
-          offset
-        }, params, this.params)
-
-        // Поиск по тексту
-        if (this.$route.query[this.prefix('q')]) {
-          newParams.q = this.$route.query[this.prefix('q')]
-        }
-
-        if (this.$route.query[this.prefix('sort')]) {
-          newParams.sort = this.$route.query[this.prefix('sort')]
-        }
-
-        // Статус контакта
-        if (this.$route.query[this.prefix('status_id')]) {
-          newParams.status_id = this.$route.query[this.prefix('status_id')]
-        }
-
-        // Статус Задачи
-        if (this.$route.query[this.prefix('state')]) {
-          newParams.state = this.$route.query[this.prefix('state')]
-        }
-
-        // Статус контакта
-        if (this.$route.query[this.prefix('planned_for')]) {
-          newParams.planned_for = this.$route.query[this.prefix('planned_for')]
-        }
-
-        new Tasks()
-          .find<any, TaskInterface[]>(newParams)
-          .then((response) => {
-            this.task_count = response.meta?.count
-            this.task_paginator.pages = Math.ceil(response.meta?.count / this.task_paginator.per_page_count)
-            this.task_items = response.data
-            resolve()
-          }).catch(reject)
-      })
-    },
 
     /**
      * Получить количество по фильтрам
@@ -767,10 +480,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           await sleep(100)
         }
       }
-    },
-
-    prefix (name: string) {
-      return this.paramPrefix + name
     },
 
     /**
@@ -899,6 +608,315 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           })
         }
       }, debounceDelay))
+    },
+
+    lastContactStatus (contact: ContactInterface) {
+      if (contact) {
+        if (contact.last_status) {
+          return {
+            class: '',
+            color: contact.last_status.color,
+            name: contact.last_status.name
+          }
+        }
+      }
+      return {
+        class: 'label-outlined label-color-grey',
+        color: '',
+        name: this.$tc('Status not set')
+      }
+    },
+
+    onClearDateRangeClick () {
+      this.menuDateRange = false
+      this.$routerQuery.removeQuery(['planned_for']).finally(() => (this.update()))
+    },
+
+    onItemSelectedStatus (item: StatusInterface) {
+      this.$toast.info(item.name)
+    },
+
+    /**
+     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
+     * @param dateRange
+     */
+    onSaveDateRangeClick (dateRange: string[]) {
+      this.$refs.menuDateRange.save(dateRange)
+      const date1 = new Date(dateRange[0])
+      const date2 = new Date(dateRange[1])
+
+      let dr = ''
+      if (date1.getTime() < date2.getTime()) {
+        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
+      } else {
+        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
+      }
+
+      this.filter.planned_for = dr
+      this.$routerQuery.setQuery({
+        [this.prefix('planned_for')]: dr
+      }).then(() => {
+        this.update()
+      })
+    },
+
+    /**
+     * Происходит когда нажали на кнопу Done | Выполнить
+     * @param taskId
+     */
+    onTaskItemActionTaskDoneClick (taskId: number) {
+      new Tasks()
+        .setState(taskId, 'done')
+        .then(() => {
+          const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId)
+          if (taskIndex > -1) {
+            this.task_items[taskIndex].state = 'done'
+            this.$store.dispatch('tasks/pending_count')
+            this.fetchCount()
+
+            setTimeout(() => {
+              const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId && e.state === 'done')
+              if (taskIndex > -1) {
+                this.task_items.splice(taskIndex, 1)
+              }
+
+              if (this.task_items.length === 0) {
+                this.update()
+              }
+            }, 3000)
+          }
+        })
+    },
+
+    onTaskItemActionTaskUndoDoneClick (taskId: number) {
+      new Tasks()
+        .setState(taskId, 'pending')
+        .then(() => {
+          const taskIndex = this.task_items.findIndex((e: TaskInterface) => e.id === taskId)
+          if (taskIndex > -1) {
+            this.task_items[taskIndex].state = 'pending'
+            this.$store.dispatch('tasks/pending_count')
+            this.fetchCount()
+          }
+        })
+    },
+
+    onTaskItemClick (item: TaskInterface) {
+      if (item.contact) {
+        // Сохранить $route.fullPath что бы потом вернуться.
+        this.$store.commit('system/route_last_full_path', this.$route.fullPath)
+        this.$router.push({
+          name: 'operator_contacts_view',
+          params: { contact_id: item.contact.id } as any
+        })
+      }
+    },
+
+    onTaskItemDeleteClick (id: number) {
+      this.$dialog.confirm({
+        actions: {
+          false: {
+            color: 'red',
+            flat: true,
+            outlined: true,
+            text: this.$tc('no'),
+            tile: true
+          },
+          true: {
+            handle: () => {
+              return new Promise<void>((resolve) => {
+                new Tasks()
+                  .delete(id)
+                  .then(() => {
+                    this.$toast.success(this.$tc('Task successfully deleted'))
+                    // TODO: TASKS FETCH DATA
+                  }).catch((e: APIError) => {
+                    this.$toast.error(e.message)
+                  })
+                resolve()
+              })
+            },
+            text: this.$tc('yes')
+          }
+        },
+        text: this.$tc('All information about the task, the history of interaction will be deleted permanently.'),
+        title: this.$tc('Deleting task')
+      })
+    },
+
+    onTaskItemEditClick (item: TaskInterface) {
+      new Tasks()
+        .getById(item.id)
+        .then((response) => {
+          this.$dialog.show(STaskDialogEditor, {
+            contactId: response.contact?.id,
+            // Передайте дату и время в формате Unixtime
+            description: response.description,
+
+            onSave: (data: DTaskInterface) => {
+              // Новые данные задачи
+              const taskData: any = {
+                contact_id: response.contact?.id,
+                description: data.description,
+                performer_id: data.performer_id,
+                planned_for: data.planned_for,
+                type: data.type
+              }
+
+              new Tasks()
+                .edit(item.id, taskData)
+                .then(() => {
+                  this.$toast.success(this.$tc('Task successfully updated'))
+                  this.update()
+                })
+                .catch((e: APIError) => {
+                  let text = ''
+                  if (this.assertObjectHasAttribute(e, 'errors')) {
+                    text = e.errors.map(e => e.message).join('\n')
+                  }
+                  this.$toast.error(`${e.message}\n${text}`)
+                })
+            },
+
+            performerId: response.performer.id,
+
+            persistent: true,
+
+            plannedFor: response.planned_for,
+
+            // Передайте описание задачи
+            responsibleDisabled: true,
+
+            type: response.type,
+
+            waitForResult: true,
+
+            width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%'
+          })
+        })
+    },
+
+    prefix (name: string) {
+      return this.paramPrefix + name
+    },
+
+    /**
+     * Параметры которые будут добавлены в фильтр
+     * @param params
+     */
+    update (params = {}) {
+      return new Promise<void>((resolve, reject) => {
+        let offset = this.task_paginator.per_page_count * this.task_paginator.page - this.task_paginator.per_page_count
+        if (offset < 0) {
+          offset = 0
+        }
+        const newParams: any = Object.assign({}, {
+          count: this.task_paginator.per_page_count,
+          offset
+        }, params, this.params)
+
+        // Поиск по тексту
+        if (this.$route.query[this.prefix('q')]) {
+          newParams.q = this.$route.query[this.prefix('q')]
+        }
+
+        if (this.$route.query[this.prefix('sort')]) {
+          newParams.sort = this.$route.query[this.prefix('sort')]
+        }
+
+        // Статус контакта
+        if (this.$route.query[this.prefix('status_id')]) {
+          newParams.status_id = this.$route.query[this.prefix('status_id')]
+        }
+
+        // Статус Задачи
+        if (this.$route.query[this.prefix('state')]) {
+          newParams.state = this.$route.query[this.prefix('state')]
+        }
+
+        // Статус контакта
+        if (this.$route.query[this.prefix('planned_for')]) {
+          newParams.planned_for = this.$route.query[this.prefix('planned_for')]
+        }
+
+        new Tasks()
+          .find<any, TaskInterface[]>(newParams)
+          .then((response) => {
+            this.task_count = response.meta?.count
+            this.task_paginator.pages = Math.ceil(response.meta?.count / this.task_paginator.per_page_count)
+            this.task_items = response.data
+            resolve()
+          }).catch(reject)
+      })
+    },
+
+    vListItemStyleComputed (item: TaskInterface) {
+      const style: any = {}
+
+      if (item.state === 'done') {
+        style.opacity = 0.5
+      }
+
+      return style
+    }
+  },
+
+  mounted () {
+    this.initializeFiltersFromQuery()
+    this.initializeWatchFilters()
+    this.fetchCount()
+  },
+
+  props: {
+
+    /**
+     * Включить фильтр
+     **/
+    filtersEnabled: {
+      default () {
+        return false
+      },
+      type: Boolean
+    },
+
+    outlined: {
+      default: false,
+      type: Boolean
+    },
+
+    paramPrefix: {
+      default () {
+        return 't_'
+      },
+      type: String
+    },
+
+    /**
+     * Дополнительные параметры передаваемые конечной точке (имеет наивысший приоритет)
+     **/
+    params: {
+      default () {
+        return {}
+      },
+      type: Object
+    },
+
+    /**
+     * Количество задач на страницу
+     **/
+    perPage: {
+      default: 10,
+      type: Number
+    },
+
+    /**
+     * Включить инструменты
+     **/
+    toolsEnabled: {
+      default () {
+        return false
+      },
+      type: Boolean
     }
   }
 })

@@ -7,19 +7,19 @@
 </template>
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    }
-  },
   computed: {
     styles () {
       const size = parseInt(this.size)
       return {
-        width: this.size,
         height: this.size,
-        transform: 'scale(' + (size / 75) + ')'
+        transform: 'scale(' + (size / 75) + ')',
+        width: this.size
       }
+    }
+  },
+  props: {
+    size: {
+      default: '40px'
     }
   }
 }

@@ -176,93 +176,23 @@ interface MethodsInterface {
   onConfirm: (value: string) => void
 }
 export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, PropsInterface>({
-  props: {
-    // Исполнители
-    performers: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    // Типы задач
-    types: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    // Дата
-    date: {
-      type: Object,
-      default: () => {
-        return {
-          label: 'Date',
-          prependInnerIcon: 'mdi-calendar',
-          readonly: true,
-          rules: []
-        }
-      }
-    },
-    // Время
-    time: {
-      type: Object,
-      default: () => {
-        return {
-          label: 'Time',
-          prependInnerIcon: 'mdi-clock-time-four-outline',
-          readonly: true,
-          rules: []
-        }
-      }
-    },
-    // Описание
-    description: {
-      type: String,
-      default: () => ''
-    },
-
-    onSave: {
-      type: Function,
-      default: undefined
-    },
-
-    onCancel: {
-      type: Function,
-      default: undefined
-    }
-  },
-
-  data () {
-    return {
-      menuDatePicker: false,
-      menuTimePicker: false,
-      dataDate: undefined,
-      dataTime: undefined,
-      dataType: undefined,
-      dataPerformer: undefined,
-      dataDescription: undefined,
-      dataAutomaticExecution: false
-    }
-  },
-
   computed: {
 
     actions () {
       return {
         cancel: {
-          flat: true,
-          text: this.$tc('Cancel'),
           color: 'red',
+          flat: true,
           handle: () => {
             if (typeof (this as any).onCancel === 'function') {
               (this as any).onCancel()
             }
-          }
+          },
+          text: this.$tc('Cancel')
         },
 
         save: {
           flat: true,
-          text: this.$tc('Save'),
           handle: () => {
             if (typeof this.onSave === 'function') {
               if (!this.$refs.form.validate()) {
@@ -281,9 +211,84 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
               //   description: this.dataDescription
               // })
             }
-          }
+          },
+          text: this.$tc('Save')
         }
       }
+    }
+  },
+
+  data () {
+    return {
+      dataAutomaticExecution: false,
+      dataDate: undefined,
+      dataDescription: undefined,
+      dataPerformer: undefined,
+      dataTime: undefined,
+      dataType: undefined,
+      menuDatePicker: false,
+      menuTimePicker: false
+    }
+  },
+
+  props: {
+
+    // Дата
+    date: {
+      default: () => {
+        return {
+          label: 'Date',
+          prependInnerIcon: 'mdi-calendar',
+          readonly: true,
+          rules: []
+        }
+      },
+      type: Object
+    },
+
+    // Описание
+    description: {
+      default: () => '',
+      type: String
+    },
+
+    onCancel: {
+      default: undefined,
+      type: Function
+    },
+
+    onSave: {
+      default: undefined,
+      type: Function
+    },
+
+    // Исполнители
+    performers: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+
+    // Время
+    time: {
+      default: () => {
+        return {
+          label: 'Time',
+          prependInnerIcon: 'mdi-clock-time-four-outline',
+          readonly: true,
+          rules: []
+        }
+      },
+      type: Object
+    },
+
+    // Типы задач
+    types: {
+      default: () => {
+        return {}
+      },
+      type: Object
     }
   }
 

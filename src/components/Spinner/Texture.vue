@@ -3,17 +3,17 @@
 </template>
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    }
-  },
   computed: {
     styles () {
       return {
-        width: this.size,
-        height: this.size
+        height: this.size,
+        width: this.size
       }
+    }
+  },
+  props: {
+    size: {
+      default: '40px'
     }
   }
 }

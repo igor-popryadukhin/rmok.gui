@@ -26,7 +26,20 @@ export interface TasksStateInterface {
 
 function state (): TasksStateInterface {
   return {
-    pending_count: 0,
+
+    // Параметры запроса (сохраняются между перезагрузками страниц)
+    filter: {
+      contact_id: 0,
+      planned_for: null,
+      q: '',
+      sort: '',
+      state: '',
+      status_id: 0
+    },
+
+    // Элементы задач
+    items: [],
+
     // Опции страницы
     options: {
       count: 0,
@@ -34,17 +47,8 @@ function state (): TasksStateInterface {
       pages: 1,
       per_page: 25
     },
-    // Параметры запроса (сохраняются между перезагрузками страниц)
-    filter: {
-      contact_id: 0,
-      q: '',
-      sort: '',
-      status_id: 0,
-      state: '',
-      planned_for: null
-    },
-    // Элементы задач
-    items: []
+
+    pending_count: 0
   }
 }
 

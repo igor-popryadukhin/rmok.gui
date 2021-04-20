@@ -79,93 +79,25 @@ interface MethodsInterface {
 export default Vue.extend<IData, MethodsInterface, IComputed, IProps>({
   components: { SUsers },
 
-  mixins: [rules],
-
-  props: {
-
-    text: {
-      type: String,
-      default: () => {
-        return ''
-      }
-    },
-
-    // Идентификатор пользователя по умолчанию
-    userDefaultId: {
-      type: [Number, String],
-      required: true,
-      default: 0
-    },
-
-    onDelete: {
-      type: Function,
-      default: undefined
-    },
-    onCancel: {
-      type: Function,
-      default: undefined
-    }
-  },
-
-  data () {
-    return {
-      radioGroup: {
-        value: 'transfer_contacts_to_an_employee',
-        options: [
-          {
-            label: 'Передать контакты сотруднику',
-            value: 'transfer_contacts_to_an_employee'
-          },
-          {
-            label: 'Удалить вместе с контактами',
-            value: 'delete_along_with_contacts'
-          }
-        ]
-      },
-      deleteButtonDisabled: false,
-      errorMessages: [],
-      userSelect: null
-    }
-  },
-
-  watch: {
-    'radioGroup.value': {
-      handler (value: string) {
-        switch (value) {
-          case 'delete_along_with_contacts': {
-            break
-          }
-          case 'transfer_contacts_to_an_employee': {
-            this.$refs.sUsersAutocomplete.setDefault(this.userDefaultId)
-            break
-          }
-        }
-      },
-      deep: true
-    }
-  },
-
   computed: {
     actions () {
       return {
         cancel: {
-          flat: true,
-          tile: true,
-          text: this.$tc('Cancel'),
           color: 'red',
-          outlined: true,
+          flat: true,
           handle: () => {
             if (typeof this.onCancel === 'function') {
               (this as any).onCancel()
             }
-          }
+          },
+          outlined: true,
+          text: this.$tc('Cancel'),
+          tile: true
         },
 
         delete: {
-          text: this.$tc('Delete'),
-          flat: true,
-          tile: true,
           disabled: this.deleteButtonDisabled,
+          flat: true,
           handle: () => {
             if (typeof this.onDelete === 'function') {
               this.deleteButtonDisabled = true // Выключаю кнопку дабы избежать дребезг
@@ -195,14 +127,82 @@ export default Vue.extend<IData, MethodsInterface, IComputed, IProps>({
 
               this.onDelete(payload)
             }
-          }
+          },
+          text: this.$tc('Delete'),
+          tile: true
         }
       }
     }
   },
 
+  data () {
+    return {
+      deleteButtonDisabled: false,
+      errorMessages: [],
+      radioGroup: {
+        options: [
+          {
+            label: 'Передать контакты сотруднику',
+            value: 'transfer_contacts_to_an_employee'
+          },
+          {
+            label: 'Удалить вместе с контактами',
+            value: 'delete_along_with_contacts'
+          }
+        ],
+        value: 'transfer_contacts_to_an_employee'
+      },
+      userSelect: null
+    }
+  },
+
+  mixins: [rules],
+
   mounted () {
     this.$refs.sUsersAutocomplete.setDefault(this.userDefaultId)
+  },
+
+  props: {
+
+    onCancel: {
+      default: undefined,
+      type: Function
+    },
+
+    onDelete: {
+      default: undefined,
+      type: Function
+    },
+
+    text: {
+      default: () => {
+        return ''
+      },
+      type: String
+    },
+    // Идентификатор пользователя по умолчанию
+    userDefaultId: {
+      default: 0,
+      required: true,
+      type: [Number, String]
+    }
+  },
+
+  watch: {
+    'radioGroup.value': {
+      deep: true,
+      handler (value: string) {
+        switch (value) {
+          case 'delete_along_with_contacts': {
+            break
+          }
+          case 'transfer_contacts_to_an_employee': {
+            this.$refs.sUsersAutocomplete.setDefault(this.userDefaultId)
+            break
+          }
+        }
+      }
+    }
   }
 
 })

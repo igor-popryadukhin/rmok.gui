@@ -73,28 +73,14 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
-  name: 'RoleUseTypeDialog',
-
-  props: {
-    onCreate: {
-      type: Function,
-      default: null
-    },
-    onCancel: {
-      type: Function,
-      default: null
-    },
-    width: {
-      type: String,
-      default: () => '100%'
-    }
+  computed: {
+    notBlank: (value: any) => !!value || this.$t('This field should not be blank.')
   },
 
   data (): IData {
     return {
       role_name: null,
       role_use: {
-        selected: null,
         options: [
           {
             title: this.$tc('For administration'),
@@ -104,13 +90,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
             title: this.$tc('For calls'),
             value: 'for_calls'
           }
-        ]
+        ],
+        selected: null
       }
     }
-  },
-
-  computed: {
-    notBlank: (value: any) => !!value || this.$t('This field should not be blank.')
   },
 
   methods: {
@@ -130,6 +113,23 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         }
         this.onCreate(context)
       }
+    }
+  },
+
+  name: 'RoleUseTypeDialog',
+
+  props: {
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    onCreate: {
+      default: null,
+      type: Function
+    },
+    width: {
+      default: () => '100%',
+      type: String
     }
   }
 

@@ -403,156 +403,6 @@ interface IComputed {
 export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, IComputed, IProps>({
   components: { SIncomingRTC },
 
-  mixins: [breadcrumbs, jssip],
-
-  data (): IData {
-    return {
-      projectDialog: {
-        visible: false,
-        projects: [] as ProjectInterface[],
-        disabled: false
-      },
-      buttonMenuNotification: false,
-      mainSearch: {
-        q: null,
-        selected: null,
-        loading: false,
-        items: [],
-        debounce: debounce(function (q: string, _this: any) {
-          _this.$root.$emit('root-main-search', q, (items: MainSearchInterface[]) => {
-            _this.mainSearch.items = items
-          })
-        }, 400)
-      },
-      statusSetProcess: false,
-      drawer: null,
-      accountMenuItems: [
-        {
-          title: 'Available',
-          icon: {
-            name: 'mdi-check-circle-outline',
-            attrs: {
-              color: 'green'
-            }
-          },
-          attrs: {
-            dense: true,
-            link: true
-          },
-          on: {
-            click: () => {
-              (this as any).statusSetProcess = true
-              new Account()
-                .setStatus(UserStatus.AVAILABLE)
-                .finally(() => {
-                  this.$store
-                    .dispatch('profile/loadProfile')
-                    .finally(() => ((this as any).statusSetProcess = false))
-                })
-            }
-          }
-        },
-        {
-          title: 'Do not disturb',
-          icon: {
-            name: 'mdi-do-not-disturb',
-            attrs: {
-              color: 'red'
-            }
-          },
-          attrs: {
-            dense: true,
-            link: true
-          },
-          on: {
-            click: () => {
-              (this as any).statusSetProcess = true
-              new Account()
-                .setStatus(UserStatus.DO_NOT_DISTURB)
-                .finally(() => {
-                  this.$store
-                    .dispatch('profile/loadProfile')
-                    .finally(() => ((this as any).statusSetProcess = false))
-                })
-            }
-          }
-        },
-        {
-          title: 'Break',
-          icon: {
-            name: 'mdi-pause-circle-outline',
-            attrs: {
-              color: 'blue'
-            }
-          },
-          attrs: {
-            link: true,
-            dense: true
-          },
-          on: {
-            click: () => {
-              (this as any).statusSetProcess = true
-              new Account()
-                .setStatus(UserStatus.COFFEE_BREAK)
-                .finally(() => {
-                  this.$store
-                    .dispatch('profile/loadProfile')
-                    .finally(() => ((this as any).statusSetProcess = false))
-                })
-            }
-          }
-        },
-
-        { divider: true },
-
-        {
-          title: 'Profile',
-          icon: {
-            name: 'mdi-account',
-            attrs: {}
-          },
-          attrs: {
-            dense: true,
-            to: {
-              name: 'operator_settings_profile'
-            }
-          }
-        },
-        {
-          title: 'Exit',
-          icon: {
-            name: 'mdi-exit-run',
-            attrs: {}
-          },
-          attrs: {
-            dense: true
-          },
-          on: {
-            click: () => this.$router.replace({ name: 'login' })
-          }
-        }
-      ],
-      notifications: [] as NotificationInterface[],
-      projects: []
-    }
-  },
-
-  watch: {
-    'mainSearch.q': {
-      handler (q: string) {
-        this.mainSearch.debounce(q, this)
-      }
-    },
-
-    'mainSearch.selected': {
-      handler (value) {
-        if (value) {
-          this.$root.$emit('root-main-search-selected', value)
-        }
-      }
-    }
-  },
-
   computed: {
     ...mapGetters({
       task_pending_count: 'tasks/pending_count'
@@ -567,29 +417,32 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
     mainMenu () {
       return [
         {
-          title: this.$tc('Leads'),
           attrs: {
-            value: this.$tc('Leads'),
             text: true,
-            to: { name: 'operator_leads' }
-          }
+            to: { name: 'operator_leads' },
+            value: this.$tc('Leads')
+          },
+          title: this.$tc('Leads')
         },
         {
-          title: this.$tc('Contacts'),
           attrs: {
             text: true,
             to: { name: 'operator_contacts_list' }
-          }
+          },
+          title: this.$tc('Contacts')
         },
         {
-          title: this.$tc('Tasks'),
-          icon: '',
+          attrs: {
+            disabled: false,
+            link: true,
+            to: { name: 'operator_tasks_list' }
+          },
           badge: () => { // Может быть как функция возвращающая объект, так и обычный объект
             let visible = false
             const attrs: any = {
+              color: 'red',
               content: this.task_pending_count,
-              inline: true,
-              color: 'red'
+              inline: true
             }
 
             if (this.task_pending_count > 0) {
@@ -597,44 +450,41 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             }
 
             return {
-              visible,
-              attrs
+              attrs,
+              visible
             }
           },
-          attrs: {
-            link: true,
-            disabled: false,
-            to: { name: 'operator_tasks_list' }
-          }
+          icon: '',
+          title: this.$tc('Tasks')
         },
         {
-          title: 'Statistic',
-          icon: 'mdi-chart-arc',
           attrs: {
             link: true
           },
           children: [
             {
-              title: 'Recent call statistics',
-              icon: '',
-              visible: true,
               attrs: {
                 to: {
                   name: 'operator_reports_recent_calls'
                 }
-              }
+              },
+              icon: '',
+              title: 'Recent call statistics',
+              visible: true
             },
             {
-              title: 'Statistics for all calls',
-              icon: '',
-              visible: true,
               attrs: {
                 to: {
                   name: 'operator_reports_all_calls'
                 }
-              }
+              },
+              icon: '',
+              title: 'Statistics for all calls',
+              visible: true
             }
-          ]
+          ],
+          icon: 'mdi-chart-arc',
+          title: 'Statistic'
         }
         // {
         //   title: this.$tc('Help'),
@@ -663,6 +513,201 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
       }
     }
   },
+
+  created () {
+    this.$store.dispatch('tasks/pending_count')
+    this.$store.subscribe(
+      ({ payload, type }) => {
+        if (type === 'project/set') {
+          if (payload.statuses) {
+            if (payload.statuses.length === 0) {
+              // TODO: TASKS FETCH DATA
+            }
+          }
+        }
+      }
+    )
+    this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
+  },
+
+  data (): IData {
+    return {
+      accountMenuItems: [
+        {
+          icon: {
+            attrs: {
+              color: 'green'
+            },
+            name: 'mdi-check-circle-outline'
+          },
+          attrs: {
+            dense: true,
+            link: true
+          },
+          title: 'Available',
+          on: {
+            click: () => {
+              (this as any).statusSetProcess = true
+              new Account()
+                .setStatus(UserStatus.AVAILABLE)
+                .finally(() => {
+                  this.$store
+                    .dispatch('profile/loadProfile')
+                    .finally(() => ((this as any).statusSetProcess = false))
+                })
+            }
+          }
+        },
+        {
+          icon: {
+            attrs: {
+              color: 'red'
+            },
+            name: 'mdi-do-not-disturb'
+          },
+          attrs: {
+            dense: true,
+            link: true
+          },
+          title: 'Do not disturb',
+          on: {
+            click: () => {
+              (this as any).statusSetProcess = true
+              new Account()
+                .setStatus(UserStatus.DO_NOT_DISTURB)
+                .finally(() => {
+                  this.$store
+                    .dispatch('profile/loadProfile')
+                    .finally(() => ((this as any).statusSetProcess = false))
+                })
+            }
+          }
+        },
+        {
+          icon: {
+            attrs: {
+              color: 'blue'
+            },
+            name: 'mdi-pause-circle-outline'
+          },
+          attrs: {
+            dense: true,
+            link: true
+          },
+          title: 'Break',
+          on: {
+            click: () => {
+              (this as any).statusSetProcess = true
+              new Account()
+                .setStatus(UserStatus.COFFEE_BREAK)
+                .finally(() => {
+                  this.$store
+                    .dispatch('profile/loadProfile')
+                    .finally(() => ((this as any).statusSetProcess = false))
+                })
+            }
+          }
+        },
+
+        { divider: true },
+
+        {
+          icon: {
+            attrs: {},
+            name: 'mdi-account'
+          },
+          attrs: {
+            dense: true,
+            to: {
+              name: 'operator_settings_profile'
+            }
+          },
+          title: 'Profile'
+        },
+        {
+          icon: {
+            attrs: {},
+            name: 'mdi-exit-run'
+          },
+          attrs: {
+            dense: true
+          },
+          title: 'Exit',
+          on: {
+            click: () => this.$router.replace({ name: 'login' })
+          }
+        }
+      ],
+      buttonMenuNotification: false,
+      drawer: null,
+      mainSearch: {
+        debounce: debounce(function (q: string, _this: any) {
+          _this.$root.$emit('root-main-search', q, (items: MainSearchInterface[]) => {
+            _this.mainSearch.items = items
+          })
+        }, 400),
+        loading: false,
+        items: [],
+        q: null,
+        selected: null
+      },
+      notifications: [] as NotificationInterface[],
+      projectDialog: {
+        projects: [] as ProjectInterface[],
+        disabled: false,
+        visible: false
+      },
+      projects: [],
+      statusSetProcess: false
+    }
+  },
+
+  methods: {
+
+    /**
+     * Происходит при каждом клике по элементу списка проектов в диалоговом окне
+     *
+     * @param item
+     */
+    onProjectItemClick (item: ProjectInterface & { loading: boolean }) {
+      this.projectDialog.disabled = true
+      item.loading = true
+      new Users()
+        .setProject(this.$store.getters['profile/id'], item.id)
+        .then(() => {
+          this.projectDialog.visible = false
+          this.$store.dispatch('project/load')
+        }).catch((e) => {
+          console.log(e)
+        }).finally(() => {
+          item.loading = false
+          this.projectDialog.disabled = false
+
+          this.$root.$emit('root-load-leads')
+          this.$root.$emit('root-load-tasks')
+        })
+    },
+
+    onRootLoadingProjects () {
+      new Projects()
+        .find<{ count: number }, ProjectInterface[]>({
+          count: 100,
+          offset: 0
+        }).then((response) => {
+          this.projectDialog.projects = response.data.map((e: any) => {
+            e.loading = false
+            return e
+          })
+
+          // Показать диалог выбора проекта, если таковые имеются
+          if (this.projectDialog.projects.length > 0) {
+            this.projectDialog.visible = true
+          }
+        })
+    }
+  },
+
+  mixins: [breadcrumbs, jssip],
 
   mounted () {
     // Событие загрузки проектов для выбора
@@ -706,64 +751,19 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
     // })
   },
 
-  created () {
-    this.$store.dispatch('tasks/pending_count')
-    this.$store.subscribe(
-      ({ payload, type }) => {
-        if (type === 'project/set') {
-          if (payload.statuses) {
-            if (payload.statuses.length === 0) {
-              // TODO: TASKS FETCH DATA
-            }
-          }
-        }
+  watch: {
+    'mainSearch.q': {
+      handler (q: string) {
+        this.mainSearch.debounce(q, this)
       }
-    )
-    this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
-  },
-
-  methods: {
-
-    /**
-     * Происходит при каждом клике по элементу списка проектов в диалоговом окне
-     *
-     * @param item
-     */
-    onProjectItemClick (item: ProjectInterface & { loading: boolean }) {
-      this.projectDialog.disabled = true
-      item.loading = true
-      new Users()
-        .setProject(this.$store.getters['profile/id'], item.id)
-        .then(() => {
-          this.projectDialog.visible = false
-          this.$store.dispatch('project/load')
-        }).catch((e) => {
-          console.log(e)
-        }).finally(() => {
-          item.loading = false
-          this.projectDialog.disabled = false
-
-          this.$root.$emit('root-load-leads')
-          this.$root.$emit('root-load-tasks')
-        })
     },
 
-    onRootLoadingProjects () {
-      new Projects()
-        .find<{ count: number }, ProjectInterface[]>({
-          offset: 0,
-          count: 100
-        }).then((response) => {
-          this.projectDialog.projects = response.data.map((e: any) => {
-            e.loading = false
-            return e
-          })
-
-          // Показать диалог выбора проекта, если таковые имеются
-          if (this.projectDialog.projects.length > 0) {
-            this.projectDialog.visible = true
-          }
-        })
+    'mainSearch.selected': {
+      handler (value) {
+        if (value) {
+          this.$root.$emit('root-main-search-selected', value)
+        }
+      }
     }
   }
 })

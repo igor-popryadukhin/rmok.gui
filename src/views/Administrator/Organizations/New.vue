@@ -303,13 +303,8 @@ import SUsers from '@/snippets/SUsers/SUsers.vue'
 export default Vue.extend({
   components: { SUsers },
 
-  mixins: [rules],
-
   data () {
     return {
-      regExPatterns: {
-        companyName: /[A-zА-я0-9"&\s+]+/
-      },
       buttonSave: {
         disabled: false,
         loading: false
@@ -317,33 +312,29 @@ export default Vue.extend({
       form: {
         valid: false
       },
-      users: [] as UserInterface[],
-      organizationName: '',
-      organizationInn: '',
+      organizationAddress: '' as string,
+      organizationCity: '' as string,
       organizationCpp: '',
-      organizationSite: '',
+      organizationDescription: '' as string,
       organizationEmail: '',
+      organizationInn: '',
+      organizationName: '',
       organizationPhone: '',
+      organizationRegion: '' as string,
+      organizationResponsible: {} as unknown as UserInterface,
+      organizationSite: '',
       organizationSphereActivity: '',
       organizationTags: [] as any[],
-      organizationResponsible: {} as unknown as UserInterface,
-      organizationCity: '' as string,
-      organizationRegion: '' as string,
-      organizationAddress: '' as string,
-      organizationDescription: '' as string,
-      tags: [] as OrganizationTagInterface[]
+      regExPatterns: {
+        companyName: /[A-zА-я0-9"&\s+]+/
+      },
+      tags: [] as OrganizationTagInterface[],
+      users: [] as UserInterface[]
       /* eslint-enable */
     }
   },
 
   methods: {
-
-    resetForm () {
-      /* eslint-disable */
-      (this.$refs.form as Vue & { reset: () => boolean }).reset()
-      this.organizationTags = []
-      /* eslint-enable */
-    },
 
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
@@ -414,8 +405,17 @@ export default Vue.extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
+    },
+
+    resetForm () {
+      /* eslint-disable */
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
+      this.organizationTags = []
+      /* eslint-enable */
     }
-  }
+  },
+
+  mixins: [rules]
 })
 </script>
 

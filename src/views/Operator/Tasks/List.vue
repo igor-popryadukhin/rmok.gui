@@ -40,16 +40,16 @@ export default Vue.extend({
       if (contact) {
         if (contact.last_status) {
           return {
-            name: contact.last_status.name,
             class: '',
-            color: contact.last_status.color
+            color: contact.last_status.color,
+            name: contact.last_status.name
           }
         }
       }
       return {
-        name: this.$tc('Status not set'),
         class: 'label-outlined label-color-grey',
-        color: ''
+        color: '',
+        name: this.$tc('Status not set')
       }
     },
 

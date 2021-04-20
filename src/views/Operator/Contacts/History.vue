@@ -296,22 +296,6 @@ import { mapGetters } from 'vuex'
 
 export default (Vue as VueConstructor<VInterface>).extend({
 
-  data () {
-    return {
-      historyLoading: false,
-      buttonsHoverIndex: -1,
-      buttonsHover: [],
-      history: [],
-      comment: {
-        disabled: false,
-        text: '',
-        buttonSave: {
-          loading: false
-        }
-      }
-    }
-  },
-
   computed: {
     ...mapGetters({
       database_statuses: 'database/statuses_grouped'
@@ -325,51 +309,23 @@ export default (Vue as VueConstructor<VInterface>).extend({
     this.loadHistory()
   },
 
+  data () {
+    return {
+      buttonsHover: [],
+      buttonsHoverIndex: -1,
+      comment: {
+        buttonSave: {
+          loading: false
+        },
+        disabled: false,
+        text: ''
+      },
+      history: [],
+      historyLoading: false
+    }
+  },
+
   methods: {
-    /**
-     * Метод предназначен для обновления всего компонента
-     **/
-    update () {
-      this.loadHistory(+this.$route.params.contact_id)
-    },
-
-    onShowDialogCommentEdit ({ id, comment, actions }: any) {
-      this.$dialog.show(DTextarea, {
-        waitForResult: false,
-        title: this.$tc('Comment'),
-        text: comment,
-        value: comment,
-        showClose: true
-      })
-    },
-
-    onShowDialogCallEdit ({ id, comment, actions, status }: any) {
-      const contact_id = +this.$route.params.contact_id
-      if (this.database_statuses.length > 0) {
-        this.$dialog.show(VStatusEditDialog, {
-          waitForResult: true,
-          statuses: this.database_statuses, // Statuses in current project
-          statusId: status?.id || 0,
-          comment,
-          width: '60%',
-          height: '600',
-          onSave: ({ status, comment }: StatusInterface) => {
-            actions.edit.loading = true
-            new Contacts()
-              .updateHistory(id, {
-                status_id: status.id,
-                comment
-              }).then(() => {
-                this.loadHistory(contact_id)
-              }).finally(() => {
-                actions.edit.loading = false
-              })
-          }
-        }).finally(() => (actions.edit.loading = false))
-      } else {
-        this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
-      }
-    },
 
     /**
      * Загружает историю контакта
@@ -408,8 +364,57 @@ export default (Vue as VueConstructor<VInterface>).extend({
         })
     },
 
+    onShowDialogCallEdit ({ id, comment, actions, status }: any) {
+      const contact_id = +this.$route.params.contact_id
+      if (this.database_statuses.length > 0) {
+        this.$dialog.show(VStatusEditDialog, {
+          comment,
+          height: '600',
+          onSave: ({ status, comment }: StatusInterface) => {
+            actions.edit.loading = true
+            new Contacts()
+              .updateHistory(id, {
+                comment,
+                status_id: status.id
+              }).then(() => {
+                this.loadHistory(contact_id)
+              }).finally(() => {
+                actions.edit.loading = false
+              })
+          },
+
+          // Statuses in current project
+          statusId: status?.id || 0,
+
+          statuses: this.database_statuses,
+
+          waitForResult: true,
+          width: '60%'
+        }).finally(() => (actions.edit.loading = false))
+      } else {
+        this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
+      }
+    },
+
+    onShowDialogCommentEdit ({ id, comment, actions }: any) {
+      this.$dialog.show(DTextarea, {
+        showClose: true,
+        text: comment,
+        title: this.$tc('Comment'),
+        value: comment,
+        waitForResult: false
+      })
+    },
+
     secondsToHmsDigital (s: number) {
       return secondsToHmsDigital(s)
+    },
+
+    /**
+     * Метод предназначен для обновления всего компонента
+     **/
+    update () {
+      this.loadHistory(+this.$route.params.contact_id)
     }
   }
 })

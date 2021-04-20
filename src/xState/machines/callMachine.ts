@@ -37,11 +37,11 @@ const callMachine = createMachine<Vue, Event>({
   id: 'toggle',
   initial: 'idle',
   states: {
-    // В режиме ожидания
-    idle: {
+
+    accepted: {
       on: {
-        CONNECTING: 'connecting', // Происходит когда мы начинаем звонить
-        PROGRESS: 'progress' // Происходит когда нам звонят
+        ENDED: 'ended',
+        FAILED: 'failed'
       }
     },
 
@@ -62,8 +62,128 @@ const callMachine = createMachine<Vue, Event>({
         }
       },
       on: {
-        PROGRESS: 'progress',
-        FAILED: 'failed'
+        FAILED: 'failed',
+        PROGRESS: 'progress'
+      }
+    },
+
+    // Состояние, когда разговор завершён
+    ended: {
+      always: 'idle',
+      entry (ctx, { jssip, session, event }) {
+        let audioRecordId = null
+        if (session.direction === 'incoming') {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          if ('X-Call-Filename' in session._request.headers) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            if (session._request.headers.length > 0) {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              if (session._request.headers['X-Call-Filename'][0].raw) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                audioRecordId = session._request.headers['X-Call-Filename'][0].raw
+              }
+            }
+          }
+        } else {
+          audioRecordId = jssip.uuid
+        }
+
+        // Прячу тост
+        if (session.direction === 'incoming') {
+          ctx.$toast.dismiss(session.id)
+        }
+
+        const historyData = {
+          cause: event.cause,
+          direction: session.direction,
+          originator: event.originator,
+          session_end_time: $moment(jssip.sessionEndTime).unix(),
+          session_start_time: $moment(jssip.sessionStartTime).unix(),
+          type: 'call'
+        } as any
+
+        // Если есть идентификатор файла записи
+        if (audioRecordId) {
+          historyData.audio_record_id = audioRecordId
+        }
+
+        // Если есть время разговора
+        if ((session.start_time) && (session.end_time)) {
+          historyData.start_timestamp = $moment(session.start_time).unix()
+          historyData.end_timestamp = $moment(session.end_time).unix()
+        }
+
+        let contactId = 0
+
+        // Внимание!!!
+        // Прежде чем получать значение полезной нагрузки, убедитесь что вы её туда положили
+        contactId = jssip.getPayload<JSSIPPayloadInterface>().contact_id
+        historyData.target = jssip.getPayload<JSSIPPayloadInterface>().target
+
+        new Contacts()
+          .addHistory(contactId, historyData)
+          .then((id: number) => {
+            if (ctx.$store.getters['project/statuses'].length > 0) {
+              // Диалог статуса звонка
+              ctx.$dialog.show(VStatusEditDialog, {
+                height: '600',
+                onSave: (data: any) => {
+                  new Contacts()
+                    .updateHistory(id, {
+                      comment: data.comment,
+                      status_id: data.status.id
+                    }).finally(() => {
+                      // Сообщаю, что история может быть обновлена
+                      ctx.$root.$emit('root-contact-history-change')
+
+                      if (ctx.$store.getters['system/route_last_full_path']) {
+                        ctx.$router.push(ctx.$store.getters['system/route_last_full_path'])
+                        ctx.$store.commit('system/route_last_full_path', '') // Установить пустое значение, чтобы не было повторения
+                      }
+                    })
+                },
+                statuses: ctx.$store.getters['project/statuses'],
+
+                waitForResult: true,
+                // Статусы в текущем проекте
+                width: ['xs', 'sm'].includes(ctx.$vuetify.breakpoint.name) ? '100%' : '60%'
+              })
+            } else {
+              ctx.$toast.warning(ctx.$tc('The status cannot be set, because the project is configured incorrectly!'))
+            }
+          }).finally(() => {
+          // Сообщаю, что история может быть обновлена
+            ctx.$root.$emit('root-contact-history-change')
+          })
+
+        if (ctx.$isDebug) {
+          console.group('JsSIP: Завершение сессии')
+          console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
+          console.log('%c%s', 'color: green;', '----------------------------------------------------')
+          console.log(`X-Call-Filename: ${audioRecordId}`)
+          console.log(event)
+          console.log(session.direction)
+          console.log(session)
+          console.log('%c%s', 'color: green;', '----------------------------------------------------')
+          console.groupEnd()
+        }
+      }
+    },
+
+    failed: {
+      always: 'idle',
+      entry (ctx, event) { ctx.$toast.error(`Event: ${event.type}`, { timeout: 30000 }) }
+    },
+
+    // В режиме ожидания
+    idle: {
+      on: {
+        CONNECTING: 'connecting', // Происходит когда мы начинаем звонить
+        PROGRESS: 'progress' // Происходит когда нам звонят
       }
     },
 
@@ -96,11 +216,11 @@ const callMachine = createMachine<Vue, Event>({
 
               // Отправляю событие для обновления тоста
               ctx.$root.$emit('update-rtc-toast', {
-                id: session.id,
                 data: {
                   displayName: `${response.first_name} ${response.last_name}`,
                   phoneNumber: displayPoneNumber
-                }
+                },
+                id: session.id
               })
             })
 
@@ -111,11 +231,11 @@ const callMachine = createMachine<Vue, Event>({
           }
 
           ctx.$root.$emit('show-rtc-toast', {
-            id: session.id,
             data: {
               displayName: displayPoneNumber, // Мы ещё не знаем кто, поэтому отображаем номер телефона
               phoneNumber: displayPoneNumber
-            }
+            },
+            id: session.id
           })
         }
 
@@ -133,123 +253,6 @@ const callMachine = createMachine<Vue, Event>({
         ACCEPTED: 'accepted',
         ENDED: 'ended'
       }
-    },
-
-    accepted: {
-      on: {
-        ENDED: 'ended',
-        FAILED: 'failed'
-      }
-    },
-
-    // Состояние, когда разговор завершён
-    ended: {
-      entry (ctx, { jssip, session, event }) {
-        let audioRecordId = null
-        if (session.direction === 'incoming') {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          if ('X-Call-Filename' in session._request.headers) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (session._request.headers.length > 0) {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              if (session._request.headers['X-Call-Filename'][0].raw) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                audioRecordId = session._request.headers['X-Call-Filename'][0].raw
-              }
-            }
-          }
-        } else {
-          audioRecordId = jssip.uuid
-        }
-
-        // Прячу тост
-        if (session.direction === 'incoming') {
-          ctx.$toast.dismiss(session.id)
-        }
-
-        const historyData = {
-          session_start_time: $moment(jssip.sessionStartTime).unix(),
-          session_end_time: $moment(jssip.sessionEndTime).unix(),
-          type: 'call',
-          direction: session.direction,
-          originator: event.originator,
-          cause: event.cause
-        } as any
-
-        // Если есть идентификатор файла записи
-        if (audioRecordId) {
-          historyData.audio_record_id = audioRecordId
-        }
-
-        // Если есть время разговора
-        if ((session.start_time) && (session.end_time)) {
-          historyData.start_timestamp = $moment(session.start_time).unix()
-          historyData.end_timestamp = $moment(session.end_time).unix()
-        }
-
-        let contactId = 0
-
-        // Внимание!!!
-        // Прежде чем получать значение полезной нагрузки, убедитесь что вы её туда положили
-        contactId = jssip.getPayload<JSSIPPayloadInterface>().contact_id
-        historyData.target = jssip.getPayload<JSSIPPayloadInterface>().target
-
-        new Contacts()
-          .addHistory(contactId, historyData)
-          .then((id: number) => {
-            if (ctx.$store.getters['project/statuses'].length > 0) {
-              // Диалог статуса звонка
-              ctx.$dialog.show(VStatusEditDialog, {
-                waitForResult: true,
-                statuses: ctx.$store.getters['project/statuses'], // Статусы в текущем проекте
-                width: ['xs', 'sm'].includes(ctx.$vuetify.breakpoint.name) ? '100%' : '60%',
-                height: '600',
-                onSave: (data: any) => {
-                  new Contacts()
-                    .updateHistory(id, {
-                      status_id: data.status.id,
-                      comment: data.comment
-                    }).finally(() => {
-                      // Сообщаю, что история может быть обновлена
-                      ctx.$root.$emit('root-contact-history-change')
-
-                      if (ctx.$store.getters['system/route_last_full_path']) {
-                        ctx.$router.push(ctx.$store.getters['system/route_last_full_path'])
-                        ctx.$store.commit('system/route_last_full_path', '') // Установить пустое значение, чтобы не было повторения
-                      }
-                    })
-                }
-              })
-            } else {
-              ctx.$toast.warning(ctx.$tc('The status cannot be set, because the project is configured incorrectly!'))
-            }
-          }).finally(() => {
-          // Сообщаю, что история может быть обновлена
-            ctx.$root.$emit('root-contact-history-change')
-          })
-
-        if (ctx.$isDebug) {
-          console.group('JsSIP: Завершение сессии')
-          console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
-          console.log('%c%s', 'color: green;', '----------------------------------------------------')
-          console.log(`X-Call-Filename: ${audioRecordId}`)
-          console.log(event)
-          console.log(session.direction)
-          console.log(session)
-          console.log('%c%s', 'color: green;', '----------------------------------------------------')
-          console.groupEnd()
-        }
-      },
-      always: 'idle'
-    },
-
-    failed: {
-      entry (ctx, event) { ctx.$toast.error(`Event: ${event.type}`, { timeout: 30000 }) },
-      always: 'idle'
     }
   }
 })

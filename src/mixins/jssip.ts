@@ -16,57 +16,32 @@ import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 
 const jssip = Vue.extend({
 
-  data () {
-    return {
-      incomingDialogVisible: false,
-      toastId: 0 as string | number,
-      RTCToastOptions: {
-        id: '',
-        position: POSITION.TOP_RIGHT,
-        timeout: false,
-        pauseOnFocusLoss: true,
-        pauseOnHover: true,
-        draggable: false,
-        draggablePercent: 0.47,
-        hideProgressBar: false,
-        toastClassName: 'incoming-rtc-toast',
-        closeOnClick: false,
-        closeButton: false,
-        icon: false,
-        rtl: false
-      } as ToastOptions
-    }
-  },
-
-  mounted () {
-    this.$root.$on('show-rtc-toast', this.showRTCToast)
-    this.$root.$on('update-rtc-toast', this.updateRTCToast)
-    this.$root.$on('root-jssip-initialize', this.jsSIPInitialize) // Инициализация телефонии
-
-    // Сразу проинициализируем телефонию.
-    this.$root.$emit('root-jssip-initialize')
-
-    this.$store.subscribe(
-      ({ payload, type }) => {
-        if (type === 'profile/setStatus') {
-          if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(payload)) {
-            if (!this.$jsSIP.isConnected) {
-              this.$jsSIP.start()
-            }
-          } else {
-            if (this.$jsSIP.isConnected) {
-              this.$jsSIP.stop()
-            }
-          }
-        }
-      }
-    )
-  },
-
   beforeDestroy () {
     this.$root.$off('show-rtc-toast', this.showRTCToast)
     this.$root.$off('update-rtc-toast', this.updateRTCToast)
     this.$root.$off('root-jssip-initialize', this.jsSIPInitialize)
+  },
+
+  data () {
+    return {
+      RTCToastOptions: {
+        closeButton: false,
+        closeOnClick: false,
+        draggable: false,
+        draggablePercent: 0.47,
+        hideProgressBar: false,
+        icon: false,
+        id: '',
+        pauseOnFocusLoss: true,
+        pauseOnHover: true,
+        position: POSITION.TOP_RIGHT,
+        rtl: false,
+        timeout: false,
+        toastClassName: 'incoming-rtc-toast'
+      } as ToastOptions,
+      incomingDialogVisible: false,
+      toastId: 0 as string | number
+    }
   },
 
   methods: {
@@ -89,8 +64,6 @@ const jssip = Vue.extend({
             return this.$toast.error({
               component: VToast,
               props: {
-                title: this.$tc('Error connecting to PBX'),
-                text: this.$t('Cause: {text}', { text: 'Нет параметров!' }),
                 actions: [
                   {
                     attrs: {
@@ -103,7 +76,9 @@ const jssip = Vue.extend({
                       }
                     }
                   }
-                ]
+                ],
+                text: this.$t('Cause: {text}', { text: 'Нет параметров!' }),
+                title: this.$tc('Error connecting to PBX')
               }
             }, { timeout: false })
           }
@@ -119,9 +94,9 @@ const jssip = Vue.extend({
             // Устанавливаю конфигурацию.
             // Фактически будет создан новый экземпляр this.$jsSIP
             this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
-              uri: `sip:${config.login}@${config.server}`,
               password: config.password,
-              realm: config.server
+              realm: config.server,
+              uri: `sip:${config.login}@${config.server}`
             })
 
             // Далее инициализация слушателей
@@ -177,11 +152,11 @@ const jssip = Vue.extend({
 
                     // Отправляю событие для обновления тоста
                     this.$root.$emit('update-rtc-toast', {
-                      id: session.id,
                       data: {
                         displayName: `${response.first_name} ${response.last_name}`,
                         phoneNumber: displayPoneNumber
-                      }
+                      },
+                      id: session.id
                     })
                   })
 
@@ -192,11 +167,11 @@ const jssip = Vue.extend({
                 }
 
                 this.$root.$emit('show-rtc-toast', {
-                  id: session.id,
                   data: {
                     displayName: displayPoneNumber, // Мы ещё не знаем кто, поэтому отображаем номер телефона
                     phoneNumber: displayPoneNumber
-                  }
+                  },
+                  id: session.id
                 })
               }
 
@@ -265,12 +240,12 @@ const jssip = Vue.extend({
               }
 
               const historyData = {
-                session_start_time: self.sessionStartTime.getTime() / 1000,
-                session_end_time: self.sessionEndTime.getTime() / 1000,
-                type: 'call',
+                cause: event.cause,
                 direction: session.direction,
                 originator: event.originator,
-                cause: event.cause
+                session_end_time: self.sessionEndTime.getTime() / 1000,
+                session_start_time: self.sessionStartTime.getTime() / 1000,
+                type: 'call'
               } as any
 
               // Если есть идентификатор файла записи
@@ -296,8 +271,8 @@ const jssip = Vue.extend({
                 .then((id: number) => {
                   if (this.$store.getters['database/statuses_grouped'].length > 0) {
                     this.$root.$emit('root-jssip-session-ended', {
-                      contact_id: contactId,
-                      contact_history_id: id
+                      contact_history_id: id,
+                      contact_id: contactId
                     } as REJssipSessionEndedInterface)
                   } else {
                     this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
@@ -338,8 +313,6 @@ const jssip = Vue.extend({
               this.$toast.error({
                 component: VToast,
                 props: {
-                  title: this.$tc('Error connecting to PBX'),
-                  text: this.$t('Cause: {text}', { text: event.cause }),
                   actions: [
                     {
                       attrs: {
@@ -352,7 +325,9 @@ const jssip = Vue.extend({
                         }
                       }
                     }
-                  ]
+                  ],
+                  text: this.$t('Cause: {text}', { text: event.cause }),
+                  title: this.$tc('Error connecting to PBX')
                 }
               }, { timeout: false })
             })
@@ -369,41 +344,6 @@ const jssip = Vue.extend({
     },
 
     /**
-     * Показать окно входящего звонка
-     * @param scope
-     */
-    showRTCToast (scope: { id: string | number; data: any }) {
-      this.RTCToastOptions.id = scope.id
-      this.toastId = this.$toast({
-        component: IncomingRTCSession,
-        props: {
-          displayName: scope.data.displayName,
-          phoneNumber: scope.data.displayName
-        },
-        listeners: {
-          answer: this.onAnswer,
-          hangup: this.onHangup
-        }
-      }, this.RTCToastOptions)
-    },
-
-    updateRTCToast (scope: { id: string | number; data: any }) {
-      this.$toast.update(scope.id, {
-        content: {
-          component: IncomingRTCSession,
-          props: {
-            displayName: scope.data.displayName,
-            phoneNumber: scope.data.phoneNumber
-          },
-          listeners: {
-            answer: this.onAnswer,
-            hangup: this.onHangup
-          }
-        }
-      })
-    },
-
-    /**
      * Ответить
      */
     onAnswer () {
@@ -416,7 +356,67 @@ const jssip = Vue.extend({
     onHangup () {
       this.$toast.dismiss(this.toastId) // Завершить тост
       this.$jsSIP.cancel()
+    },
+
+    /**
+     * Показать окно входящего звонка
+     * @param scope
+     */
+    showRTCToast (scope: { id: string | number; data: any }) {
+      this.RTCToastOptions.id = scope.id
+      this.toastId = this.$toast({
+        component: IncomingRTCSession,
+        listeners: {
+          answer: this.onAnswer,
+          hangup: this.onHangup
+        },
+        props: {
+          displayName: scope.data.displayName,
+          phoneNumber: scope.data.displayName
+        }
+      }, this.RTCToastOptions)
+    },
+
+    updateRTCToast (scope: { id: string | number; data: any }) {
+      this.$toast.update(scope.id, {
+        content: {
+          component: IncomingRTCSession,
+          listeners: {
+            answer: this.onAnswer,
+            hangup: this.onHangup
+          },
+          props: {
+            displayName: scope.data.displayName,
+            phoneNumber: scope.data.phoneNumber
+          }
+        }
+      })
     }
+  },
+
+  mounted () {
+    this.$root.$on('show-rtc-toast', this.showRTCToast)
+    this.$root.$on('update-rtc-toast', this.updateRTCToast)
+    this.$root.$on('root-jssip-initialize', this.jsSIPInitialize) // Инициализация телефонии
+
+    // Сразу проинициализируем телефонию.
+    this.$root.$emit('root-jssip-initialize')
+
+    this.$store.subscribe(
+      ({ payload, type }) => {
+        if (type === 'profile/setStatus') {
+          if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(payload)) {
+            if (!this.$jsSIP.isConnected) {
+              this.$jsSIP.start()
+            }
+          } else {
+            if (this.$jsSIP.isConnected) {
+              this.$jsSIP.stop()
+            }
+          }
+        }
+      }
+    )
   }
 })
 

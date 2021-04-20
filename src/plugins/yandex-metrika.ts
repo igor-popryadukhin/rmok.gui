@@ -7,12 +7,12 @@ import VueYandexMetrika from 'vue-yandex-metrika'
 
 if (process.env.NODE_ENV === 'production') {
   Vue.use(VueYandexMetrika, {
-    id: process.env.VUE_APP_YANDEX_METRIKA_ID,
-    router,
     env: process.env.NODE_ENV,
+    id: process.env.VUE_APP_YANDEX_METRIKA_ID,
     options: {
-      webvisor: true,
-      triggerEvent: true
-    }
+      triggerEvent: true,
+      webvisor: true
+    },
+    router
   })
 }

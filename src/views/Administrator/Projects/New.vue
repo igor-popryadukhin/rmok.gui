@@ -308,59 +308,32 @@ interface IData {
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: {
-    SOrganizationsAutocomplete,
-    ProjectStatus
-  },
-
-  mixins: [rules, vueScrollOptions],
-
-  data (): IData {
-    return {
-      organizationSelected: null,
-      availableQ: '',
-      availableMembersCount: 0,
-      availableMembers: [] as UserInterface[],
-      availableMembersLoading: false,
-      members: [],
-      statuses: [],
-      buttonSave: {
-        disabled: false,
-        loading: false
-      },
-      projectName: '' as string
-    }
-  },
-
-  watch: {
-    'availableQ' (q: string) {
-      findAvailableUsers({ q }, this)
-    }
+    ProjectStatus,
+    SOrganizationsAutocomplete
   },
 
   created () {
     findAvailableUsers({}, this)
   },
 
-  mounted () {
-    if (this.$permission.isSuperAdmin) {
-      if (this.assertObjectHasAttribute(this.$refs, 'sOrganizationsAutocomplete')) {
-        this.$refs.sOrganizationsAutocomplete.fetchData()
-      }
+  data (): IData {
+    return {
+      availableMembers: [] as UserInterface[],
+      availableMembersCount: 0,
+      availableMembersLoading: false,
+      availableQ: '',
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      members: [],
+      organizationSelected: null,
+      projectName: '' as string,
+      statuses: []
     }
   },
 
   methods: {
-
-    memberToRight (item: UserInterface) {
-      const index = this.members.findIndex((member: UserInterface) => member.id === item.id)
-      if (index === -1) {
-        this.members.push(item)
-        const availableMemberIndex = this.availableMembers.findIndex((member: UserInterface) => member.id === item.id)
-        if (availableMemberIndex > -1) {
-          this.availableMembers.splice(availableMemberIndex, 1)
-        }
-      }
-    },
 
     memberToLeft (item: UserInterface) {
       const index = this.availableMembers.findIndex((member: UserInterface) => member.id === item.id)
@@ -373,8 +346,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     },
 
-    resetForm () {
-      (this.$refs.form as Vue & { reset: () => boolean }).reset()
+    memberToRight (item: UserInterface) {
+      const index = this.members.findIndex((member: UserInterface) => member.id === item.id)
+      if (index === -1) {
+        this.members.push(item)
+        const availableMemberIndex = this.availableMembers.findIndex((member: UserInterface) => member.id === item.id)
+        if (availableMemberIndex > -1) {
+          this.availableMembers.splice(availableMemberIndex, 1)
+        }
+      }
     },
 
     onSave () {
@@ -391,18 +371,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       const requestData: any = {
-        name: this.projectName,
         members: this.members.map((e: UserInterface) => e.id),
+        name: this.projectName,
         statuses: this.statuses.map((e: any) => {
           return {
-            name: e.name,
-            color: e.color,
             children: e.children.map((e: StatusInterface) => {
               return {
-                name: e.name,
-                actions: e.actions
+                actions: e.actions,
+                name: e.name
               }
-            })
+            }),
+            color: e.color,
+            name: e.name
           }
         })
       }
@@ -427,6 +407,26 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
+    },
+
+    resetForm () {
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
+    }
+  },
+
+  mixins: [rules, vueScrollOptions],
+
+  mounted () {
+    if (this.$permission.isSuperAdmin) {
+      if (this.assertObjectHasAttribute(this.$refs, 'sOrganizationsAutocomplete')) {
+        this.$refs.sOrganizationsAutocomplete.fetchData()
+      }
+    }
+  },
+
+  watch: {
+    'availableQ' (q: string) {
+      findAvailableUsers({ q }, this)
     }
   }
 })

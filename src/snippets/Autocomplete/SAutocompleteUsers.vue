@@ -76,85 +76,22 @@ import { debounce } from 'vuetify/src/util/helpers'
 import { UserInterface, Users } from '@/api/Users'
 
 export default Vue.extend({
-  name: 'SAutocompleteUsers',
-  model: {
-    prop: 'value',
-    event: 'change'
+  beforeDestroy () {
+    this.$off('change', this.onSelected)
   },
-  props: {
-    selectedId: {
-      type: Number,
-      default: 0
-    },
-    organizationId: {
-      type: Number,
-      default: 0
-    },
-    projectId: {
-      type: Number,
-      default: 0
-    },
-    search: {
-      type: String,
-      default: ''
-    },
-    rules: {
-      type: Array,
-      default: undefined
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    label: {
-      type: String,
-      default: ''
-    },
-    roles: {
-      type: String,
-      default: ''
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    value: {
-      type: [Object, Array],
-      default: null
-    },
-    selectOnClear: {
-      type: Boolean,
-      default: false
-    },
-    displayOrganization: {
-      type: Boolean,
-      default: false
-    },
-    multiple: {
-      type: Boolean,
-      default: false
-    },
-    outlined: {
-      type: Boolean,
-      default: false
-    },
-    dense: {
-      type: Boolean,
-      default: false
-    },
-    clearable: {
-      type: Boolean,
-      default: false
+  created () {
+    if (!this.disabled) {
+      this.dataSearch = this.search
     }
   },
-
   data () {
     return {
       attributes: null,
+      dataSearch: null as string | null,
       loading: false,
       selectOnce: false,
       selected: null as any[] | any,
-      dataSearch: null as string | null,
+      users: [],
       usersProcessLoading: false,
       usersSearchDebounce: debounce((context: any) => {
         if (!context.disabled) {
@@ -162,12 +99,12 @@ export default Vue.extend({
           context.users = []
           new Users()
             .find({
-              q: context.dataSearch,
-              roles: context.roles,
+              count: 50,
+              offset: 0,
               organization_id: context.organizationId,
               project_id: context.projectId,
-              offset: 0,
-              count: 50
+              q: context.dataSearch,
+              roles: context.roles
             })
             .then(({ data }) => {
               context.users = data
@@ -180,16 +117,102 @@ export default Vue.extend({
               context.loading = false
             })
         }
-      }, 400),
-      users: []
+      }, 400)
+    }
+  },
+
+  methods: {
+    onChipRemove (id: number) {
+      if (Array.isArray(this.selected)) {
+        const index = this.selected.findIndex((e) => e.id === id)
+        if (index >= 0) this.selected.splice(index, 1)
+      }
+    },
+
+    onSelected (data: any) {
+      this.selected = data
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  mounted () {
+    this.$on('change', this.onSelected)
+  },
+
+  name: 'SAutocompleteUsers',
+
+  props: {
+    clearable: {
+      default: false,
+      type: Boolean
+    },
+    dense: {
+      default: false,
+      type: Boolean
+    },
+    disabled: {
+      default: false,
+      type: Boolean
+    },
+    displayOrganization: {
+      default: false,
+      type: Boolean
+    },
+    label: {
+      default: '',
+      type: String
+    },
+    multiple: {
+      default: false,
+      type: Boolean
+    },
+    organizationId: {
+      default: 0,
+      type: Number
+    },
+    outlined: {
+      default: false,
+      type: Boolean
+    },
+    projectId: {
+      default: 0,
+      type: Number
+    },
+    roles: {
+      default: '',
+      type: String
+    },
+    rules: {
+      default: undefined,
+      type: Array
+    },
+    search: {
+      default: '',
+      type: String
+    },
+    selectOnClear: {
+      default: false,
+      type: Boolean
+    },
+    selectedId: {
+      default: 0,
+      type: Number
+    },
+    value: {
+      default: null,
+      type: [Object, Array]
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
     }
   },
 
   watch: {
-    selected (value) {
-      this.$emit('change', value)
-    },
-
     dataSearch () {
       this.usersSearchDebounce(this)
     },
@@ -200,33 +223,10 @@ export default Vue.extend({
 
     projectId () {
       this.usersSearchDebounce(this)
-    }
-  },
-
-  mounted () {
-    this.$on('change', this.onSelected)
-  },
-
-  created () {
-    if (!this.disabled) {
-      this.dataSearch = this.search
-    }
-  },
-
-  beforeDestroy () {
-    this.$off('change', this.onSelected)
-  },
-
-  methods: {
-    onSelected (data: any) {
-      this.selected = data
     },
 
-    onChipRemove (id: number) {
-      if (Array.isArray(this.selected)) {
-        const index = this.selected.findIndex((e) => e.id === id)
-        if (index >= 0) this.selected.splice(index, 1)
-      }
+    selected (value) {
+      this.$emit('change', value)
     }
   }
 })

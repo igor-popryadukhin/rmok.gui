@@ -8,28 +8,28 @@
 
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    },
-    color: {
-      default: '#41b883'
-    }
-  },
   computed: {
     diamondStyle () {
       const size = parseInt(this.size)
       return {
-        width: size / 4 + 'px',
-        height: size / 4 + 'px'
+        height: size / 4 + 'px',
+        width: size / 4 + 'px'
       }
     },
     styles () {
       const size = parseInt(this.size)
       return {
-        width: this.size,
-        height: size / 4 + 'px'
+        height: size / 4 + 'px',
+        width: this.size
       }
+    }
+  },
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
     }
   }
 }

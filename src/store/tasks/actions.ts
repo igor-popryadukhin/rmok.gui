@@ -4,35 +4,6 @@ import { ActionTree } from 'vuex'
 import { TasksStateInterface } from './state'
 
 const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
-  /**
-   * Сбросить параметры запроса
-   * @param commit
-   */
-  reset_filter ({ commit }) {
-    commit('filter', {
-      contact_id: 0,
-      planned_for: 'all',
-      q: null,
-      sort: null,
-      state: 'all',
-      status_id: 0
-    })
-  },
-
-  /**
-   *
-   * @param ctx
-   */
-  async pending_count ({ commit }) {
-    return new Promise<void>((resolve) => {
-      new Tasks()
-        .count({ state: 'pending' })
-        .then((response) => {
-          commit('pending_count', response.data.count)
-          resolve()
-        })
-    })
-  },
 
   /**
    *
@@ -91,6 +62,36 @@ const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
 
           resolve()
         }).catch(reject)
+    })
+  },
+
+  /**
+   *
+   * @param ctx
+   */
+  async pending_count ({ commit }) {
+    return new Promise<void>((resolve) => {
+      new Tasks()
+        .count({ state: 'pending' })
+        .then((response) => {
+          commit('pending_count', response.data.count)
+          resolve()
+        })
+    })
+  },
+
+  /**
+   * Сбросить параметры запроса
+   * @param commit
+   */
+  reset_filter ({ commit }) {
+    commit('filter', {
+      contact_id: 0,
+      planned_for: 'all',
+      q: null,
+      sort: null,
+      state: 'all',
+      status_id: 0
     })
   },
 

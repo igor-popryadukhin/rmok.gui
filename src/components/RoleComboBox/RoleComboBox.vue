@@ -23,34 +23,34 @@ import Vue from 'vue'
 import { RoleInterface } from '@/api/Roles'
 
 export default Vue.extend({
-  name: 'SRoleComboBox',
-  model: {
-    prop: 'selected',
-    event: 'change'
-  },
-  props: {
-    rules: {
-      type: Array,
-      default: undefined
-    },
-    value: {
-      type: Object,
-      default: undefined
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    label: {
-      type: String,
-      default: ''
-    }
-  },
-
   data () {
     return {
-      selected: null,
-      roles: [] as RoleInterface[]
+      roles: [] as RoleInterface[],
+      selected: null
+    }
+  },
+  model: {
+    event: 'change',
+    prop: 'selected'
+  },
+  name: 'SRoleComboBox',
+
+  props: {
+    label: {
+      default: '',
+      type: String
+    },
+    rules: {
+      default: undefined,
+      type: Array
+    },
+    value: {
+      default: undefined,
+      type: Object
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
     }
   },
 

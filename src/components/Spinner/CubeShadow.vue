@@ -4,25 +4,25 @@
 
 <script>
 export default {
+  computed: {
+    styles () {
+      return {
+        animationDuration: this.duration,
+        backgroundColor: this.background,
+        height: this.size,
+        width: this.size
+      }
+    }
+  },
   props: {
-    size: {
-      default: '40px'
-    },
     background: {
       default: '#41b883'
     },
     duration: {
       default: '1.8s'
-    }
-  },
-  computed: {
-    styles () {
-      return {
-        width: this.size,
-        height: this.size,
-        backgroundColor: this.background,
-        animationDuration: this.duration
-      }
+    },
+    size: {
+      default: '40px'
     }
   }
 }

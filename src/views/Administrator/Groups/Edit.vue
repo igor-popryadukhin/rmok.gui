@@ -98,35 +98,6 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  components: {
-    SUsers
-  },
-
-  mixins: [rules],
-
-  data () {
-    return {
-      buttonSave: {
-        disabled: false,
-        loading: false
-      },
-      buttonDelete: {
-        disabled: false,
-        loading: false
-      },
-      form: {
-        valid: false
-      },
-      userSelected: 0,
-
-      group: {
-        name: null,
-        organization: null as unknown as GroupOrganizationInterface,
-        responsible: null as unknown as GroupResponsibleInterface
-      }
-    }
-  },
-
   beforeRouteEnter (to, from, next: NavigationGuardNext<any>) {
     new Groups()
       .getById(+to.params.id)
@@ -147,6 +118,33 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
   },
 
+  components: {
+    SUsers
+  },
+
+  data () {
+    return {
+      buttonDelete: {
+        disabled: false,
+        loading: false
+      },
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      form: {
+        valid: false
+      },
+      group: {
+        name: null,
+        organization: null as unknown as GroupOrganizationInterface,
+        responsible: null as unknown as GroupResponsibleInterface
+      },
+
+      userSelected: 0
+    }
+  },
+
   // watch: {
   //   organizationSelected (val: OrganizationInterface) {
   //     if (val && this.firstLoad) {
@@ -155,17 +153,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   //     }
   //   }
   // },
-
   methods: {
-
-    selectedUser (user: UserInterface) {
-      this.userSelected = user.id
-    },
 
     onBtnDeleteClick () {
       this.$dialog.confirm({
-        title: this.$tc('Confirmation request'),
-        text: this.$tc('All information about the group and information associated with it will be deleted permanently.'),
         actions: {
           false: {
             color: 'black',
@@ -173,7 +164,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           },
           true: {
             color: 'red',
-            text: this.$tc('Yes'),
             handle: () => {
               new Groups()
                 .delete(+this.$route.params.id)
@@ -183,9 +173,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
                 }).catch((e: APIError) => {
                   this.$toast.error(e.message)
                 })
-            }
+            },
+            text: this.$tc('Yes')
           }
-        }
+        },
+        text: this.$tc('All information about the group and information associated with it will be deleted permanently.'),
+        title: this.$tc('Confirmation request')
       })
     },
 
@@ -217,8 +210,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
+    },
+
+    selectedUser (user: UserInterface) {
+      this.userSelected = user.id
     }
-  }
+  },
+
+  mixins: [rules]
 })
 </script>
 

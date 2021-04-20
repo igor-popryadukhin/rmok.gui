@@ -106,8 +106,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     SUsers
   },
 
-  mixins: [rules],
-
   data () {
     return {
       buttonSave: {
@@ -126,20 +124,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     }
   },
 
-  watch: {
-    'group.organization' (val: GroupOrganizationInterface) {
-      if (val) {
-        this.$refs.sUsers.focus()
-        this.$refs.sUsers.fetchData({ organization_id: val.id })
-      }
-    }
-  },
-
   methods: {
-
-    resetForm () {
-      (this.$refs.form as Vue & { reset: () => boolean }).reset()
-    },
 
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
@@ -177,6 +162,21 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
+    },
+
+    resetForm () {
+      (this.$refs.form as Vue & { reset: () => boolean }).reset()
+    }
+  },
+
+  mixins: [rules],
+
+  watch: {
+    'group.organization' (val: GroupOrganizationInterface) {
+      if (val) {
+        this.$refs.sUsers.focus()
+        this.$refs.sUsers.fetchData({ organization_id: val.id })
+      }
     }
   }
 })

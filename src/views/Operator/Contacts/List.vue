@@ -124,37 +124,6 @@ import { Contacts } from '@/api/Contacts'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 
 export default Vue.extend({
-  data () {
-    return {
-      filter: {
-        q: null
-      },
-      dataTableContacts: {
-        processLoading: false,
-        page: 1,
-        pages: 0,
-        totalCount: 0,
-        itemsPerPage: 50,
-        pageStart: 0,
-        pageStop: 0,
-        headers: [
-          { text: this.$tc('Client'), align: 'start', sortable: true, value: 'client', width: '100%' },
-          { text: this.$tc('Created at'), align: 'start', sortable: true, value: 'created_at', width: 'auto' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '1%' }
-        ],
-        items: [] as ContactInterface[]
-      }
-    }
-  },
-
-  watch: {
-    'dataTableContacts.page': {
-      handler () {
-        this.fetchContacts()
-      }
-    }
-  },
-
   computed: {
     tabsHeight () {
       let h: number = this.$screenHeight - 200
@@ -163,8 +132,27 @@ export default Vue.extend({
     }
   },
 
-  mounted () {
-    this.fetchContacts()
+  data () {
+    return {
+      dataTableContacts: {
+        headers: [
+          { align: 'start', sortable: true, text: this.$tc('Client'), value: 'client', width: '100%' },
+          { align: 'start', sortable: true, text: this.$tc('Created at'), value: 'created_at', width: 'auto' },
+          { align: 'end', sortable: true, text: '', value: 'actions', width: '1%' }
+        ],
+        items: [] as ContactInterface[],
+        itemsPerPage: 50,
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 0,
+        processLoading: false,
+        totalCount: 0
+      },
+      filter: {
+        q: null
+      }
+    }
   },
 
   methods: {
@@ -174,8 +162,8 @@ export default Vue.extend({
       new Contacts()
         .find<{count: number}, ContactInterface[]>({
           ...this.$route.query,
-          offset,
-          count: this.dataTableContacts.itemsPerPage
+          count: this.dataTableContacts.itemsPerPage,
+          offset
         })
         .then((response) => {
           this.dataTableContacts.totalCount = response.meta.count
@@ -188,11 +176,6 @@ export default Vue.extend({
       this.fetchContacts()
     },
 
-    onPaginationChange (data: any) {
-      this.dataTableContacts.pageStart = data.pageStart + 1
-      this.dataTableContacts.pageStop = data.pageStop
-    },
-
     onContactItemDblClick (item: ContactInterface) {
       this.$router.push({
         name: 'operator_contacts_view',
@@ -200,6 +183,23 @@ export default Vue.extend({
           contact_id: String(item.id)
         }
       })
+    },
+
+    onPaginationChange (data: any) {
+      this.dataTableContacts.pageStart = data.pageStart + 1
+      this.dataTableContacts.pageStop = data.pageStop
+    }
+  },
+
+  mounted () {
+    this.fetchContacts()
+  },
+
+  watch: {
+    'dataTableContacts.page': {
+      handler () {
+        this.fetchContacts()
+      }
     }
   }
 })

@@ -11,21 +11,21 @@
 
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    },
-    color: {
-      default: '#41b883'
-    }
-  },
   computed: {
     styles () {
       return {
-        width: this.size,
+        fill: this.color,
         height: 'auto',
-        fill: this.color
+        width: this.size
       }
+    }
+  },
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
     }
   }
 }

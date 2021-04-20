@@ -2,24 +2,24 @@ import Vue from 'vue'
 
 Vue.mixin(Vue.extend({
   computed: {
-    $screenHeight () {
-      return this.$vuetify.breakpoint.height
-    },
-
-    $screenWidth () {
-      return this.$vuetify.breakpoint.width
-    },
-
     $headerHeight () {
       return 64 // Высота header
+    },
+
+    $isDebug (): boolean {
+      return Boolean(localStorage.getItem('debug-enabled'))
     },
 
     $locale (): string {
       return 'ru'
     },
 
-    $isDebug (): boolean {
-      return Boolean(localStorage.getItem('debug-enabled'))
+    $screenHeight () {
+      return this.$vuetify.breakpoint.height
+    },
+
+    $screenWidth () {
+      return this.$vuetify.breakpoint.width
     }
   },
 

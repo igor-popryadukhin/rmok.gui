@@ -18,22 +18,17 @@ export interface RootStateInterface {
 }
 
 const store = new Vuex.Store({
-  state (): RootStateInterface {
-    return {
-      root: 0 // todo: example
-    }
-  },
-
-  mutations: {
-  },
   actions: {
   },
+
   modules: {
-    tasks,
+    database,
     profile,
     project,
     system,
-    database
+    tasks
+  },
+  mutations: {
   },
   plugins: [
     createPersistedState({
@@ -41,8 +36,8 @@ const store = new Vuex.Store({
       paths: [],
       storage: {
         getItem: (key) => get(key),
-        setItem: (key, value) => set(key, value),
-        removeItem: (key) => remove(key)
+        removeItem: (key) => remove(key),
+        setItem: (key, value) => set(key, value)
       }
     }),
     createPersistedState({
@@ -50,8 +45,8 @@ const store = new Vuex.Store({
       paths: ['profile'],
       storage: {
         getItem: (key: string) => get(key),
-        setItem: (key, value) => set(key, value),
-        removeItem: (key: string) => remove(key)
+        removeItem: (key: string) => remove(key),
+        setItem: (key, value) => set(key, value)
       }
     }),
     createPersistedState({
@@ -59,8 +54,8 @@ const store = new Vuex.Store({
       paths: ['system'],
       storage: {
         getItem: (key: string) => get(key),
-        setItem: (key, value) => set(key, value),
-        removeItem: (key: string) => remove(key)
+        removeItem: (key: string) => remove(key),
+        setItem: (key, value) => set(key, value)
       }
     }),
     createPersistedState({
@@ -68,8 +63,8 @@ const store = new Vuex.Store({
       paths: ['project'],
       storage: {
         getItem: (key: string) => get(key),
-        setItem: (key, value) => set(key, value),
-        removeItem: (key: string) => remove(key)
+        removeItem: (key: string) => remove(key),
+        setItem: (key, value) => set(key, value)
       }
     }),
     createPersistedState({
@@ -77,8 +72,8 @@ const store = new Vuex.Store({
       paths: ['tasks'],
       storage: {
         getItem: (key: string) => get(key),
-        setItem: (key, value) => set(key, value),
-        removeItem: (key: string) => remove(key)
+        removeItem: (key: string) => remove(key),
+        setItem: (key, value) => set(key, value)
       }
     }),
     createPersistedState({
@@ -86,11 +81,16 @@ const store = new Vuex.Store({
       paths: ['database'],
       storage: {
         getItem: (key: string) => get(key),
-        setItem: (key, value) => set(key, value),
-        removeItem: (key: string) => remove(key)
+        removeItem: (key: string) => remove(key),
+        setItem: (key, value) => set(key, value)
       }
     })
-  ]
+  ],
+  state (): RootStateInterface {
+    return {
+      root: 0 // todo: example
+    }
+  }
 })
 
 export default store

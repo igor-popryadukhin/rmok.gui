@@ -82,15 +82,15 @@ import axios, { AxiosResponse } from 'axios'
 export default Vue.extend({
   data () {
     return {
-      isError: false,
-      errorMessage: '',
-      processMessage: '',
-      processAuthorization: false,
       authorization: {
+        loading: false,
         login: '',
-        password: '',
-        loading: false
-      }
+        password: ''
+      },
+      errorMessage: '',
+      isError: false,
+      processAuthorization: false,
+      processMessage: ''
     }
   },
 

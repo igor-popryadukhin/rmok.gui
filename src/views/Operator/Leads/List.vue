@@ -271,11 +271,6 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed>({
-  components: { STaskList },
-  mixins: [
-    secondsToHms
-  ],
-
   async beforeRouteEnter (to, from, next) {
     // Нужно загрузить задачи до того как страница будет отрисована
     await store.dispatch('tasks/reset_filter') // Очищаю фильтр
@@ -284,20 +279,10 @@ export default Vue.extend<IData, IMethods, IComputed>({
       state: 'pending'
     }).finally(() => (next()))
   },
+  components: { STaskList },
 
   data () {
     return {
-      vueScrollLeads: {
-        offset: 0
-      },
-      vueScrollTasks: {
-        offset: 0
-      },
-      paginator: {
-        perPage: 10,
-        pages: 0,
-        page: 1
-      },
       contact: {
         /* eslint-disable */
         city: '',
@@ -311,6 +296,17 @@ export default Vue.extend<IData, IMethods, IComputed>({
         user: undefined,
         created_at: 0
         /* eslint-enabled */
+      },
+      paginator: {
+        pages: 0,
+        perPage: 10,
+        page: 1
+      },
+      vueScrollLeads: {
+        offset: 0
+      },
+      vueScrollTasks: {
+        offset: 0
       },
       taskCount: 0,
       contactHistory: [] as HistoryInterface[],
@@ -344,6 +340,10 @@ export default Vue.extend<IData, IMethods, IComputed>({
       }
     }
   },
+
+  mixins: [
+    secondsToHms
+  ],
 
   computed: {
     avatar (): string {

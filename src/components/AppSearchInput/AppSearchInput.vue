@@ -40,42 +40,6 @@ interface IMethod {
 }
 
 export default Vue.extend<IData, IMethod, IComputed, IProps>({
-  name: 'AppSearchInput',
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  props: {
-    label: {
-      type: String,
-      default: 'Search'
-    },
-    dense: {
-      type: Boolean,
-      default: true
-    },
-    outlined: {
-      type: Boolean,
-      default: true
-    },
-    clearable: {
-      type: Boolean,
-      default: true
-    },
-    debounceDelay: {
-      type: Number,
-      default: 450
-    },
-    value: {
-      type: String,
-      default: ''
-    }
-  },
-
-  inheritAttrs: false,
-
   data (): IData {
     return {
       text: '',
@@ -85,13 +49,49 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
     }
   },
 
-  watch: {
-    value (val: string) {
-      this.text = val
-    },
+  inheritAttrs: false,
 
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  name: 'AppSearchInput',
+
+  props: {
+    clearable: {
+      default: true,
+      type: Boolean
+    },
+    debounceDelay: {
+      default: 450,
+      type: Number
+    },
+    dense: {
+      default: true,
+      type: Boolean
+    },
+    label: {
+      default: 'Search',
+      type: String
+    },
+    outlined: {
+      default: true,
+      type: Boolean
+    },
+    value: {
+      default: '',
+      type: String
+    }
+  },
+
+  watch: {
     text (val: string) {
       this.textChanged(val)
+    },
+
+    value (val: string) {
+      this.text = val
     }
   }
 })

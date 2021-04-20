@@ -4,6 +4,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Неизданный] - 2021-04-20
+
+## Добавлено
+- ESLint `sort-keys-fix` плагин для сортировки свойств [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Сортировка контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Сортировка списка пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+
+## Исправлено
+- Прочие мелкие ошибки.
+- Отсортированы все свойства в `*.ts, *.js, *.vue`
+
 ## [v1.0.2] - 2021-04-14
 
 ## Изменено
@@ -12,13 +23,11 @@
 - Перемещена кнопка добавления задачи в леву часть экрана  [@Programmer900](https://gitlab.com/Programmer900).
 
 ## Добавлено
-- На фронтенде, добавлен функционал автоматического закрытия списка задач, со статусом -pending [@Programmer900](https://gitlab.com/Programmer900).
-
-## Добавлено
 - Раздел статистики, "Занятость сотрудников" [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Переход из статистики в карточку контакта для прозвона [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Раздел "Задачи" для операторов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Строка для поиска пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- На фронтенде, добавлен функционал автоматического закрытия списка задач, со статусом -pending [@Programmer900](https://gitlab.com/Programmer900).
 
 ## Исправлено
 - Переиспользование компонента `s-task-list` [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).

@@ -1,5 +1,4 @@
 module.exports = {
-  root: true,
   env: {
     es6: true,
     node: true
@@ -16,30 +15,14 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020
   },
+  plugins: [
+    'sort-keys-fix'
+  ],
+  root: true,
   rules: {
-    indent: ['error', 2, {
-      SwitchCase: 1,
-      MemberExpression: 1,
-      VariableDeclarator: {
-        var: 2,
-        let: 2,
-        const: 3
-      },
-      FunctionDeclaration: {
-        body: 1,
-        parameters: 2
-      },
-      ObjectExpression: 1,
-      ImportDeclaration: 1
-    }],
-    'no-control-regex': 'off',
-    'no-console': 'off',
-    'no-debugger': 'off',
-    camelcase: 'off',
     '@typescript-eslint/naming-convention': [
       'error',
       {
-        selector: 'default',
         format: [
           'camelCase',
           'strictCamelCase',
@@ -49,8 +32,29 @@ module.exports = {
           'UPPER_CASE'
         ],
         leadingUnderscore: 'allow',
+        selector: 'default',
         trailingUnderscore: 'allow'
       }
-    ]
+    ],
+    camelcase: 'off',
+    indent: ['error', 2, {
+      FunctionDeclaration: {
+        body: 1,
+        parameters: 2
+      },
+      ImportDeclaration: 1,
+      MemberExpression: 1,
+      ObjectExpression: 1,
+      SwitchCase: 1,
+      VariableDeclarator: {
+        const: 3,
+        let: 2,
+        var: 2
+      }
+    }],
+    'no-console': 'off',
+    'no-control-regex': 'off',
+    'no-debugger': 'off',
+    'sort-keys-fix/sort-keys-fix': 'warn'
   }
 }

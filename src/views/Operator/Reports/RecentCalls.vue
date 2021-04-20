@@ -386,190 +386,6 @@ Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
 
-  mixins: [audioPlayer],
-
-  data () {
-    return {
-      filterDate: undefined,
-      menuDateRange: null,
-      dateRange: null as string[] | null,
-      menuContactDateCreated: null as boolean | null,
-      contactDateCreated: null,
-
-      page: 1,
-      pageCount: 0,
-      itemsPerPage: 10,
-
-      options: {
-        labels: []
-      },
-
-      processPieLoading: false, // Процесс загрузки изображений
-
-      // Report
-      total_calls: 0,
-      total_clients: 0,
-      history_count: 0,
-      historyProcessLoading: false,
-      pieLabels: [] as string[],
-      pieSeries: [] as number[],
-      pieColors: [] as string[],
-      pieData: [] as any[],
-
-      usersSelected: null as UserInterface | null,
-      users: [] as unknown as UserInterface[],
-
-      filter: {
-        status: {
-          selected: null,
-          items: [],
-          on: {
-            input: (scope: any) => {
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                this.fetchDataPie()
-                this.fetchDataHistory()
-              } else {
-                this.$routerQuery.removeQuery(['status_id'])
-                  .finally(() => {
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
-              }
-            }
-          }
-        }
-      },
-
-      // Data table
-      dataTableHistory: {
-        totalCount: 0,
-        page: 1, // Текущая страница
-        pages: 0, // Всего страниц
-        itemsPerPage: 100, // Количество данных на страницу
-        items: [],
-        headers: [
-          {
-            text: 'Дата и время',
-            align: 'start',
-            sortable: true,
-            value: 'created_at'
-          },
-          {
-            text: 'Клиент',
-            sortable: true,
-            value: 'contact'
-          },
-          {
-            text: 'Результат',
-            sortable: true,
-            value: 'status'
-          },
-          {
-            text: 'Комментарий',
-            align: 'start',
-            sortable: false,
-            value: 'comment'
-          },
-          {
-            text: 'Длительность разговора',
-            align: 'end',
-            sortable: false,
-            value: 'call_duration'
-          },
-          {
-            text: 'Общее время сессии',
-            align: 'end',
-            sortable: false,
-            value: 'session_duration'
-          },
-          {
-            text: 'Запись',
-            align: 'end',
-            sortable: false,
-            value: 'record'
-          }
-        ],
-        options: {}
-      },
-      loading: true,
-      DtOptions: {}
-    }
-  },
-
-  watch: {
-    // Отслеживаю изменения данных в filterDate
-    filterDate (value: string | number | undefined) {
-      switch (value) {
-        case 'today': {
-          this.$routerQuery.setQuery({ date: 'today' }).then(this.onFilterDate)
-          break
-        }
-        case 'yesterday': {
-          this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.onFilterDate)
-          break
-        }
-        case 'this_week': {
-          this.$routerQuery.setQuery({ date: 'this_week' }).then(this.onFilterDate)
-          break
-        }
-        case 'last_week': {
-          this.$routerQuery.setQuery({ date: 'last_week' }).then(this.onFilterDate)
-          break
-        }
-        case 'month': {
-          this.$routerQuery.setQuery({ date: 'month' }).then(this.onFilterDate)
-          break
-        }
-      }
-    },
-
-    'dataTableHistory.options': {
-      handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
-        }
-      },
-      deep: true
-    },
-
-    usersSelected: {
-      handler (user: UserInterface | null) {
-        if (user) {
-          this.$routerQuery.setQuery({
-            owner_id: user.id
-          }).then(() => {
-            this.fetchDataPie()
-            this.fetchDataHistory()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['owner_id'])
-            .then(() => {
-              this.fetchDataPie()
-              this.fetchDataHistory()
-            })
-        }
-      }
-    },
-
-    'dataTableHistory.page': {
-      handler (page: number) {
-        this.$routerQuery.setQuery({ history_page: page })
-      }
-    }
-  },
-
   computed: {
     apexchartOptions (): any {
       return {
@@ -590,20 +406,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
             }
           }
         },
+        colors: this.pieColors,
+        labels: this.pieLabels,
         legend: {
-          show: true,
-          position: 'right',
+          formatter: function (seriesName: string, opts: any) {
+            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
+          },
           markers: {
             onClick: (chart: any, seriesIndex: any, opts: any) => {
               console.log('series- ' + seriesIndex + "'s marker was clicked")
             }
           },
-          formatter: function (seriesName: string, opts: any) {
-            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
-          }
-        },
-        labels: this.pieLabels,
-        colors: this.pieColors
+          position: 'right',
+          show: true
+        }
       }
     },
 
@@ -634,29 +450,187 @@ export default (Vue as VueConstructor<VInterface>).extend({
     this.fetchUsers()
   },
 
-  mounted () {
-    // this.$watch('filter.status.selected', ({ status_id }) => {
-    //   this.$routerQuery.setQuery({
-    //     status_id
-    //   })
-    // })
+  data () {
+    return {
+      DtOptions: {},
+
+      contactDateCreated: null,
+
+      // Data table
+      dataTableHistory: {
+
+        headers: [
+          {
+            align: 'start',
+            sortable: true,
+            text: 'Дата и время',
+            value: 'created_at'
+          },
+          {
+            sortable: true,
+            text: 'Клиент',
+            value: 'contact'
+          },
+          {
+            sortable: true,
+            text: 'Результат',
+            value: 'status'
+          },
+          {
+            align: 'start',
+            sortable: false,
+            text: 'Комментарий',
+            value: 'comment'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Длительность разговора',
+            value: 'call_duration'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Общее время сессии',
+            value: 'session_duration'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Запись',
+            value: 'record'
+          }
+        ],
+
+        // Количество данных на страницу
+        items: [],
+
+        // Всего страниц
+        itemsPerPage: 100,
+
+        options: {},
+
+        page: 1,
+
+        // Текущая страница
+        pages: 0,
+
+        totalCount: 0
+      },
+
+      dateRange: null as string[] | null,
+
+      filter: {
+        status: {
+          items: [],
+          on: {
+            input: (scope: any) => {
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                this.$routerQuery.setQuery({ status_id: scope.status_id })
+                this.fetchDataPie()
+                this.fetchDataHistory()
+              } else {
+                this.$routerQuery.removeQuery(['status_id'])
+                  .finally(() => {
+                    this.fetchDataPie()
+                    this.fetchDataHistory()
+                  })
+              }
+            }
+          },
+          selected: null
+        }
+      },
+
+      filterDate: undefined,
+
+      historyProcessLoading: false,
+
+      history_count: 0,
+
+      itemsPerPage: 10,
+
+      loading: true,
+
+      menuContactDateCreated: null as boolean | null,
+
+      menuDateRange: null,
+
+      options: {
+        labels: []
+      },
+
+      page: 1,
+
+      pageCount: 0,
+
+      pieColors: [] as string[],
+
+      pieData: [] as any[],
+
+      pieLabels: [] as string[],
+
+      pieSeries: [] as number[],
+
+      processPieLoading: false,
+
+      // Процесс загрузки изображений
+      // Report
+      total_calls: 0,
+
+      total_clients: 0,
+      users: [] as unknown as UserInterface[],
+      usersSelected: null as UserInterface | null
+    }
   },
 
   methods: {
-    fetchUsers () {
-      new Users()
-        .find({
-          count: 1000
-        })
+
+    // Загрузить историю
+    fetchDataHistory () {
+      this.historyProcessLoading = true
+      const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
+
+      const params: any = {
+        count: this.dataTableHistory.itemsPerPage,
+        offset,
+        type: 'last' // Показать всю историю
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
+        params.status_id = +this.$route.query.status_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
+        params.date = this.$route.query.date
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'owner_id')) {
+        params.owner_id = this.$route.query.owner_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
+        params.contact_created_at = this.$route.query.contact_created_at
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
+        params.history_sort_by = this.$route.query.history_sort_by
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
+        params.history_sort_direction = this.$route.query.history_sort_direction
+      }
+
+      new Reports()
+        .history<any, any>(params)
         .then((response) => {
-          this.users = response.data
-          if (this.$routerQuery.hasQuery('owner_id')) {
-            const index = this.users.findIndex((user: UserInterface) => user.id === +this.$routerQuery.getQuery('owner_id'))
-            if (index > -1) {
-              this.usersSelected = this.users[index]
-            }
-          }
-        })
+          this.dataTableHistory.totalCount = response.meta.count || 0
+          this.dataTableHistory.pages = Math.ceil(response.meta.count / this.dataTableHistory.itemsPerPage)
+          this.dataTableHistory.items = response.data.map((e: any) => {
+            e.isPlaying = false
+            return e
+          }) || []
+        }).finally(() => (this.historyProcessLoading = false))
     },
 
     // Загрузить график
@@ -704,109 +678,25 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }).finally(() => (this.processPieLoading = false))
     },
 
-    // Загрузить историю
-    fetchDataHistory () {
-      this.historyProcessLoading = true
-      const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
-
-      const params: any = {
-        offset,
-        count: this.dataTableHistory.itemsPerPage,
-        type: 'last' // Показать всю историю
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
-        params.status_id = +this.$route.query.status_id
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
-        params.date = this.$route.query.date
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'owner_id')) {
-        params.owner_id = this.$route.query.owner_id
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
-        params.contact_created_at = this.$route.query.contact_created_at
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
-        params.history_sort_by = this.$route.query.history_sort_by
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
-        params.history_sort_direction = this.$route.query.history_sort_direction
-      }
-
-      new Reports()
-        .history<any, any>(params)
-        .then((response) => {
-          this.dataTableHistory.totalCount = response.meta.count || 0
-          this.dataTableHistory.pages = Math.ceil(response.meta.count / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.data.map((e: any) => {
-            e.isPlaying = false
-            return e
-          }) || []
-        }).finally(() => (this.historyProcessLoading = false))
-    },
-
-    /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.$routerQuery
-        .setQuery({ date: dr })
-        .then(() => {
-          this.fetchDataPie()
-          this.fetchDataHistory()
+    fetchUsers () {
+      new Users()
+        .find({
+          count: 1000
         })
-    },
-
-    /**
-     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
-     * @param dateStr
-     */
-    onSaveContactDateCreatedClick (dateStr: string | null) {
-      if (!dateStr) {
-        this.$routerQuery
-          .removeQuery(['contact_created_at'])
-          .finally(() => {
-            this.fetchDataPie()
-            this.fetchDataHistory()
-          })
-        this.$refs.menuContactDateCreated.save(null)
-        return
-      }
-
-      this.$refs.menuContactDateCreated.save(dateStr)
-      this.$routerQuery
-        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
-        .finally(() => {
-          this.fetchDataPie()
-          this.fetchDataHistory()
+        .then((response) => {
+          this.users = response.data
+          if (this.$routerQuery.hasQuery('owner_id')) {
+            const index = this.users.findIndex((user: UserInterface) => user.id === +this.$routerQuery.getQuery('owner_id'))
+            if (index > -1) {
+              this.usersSelected = this.users[index]
+            }
+          }
         })
     },
 
     onFilterDate () {
       this.fetchDataPie()
       this.fetchDataHistory()
-    },
-
-    onHistoryPaginationChange (pagination: any) {
-      console.log(pagination)
     },
 
     onHistoryItemRecordPlay (item: any) {
@@ -846,8 +736,145 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     },
 
+    onHistoryPaginationChange (pagination: any) {
+      console.log(pagination)
+    },
+
+    /**
+     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
+     * @param dateStr
+     */
+    onSaveContactDateCreatedClick (dateStr: string | null) {
+      if (!dateStr) {
+        this.$routerQuery
+          .removeQuery(['contact_created_at'])
+          .finally(() => {
+            this.fetchDataPie()
+            this.fetchDataHistory()
+          })
+        this.$refs.menuContactDateCreated.save(null)
+        return
+      }
+
+      this.$refs.menuContactDateCreated.save(dateStr)
+      this.$routerQuery
+        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
+        .finally(() => {
+          this.fetchDataPie()
+          this.fetchDataHistory()
+        })
+    },
+
+    /**
+     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
+     * @param dateRange
+     */
+    onSaveDateRangeClick (dateRange: string[]) {
+      this.$refs.menuDateRange.save(dateRange)
+      const date1 = new Date(dateRange[0])
+      const date2 = new Date(dateRange[1])
+
+      let dr = ''
+      if (date1.getTime() < date2.getTime()) {
+        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
+      } else {
+        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
+      }
+
+      this.$routerQuery
+        .setQuery({ date: dr })
+        .then(() => {
+          this.fetchDataPie()
+          this.fetchDataHistory()
+        })
+    },
+
     secondsToHmsDigital (d: number) {
       return secondsToHmsDigital(d)
+    }
+  },
+
+  mixins: [audioPlayer],
+
+  mounted () {
+    // this.$watch('filter.status.selected', ({ status_id }) => {
+    //   this.$routerQuery.setQuery({
+    //     status_id
+    //   })
+    // })
+  },
+
+  watch: {
+
+    'dataTableHistory.options': {
+      deep: true,
+      handler ({ sortBy, sortDesc }) {
+        if (Array.isArray(sortBy)) {
+          if (sortBy.length > 0) {
+            this.$routerQuery.setQuery({
+              history_sort_by: sortBy.join(','),
+              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
+            }).then(() => (this.fetchDataHistory()))
+          } else {
+            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
+            this.$routerQuery
+              .removeQuery(['history_sort_by', 'history_sort_direction'])
+              .then(() => (this.fetchDataHistory()))
+          }
+        }
+      }
+    },
+
+    'dataTableHistory.page': {
+      handler (page: number) {
+        this.$routerQuery.setQuery({ history_page: page })
+      }
+    },
+
+    // Отслеживаю изменения данных в filterDate
+    filterDate (value: string | number | undefined) {
+      switch (value) {
+        case 'today': {
+          this.$routerQuery.setQuery({ date: 'today' }).then(this.onFilterDate)
+          break
+        }
+        case 'yesterday': {
+          this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.onFilterDate)
+          break
+        }
+        case 'this_week': {
+          this.$routerQuery.setQuery({ date: 'this_week' }).then(this.onFilterDate)
+          break
+        }
+        case 'last_week': {
+          this.$routerQuery.setQuery({ date: 'last_week' }).then(this.onFilterDate)
+          break
+        }
+        case 'month': {
+          this.$routerQuery.setQuery({ date: 'month' }).then(this.onFilterDate)
+          break
+        }
+      }
+    },
+
+    usersSelected: {
+      handler (user: UserInterface | null) {
+        if (user) {
+          this.$routerQuery.setQuery({
+            owner_id: user.id
+          }).then(() => {
+            this.fetchDataPie()
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['owner_id'])
+            .then(() => {
+              this.fetchDataPie()
+              this.fetchDataHistory()
+            })
+        }
+      }
     }
   }
 })

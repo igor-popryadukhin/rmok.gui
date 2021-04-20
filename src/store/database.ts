@@ -6,33 +6,6 @@ interface StateInterface {
 }
 
 export const database = {
-  namespaced: true,
-
-  state (): StateInterface {
-    return {
-      statuses_not_group: [],
-      statuses_grouped: []
-    }
-  },
-
-  mutations: {
-    /**
-     * @param state
-     * @param payload
-     */
-    statuses_not_group (state: StateInterface, payload: StatusInterface[]): void {
-      state.statuses_not_group = payload
-    },
-
-    /**
-     * @param state
-     * @param payload
-     */
-    statuses_grouped (state: StateInterface, payload: StatusInterface[]): void {
-      state.statuses_grouped = payload
-    }
-  },
-
   actions: {
     /**
      * Загрузить статусы
@@ -64,7 +37,35 @@ export const database = {
   },
 
   getters: {
-    statuses_not_grouped (state: StateInterface): StatusInterface[] { return state.statuses_not_group },
-    statuses_grouped (state: StateInterface): StatusInterface[] { return state.statuses_grouped }
+    statuses_grouped (state: StateInterface): StatusInterface[] { return state.statuses_grouped },
+    statuses_not_grouped (state: StateInterface): StatusInterface[] { return state.statuses_not_group }
+  },
+
+  mutations: {
+
+    /**
+     * @param state
+     * @param payload
+     */
+    statuses_grouped (state: StateInterface, payload: StatusInterface[]): void {
+      state.statuses_grouped = payload
+    },
+
+    /**
+     * @param state
+     * @param payload
+     */
+    statuses_not_group (state: StateInterface, payload: StatusInterface[]): void {
+      state.statuses_not_group = payload
+    }
+  },
+
+  namespaced: true,
+
+  state (): StateInterface {
+    return {
+      statuses_grouped: [],
+      statuses_not_group: []
+    }
   }
 }

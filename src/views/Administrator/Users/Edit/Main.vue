@@ -339,49 +339,6 @@ interface VInnerInterface extends VInterface {
 let oldUser: any = {} // Снимок данных для сравнения объектов
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  mixins: [rules],
-
-  components: {
-    SProjectsAutocomplete,
-    SOrganizationsAutocomplete,
-    SGroups,
-    SRoles
-  },
-
-  data (): IData {
-    return {
-      isChanged: false,
-      permissions: [],
-      tab: 0,
-      passwordShow: false,
-      buttonDelete: {
-        disabled: false,
-        loading: false
-      },
-      buttonSave: {
-        disabled: false,
-        loading: false
-      },
-
-      user: {
-        id: 0,
-        first_name: '',
-        last_name: '',
-        middle_name: '',
-        login: '',
-        password: '',
-        password2: '',
-        email: '',
-        phone: '',
-        role: {} as unknown as RoleInterface,
-        group: {} as unknown as GroupInterface,
-        organization: {} as unknown as OrganizationInterface,
-        project: {} as unknown as ProjectInterface,
-        projects: [] as ProjectInterface[]
-      }
-    }
-  },
-
   beforeRouteEnter (to, from, next) {
     new Users()
       .getById(+to.params.user_id, {
@@ -415,27 +372,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
   },
 
-  watch: {
-    user: {
-      handler (newData: any) {
-        if (JSON.stringify(newData) === oldUser) {
-          this.isChanged = false
-        } else {
-          this.isChanged = true
-        }
-      },
-      deep: true
-    },
-
-    tab (val: number) {
-      switch (val) {
-        case 3: {
-          this.$router.push({ name: 'administrator_users_edit_permissions' })
-          break
-        }
-        default: this.$router.push({ name: 'administrator_users_edit', params: this.$route.params })
-      }
-    }
+  components: {
+    SGroups,
+    SOrganizationsAutocomplete,
+    SProjectsAutocomplete,
+    SRoles
   },
 
   computed: {
@@ -460,7 +401,51 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     }
   },
 
+  data (): IData {
+    return {
+      buttonDelete: {
+        disabled: false,
+        loading: false
+      },
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      isChanged: false,
+      passwordShow: false,
+      permissions: [],
+      tab: 0,
+
+      user: {
+        email: '',
+        first_name: '',
+        group: {} as unknown as GroupInterface,
+        id: 0,
+        last_name: '',
+        login: '',
+        middle_name: '',
+        organization: {} as unknown as OrganizationInterface,
+        password: '',
+        password2: '',
+        phone: '',
+        project: {} as unknown as ProjectInterface,
+        projects: [] as ProjectInterface[],
+        role: {} as unknown as RoleInterface
+      }
+    }
+  },
+
   methods: {
+    onAvailableProjectSelect (project: ProjectInterface) {
+      if (this.user.projects.findIndex((e: ProjectInterface) => e.id === project.id) === -1) {
+        this.user.projects.push(project)
+      }
+    },
+
+    onBtnDeleteClick () {
+      // todo: Реализовать удаление
+    },
+
     onSave () {
       if (!this.$refs.form.validate()) {
         return
@@ -471,8 +456,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       const request: any = {
         first_name: this.user.first_name,
         last_name: this.user.last_name,
-        middle_name: this.user.middle_name,
         login: this.user.login,
+        middle_name: this.user.middle_name,
         role_id: this.user.role?.id
       }
 
@@ -526,16 +511,31 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
-    },
+    }
+  },
 
-    onAvailableProjectSelect (project: ProjectInterface) {
-      if (this.user.projects.findIndex((e: ProjectInterface) => e.id === project.id) === -1) {
-        this.user.projects.push(project)
+  mixins: [rules],
+
+  watch: {
+    tab (val: number) {
+      switch (val) {
+        case 3: {
+          this.$router.push({ name: 'administrator_users_edit_permissions' })
+          break
+        }
+        default: this.$router.push({ name: 'administrator_users_edit', params: this.$route.params })
       }
     },
 
-    onBtnDeleteClick () {
-      // todo: Реализовать удаление
+    user: {
+      deep: true,
+      handler (newData: any) {
+        if (JSON.stringify(newData) === oldUser) {
+          this.isChanged = false
+        } else {
+          this.isChanged = true
+        }
+      }
     }
   }
 })

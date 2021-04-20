@@ -180,25 +180,6 @@ import Vue from 'vue'
 import { Account, ProfileInterface } from '@/api/Account'
 
 export default Vue.extend({
-  data () {
-    return {
-      profileSaveLoading: false,
-      profile: {
-        created_at: 0,
-        email: '',
-        phone: '',
-        first_name: '',
-        id: 0,
-        last_name: '',
-        login: '',
-        middle_name: '',
-        role: undefined,
-        userpic: null,
-        organization: null
-      } as ProfileInterface
-    }
-  },
-
   created () {
     this.profile.id = this.$store.getters['profile/id']
     this.profile.login = this.$store.getters['profile/login']
@@ -210,15 +191,34 @@ export default Vue.extend({
     this.profile.organization = this.$store.getters['profile/organization']
   },
 
+  data () {
+    return {
+      profile: {
+        created_at: 0,
+        email: '',
+        first_name: '',
+        id: 0,
+        last_name: '',
+        login: '',
+        middle_name: '',
+        organization: null,
+        phone: '',
+        role: undefined,
+        userpic: null
+      } as ProfileInterface,
+      profileSaveLoading: false
+    }
+  },
+
   methods: {
     onSave () {
       this.profileSaveLoading = true
       new Account()
         .updateProfile({
+          email: this.profile.email,
           first_name: this.profile.first_name,
           last_name: this.profile.last_name,
           middle_name: this.profile.middle_name,
-          email: this.profile.email,
           phone: this.profile.phone
         }).then(() => {
           this.$toast.success(this.$tc('Changes saved'))

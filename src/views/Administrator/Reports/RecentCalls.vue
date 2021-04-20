@@ -448,181 +448,6 @@ Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: { SUsers },
-  mixins: [audioPlayer],
-
-  data () {
-    return {
-      filterDate: undefined,
-      menuDateRange: null,
-      dateRange: null as string[] | null,
-      menuContactDateCreated: null as boolean | null,
-      contactDateCreated: null,
-
-      page: 1,
-      pageCount: 0,
-      itemsPerPage: 10,
-
-      options: {
-        labels: []
-      },
-
-      processPieLoading: false, // Процесс загрузки изображений
-
-      // Report
-      total_calls: 0,
-      total_clients: 0,
-      history_count: 0,
-      historyProcessLoading: false,
-      pieLabels: [] as string[],
-      pieSeries: [] as number[],
-      pieColors: [] as string[],
-      pieData: [] as any[],
-
-      usersSelected: null as UserInterface | null,
-      users: [] as unknown as UserInterface[],
-
-      filter: {
-        date: null as unknown & string | null, // Дата или диапазон дат
-        user: [] as unknown & UserInterface[],
-        status: {
-          selected: null,
-          items: [],
-          on: {
-            input: (scope: any) => {
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                this.fetchDataPie()
-                this.fetchDataHistory()
-              } else {
-                this.$routerQuery.removeQuery(['status_id'])
-                  .finally(() => {
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
-              }
-            }
-          }
-        }
-      },
-
-      // Data table
-      dataTableHistory: {
-        totalCount: 0,
-        page: 1, // Текущая страница
-        pages: 0, // Всего страниц
-        itemsPerPage: 100, // Количество данных на страниц
-        selectedAll: false, // Выделить все контакты
-        selected: [],
-        items: [],
-        headers: [
-          {
-            text: ' ',
-            align: 'start',
-            sortable: false,
-            value: 'checkbox',
-            width: 'auto'
-          },
-          {
-            text: 'Дата и время',
-            align: 'start',
-            sortable: true,
-            value: 'created_at'
-          },
-          {
-            text: 'Клиент',
-            sortable: true,
-            value: 'contact'
-          },
-          {
-            text: 'Результат',
-            sortable: true,
-            value: 'status'
-          },
-          {
-            text: 'Комментарий',
-            align: 'start',
-            sortable: true,
-            value: 'comment'
-          },
-          {
-            text: 'Длительность разговора',
-            align: 'end',
-            sortable: false,
-            value: 'call_duration'
-          },
-          {
-            text: 'Общее время сессии',
-            align: 'end',
-            sortable: false,
-            value: 'session_duration'
-          },
-          {
-            text: 'Менеджер',
-            sortable: false,
-            value: 'owner'
-          },
-          {
-            text: 'Запись',
-            align: 'end',
-            sortable: false,
-            value: 'record'
-          }
-        ],
-        options: {}
-      },
-      loading: true,
-      DtOptions: {}
-    }
-  },
-
-  watch: {
-
-    'dataTableHistory.options': {
-      handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
-        }
-      },
-      deep: true
-    },
-
-    'dataTableHistory.selectedAll': {
-      handler (val: boolean) {
-        if (val) {
-          this.dataTableHistory.selected = this.dataTableHistory.items.map((e: any) => e.id)
-        } else {
-          this.dataTableHistory.selected = []
-        }
-      }
-    },
-
-    'dataTableHistory.selected': {
-      handler (selected: any[]) {
-        if (selected.length === this.dataTableHistory.items.length) {
-          this.dataTableHistory.selectedAll = true
-        } else if (selected.length === 0) {
-          this.dataTableHistory.selectedAll = false
-        }
-      }
-    },
-
-    'dataTableHistory.page': {
-      handler (page: number) {
-        this.$routerQuery.setQuery({ history_page: page })
-      }
-    }
-  },
-
   computed: {
     apexchartOptions (): any {
       return {
@@ -643,20 +468,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
             }
           }
         },
+        colors: this.pieColors,
+        labels: this.pieLabels,
         legend: {
-          show: true,
-          position: 'right',
+          formatter: function (seriesName: string, opts: any) {
+            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
+          },
           markers: {
             onClick: (chart: any, seriesIndex: any, opts: any) => {
               console.log('series- ' + seriesIndex + "'s marker was clicked")
             }
           },
-          formatter: function (seriesName: string, opts: any) {
-            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
-          }
-        },
-        labels: this.pieLabels,
-        colors: this.pieColors
+          position: 'right',
+          show: true
+        }
       }
     },
 
@@ -668,39 +493,208 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
-  mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
+  data () {
+    return {
+      DtOptions: {},
 
-    if (this.$routerQuery.hasQuery('date')) {
-      this.filter.date = this.$routerQuery.getQuery('date')
+      contactDateCreated: null,
 
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
-      }
+      // Data table
+      dataTableHistory: {
+
+        headers: [
+          {
+            align: 'start',
+            sortable: false,
+            text: ' ',
+            value: 'checkbox',
+            width: 'auto'
+          },
+          {
+            align: 'start',
+            sortable: true,
+            text: 'Дата и время',
+            value: 'created_at'
+          },
+          {
+            sortable: true,
+            text: 'Клиент',
+            value: 'contact'
+          },
+          {
+            sortable: true,
+            text: 'Результат',
+            value: 'status'
+          },
+          {
+            align: 'start',
+            sortable: true,
+            text: 'Комментарий',
+            value: 'comment'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Длительность разговора',
+            value: 'call_duration'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Общее время сессии',
+            value: 'session_duration'
+          },
+          {
+            sortable: false,
+            text: 'Менеджер',
+            value: 'owner'
+          },
+          {
+            align: 'end',
+            sortable: false,
+            text: 'Запись',
+            value: 'record'
+          }
+        ],
+
+        items: [],
+
+        // Всего страниц
+        itemsPerPage: 100,
+
+        options: {},
+
+        page: 1,
+
+        // Текущая страница
+        pages: 0,
+
+        // Выделить все контакты
+        selected: [],
+
+        // Количество данных на страниц
+        selectedAll: false,
+
+        totalCount: 0
+      },
+
+      dateRange: null as string[] | null,
+
+      filter: {
+        date: null as unknown & string | null,
+        status: {
+          items: [],
+          on: {
+            input: (scope: any) => {
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                this.$routerQuery.setQuery({ status_id: scope.status_id })
+                this.fetchDataPie()
+                this.fetchDataHistory()
+              } else {
+                this.$routerQuery.removeQuery(['status_id'])
+                  .finally(() => {
+                    this.fetchDataPie()
+                    this.fetchDataHistory()
+                  })
+              }
+            }
+          },
+          selected: null
+        },
+        // Дата или диапазон дат
+        user: [] as unknown & UserInterface[]
+      },
+
+      filterDate: undefined,
+
+      historyProcessLoading: false,
+
+      history_count: 0,
+
+      itemsPerPage: 10,
+
+      loading: true,
+
+      menuContactDateCreated: null as boolean | null,
+
+      menuDateRange: null,
+
+      options: {
+        labels: []
+      },
+
+      page: 1,
+
+      pageCount: 0,
+
+      pieColors: [] as string[],
+
+      pieData: [] as any[],
+
+      pieLabels: [] as string[],
+
+      pieSeries: [] as number[],
+
+      processPieLoading: false,
+
+      // Процесс загрузки изображений
+      // Report
+      total_calls: 0,
+
+      total_clients: 0,
+      users: [] as unknown as UserInterface[],
+      usersSelected: null as UserInterface | null
     }
-
-    if (this.$routerQuery.hasQuery('owner_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchDataPie()
-        this.fetchDataHistory()
-
-        this.initializeWatchForFilters()
-      })
   },
 
   methods: {
+
+    // Загрузить историю
+    fetchDataHistory () {
+      this.historyProcessLoading = true
+      const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
+
+      const params: any = {
+        count: this.dataTableHistory.itemsPerPage,
+        offset,
+        type: 'last' // Показать всю историю
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
+        params.status_id = +this.$route.query.status_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
+        params.date = this.$route.query.date
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'owner_id')) {
+        params.owner_id = this.$route.query.owner_id
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
+        params.contact_created_at = this.$route.query.contact_created_at
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
+        params.history_sort_by = this.$route.query.history_sort_by
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
+        params.history_sort_direction = this.$route.query.history_sort_direction
+      }
+
+      new Reports()
+        .history<any, any>(params)
+        .then((response) => {
+          this.dataTableHistory.totalCount = response.meta.count || 0
+          this.dataTableHistory.pages = Math.ceil(response.meta.count / this.dataTableHistory.itemsPerPage)
+          this.dataTableHistory.items = response.data.map((e: any) => {
+            e.isPlaying = false
+            return e
+          }) || []
+        }).finally(() => (this.historyProcessLoading = false))
+    },
 
     // Загрузить график
     fetchDataPie () {
@@ -745,203 +739,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
             }
           }
         }).finally(() => (this.processPieLoading = false))
-    },
-
-    // Загрузить историю
-    fetchDataHistory () {
-      this.historyProcessLoading = true
-      const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
-
-      const params: any = {
-        offset,
-        count: this.dataTableHistory.itemsPerPage,
-        type: 'last' // Показать всю историю
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
-        params.status_id = +this.$route.query.status_id
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
-        params.date = this.$route.query.date
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'owner_id')) {
-        params.owner_id = this.$route.query.owner_id
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
-        params.contact_created_at = this.$route.query.contact_created_at
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
-        params.history_sort_by = this.$route.query.history_sort_by
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
-        params.history_sort_direction = this.$route.query.history_sort_direction
-      }
-
-      new Reports()
-        .history<any, any>(params)
-        .then((response) => {
-          this.dataTableHistory.totalCount = response.meta.count || 0
-          this.dataTableHistory.pages = Math.ceil(response.meta.count / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.data.map((e: any) => {
-            e.isPlaying = false
-            return e
-          }) || []
-        }).finally(() => (this.historyProcessLoading = false))
-    },
-
-    /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.$routerQuery
-        .setQuery({ date: dr })
-        .then(() => {
-          this.fetchDataPie()
-          this.fetchDataHistory()
-        })
-    },
-
-    /**
-     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
-     * @param dateStr
-     */
-    onSaveContactDateCreatedClick (dateStr: string | null) {
-      if (!dateStr) {
-        this.$routerQuery
-          .removeQuery(['contact_created_at'])
-          .finally(() => {
-            this.fetchDataPie()
-            this.fetchDataHistory()
-          })
-        this.$refs.menuContactDateCreated.save(null)
-        return
-      }
-
-      this.$refs.menuContactDateCreated.save(dateStr)
-      this.$routerQuery
-        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
-        .finally(() => {
-          this.fetchDataPie()
-          this.fetchDataHistory()
-        })
-    },
-
-    onFilterDate () {
-      this.fetchDataPie()
-      this.fetchDataHistory()
-    },
-
-    onHistoryPaginationChange (pagination: any) {
-      console.log(pagination)
-    },
-
-    onHistoryItemRecordPlay (item: any) {
-      this.stopSound()
-      this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-      item.isPlaying = true
-      item.playingProgress = 0
-
-      if (item.audioUrl) {
-        this.playSound(item.audioUrl, false, {
-          onEnded: () => {
-            this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-          },
-          onProgressUpdate: (progress: number) => {
-            item.playingProgress = progress
-            this.$forceUpdate()
-          }
-        })
-      } else {
-        new ContactHistory()
-          .getAudioFile(item.id)
-          .then((response: any) => {
-            item.audioUrl = response.url
-            this.playSound(response.url, false, {
-              onEnded: () => {
-                this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-              },
-              onProgressUpdate: (progress: number) => {
-                item.playingProgress = progress
-                this.$forceUpdate()
-              }
-            })
-          }).catch((e) => {
-            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
-            item.isPlaying = false
-          })
-      }
-    },
-
-    /**
-     * Передать контакты в другой проект
-     */
-    async onTransferContactsToAnotherProjectClick () {
-      const instance = await this.$dialog.show(SContactExportDialog, {
-        waitForResult: false,
-        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableHistory.selected.length),
-        persistent: true,
-        width: '700px',
-        // scope - набор опций для передачи контактов
-        onTransfer: (scope: any) => {
-          const data: any = {
-            target_project: scope.target_project.id,
-            target_users: scope.target_users.map((e: UserInterface) => e.id),
-            target_contacts: this.dataTableHistory.selected
-          }
-
-          // В dataTableHistory.selected данные истории
-          this.dataTableHistory.selected.forEach((value, index) => {
-            // Мы обязаны проверит наличие контакта в истории
-            if (this.assertObjectHasAttribute(value.contact, 'id')) {
-              data.target_contacts.push(value.contact.id)
-            }
-          })
-
-          if (this.assertObjectHasAttribute(scope, 'new_date')) {
-            data.new_date = scope.new_date
-          }
-
-          new Contacts()
-            .transfer(data)
-            .then(() => {
-              this.$toast.success(this.$tc('Transfer success'))
-            }).catch((error) => {
-              if (error instanceof APIError) {
-                error.errors.forEach((value) => {
-                  this.$toast.error(this.$tc(value.message))
-                })
-                this.$toast.error(this.$tc(error.error_message))
-              }
-            }).finally(() => {
-              instance.close()
-            })
-        },
-
-        onCancel: () => {
-          instance.close()
-        }
-      })
-    },
-
-    secondsToHmsDigital (d: number) {
-      return secondsToHmsDigital(d)
     },
 
     /**
@@ -998,6 +795,243 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }
       }, debounceDelay))
+    },
+
+    onFilterDate () {
+      this.fetchDataPie()
+      this.fetchDataHistory()
+    },
+
+    onHistoryItemRecordPlay (item: any) {
+      this.stopSound()
+      this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+      item.isPlaying = true
+      item.playingProgress = 0
+
+      if (item.audioUrl) {
+        this.playSound(item.audioUrl, false, {
+          onEnded: () => {
+            this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+          },
+          onProgressUpdate: (progress: number) => {
+            item.playingProgress = progress
+            this.$forceUpdate()
+          }
+        })
+      } else {
+        new ContactHistory()
+          .getAudioFile(item.id)
+          .then((response: any) => {
+            item.audioUrl = response.url
+            this.playSound(response.url, false, {
+              onEnded: () => {
+                this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
+              },
+              onProgressUpdate: (progress: number) => {
+                item.playingProgress = progress
+                this.$forceUpdate()
+              }
+            })
+          }).catch((e) => {
+            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+            item.isPlaying = false
+          })
+      }
+    },
+
+    onHistoryPaginationChange (pagination: any) {
+      console.log(pagination)
+    },
+
+    /**
+     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
+     * @param dateStr
+     */
+    onSaveContactDateCreatedClick (dateStr: string | null) {
+      if (!dateStr) {
+        this.$routerQuery
+          .removeQuery(['contact_created_at'])
+          .finally(() => {
+            this.fetchDataPie()
+            this.fetchDataHistory()
+          })
+        this.$refs.menuContactDateCreated.save(null)
+        return
+      }
+
+      this.$refs.menuContactDateCreated.save(dateStr)
+      this.$routerQuery
+        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
+        .finally(() => {
+          this.fetchDataPie()
+          this.fetchDataHistory()
+        })
+    },
+
+    /**
+     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
+     * @param dateRange
+     */
+    onSaveDateRangeClick (dateRange: string[]) {
+      this.$refs.menuDateRange.save(dateRange)
+      const date1 = new Date(dateRange[0])
+      const date2 = new Date(dateRange[1])
+
+      let dr = ''
+      if (date1.getTime() < date2.getTime()) {
+        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
+      } else {
+        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
+      }
+
+      this.$routerQuery
+        .setQuery({ date: dr })
+        .then(() => {
+          this.fetchDataPie()
+          this.fetchDataHistory()
+        })
+    },
+
+    /**
+     * Передать контакты в другой проект
+     */
+    async onTransferContactsToAnotherProjectClick () {
+      const instance = await this.$dialog.show(SContactExportDialog, {
+
+        onCancel: () => {
+          instance.close()
+        },
+
+        // scope - набор опций для передачи контактов
+        onTransfer: (scope: any) => {
+          const data: any = {
+            target_contacts: this.dataTableHistory.selected,
+            target_project: scope.target_project.id,
+            target_users: scope.target_users.map((e: UserInterface) => e.id)
+          }
+
+          // В dataTableHistory.selected данные истории
+          this.dataTableHistory.selected.forEach((value, index) => {
+            // Мы обязаны проверит наличие контакта в истории
+            if (this.assertObjectHasAttribute(value.contact, 'id')) {
+              data.target_contacts.push(value.contact.id)
+            }
+          })
+
+          if (this.assertObjectHasAttribute(scope, 'new_date')) {
+            data.new_date = scope.new_date
+          }
+
+          new Contacts()
+            .transfer(data)
+            .then(() => {
+              this.$toast.success(this.$tc('Transfer success'))
+            }).catch((error) => {
+              if (error instanceof APIError) {
+                error.errors.forEach((value) => {
+                  this.$toast.error(this.$tc(value.message))
+                })
+                this.$toast.error(this.$tc(error.error_message))
+              }
+            }).finally(() => {
+              instance.close()
+            })
+        },
+
+        persistent: true,
+
+        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableHistory.selected.length),
+
+        waitForResult: false,
+
+        width: '700px'
+      })
+    },
+
+    secondsToHmsDigital (d: number) {
+      return secondsToHmsDigital(d)
+    }
+  },
+
+  mixins: [audioPlayer],
+
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
+    if (this.$routerQuery.hasQuery('date')) {
+      this.filter.date = this.$routerQuery.getQuery('date')
+
+      if (/^\d+,\d+/s.test(String(this.filterDate))) {
+        const dateRangeStr = String(this.filterDate)
+        const dates = dateRangeStr.split(',', 2)
+        this.dateRange = [
+          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
+          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
+        ]
+      }
+    }
+
+    if (this.$routerQuery.hasQuery('owner_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
+    }
+
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchDataPie()
+        this.fetchDataHistory()
+
+        this.initializeWatchForFilters()
+      })
+  },
+
+  watch: {
+
+    'dataTableHistory.options': {
+      deep: true,
+      handler ({ sortBy, sortDesc }) {
+        if (Array.isArray(sortBy)) {
+          if (sortBy.length > 0) {
+            this.$routerQuery.setQuery({
+              history_sort_by: sortBy.join(','),
+              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
+            }).then(() => (this.fetchDataHistory()))
+          } else {
+            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
+            this.$routerQuery
+              .removeQuery(['history_sort_by', 'history_sort_direction'])
+              .then(() => (this.fetchDataHistory()))
+          }
+        }
+      }
+    },
+
+    'dataTableHistory.page': {
+      handler (page: number) {
+        this.$routerQuery.setQuery({ history_page: page })
+      }
+    },
+
+    'dataTableHistory.selected': {
+      handler (selected: any[]) {
+        if (selected.length === this.dataTableHistory.items.length) {
+          this.dataTableHistory.selectedAll = true
+        } else if (selected.length === 0) {
+          this.dataTableHistory.selectedAll = false
+        }
+      }
+    },
+
+    'dataTableHistory.selectedAll': {
+      handler (val: boolean) {
+        if (val) {
+          this.dataTableHistory.selected = this.dataTableHistory.items.map((e: any) => e.id)
+        } else {
+          this.dataTableHistory.selected = []
+        }
+      }
     }
   }
 })

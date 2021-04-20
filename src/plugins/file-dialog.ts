@@ -6,8 +6,8 @@ interface FileDialogOptions {
 }
 
 const defaultOptions: FileDialogOptions = {
-  multiple: false,
-  accept: '*/*'
+  accept: '*/*',
+  multiple: false
 }
 
 export class FileDialog {

@@ -6,10 +6,6 @@ const cookie: Cookie = new Cookie()
 
 const uri = process.env.VUE_APP_PROCESS_ACTIVITY_URI || 'https://example.com'
 const socket = io(uri, {
-  path: '/activity',
-  autoConnect: false,
-  reconnection: true,
-  filter: {},
   auth: (cb) => {
     // Здесь каждый раз, будем брать актуальный токен доступа
     // eslint-disable-next-line standard/no-callback-literal
@@ -17,6 +13,10 @@ const socket = io(uri, {
       token: cookie.get('access_token')
     })
   },
+  autoConnect: false,
+  filter: {},
+  path: '/activity',
+  reconnection: true,
   transports: ['websocket']
 })
 

@@ -2,41 +2,6 @@ import { TasksStateInterface } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<TasksStateInterface> = {
-  /**
-   *
-   * @param state
-   * @param payload
-   */
-  pending_count (state, payload: number) {
-    state.pending_count = payload
-  },
-
-  /**
-   *
-   * @param state
-   * @param payload
-   */
-  options_count (state, payload: number) {
-    state.options.count = payload
-  },
-
-  /**
-   *
-   * @param state
-   * @param payload
-   */
-  options_pages (state, payload: number) {
-    state.options.pages = payload
-  },
-
-  /**
-   *
-   * @param state
-   * @param payload
-   */
-  options_page (state, payload: number) {
-    state.options.page = payload
-  },
 
   /**
    * Параметры фильтров
@@ -69,6 +34,42 @@ const mutations: MutationTree<TasksStateInterface> = {
    */
   items (state, payload) {
     state.items = payload
+  },
+
+  /**
+   *
+   * @param state
+   * @param payload
+   */
+  options_count (state, payload: number) {
+    state.options.count = payload
+  },
+
+  /**
+   *
+   * @param state
+   * @param payload
+   */
+  options_page (state, payload: number) {
+    state.options.page = payload
+  },
+
+  /**
+   *
+   * @param state
+   * @param payload
+   */
+  options_pages (state, payload: number) {
+    state.options.pages = payload
+  },
+
+  /**
+   *
+   * @param state
+   * @param payload
+   */
+  pending_count (state, payload: number) {
+    state.pending_count = payload
   }
 }
 

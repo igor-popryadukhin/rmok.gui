@@ -16,29 +16,29 @@
 </template>
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    },
-    color: {
-      default: '#41b883'
-    }
-  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size)
       return {
-        width: size + 'px',
         height: this.size,
-        transform: 'scale(' + (size / 70) + ')'
+        transform: 'scale(' + (size / 70) + ')',
+        width: size + 'px'
       }
     },
     styles () {
       const size = parseInt(this.size)
       return {
-        width: size + 'px',
-        height: this.size
+        height: this.size,
+        width: size + 'px'
       }
+    }
+  },
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
     }
   }
 }

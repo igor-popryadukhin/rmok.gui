@@ -100,54 +100,6 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
-  name: 'ATask',
-
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  props: {
-    value: {
-      type: Object,
-      default: () => null
-    }
-  },
-
-  data (): IData {
-    return {
-      update: true,
-      dTaskTypeSelection: 'call',
-      dTaskTypeOptions: ['call', 'task', 'meeting', 'letter', 'other'],
-      dValue: 1,
-      dUnit: 'hour',
-      dUnitOptions: ['day', 'hour', 'minute', 'second'],
-      dDescription: null
-    }
-  },
-
-  watch: {
-    value (val: any) {
-      console.log('Change in ATask.vue', val)
-    },
-
-    dTaskTypeSelection () {
-      this.onChange()
-    },
-
-    dValue () {
-      this.onChange()
-    },
-
-    dUnit () {
-      this.onChange()
-    },
-
-    dDescription () {
-      this.onChange()
-    }
-  },
-
   created () {
     this.update = false // Не даём испускать события изменения
     if (this.value) {
@@ -159,16 +111,64 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     this.update = true //
   },
 
+  data (): IData {
+    return {
+      dTaskTypeOptions: ['call', 'task', 'meeting', 'letter', 'other'],
+      dDescription: null,
+      dTaskTypeSelection: 'call',
+      dUnit: 'hour',
+      dUnitOptions: ['day', 'hour', 'minute', 'second'],
+      dValue: 1,
+      update: true
+    }
+  },
+
   methods: {
     onChange () {
       if (this.update) {
         this.$emit('change', {
+          description: this.dDescription,
           type: this.dTaskTypeSelection,
-          value: this.dValue,
           unit: this.dUnit,
-          description: this.dDescription
+          value: this.dValue
         })
       }
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  name: 'ATask',
+
+  props: {
+    value: {
+      default: () => null,
+      type: Object
+    }
+  },
+
+  watch: {
+    dDescription () {
+      this.onChange()
+    },
+
+    dTaskTypeSelection () {
+      this.onChange()
+    },
+
+    dUnit () {
+      this.onChange()
+    },
+
+    dValue () {
+      this.onChange()
+    },
+
+    value (val: any) {
+      console.log('Change in ATask.vue', val)
     }
   }
 })

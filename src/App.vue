@@ -44,59 +44,12 @@ import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 
 export default Vue.extend({
-  name: 'App',
-
-  components: {
-    VApp
-  },
-
-  data () {
-    return {
-      screenDevVisible: false,
-      contactStatusDialog: {
-        visible: false,
-        historyId: 0
-      },
-      overlay: false,
-      toastId: 0 as number | string,
-      organization: {} as ContactInterface,
-      RTCToastOptions: {
-        id: '',
-        position: POSITION.TOP_RIGHT,
-        timeout: false,
-        pauseOnFocusLoss: true,
-        pauseOnHover: true,
-        draggable: false,
-        draggablePercent: 0.47,
-        hideProgressBar: false,
-        toastClassName: 'incoming-rtc-toast',
-        closeOnClick: false,
-        closeButton: false,
-        icon: false,
-        rtl: false
-      } as ToastOptions
-    }
-  },
-
-  computed: {
-    layout () {
-      return this.$route.meta.layout || 'clean'
-    }
-  },
-
   beforeCreate () {
     this.$store.dispatch('profile/loadProfile')
       .finally(() => {
         this.$root.$emit('root-jssip-initialize')
       })
     this.$store.dispatch('project/load')
-  },
-
-  mounted () {
-    this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
-    this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$on('on-keydown-ctrl', this.onKeyDown)
-    this.$root.$on('on-keyup-ctrl', this.onKeyUp)
   },
 
   beforeDestroy () {
@@ -106,15 +59,45 @@ export default Vue.extend({
     this.$root.$off('on-keyup-ctrl', this.onKeyUp)
   },
 
+  components: {
+    VApp
+  },
+
+  computed: {
+    layout () {
+      return this.$route.meta.layout || 'clean'
+    }
+  },
+
+  data () {
+    return {
+      contactStatusDialog: {
+        historyId: 0,
+        visible: false
+      },
+      RTCToastOptions: {
+        id: '',
+        pauseOnFocusLoss: true,
+        position: POSITION.TOP_RIGHT,
+        draggable: false,
+        timeout: false,
+        draggablePercent: 0.47,
+        pauseOnHover: true,
+        closeOnClick: false,
+        hideProgressBar: false,
+        closeButton: false,
+        toastClassName: 'incoming-rtc-toast',
+        icon: false,
+        rtl: false
+      } as ToastOptions,
+      organization: {} as ContactInterface,
+      overlay: false,
+      screenDevVisible: false,
+      toastId: 0 as number | string
+    }
+  },
+
   methods: {
-
-    rootLoadingDataShow () {
-      this.overlay = true
-    },
-
-    rootLoadingDataHide () {
-      this.overlay = false
-    },
 
     onKeyDown (e: KeyboardEvent) {
       if (e.code === 'ControlLeft') {
@@ -126,8 +109,25 @@ export default Vue.extend({
       if (e.code === 'ControlLeft') {
         this.screenDevVisible = false
       }
+    },
+
+    rootLoadingDataHide () {
+      this.overlay = false
+    },
+
+    rootLoadingDataShow () {
+      this.overlay = true
     }
-  }
+  },
+
+  mounted () {
+    this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
+    this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
+    this.$root.$on('on-keydown-ctrl', this.onKeyDown)
+    this.$root.$on('on-keyup-ctrl', this.onKeyUp)
+  },
+
+  name: 'App'
 })
 </script>
 

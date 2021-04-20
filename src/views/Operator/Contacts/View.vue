@@ -422,9 +422,117 @@ interface IStatus {
 }
 
 export default (Vue as VueConstructor<VInterface>).extend({
+  beforeDestroy () {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
+  },
+
+  beforeRouteEnter (to, from, next) {
+    // Сохраняю маршрут, откуда пришёл
+    store.commit('system/route_last_full_path', from.fullPath)
+    new Contacts()
+      .getById(+to.params.contact_id)
+      .then((response: ContactInterface) => {
+        // TODO: Фамилия имя отчество в хлебных крошках
+        // from.meta.route_breadcrumb_name = `${response.first_name} ${response.last_name} ${response.middle_name}`
+        next((vm: VInterface) => {
+          vm.$activity.begin({
+            type: 'card_filling'
+          })
+          vm.contact = response
+          vm.contactDateTimeNow = new Date(response.current_date_time * 1000)
+        })
+      }).catch(() => {
+        next({ name: 'not_found' })
+      })
+  },
+
+  beforeRouteLeave (to, from, next) {
+    this.$activity.end()
+    next()
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      const contacts: Contacts = new Contacts()
+      this.$activity.end()
+      this.dataLoading = true
+      contacts
+        .getById(+to.params.contact_id)
+        .then((contact: ContactInterface) => {
+          this.$activity.begin({
+            type: 'card_filling'
+          })
+          this.contact = contact
+          this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
+        }).finally(() => {
+          this.tabPageUpdate()
+          this.dataLoading = false
+        })
+    }
+    next()
+  },
+
   components: { SContactStatuses },
 
-  mixins: [lvovich],
+  computed: {
+    avatar () {
+      const first: string = this.contact.first_name || ''
+      const last: string = this.contact.last_name || ''
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    /**
+     * Делает кнопку позвонить недоступной, если не выполнены условия
+     **/
+    callBtnIsDisabled () {
+      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
+    },
+
+    gmt () {
+      const offset: number | null = this.contact.timezone_offset || null
+
+      if (offset === null) {
+        return ''
+      }
+
+      if (offset > 0) {
+        return `(GMT+${offset})`
+      } else if (offset < 0) {
+        return `(GMT${offset})`
+      } else {
+        return `(GMT ${offset})`
+      }
+    },
+
+    leftColumnStyleComputed () {
+      return {}
+    },
+
+    sessionStopwatch () {
+      return this.$jsSIP.sessionStopwatch
+    },
+
+    tabsHeight () {
+      let h: number = this.$screenHeight - 115
+      if (h < 850) {
+        h = 850
+      }
+      return h
+    }
+  },
+
+  created () {
+    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
+      this.currentTabIndex = Number(this.$route.query.current_tab_index)
+    }
+
+    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
+    this.$store.dispatch('database/statuses', {
+      contact_id: this.$route.params.contact_id
+    })
+  },
 
   data () {
     return {
@@ -496,182 +604,37 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
-  watch: {
-    currentTabIndex (val: number) {
-      this.$routerQuery.setQuery({
-        current_tab_index: val
-      })
-    }
-  },
-
-  computed: {
-    avatar () {
-      const first: string = this.contact.first_name || ''
-      const last: string = this.contact.last_name || ''
-      return first.charAt(0) + last.charAt(0)
-    },
-
-    sessionStopwatch () {
-      return this.$jsSIP.sessionStopwatch
-    },
-
-    tabsHeight () {
-      let h: number = this.$screenHeight - 115
-      if (h < 850) {
-        h = 850
-      }
-      return h
-    },
-
-    /**
-     * Делает кнопку позвонить недоступной, если не выполнены условия
-     **/
-    callBtnIsDisabled () {
-      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
-    },
-
-    gmt () {
-      const offset: number | null = this.contact.timezone_offset || null
-
-      if (offset === null) {
-        return ''
-      }
-
-      if (offset > 0) {
-        return `(GMT+${offset})`
-      } else if (offset < 0) {
-        return `(GMT${offset})`
-      } else {
-        return `(GMT ${offset})`
-      }
-    },
-
-    leftColumnStyleComputed () {
-      return {}
-    }
-  },
-
-  created () {
-    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
-      this.currentTabIndex = Number(this.$route.query.current_tab_index)
-    }
-
-    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
-    this.$store.dispatch('database/statuses', {
-      contact_id: this.$route.params.contact_id
-    })
-  },
-
-  mounted () {
-    this.$root.$on('root-main-search', this.onRootMainSearch)
-    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
-    // Prevent booting or closing a tab!!!
-    // window.onbeforeunload = () => {
-    //   return true
-    // }
-  },
-
-  beforeRouteEnter (to, from, next) {
-    // Сохраняю маршрут, откуда пришёл
-    store.commit('system/route_last_full_path', from.fullPath)
-    new Contacts()
-      .getById(+to.params.contact_id)
-      .then((response: ContactInterface) => {
-        // TODO: Фамилия имя отчество в хлебных крошках
-        // from.meta.route_breadcrumb_name = `${response.first_name} ${response.last_name} ${response.middle_name}`
-        next((vm: VInterface) => {
-          vm.$activity.begin({
-            type: 'card_filling'
-          })
-          vm.contact = response
-          vm.contactDateTimeNow = new Date(response.current_date_time * 1000)
-        })
-      }).catch(() => {
-        next({ name: 'not_found' })
-      })
-  },
-
-  beforeRouteUpdate (to, from, next) {
-    if (from.params.contact_id !== to.params.contact_id) {
-      const contacts: Contacts = new Contacts()
-      this.$activity.end()
-      this.dataLoading = true
-      contacts
-        .getById(+to.params.contact_id)
-        .then((contact: ContactInterface) => {
-          this.$activity.begin({
-            type: 'card_filling'
-          })
-          this.contact = contact
-          this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
-        }).finally(() => {
-          this.tabPageUpdate()
-          this.dataLoading = false
-        })
-    }
-    next()
-  },
-
-  beforeRouteLeave (to, from, next) {
-    this.$activity.end()
-    next()
-  },
-
-  beforeDestroy () {
-    this.$root.$off('root-main-search', this.onRootMainSearch)
-    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
-    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
-  },
-
   destroyed () {
     this.$activity.end()
   },
 
   methods: {
-    /**
-     * Обновит текущую страницу во вкладке
-     **/
-    tabPageUpdate () {
-      // Незамысловатый механизм доступа к методам компонента
-      setTimeout(() => {
-        if (typeof this.$refs[this.tabs[this.currentTabIndex].ref].update === 'function') {
-          this.$refs[this.tabs[this.currentTabIndex].ref].update()
-        }
-      }, 1000)
-    },
 
     /**
-     * Показать статусы
+     * Перейти к следующему контакту
+     * Передайте действительный идентификатор контакта, для того что бы загрузить очередной контакт
+     *
+     * @param current_contact_id
      */
-    showStatuses () {
-      this.status.visible = true
-    },
-
-    onRootJssipSessionEnded (event: REJssipSessionEndedInterface) {
-      this.showStatuses()
-      this.status.contact_id = event.contact_id
-      this.status.contact_history_id = event.contact_history_id
-    },
-
-    onRootMainSearch (q: string, set: MainSearchMethod) {
-      new Contacts()
-        .find({
-          q,
-          offset: 0,
-          count: 10
-        }).then((response: ContactResponseInterface) => {
-          set(response.items.map((e: ContactInterface) => {
-            return {
-              ...e,
-              title: `${e.first_name} ${e.last_name}`,
-              subtitle: e.city
+    nextContact (current_contact_id: number) {
+      new Leads()
+        .next(current_contact_id)
+        .then((contact_id) => {
+          const name = String(this.$route.name)
+          this.$router.push({
+            name,
+            params: {
+              contact_id: String(contact_id)
             }
-          }))
+          })
         })
-    },
-
-    onRootMainSearchSelected (data: ContactInterface) {
-      this.$router.push({ path: `/contacts/${data.id}/script` })
+        .catch(() => {
+          this.$router.push({
+            name: 'operator_leads'
+          })
+        }).finally(() => {
+          this.saveAndNextLoading = false
+        })
     },
 
     onCall (target: string, contactId: number) {
@@ -703,10 +666,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       /* eslint-enable */
     },
 
-    secondsToHmsDigital (s: number) {
-      return secondsToHmsDigital(s)
-    },
-
     onDefaultPhoneSet (value?: PhoneNumberInterface) {
       /* eslint-disable */
       if (value) {
@@ -716,37 +675,40 @@ export default (Vue as VueConstructor<VInterface>).extend({
       /* eslint-enable */
     },
 
-    onTaskAddClick () {
-      this.$dialog.show(STaskDialogEditor, {
-        waitForResult: true,
-        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%',
-        persistent: true,
-        performerId: this.$store.getters['profile/id'],
-        responsibleDisabled: true,
-        onSave: (data: any) => {
-          const taskData: any = {
-            performer_id: data.performer_id,
-            description: data.description,
-            planned_for: data.planned_for,
-            type: data.type,
-            contact_id: +this.$route.params.contact_id
-          }
+    onRootJssipSessionEnded (event: REJssipSessionEndedInterface) {
+      this.showStatuses()
+      this.status.contact_id = event.contact_id
+      this.status.contact_history_id = event.contact_history_id
+    },
 
-          new Tasks()
-            .add<number>(taskData)
-            .then(() => {
-              this.$toast.success(this.$tc('Task successfully created'))
-            }).catch((e: APIError) => {
-              let text = ''
-              if (this.assertObjectHasAttribute(e, 'errors')) {
-                text = e.errors.map(e => e.message).join('\n')
-              }
-              this.$toast.error(`${e.message}\n${text}`)
-            }).finally(() => {
-              this.tabPageUpdate()
-            })
-        }
-      })
+    onRootMainSearch (q: string, set: MainSearchMethod) {
+      new Contacts()
+        .find({
+          count: 10,
+          offset: 0,
+          q
+        }).then((response: ContactResponseInterface) => {
+          set(response.items.map((e: ContactInterface) => {
+            return {
+              ...e,
+              subtitle: e.city,
+              title: `${e.first_name} ${e.last_name}`
+            }
+          }))
+        })
+    },
+
+    onRootMainSearchSelected (data: ContactInterface) {
+      this.$router.push({ path: `/contacts/${data.id}/script` })
+    },
+
+    /**
+     * Сохранить статус и остаться на странице
+     *
+     * @param status
+     **/
+    async onSaveAndStayClick (status: IStatus) {
+      await this.save(status)
     },
 
     /**
@@ -768,13 +730,37 @@ export default (Vue as VueConstructor<VInterface>).extend({
       // }
     },
 
-    /**
-     * Сохранить статус и остаться на странице
-     *
-     * @param status
-     **/
-    async onSaveAndStayClick (status: IStatus) {
-      await this.save(status)
+    onTaskAddClick () {
+      this.$dialog.show(STaskDialogEditor, {
+        onSave: (data: any) => {
+          const taskData: any = {
+            contact_id: +this.$route.params.contact_id,
+            description: data.description,
+            performer_id: data.performer_id,
+            planned_for: data.planned_for,
+            type: data.type
+          }
+
+          new Tasks()
+            .add<number>(taskData)
+            .then(() => {
+              this.$toast.success(this.$tc('Task successfully created'))
+            }).catch((e: APIError) => {
+              let text = ''
+              if (this.assertObjectHasAttribute(e, 'errors')) {
+                text = e.errors.map(e => e.message).join('\n')
+              }
+              this.$toast.error(`${e.message}\n${text}`)
+            }).finally(() => {
+              this.tabPageUpdate()
+            })
+        },
+        performerId: this.$store.getters['profile/id'],
+        persistent: true,
+        responsibleDisabled: true,
+        waitForResult: true,
+        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%'
+      })
     },
 
     async save (status: IStatus) {
@@ -786,8 +772,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       return new Promise<void>((resolve) => {
         new Contacts()
           .updateHistory(status.contact_history_id, {
-            status_id: status.status_id, // Идентификатор статуса для истории
-            comment: status.comment // Комментарий для истории.
+            // Идентификатор статуса для истории
+            comment: status.comment,
+            status_id: status.status_id // Комментарий для истории.
           }).then(() => {
           // Через секунду обновляю текущую страницу в Tab
             setTimeout(() => {
@@ -806,6 +793,29 @@ export default (Vue as VueConstructor<VInterface>).extend({
       })
     },
 
+    secondsToHmsDigital (s: number) {
+      return secondsToHmsDigital(s)
+    },
+
+    /**
+     * Показать статусы
+     */
+    showStatuses () {
+      this.status.visible = true
+    },
+
+    /**
+     * Обновит текущую страницу во вкладке
+     **/
+    tabPageUpdate () {
+      // Незамысловатый механизм доступа к методам компонента
+      setTimeout(() => {
+        if (typeof this.$refs[this.tabs[this.currentTabIndex].ref].update === 'function') {
+          this.$refs[this.tabs[this.currentTabIndex].ref].update()
+        }
+      }, 1000)
+    },
+
     validate (): boolean {
       if (this.status.status_id <= 0) {
         this.$toast.warning('Выберите статус!')
@@ -813,33 +823,25 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       return true
-    },
+    }
+  },
 
-    /**
-     * Перейти к следующему контакту
-     * Передайте действительный идентификатор контакта, для того что бы загрузить очередной контакт
-     *
-     * @param current_contact_id
-     */
-    nextContact (current_contact_id: number) {
-      new Leads()
-        .next(current_contact_id)
-        .then((contact_id) => {
-          const name = String(this.$route.name)
-          this.$router.push({
-            name,
-            params: {
-              contact_id: String(contact_id)
-            }
-          })
-        })
-        .catch(() => {
-          this.$router.push({
-            name: 'operator_leads'
-          })
-        }).finally(() => {
-          this.saveAndNextLoading = false
-        })
+  mixins: [lvovich],
+
+  mounted () {
+    this.$root.$on('root-main-search', this.onRootMainSearch)
+    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
+    // Prevent booting or closing a tab!!!
+    // window.onbeforeunload = () => {
+    //   return true
+    // }
+  },
+
+  watch: {
+    currentTabIndex (val: number) {
+      this.$routerQuery.setQuery({
+        current_tab_index: val
+      })
     }
   }
 })
