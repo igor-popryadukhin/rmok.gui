@@ -397,7 +397,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       contactDateCreated: null,
       // Data table
       dataTableHistory: {
-        items: [],
         headers: [
           {
             align: 'start',
@@ -440,6 +439,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
             value: 'record'
           }
         ],
+        items: [],
         itemsPerPage: 100,
         options: {},
         page: 1,

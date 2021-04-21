@@ -1,7 +1,10 @@
 <template>
-  <v-container class="pa-0 pt-5" fluid>
+  <v-card
+    flat
+    tile
+  >
     <v-row>
-      <v-col class="pt-0 pb-0">
+      <v-col>
         <div class="d-flex">
           <v-spacer/>
           <v-btn-toggle
@@ -78,107 +81,114 @@
       </v-col>
     </v-row>
 
-    <!-- Date range -->
+    <!-- Основные фильтры -->
     <v-row>
-      <v-col>
-        <v-card
+      <!-- Фильтр по пользователям -->
+      <v-col
+        class="py-0"
+        md="4"
+        lg="4"
+        sm="12"
+        xs="12"
+      >
+        <s-users
+          ref="sUsersAutocomplete"
+          v-model="filter.user"
+          :label="$tc('Users')"
+          :params="{ role_use: 'for_calls' }"
           outlined
-          tile
-          flat
+          dense
+          clearable
+        />
+      </v-col>
+
+      <!-- Фильтр по результату звонка -->
+      <v-col
+        class="py-0"
+        md="4"
+        lg="4"
+        sm="12"
+        xs="12"
+      >
+        <v-combobox
+          v-model="filter.status.selected"
+          :items="filter.status.items"
+          :label="$tc('Фильтр по результату')"
+          item-text="status_result"
+          item-value="status_id"
+          cache-items
+          return-object
+          clearable
+          dense
+          outlined
+          v-on="filter.status.on"
         >
-          <v-card-text class="d-flex flex-wrap justify-start">
-            <s-users
-              ref="sUsersAutocomplete"
-              v-model="filter.user"
-              :label="$tc('Users')"
-              :params="{ role_use: 'for_calls' }"
-              class="mr-xs-3 mr-sm-3 mr-md-3 mr-lg-3"
-              outlined
-              dense
-              clearable
-            />
-            <v-combobox
-              v-model="filter.status.selected"
-              :items="filter.status.items"
-              :label="$tc('Фильтр по результату')"
-              item-text="status_result"
-              item-value="status_id"
-              class="mr-xs-3 mr-md-3 mr-lg-3"
-              cache-items
-              return-object
-              clearable
-              dense
-              outlined
-              v-on="filter.status.on"
-            >
-            </v-combobox>
-            <v-menu
-              ref="menuContactDateCreated"
-              v-model="menuContactDateCreated"
-              :close-on-content-click="false"
-              :return-value.sync="contactDateCreated"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  v-model="contactDateCreated"
-                  :label="$tc('Date the contact was created')"
-                  prepend-inner-icon="mdi-calendar"
-                  v-bind="attrs"
-                  v-on="on"
-                  readonly
-                  outlined
-                  dense
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                v-model="contactDateCreated"
-                scrollable
-                no-title
-                locale="ru"
-              >
-                <v-spacer></v-spacer>
-                <v-btn
-                  text
-                  color="red"
-                  @click="onSaveContactDateCreatedClick(null)"
-                >
-                  {{ $tc('Clear') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="menuContactDateCreated = false"
-                >
-                  {{ $tc('Cancel') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="onSaveContactDateCreatedClick(contactDateCreated)"
-                >
-                  OK
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
-          </v-card-text>
-        </v-card>
+        </v-combobox>
+      </v-col>
+
+      <!-- Фильтр дата создания контакта -->
+      <v-col
+        class="py-0"
+        md="4"
+        lg="4"
+        sm="12"
+        xs="12"
+      >
+        <app-date-picker-input
+          v-model="filter.contact_created_at"
+          :label="$tc('Date the contact was created')"
+          :value="new Date()"
+          return-date-type="unix"
+          date-range
+        />
       </v-col>
     </v-row>
 
     <v-row>
       <v-col class="d-flex">
-        <v-pagination
+        <app-pagination
           v-model="dataTableHistory.page"
           :length="dataTableHistory.pages"
-          total-visible="5"
-          class="mr-5"
-        ></v-pagination>
-        <div class="align-self-center">
-          {{ dataTableHistory.pageStart }}-{{ dataTableHistory.pageStop }} из {{ dataTableHistory.totalCount }}
-        </div>
+          :disabled="dataTableHistory.processLoading || dataTableHistory.selectedWhole"
+        >
+          <template v-slot:display>
+            <v-menu offset-y>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  tile
+                  text
+                  small
+                >
+                  {{ dataTableHistory.pageStart }}-{{ dataTableHistory.pageStop }} из {{ dataTableHistory.totalCount }}
+                </v-btn>
+              </template>
+              <v-list
+                class="py-0"
+                dense
+                flat
+              >
+                <v-list-item
+                  link
+                  @click="dataTableHistory.page = 1"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title>Самые новые</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item
+                  link
+                  @click="dataTableHistory.page = dataTableHistory.pages -1"
+                >
+                  <v-list-item-content>
+                    <v-list-item-title>Самые старые</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </app-pagination>
         <v-spacer/>
         <v-btn-toggle background-color="green">
           <v-btn
@@ -197,6 +207,7 @@
         </v-btn-toggle>
       </v-col>
     </v-row>
+
     <v-row>
       <v-col>
         <!-- История -->
@@ -206,16 +217,17 @@
           :server-items-length="dataTableHistory.totalCount"
           :page.sync="dataTableHistory.page"
           :items-per-page="dataTableHistory.itemsPerPage"
-          item-key="id"
           :options.sync="dataTableHistory.options"
           :loading="historyProcessLoading"
-          locale="ru"
+          :item-class="vDataTableItemClass"
           :no-data-text="$tc('No data for the selected period')"
-          :height="dataTableHistoryHeight"
-          @pagination="onPaginationChange"
+          locale="ru"
+          item-key="id"
           dense
           fixed-header
           hide-default-footer
+          show-select
+          @pagination="onPaginationChange"
         >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
@@ -237,7 +249,7 @@
           <template slot="item.comment" slot-scope="{ item }">
             <v-tooltip color="primary" max-width="300" bottom>
               <template v-slot:activator="{ on }">
-                <div v-on="on">
+                <div v-on="on" style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;width: 200px">
                   {{ item.comment || '-' }}
                 </div>
               </template>
@@ -293,13 +305,15 @@
         </v-data-table>
       </v-col>
     </v-row>
-  </v-container>
+  </v-card>
 </template>
 
 <script lang="ts">
 import ContactHistory from '@/api/ContactHistory'
 import Reports from '@/api/Reports'
 import { UserInterface } from '@/api/Users'
+import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import audioPlayer from '@/mixins/audioPlayer'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
@@ -314,7 +328,12 @@ Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: { SUsers },
+  components: {
+    AppDatePickerInput,
+    AppPagination,
+    SUsers
+  },
+
   computed: {
     apexchartOptions (): any {
       return {
@@ -331,7 +350,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       if (this.$screenHeight < 900) {
         return 500
       }
-      return this.$screenHeight - 400
+      return this.$screenHeight - 150
     }
   },
 
@@ -349,46 +368,54 @@ export default (Vue as VueConstructor<VInterface>).extend({
             align: 'start',
             sortable: true,
             text: 'Дата и время',
-            value: 'created_at'
+            value: 'created_at',
+            width: 'auto'
           },
           {
             sortable: true,
             text: 'Клиент',
-            value: 'contact'
+            value: 'contact',
+            width: 'auto'
           },
           {
             sortable: true,
             text: 'Результат',
-            value: 'status'
+            value: 'status',
+            width: 'auto'
           },
           {
             align: 'start',
             sortable: true,
             text: 'Комментарий',
-            value: 'comment'
+            value: 'comment',
+            width: '100%'
           },
           {
             align: 'end',
             sortable: false,
             text: 'Длительность разговора',
-            value: 'call_duration'
+            value: 'call_duration',
+            width: 'auto'
           },
           {
             align: 'end',
             sortable: false,
             text: 'Общее время сессии',
-            value: 'session_duration'
+            value: 'session_duration',
+            width: 'auto'
           },
           {
             sortable: false,
             text: 'Менеджер',
-            value: 'owner'
+            value: 'owner',
+            width: 'auto'
           },
           {
             align: 'end',
             sortable: false,
             text: 'Запись',
-            value: 'record'
+            value: 'record',
+            width: 'auto'
           }
         ],
         items: [],
@@ -400,10 +427,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         pages: 1,
         totalCount: 0
       },
-
       dateRange: null as string[] | null,
-
       filter: {
+        contact_created_at: [] as string[] | number[],
         date: null as unknown & string | null,
         status: {
           items: [],
@@ -425,43 +451,26 @@ export default (Vue as VueConstructor<VInterface>).extend({
         // Дата или диапазон дат
         user: [] as unknown & UserInterface[]
       },
-
       filterDate: undefined,
-
       historyProcessLoading: false,
-
       history_count: 0,
-
       itemsPerPage: 10,
-
       loading: true,
-
       menuContactDateCreated: null as boolean | null,
-
       menuDateRange: null,
-
       options: {
         labels: []
       },
-
       page: 1,
-
       pageCount: 0,
-
       pieColors: [] as string[],
-
       pieLabels: [] as string[],
-
       pieSeries: [] as number[],
-
       processPieLoading: false,
-
       // Процесс загрузки изображений
       // Report
       total_calls: 0,
-
       total_clients: 0,
-
       users: [] as UserInterface[],
       usersSelected: null as UserInterface | null
     }
@@ -492,8 +501,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.status_id = this.$route.query.status_id
       }
 
-      if (this.assertObjectHasAttribute(this.$route.query, 'contact_created_at')) {
-        params.contact_created_at = this.$route.query.contact_created_at
+      if (Array.isArray(this.filter.contact_created_at)) {
+        if (this.filter.contact_created_at.length === 2) {
+          params.contact_created_at = this.filter.contact_created_at.join(',')
+        }
       }
 
       if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
@@ -574,6 +585,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }
       }, debounceDelay))
+
+      // Фильтрация по дате создания контактов
+      this.$watch('filter.contact_created_at', (val: number[]) => {
+        this.$routerQuery.setQuery({
+          contact_created_at: val.join(',')
+        }).then(() => {
+          this.fetchDataHistory()
+        })
+      })
     },
 
     onHistoryItemRecordPlay (item: any) {
@@ -666,6 +686,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     secondsToHmsDigital (d: number) {
       return secondsToHmsDigital(d)
+    },
+
+    vDataTableItemClass (scope: any) {
+      return 'v-dt-item'
     }
   },
 
@@ -694,6 +718,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     if (this.$routerQuery.hasQuery('status_id')) {
       this.$routerQuery.getQuery('status_id')
+    }
+
+    if (this.$routerQuery.hasQuery('contact_created_at')) {
+      const dateRange = this.$routerQuery.getQuery<string>('contact_created_at')
+      this.filter.contact_created_at = dateRange
+        .split(',', 2)
+        .map((e: string) => +e)
+        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
     }
 
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
@@ -736,14 +768,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
 </script>
 
 <style lang="scss">
-  table > tbody > tr > td:nth-child(4) {
-    text-overflow: ellipsis;
-    overflow: hidden;
+.v-dt-item {
+  & > td {
     white-space: nowrap;
-    max-width: 200px;
   }
-
-  table > tbody > tr > td:nth-child(5) {
-    width: auto;
-  }
+}
 </style>
