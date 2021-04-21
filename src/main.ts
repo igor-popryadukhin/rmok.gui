@@ -22,12 +22,12 @@ import '@/plugins/moment'
 import '@/plugins/activity'
 import '@/plugins/yandex-metrika'
 import '@/plugins/file-dialog'
-import CleanLayout from '@/layouts/Clean.vue'
+import '@/plugins/lvovich'
+import '@/plugins/vuetify-dialog'
+import '@/plugins/libphonenumber-js'
+import '@/jsSIP'
 
-import(/* webpackChunkName: "plugin-lvovich", webpackPreload: true */ '@/plugins/lvovich')
-import(/* webpackChunkName: "plugin-vuetify-dialog", webpackPreload: true */ '@/plugins/vuetify-dialog')
-import(/* webpackChunkName: "plugin-libphonenumber-js", webpackPreload: true */ '@/plugins/libphonenumber-js')
-import(/* webpackChunkName: "plugin-jsSIP", webpackPreload: true */ '@/jsSIP')
+import CleanLayout from '@/layouts/Clean.vue'
 
 // layouts
 Vue.component('administrator', () => import(/* webpackPreload: true */ './layouts/Administrator.vue'))

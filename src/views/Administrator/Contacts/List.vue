@@ -745,7 +745,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       // Восстановление параметров сортировки после перезагрузки страницы
       if (this.$routerQuery.hasQuery('sort')) {
-        this.paramsSort?.forEach((e: unknown & { sort_by: string, sort_desc: boolean }) => {
+        this.paramsSort.forEach((e: unknown & { sort_by: string, sort_desc: boolean }) => {
           this.$data.dataTableContacts.options.sortBy.push(e.sort_by)
           this.$data.dataTableContacts.options.sortDesc.push(e.sort_desc)
         })
