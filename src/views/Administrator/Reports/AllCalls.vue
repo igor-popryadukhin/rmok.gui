@@ -366,6 +366,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         headers: [
           {
             align: 'start',
+            divider: true,
             sortable: true,
             text: 'Дата и время',
             value: 'created_at',

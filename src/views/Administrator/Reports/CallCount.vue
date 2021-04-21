@@ -1,190 +1,163 @@
 <template>
-  <v-container class="pa-0 pt-5" fluid>
+  <v-card
+    flat
+    tile
+  >
     <v-row>
-      <v-col class="pt-0 pb-0">
-        <div class="d-flex">
-          <v-spacer/>
-          <v-btn-toggle
-            v-model="filter.date"
-            group
-            dense
+      <v-col class="d-flex">
+        <v-spacer/>
+        <v-btn-toggle
+          v-model="filter.date"
+          group
+          dense
+        >
+          <v-btn value="today">
+            {{ $tc('Today') }}
+          </v-btn>
+
+          <v-btn value="yesterday">
+            {{ $tc('Yesterday') }}
+          </v-btn>
+
+          <v-btn value="this_week">
+            {{ $tc('This week') }}
+          </v-btn>
+
+          <v-btn value="last_week">
+            {{ $tc('Last week') }}
+          </v-btn>
+
+          <v-btn value="month">
+            {{
+              $tc('January | February | March | April | May | June | July | August | September | October | December', new Date().getMonth())
+            }}
+          </v-btn>
+
+          <v-menu
+            ref="menuDateRange"
+            v-model="menuDateRange"
+            :close-on-content-click="false"
+            :return-value.sync="dateRange"
+            transition="scale-transition"
+            offset-y
+            min-width="290px"
           >
-            <v-btn value="today">
-              {{ $tc('Today') }}
-            </v-btn>
-
-            <v-btn value="yesterday">
-              {{ $tc('Yesterday') }}
-            </v-btn>
-
-            <v-btn value="this_week">
-              {{ $tc('This week') }}
-            </v-btn>
-
-            <v-btn value="last_week">
-              {{ $tc('Last week') }}
-            </v-btn>
-
-            <v-btn value="month">
-              {{
-                $tc('January | February | March | April | May | June | July | August | September | October | December', new Date().getMonth())
-              }}
-            </v-btn>
-
-            <v-menu
-              ref="menuDateRange"
-              v-model="menuDateRange"
-              :close-on-content-click="false"
-              :return-value.sync="dateRange"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  v-on="on"
-                  :class="/^\d+,\d+/s.test($routerQuery.getQuery('date')) ? 'v-btn--active' : ''"
-                >
-                  {{ $tc('Range') }}
-                </v-btn>
-              </template>
-              <v-date-picker
-                v-model="dateRange"
-                :first-day-of-week="1"
-                scrollable
-                range
-                no-title
-                locale="ru"
+            <template v-slot:activator="{ on }">
+              <v-btn
+                v-on="on"
+                :class="/^\d+,\d+/s.test($routerQuery.getQuery('date')) ? 'v-btn--active' : ''"
               >
-                <v-spacer></v-spacer>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="menuDateRange = false"
-                >
-                  {{ $tc('Cancel') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="onSaveDateRangeClick(dateRange)"
-                >
-                  OK
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
-          </v-btn-toggle>
-        </div>
+                {{ $tc('Range') }}
+              </v-btn>
+            </template>
+            <v-date-picker
+              v-model="dateRange"
+              :first-day-of-week="1"
+              scrollable
+              range
+              no-title
+              locale="ru"
+            >
+              <v-spacer></v-spacer>
+              <v-btn
+                text
+                color="primary"
+                @click="menuDateRange = false"
+              >
+                {{ $tc('Cancel') }}
+              </v-btn>
+              <v-btn
+                text
+                color="primary"
+                @click="onSaveDateRangeClick(dateRange)"
+              >
+                OK
+              </v-btn>
+            </v-date-picker>
+          </v-menu>
+        </v-btn-toggle>
       </v-col>
     </v-row>
 
     <!-- Date range -->
     <v-row>
       <v-col
-        class="pt-0"
+        class="py-0"
+        md="6"
+        lg="6"
+        sm="12"
+        xs="12"
       >
-        <v-card
-          tile
-          flat
+        <s-users
+          ref="sUsersAutocomplete"
+          v-model="filter.users"
+          :label="$tc('Users')"
+          :params="{ role_use: 'for_calls' }"
+          multiple
           outlined
-        >
-          <v-card-text>
-            <v-row>
-              <v-col
-                class="py-0"
-                md="6"
-                lg="6"
-                sm="12"
-                xs="12"
-              >
-                <s-users
-                  ref="sUsersAutocomplete"
-                  v-model="filter.users"
-                  :label="$tc('Users')"
-                  :params="{ role_use: 'for_calls' }"
-                  multiple
-                  outlined
-                  dense
-                  clearable
-                />
-              </v-col>
+          dense
+          clearable
+        />
+      </v-col>
 
-              <v-col
-                class="py-0"
-                md="6"
-                lg="6"
-                sm="12"
-                xs="12"
-              >
-                <s-groups
-                  ref="sGroupsAutocomplete"
-                  v-model="filter.groups"
-                  :label="$tc('Groups')"
-                  dense
-                  outlined
-                  multiple
-                />
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
+      <v-col
+        class="py-0"
+        md="6"
+        lg="6"
+        sm="12"
+        xs="12"
+      >
+        <s-groups
+          ref="sGroupsAutocomplete"
+          v-model="filter.groups"
+          :label="$tc('Groups')"
+          dense
+          outlined
+          multiple
+        />
       </v-col>
     </v-row>
 
     <!-- CHART -->
-    <v-row>
-      <v-col
-        class="py-0"
-      >
-        <v-card
-          tile
-          flat
-          outlined
+    <v-row v-if="processPieLoading">
+      <v-col>
+        <div
+          class="d-flex align-center justify-center"
+          style="min-height: 320px"
         >
-          <v-card-text>
-            <v-row v-if="processPieLoading">
-              <v-col>
-                <div
-                  class="d-flex align-center justify-center"
-                  style="min-height: 320px"
-                >
-                  <div>
-                    {{ $tc('Loading content...') }}
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-else-if="total_calls === 0">
-              <v-col>
-                <div
-                  class="d-flex align-center justify-center"
-                  style="min-height: 320px"
-                >
-                  <div>
-                    {{ $tc('No data for the selected period') }}
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-row v-else>
-              <v-col
-                cols="12"
-              >
-                <v-card-text class="overflow-auto">
-                  <apexchart
-                    :height="chartHeight"
-                    type="bar"
-                    :options="apexchartOptions"
-                    :series="apexSeries"
-                  />
-                </v-card-text>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
+          <div>
+            {{ $tc('Loading content...') }}
+          </div>
+        </div>
       </v-col>
     </v-row>
-  </v-container>
+    <v-row v-else-if="total_calls === 0">
+      <v-col>
+        <div
+          class="d-flex align-center justify-center"
+          style="min-height: 320px"
+        >
+          <div>
+            {{ $tc('No data for the selected period') }}
+          </div>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row v-else>
+      <v-col
+        cols="12"
+      >
+        <v-card-text class="overflow-auto">
+          <apexchart
+            :height="chartHeight"
+            type="bar"
+            :options="apexchartOptions"
+            :series="apexSeries"
+          />
+        </v-card-text>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -219,18 +192,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
           // Выполните повторную визуализацию диаграммы при изменении размера окна, в котором отображается диаграмма.
           // Полезно при рендеринге диаграммы в окнах iframe.
           redrawOnWindowResize: true,
-
           type: 'bar',
-
           width: 5000,
-
           zoom: {
             enabled: false
           }
         },
         legend: {
           position: 'left',
-          show: true
+          show: false
         },
 
         noData: {
@@ -277,7 +247,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       if (this.$screenHeight < 900) {
         return 500
       }
-      return this.$screenHeight - 370
+      return this.$screenHeight - 200
     }
   },
 
@@ -306,24 +276,16 @@ export default (Vue as VueConstructor<VInterface>).extend({
       options: {
         labels: []
       },
-
       page: 1,
-
       pageCount: 0,
-
       pieColors: [] as string[],
-
       pieLabels: [] as string[],
-
       processPieLoading: false,
-
       // Процесс загрузки изображений
       // Report
       total_calls: 1,
-
       // todo: временно
       total_clients: 0,
-
       users: [] as UserInterface[]
     }
   },
