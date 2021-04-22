@@ -215,12 +215,14 @@
                       </v-btn>
                     </template>
                     <v-list
+                      :disabled="dataTableContacts.pages < 4"
                       class="py-0"
                       dense
                       flat
                     >
                       <v-list-item
                         link
+                        @click="dataTableContacts.page = 1"
                       >
                         <v-list-item-content>
                           <v-list-item-title>Самые новые</v-list-item-title>
@@ -228,6 +230,15 @@
                       </v-list-item>
                       <v-list-item
                         link
+                        @click="dataTableContacts.page = Math.floor(dataTableContacts.pages/2)"
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title>Между новыми и старыми</v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                      <v-list-item
+                        link
+                        @click="dataTableContacts.page = dataTableContacts.pages - 1"
                       >
                         <v-list-item-content>
                           <v-list-item-title>Самые старые</v-list-item-title>
@@ -244,7 +255,7 @@
             <!-- Банеры -->
             <v-fade-transition>
               <v-banner
-                v-if="dataTableContacts.selectedAll && !dataTableContacts.selectedIndeterminate"
+                v-if="dataTableContacts.selectedAll"
                 class="mb-1 text-center"
                 outlined
                 single-line
@@ -340,11 +351,8 @@
           flat
           tile
         >
-          <v-toolbar flat>
-            <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
-            <v-spacer></v-spacer>
-          </v-toolbar>
-          <v-card-text class="pt-0">
+          <!-- Проекты -->
+          <v-card-text>
             <s-projects-autocomplete
               ref="sProjectsAutocomplete"
               v-model="filter.project"
@@ -354,6 +362,17 @@
               dense
             />
           </v-card-text>
+
+          <v-card-text class="pt-0">
+            <s-statuses-select
+              :disabled="1"
+              outlined
+              dense
+              autoload
+            />
+          </v-card-text>
+
+          <!-- Ответственный -->
           <v-card-text class="pt-0">
             <s-users
               ref="sUsersAutocomplete"
@@ -365,6 +384,8 @@
               dense
             />
           </v-card-text>
+
+          <!-- Задачи -->
           <v-card-text class="pt-0">
             <v-select
               v-model="filter.task.selected"
@@ -384,6 +405,8 @@
               </template>
             </v-select>
           </v-card-text>
+
+          <!-- Прозвонено -->
           <v-card-text class="pt-0">
             <v-select
               v-model="filter.call_up.selected"
@@ -401,22 +424,30 @@
               </template>
             </v-select>
           </v-card-text>
+
+          <!-- Дата создания контакта -->
           <v-card-text class="pt-0">
             <h4>{{ $tc('Дата создания контакта') }}</h4>
             <v-date-picker
-              v-model="filter.contact_created_at"
+              v-model="filter.contact_created_at.value"
               :first-day-of-week="1"
+              :range="filter.contact_created_at.range"
               locale="ru"
               flat
               no-title
               scrollable
               full-width
             >
+              <v-switch
+                v-model="filter.contact_created_at.range"
+                :label="$tc('Range')"
+                @click="filter.contact_created_at.value = null"
+              />
               <v-spacer></v-spacer>
               <v-btn
                 text
                 color="primary"
-                @click="filter.contact_created_at = ''"
+                @click="filter.contact_created_at.value = null"
               >
                 {{ $tc('Clear') }}
               </v-btn>
@@ -437,6 +468,7 @@ import { UserInterface } from '@/api/Users'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import SContactExportDialog, { SContactExportScopeInterface } from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
+import SStatusesSelect from '@/snippets/SStatusesSelect/SStatusesSelect.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
@@ -463,6 +495,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     AppPagination,
     SProjectsAutocomplete,
+    SStatusesSelect,
     SUsers
   },
 
@@ -507,8 +540,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       // Дата создания контакта
-      if (this.$data.filter.contact_created_at) {
-        params.contact_created_at = this.$moment(this.$data.filter.contact_created_at, 'YYYY-MM-DD', false).unix()
+      if (this.$data.filter.contact_created_at.value) {
+        if (Array.isArray(this.$data.filter.contact_created_at.value)) {
+          if (this.$data.filter.contact_created_at.value.length === 2) {
+            params.contact_created_at = this.$data
+              .filter
+              .contact_created_at
+              .value
+              .map((value: string) => this.$moment(value, 'YYYY-MM-DD').unix())
+              .sort((a: number, b: number) => a - b)
+              .join(',')
+          }
+        } else if (this.$data.filter.contact_created_at.value) {
+          params.contact_created_at = this.$moment(this.$data.filter.contact_created_at.value, 'YYYY-MM-DD', false).unix()
+        }
       }
 
       return params
@@ -649,7 +694,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         processLoading: false,
         selected: [],
         selectedAll: false,
-        selectedIndeterminate: false,
         selectedWhole: false,
         sortBy: [],
         sortDesc: [],
@@ -664,7 +708,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         },
 
         // Фильтрация по дате создания контакта
-        contact_created_at: null,
+        contact_created_at: {
+          range: false,
+          value: null as unknown & number | number[]
+        },
 
         // Фильтрация по проектам
         project: null,
@@ -731,8 +778,22 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       this.filter.call_up.selected = this.$routerQuery.getQuery<string>('call_up', '')
 
+      // Инициализация фильтров
       if (this.$routerQuery.hasQuery('contact_created_at')) {
-        this.filter.contact_created_at = this.$moment.unix(this.$routerQuery.getQuery<number>('contact_created_at')).format('YYYY-MM-DD')
+        const date = this.$routerQuery.getQuery<string>('contact_created_at')
+        if (/^(\d+),(\d+)$/s.test(date)) {
+          // Диапазон
+          this.filter.contact_created_at.range = true
+          this.filter.contact_created_at.value = date.split(',', 2)
+            .sort((a: string, b: string) => +a - +b)
+            .map((value: number) => {
+              return this.$moment.unix(value).format('YYYY-MM-DD')
+            })
+        } else if (/^d+$/s.test(date)) {
+          this.filter.contact_created_at.value = this.$moment.unix(date).format('YYYY-MM-DD')
+        } else {
+          this.filter.contact_created_at.value = this.$moment.unix(date).format('YYYY-MM-DD')
+        }
       }
 
       if (this.$route.query.task) {
@@ -823,17 +884,31 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
 
       // Фильтрация по дате создания контакта
-      this.$watch('filter.contact_created_at', (newVal: unknown) => {
-        this.dataTableContacts.page = 1
-        if (typeof newVal === 'string') {
-          this.$routerQuery.setQuery({
-            contact_created_at: this.$moment(newVal).unix()
-          }).then(this.fetchContacts)
-        } else {
+      this.$watch('filter.contact_created_at.value', (newVal: string | string[]) => {
+        if (!newVal) {
           this.$routerQuery.removeQuery([
             'contact_created_at'
           ]).then(this.fetchContacts)
         }
+
+        let value = ''
+        if (Array.isArray(newVal)) {
+          if (newVal.length < 2) {
+            return
+          }
+
+          value = newVal.map((value: string) => this.$moment(value)
+            .unix())
+            .sort((a: number, b: number) => a - b)
+            .join(',')
+        } else {
+          value = this.$moment(newVal).unix()
+        }
+
+        this.dataTableContacts.page = 1
+        this.$routerQuery.setQuery({
+          contact_created_at: value
+        }).then(this.fetchContacts)
       })
 
       // Пагинация
@@ -1045,13 +1120,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           } = {
             // Параметры фильтров.
             filters: this.paramFilters,
-
             // Передайте пустой массив если хотите передать все контакты.
-            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected.map((e: any) => e.id),
-
+            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected.map((e: ContactInterface) => e.id),
             // Проект в который будут переданы контакты.
             target_project: scope.target_project,
-
             // Идентификаторы целевых пользователей.
             target_users: scope.target_users
           }
@@ -1078,11 +1150,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               instance.close() // Закрыть диалог
             })
         },
-
         persistent: true,
-
         subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
-
         waitForResult: false
       })
     },
@@ -1110,14 +1179,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      *
      **/
     'dataTableContacts.selected': {
-      handler (selected: number[]) {
+      handler (selected: UserInterface[]) {
         if (selected.length === this.dataTableContacts.itemsPerPage) {
           this.dataTableContacts.selectedAll = true
-        } else if (selected.length === 0) {
+        } else {
           this.dataTableContacts.selectedAll = false
+          this.dataTableContacts.selectedWhole = false
         }
-
-        this.dataTableContacts.selectedIndeterminate = this.dataTableContacts.selected.length < this.dataTableContacts.items.length && this.dataTableContacts.selected.length > 0
       }
     },
 
@@ -1126,10 +1194,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       handler (val: boolean) {
         if (val && (this.dataTableContacts.totalCount > 10000)) {
           this.$toast.warning('Не рекомендуется выделять больше 10 тыс!')
-        }
-
-        if (!val) {
-          this.dataTableContacts.selected = []
         }
       }
     }
