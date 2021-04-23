@@ -1,6 +1,5 @@
 <template>
   <v-card
-    :height="vCardHeightComputed"
     flat
     tile
   >
