@@ -4,8 +4,9 @@
     <!-- Nav drawer -->
     <v-navigation-drawer
       v-model="drawer"
-      :mini-variant.sync="mini"
+      :mini-variant.sync="navigation_drawer_mini"
       class="background--drawer"
+      permanent
       app
       dark
     >
@@ -15,7 +16,7 @@
             icon
             link
             color="primary"
-            @click.stop="mini = !mini"
+            @click.stop="navigation_drawer_mini = !navigation_drawer_mini"
           >
             R
           </v-btn>
@@ -118,7 +119,7 @@
       app
       dark
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="navigation_drawer_mini = !navigation_drawer_mini"></v-app-bar-nav-icon>
       <v-toolbar-title class="d-inline-block toolbar-title mr-md-5 mr-lg-5">
         <div class="hidden-sm-and-down">RMOK</div>
         <div class="hidden-sm-and-down toolbar-title-subtitle text-lowercase">{{ $store.getters['profile/role_name'] }}</div>
@@ -386,6 +387,11 @@ export default Vue.extend({
           visible: true
         }
       ]
+    },
+
+    navigation_drawer_mini: {
+      get () { return this.$store.getters['settings/navigation_drawer_mini'] },
+      set (value: boolean) { this.$store.commit('settings/navigation_drawer_mini', value) }
     }
   },
 

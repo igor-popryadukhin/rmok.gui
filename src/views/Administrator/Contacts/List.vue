@@ -18,7 +18,6 @@
           :loading-text="$tc('Loading content...')"
           :loading="dataTableContacts.processLoading"
           :no-data-text="$tc('No data available')"
-          :height="vDataTableHeightComputed"
           :options.sync="dataTableContacts.options"
           :item-class="vDataTableItemClass"
           :sort-by.sync="dataTableContacts.sortBy"
@@ -1239,43 +1238,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 </script>
 
 <style lang="scss">
-
-.v-dt-item {
-  & > td {
-    white-space:nowrap;
+  .v-dt-item {
+    & td {
+      white-space:nowrap;
+    }
   }
-}
-
-.v-toolbar-header div {
-  padding: 0 !important;
-}
-
-#v-data-table table thead th {
-  white-space: nowrap !important;
-
-  &:nth-child(1) {
-    max-width: 5px !important;
-  }
-
-}
-
-#v-data-table table tbody tr {
-
-  & td:nth-child(2) {
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  & td:nth-child(3) {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-}
-
-.v-toolbar-header div:last-child {
-  margin-right: 10px;
-}
 </style>

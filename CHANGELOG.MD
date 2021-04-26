@@ -11,6 +11,7 @@
 - Сортировка контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Сортировка списка пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Полнотекстовый поиск контактов в панели администратора [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Возможность сохранять состояние боковой панели основного меню в панели администратора. [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## Исправлено
 - Прочие мелкие ошибки.

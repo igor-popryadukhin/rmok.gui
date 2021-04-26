@@ -5,6 +5,7 @@ import { profile } from '@/store/profile'
 import { system } from './system'
 import { project } from '@/store/project'
 import tasks from '@/store/tasks'
+import settings from '@/store/settings'
 import { database } from '@/store/database'
 
 Vue.use(Vuex)
@@ -25,6 +26,7 @@ const store = new Vuex.Store({
     database,
     profile,
     project,
+    settings,
     system,
     tasks
   },
@@ -79,6 +81,15 @@ const store = new Vuex.Store({
     createPersistedState({
       key: 'rmok-database',
       paths: ['database'],
+      storage: {
+        getItem: (key: string) => get(key),
+        removeItem: (key: string) => remove(key),
+        setItem: (key, value) => set(key, value)
+      }
+    }),
+    createPersistedState({
+      key: 'rmok-settings',
+      paths: ['settings'],
       storage: {
         getItem: (key: string) => get(key),
         removeItem: (key: string) => remove(key),
