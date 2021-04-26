@@ -261,6 +261,7 @@
   "found": "Найдено - {count}",
   "hour": "Часов | Час | Часа | Часов",
   "label": "Метка",
+  "Save settings": "Сохранить настройки",
   "language": "Язык",
   "last_name": "Фамилия",
   "location": "Локация",
@@ -284,6 +285,7 @@
   "profile": "Профиль",
   "project_manager": "Руководитель проекта",
   "registration": "Регистрация",
+  "Regional settings": "Региональные настройки",
   "route": {
     "home": "Главная",
     "leads": "Прозвон",
@@ -302,6 +304,7 @@
     "operator_settings_journal": "@:Journal",
     "operator_settings_security": "@:Security",
     "operator_settings_telephony": "@:Telephony",
+    "operator_settings_regional": "Региональные настройки",
     "operator_settings_headset_configure": "Настройка гарнитуры",
     "operator_leads_view": "@:Leads",
     "operator_leads_script": "Сценарий",

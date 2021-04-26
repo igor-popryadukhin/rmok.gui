@@ -19,6 +19,7 @@
     "libphonenumber-js": "^1.9.3",
     "lvovich": "^1.0.16",
     "moment": "^2.29.1",
+    "moment-timezone": "^0.5.33",
     "secure-ls": "^1.2.6",
     "socket.io-client": "^4.0.0",
     "typescript": "^4.1.3",

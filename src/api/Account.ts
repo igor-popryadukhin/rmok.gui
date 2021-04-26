@@ -21,7 +21,8 @@ export interface ProfileInterface {
   status: string;
   created_at: number;
   role: Role;
-  is_super_admin?: Boolean;
+  is_super_admin?: boolean;
+  tz?: boolean;
   permissions: PermissionGroupInterface[];
   organization?: OrganizationInterface;
   /* eslint-enable */
