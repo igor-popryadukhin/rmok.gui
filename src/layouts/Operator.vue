@@ -405,6 +405,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
   computed: {
     ...mapGetters({
+      profile_tz: 'profile/tz', // Текущая временная зона.
       task_pending_count: 'tasks/pending_count'
     }),
 
@@ -528,23 +529,23 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
       }
     )
     this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
+    this.checkTimeZoneSet()
   },
 
   data (): IData {
     return {
       accountMenuItems: [
         {
+          attrs: {
+            dense: true,
+            link: true
+          },
           icon: {
             attrs: {
               color: 'green'
             },
             name: 'mdi-check-circle-outline'
           },
-          attrs: {
-            dense: true,
-            link: true
-          },
-          title: 'Available',
           on: {
             click: () => {
               (this as any).statusSetProcess = true
@@ -556,20 +557,20 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
                     .finally(() => ((this as any).statusSetProcess = false))
                 })
             }
-          }
+          },
+          title: 'Available'
         },
         {
+          attrs: {
+            dense: true,
+            link: true
+          },
           icon: {
             attrs: {
               color: 'red'
             },
             name: 'mdi-do-not-disturb'
           },
-          attrs: {
-            dense: true,
-            link: true
-          },
-          title: 'Do not disturb',
           on: {
             click: () => {
               (this as any).statusSetProcess = true
@@ -581,20 +582,20 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
                     .finally(() => ((this as any).statusSetProcess = false))
                 })
             }
-          }
+          },
+          title: 'Do not disturb'
         },
         {
+          attrs: {
+            dense: true,
+            link: true
+          },
           icon: {
             attrs: {
               color: 'blue'
             },
             name: 'mdi-pause-circle-outline'
           },
-          attrs: {
-            dense: true,
-            link: true
-          },
-          title: 'Break',
           on: {
             click: () => {
               (this as any).statusSetProcess = true
@@ -606,36 +607,37 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
                     .finally(() => ((this as any).statusSetProcess = false))
                 })
             }
-          }
+          },
+          title: 'Break'
         },
 
         { divider: true },
 
         {
-          icon: {
-            attrs: {},
-            name: 'mdi-account'
-          },
           attrs: {
             dense: true,
             to: {
               name: 'operator_settings_profile'
             }
           },
+          icon: {
+            attrs: {},
+            name: 'mdi-account'
+          },
           title: 'Profile'
         },
         {
+          attrs: {
+            dense: true
+          },
           icon: {
             attrs: {},
             name: 'mdi-exit-run'
           },
-          attrs: {
-            dense: true
-          },
-          title: 'Exit',
           on: {
             click: () => this.$router.replace({ name: 'login' })
-          }
+          },
+          title: 'Exit'
         }
       ],
       buttonMenuNotification: false,
@@ -646,15 +648,15 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             _this.mainSearch.items = items
           })
         }, 400),
-        loading: false,
         items: [],
+        loading: false,
         q: null,
         selected: null
       },
       notifications: [] as NotificationInterface[],
       projectDialog: {
-        projects: [] as ProjectInterface[],
         disabled: false,
+        projects: [] as ProjectInterface[],
         visible: false
       },
       projects: [],
@@ -663,6 +665,17 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   },
 
   methods: {
+
+    checkTimeZoneSet () {
+      if (!this.profile_tz) {
+        this.$toast.warning('Часовой пояс настроен неверно, нажмите на данное сообщение, чтобы настроить часовой пояс.', {
+          onClick: () => {
+            this.$router.push({ name: 'operator_settings_regional' })
+          },
+          timeout: 10000
+        })
+      }
+    },
 
     /**
      * Происходит при каждом клике по элементу списка проектов в диалоговом окне

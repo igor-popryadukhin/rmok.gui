@@ -40,6 +40,7 @@ export const profile = {
     role_name (state: StateInterface): string { return state.role.name },
     role_use (state: StateInterface): 'for_administration' | 'for_calls' { return state.role.use },
     status (state: StateInterface) { return state.status },
+    tz (state: StateInterface): string { return state.tz },
     userpic (state: StateInterface): string { return state.userpic }
   },
 
@@ -62,6 +63,7 @@ export const profile = {
       state.userpic = payload.userpic
       state.created_at = payload.created_at
       state.organization = payload.organization
+      state.tz = payload.tz
       /* eslint-enable */
     },
 
@@ -102,7 +104,8 @@ export const profile = {
         site: '',
         sphere_activity: '',
         tags: undefined
-      }
+      },
+      tz: null
       /* eslint-enable */
     }
   }

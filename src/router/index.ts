@@ -326,6 +326,16 @@ const routes: RouteConfig[] = [
             path: 'telephony'
           },
           {
+            component: () => import(/* webpackChunkName: "operator-settings-regional" */ '../views/Operator/Settings/Regional.vue'),
+            meta: {
+              icon: 'mdi-translate',
+              layout: 'operator-layout',
+              middleware: [secure]
+            },
+            name: 'operator_settings_regional',
+            path: 'regional'
+          },
+          {
             component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
             meta: {
               icon: 'mdi-headset',
