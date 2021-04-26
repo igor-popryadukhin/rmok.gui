@@ -4,12 +4,13 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Неизданный] - 2021-04-20
+## [Неизданный] - 2021-04-26
 
 ## Добавлено
 - ESLint `sort-keys-fix` плагин для сортировки свойств [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Сортировка контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Сортировка списка пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Полнотекстовый поиск контактов в панели администратора [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## Исправлено
 - Прочие мелкие ошибки.

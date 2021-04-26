@@ -352,6 +352,18 @@
         >
           <!-- Проекты -->
           <v-card-text>
+            <v-text-field
+              v-model="filter.q"
+              :label="$tc('Search by name')"
+              prepend-inner-icon="mdi-magnify"
+              clearable
+              outlined
+              dense
+            />
+          </v-card-text>
+
+          <!-- Проекты -->
+          <v-card-text class="pt-0">
             <s-projects-autocomplete
               ref="sProjectsAutocomplete"
               v-model="filter.project"
@@ -362,9 +374,10 @@
             />
           </v-card-text>
 
+          <!-- Статусы -->
           <v-card-text class="pt-0">
             <s-statuses-select
-              :disabled="1"
+              disabled
               outlined
               dense
               autoload
@@ -625,6 +638,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         params[`sort_by[${name}]`] = this.dataTableContacts.sortDesc[index] ? 'desc' : 'asc'
       })
 
+      // Поиск по ключевому слову
+      if (this.$data.filter.q) {
+        params.q = this.filter.q
+      }
+
       new Contacts()
         .find<{ count: number }, ContactInterface[]>(params)
         .then((response) => {
@@ -699,7 +717,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         totalCount: 0
       },
       filter: {
-
         // Фильтрация по наличию последнего звонка
         call_up: {
           options: ['yes', 'no'],
@@ -714,6 +731,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
         // Фильтрация по проектам
         project: null,
+
+        // Поиск
+        q: null as string | null,
 
         // Фильтрация по владельцу/ответственному
         responsible: null,
@@ -811,6 +831,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         })
       }
 
+      if (this.$routerQuery.hasQuery('q')) {
+        this.filter.q = this.$routerQuery.getQuery<string>('q')
+      }
+
       // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
       // Загружаем данные контактов после инициализации фильтров
       Promise.all(promises)
@@ -825,6 +849,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      */
     initializeWatchForFilters () {
       const debounceDelay = 350 // Задержка, избавит от дребезга
+
+      // Поиск по ключевым словам
+      this.$watch('filter.q', (newVal?: string) => {
+        this.dataTableContacts.page = 1
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            q: newVal
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'q'
+          ]).then(this.fetchContacts)
+        }
+      })
 
       // Фильтрация по проектам
       this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
