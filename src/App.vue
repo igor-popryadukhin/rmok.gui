@@ -42,6 +42,7 @@ import { VApp } from 'vuetify/lib'
 import { POSITION } from 'vue-toastification'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   beforeCreate () {
@@ -66,30 +67,43 @@ export default Vue.extend({
   computed: {
     layout () {
       return this.$route.meta.layout || 'clean'
-    }
+    },
+
+    ...mapGetters({
+      // Текущая временная зона.
+      profile_role_use: 'profile/role_use',
+      profile_tz: 'profile/tz' // Текущая временная зона.
+    })
+  },
+
+  created () {
+    // Отложенная проверка корректности временной зоны пользователя.
+    setTimeout(() => {
+      this.checkTimeZoneSet()
+    }, 10000)
   },
 
   data () {
     return {
+      RTCToastOptions: {
+        closeButton: false,
+        closeOnClick: false,
+        draggable: false,
+        draggablePercent: 0.47,
+        hideProgressBar: false,
+        icon: false,
+        id: '',
+        pauseOnFocusLoss: true,
+        pauseOnHover: true,
+        position: POSITION.TOP_RIGHT,
+        rtl: false,
+        timeout: false,
+        toastClassName: 'incoming-rtc-toast'
+      } as ToastOptions,
       contactStatusDialog: {
         historyId: 0,
         visible: false
       },
-      RTCToastOptions: {
-        id: '',
-        pauseOnFocusLoss: true,
-        position: POSITION.TOP_RIGHT,
-        draggable: false,
-        timeout: false,
-        draggablePercent: 0.47,
-        pauseOnHover: true,
-        closeOnClick: false,
-        hideProgressBar: false,
-        closeButton: false,
-        toastClassName: 'incoming-rtc-toast',
-        icon: false,
-        rtl: false
-      } as ToastOptions,
       organization: {} as ContactInterface,
       overlay: false,
       screenDevVisible: false,
@@ -98,6 +112,30 @@ export default Vue.extend({
   },
 
   methods: {
+
+    /**
+     * Выполнить проверку корректности временной зоны пользователя.
+     */
+    checkTimeZoneSet () {
+      let route_name = ''
+      switch (this.profile_role_use) {
+        case 'for_administration': {
+          route_name = 'administrator_settings_regional'
+          break
+        }
+        case 'for_calls': {
+          route_name = 'operator_settings_regional'
+        }
+      }
+      if (!this.profile_tz) {
+        this.$toast.warning('Часовой пояс настроен неверно, нажмите на данное сообщение, чтобы настроить часовой пояс.', {
+          onClick: () => {
+            this.$router.push({ name: route_name })
+          },
+          timeout: 10000
+        })
+      }
+    },
 
     onKeyDown (e: KeyboardEvent) {
       if (e.code === 'ControlLeft') {

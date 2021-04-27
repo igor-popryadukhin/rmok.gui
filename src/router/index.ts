@@ -675,7 +675,7 @@ const routes: RouteConfig[] = [
               layout: 'administrator',
               middleware: [secure]
             },
-            name: 'administrator_regional',
+            name: 'administrator_settings_regional',
             path: 'regional'
           },
           {
