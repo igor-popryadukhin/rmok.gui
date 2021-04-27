@@ -286,7 +286,7 @@ const routes: RouteConfig[] = [
       {
         children: [
           {
-            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Profile.vue'),
+            component: () => import(/* webpackChunkName: "operator-settings-profile" */ '../views/Settings/Profile.vue'),
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'operator-layout',
@@ -296,7 +296,7 @@ const routes: RouteConfig[] = [
             path: 'profile'
           },
           {
-            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Journal.vue'),
+            component: () => import(/* webpackChunkName: "operator-settings-journal" */ '../views/Settings/Journal.vue'),
             meta: {
               icon: 'mdi-history',
               layout: 'operator-layout',
@@ -306,7 +306,7 @@ const routes: RouteConfig[] = [
             path: 'journal'
           },
           {
-            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Security.vue'),
+            component: () => import(/* webpackChunkName: "operator-settings-security" */ '../views/Settings/Security.vue'),
             meta: {
               icon: 'mdi-security',
               layout: 'operator-layout',
@@ -316,7 +316,7 @@ const routes: RouteConfig[] = [
             path: 'security'
           },
           {
-            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Telephony.vue'),
+            component: () => import(/* webpackChunkName: "operator-settings-telephony" */ '../views/Settings/Telephony.vue'),
             meta: {
               icon: 'mdi-webrtc',
               layout: 'operator-layout',
@@ -326,7 +326,7 @@ const routes: RouteConfig[] = [
             path: 'telephony'
           },
           {
-            component: () => import(/* webpackChunkName: "operator-settings-regional" */ '../views/Operator/Settings/Regional.vue'),
+            component: () => import(/* webpackChunkName: "operator-settings-regional" */ '../views/Settings/Regional.vue'),
             meta: {
               icon: 'mdi-translate',
               layout: 'operator-layout',
@@ -336,7 +336,7 @@ const routes: RouteConfig[] = [
             path: 'regional'
           },
           {
-            component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/HeadsetConfigure.vue'),
+            component: () => import(/* webpackChunkName: "operator-settings-headset-configure" */ '../views/Settings/HeadsetConfigure.vue'),
             meta: {
               icon: 'mdi-headset',
               layout: 'operator-layout',
@@ -346,7 +346,7 @@ const routes: RouteConfig[] = [
             path: 'headset-configure'
           }
         ],
-        component: () => import(/* webpackChunkName: "operator-settings" */ '../views/Operator/Settings/Layout.vue'),
+        component: () => import(/* webpackChunkName: "operator-settings-layout-operator" */ '../views/Settings/LayoutOperator.vue'),
         meta: {
           layout: 'operator-layout',
           middleware: [secure]
@@ -659,7 +659,7 @@ const routes: RouteConfig[] = [
       {
         children: [
           {
-            component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Administrator/Settings/Profile.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Settings/Profile.vue'),
             meta: {
               icon: 'mdi-account-circle-outline',
               layout: 'administrator',
@@ -669,7 +669,17 @@ const routes: RouteConfig[] = [
             path: 'profile'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-settings-journal" */ '../views/Administrator/Settings/Journal.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-regional" */ '../views/Settings/Regional.vue'),
+            meta: {
+              icon: 'mdi-translate',
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_regional',
+            path: 'regional'
+          },
+          {
+            component: () => import(/* webpackChunkName: "administrator-settings-journal" */ '../views/Settings/Journal.vue'),
             meta: {
               icon: 'mdi-history',
               layout: 'administrator',
@@ -679,7 +689,7 @@ const routes: RouteConfig[] = [
             path: 'journal'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Administrator/Settings/Security.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Settings/Security.vue'),
             meta: {
               icon: 'mdi-security',
               layout: 'administrator',
@@ -689,7 +699,7 @@ const routes: RouteConfig[] = [
             path: 'security'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-settings-for-developer" */ '../views/Administrator/Settings/DeveloperSettings.vue'),
+            component: () => import(/* webpackChunkName: "administrator-settings-for-developer" */ '../views/Settings/DeveloperSettings.vue'),
             meta: {
               icon: 'mdi-flask',
               layout: 'administrator',
@@ -699,7 +709,7 @@ const routes: RouteConfig[] = [
             path: 'development'
           }
         ],
-        component: () => import(/* webpackChunkName: "administrator-settings" */ '../views/Administrator/Settings/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator-settings-layout-admin" */ '../views/Settings/LayoutAdmin.vue'),
         meta: {
           layout: 'administrator',
           middleware: [secure]
