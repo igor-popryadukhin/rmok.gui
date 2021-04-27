@@ -384,7 +384,7 @@ export default Vue.extend({
             {
               attrs: {
                 to: {
-                  name: 'administrator_regional'
+                  name: 'administrator_settings_regional'
                 }
               },
               icon: 'mdi-translate',

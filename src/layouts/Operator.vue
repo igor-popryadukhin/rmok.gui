@@ -405,7 +405,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
   computed: {
     ...mapGetters({
-      profile_tz: 'profile/tz', // Текущая временная зона.
       task_pending_count: 'tasks/pending_count'
     }),
 
@@ -529,7 +528,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
       }
     )
     this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
-    this.checkTimeZoneSet()
   },
 
   data (): IData {
@@ -665,18 +663,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
   },
 
   methods: {
-
-    checkTimeZoneSet () {
-      if (!this.profile_tz) {
-        this.$toast.warning('Часовой пояс настроен неверно, нажмите на данное сообщение, чтобы настроить часовой пояс.', {
-          onClick: () => {
-            this.$router.push({ name: 'operator_settings_regional' })
-          },
-          timeout: 10000
-        })
-      }
-    },
-
     /**
      * Происходит при каждом клике по элементу списка проектов в диалоговом окне
      *
