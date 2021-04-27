@@ -1,6 +1,7 @@
 <template>
   <v-form
     class="pa-2 overflow-y-auto overflow-x-hidden"
+    :style="isRole"
   >
     <!-- Name -->
     <v-row>
@@ -180,6 +181,16 @@ import Vue from 'vue'
 import { Account, ProfileInterface } from '@/api/Account'
 
 export default Vue.extend({
+  computed: {
+    isRole () {
+      const isRoleUser = this.$store.getters['profile/role_use']
+      if (isRoleUser === 'for_administration') {
+        return {}
+      } else {
+        return { height: `${this.$screenHeight - 130}px` }
+      }
+    }
+  },
   created () {
     this.profile.id = this.$store.getters['profile/id']
     this.profile.login = this.$store.getters['profile/login']
@@ -190,7 +201,6 @@ export default Vue.extend({
     this.profile.middle_name = this.$store.getters['profile/middle_name']
     this.profile.organization = this.$store.getters['profile/organization']
   },
-
   data () {
     return {
       profile: {
@@ -209,7 +219,6 @@ export default Vue.extend({
       profileSaveLoading: false
     }
   },
-
   methods: {
     onSave () {
       this.profileSaveLoading = true

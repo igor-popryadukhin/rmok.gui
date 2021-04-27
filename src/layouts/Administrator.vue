@@ -380,6 +380,16 @@ export default Vue.extend({
               icon: 'mdi-flask',
               title: 'For developer',
               visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/is_super_admin']
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_regional'
+                }
+              },
+              icon: 'mdi-translate',
+              title: 'Региональные настройки',
+              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/is_super_admin']
             }
           ],
           icon: 'mdi-cog-outline',
