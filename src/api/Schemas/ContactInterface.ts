@@ -25,6 +25,7 @@ export interface ContactInterface {
   current_date_time: number;
   created_at: number;
   last_call_at: number | null;
+  tz?: string;
 }
 
 export interface HistoryInterface {

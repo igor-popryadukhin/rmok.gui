@@ -213,9 +213,7 @@
                 <v-icon color="primary">mdi-clock-time-two-outline</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title :key="tick">{{ contactDateTimeNow.toISOString().substr(11, 8) }} {{
-                    gmt
-                  }}
+                <v-list-item-title :key="clientTimeTick">{{ $moment().tz(contact.tz).format('DD.MM.YYYY hh:mm:ss (Z)') }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Client\'s current time') }}
@@ -441,7 +439,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
             type: 'card_filling'
           })
           vm.contact = response
-          vm.contactDateTimeNow = new Date(response.current_date_time * 1000)
         })
       }).catch(() => {
         next({ name: 'not_found' })
@@ -465,7 +462,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
             type: 'card_filling'
           })
           this.contact = contact
-          this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
         }).finally(() => {
           this.tabPageUpdate()
           this.dataLoading = false
@@ -488,22 +484,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
      **/
     callBtnIsDisabled () {
       return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
-    },
-
-    gmt () {
-      const offset: number | null = this.contact.timezone_offset || null
-
-      if (offset === null) {
-        return ''
-      }
-
-      if (offset > 0) {
-        return `(GMT+${offset})`
-      } else if (offset < 0) {
-        return `(GMT${offset})`
-      } else {
-        return `(GMT ${offset})`
-      }
     },
 
     leftColumnStyleComputed () {
@@ -593,13 +573,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
         middle_name: '',
         phones: [],
         user: undefined,
-        current_date_time: 0,
-        timezone_offset: 0,
         created_at: 0,
-        last_status: null
+        last_status: null,
+        tz: 'Europe/Moscow'
       },
-      tick: 0,
-      contactDateTimeNow: new Date()
+      clientTimeTick: 0
       /* eslint-enable */
     }
   },
@@ -835,6 +813,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
     // window.onbeforeunload = () => {
     //   return true
     // }
+
+    setInterval(() => {
+      this.clientTimeTick++
+    }, 1000)
   },
 
   watch: {
