@@ -123,6 +123,10 @@
           outlined
           v-on="filter.status.on"
         >
+          <template v-slot:item="{ item }">
+            <v-list-item-title>{{ item.status_result }}</v-list-item-title>
+            <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
+          </template>
         </v-combobox>
       </v-col>
 

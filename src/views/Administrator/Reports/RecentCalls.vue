@@ -123,6 +123,10 @@
           outlined
           v-on="filter.status.on"
         >
+          <template v-slot:item="{ item }">
+            <v-list-item-title>{{ item.status_result }}</v-list-item-title>
+            <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
+          </template>
         </v-combobox>
       </v-col>
 
@@ -647,12 +651,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
       new Reports()
         .history<any, any>(params)
         .then((response) => {
-          this.dataTableHistory.totalCount = response.meta.count || 0
-          this.dataTableHistory.pages = Math.ceil(response.meta.count / this.dataTableHistory.itemsPerPage)
+          this.dataTableHistory.totalCount = response?.meta?.count || 0
+          this.dataTableHistory.pages = Math.ceil(response?.meta?.count || 0 / this.dataTableHistory.itemsPerPage)
           this.dataTableHistory.items = response.data.map((e: any) => {
             e.isPlaying = false
             return e
           }) || []
+          this.filter.status.items = response?.meta?.statuses || []
+
+          if (this.$routerQuery.hasQuery('status_id')) {
+            const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
+            if (index > -1) {
+              this.filter.status.selected = this.filter.status.items[index]
+            }
+          }
         }).finally(() => (this.historyProcessLoading = false))
     },
 
@@ -692,14 +704,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.pieColors = report.pie_chart.colors || []
 
           this.pieData = report.pie_data || []
-          this.filter.status.items = report.pie_data || []
-
-          if (this.$routerQuery.hasQuery('status_id')) {
-            const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
-            if (index > -1) {
-              this.filter.status.selected = this.filter.status.items[index]
-            }
-          }
         }).finally(() => (this.processPieLoading = false))
     },
 
