@@ -1,22 +1,22 @@
 
 /* width */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: $primary-color;
+  background: #e8e7e7;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: $primary-color;
-  height: 6px;
+  background: #bdbdbd;
+  height: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: white;
+  background: #a5a5a5;
 }

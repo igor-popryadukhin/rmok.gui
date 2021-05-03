@@ -4,7 +4,7 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Неизданный] - 2021-04-26
+## [Неизданный] - 2021-05-03
 
 ## Добавлено
 - ESLint `sort-keys-fix` плагин для сортировки свойств [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
@@ -13,10 +13,14 @@
 - Полнотекстовый поиск контактов в панели администратора [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Возможность сохранять состояние боковой панели основного меню в панели администратора. [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Параметры часового пояса [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Установка тегов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Фильтрация контактов по тегам [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## Исправлено
 - Прочие мелкие ошибки.
 - Отсортированы все свойства в `*.ts, *.js, *.vue`
+- Диалог создания и редактирования контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+
 
 ## [v1.0.2] - 2021-04-14
 

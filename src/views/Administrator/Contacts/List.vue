@@ -42,6 +42,17 @@
 
               <template v-if="dataTableContacts.selected.length === 0">
                 <v-btn
+                  small
+                  tile
+                  text
+                  @click="onContactAddClick"
+                >
+                  {{ $tc('Add') }}
+                </v-btn>
+              </template>
+
+              <template v-if="dataTableContacts.selected.length === 0">
+                <v-btn
                   :disabled="dataTableContacts.processLoading"
                   small
                   tile
@@ -177,19 +188,121 @@
               </template>
               <!-- Экспорт -->
 
-              <!--              &lt;!&ndash; Archived &ndash;&gt;-->
-              <!--              <template v-if="dataTableContacts.selected.length > 0">-->
-              <!--                <v-btn-->
-              <!--                  :disabled="dataTableContacts.processLoading"-->
-              <!--                  small-->
-              <!--                  tile-->
-              <!--                  text-->
-              <!--                  @click="onButtonRefreshClick"-->
-              <!--                >-->
-              <!--                  {{ $tc('Архивировать') }}-->
-              <!--                </v-btn>-->
-              <!--              </template>-->
-              <!--              &lt;!&ndash; Archived &ndash;&gt;-->
+              <!-- Установка тегов -->
+              <template v-if="dataTableContacts.selected.length > 0">
+                <v-menu
+                  v-model="menuSetTagsShowing"
+                  :close-on-click="false"
+                  :close-on-content-click="false"
+                  offset-y
+                  @input="onMenuSetTegInputChange"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      v-on="on"
+                      text
+                      small
+                      tile
+                    >
+                      {{ $tc('Set tags') }}
+                    </v-btn>
+                  </template>
+                  <v-card tile>
+                    <v-card-text class="px-2">
+                      <app-search-input
+                        v-model="tagName"
+                        :label="$tc('Search tags')"
+                        :outlined="false"
+                        @change="onSearchInputChange"
+                      />
+                    </v-card-text>
+                    <v-card-text
+                      class="px-0 py-1"
+                      style="max-height: 300px; overflow-y: auto"
+                    >
+                      <template v-if="tagsAvailableForSet.length > 0">
+                        <v-list dense>
+                          <v-list-item-group
+                            v-model="tagsSelectedForSet"
+                            multiple
+                          >
+                            <v-list-item
+                              v-for="(item, key) in tagsAvailableForSet"
+                              :key="key"
+                              dense
+                              link
+                              selectable
+                            >
+                              <template v-slot:default="{ active }">
+                                <v-list-item-action class="ma-0 mr-3">
+                                  <v-checkbox
+                                    :input-value="active"
+                                    :ripple="false"
+                                    class="pa-0"
+                                    dense
+                                  ></v-checkbox>
+                                </v-list-item-action>
+                                <v-list-item-content>
+                                  <v-list-item-title>{{ item.name }}</v-list-item-title>
+                                </v-list-item-content>
+                              </template>
+                            </v-list-item>
+                          </v-list-item-group>
+                        </v-list>
+                      </template>
+                      <template v-else>
+                        <div class="text-center">
+                          No data
+                        </div>
+                      </template>
+                    </v-card-text>
+                    <v-card-text class="px-0 py-0">
+                      <v-divider />
+                    </v-card-text>
+                    <!-- Действия тегов -->
+                    <v-card-text class="px-0 py-0">
+                      <v-list dense>
+                        <template v-if="tagsSelectedForSet.length === 0">
+                          <v-list-item
+                            dense
+                            link
+                            @click="onCreateTagClick(tagName)"
+                          >
+                            <v-list-item-title v-if="tagName && tagsAvailableForSet.length === 0">"{{ tagName }}" {{ $tc('Create') }}</v-list-item-title>
+                            <v-list-item-title v-else>{{ $tc('Create') }}</v-list-item-title>
+                          </v-list-item>
+                          <v-list-item
+                            dense
+                            link
+                            disabled
+                          >
+                            <v-list-item-title>{{ $tc('Tag management') }}</v-list-item-title>
+                          </v-list-item>
+                        </template>
+                        <template v-else>
+                          <v-list-item
+                            dense
+                            link
+                            @click="tagsSelectedApplyClick(tagsSelectedForSet.map((value) => tagsAvailableForSet[value]))"
+                          >
+                            <v-list-item-title>{{ $tc('Apply') }}</v-list-item-title>
+                          </v-list-item>
+                        </template>
+                        <v-list-item
+                          dense
+                          link
+                          @click="menuSetTagsShowing = false"
+                        >
+                          <v-list-item-title>{{ $tc('Cancel') }}</v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-card-text>
+                    <!-- Действия тегов -->
+                  </v-card>
+                </v-menu>
+              </template>
+              <!-- Установка тегов -->
 
               <v-spacer/>
 
@@ -331,7 +444,7 @@
             <v-btn
               icon
               small
-              :to="{ name: 'administrator_contacts_edit', params: { contact_id: item.id } }"
+              @click.stop="onItemEditClick(item.id)"
             >
               <v-icon>mdi-pencil-box-outline</v-icon>
             </v-btn>
@@ -393,6 +506,18 @@
               clearable
               outlined
               dense
+            />
+          </v-card-text>
+
+          <!-- Теги -->
+          <v-card-text class="pt-0">
+            <s-contact-tags
+              v-model="filter.tags"
+              :label="$tc('Tags')"
+              clearable
+              outlined
+              dense
+              multiple
             />
           </v-card-text>
 
@@ -472,12 +597,22 @@
 
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
-import { ContactExportParamsInterface, Contacts } from '@/api/Contacts'
+import { ContactExportParamsInterface, Contacts, ContactsParamsFind } from '@/api/Contacts'
 import { ProjectInterface } from '@/api/Projects'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import {
+  ContactEmailInterface,
+  ContactInterface,
+  ContactPhoneInterface,
+  ContactTagInterface
+} from '@/api/Schemas/ContactInterface'
 import { UserInterface } from '@/api/Users'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
+import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
+import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import SContactExportDialog, { SContactExportScopeInterface } from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
+import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
+import SContactTagsEditDialog from '@/snippets/SContactTagsEditDialog/SContactTagsEditDialog.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import SStatusesSelect from '@/snippets/SStatusesSelect/SStatusesSelect.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
@@ -505,6 +640,8 @@ interface VInnerInterface extends VInterface {
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     AppPagination,
+    AppSearchInput,
+    SContactTags,
     SProjectsAutocomplete,
     SStatusesSelect,
     SUsers
@@ -588,72 +725,16 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     }
   },
 
-  created () {
-    this.fetchContacts = debounce(() => {
-      this.dataTableContacts.processLoading = true
-      let offset = (this.dataTableContacts.itemsPerPage * this.dataTableContacts.page) - this.dataTableContacts.itemsPerPage
-
-      if (offset < 0) {
-        offset = 0
-      }
-
-      const params: any = {
-        count: this.dataTableContacts.itemsPerPage,
-        fields: 'responsible,organization,project',
-        offset
-      }
-
-      if (this.$routerQuery.hasQuery('project_id')) {
-        params.project_id = this.$routerQuery.getQuery<number>('project_id')
-      }
-
-      if (this.$routerQuery.hasQuery('responsible_id')) {
-        params.responsible_id = this.$routerQuery.getQuery<number>('responsible_id')
-      }
-
-      if (this.$routerQuery.hasQuery('call_up')) {
-        switch (this.$routerQuery.getQuery<'yes' | 'no'>('call_up')) {
-          case 'yes': {
-            params.call_up = 1
-            break
-          }
-          case 'no': {
-            params.call_up = 0
-            break
-          }
-        }
-      }
-
-      if (this.$routerQuery.hasQuery('contact_created_at')) {
-        params.contact_created_at = this.$routerQuery.getQuery('contact_created_at')
-      }
-
-      if (this.$routerQuery.hasQuery('task')) {
-        params.task = this.$routerQuery.getQuery('task')
-      }
-
-      // Формирую параметры сортировки
-      this.dataTableContacts.sortBy.forEach((name: string, index: number) => {
-        params[`sort_by[${name}]`] = this.dataTableContacts.sortDesc[index] ? 'desc' : 'asc'
-      })
-
-      // Поиск по ключевому слову
-      if (this.$data.filter.q) {
-        params.q = this.filter.q
-      }
-
-      new Contacts()
-        .find<{ count: number }, ContactInterface[]>(params)
-        .then((response) => {
-          this.dataTableContacts.totalCount = response.meta.count
-          this.dataTableContacts.pages = Math.ceil(response.meta.count / this.dataTableContacts.itemsPerPage)
-          this.dataTableContacts.items = response.data
-        }).finally(() => (this.dataTableContacts.processLoading = false))
-    }, 50)
-  },
-
   data (): IData {
     return {
+      /** Показать/скрыть меню установки тегов */
+      menuSetTagsShowing: false,
+      /** Доступные теги для установки */
+      tagsAvailableForSet: [] as ContactTagInterface[],
+      /** Выбранные теги для установки */
+      tagsSelectedForSet: [] as number[],
+      tagName: '' as string,
+
       dataTableContacts: {
         headers: [
           {
@@ -708,13 +789,82 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         pageStop: 0,
         pages: 0,
         processLoading: false,
-        selected: [],
+        selected: [] as ContactInterface[],
         selectedAll: false,
         selectedWhole: false,
+        selectedCount: 0,
         sortBy: [],
         sortDesc: [],
         totalCount: 0
       },
+
+      /** Поиск контактов **/
+      fetchContacts: debounce(() => {
+        this.dataTableContacts.processLoading = true
+        let offset = (this.dataTableContacts.itemsPerPage * this.dataTableContacts.page) - this.dataTableContacts.itemsPerPage
+
+        if (offset < 0) {
+          offset = 0
+        }
+
+        const params: ContactsParamsFind = {
+          count: this.dataTableContacts.itemsPerPage,
+          fields: 'responsible,organization,project',
+          offset
+        }
+
+        if (this.$routerQuery.hasQuery('project_id')) {
+          params.project_id = this.$routerQuery.getQuery<number>('project_id')
+        }
+
+        if (this.$routerQuery.hasQuery('responsible_id')) {
+          params.responsible_id = this.$routerQuery.getQuery<number>('responsible_id')
+        }
+
+        if (this.$routerQuery.hasQuery('call_up')) {
+          switch (this.$routerQuery.getQuery<'yes' | 'no'>('call_up')) {
+            case 'yes': {
+              params.call_up = 1
+              break
+            }
+            case 'no': {
+              params.call_up = 0
+              break
+            }
+          }
+        }
+
+        if (this.$routerQuery.hasQuery('contact_created_at')) {
+          params.contact_created_at = this.$routerQuery.getQuery('contact_created_at')
+        }
+
+        if (this.$routerQuery.hasQuery('task')) {
+          params.task = this.$routerQuery.getQuery('task')
+        }
+
+        if (this.$routerQuery.hasQuery('tag_ids')) {
+          params.tag_ids = this.$routerQuery.getQuery('tag_ids')
+        }
+
+        // Формирую параметры сортировки
+        this.dataTableContacts.sortBy.forEach((name: string, index: number) => {
+          params[`sort_by[${name}]`] = this.dataTableContacts.sortDesc[index] ? 'desc' : 'asc'
+        })
+
+        // Поиск по ключевому слову
+        if (this.$data.filter.q) {
+          params.q = this.filter.q
+        }
+
+        new Contacts()
+          .find<{ count: number }, ContactInterface[]>(params)
+          .then((response) => {
+            this.dataTableContacts.totalCount = response.meta.count
+            this.dataTableContacts.pages = Math.ceil(response.meta.count / this.dataTableContacts.itemsPerPage)
+            this.dataTableContacts.items = response.data
+          }).finally(() => (this.dataTableContacts.processLoading = false))
+      }, 500),
+
       filter: {
         // Фильтрация по наличию последнего звонка
         call_up: {
@@ -736,6 +886,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
         // Фильтрация по владельцу/ответственному
         responsible: null,
+
+        // Фильтрация по тегам
+        tags: [] as ContactTagInterface[],
 
         // Фильтрация по задачам
         task: {
@@ -760,6 +913,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           selected: null as 'available' | 'unavailable' | 'overdue' | 'not_overdue' | null
         }
       },
+
       // Прогресс импорта
       importExportProgress: {
         value: 0,
@@ -804,8 +958,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           this.filter.contact_created_at.range = true
           this.filter.contact_created_at.value = date.split(',', 2)
             .sort((a: string, b: string) => +a - +b)
-            .map((value: number) => {
-              return this.$moment.unix(value).format('YYYY-MM-DD')
+            .map((value: string) => {
+              return this.$moment.unix(+value).format('YYYY-MM-DD')
             })
         } else if (/^d+$/s.test(date)) {
           this.filter.contact_created_at.value = this.$moment.unix(date).format('YYYY-MM-DD')
@@ -832,6 +986,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       if (this.$routerQuery.hasQuery('q')) {
         this.filter.q = this.$routerQuery.getQuery<string>('q')
+      }
+
+      if (this.$routerQuery.hasQuery('tag_ids')) {
+        promises.push(new Promise<void>(resolve => {
+          new Contacts()
+            .getTags({
+              tag_ids: this.$routerQuery.getQuery<string>('tag_ids')
+            }).then(response => {
+              this.$data.filter.tags = response?.data || []
+            }).finally(() => (resolve()))
+        }))
       }
 
       // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
@@ -947,6 +1112,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).then(this.fetchContacts)
       })
 
+      // Фильтрация по тегам
+      this.$watch('filter.tags', (value: ContactTagInterface[]) => {
+        if (!Array.isArray(value)) {
+          this.$routerQuery.removeQuery([
+            'tag_ids'
+          ]).then(this.fetchContacts)
+        }
+
+        this.dataTableContacts.page = 1
+        this.$routerQuery.setQuery({
+          tag_ids: value.map((value: ContactTagInterface) => value.id).join(',')
+        }).then(this.fetchContacts)
+      })
+
       // Пагинация
       this.$watch('dataTableContacts.page', (newVal: number) => {
         if (newVal) {
@@ -998,6 +1177,39 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     onButtonRefreshClick () {
       this.fetchContacts()
+    },
+
+    /**
+     * Срабатывает когда нажали на кнопку добавить контакт.
+     **/
+    async onContactAddClick () {
+      const instance = await this.$dialog.show(SContactDialogEditor, {
+        on: {
+          cancel: () => {
+            instance.close()
+          },
+          save: (data: SCEContactInterface) => {
+            new Contacts()
+              .add({
+                address: data.address,
+                city: data.city,
+                emails: data.emails,
+                first_name: data.first_name,
+                last_name: data.last_name,
+                middle_name: data.middle_name,
+                notes: data.notes,
+                phones: data.phones,
+                region: data.region,
+                tags: data.tags
+              }).then(() => {
+                this.$toast.success(this.$tc('Contact created'))
+              }).finally(() => (instance.close()))
+          }
+        },
+        title: 'Создание контакта',
+        waitForResult: false,
+        width: '60%'
+      })
     },
 
     /**
@@ -1076,9 +1288,170 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
     },
 
+    onItemEditClick (id: number) {
+      new Contacts()
+        .getById(id)
+        .then(async (response: ContactInterface) => {
+          const instance = await this.$dialog.show(SContactDialogEditor, {
+            on: {
+              cancel: () => {
+                instance.close()
+              },
+
+              /** @param data Новые данные контакта **/
+              save: (data: SCEContactInterface) => {
+                new Contacts()
+                  .update(id, {
+                    address: data.address,
+                    city: data.city,
+                    emails: data.emails,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    middle_name: data.middle_name,
+                    notes: data.notes,
+                    phones: data.phones,
+                    region: data.region,
+                    tags: data.tags
+                  }).then(() => {
+                    this.$toast.success(this.$tc('Contact updated'))
+                  }).finally(() => (instance.close()))
+              }
+            },
+            title: this.$tc('Editing a contact'),
+            value: {
+              address: response?.address,
+              city: response?.city,
+              created_at: response?.created_at,
+              emails: response?.emails?.map((value: ContactEmailInterface) => {
+                return {
+                  id: value.id,
+                  label: value.label,
+                  value: value.value
+                }
+              }) || [],
+              first_name: response?.first_name,
+              last_name: response?.last_name,
+              middle_name: response?.middle_name,
+              notes: response?.notes,
+              phones: response.phones?.map((value: ContactPhoneInterface) => {
+                return {
+                  id: value.id,
+                  label: value.label,
+                  value: value.raw
+                }
+              }) || [],
+              region: response?.region,
+              tags: Array.isArray(response?.tags) ? response.tags.map((value: ContactTagInterface) => {
+                return {
+                  color: value?.color || '',
+                  id: value?.id,
+                  name: value?.name || ''
+                }
+              }) : []
+            } as SCEContactInterface,
+            waitForResult: false,
+            width: '60%'
+          })
+        })
+    },
+
     onPaginationChange (data: any) {
       this.dataTableContacts.pageStart = data.pageStart
       this.dataTableContacts.pageStop = data.pageStop
+    },
+
+    /**
+     * Событие onSearchInputChange запускается для элемента поиска тегов ждя установки контактам,
+     * когда пользователь фиксирует изменение значения элемента.
+     */
+    onSearchInputChange (q?: string) {
+      if (typeof q === 'string') {
+        new Contacts()
+          .getTags({ q })
+          .then((response) => {
+            this.tagsAvailableForSet = response.data || []
+
+            // Очистить выбранные теги, если в списке доступных тегов пуст
+            if (this.tagsAvailableForSet.length === 0) {
+              this.$data.tagsSelectedForSet = []
+            }
+          })
+      }
+    },
+
+    /**
+     * Событие onMenuSetTegInputChange запускается когда появляется меню установки тегов.
+     * Событие будет реагировать на каждое изменение состояния меню.
+     */
+    onMenuSetTegInputChange (value: boolean) {
+      // Заполни список если это происходит единожды.
+      if (value && this.tagsAvailableForSet.length === 0) {
+        new Contacts()
+          .getTags()
+          .then((response) => {
+            this.tagsAvailableForSet = response.data
+          })
+      }
+    },
+
+    /**
+     * Событие tagsSelectedApplyClick запускается после нажатия на кнопку "Применить" в списке тегов
+     */
+    tagsSelectedApplyClick (items: ContactTagInterface[]) {
+      // Установи теги для контактов
+      if (items.length > 0) {
+        new Contacts()
+          .setTags({
+            contact_ids: this.$data.dataTableContacts.selected.map((value: ContactInterface) => value.id),
+            filters: this.paramFilters,
+            tag_ids: items.map((value: ContactTagInterface) => value.id)
+          }).then(() => {
+            this.$toast.success(this.$tc('contacts_are_tagged', this.$data.dataTableContacts.selectedCount, {
+              count: this.$data.dataTableContacts.selectedCount,
+              tags: items.map((value: ContactTagInterface) => value.name).join(', ') // Строка имён тегов разделённые запятой.
+            }))
+            this.tagsAvailableForSet = [] // Очистить список доступных тегов
+            this.$data.tagsSelectedForSet = [] // Очистить список выбранных тегов
+            this.$data.menuSetTagsShowing = false // Скрыть меню установки тегов
+            this.$data.tagName = '' // Установить пустую строку для поисковой строки (строка поиска тегов)
+          }).catch((e: APIError) => {
+            this.$toast.error(this.$tc(e.message))
+          }).finally(() => {
+            this.$data.menuSetTagsShowing = false
+          })
+      }
+    },
+
+    async onCreateTagClick (name: string) {
+      const instance = await this.$dialog.show(SContactTagsEditDialog, {
+        waitForResult: false,
+        title: this.$tc('Create tag'),
+        value: {
+          name
+        },
+        on: {
+          created: (id: number) => {
+            new Contacts()
+              .getTags({
+                tag_ids: String(id)
+              }).then((response) => {
+                response.data.forEach(v => {
+                  this.$data.tagsAvailableForSet.push({
+                    id: v?.id,
+                    name: v?.name,
+                    color: v?.color
+                  })
+                })
+              })
+
+            instance.close()
+          },
+
+          cancel: () => {
+            instance.close()
+          }
+        }
+      })
     },
 
     /**
@@ -1221,6 +1594,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         } else {
           this.dataTableContacts.selectedAll = false
           this.dataTableContacts.selectedWhole = false
+        }
+
+        if (this.dataTableContacts.selectedWhole) {
+          this.dataTableContacts.selectedCount = this.dataTableContacts.totalCount
+        } else {
+          this.dataTableContacts.selectedCount = selected.length
         }
       }
     },

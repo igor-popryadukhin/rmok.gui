@@ -242,6 +242,21 @@
             </v-list-item>
           </v-list>
         </v-card-text>
+        <v-card-text class="pa-0 text-right">
+          <v-divider />
+        </v-card-text>
+        <v-card-text class="px-0 text-right">
+          <v-btn
+            color="primary"
+            text
+            outlined
+            small
+            tile
+            @click="onContactEditClick($route.params.contact_id)"
+          >
+            {{ $tc('Редактировать контакт') }}
+          </v-btn>
+        </v-card-text>
       </v-card>
     </v-col>
 
@@ -381,7 +396,7 @@
 import APIError from '@/api/classes/APIError'
 import { ContactResponseInterface, Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { ContactEmailInterface, ContactInterface, ContactPhoneInterface } from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import Tasks, { TaskInterface } from '@/api/Tasks'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
@@ -389,6 +404,8 @@ import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInt
 import { MainSearchMethod } from '@/Interfaces'
 import lvovich from '@/mixins/lvovich'
 import '@/plugins/libphonenumber-js'
+import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
+import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import SContactStatuses from '@/snippets/SContactStatuses/SContactStatuses.vue'
 import STaskDialogEditor from '@/snippets/STaskList/STaskDialogEditor.vue'
 import store from '@/store'
@@ -571,7 +588,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         id: 0,
         last_name: '',
         middle_name: '',
-        phones: [],
+        phones: [] as ContactPhoneInterface[],
         user: undefined,
         created_at: 0,
         last_status: null,
@@ -642,6 +659,67 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }).catch(e => console.log(e))
       /* eslint-enable */
+    },
+
+    /**
+     *
+     **/
+    onContactEditClick (contact_id: number) {
+      new Contacts()
+        .getById(contact_id)
+        .then(async (response: ContactInterface) => {
+          const instance = await this.$dialog.show(SContactDialogEditor, {
+            on: {
+              cancel: () => {
+                instance.close()
+              },
+
+              /** @param data Новые данные контакта **/
+              save: (data: SCEContactInterface) => {
+                new Contacts()
+                  .update(contact_id, {
+                    address: data.address,
+                    city: data.city,
+                    emails: data.emails,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    middle_name: data.middle_name,
+                    notes: data.notes,
+                    phones: data.phones,
+                    region: data.region,
+                    tags: data.tags
+                  }).then(() => {
+                    this.$toast.success(this.$tc('Contact updated'))
+                  }).finally(() => (instance.close()))
+              }
+            },
+            title: this.$tc('Editing a contact'),
+            value: {
+              address: response?.address || '',
+              city: response?.city || '',
+              emails: response.emails?.map((value: ContactEmailInterface) => {
+                return {
+                  label: value.label,
+                  value: value.value
+                }
+              }) || [],
+              first_name: response?.first_name || '',
+              last_name: response?.last_name || '',
+              middle_name: response?.middle_name || '',
+              notes: response?.notes,
+              phones: response.phones?.map((value: ContactPhoneInterface) => {
+                return {
+                  label: value.label,
+                  value: value.raw
+                }
+              }) || [],
+              region: response.region,
+              tags: response.tags
+            } as SCEContactInterface,
+            waitForResult: false,
+            width: '60%'
+          })
+        })
     },
 
     onDefaultPhoneSet (value?: PhoneNumberInterface) {

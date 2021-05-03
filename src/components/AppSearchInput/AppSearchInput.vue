@@ -6,6 +6,7 @@
     :outlined="outlined"
     :clearable="clearable"
     prepend-inner-icon="mdi-magnify"
+    hide-details
   >
     <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
       <slot :name="slot" v-bind="scope"/>

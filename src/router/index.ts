@@ -499,7 +499,7 @@ const routes: RouteConfig[] = [
             path: ''
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-contacts" */ '../views/Administrator/Contacts/New.vue'),
+            component: () => import(/* webpackChunkName: "administrator-contacts-new" */ '../views/Administrator/Contacts/New.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -509,7 +509,7 @@ const routes: RouteConfig[] = [
             path: 'new'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-contacts" */ '../views/Administrator/Contacts/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-contacts-edit" */ '../views/Administrator/Contacts/Edit.vue'),
             meta: {
               layout: 'administrator',
               middleware: [secure]

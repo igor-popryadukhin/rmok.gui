@@ -16,7 +16,7 @@ module.exports = {
     ecmaVersion: 2020
   },
   plugins: [
-    'sort-keys-fix'
+    // 'sort-keys-fix'
   ],
   root: true,
   rules: {
@@ -55,6 +55,6 @@ module.exports = {
     'no-console': 'off',
     'no-control-regex': 'off',
     'no-debugger': 'off',
-    'sort-keys-fix/sort-keys-fix': 'warn'
+    // 'sort-keys-fix/sort-keys-fix': 'warn'
   }
 }

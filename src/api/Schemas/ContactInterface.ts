@@ -1,5 +1,17 @@
 import { ProjectInterface } from '@/api/Projects'
 
+export interface ContactTagInterface {
+  id: number;
+  name: string;
+  color: string;
+}
+
+export interface ContactEmailInterface {
+  id: number;
+  label?: string;
+  value: string;
+}
+
 export interface ContactPhoneInterface {
   id: number;
   label: string;
@@ -13,17 +25,19 @@ export interface ContactInterface {
   id: number;
   first_name: string;
   last_name: string;
-  middle_name: string;
-  city: string;
-  region: string;
-  address: string;
+  middle_name?: string;
+  city?: string;
+  region?: string;
+  address?: string;
   default_phone?: ContactPhoneInterface;
   project?: ProjectInterface;
-  user: any;
-  emails: any[];
+  user?: any;
+  emails: ContactEmailInterface[];
   phones: ContactPhoneInterface[];
+  tags: ContactTagInterface[]
   current_date_time: number;
   created_at: number;
+  notes?: string;
   last_call_at: number | null;
   tz?: string;
 }
