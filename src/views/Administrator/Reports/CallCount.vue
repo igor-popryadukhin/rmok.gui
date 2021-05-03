@@ -116,6 +116,20 @@
           multiple
         />
       </v-col>
+
+      <v-col
+        class="py-0"
+        cols="12"
+      >
+        <s-contact-tags
+          v-model="filter.tags"
+          :label="$tc('Tags')"
+          clearable
+          outlined
+          dense
+          multiple
+        />
+      </v-col>
     </v-row>
 
     <!-- CHART -->
@@ -162,9 +176,12 @@
 
 <script lang="ts">
 
+import { Contacts } from '@/api/Contacts'
 import { GroupInterface } from '@/api/Groups'
 import Reports from '@/api/Reports'
+import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
 import { UserInterface } from '@/api/Users'
+import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import VInterface from '@/VInterface'
@@ -178,7 +195,7 @@ Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: { SGroups, SUsers },
+  components: { SContactTags, SGroups, SUsers },
 
   computed: {
     apexchartOptions (): any {
@@ -261,7 +278,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       filter: {
         date: null as unknown & string | null,
         groups: [] as unknown & GroupInterface[],
-        users: [] as unknown & UserInterface[]
+        users: [] as unknown & UserInterface[],
+        tags: [] as unknown & ContactTagInterface[]
       },
       filterDate: undefined,
 
@@ -310,6 +328,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       if (this.assertObjectHasAttribute(this.$route.query, 'target_groups')) {
         params.target_groups = this.$route.query.target_groups
+      }
+
+      if (this.$routerQuery.hasQuery('tag_ids')) {
+        params.tag_ids = this.$routerQuery.getQuery<string>('tag_ids')
       }
 
       new Reports()
@@ -390,6 +412,23 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }
       }, debounceDelay))
+
+      // Фильтрация по тегам контактов
+      this.$watch('filter.tags', debounce((newVal: unknown & ContactTagInterface[]) => {
+        if (Array.isArray(newVal)) {
+          this.$routerQuery.setQuery({
+            tag_ids: newVal.map((e: ContactTagInterface) => e.id).join(',')
+          }).then(() => {
+            this.fetchDiagramData()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['tag_ids'])
+            .then(() => {
+              this.fetchDiagramData()
+            })
+        }
+      }, debounceDelay))
     },
 
     /**
@@ -435,6 +474,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     if (this.$routerQuery.hasQuery('target_groups')) {
       promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('target_groups')))
+    }
+
+    // Восстановление фильтра тегов после перезагрузки
+    if (this.$routerQuery.hasQuery('tag_ids')) {
+      promises.push(new Promise<void>(resolve => {
+        new Contacts()
+          .getTags({
+            tag_ids: this.$routerQuery.getQuery<string>('tag_ids')
+          }).then(response => {
+            this.$data.filter.tags = response?.data || []
+          }).finally(() => (resolve()))
+      }))
     }
 
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
