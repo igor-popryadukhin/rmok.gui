@@ -61,7 +61,7 @@ deploy_review:
   stage: deploy-review
   <<: *only-default
   script:
-    - rsync -rq --delete ./dist/* /var/www/rmok.online
+    - rsync -rq --delete ./dist/* ~/rmok.ui
   artifacts:
     expire_in: 30 days
     paths:
@@ -71,10 +71,6 @@ deploy_review:
     - development
   only:
     - develop
-
-
-
-
 
 
 # Production
