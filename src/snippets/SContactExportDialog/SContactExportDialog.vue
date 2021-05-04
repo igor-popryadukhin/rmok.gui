@@ -140,6 +140,35 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
+  name: 'SContactExportDialog',
+
+  props: {
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    onTransfer: {
+      default: null,
+      type: Function as PropType<Transfer>,
+      validator (fn: Transfer) {
+        return !!fn
+      }
+    },
+    project_id: {
+      default: () => 0,
+      type: Number
+    },
+
+    subtitle: {
+      default: '',
+      type: String
+    },
+    width: {
+      default: () => '100%',
+      type: String
+    }
+  },
+
   components: { SProjectsAutocomplete, SUsers },
 
   computed: {
@@ -200,37 +229,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     if (this.$props.project_id > 0) {
       this.$refs.sProjectAutocomplete.setDefault(this.$props.project_id)
     }
-  },
-
-  name: 'SContactExportDialog',
-
-  props: {
-    onCancel: {
-      default: null,
-      type: Function
-    },
-    onTransfer: {
-      default: null,
-      type: Function as PropType<Transfer>,
-      validator (fn: Transfer) {
-        return !!fn
-      }
-    },
-    project_id: {
-      default: () => 0,
-      type: Number
-    },
-
-    subtitle: {
-      default: '',
-      type: String
-    },
-    width: {
-      default: () => '100%',
-      type: String
-    }
   }
-
 })
 </script>
 

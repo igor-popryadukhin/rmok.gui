@@ -928,7 +928,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      * Инициализация фильтров
      **/
     initializeFilters () {
-      // this.onTransferContactsToProjectClick()
       const promises = []
 
       if (this.$refs.sProjectsAutocomplete) {
@@ -1515,53 +1514,74 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      * Передать контакты в другой проект
      */
     async onTransferContactsToProjectClick () {
-      const instance = await this.$dialog.show(SContactExportDialog, {
-
-        onCancel: () => {
-          instance.close()
-        },
-
-        // scope - набор опций для передачи контактов
-        onTransfer: (scope: SContactExportScopeInterface) => {
-          const params: unknown & SContactExportScopeInterface & {
-            filters: unknown,
-            target_contacts: number[]
-          } = {
-            // Параметры фильтров.
-            filters: this.paramFilters,
-            // Передайте пустой массив если хотите передать все контакты.
-            target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected.map((e: ContactInterface) => e.id),
-            // Проект в который будут переданы контакты.
-            target_project: scope.target_project,
-            // Идентификаторы целевых пользователей.
-            target_users: scope.target_users
+      this.$dialog.confirm({
+        title: this.$tc('Confirmation request'),
+        text: this.$tc('You are going to transfer a contact to another project, call history, tasks will not be transferred. The contact will be transferred as new. Do you confirm your actions?'),
+        actions: {
+          true: {
+            text: this.$tc('Yes'),
+            color: 'primary',
+            key: true,
+            value: true
+          },
+          false: {
+            text: this.$tc('No')
           }
+        }
+      }).then(async (result: boolean) => {
+        if (!result) return
 
-          // Опционально меняем дату, в scope.new_date timestamp
-          if (this.assertObjectHasAttribute(scope, 'new_date')) {
-            params.new_date = scope.new_date
-          }
+        const instance = await this.$dialog.show(SContactExportDialog, {
 
-          new Contacts()
-            .transfer(params)
-            .then(() => {
-              this.$toast.success(this.$tc('Transfer success'))
-            }).catch((error) => {
-              if (error instanceof APIError) {
-                error.errors.forEach((value) => {
-                  this.$toast.error(this.$tc(value.message))
-                })
-                this.$toast.error(this.$tc(error.error_message))
-              }
-            }).finally(() => {
-              this.dataTableContacts.selected = [] // Отменить выделение всех контактов
-              this.fetchContacts() // Обновить список контактов
-              instance.close() // Закрыть диалог
-            })
-        },
-        persistent: true,
-        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
-        waitForResult: false
+          onCancel: () => {
+            instance.close()
+          },
+
+          // scope - набор опций для передачи контактов
+          onTransfer: (scope: SContactExportScopeInterface) => {
+            const params: unknown & SContactExportScopeInterface & {
+              filters: unknown,
+              target_contacts: number[],
+              transfer_history: boolean
+            } = {
+              // Параметры фильтров.
+              filters: this.paramFilters,
+              // Передайте пустой массив если хотите передать все контакты.
+              target_contacts: this.dataTableContacts.selectedWhole ? [] : this.dataTableContacts.selected.map((e: ContactInterface) => e.id),
+              // Проект в который будут переданы контакты.
+              target_project: scope.target_project,
+              // Идентификаторы целевых пользователей.
+              target_users: scope.target_users,
+              // Не передавать историю.
+              transfer_history: false
+            }
+
+            // Опционально меняем дату, в scope.new_date timestamp
+            if (this.assertObjectHasAttribute(scope, 'new_date')) {
+              params.new_date = scope.new_date
+            }
+
+            new Contacts()
+              .transfer(params)
+              .then(() => {
+                this.$toast.success(this.$tc('Transfer success'))
+              }).catch((error) => {
+                if (error instanceof APIError) {
+                  error.errors.forEach((value) => {
+                    this.$toast.error(this.$tc(value.message))
+                  })
+                  this.$toast.error(this.$tc(error.error_message))
+                }
+              }).finally(() => {
+                this.dataTableContacts.selected = [] // Отменить выделение всех контактов
+                this.fetchContacts() // Обновить список контактов
+                instance.close() // Закрыть диалог
+              })
+          },
+          persistent: true,
+          subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableContacts.selected.length),
+          waitForResult: false
+        })
       })
     },
 
