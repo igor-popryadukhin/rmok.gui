@@ -42,7 +42,7 @@ build_review:
   stage: build-review
   <<: *only-default
   script:
-    - cat $VUE_ENV_DEVELOPMENT >> ./.env
+    - cat $VUE_ENV_REVIEW >> ./.env
     - npm install --progress=false
     - npm run build
   only:
