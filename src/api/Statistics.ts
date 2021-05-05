@@ -3,14 +3,35 @@ import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from '@/api/classes/APIError'
 
-export default class Reports {
+export default class Statistics {
+  /**
+   * Количество звонков
+   * @param params
+   */
+  public totalCalls (params = {}): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      $axios.get('/statistics/total-calls', {
+        params: { ...params }
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          if (typeof response.data?.count !== 'number') {
+            throw new Error('Invalid api response')
+          }
+          resolve(response.data?.count)
+        } else {
+          throw new APIError(response.data)
+        }
+      }).catch(reject)
+    })
+  }
+
   /**
    *
    * @param params
    */
   public pie<T> (params = {}): any {
     return new Promise<T>((resolve, reject) => {
-      $axios.get('/reports/pie', {
+      $axios.get('/statistics/pie', {
         params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
@@ -24,7 +45,7 @@ export default class Reports {
 
   public history<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
-      $axios.get('/reports/history', {
+      $axios.get('/statistics/history', {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
@@ -38,7 +59,7 @@ export default class Reports {
 
   public callCount<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
-      $axios.get('/reports/call-count', {
+      $axios.get('/statistics/call-count', {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
@@ -57,7 +78,7 @@ export default class Reports {
    */
   public activity<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
-      $axios.get('/reports/stats-activity', {
+      $axios.get('/statistics/stats-activity', {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {

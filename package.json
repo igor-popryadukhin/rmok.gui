@@ -38,7 +38,8 @@
     "vuex": "^3.5.1",
     "vueditor": "^0.3.1",
     "vuex-persistedstate": "^3.1.0",
-    "xstate": "^4.16.0"
+    "xstate": "^4.16.0",
+    "countup.js": "^2.0.7"
   },
   "devDependencies": {
     "@kazupon/vue-i18n-loader": "^0.5.0",

@@ -220,27 +220,7 @@ const routes: RouteConfig[] = [
             path: ':contact_id/edit'
           },
           {
-            children: [
-              // {
-              //   // todo: Deprecated (нет нужды в данном решении)
-              //   path: 'script',
-              //   name: 'operator_contacts_view',
-              //   component: () => import(/* webpackChunkName: "operator-contacts-view-script" */ '../views/Operator/Contacts/Script.vue'),
-              //   meta: { layout: 'operator-layout', middleware: [secure] }
-              // },
-              // {
-              //   path: 'history',
-              //   name: 'operator_contacts_view_history',
-              //   component: () => import(/* webpackChunkName: "operator-contacts-view-history" */ '../views/Operator/Contacts/History.vue'),
-              //   meta: { layout: 'operator-layout', middleware: [secure] }
-              // },
-              // {
-              //   path: 'tasks',
-              //   name: 'operator_contacts_view_tasks',
-              //   component: () => import(/* webpackChunkName: "operator-contacts-view-tasks" */ '../views/Operator/Contacts/Task.vue'),
-              //   meta: { layout: 'operator-layout', middleware: [secure] }
-              // }
-            ],
+            children: [],
             component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
             meta: { layout: 'operator-layout', middleware: [secure] },
             name: 'operator_contacts_view',
@@ -258,30 +238,30 @@ const routes: RouteConfig[] = [
       {
         children: [
           {
-            component: () => import(/* webpackChunkName: "operator-reports-recent-calls" */ '../views/Operator/Reports/RecentCalls.vue'),
+            component: () => import(/* webpackChunkName: "operator-statistics-recent-calls" */ '../views/Operator/Statistics/RecentCalls.vue'),
             meta: {
               layout: 'operator-layout',
               middleware: [secure]
             },
-            name: 'operator_reports_recent_calls',
+            name: 'operator_statistics_recent_calls',
             path: 'recent-calls'
           },
           {
-            component: () => import(/* webpackChunkName: "operator-reports-all-calls" */ '../views/Operator/Reports/AllCalls.vue'),
+            component: () => import(/* webpackChunkName: "operator-statistics-all-calls" */ '../views/Operator/Statistics/AllCalls.vue'),
             meta: {
               layout: 'operator-layout',
               middleware: [secure]
             },
-            name: 'operator_reports_all_calls',
+            name: 'operator_statistics_all_calls',
             path: 'all-calls'
           }
         ],
-        component: () => import(/* webpackChunkName: "operator-reports" */ '../views/Operator/Reports/Layout.vue'),
+        component: () => import(/* webpackChunkName: "operator-statistics" */ '../views/Operator/Statistics/Layout.vue'),
         meta: {
           layout: 'operator-layout',
           middleware: [secure]
         },
-        path: 'reports'
+        path: 'statistics'
       },
       {
         children: [
@@ -772,49 +752,49 @@ const routes: RouteConfig[] = [
         },
         children: [
           {
-            component: () => import(/* webpackChunkName: "administrator-reports-recent-calls" */ '../views/Administrator/Reports/RecentCalls.vue'),
+            component: () => import(/* webpackChunkName: "administrator-statistics-recent-calls" */ '../views/Administrator/Statistics/RecentCalls.vue'),
             meta: {
               layout: 'administrator',
               middleware: [secure]
             },
-            name: 'administrator_reports_recent_calls',
+            name: 'administrator_statistics_recent_calls',
             path: 'recent-calls'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-reports-all-calls" */ '../views/Administrator/Reports/AllCalls.vue'),
+            component: () => import(/* webpackChunkName: "administrator-statistics-all-calls" */ '../views/Administrator/Statistics/AllCalls.vue'),
             meta: {
               layout: 'administrator',
               middleware: [secure]
             },
-            name: 'administrator_reports_all_calls',
+            name: 'administrator_statistics_all_calls',
             path: 'all-calls'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-reports-call-count" */ '../views/Administrator/Reports/CallCount.vue'),
+            component: () => import(/* webpackChunkName: "administrator-statistics-call-count" */ '../views/Administrator/Statistics/CallCount.vue'),
             meta: {
               layout: 'administrator',
               middleware: [secure]
             },
-            name: 'administrator_reports_call_count',
+            name: 'administrator_statistics_call_count',
             path: 'call-count'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-reports-activity" */ '../views/Administrator/Reports/Activity.vue'),
+            component: () => import(/* webpackChunkName: "administrator-statistics-activity" */ '../views/Administrator/Statistics/Activity.vue'),
             meta: {
               layout: 'administrator',
               middleware: [secure]
             },
-            name: 'administrator_reports_activity',
+            name: 'administrator_statistics_activity',
             path: 'activity'
           }
         ],
-        component: () => import(/* webpackChunkName: "administrator-reports" */ '../views/Administrator/Reports/Layout.vue'),
+        component: () => import(/* webpackChunkName: "administrator-statistics" */ '../views/Administrator/Statistics/Layout.vue'),
         meta: {
           layout: 'administrator',
           middleware: [secure]
         },
-        name: 'administrator_reports',
-        path: 'reports'
+        name: 'administrator_statistics',
+        path: 'statistics'
       }
     ],
     component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Layout.vue'),

@@ -294,7 +294,7 @@ export default Vue.extend({
             {
               attrs: {
                 to: {
-                  name: 'administrator_reports_recent_calls'
+                  name: 'administrator_statistics_recent_calls'
                 }
               },
               icon: '',
@@ -304,7 +304,7 @@ export default Vue.extend({
             {
               attrs: {
                 to: {
-                  name: 'administrator_reports_all_calls'
+                  name: 'administrator_statistics_all_calls'
                 }
               },
               icon: '',
@@ -314,7 +314,7 @@ export default Vue.extend({
             {
               attrs: {
                 to: {
-                  name: 'administrator_reports_call_count'
+                  name: 'administrator_statistics_call_count'
                 }
               },
               icon: '',
@@ -324,7 +324,7 @@ export default Vue.extend({
             {
               attrs: {
                 to: {
-                  name: 'administrator_reports_activity'
+                  name: 'administrator_statistics_activity'
                 }
               },
               icon: '',

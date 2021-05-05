@@ -3,104 +3,64 @@
     flat
     tile
   >
+    <!-- Даты -->
     <v-row>
       <v-col>
-        <div class="d-flex">
-          <v-spacer/>
-          <v-btn-toggle
-            v-model="filter.date"
-            group
-            dense
+        <div class="d-flex justify-end">
+          <app-btn-toggle-date
+            v-model="filter.date_period"
+            :items="dateRangeCollection"
           >
-            <v-btn value="today">
-              {{ $tc('Today') }}
-            </v-btn>
-
-            <v-btn value="yesterday">
-              {{ $tc('Yesterday') }}
-            </v-btn>
-
-            <v-btn value="this_week">
-              {{ $tc('This week') }}
-            </v-btn>
-
-            <v-btn value="last_week">
-              {{ $tc('Last week') }}
-            </v-btn>
-
-            <v-btn value="month">
-              {{
-                $tc('January | February | March | April | May | June | July | August | September | October | December', new Date().getMonth())
-              }}
-            </v-btn>
-
-            <v-menu
-              ref="menuDateRange"
-              v-model="menuDateRange"
-              :close-on-content-click="false"
-              :return-value.sync="dateRange"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  v-on="on"
-                  :class="/^\d+,\d+/s.test($routerQuery.getQuery('date')) ? 'v-btn--active' : ''"
-                >
-                  {{ $tc('Range') }}
-                </v-btn>
-              </template>
-              <v-date-picker
-                v-model="dateRange"
-                :first-day-of-week="1"
-                scrollable
-                range
-                no-title
-                locale="ru"
+            <template v-slot:item-append>
+              <v-menu
+                ref="menuDateRange"
+                v-model="menuDateRange"
+                :close-on-content-click="false"
+                :return-value.sync="dateRange"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
               >
-                <v-spacer></v-spacer>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="menuDateRange = false"
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                  >
+                    {{ $tc('Range') }}
+                  </v-btn>
+                </template>
+                <v-date-picker
+                  v-model="dateRange"
+                  :first-day-of-week="1"
+                  scrollable
+                  range
+                  no-title
+                  locale="ru"
                 >
-                  {{ $tc('Cancel') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="onSaveDateRangeClick(dateRange)"
-                >
-                  OK
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
-          </v-btn-toggle>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="menuDateRange = false"
+                  >
+                    {{ $tc('Cancel') }}
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="onSaveDateRangeClick(dateRange)"
+                  >
+                    OK
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </template>
+          </app-btn-toggle-date>
         </div>
       </v-col>
     </v-row>
 
     <!-- Основные фильтры -->
     <v-row>
-      <!-- Фильтр по пользователям -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <s-users
-          ref="sUsersAutocomplete"
-          v-model="filter.user"
-          :label="$tc('Users')"
-          :params="{ role_use: 'for_calls' }"
-          outlined
-          dense
-          clearable
-        />
-      </v-col>
 
       <!-- Фильтр по результату звонка -->
       <v-col
@@ -141,19 +101,76 @@
         <app-date-picker-input
           v-model="filter.contact_created_at"
           :label="$tc('Date the contact was created')"
-          :value="new Date()"
           return-date-type="unix"
           date-range
         />
       </v-col>
     </v-row>
 
+    <!-- Круговая диаграмма -->
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <div class="d-flex flex-column fill-height" style="min-height: 320px">
+          <div class="mb-5">
+            <h4 class="mb-2 font-weight-regular">Всего сделано звонков</h4>
+            <div style="font-size: 2rem">
+              <app-count-up
+                :delay="1000"
+                :end-val="total_calls"
+              />
+            </div>
+          </div>
+          <div class="mb-5">
+            <h4 class="mb-2 font-weight-regular">Всего клиентов прозвонено</h4>
+            <div style="font-size: 2rem">
+              <app-count-up
+                :delay="1000"
+                :end-val="total_clients"
+              />
+            </div>
+          </div>
+          <v-spacer/>
+          <p>
+            На диаграмме представлены результаты последних звонков каждому клиенту
+          </p>
+        </div>
+      </v-col>
+      <v-col
+        class="d-flex justify-center"
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <div
+          v-if="pieSeries.length === 0"
+          class="d-flex align-center justify-center"
+        >
+          <div>{{ $tc('No data for the selected period') }}</div>
+        </div>
+        <div
+          v-else
+        >
+          <apexchart
+            width="600"
+            type="pie"
+            :options="apexchartOptions"
+            :series="pieSeries"
+          />
+        </div>
+      </v-col>
+    </v-row>
+
+    <!-- Actions -->
     <v-row>
       <v-col class="d-flex">
         <app-pagination
           v-model="dataTableHistory.page"
           :length="dataTableHistory.pages"
-          :disabled="dataTableHistory.processLoading || dataTableHistory.selectedWhole"
+          :disabled="dataTableHistory.processLoading"
         >
           <template v-slot:display>
             <v-menu offset-y>
@@ -193,18 +210,37 @@
             </v-menu>
           </template>
         </app-pagination>
-        <v-spacer/>
-        <v-btn-toggle background-color="green">
+        <v-spacer />
+
+        <v-btn-toggle color="primary">
+          <v-menu offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                :disabled="dataTableHistory.selected.length === 0"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon>mdi-export</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                link
+                @click="onTransferContactsToAnotherProjectClick"
+              >
+                <v-list-item-title>{{ $tc('Transfer contacts to another project') }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
           <v-btn
+            color="primary"
             outlined
-            tile
-            color="white"
           >
-            <v-icon color="white">mdi-cog</v-icon>
+            <v-icon>mdi-cog</v-icon>
           </v-btn>
           <v-btn
+            color="primary"
             outlined
-            color="white"
           >
             Выгрузить в Excel
           </v-btn>
@@ -212,9 +248,10 @@
       </v-col>
     </v-row>
 
+    <!-- Таблица -->
     <v-row>
       <v-col>
-        <!-- История -->
+        <!-- Контакты -->
         <v-data-table
           :headers="dataTableHistory.headers"
           :items="dataTableHistory.items"
@@ -223,23 +260,26 @@
           :items-per-page="dataTableHistory.itemsPerPage"
           :options.sync="dataTableHistory.options"
           :loading="historyProcessLoading"
-          :item-class="vDataTableItemClass"
           :no-data-text="$tc('No data for the selected period')"
+          :item-class="vDataTableItemClass"
           locale="ru"
           item-key="id"
+          show-select
           dense
           fixed-header
           hide-default-footer
-          show-select
           @pagination="onPaginationChange"
         >
+
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
-            {{ $moment.unix(item.created_at).utc().format('DD.MM.YYYY HH:mm')  }}
+            {{ $moment.unix(item.created_at).format('DD.MM.YYYY HH:mm') }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
-              {{ item.contact.first_name }} {{ item.contact.last_name }}
+              <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">
+                {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+              </router-link>
             </template>
             <template v-else>
               —
@@ -313,18 +353,22 @@
 </template>
 
 <script lang="ts">
+import APIError from '@/api/classes/APIError'
 import ContactHistory from '@/api/ContactHistory'
-import Reports from '@/api/Reports'
+import { Contacts } from '@/api/Contacts'
+import Statistics from '@/api/Statistics'
 import { UserInterface } from '@/api/Users'
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
+import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import audioPlayer from '@/mixins/audioPlayer'
-import SUsers from '@/snippets/SUsers/SUsers.vue'
+import dateRangeCollection from '@/mixins/dateRangeCollection'
+import SContactExportDialog from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
-
 import VueApexCharts from 'vue-apexcharts'
 import { debounce } from 'vuetify/src/util/helpers'
 
@@ -332,39 +376,61 @@ Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
+  mixins: [audioPlayer, dateRangeCollection],
+
   components: {
+    AppBtnToggleDate,
+    AppCountUp,
     AppDatePickerInput,
-    AppPagination,
-    SUsers
+    AppPagination
   },
 
   computed: {
     apexchartOptions (): any {
       return {
+        chart: {
+          animations: {
+            enabled: false // Off animations
+          },
+          events: {
+            legendClick: (chartContext: any, seriesIndex: any, config: any) => {
+              const scope: any = this.pieData[seriesIndex]
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                this.filter.status.selected = this.pieData[seriesIndex]
+                this.$routerQuery.setQuery({ status_id: scope.status_id })
+                  .finally(() => {
+                    this.fetchDataPie()
+                    this.fetchDataHistory()
+                  })
+              } else {
+                throw new Error('В объекте scope отсутствует свойство status_id')
+              }
+            }
+          }
+        },
         colors: this.pieColors,
         labels: this.pieLabels,
         legend: {
+          formatter: function (seriesName: string, opts: any) {
+            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
+          },
+          markers: {
+            onClick: (chart: any, seriesIndex: any, opts: any) => {
+              console.log('series- ' + seriesIndex + "'s marker was clicked")
+            }
+          },
           position: 'right',
           show: true
         }
       }
-    },
-
-    dataTableHistoryHeight () {
-      if (this.$screenHeight < 900) {
-        return 500
-      }
-      return this.$screenHeight - 150
     }
-  },
-
-  created () {
-    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
   },
 
   data () {
     return {
+      DtOptions: {},
       contactDateCreated: null,
+
       // Data table
       dataTableHistory: {
         headers: [
@@ -424,28 +490,41 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         ],
         items: [],
-        itemsPerPage: 100,
+        // Всего страниц
+        itemsPerPage: 50,
         options: {},
         page: 1,
         pageStart: 0,
         pageStop: 0,
-        pages: 1,
+        // Текущая страница
+        pages: 0,
+
+        // Выделить все контакты
+        selected: [],
+        // Количество данных на страниц
+        selectedAll: false,
         totalCount: 0
       },
+
       dateRange: null as string[] | null,
+
       filter: {
+        // Дата создания контакта
         contact_created_at: [] as string[] | number[],
-        date: null as unknown & string | null,
+        date_period: null as unknown & string,
+
         status: {
           items: [],
           on: {
             input: (scope: any) => {
               if (this.assertObjectHasAttribute(scope, 'status_id')) {
                 this.$routerQuery.setQuery({ status_id: scope.status_id })
+                this.fetchDataPie()
                 this.fetchDataHistory()
               } else {
                 this.$routerQuery.removeQuery(['status_id'])
                   .finally(() => {
+                    this.fetchDataPie()
                     this.fetchDataHistory()
                   })
               }
@@ -456,12 +535,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
         // Дата или диапазон дат
         user: [] as unknown & UserInterface[]
       },
+
       filterDate: undefined,
       historyProcessLoading: false,
       history_count: 0,
       itemsPerPage: 10,
       loading: true,
-      menuContactDateCreated: null as boolean | null,
       menuDateRange: null,
       options: {
         labels: []
@@ -469,15 +548,24 @@ export default (Vue as VueConstructor<VInterface>).extend({
       page: 1,
       pageCount: 0,
       pieColors: [] as string[],
+      pieData: [] as any[],
       pieLabels: [] as string[],
       pieSeries: [] as number[],
       processPieLoading: false,
-      // Процесс загрузки изображений
-      // Report
+
+      // Количество звонков
+      total_calls_process_loading: false,
       total_calls: 0,
+
       total_clients: 0,
-      users: [] as UserInterface[],
-      usersSelected: null as UserInterface | null
+      users: [] as unknown as UserInterface[],
+      usersSelected: null as UserInterface | null,
+
+      fetchAllData: debounce(() => {
+        this.fetchTotalCallCount()
+        this.fetchDataHistory()
+        this.fetchDataPie()
+      }, 350)
     }
   },
 
@@ -486,53 +574,35 @@ export default (Vue as VueConstructor<VInterface>).extend({
     // Загрузить историю
     fetchDataHistory () {
       this.historyProcessLoading = true
-      const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
+      let offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
 
-      const params: any = {
+      if (offset < 0) {
+        offset = 0
+      }
+
+      const params: any = Object.assign({
         count: this.dataTableHistory.itemsPerPage,
-        offset,
-        type: 'all' // Показать всю историю
+        offset
+      }, this.paramFilters()) // Общие параметры подъехали
+
+      if (this.$routerQuery.hasQuery('history_sort_by')) {
+        params.history_sort_by = this.$routerQuery.getQuery<number>('history_sort_by')
       }
 
-      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
-        params.date = this.$route.query.date
+      if (this.$routerQuery.hasQuery('history_sort_direction')) {
+        params.history_sort_direction = this.$routerQuery.getQuery<number>('history_sort_direction')
       }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'creator_id')) {
-        params.creator_id = this.$route.query.creator_id
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
-        params.status_id = this.$route.query.status_id
-      }
-
-      if (Array.isArray(this.filter.contact_created_at)) {
-        if (this.filter.contact_created_at.length === 2) {
-          params.contact_created_at = this.filter.contact_created_at.join(',')
-        }
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
-        params.history_sort_by = this.$route.query.history_sort_by
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
-        params.history_sort_direction = this.$route.query.history_sort_direction
-      }
-
-      new Reports()
+      new Statistics()
         .history<any, any>(params)
         .then((response) => {
-          this.dataTableHistory.totalCount = response.meta.count || 0
-          this.dataTableHistory.pages = Math.ceil(response.meta.count / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.data?.map((e: any) => {
+          this.dataTableHistory.totalCount = response?.meta?.count || 0
+          this.dataTableHistory.pages = Math.ceil(response?.meta?.count || 0 / this.dataTableHistory.itemsPerPage)
+          this.dataTableHistory.items = response.data.map((e: any) => {
             e.isPlaying = false
             return e
           }) || []
+          this.filter.status.items = response?.meta?.statuses || []
 
-          this.filter.status.items = response.meta.statuses
-
-          // Устанавливаю ранее сохранённый фильтр
           if (this.$routerQuery.hasQuery('status_id')) {
             const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
             if (index > -1) {
@@ -542,61 +612,70 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }).finally(() => (this.historyProcessLoading = false))
     },
 
+    // Загрузить график
+    fetchDataPie () {
+      this.processPieLoading = true
+
+      const params: any = Object.assign({
+        // Здесь могут быть дополнительные параметры
+      }, this.paramFilters())
+
+      new Statistics()
+        .pie(params)
+        .then((response: any) => {
+          // Всего клиентов прозвонено
+          this.total_clients = response.total_clients
+
+          // Pie chart
+          this.pieLabels = response.pie_chart.labels || ['']
+          this.pieSeries = response.pie_chart.series || [1]
+          this.pieColors = response.pie_chart.colors || []
+
+          this.pieData = response.pie_data || []
+        }).finally(() => (this.processPieLoading = false))
+    },
+
+    async fetchTotalCallCount () {
+      this.total_calls_process_loading = true
+
+      const params: any = Object.assign({}, this.paramFilters())
+
+      this.total_calls = await new Statistics().totalCalls(params)
+      this.total_calls_process_loading = false
+    },
+
     /**
      * Инициализировать слежение за изменением фильтров
      */
     initializeWatchForFilters () {
-      const debounceDelay = 500 // Задержка выполнения загрузки данных (избавит от дребезга)
-
       // Фильтрация по пользователям
-      this.$watch('filter.user', debounce((newVal: unknown & UserInterface) => {
+      this.$watch('filter.user', (newVal: unknown & UserInterface) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            creator_id: newVal.id
-          }).then(() => {
-            this.fetchDataHistory()
+            owner_id: newVal.id
+          }).finally(() => {
+            this.fetchAllData()
           })
         } else {
           this.$routerQuery
-            .removeQuery(['creator_id'])
-            .then(() => {
-              this.fetchDataHistory()
+            .removeQuery(['owner_id'])
+            .finally(() => {
+              this.fetchAllData()
             })
         }
-      }, debounceDelay))
+      })
 
       // Фильтрация по датам
-      this.$watch('filter.date', debounce((newVal: unknown & string) => {
-        switch (newVal) {
-          case 'today': {
-            this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDataHistory)
-            break
-          }
-          case 'yesterday': {
-            this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDataHistory)
-            break
-          }
-          case 'this_week': {
-            this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDataHistory)
-            break
-          }
-          case 'last_week': {
-            this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDataHistory)
-            break
-          }
-          case 'month': {
-            this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDataHistory)
-            break
-          }
-        }
-      }, debounceDelay))
+      this.$watch('filter.date_period', (newVal: unknown & string) => {
+        this.$routerQuery.setQuery({ date_period: newVal }).finally(this.fetchAllData)
+      })
 
       // Фильтрация по дате создания контактов
       this.$watch('filter.contact_created_at', (val: number[]) => {
         this.$routerQuery.setQuery({
           contact_created_at: val.join(',')
         }).then(() => {
-          this.fetchDataHistory()
+          this.fetchAllData()
         })
       })
     },
@@ -644,29 +723,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     /**
-     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
-     * @param dateStr
-     */
-    onSaveContactDateCreatedClick (dateStr: string | null) {
-      if (!dateStr) {
-        this.$routerQuery
-          .removeQuery(['contact_created_at'])
-          .finally(() => {
-            this.fetchDataHistory()
-          })
-        this.$refs.menuContactDateCreated.save(null)
-        return
-      }
-
-      this.$refs.menuContactDateCreated.save(dateStr)
-      this.$routerQuery
-        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
-        .finally(() => {
-          this.fetchDataHistory()
-        })
-    },
-
-    /**
      * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
      * @param dateRange
      */
@@ -682,15 +738,99 @@ export default (Vue as VueConstructor<VInterface>).extend({
         dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
       }
 
+      this.filter.date_period = dr
       this.$routerQuery
-        .setQuery({ date: dr })
+        .setQuery({ date_period: dr })
         .then(() => {
-          this.fetchDataHistory()
+          this.fetchAllData()
         })
+    },
+
+    /**
+     * Передать контакты в другой проект
+     */
+    async onTransferContactsToAnotherProjectClick () {
+      const instance = await this.$dialog.show(SContactExportDialog, {
+
+        onCancel: () => {
+          instance.close()
+        },
+
+        // scope - набор опций для передачи контактов
+        onTransfer: (scope: any) => {
+          const data: any = {
+            target_contacts: this.dataTableHistory.selected,
+            target_project: scope.target_project.id,
+            target_users: scope.target_users.map((e: UserInterface) => e.id)
+          }
+
+          // В dataTableHistory.selected данные истории
+          this.dataTableHistory.selected.forEach((value: any, index: number) => {
+            // Мы обязаны проверит наличие контакта в истории
+            if (this.assertObjectHasAttribute(value.contact, 'id')) {
+              data.target_contacts.push(value.contact.id)
+            }
+          })
+
+          if (this.assertObjectHasAttribute(scope, 'new_date')) {
+            data.new_date = scope.new_date
+          }
+
+          new Contacts()
+            .transfer(data)
+            .then(() => {
+              this.$toast.success(this.$tc('Transfer success'))
+            }).catch((error) => {
+              if (error instanceof APIError) {
+                error.errors.forEach((value) => {
+                  this.$toast.error(this.$tc(value.message))
+                })
+                this.$toast.error(this.$tc(error.error_message))
+              }
+            }).finally(() => {
+              instance.close()
+            })
+        },
+
+        persistent: true,
+
+        subtitle: this.$tc('No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected', this.dataTableHistory.selected.length),
+
+        waitForResult: false,
+
+        width: '700px'
+      })
     },
 
     secondsToHmsDigital (d: number) {
       return secondsToHmsDigital(d)
+    },
+
+    /**
+     * Общие параметры запроса
+     */
+    paramFilters () {
+      const params: any = {
+        type: 'last' // Показать всю историю
+      }
+
+      if (this.$routerQuery.hasQuery('status_id')) {
+        params.status_id = this.$routerQuery.getQuery<number>('status_id')
+      }
+
+      if (this.$routerQuery.hasQuery('date_period')) {
+        params.date_period = this.$route.query.date_period
+      }
+
+      if (this.$routerQuery.hasQuery('owner_id')) {
+        params.owner_id = this.$routerQuery.getQuery<number>('owner_id')
+      }
+
+      if (this.$routerQuery.hasQuery('contact_created_at')) {
+        params.contact_created_at = this.$routerQuery.getQuery<number>('contact_created_at')
+      }
+
+      return params
     },
 
     vDataTableItemClass (scope: any) {
@@ -698,14 +838,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
-  mixins: [audioPlayer],
-
   mounted () {
     // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
     const promises: Promise<any>[] = []
 
-    if (this.$routerQuery.hasQuery('date')) {
-      this.filter.date = this.$routerQuery.getQuery('date')
+    if (this.$routerQuery.hasQuery('date_period')) {
+      this.filter.date_period = this.$routerQuery.getQuery('date_period')
 
       if (/^\d+,\d+/s.test(String(this.filterDate))) {
         const dateRangeStr = String(this.filterDate)
@@ -717,12 +855,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     }
 
-    if (this.$routerQuery.hasQuery('creator_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('status_id')) {
-      this.$routerQuery.getQuery('status_id')
+    if (this.$routerQuery.hasQuery('owner_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery<number>('owner_id')))
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {
@@ -737,8 +871,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
     // Загружаю данные после инициализации фильтров
     Promise.all(promises)
       .finally(() => {
-        this.fetchDataHistory() // Сначала загружаем данные для диаграммы
-        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
+        this.fetchAllData()
+
+        this.initializeWatchForFilters()
       })
   },
 
@@ -773,9 +908,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
 </script>
 
 <style lang="scss">
-.v-dt-item {
-  & > td {
-    white-space: nowrap;
+  .v-dt-item {
+    & > td {
+      white-space: nowrap;
+    }
   }
-}
 </style>

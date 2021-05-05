@@ -465,7 +465,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             {
               attrs: {
                 to: {
-                  name: 'operator_reports_recent_calls'
+                  name: 'operator_statistics_recent_calls'
                 }
               },
               icon: '',
@@ -475,7 +475,7 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             {
               attrs: {
                 to: {
-                  name: 'operator_reports_all_calls'
+                  name: 'operator_statistics_all_calls'
                 }
               },
               icon: '',

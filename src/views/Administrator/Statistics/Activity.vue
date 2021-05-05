@@ -239,7 +239,7 @@
 <script lang="ts">
 
 import { GroupInterface } from '@/api/Groups'
-import Reports from '@/api/Reports'
+import Statistics from '@/api/Statistics'
 import { UserInterface } from '@/api/Users'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
@@ -578,7 +578,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.target_actions = this.$route.query.target_actions
       }
 
-      new Reports()
+      new Statistics()
         .activity<any, any>(params)
         .then((response) => {
           this.reportActions = response.meta.types

@@ -34,6 +34,7 @@ declare module 'vue/types/vue' {
   }
 
   interface VueConstructor {
+    $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     $jsSIP: JsSIP;
     $myGlobal: string
   }

@@ -6,76 +6,54 @@
     <v-row>
       <v-col class="d-flex">
         <v-spacer/>
-        <v-btn-toggle
-          v-model="filter.date"
-          group
-          dense
+        <app-btn-toggle-date
+          v-model="filter.date_period"
+          :items="dateRangeCollection"
         >
-          <v-btn value="today">
-            {{ $tc('Today') }}
-          </v-btn>
-
-          <v-btn value="yesterday">
-            {{ $tc('Yesterday') }}
-          </v-btn>
-
-          <v-btn value="this_week">
-            {{ $tc('This week') }}
-          </v-btn>
-
-          <v-btn value="last_week">
-            {{ $tc('Last week') }}
-          </v-btn>
-
-          <v-btn value="month">
-            {{
-              $tc('January | February | March | April | May | June | July | August | September | October | December', new Date().getMonth())
-            }}
-          </v-btn>
-
-          <v-menu
-            ref="menuDateRange"
-            v-model="menuDateRange"
-            :close-on-content-click="false"
-            :return-value.sync="dateRange"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on }">
-              <v-btn
-                v-on="on"
-                :class="/^\d+,\d+/s.test($routerQuery.getQuery('date')) ? 'v-btn--active' : ''"
-              >
-                {{ $tc('Range') }}
-              </v-btn>
-            </template>
-            <v-date-picker
-              v-model="dateRange"
-              :first-day-of-week="1"
-              scrollable
-              range
-              no-title
-              locale="ru"
+          <template v-slot:item-append>
+            <v-menu
+              ref="menuDateRange"
+              v-model="menuDateRange"
+              :close-on-content-click="false"
+              :return-value.sync="dateRange"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
             >
-              <v-spacer></v-spacer>
-              <v-btn
-                text
-                color="primary"
-                @click="menuDateRange = false"
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  v-on="on"
+                >
+                  {{ $tc('Range') }}
+                </v-btn>
+              </template>
+              <v-date-picker
+                v-model="dateRange"
+                :first-day-of-week="1"
+                scrollable
+                range
+                no-title
+                locale="ru"
               >
-                {{ $tc('Cancel') }}
-              </v-btn>
-              <v-btn
-                text
-                color="primary"
-                @click="onSaveDateRangeClick(dateRange)"
-              >
-                OK
-              </v-btn>
-            </v-date-picker>
-          </v-menu>
-        </v-btn-toggle>
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="menuDateRange = false"
+                >
+                  {{ $tc('Cancel') }}
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="onSaveDateRangeClick(dateRange)"
+                >
+                  OK
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
+          </template>
+        </app-btn-toggle-date>
       </v-col>
     </v-row>
 
@@ -178,9 +156,11 @@
 
 import { Contacts } from '@/api/Contacts'
 import { GroupInterface } from '@/api/Groups'
-import Reports from '@/api/Reports'
+import Statistics from '@/api/Statistics'
 import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
 import { UserInterface } from '@/api/Users'
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
+import dateRangeCollection from '@/mixins/dateRangeCollection'
 import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
@@ -195,7 +175,9 @@ Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: { SContactTags, SGroups, SUsers },
+  components: { AppBtnToggleDate, SContactTags, SGroups, SUsers },
+
+  mixins: [dateRangeCollection],
 
   computed: {
     apexchartOptions (): any {
@@ -276,7 +258,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       contactDateCreated: null,
       dateRange: null as string[] | null,
       filter: {
-        date: null as unknown & string | null,
+        date_period: null as unknown & string | null,
         groups: [] as unknown & GroupInterface[],
         users: [] as unknown & UserInterface[],
         tags: [] as unknown & ContactTagInterface[]
@@ -304,117 +286,92 @@ export default (Vue as VueConstructor<VInterface>).extend({
       total_calls: 1,
       // todo: временно
       total_clients: 0,
-      users: [] as UserInterface[]
+      users: [] as UserInterface[],
+
+      fetchDiagramData: debounce(() => {
+        this.historyProcessLoading = true
+
+        const params: any = {
+          type: 'all' // Показать всю историю
+        }
+
+        if (this.$routerQuery.hasQuery('date_period')) {
+          params.date_period = this.$route.query.date_period
+        }
+
+        if (this.$routerQuery.hasQuery('user_ids')) {
+          params.user_ids = this.$route.query.user_ids
+        }
+
+        if (this.$routerQuery.hasQuery('group_ids')) {
+          params.group_ids = this.$route.query.group_ids
+        }
+
+        if (this.$routerQuery.hasQuery('tag_ids')) {
+          params.tag_ids = this.$routerQuery.getQuery<string>('tag_ids')
+        }
+
+        new Statistics()
+          .callCount<any, any>(params)
+          .then((response) => {
+            const responseArray: any = response.data
+
+            this.apexSeries = []
+            this.apexSeries.push({
+              data: responseArray.map((e: any) => {
+                return {
+                  x: `${e.first_name} ${e.last_name}`,
+                  y: e.total
+                }
+              })
+            })
+          }).finally(() => (this.historyProcessLoading = false))
+      }, 350)
     }
   },
 
   methods: {
-
-    // Загрузить данные для построения диаграммы
-    fetchDiagramData () {
-      this.historyProcessLoading = true
-
-      const params: any = {
-        type: 'all' // Показать всю историю
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
-        params.date = this.$route.query.date
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'target_users')) {
-        params.target_users = this.$route.query.target_users
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'target_groups')) {
-        params.target_groups = this.$route.query.target_groups
-      }
-
-      if (this.$routerQuery.hasQuery('tag_ids')) {
-        params.tag_ids = this.$routerQuery.getQuery<string>('tag_ids')
-      }
-
-      new Reports()
-        .callCount<any, any>(params)
-        .then((response) => {
-          const responseArray: any = response.data
-
-          this.apexSeries = []
-          this.apexSeries.push({
-            data: responseArray.map((e: any) => {
-              return {
-                x: `${e.first_name} ${e.last_name}`,
-                y: e.total
-              }
-            })
-          })
-        }).finally(() => (this.historyProcessLoading = false))
-    },
-
     /**
      * Инициализировать слежение за изменением фильтров
      */
     initializeWatchForFilters () {
-      const debounceDelay = 500 // Задержка выполнения загрузки данных (избавит от дребезга)
-
       // Фильтрация по пользователям
-      this.$watch('filter.users', debounce((newVal: unknown & UserInterface[]) => {
+      this.$watch('filter.users', (newVal: unknown & UserInterface[]) => {
         if (Array.isArray(newVal)) {
           this.$routerQuery.setQuery({
-            target_users: newVal.map((e: UserInterface) => e.id)
+            user_ids: newVal.map((e: UserInterface) => e.id).join(',')
           }).then(() => {
             this.fetchDiagramData()
           })
         } else {
           this.$routerQuery
-            .removeQuery(['target_users'])
+            .removeQuery(['user_ids'])
             .then(() => {
               this.fetchDiagramData()
             })
         }
-      }, debounceDelay))
+      })
 
       // Фильтрация по группам
-      this.$watch('filter.groups', debounce((newVal: unknown & GroupInterface[]) => {
+      this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            target_groups: newVal.map((e: GroupInterface) => e.id)
+            group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
           }).then(this.fetchDiagramData)
         } else {
           this.$routerQuery.removeQuery([
-            'target_groups'
+            'group_ids'
           ]).then(this.fetchDiagramData)
         }
-      }, debounceDelay))
+      })
 
       // Фильтрация по датам
-      this.$watch('filter.date', debounce((newVal: unknown & string) => {
-        switch (newVal) {
-          case 'today': {
-            this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'yesterday': {
-            this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'this_week': {
-            this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'last_week': {
-            this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'month': {
-            this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDiagramData)
-            break
-          }
-        }
-      }, debounceDelay))
+      this.$watch('filter.date_period', (newVal: unknown & string) => {
+        this.$routerQuery.setQuery({ date_period: newVal }).then(this.fetchDiagramData)
+      })
 
       // Фильтрация по тегам контактов
-      this.$watch('filter.tags', debounce((newVal: unknown & ContactTagInterface[]) => {
+      this.$watch('filter.tags', (newVal: unknown & ContactTagInterface[]) => {
         if (Array.isArray(newVal)) {
           this.$routerQuery.setQuery({
             tag_ids: newVal.map((e: ContactTagInterface) => e.id).join(',')
@@ -428,7 +385,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
               this.fetchDiagramData()
             })
         }
-      }, debounceDelay))
+      })
     },
 
     /**
@@ -447,7 +404,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
       }
 
-      this.$routerQuery.setQuery({ date: dr }).finally(() => (this.fetchDiagramData()))
+      this.$routerQuery.setQuery({ date_period: dr }).finally(() => (this.fetchDiagramData()))
     }
   },
 
@@ -455,8 +412,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
     // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
     const promises: Promise<any>[] = []
 
-    if (this.$routerQuery.hasQuery('date')) {
-      this.filter.date = this.$routerQuery.getQuery('date')
+    if (this.$routerQuery.hasQuery('date_period')) {
+      this.filter.date_period = this.$routerQuery.getQuery('date_period')
 
       if (/^\d+,\d+/s.test(String(this.filterDate))) {
         const dateRangeStr = String(this.filterDate)
@@ -468,12 +425,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     }
 
-    if (this.$routerQuery.hasQuery('target_users')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('target_users')))
+    if (this.$routerQuery.hasQuery('user_ids')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('user_ids')))
     }
 
-    if (this.$routerQuery.hasQuery('target_groups')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('target_groups')))
+    if (this.$routerQuery.hasQuery('group_ids')) {
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids')))
     }
 
     // Восстановление фильтра тегов после перезагрузки
