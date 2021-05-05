@@ -266,8 +266,8 @@
           <template slot="item.session_duration" slot-scope="{ item }">
             {{ secondsToHmsDigital(item.session_duration) }}
           </template>
-          <template slot="item.owner" slot-scope="{ item }">
-            {{ item.owner.first_name }} {{ item.owner.last_name }}
+          <template slot="item.creator" slot-scope="{ item }">
+            {{ item.creator.first_name }} {{ item.creator.last_name }}
           </template>
           <template slot="item.record" slot-scope="{ item }">
             <v-btn
@@ -412,7 +412,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           {
             sortable: false,
             text: 'Менеджер',
-            value: 'owner',
+            value: 'creator',
             width: 'auto'
           },
           {
@@ -498,8 +498,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.date = this.$route.query.date
       }
 
-      if (this.assertObjectHasAttribute(this.$route.query, 'owner_id')) {
-        params.owner_id = this.$route.query.owner_id
+      if (this.assertObjectHasAttribute(this.$route.query, 'creator_id')) {
+        params.creator_id = this.$route.query.creator_id
       }
 
       if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
@@ -552,13 +552,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.$watch('filter.user', debounce((newVal: unknown & UserInterface) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            owner_id: newVal.id
+            creator_id: newVal.id
           }).then(() => {
             this.fetchDataHistory()
           })
         } else {
           this.$routerQuery
-            .removeQuery(['owner_id'])
+            .removeQuery(['creator_id'])
             .then(() => {
               this.fetchDataHistory()
             })
@@ -717,8 +717,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     }
 
-    if (this.$routerQuery.hasQuery('owner_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
+    if (this.$routerQuery.hasQuery('creator_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
     }
 
     if (this.$routerQuery.hasQuery('status_id')) {

@@ -240,6 +240,26 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+
+            <!-- Владелец -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+              max-height="61"
+            />
+            <v-list-item
+              v-else
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">mdi-account</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contact.responsible.first_name }} {{ contact.responsible.last_name }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Responsible') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-card-text>
         <v-card-text class="pa-0 text-right">
@@ -588,6 +608,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         id: 0,
         last_name: '',
         middle_name: '',
+        owner: null,
         phones: [] as ContactPhoneInterface[],
         user: undefined,
         created_at: 0,

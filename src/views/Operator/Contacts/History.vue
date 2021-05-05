@@ -1,27 +1,27 @@
 <template>
-  <div>
-    <div
-      v-if="history.length === 0 && historyLoading === true"
-      class="d-flex align-center justify-center"
-      style="min-height: 400px"
-    >
-      <div class="grey--text">
-        {{ $tc('Loading content...') }}
-      </div>
-    </div>
-    <template v-else-if="history.length === 0 && historyLoading === false">
-      <div class="d-flex align-center justify-center" style="min-height: 400px">
-        <div class="grey--text">{{ $tc('There are no calls for this contact') }}</div>
-      </div>
+  <v-list dense>
+    <template v-if="isListEmpty && historyLoading === true">
+      <v-list-item
+        class="justify-center"
+        style="height: 50vh"
+      >
+        <span class="grey--text">{{ $tc('Loading content...') }}</span>
+      </v-list-item>
+    </template>
+    <template v-else-if="isListEmpty && historyLoading === false">
+      <v-list-item
+        class="justify-center"
+        style="height: 50vh"
+      >
+        <span class="grey--text">{{ $tc('There are no calls for this contact') }}</span>
+      </v-list-item>
     </template>
     <template v-else>
-      <v-list dense>
-        <template v-for="(item, index) in history">
-          <!-- Call -->
+      <template v-for="(item, index) in history">
           <v-list-item
-            v-if="item.type === 'call'"
             :key="`v-list-item-${index}`"
             link
+            three-line
             @mousemove="buttonsHoverIndex = index"
           >
             <v-list-item-avatar>
@@ -110,178 +110,81 @@
               </v-tooltip>
 
             </v-list-item-avatar>
-            <v-list-item-content style="max-width: 200px">
-              <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
-              <v-list-item-subtitle class="pt-1">
-                {{ secondsToHmsDigital(item.call_duration) }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
             <v-list-item-content>
-              <div class="d-flex flex-row">
-                <div class="grey--text mr-5">{{ $tc('Result') }}: </div>
+              <v-list-item-title>
+                <span class="mr-2 black--text" style="letter-spacing: 1.2px; font-weight: 500;">
+                  {{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}
+                </span>
+              </v-list-item-title>
+              <div class="d-flex justify-start">
                 <div>
-                  <span v-if="item.status_result" class="label" :style="{'background-color': item.status_color}">
-                        {{ item.status_result }}
-                      </span>
-                  <span v-else class="label label-outlined label-color-grey">
-                        {{ $tc('Status not set') }}
-                      </span>
+                  <v-list-item-subtitle>
+                    <span class="grey--text">{{ $tc('Duration') }}:</span>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span class="grey--text">{{ $tc('Comment') }}:</span>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span class="grey--text">{{ $tc('Manager') }}:</span>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span class="grey--text">{{ $tc('Result') }}:</span>
+                  </v-list-item-subtitle>
                 </div>
-              </div>
-              <div class="mt-1">
-                {{ item.comment }}
-<!--                <v-btn-->
-<!--                  v-if="buttonsHoverIndex === index"-->
-<!--                  icon-->
-<!--                  x-small-->
-<!--                  @click="onShowDialogCommentEdit(item)"-->
-<!--                >-->
-<!--                  <v-icon>mdi-pencil-box-outline</v-icon>-->
-<!--                </v-btn>-->
+                <div class="ml-3">
+                  <v-list-item-subtitle>
+                    <span class="black--text">{{ secondsToHmsDigital(item.call_duration) }}</span>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span class="black--text">{{ item.comment || '—' }}</span>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span class="black--text">{{ item.creator.first_name }}</span>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span
+                      v-if="item.status"
+                      class="label"
+                      :style="{ 'background-color': item.status.color }"
+                    >
+                  {{ item.status.name }}
+                </span>
+                    <span
+                      v-else
+                      class="label label-outlined label-color-grey"
+                    >
+                  {{ $tc('Status not set') }}
+                </span>
+                  </v-list-item-subtitle>
+                </div>
               </div>
             </v-list-item-content>
             <v-list-item-action>
-              <v-list-item-action-text v-text="$moment.unix(item.created_at).format('YYY.MM.DD HH:mm')"></v-list-item-action-text>
-              <v-btn
-                icon
-                :key="`v-list-item-action-${index}`"
-                :loading="item.actions.edit.loading"
-                @click.stop="onShowDialogCallEdit(item)"
-              >
-                <v-icon>mdi-pencil-box-outline</v-icon>
-              </v-btn>
+              <v-list-item-action-text v-text="$moment.unix(item.created_at).format('YYY.MM.DD HH:mm')" />
+              <div class="d-flex flex-wrap">
+                <v-btn
+                  :key="`v-list-item-action-play-${index}`"
+                  disabled
+                  icon
+                >
+                  <v-icon>mdi-play</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  :key="`v-list-item-action-${index}`"
+                  :loading="item.actions.edit.loading"
+                  @click.stop="onShowDialogCallEdit(item)"
+                >
+                  <v-icon>mdi-pencil-box-outline</v-icon>
+                </v-btn>
+              </div>
             </v-list-item-action>
           </v-list-item>
 
-          <!-- Comment -->
-          <v-list-item
-            v-else-if="item.type === 'comment'"
-            :key="`v-list-item-${index}`"
-            link
-            selectable
-          >
-            <v-list-item-avatar>
-              <v-tooltip
-                bottom
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    mdi-comment
-                  </v-icon>
-                </template>
-                <span>{{ $tc('Comment') }}</span>
-              </v-tooltip>
-            </v-list-item-avatar>
-            <v-list-item-content style="max-width: 200px">
-              <v-list-item-title>{{ $libPhoneNumberJs.parsePhoneNumber(item.target).formatNational() }}</v-list-item-title>
-              <v-list-item-subtitle class="pt-1">
-                {{ secondsToHmsDigital(item.call_duration) }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-content>
-              <div class="d-flex flex-row">
-                <div class="grey--text mr-5">Результат: </div>
-                <div>
-                      <span class="label" :style="{'background-color': item.status_color}">
-                        {{ item.status_result }}
-                      </span>
-                </div>
-              </div>
-              <div class="mt-1">
-                <div>{{ item.comment }}</div>
-              </div>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text v-text="new Date(item.created_at * 1000).toLocaleString()"></v-list-item-action-text>
-              <v-btn
-                v-if="item.type === 'comment'"
-                icon
-                :key="`v-list-item-action-${index}`"
-                :loading="item.actions.edit.loading"
-                @click.stop="onShowDialogCommentEdit(item)"
-              >
-                <v-icon>mdi-pencil-box-outline</v-icon>
-              </v-btn>
-              <v-btn
-                v-else-if="item.type === 'call'"
-                icon
-                :key="`v-list-item-action-${index}`"
-                :loading="item.actions.edit.loading"
-                @click.stop="onShowDialogCallEdit(item)"
-              >
-                <v-icon>mdi-pencil-box-outline</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
-
-          <!-- Email -->
-          <v-list-item
-            v-else-if="item.type === 'mail'"
-            :key="`v-list-item-${index}`"
-            link
-            selectable
-          >
-            <v-list-item-avatar>
-              <v-tooltip
-                bottom
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    mdi-email
-                  </v-icon>
-                </template>
-                <span>{{ $tc('Comment') }}</span>
-              </v-tooltip>
-            </v-list-item-avatar>
-            <v-list-item-content style="max-width: 200px">
-              <v-list-item-title>{{ item.target }}</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-content>
-              <div class="d-flex flex-row">
-                <div class="grey--text mr-5">Результат: </div>
-                <div>
-                      <span class="label" :style="{'background-color': item.status_color}">
-                        {{ item.status_result }}
-                      </span>
-                </div>
-              </div>
-              <div class="mt-1">
-                <div>{{ item.comment }}</div>
-              </div>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text v-text="new Date(item.created_at * 1000).toLocaleString()"></v-list-item-action-text>
-              <v-btn
-                v-if="item.type === 'comment'"
-                icon
-                :key="`v-list-item-action-${index}`"
-                :loading="item.actions.edit.loading"
-                @click.stop="onShowDialogCommentEdit(item)"
-              >
-                <v-icon>mdi-pencil-box-outline</v-icon>
-              </v-btn>
-              <v-btn
-                v-else-if="item.type === 'call'"
-                icon
-                :key="`v-list-item-action-${index}`"
-                :loading="item.actions.edit.loading"
-                @click.stop="onShowDialogCallEdit(item)"
-              >
-                <v-icon>mdi-pencil-box-outline</v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
           <v-divider inset :key="`v-divider-${index}`"/>
         </template>
-      </v-list>
     </template>
-  </div>
+  </v-list>
 </template>
 
 <script lang="ts">
@@ -299,7 +202,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
   computed: {
     ...mapGetters({
       database_statuses: 'database/statuses_grouped'
-    })
+    }),
+
+    isListEmpty () {
+      return this.history.length === 0
+    }
   },
 
   created () {

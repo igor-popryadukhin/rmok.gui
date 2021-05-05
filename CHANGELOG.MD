@@ -4,7 +4,7 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Неизданный] - 2021-05-03
+## [Неизданный]
 
 ## Добавлено
 - ESLint `sort-keys-fix` плагин для сортировки свойств [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
@@ -20,7 +20,8 @@
 - Прочие мелкие ошибки.
 - Отсортированы все свойства в `*.ts, *.js, *.vue`
 - Диалог создания и редактирования контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
-
+- В статистке "По всем вызовам" фильтрация по создателю, а не по текущему владельцу истории [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- В статистке "По всем вызовам" показать создателя истории, а текущего владельца [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## [v1.0.2] - 2021-04-14
 

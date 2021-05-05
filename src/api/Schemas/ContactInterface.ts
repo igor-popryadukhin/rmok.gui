@@ -1,4 +1,5 @@
 import { ProjectInterface } from '@/api/Projects'
+import { UserInterface } from '@/api/Users'
 
 export interface ContactTagInterface {
   id: number;
@@ -42,10 +43,11 @@ export interface ContactInterface {
   tz?: string;
 }
 
-export interface HistoryInterface {
+export interface ContactHistoryInterface {
   id: number;
   direction: number;
   duration: number;
   start_time: number;
   end_time: number;
+  creator?: UserInterface
 }

@@ -351,8 +351,8 @@
           <template slot="item.session_duration" slot-scope="{ item }">
             {{ secondsToHmsDigital(item.session_duration) }}
           </template>
-          <template slot="item.owner" slot-scope="{ item }">
-            {{ item.owner.first_name }} {{ item.owner.last_name }}
+          <template slot="item.creator" slot-scope="{ item }">
+            {{ item.creator.first_name }} {{ item.creator.last_name }}
           </template>
           <template slot="item.record" slot-scope="{ item }">
             <v-btn
@@ -522,7 +522,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           {
             sortable: false,
             text: 'Менеджер',
-            value: 'owner',
+            value: 'creator',
             width: 'auto'
           },
           {

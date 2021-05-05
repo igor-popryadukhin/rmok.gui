@@ -233,7 +233,7 @@
 import store from '@/store'
 import Vue from 'vue'
 import { Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
-import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
+import { ContactInterface, ContactPhoneInterface, ContactHistoryInterface } from '@/api/Schemas/ContactInterface'
 import Projects, { ProjectInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
 import { UserInterface } from '@/api/Users'
@@ -309,7 +309,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
         offset: 0
       },
       taskCount: 0,
-      contactHistory: [] as HistoryInterface[],
+      contactHistory: [] as ContactHistoryInterface[],
       leadsLoading: false,
       leads: [] as ContactInterface[],
       leadsCount: 0,
