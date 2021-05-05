@@ -7,6 +7,9 @@
 ## [Неизданный]
 
 ## Добавлено
+- Для интерефейса оператора, добавлен редактор vueditor (без tool) [@Programmer900](https://gitlab.com/Programmer900)
+
+## Добавлено
 - ESLint `sort-keys-fix` плагин для сортировки свойств [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Сортировка контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Сортировка списка пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
