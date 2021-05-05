@@ -719,10 +719,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         this.fetchDiagramData() // Сначала загружаем данные для диаграммы
         this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
       })
-  },
-
-  updated (): void {
-    this.initializeWatchForFilters()
   }
 })
 </script>
