@@ -786,6 +786,15 @@ const routes: RouteConfig[] = [
             },
             name: 'administrator_statistics_activity',
             path: 'activity'
+          },
+          {
+            component: () => import(/* webpackChunkName: "administrator-statistics-unauthorized-breaks" */ '../views/Administrator/Statistics/UnauthorizedBreaks.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_statistics_unauthorized_breaks',
+            path: 'unauthorized-breaks'
           }
         ],
         component: () => import(/* webpackChunkName: "administrator-statistics" */ '../views/Administrator/Statistics/Layout.vue'),

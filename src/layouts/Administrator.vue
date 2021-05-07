@@ -330,6 +330,16 @@ export default Vue.extend({
               icon: '',
               title: 'Employment of employees',
               visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_statistics_unauthorized_breaks'
+                }
+              },
+              icon: '',
+              title: 'Unauthorized breaks',
+              visible: true
             }
           ],
           icon: 'mdi-chart-arc',
