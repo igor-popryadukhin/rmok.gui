@@ -254,7 +254,7 @@
                 <v-icon color="primary">mdi-account</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title>{{ contact.responsible.first_name }} {{ contact.responsible.last_name }}</v-list-item-title>
+                <v-list-item-title>{{ contactResponsible }}</v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Responsible') }}
                 </v-list-item-subtitle>
@@ -414,14 +414,14 @@
 
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
-import { ContactResponseInterface, Contacts } from '@/api/Contacts'
+import { Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
 import { ContactEmailInterface, ContactInterface, ContactPhoneInterface } from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import Tasks, { TaskInterface } from '@/api/Tasks'
+import { UserInterface } from '@/api/Users'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInterface'
-import { MainSearchMethod } from '@/Interfaces'
 import lvovich from '@/mixins/lvovich'
 import '@/plugins/libphonenumber-js'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
@@ -511,8 +511,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
   computed: {
     avatar () {
-      const first: string = this.contact.first_name || ''
-      const last: string = this.contact.last_name || ''
+      const first: string = this.contact?.first_name || ''
+      const last: string = this.contact?.last_name || ''
       return first.charAt(0) + last.charAt(0)
     },
 
@@ -537,6 +537,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
         h = 850
       }
       return h
+    },
+
+    contactResponsible () {
+      const collection: string[] = []
+
+      if (this.contact?.responsible?.first_name) {
+        collection.push(this.contact?.responsible?.first_name)
+      }
+
+      if (this.contact?.responsible?.last_name) {
+        collection.push(this.contact?.responsible?.last_name)
+      }
+      return collection.join(' ')
     }
   },
 
@@ -609,6 +622,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
         last_name: '',
         middle_name: '',
         owner: null,
+        responsible: {
+          id: 0,
+          first_name: '',
+          last_name: '',
+          middle_name: ''
+        } as UserInterface,
         phones: [] as ContactPhoneInterface[],
         user: undefined,
         created_at: 0,
@@ -756,27 +775,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.showStatuses()
       this.status.contact_id = event.contact_id
       this.status.contact_history_id = event.contact_history_id
-    },
-
-    onRootMainSearch (q: string, set: MainSearchMethod) {
-      new Contacts()
-        .find({
-          count: 10,
-          offset: 0,
-          q
-        }).then((response: ContactResponseInterface) => {
-          set(response.items.map((e: ContactInterface) => {
-            return {
-              ...e,
-              subtitle: e.city,
-              title: `${e.first_name} ${e.last_name}`
-            }
-          }))
-        })
-    },
-
-    onRootMainSearchSelected (data: ContactInterface) {
-      this.$router.push({ path: `/contacts/${data.id}/script` })
     },
 
     /**

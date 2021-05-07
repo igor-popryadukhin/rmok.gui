@@ -1,28 +1,18 @@
 <template>
-  <div class="overflow-auto">
-    <v-editor />
-  </div>
+  <div v-html="scenario" />
 </template>
 
 <script lang="ts">
+
 import Vue from 'vue'
-import VEditor from '@/components/VEditor/VEditor.vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
-  components: { 'v-editor': VEditor },
-  data () {
-    return {
-      history: [1, 2, 3, 4, 5]
-    }
-  },
-
-  methods: {
-    /**
-     * Метод предназначен для обновления всего компонента
-     **/
-    update () {
-      // todo: implementation
-    }
+  computed: {
+    ...mapGetters({
+      project_id: 'project/id',
+      scenario: 'project/scenario'
+    })
   }
 })
 </script>

@@ -4,32 +4,34 @@ export const project = {
 
   actions: {
     async load ({ commit }: any) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         new Projects()
           .current()
-          .then((project: ProjectInterface) => { commit('set', project) })
+          .then((project: ProjectInterface) => {
+            commit('set', project)
+            resolve(project)
+          })
           .catch(() => {
             commit('set', {
               comment: '',
               created_at: 0,
               id: 0,
               name: '',
+              scenario: '',
               statuses: []
             })
           })
-          .finally(resolve)
       })
     }
   },
 
   getters: {
-    /* eslint-disable */
     is (state: ProjectInterface) { return state },
     id (state: ProjectInterface) { return state.id },
     name (state: ProjectInterface) { return state.name },
     created_at (state: ProjectInterface) { return state.created_at },
-    statuses (state: ProjectInterface) { return state.statuses }
-    /* eslint-enable */
+    statuses (state: ProjectInterface) { return state.statuses },
+    scenario (state: ProjectInterface) { return state.scenario }
   },
 
   mutations: {
@@ -39,6 +41,7 @@ export const project = {
       state.name = payload.name
       state.statuses = payload.statuses
       state.created_at = payload.created_at
+      state.scenario = payload.scenario
       /* eslint-enable */
     }
   },
@@ -52,6 +55,7 @@ export const project = {
       name: '',
       description: '',
       statuses: [] as StatusInterface[],
+      scenario: '',
       created_at: 0
       /* eslint-enable */
     } as ProjectInterface

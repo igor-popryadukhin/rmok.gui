@@ -37,6 +37,7 @@ export interface ProjectInterface {
   members: ProjectMemberInterface[];
   statuses: StatusInterface[];
   users_groups: GroupInterface[];
+  scenario?: string;
   created_at: number;
 }
 
@@ -114,8 +115,8 @@ export default class Projects {
    * Получить проект по идентификатору
    * @param id
    */
-  public getById (id: number): Promise<ProjectInterface | any> | any {
-    return new Promise<ProjectInterface | any>((resolve, reject) => {
+  public getById (id: number): Promise<ProjectInterface> {
+    return new Promise<ProjectInterface>((resolve, reject) => {
       $axios.get(`/projects/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
