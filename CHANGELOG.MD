@@ -7,7 +7,7 @@
 ## [Неизданный]
 
 ## Добавлено
-- Для интерефейса оператора, добавлен редактор vueditor (без tool) [@Programmer900](https://gitlab.com/Programmer900)
+- Для интерфейса оператора, добавлен редактор vueditor (без tool) [@Programmer900](https://gitlab.com/Programmer900)
 
 ## Добавлено
 - ESLint `sort-keys-fix` плагин для сортировки свойств [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
@@ -18,6 +18,7 @@
 - Параметры часового пояса [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Установка тегов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 - Фильтрация контактов по тегам [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Аудио плеер для прослушивания аудиозаписей записи разговора [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## Исправлено
 - Прочие мелкие ошибки.

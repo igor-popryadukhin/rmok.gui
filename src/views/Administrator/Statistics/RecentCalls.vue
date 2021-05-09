@@ -333,7 +333,7 @@
               :disabled="item.audio_recording_id === null"
               icon
               small
-              @click="onHistoryItemRecordPlay(item)"
+              @click="onPlayClick(item)"
             >
               <v-icon>mdi-play</v-icon>
             </v-btn>
@@ -700,43 +700,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       })
     },
 
-    onHistoryItemRecordPlay (item: any) {
-      this.stopSound()
-      this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-      item.isPlaying = true
-      item.playingProgress = 0
-
-      if (item.audioUrl) {
-        this.playSound(item.audioUrl, false, {
-          onEnded: () => {
-            this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-          },
-          onProgressUpdate: (progress: number) => {
-            item.playingProgress = progress
-            this.$forceUpdate()
-          }
-        })
-      } else {
-        new ContactHistory()
-          .getAudioFile(item.id)
-          .then((response: any) => {
-            item.audioUrl = response.url
-            this.playSound(response.url, false, {
-              onEnded: () => {
-                this.dataTableHistory.items.forEach((e: any) => (e.isPlaying = false))
-              },
-              onProgressUpdate: (progress: number) => {
-                item.playingProgress = progress
-                this.$forceUpdate()
-              }
-            })
-          }).catch((e) => {
-            this.$toast.error(e.statusText || e.error_message || e || 'undefined')
-            item.isPlaying = false
-          })
-      }
-    },
-
     onPaginationChange (data: any) {
       this.dataTableHistory.pageStart = data.pageStart + 1
       this.dataTableHistory.pageStop = data.pageStop
@@ -855,6 +818,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     vDataTableItemClass (scope: any) {
       return 'v-dt-item'
+    },
+
+    onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
+      new ContactHistory()
+        .getAudioFile(item.id)
+        .then((response: any) => {
+          this.$root.$emit('on-audio-player-show', {
+            src: response.url,
+            author: `${item.creator.first_name} ${item.creator.last_name} - ${item.contact.last_name} ${item.contact.first_name}`
+          })
+        }).catch((e) => {
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        })
     }
   },
 

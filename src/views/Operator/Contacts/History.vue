@@ -164,8 +164,8 @@
               <div class="d-flex flex-wrap">
                 <v-btn
                   :key="`v-list-item-action-play-${index}`"
-                  disabled
                   icon
+                  @click="onPlayClick(item)"
                 >
                   <v-icon>mdi-play</v-icon>
                 </v-btn>
@@ -188,6 +188,7 @@
 </template>
 
 <script lang="ts">
+import ContactHistory from '@/api/ContactHistory'
 import DTextarea from '@/components/Dialogs/DTextarea.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
@@ -311,6 +312,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
         value: comment,
         waitForResult: false
       })
+    },
+
+    onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
+      new ContactHistory()
+        .getAudioFile(item.id)
+        .then((response: any) => {
+          this.$root.$emit('on-audio-player-show', {
+            src: response.url,
+            author: `${item.creator.first_name} ${item.creator.last_name} - ${item.contact.last_name} ${item.contact.first_name}`
+          })
+        }).catch((e) => {
+          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        })
     },
 
     secondsToHmsDigital (s: number) {

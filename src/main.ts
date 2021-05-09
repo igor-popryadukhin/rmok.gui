@@ -25,6 +25,7 @@ import '@/plugins/file-dialog'
 import '@/plugins/lvovich'
 import '@/plugins/vuetify-dialog'
 import '@/plugins/libphonenumber-js'
+import '@/plugins/html-audio-element'
 import '@/jsSIP'
 
 import CleanLayout from '@/layouts/Clean.vue'
