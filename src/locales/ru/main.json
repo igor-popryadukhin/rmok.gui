@@ -288,6 +288,8 @@
   "empty_field_is_not_allowed": "Пустое поле недопустимо!",
   "error_session_cause": "Ошибка сессии, причина: {cause}",
   "exit": "Выход",
+  "Audio file playback speed": "Скорость воспроизведения аудио файла",
+  "Download the audio file to your computer": "Скачать аудио файл к себе на компьютер",
   "first_name": "Имя",
   "found": "Найдено - {count}",
   "hour": "Часов | Час | Часа | Часов",
