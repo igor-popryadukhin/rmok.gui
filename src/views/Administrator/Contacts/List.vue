@@ -429,7 +429,7 @@
 
           <template slot="item.last_call_at" slot-scope="{ value }">
             <template v-if="value">
-              {{ $moment.unix(value).format('Do MMMM YYYY, в h:mm:ss a') }}
+              {{ $moment.unix(value).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
             </template>
           </template>
 

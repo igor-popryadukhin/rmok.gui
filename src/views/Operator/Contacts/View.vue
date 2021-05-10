@@ -213,7 +213,8 @@
                 <v-icon color="primary">mdi-clock-time-two-outline</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title :key="clientTimeTick">{{ $moment().tz(contact.tz).format('DD.MM.YYYY hh:mm:ss (Z)') }}
+                <v-list-item-title :key="clientTimeTick">
+                  {{ $moment().tz(contact.tz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Client\'s current time') }}
@@ -234,7 +235,9 @@
                 <v-icon color="primary">mdi-clock</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title>{{ new Date(contact.created_at * 1000).toLocaleString() }}</v-list-item-title>
+                <v-list-item-title>
+                  {{ $moment.unix(contact.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Date the contact was created') }}
                 </v-list-item-subtitle>

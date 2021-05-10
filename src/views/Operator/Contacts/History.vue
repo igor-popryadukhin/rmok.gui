@@ -160,7 +160,7 @@
               </div>
             </v-list-item-content>
             <v-list-item-action>
-              <v-list-item-action-text v-text="$moment.unix(item.created_at).format('YYY.MM.DD HH:mm')" />
+              <v-list-item-action-text v-text="$moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`)" />
               <div class="d-flex flex-wrap">
                 <v-btn
                   :key="`v-list-item-action-play-${index}`"

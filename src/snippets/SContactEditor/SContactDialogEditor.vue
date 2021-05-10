@@ -8,7 +8,7 @@
       </div>
       <div class="pa-4 px-10">
         <template v-if="value.created_at">
-          <span class="grey--text" style="font-size: small">{{ $t('Date of creation {date}', { date: $moment.unix(value.created_at).format('YYYY-MM-DD hh:mm') }) }}</span>
+          <span class="grey--text" style="font-size: small">{{ $t('Date of creation {date}', { date: $moment.unix(value.created_at).format('DD.MM.YYYY HH:mm') }) }}</span>
         </template>
       </div>
     </div>
@@ -655,6 +655,7 @@ export default Vue.extend({
       default: null,
       type: Object
     },
+
     title: {
       default: '',
       type: String

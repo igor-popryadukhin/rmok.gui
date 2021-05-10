@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { mapGetters } from 'vuex'
 
 Vue.mixin(Vue.extend({
   computed: {
@@ -20,7 +21,11 @@ Vue.mixin(Vue.extend({
 
     $screenWidth () {
       return this.$vuetify.breakpoint.width
-    }
+    },
+
+    ...mapGetters({
+      date_time_format: 'settings/date_time_format'
+    })
   },
 
   methods: {

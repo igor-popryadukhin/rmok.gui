@@ -11,7 +11,7 @@
         v-if="item.type === 'call'"
         :style="{ color: item.expired ? 'red' : '' }"
       >
-        {{ `Позвонить ${$moment.unix(item.planned_for).format('Do MMMM, dddd, в HH:mm')}` }}
+        {{ `Позвонить ${$moment.unix(item.planned_for).format(`Do MMMM, dddd, в ${date_time_format.short_time}`)}` }}
       </v-list-item-title>
       <v-list-item-subtitle v-if="item.contact">
         {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}

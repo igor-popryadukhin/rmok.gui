@@ -178,7 +178,7 @@
                     v-if="taskItem.type === 'call'"
                     :style="{ color: taskItem.expired ? 'red' : '' }"
                   >
-                    {{ `Позвонить ${$moment.unix(taskItem.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}` }}
+                    {{ `Позвонить ${$moment.unix(taskItem.planned_for).format(`Do MMMM, dddd, ${date_time_format.long_time} a`)}` }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="taskItem.contact">
                     {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{
