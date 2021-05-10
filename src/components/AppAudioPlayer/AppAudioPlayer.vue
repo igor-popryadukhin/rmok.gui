@@ -318,6 +318,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.stop()
       this.author = options?.author || ''
       this.src = options?.src || ''
+      this.audioPlayer.src = options?.src || ''
     },
 
     /**

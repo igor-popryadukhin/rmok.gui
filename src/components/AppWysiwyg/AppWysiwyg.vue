@@ -117,6 +117,8 @@ export default Vue.extend({
   mounted () {
     const vEditor = this.$children[0]
 
+    this.setContent(this.value)
+
     vEditor.$store.subscribe((mutation, state) => {
       switch (mutation.type) {
         case 'UPDATE_CONTENT': {
@@ -129,11 +131,11 @@ export default Vue.extend({
 
   methods: {
     getContent () {
-      return this.$refs.editor.getContent()
+      return this.$children[0].getContent()
     },
 
-    setContent (value) {
-      return this.$refs.editor.setContent(value)
+    setContent (value: string) {
+      return this.$children[0].setContent(value)
     }
   }
 })
