@@ -4,7 +4,7 @@ import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
-import { NavigationGuardNext } from 'vue-router/types/router'
+import { NavigationGuardNext, Position } from 'vue-router/types/router'
 import secure from '@/middleware/secure'
 
 import { Store } from 'vuex'
@@ -819,7 +819,27 @@ const routes: RouteConfig[] = [
 const router = new VueRouter({
   base: process.env.BASE_URL,
   mode: 'history',
-  routes
+  routes,
+  scrollBehavior (to: Route) {
+    return new Promise<any>((resolve) => {
+      setTimeout(() => {
+        if (to.hash) {
+          // До якоря
+          resolve({
+            selector: to.hash,
+            behavior: 'smooth'
+          })
+        } else {
+          // До самого верха
+          resolve({
+            x: 0,
+            y: 0,
+            behavior: 'smooth'
+          })
+        }
+      }, 500)
+    })
+  }
 })
 
 export interface MiddlewareContextInterface {
