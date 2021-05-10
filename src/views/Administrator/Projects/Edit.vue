@@ -6,20 +6,22 @@
     <v-row>
       <v-col
         cols="12"
+        md="6"
+        lg="6"
       >
         <v-text-field
           v-model="projectName"
           :label="$tc('Project name')"
+          :rules="[rules.notBlank]"
           persistent-hint
           required
-          :rules="[rules.notBlank]"
         >
         </v-text-field>
       </v-col>
     </v-row>
 
     <!-- Users -->
-    <v-row>
+    <v-row class="mb-5">
       <v-col
         class="pb-0"
         cols="12"
@@ -207,64 +209,57 @@
       </v-col>
     </v-row>
 
-    <!-- Statuses -->
+    <!-- Сценарий -->
+    <v-row class="mb-5">
+      <v-col
+        cols="12"
+      >
+        <h3 class="grey--text mb-1">Сценарий</h3>
+        <app-wysiwyg
+          v-model="scenario"
+          ref="wysiwyg"
+        />
+      </v-col>
+    </v-row>
+    <!-- Сценарий -->
+
+    <!-- Статусы -->
     <v-row>
       <v-col
         cols="12"
       >
-        <v-card
+        <h3 class="grey--text mb-1">Статусы звонков</h3>
+        <project-status v-model="statuses" />
+      </v-col>
+    </v-row>
+    <!-- Статусы -->
+
+    <v-row class="mb-10">
+      <v-col
+        cols="12"
+        class="d-flex"
+      >
+        <v-spacer/>
+        <v-btn
+          color="red"
+          :loading="buttonDelete.loading"
+          :disabled="buttonDelete.disabled"
+          class="mr-2"
           tile
-          flat
+          outlined
+          @click="onBtnDeleteClick"
         >
-          <v-card-title class="grey--text">
-            Статусы звонков
-          </v-card-title>
-          <v-card-text>
-            <project-status v-model="statuses" />
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Сценарий -->
-    <v-row>
-      <v-col
-        cols="12"
-      >
-        <app-wysiwyg ref="wysiwyg"/>
-      </v-col>
-    </v-row>
-    <!-- Сценарий -->
-
-    <v-row>
-      <v-col
-        cols="12"
-      >
-        <v-card tile outlined flat>
-          <v-card-text class="d-flex">
-            <v-spacer/>
-            <v-btn
-              color="red"
-              :loading="buttonDelete.loading"
-              :disabled="buttonDelete.disabled"
-              class="mr-2"
-              tile
-              outlined
-              @click="onBtnDeleteClick"
-            >
-              {{ $tc('Delete') }}
-            </v-btn>
-            <v-btn
-              text
-              tile
-              :loading="buttonSave.loading"
-              :disabled="buttonSave.disabled"
-              @click="onBtnSaveClick"
-            >
-              {{ $tc('Save') }}
-            </v-btn>
-          </v-card-text>
-        </v-card>
+          {{ $tc('Delete') }}
+        </v-btn>
+        <v-btn
+          text
+          tile
+          :loading="buttonSave.loading"
+          :disabled="buttonSave.disabled"
+          @click="onBtnSaveClick"
+        >
+          {{ $tc('Save') }}
+        </v-btn>
       </v-col>
     </v-row>
   </v-card>
@@ -299,6 +294,7 @@ interface IData {
   members: ProjectMemberInterface[];
   users_groups: GroupInterface[];
   statuses: any[];
+  scenario: string;
   buttonSave: any;
   buttonDelete: any;
 }
@@ -330,7 +326,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
           vm.$data.projectName = response.name
           vm.$data.members = response.members || []
-          vm.$data.statuses = response.statuses || []
+          vm.$data.statuses = response?.statuses || []
+          vm.$data.scenario = response?.scenario || ''
           vm.$data.users_groups = response.users_groups || []
         })
       })
@@ -358,7 +355,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       organizationSelected: null,
       projectName: '',
       statuses: [],
-      users_groups: []
+      users_groups: [],
+      scenario: ''
     }
   },
 
