@@ -89,4 +89,23 @@ export default class Statistics {
       }).catch(reject)
     })
   }
+
+  /**
+   * Статистика Несанкционированные перерывы
+   *
+   * @param params
+   */
+  public unauthorizedBreaks<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+      $axios.get('/statistics/unauthorized-breaks', {
+        params
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          resolve(response.data)
+        } else {
+          throw new APIError(response.data)
+        }
+      }).catch(reject)
+    })
+  }
 }
