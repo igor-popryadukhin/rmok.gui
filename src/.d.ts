@@ -30,13 +30,15 @@ declare module 'vue/types/vue' {
     $jsSIP: JsSIP;
     $axios: AxiosInstance;
     $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
+    $htmlAudioElement: HTMLAudioElement,
     assertObjectHasAttribute (obj: any, key: string): boolean
   }
 
   interface VueConstructor {
     $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     $jsSIP: JsSIP;
-    $myGlobal: string
+    $myGlobal: string;
+    $htmlAudioElement: HTMLAudioElement;
   }
 }
 

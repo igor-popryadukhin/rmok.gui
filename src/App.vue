@@ -20,6 +20,16 @@
       @keydown.ctrl="$root.$emit('on-keydown-ctrl')"
       @keyup.ctrl="$root.$emit('on-keyup-ctrl')"
     />
+
+    <!-- AUDIO PLAYER -->
+    <app-audio-player
+      ref="audioPlayer"
+      :audio-element-instance="$htmlAudioElement"
+      :volume.sync="audioPlayerVolume"
+      auto-close-after-end-play
+    />
+    <!-- AUDIO PLAYER -->
+
     <!-- FOR DEVELOPMENT -->
     <div
       v-if="screenDevVisible"
@@ -37,6 +47,7 @@
 </template>
 
 <script lang="ts">
+import AppAudioPlayer from '@/components/AppAudioPlayer/AppAudioPlayer.vue'
 import Vue from 'vue'
 import { VApp } from 'vuetify/lib'
 import { POSITION } from 'vue-toastification'
@@ -53,20 +64,24 @@ export default Vue.extend({
     this.$store.dispatch('project/load')
   },
 
-  beforeDestroy () {
-    this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
-    this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$off('on-keydown-ctrl', this.onKeyDown)
-    this.$root.$off('on-keyup-ctrl', this.onKeyUp)
-  },
-
   components: {
+    AppAudioPlayer,
     VApp
   },
 
   computed: {
     layout () {
       return this.$route.meta.layout || 'clean'
+    },
+
+    audioPlayerVolume: {
+      get () {
+        return this.$store.getters['settings/audio_player_volume']
+      },
+
+      set (value: number) {
+        this.$store.commit('settings/audio_player_volume', value)
+      }
     },
 
     ...mapGetters({
@@ -155,6 +170,21 @@ export default Vue.extend({
 
     rootLoadingDataShow () {
       this.overlay = true
+    },
+
+    onAudioPlayerShow ({ src, author }: unknown & { src: string; author: string }) {
+      this.$refs.audioPlayer.setMediaData({
+        src,
+        author
+      })
+
+      if (!this.$refs.audioPlayer.isShowing) {
+        this.$refs.audioPlayer.show()
+      }
+
+      setTimeout(() => {
+        this.$refs.audioPlayer.play()
+      }, 500)
     }
   },
 
@@ -163,6 +193,15 @@ export default Vue.extend({
     this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
     this.$root.$on('on-keydown-ctrl', this.onKeyDown)
     this.$root.$on('on-keyup-ctrl', this.onKeyUp)
+    this.$root.$on('on-audio-player-show', this.onAudioPlayerShow)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
+    this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
+    this.$root.$off('on-keydown-ctrl', this.onKeyDown)
+    this.$root.$off('on-keyup-ctrl', this.onKeyUp)
+    this.$root.$off('on-audio-player-show', this.onAudioPlayerShow)
   },
 
   name: 'App'

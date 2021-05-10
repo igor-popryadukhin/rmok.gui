@@ -1,5 +1,5 @@
 <template>
-  <div v-html="scenario" />
+  <div v-html="scenario" > {{ scenario }} </div>
 </template>
 
 <script lang="ts">

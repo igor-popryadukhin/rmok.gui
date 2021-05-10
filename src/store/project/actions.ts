@@ -9,11 +9,11 @@ const actions: ActionTree<ProjectStateInterface, RootStateInterface> = {
       new Projects()
         .current()
         .then((response: ProjectInterface) => {
-          ctx.commit('project/id', response.id || 0)
-          ctx.commit('project/name', response.name || '')
-          ctx.commit('project/statuses', response.statuses || [])
-          ctx.commit('project/scenario', response.scenario || '')
-          ctx.commit('project/created_at', response.created_at || 0)
+          ctx.commit('id', response.id || 0)
+          ctx.commit('name', response.name || '')
+          ctx.commit('statuses', response.statuses || [])
+          ctx.commit('scenario', response.scenario || '')
+          ctx.commit('created_at', response.created_at || 0)
 
           resolve()
         })
