@@ -263,8 +263,60 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+
+            <!-- Проект -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+              max-height="61"
+            />
+            <v-list-item
+              v-else-if="contactProject"
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">mdi-projector-screen</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contactProject }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Project') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-card-text>
+
+        <!-- Теги -->
+        <template v-if="contact.tags.length">
+          <v-card-text class="pa-0 text-right">
+            <v-divider />
+          </v-card-text>
+          <v-card-text class="px-0 text-right">
+            <v-chip-group>
+              <v-chip
+                v-for="(item, key) in contact.tags"
+                :key="key"
+                :color="item.color"
+                label
+                small
+                outlined
+              >{{ item.name }}</v-chip>
+            </v-chip-group>
+          </v-card-text>
+        </template>
+        <!-- Теги -->
+
+        <!-- Заметки -->
+        <template v-if="contact.notes">
+          <v-card-text class="pa-0">
+            <v-divider />
+          </v-card-text>
+          <v-card-text class="px-0 text-justify">
+            <p v-html="contact.notes"></p>
+          </v-card-text>
+        </template>
+        <!-- Заметки -->
+
         <v-card-text class="pa-0 text-right">
           <v-divider />
         </v-card-text>
@@ -419,7 +471,12 @@
 import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
-import { ContactEmailInterface, ContactInterface, ContactPhoneInterface } from '@/api/Schemas/ContactInterface'
+import {
+  ContactEmailInterface,
+  ContactInterface,
+  ContactPhoneInterface,
+  ContactTagInterface
+} from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import Tasks, { TaskInterface } from '@/api/Tasks'
 import { UserInterface } from '@/api/Users'
@@ -472,8 +529,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
     new Contacts()
       .getById(+to.params.contact_id)
       .then((response: ContactInterface) => {
-        // TODO: Фамилия имя отчество в хлебных крошках
-        // from.meta.route_breadcrumb_name = `${response.first_name} ${response.last_name} ${response.middle_name}`
         next((vm: VInterface) => {
           vm.$activity.begin({
             type: 'card_filling'
@@ -553,6 +608,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
         collection.push(this.contact?.responsible?.last_name)
       }
       return collection.join(' ')
+    },
+
+    contactProject () {
+      return this.contact?.project?.name || false
     }
   },
 
@@ -631,10 +690,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
           last_name: '',
           middle_name: ''
         } as UserInterface,
+        project: null as unknown,
         phones: [] as ContactPhoneInterface[],
         user: undefined,
         created_at: 0,
         last_status: null,
+        notes: null,
+        tags: [] as ContactTagInterface[],
         tz: 'Europe/Moscow'
       },
       clientTimeTick: 0
@@ -647,6 +709,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   methods: {
+    fetchContact (contact_id: number) {
+      new Contacts()
+        .getById(contact_id)
+        .then((response: ContactInterface) => {
+          this.contact = response
+        })
+    },
 
     /**
      * Перейти к следующему контакту
@@ -731,9 +800,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
                     phones: data.phones,
                     region: data.region,
                     tags: data.tags
-                  }).then(() => {
+                  })
+                  .then(() => {
                     this.$toast.success(this.$tc('Contact updated'))
-                  }).finally(() => (instance.close()))
+                    this.fetchContact(+this.$route.params.contact_id)
+                  })
+                  .finally(() => (instance.close()))
               }
             },
             title: this.$tc('Editing a contact'),
