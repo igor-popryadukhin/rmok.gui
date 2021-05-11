@@ -95,7 +95,7 @@ import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vu
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue, { PropType } from 'vue'
 
-export interface SContactExportScopeInterface {
+export interface SContactTransferScopeInterface {
   filters: any,
 
   /** Идентификатор проекта */
@@ -108,7 +108,7 @@ export interface SContactExportScopeInterface {
   new_date?: number
 }
 
-type Transfer = (scope: SContactExportScopeInterface) => void
+type Transfer = (scope: SContactTransferScopeInterface) => void
 
 interface IProps {
   subtitle: string;
@@ -140,7 +140,7 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
-  name: 'SContactExportDialog',
+  name: 'SContactTransferDialog',
 
   props: {
     onCancel: {
@@ -208,7 +208,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       }
 
       if (typeof this.onTransfer === 'function') {
-        const scope: SContactExportScopeInterface = {
+        const scope: SContactTransferScopeInterface = {
           target_project: this.target_project?.id,
           target_users: this.target_users.map(value => value.id)
         }

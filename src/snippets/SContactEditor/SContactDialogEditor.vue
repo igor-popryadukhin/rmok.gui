@@ -635,12 +635,6 @@ export default Vue.extend({
 
     // Теги
     this.tags.selected = this.value?.tags
-
-    new Contacts()
-      .getTags()
-      .then((response) => {
-        console.log(response)
-      })
   },
 
   name: 'SContactDialogEditor',

@@ -613,7 +613,7 @@ import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
-import SContactExportDialog, { SContactExportScopeInterface } from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
+import SContactTransferDialog, { SContactTransferScopeInterface } from '@/snippets/SContactTransferDialog/SContactTransferDialog.vue'
 import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
 import SContactTagsEditDialog from '@/snippets/SContactTagsEditDialog/SContactTagsEditDialog.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
@@ -1207,6 +1207,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
                 tags: data.tags
               }).then(() => {
                 this.$toast.success(this.$tc('Contact created'))
+                this.fetchContacts()
               }).finally(() => (instance.close()))
           }
         },
@@ -1468,15 +1469,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      * Передать контакты оператору в рамках текущего проекта
      */
     async onTransferContactToOperatorWithinProjectClick () {
-      const instance = await this.$dialog.show(SContactExportDialog, {
+      const instance = await this.$dialog.show(SContactTransferDialog, {
 
         onCancel: () => {
           instance.close()
         },
 
         // scope - набор опций для передачи контактов
-        onTransfer: (scope: SContactExportScopeInterface) => {
-          const data: unknown & SContactExportScopeInterface & { target_contacts: number[] } = {
+        onTransfer: (scope: SContactTransferScopeInterface) => {
+          const data: unknown & SContactTransferScopeInterface & { target_contacts: number[] } = {
             // Параметры фильтров
             filters: this.paramFilters,
 
@@ -1542,15 +1543,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }).then(async (result: boolean) => {
         if (!result) return
 
-        const instance = await this.$dialog.show(SContactExportDialog, {
+        const instance = await this.$dialog.show(SContactTransferDialog, {
 
           onCancel: () => {
             instance.close()
           },
 
           // scope - набор опций для передачи контактов
-          onTransfer: (scope: SContactExportScopeInterface) => {
-            const params: unknown & SContactExportScopeInterface & {
+          onTransfer: (scope: SContactTransferScopeInterface) => {
+            const params: unknown & SContactTransferScopeInterface & {
               filters: unknown,
               target_contacts: number[],
               transfer_history: boolean

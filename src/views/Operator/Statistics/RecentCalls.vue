@@ -364,7 +364,7 @@ import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInp
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import audioPlayer from '@/mixins/audioPlayer'
 import dateRangeCollection from '@/mixins/dateRangeCollection'
-import SContactExportDialog from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
+import SContactTransferDialog from '@/snippets/SContactTransferDialog/SContactTransferDialog.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
@@ -750,7 +750,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * Передать контакты в другой проект
      */
     async onTransferContactsToAnotherProjectClick () {
-      const instance = await this.$dialog.show(SContactExportDialog, {
+      const instance = await this.$dialog.show(SContactTransferDialog, {
 
         onCancel: () => {
           instance.close()
