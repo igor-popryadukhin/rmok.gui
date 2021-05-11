@@ -451,12 +451,12 @@ export class Contacts {
    * Массовая установка тегов для контактов
    * @param params
    */
-  public setTags (params?: ContactsParamsSetTagsInterface): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  public setTags (params?: ContactsParamsSetTagsInterface): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       $axios.post('/contacts/tags/set', params)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve()
+            return resolve(response.data?.count || 0)
           }
           throw new APIError(response?.data || response.statusText)
         }).catch(reject)

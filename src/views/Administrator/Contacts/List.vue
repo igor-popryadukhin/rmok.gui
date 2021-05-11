@@ -194,6 +194,7 @@
                   v-model="menuSetTagsShowing"
                   :close-on-click="false"
                   :close-on-content-click="false"
+                  :disabled="process === 'setting-tags'"
                   offset-y
                   @input="onMenuSetTegInputChange"
                 >
@@ -282,6 +283,7 @@
                         </template>
                         <template v-else>
                           <v-list-item
+                            :disabled="process === 'setting-tags'"
                             dense
                             link
                             @click="tagsSelectedApplyClick(tagsSelectedForSet.map((value) => tagsAvailableForSet[value]))"
@@ -290,6 +292,7 @@
                           </v-list-item>
                         </template>
                         <v-list-item
+                          :disabled="process === 'setting-tags'"
                           dense
                           link
                           @click="menuSetTagsShowing = false"
@@ -629,6 +632,7 @@ interface IRefs {
 }
 
 interface IData {
+  process: null | 'setting-tags'
   [key: string]: any;
 }
 
@@ -918,7 +922,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       importExportProgress: {
         value: 0,
         visible: false
-      }
+      },
+      process: null
     }
   },
 
@@ -1399,14 +1404,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     tagsSelectedApplyClick (items: ContactTagInterface[]) {
       // Установи теги для контактов
       if (items.length > 0) {
+        this.process = 'setting-tags'
+        const contactSelected = this.$data.dataTableContacts.selected.map((value: ContactInterface) => value.id)
         new Contacts()
           .setTags({
-            contact_ids: this.$data.dataTableContacts.selected.map((value: ContactInterface) => value.id),
+            // Передайте пустой массив если нужно установить теги всем контактам
+            contact_ids: this.$data.dataTableContacts.selectedWhole ? [] : contactSelected,
             filters: this.paramFilters,
             tag_ids: items.map((value: ContactTagInterface) => value.id)
-          }).then(() => {
+          }).then((count: number) => {
             this.$toast.success(this.$tc('contacts_are_tagged', this.$data.dataTableContacts.selectedCount, {
-              count: this.$data.dataTableContacts.selectedCount,
+              count,
               tags: items.map((value: ContactTagInterface) => value.name).join(', ') // Строка имён тегов разделённые запятой.
             }))
             this.tagsAvailableForSet = [] // Очистить список доступных тегов
@@ -1417,6 +1425,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             this.$toast.error(this.$tc(e.message))
           }).finally(() => {
             this.$data.menuSetTagsShowing = false
+          })
+          .finally(() => {
+            this.process = null
           })
       }
     },
