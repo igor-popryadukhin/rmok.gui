@@ -378,7 +378,7 @@ import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import dateRangeCollection from '@/mixins/dateRangeCollection'
-import SContactExportDialog from '@/snippets/SContactExportDialog/SContactExportDialog.vue'
+import SContactTransferDialog from '@/snippets/SContactTransferDialog/SContactTransferDialog.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue, { VueConstructor } from 'vue'
 import VueApexCharts from 'vue-apexcharts'
@@ -672,13 +672,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.$watch('filter.user', (newVal: unknown & UserInterface) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            owner_id: newVal.id
+            creator_id: newVal.id
           }).finally(() => {
             this.fetchAllData()
           })
         } else {
           this.$routerQuery
-            .removeQuery(['owner_id'])
+            .removeQuery(['creator_id'])
             .finally(() => {
               this.fetchAllData()
             })
@@ -733,7 +733,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * Передать контакты в другой проект
      */
     async onTransferContactsToAnotherProjectClick () {
-      const instance = await this.$dialog.show(SContactExportDialog, {
+      const instance = await this.$dialog.show(SContactTransferDialog, {
 
         onCancel: () => {
           instance.close()
@@ -805,8 +805,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.date_period = this.$route.query.date_period
       }
 
-      if (this.$routerQuery.hasQuery('owner_id')) {
-        params.owner_id = this.$routerQuery.getQuery<number>('owner_id')
+      if (this.$routerQuery.hasQuery('creator_id')) {
+        params.creator_id = this.$routerQuery.getQuery<number>('creator_id')
       }
 
       if (this.$routerQuery.hasQuery('contact_created_at')) {
@@ -851,8 +851,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     }
 
-    if (this.$routerQuery.hasQuery('owner_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery<number>('owner_id')))
+    if (this.$routerQuery.hasQuery('creator_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery<number>('creator_id')))
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {
