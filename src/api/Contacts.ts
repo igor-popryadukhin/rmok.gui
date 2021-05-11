@@ -205,8 +205,8 @@ export class Contacts {
     return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/transfer', params)
         .then((response: AxiosResponse) => {
-          if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+          if ([200].includes(response.status)) {
+            return resolve(response.data?.count || 0)
           }
           throw new APIError(response.data)
         }).catch(reject)

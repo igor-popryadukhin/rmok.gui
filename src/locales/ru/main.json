@@ -140,6 +140,7 @@
   "No action": "Без действия",
   "No contacts": "Нет контактов",
   "No contacts selected | {n} contact selected | {n} contact selected | {n} contacts selected": "Контакты не выбраны | Выбран {n} контакт | Выбрано {n} контакта | Выбрано {n} контактов",
+  "Contacts not transferred | {n} contact transferred | {n} contact transferred | {n} contacts transferred": "Контакты не переданы | Передан {n} контакт | Передано {n} контакта | Передано {n} контактов",
   "No data": "Нет данных",
   "No data available": "Данные недоступны",
   "No data for the selected period": "Нет данных за выбранный период",
