@@ -538,12 +538,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
           on: {
             input: (scope: any) => {
               if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                this.fetchDataPie()
-                this.fetchDataHistory()
+                this.$routerQuery
+                  .setQuery({ status_id: scope.status_id })
+                  .finally(() => {
+                    this.fetchTotalCallCount()
+                    this.fetchDataPie()
+                    this.fetchDataHistory()
+                  })
               } else {
                 this.$routerQuery.removeQuery(['status_id'])
                   .finally(() => {
+                    this.fetchTotalCallCount()
                     this.fetchDataPie()
                     this.fetchDataHistory()
                   })
