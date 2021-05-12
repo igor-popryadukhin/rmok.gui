@@ -124,6 +124,41 @@
           date-range
         />
       </v-col>
+
+      <v-col
+        class="py-0"
+        md="4"
+        lg="4"
+        sm="12"
+        xs="12"
+      >
+        <s-groups
+          ref="sGroupsAutocomplete"
+          v-model="filter.groups"
+          :label="$tc('Groups')"
+          clearable
+          dense
+          outlined
+          multiple
+        />
+      </v-col>
+      <v-col
+        class="py-0"
+        md="4"
+        lg="4"
+        sm="12"
+        xs="12"
+      >
+        <s-projects-autocomplete
+          ref="sProjectsAutocomplete"
+          v-model="filter.project"
+          :label="$tc('Projects')"
+          clearable
+          dense
+          outlined
+          multiple
+        />
+      </v-col>
     </v-row>
 
     <v-row>
@@ -307,6 +342,10 @@ import Vue, { VueConstructor } from 'vue'
 
 import VueApexCharts from 'vue-apexcharts'
 import { debounce } from 'vuetify/src/util/helpers'
+import { GroupInterface } from '@/api/Groups'
+import { ProjectInterface } from '@/api/Projects'
+import SGroups from '@/snippets/SGroups/SGroups.vue'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
@@ -316,7 +355,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
     AppBtnToggleDate,
     AppDatePickerInput,
     AppPagination,
-    SUsers
+    SUsers,
+    SGroups,
+    SProjectsAutocomplete
   },
 
   mixins: [audioPlayer, dateRangeCollection],
@@ -438,7 +479,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
           selected: null
         },
         // Дата или диапазон дат
-        user: [] as unknown & UserInterface[]
+        user: [] as unknown & UserInterface[],
+        groups: [] as unknown & GroupInterface[],
+        project_id: null as unknown & ProjectInterface | null
       },
       filterDate: undefined,
       historyProcessLoading: false,
@@ -497,6 +540,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
         if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
           params.history_sort_direction = this.$route.query.history_sort_direction
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
+          params.project_id = this.$route.query.project_id
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'group_ids')) {
+          params.group_ids = this.$route.query.group_ids
         }
 
         new Statistics()
@@ -561,6 +612,32 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }).then(() => {
           this.fetchDataHistory()
         })
+      })
+
+      // Фильтрация по проектам
+      this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            project_id: newVal.id
+          }).then(this.fetchDataHistory)
+        } else {
+          this.$routerQuery.removeQuery([
+            'project_id'
+          ]).then(this.fetchDataHistory)
+        }
+      })
+
+      // Фильтрация по группам
+      this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            group_ids: newVal.map((e: GroupInterface) => e.id)
+          }).then(this.fetchDataHistory)
+        } else {
+          this.$routerQuery.removeQuery([
+            'group_ids'
+          ]).then(this.fetchDataHistory)
+        }
       })
     },
 
@@ -660,6 +737,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     if (this.$routerQuery.hasQuery('status_id')) {
       this.$routerQuery.getQuery('status_id')
+    }
+
+    if (this.$routerQuery.hasQuery('project_id')) {
+      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('group_ids')) {
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids')))
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {

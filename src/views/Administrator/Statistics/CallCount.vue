@@ -97,7 +97,28 @@
 
       <v-col
         class="py-0"
-        cols="12"
+        md="6"
+        lg="6"
+        sm="12"
+        xs="12"
+      >
+        <s-projects-autocomplete
+          ref="sProjectsAutocomplete"
+          v-model="filter.project"
+          :label="$tc('Projects')"
+          clearable
+          dense
+          outlined
+          multiple
+        />
+      </v-col>
+
+      <v-col
+        class="py-0"
+        md="6"
+        lg="6"
+        sm="12"
+        xs="12"
       >
         <s-contact-tags
           v-model="filter.tags"
@@ -159,11 +180,13 @@ import { GroupInterface } from '@/api/Groups'
 import Statistics from '@/api/Statistics'
 import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
 import { UserInterface } from '@/api/Users'
+import { ProjectInterface } from '@/api/Projects'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import dateRangeCollection from '@/mixins/dateRangeCollection'
 import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
@@ -175,7 +198,7 @@ Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: { AppBtnToggleDate, SContactTags, SGroups, SUsers },
+  components: { AppBtnToggleDate, SContactTags, SGroups, SUsers, SProjectsAutocomplete },
 
   mixins: [dateRangeCollection],
 
@@ -261,7 +284,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
         date_period: null as unknown & string | null,
         groups: [] as unknown & GroupInterface[],
         users: [] as unknown & UserInterface[],
-        tags: [] as unknown & ContactTagInterface[]
+        tags: [] as unknown & ContactTagInterface[],
+        project_id: null as unknown & ProjectInterface | null
       },
       filterDate: undefined,
 
@@ -301,6 +325,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
         if (this.$routerQuery.hasQuery('user_ids')) {
           params.user_ids = this.$route.query.user_ids
+        }
+
+        if (this.$routerQuery.hasQuery('project_id')) {
+          params.project_id = this.$route.query.project_id
         }
 
         if (this.$routerQuery.hasQuery('group_ids')) {
@@ -361,6 +389,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
         } else {
           this.$routerQuery.removeQuery([
             'group_ids'
+          ]).then(this.fetchDiagramData)
+        }
+      })
+
+      // Фильтрация по проектам
+      this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            project_id: newVal.id
+          }).then(this.fetchDiagramData)
+        } else {
+          this.$routerQuery.removeQuery([
+            'project_id'
           ]).then(this.fetchDiagramData)
         }
       })
