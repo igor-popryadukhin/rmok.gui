@@ -15,7 +15,13 @@ interface DateTimeFormatInterface {
   long_time: string;
 }
 
+interface ContactListInterface {
+  /** Количество элементов на страницу */
+  count_per_page: number;
+}
+
 export interface SettingsStateInterface {
+  contact_list: ContactListInterface,
   navigation_drawer: NavigationDrawerInterface;
   audio_player: AudioPlayerInterface;
   date_time_format: DateTimeFormatInterface;
@@ -23,6 +29,9 @@ export interface SettingsStateInterface {
 
 function state (): SettingsStateInterface {
   return {
+    contact_list: {
+      count_per_page: 50
+    },
     date_time_format: {
       first_day_of_week: 1,
       long_date: 'LL',
