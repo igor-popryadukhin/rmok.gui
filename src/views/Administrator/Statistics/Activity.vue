@@ -108,6 +108,20 @@
                 class="py-0"
                 cols="12"
               >
+                <s-projects-autocomplete
+                  ref="sProjectsAutocomplete"
+                  v-model="filter.project"
+                  :label="$tc('Projects')"
+                  clearable
+                  dense
+                  outlined
+                  multiple
+                />
+              </v-col>
+              <v-col
+                class="py-0"
+                cols="12"
+              >
                 <s-users
                   ref="sUsersAutocomplete"
                   v-model="filter.users"
@@ -243,6 +257,7 @@ import Statistics from '@/api/Statistics'
 import { UserInterface } from '@/api/Users'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import { secondsToHms, secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
@@ -250,12 +265,17 @@ import Vue, { VueConstructor } from 'vue'
 
 import VueApexCharts from 'vue-apexcharts'
 import { debounce } from 'vuetify/src/util/helpers'
+import { ProjectInterface } from '@/api/Projects'
 
 Vue.use(VueApexCharts)
 Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: { SGroups, SUsers },
+  components: {
+    SGroups,
+    SUsers,
+    SProjectsAutocomplete
+  },
 
   computed: {
 
@@ -535,6 +555,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         },
         date: null as unknown & string | null,
         groups: [] as unknown & GroupInterface[],
+        project_id: null as unknown & ProjectInterface | null,
         users: [] as unknown & UserInterface[]
       },
 
@@ -574,6 +595,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.target_groups = this.$route.query.target_groups
       }
 
+      if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
+        params.project_id = this.$route.query.project_id
+      }
+
       if (this.assertObjectHasAttribute(this.$route.query, 'target_actions')) {
         params.target_actions = this.$route.query.target_actions
       }
@@ -607,6 +632,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
             .then(() => {
               this.fetchDiagramData()
             })
+        }
+      }, debounceDelay))
+
+      // Фильтрация по проектам
+      this.$watch('filter.project', debounce((newVal: unknown & ProjectInterface) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            project_id: newVal.id
+          }).then(this.fetchDiagramData)
+        } else {
+          this.$routerQuery.removeQuery([
+            'project_id'
+          ]).then(this.fetchDiagramData)
         }
       }, debounceDelay))
 
@@ -706,6 +744,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     if (this.$routerQuery.hasQuery('target_users')) {
       promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('target_users')))
+    }
+
+    if (this.$routerQuery.hasQuery('project_id')) {
+      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
     }
 
     if (this.$routerQuery.hasQuery('target_groups')) {
