@@ -14,7 +14,7 @@
           :items="dataTableContacts.items"
           :server-items-length="dataTableContacts.totalCount"
           :page.sync="dataTableContacts.page"
-          :items-per-page="dataTableContacts.itemsPerPage"
+          :items-per-page="contact_list_per_page"
           :loading-text="$tc('Loading content...')"
           :loading="dataTableContacts.processLoading"
           :no-data-text="$tc('No data available')"
@@ -33,6 +33,15 @@
           dense
           @pagination="onPaginationChange"
         >
+          <template slot="header.data-table-select" slot-scope="{ on, props }">
+            <v-simple-checkbox
+              v-model="props.value"
+              v-on="on"
+              :indeterminate="props.indeterminate"
+              @contextmenu="unselectAll"
+            />
+          </template>
+
           <template v-slot:top>
             <v-toolbar
               class="v-toolbar-header mb-2"
@@ -239,7 +248,6 @@
                                 <v-list-item-action class="ma-0 mr-3">
                                   <v-checkbox
                                     :input-value="active"
-                                    :ripple="false"
                                     class="pa-0"
                                     dense
                                   ></v-checkbox>
@@ -325,7 +333,17 @@
                         text
                         small
                       >
-                        {{ dataTableContacts.pageStart }}-{{ dataTableContacts.pageStop }} из {{ dataTableContacts.totalCount }}
+                        <app-count-up
+                          :end-val="dataTableContacts.pageStart"
+                        />
+                        <span class="mx-1">—</span>
+                        <app-count-up
+                          :end-val="dataTableContacts.pageStop"
+                        />
+                        <span class="mx-1">из</span>
+                        <app-number-format
+                          :value="dataTableContacts.totalCount"
+                        />
                       </v-btn>
                     </template>
                     <v-list
@@ -377,7 +395,7 @@
               >
                 <div>
                   <span style="font-size: 14px; font-weight: 500;">
-                  {{$tc('All chains selected ({n}) on the page.', dataTableContacts.selectedWhole ? dataTableContacts.totalCount : dataTableContacts.selected.length) }}
+                  {{ $tc('All chains selected ({n}) on the page.', dataTableContacts.selectedWhole ? dataTableContacts.totalCount : dataTableContacts.selected.length) }}
                 </span>
                   <v-btn
                     color="primary"
@@ -388,6 +406,16 @@
                     @click="dataTableContacts.selectedWhole = !dataTableContacts.selectedWhole"
                   >
                     {{ dataTableContacts.selectedWhole ? $tc('Cancel') : $tc('Select all') }}
+                  </v-btn>
+                  <v-btn
+                    color="primary"
+                    class="ml-2"
+                    small
+                    text
+                    tile
+                    @click="unselectAll"
+                  >
+                    {{ $tc('Cancel selection')  }}
                   </v-btn>
                 </div>
               </v-banner>
@@ -609,6 +637,8 @@ import {
   ContactTagInterface
 } from '@/api/Schemas/ContactInterface'
 import { UserInterface } from '@/api/Users'
+import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
@@ -643,6 +673,8 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
+    AppNumberFormat,
+    AppCountUp,
     AppPagination,
     AppSearchInput,
     SContactTags,
@@ -652,6 +684,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   computed: {
+    contact_list_per_page: {
+      get () {
+        return this.$store.getters['settings/contact_list'].count_per_page
+      },
+
+      set (value: number) {
+        return this.$store.commit('settings/contact_list_count_per_page', value)
+      }
+    },
 
     // Текущие фильтры для запроса на сервер.
     paramFilters () {
@@ -672,6 +713,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       // Проекты
       if (this.$data.filter.project) {
         params.project_id = this.$data.filter.project.id
+      }
+
+      // Теги
+      if (this.$data.filter.tags.length > 0) {
+        params.tag_ids = this.$data.filter.tags.map(value => value.id).join(',')
       }
 
       // Ответственный
@@ -786,7 +832,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
         ],
         items: [] as unknown & ContactInterface[],
-        itemsPerPage: 50,
         options: {} as DataOptions,
         page: 1,
         pageStart: 0,
@@ -805,14 +850,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       /** Поиск контактов **/
       fetchContacts: debounce(() => {
         this.dataTableContacts.processLoading = true
-        let offset = (this.dataTableContacts.itemsPerPage * this.dataTableContacts.page) - this.dataTableContacts.itemsPerPage
+        let offset = (this.contact_list_per_page * this.dataTableContacts.page) - this.contact_list_per_page
 
         if (offset < 0) {
           offset = 0
         }
 
         const params: ContactsParamsFind = {
-          count: this.dataTableContacts.itemsPerPage,
+          count: this.contact_list_per_page,
           fields: 'responsible,organization,project',
           offset
         }
@@ -864,7 +909,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           .find<{ count: number }, ContactInterface[]>(params)
           .then((response) => {
             this.dataTableContacts.totalCount = response.meta.count
-            this.dataTableContacts.pages = Math.ceil(response.meta.count / this.dataTableContacts.itemsPerPage)
+            this.dataTableContacts.pages = Math.ceil(response.meta.count / this.contact_list_per_page)
             this.dataTableContacts.items = response.data
           }).finally(() => (this.dataTableContacts.processLoading = false))
       }, 500),
@@ -1603,8 +1648,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       this.$data.dataTableContacts.selectedAll = true
     },
 
-    unselectAll () {
-      this.$data.dataTableContacts.selectedAll = false
+    unselectAll (e?: Event) {
+      if (e instanceof Event) {
+        e.preventDefault()
+      }
+      this.$data.dataTableContacts.selected = []
     },
 
     vDataTableItemClass (scope: any) {
@@ -1623,7 +1671,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      **/
     'dataTableContacts.selected': {
       handler (selected: UserInterface[]) {
-        if (selected.length === this.dataTableContacts.itemsPerPage) {
+        if (selected.length > 0 && selected.length <= this.dataTableContacts.totalCount) {
           this.dataTableContacts.selectedAll = true
         } else {
           this.dataTableContacts.selectedAll = false
@@ -1641,8 +1689,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     // Идентификаторы выделенных контактов
     'dataTableContacts.selectedWhole': {
       handler (val: boolean) {
-        if (val && (this.dataTableContacts.totalCount > 10000)) {
-          this.$toast.warning('Не рекомендуется выделять больше 10 тыс!')
+        if (val && JSON.stringify(this.paramFilters) === '{}') {
+          this.unselectAll()
+          this.$toast.warning(this.$tc('It is forbidden to select all elements without filters installed'))
         }
       }
     }

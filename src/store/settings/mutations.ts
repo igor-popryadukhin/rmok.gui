@@ -19,7 +19,9 @@ const mutations: MutationTree<SettingsStateInterface> = {
   date_time_format_short_time (state, payload) { state.date_time_format.short_time = payload },
   date_time_format_long_time (state, payload) { state.date_time_format.long_time = payload },
   date_time_format_short_date (state, payload) { state.date_time_format.short_date = payload },
-  date_time_format_long_date (state, payload) { state.date_time_format.long_date = payload }
+  date_time_format_long_date (state, payload) { state.date_time_format.long_date = payload },
+
+  contact_list_count_per_page (state, payload) { state.contact_list.count_per_page = payload }
 }
 
 export default mutations
