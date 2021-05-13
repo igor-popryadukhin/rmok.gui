@@ -449,7 +449,12 @@
           </template>
 
           <template slot="item.responsible" slot-scope="{ value }">
-            {{ value.last_name }} {{ value.first_name }}
+            <template v-if="value">
+              {{ value.last_name }} {{ value.first_name }}
+            </template>
+            <template v-else>
+              —
+            </template>
           </template>
 
           <template slot="item.project" slot-scope="{ value }">
