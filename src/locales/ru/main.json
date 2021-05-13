@@ -88,6 +88,7 @@
   "Empty": "Пусто",
   "Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.": "Пустое значение | Это значение слишком длинное. Он должен содержать не более {n} символа. | Это значение слишком длинное. Он должен содержать не более {n} символов.",
   "Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.": "Это значение слишком короткое. Оно должно содержать символ {n} или более. | Это значение слишком короткое. Он должен содержать {n} символов или более. | Это значение слишком короткое. Он должен содержать {n} символов или более.",
+  "Empty. | Password mismatch.": "Это значение слишком короткое. Оно должно содержать символ {n} или более. | Пароли не совпадают",
   "Error connecting to PBX": "Ошибка при подключении к АТС",
   "Exit": "Выход",
   "Export": "Экспорт",
