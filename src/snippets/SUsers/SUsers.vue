@@ -18,6 +18,7 @@
     :dense="dense"
     :clearable="clearable"
     :multiple="multiple"
+    hide-selected
     single-line
     disable-lookup
     return-object
