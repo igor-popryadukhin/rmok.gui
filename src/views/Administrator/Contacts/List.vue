@@ -1545,8 +1545,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
           new Contacts()
             .transfer(data)
-            .then(() => {
-              this.$toast.success(this.$tc('Transfer success'))
+            .then((count: number) => {
+              this.$toast.success(this.$tc('Contacts not transferred | {n} contact transferred | {n} contact transferred | {n} contacts transferred', count))
               this.unselectAll()
             }).catch((error) => {
               if (error instanceof APIError) {

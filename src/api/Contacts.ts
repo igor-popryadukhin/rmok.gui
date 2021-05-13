@@ -201,8 +201,8 @@ export class Contacts {
    *
    * @param params
    */
-  public transfer (params: any): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  public transfer (params: any): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       $axios.post('/contacts/transfer', params)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
