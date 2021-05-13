@@ -360,7 +360,12 @@
             {{ secondsToHmsDigital(item.session_duration) }}
           </template>
           <template slot="item.creator" slot-scope="{ item }">
-            {{ item.creator.first_name }} {{ item.creator.last_name }}
+            <template v-if="item.creator">
+              {{ item.creator.first_name }} {{ item.creator.last_name }}
+            </template>
+            <template v-else>
+              —
+            </template>
           </template>
           <template slot="item.record" slot-scope="{ item }">
             <v-btn
@@ -666,7 +671,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('group_ids')) {
-        params.group_ids = this.$routerQuery.getQuery<number[]>('group_ids')
+        params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
       }
       new Statistics()
         .history<any, any>(params)
@@ -772,7 +777,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            group_ids: newVal.map((e: GroupInterface) => e.id)
+            group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
           }).then(this.fetchAllData)
         } else {
           this.$routerQuery.removeQuery([
@@ -900,7 +905,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('group_ids')) {
-        params.group_ids = this.$routerQuery.getQuery<number[]>('group_ids')
+        params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
       }
 
       return params
@@ -950,7 +955,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('group_ids')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery<number[]>('group_ids')))
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery<string>('group_ids').split(',')))
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {

@@ -139,7 +139,12 @@
                     <span class="black--text">{{ item.comment || '—' }}</span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
-                    <span class="black--text">{{ item.creator.first_name }}</span>
+                    <template v-if="item.creator">
+                      <span class="black--text">{{ item.creator.first_name }} {{ item.creator.last_name }}</span>
+                    </template>
+                    <template v-else>
+                      —
+                    </template>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
                     <span

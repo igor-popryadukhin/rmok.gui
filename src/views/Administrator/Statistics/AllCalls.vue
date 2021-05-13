@@ -280,7 +280,12 @@
             {{ secondsToHmsDigital(item.session_duration) }}
           </template>
           <template slot="item.creator" slot-scope="{ item }">
-            {{ item.creator.first_name }} {{ item.creator.last_name }}
+            <template v-if="item.creator">
+              {{ item.creator.first_name }} {{ item.creator.last_name }}
+            </template>
+            <template v-else>
+              —
+            </template>
           </template>
           <template slot="item.record" slot-scope="{ item }">
             <v-btn

@@ -717,7 +717,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       // Теги
       if (this.$data.filter.tags.length > 0) {
-        params.tag_ids = this.$data.filter.tags.map(value => value.id).join(',')
+        params.tag_ids = this.$data.filter.tags.map((value: ContactTagInterface) => value.id).join(',')
       }
 
       // Ответственный
