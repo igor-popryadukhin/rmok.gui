@@ -363,7 +363,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     initializePlayer () {
       this.audioPlayer = this.audioElementInstance as HTMLAudioElement
       this.audioPlayer.currentTime = 0.0
-      this.audioPlayer.src = 'https://app.rmok.online/contacts/history/audio/1154407d-052a-4184-abff-f609a529fd82.mp3'
+      this.audioPlayer.src = ''
       this.audioPlayer.loop = false
       this.audioPlayer.volume = this.audioPlayerVolume
 

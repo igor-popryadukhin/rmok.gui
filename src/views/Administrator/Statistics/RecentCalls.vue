@@ -718,10 +718,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     async fetchTotalCallCount () {
       this.total_calls_process_loading = true
-
-      const params: any = Object.assign({}, this.paramFilters())
-
-      this.total_calls = await new Statistics().totalCalls(params)
+      this.total_calls = await new Statistics().totalCalls(Object.assign({}, this.paramFilters()))
       this.total_calls_process_loading = false
     },
 
