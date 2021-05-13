@@ -13,7 +13,6 @@ import { sleep } from '@/Utils'
 const config = {
   baseURL: process.env.VUE_APP_API,
   timeout: 30000,
-  // withCredentials: true,
   validateStatus (status: number) {
     return status < 500 // Resolve only if the status code is less than 500
   }
