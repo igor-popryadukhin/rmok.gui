@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     v-model="dialogVisible"
-    fullscreen
+    max-width="920"
   >
     <v-card>
       <v-card-text class="pt-5">
@@ -96,7 +96,7 @@
         </v-tabs-items>
       </v-card-text>
 
-      <v-footer class="py-4" absolute>
+      <v-card-actions>
         <v-spacer></v-spacer>
 
         <v-btn
@@ -114,7 +114,7 @@
         >
           {{ $tc('Save') }}
         </v-btn>
-      </v-footer>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
