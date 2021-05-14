@@ -10,7 +10,7 @@
       app
       dark
     >
-      <v-list-item class="px-2">
+      <v-list-item class="px-2 pth-63">
         <v-list-item-avatar class="v-icon--link" color="white">
           <v-btn
             icon
@@ -499,6 +499,11 @@ export default Vue.extend({
     100% {
       opacity: 1;
     }
+  }
+
+  .v-application .pth-63 {
+    padding-top: 4px !important;
+    padding-bottom: 3px !important;
   }
 
 </style>
