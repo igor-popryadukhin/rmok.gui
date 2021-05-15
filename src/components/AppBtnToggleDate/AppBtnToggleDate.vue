@@ -89,8 +89,8 @@ export default Vue.extend({
           return `за ${dates[0].toLocaleDateString()}`
         } else {
           return [
-            `период с ${dates[0].toLocaleDateString()}`,
-            `по ${dates[1].toLocaleDateString()}`
+            `период с ${dates[1].toLocaleDateString()}`,
+            `по ${dates[0].toLocaleDateString()}`
           ].join(' — ')
         }
       }
