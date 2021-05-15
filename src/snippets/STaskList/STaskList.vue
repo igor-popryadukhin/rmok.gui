@@ -175,7 +175,6 @@
                   :item="taskItem"
                 >
                   <v-list-item-title
-                    v-if="taskItem.type === 'call'"
                     :style="{ color: taskItem.expired ? 'red' : '' }"
                   >
                     {{ `Позвонить ${$moment.unix(taskItem.planned_for).format(`Do MMMM, dddd, ${date_time_format.long_time} a`)}` }}
