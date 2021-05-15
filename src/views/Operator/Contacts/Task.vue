@@ -8,7 +8,6 @@
   >
     <template v-slot:item="{ item }">
       <v-list-item-title
-        v-if="item.type === 'call'"
         :style="{ color: item.expired ? 'red' : '' }"
       >
         {{ `Позвонить ${$moment.unix(item.planned_for).format(`Do MMMM, dddd, в ${date_time_format.short_time}`)}` }}
