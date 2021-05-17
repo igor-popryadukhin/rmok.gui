@@ -48,6 +48,9 @@ export default Vue.extend({
         lengthMinOrZero: (value: number, message = 'Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.') => {
           return (v: string) => isEmpty(v) || (v.length >= value ? true : this.$tc(message, value))
         },
+        mismatchPassword: (value: string, message = 'Empty. | Password mismatch.') => {
+          return (v: string) => (v === value ? true : this.$tc(message))
+        }
         /* eslint-enable */
       }
     }
