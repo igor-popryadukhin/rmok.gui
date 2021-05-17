@@ -164,7 +164,7 @@
     <v-row>
       <v-col
         cols="12"
-        md="6"
+        md="4"
         lg="6"
       >
         <div class="d-flex flex-column fill-height" style="min-height: 320px">
