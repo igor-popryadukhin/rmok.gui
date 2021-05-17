@@ -124,6 +124,7 @@
             v-model="filter.project"
             :label="$tc('Project')"
             clearable
+            outlined
             dense
           />
         </v-card-text>
