@@ -4,7 +4,7 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Неизданный]
+## [v1.0.3] - 2021-05-17
 
 ## Добавлено
 - Для интерфейса оператора, добавлен редактор vueditor (без tool) [@Programmer900](https://gitlab.com/Programmer900)
