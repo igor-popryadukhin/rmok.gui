@@ -199,10 +199,56 @@ interface TabInterface {
 }
 
 export default (Vue as VueConstructor<Vue & any>).extend({
-  mixins: [lvovich],
+  beforeDestroy () {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      const contacts: Contacts = new Contacts()
+
+      this.dataLoading = true
+      contacts
+        .getById(+to.params.contact_id)
+        .then((contact: ContactInterface) => {
+          this.contact = contact
+        }).finally(() => {
+          this.dataLoading = false
+          this.$root.$emit('root-loading-data-hide')
+        })
+    }
+    next()
+  },
 
   components: {
     vuescroll
+  },
+
+  computed: {
+    avatar () {
+      const first: string = this.contact.first_name || ''
+      const last: string = this.contact.last_name || ''
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    sessionStopwatch () {
+      return this.$jsSIP.sessionStopwatch
+    }
+  },
+
+  created () {
+    const contacts: Contacts = new Contacts()
+
+    this.dataLoading = true
+    contacts
+      .getById(+this.$route.params.contact_id)
+      .then((contact: ContactInterface) => {
+        this.contact = contact
+      }).finally(() => {
+        this.dataLoading = false
+        this.$root.$emit('root-loading-data-hide')
+      })
   },
 
   data () {
@@ -262,85 +308,7 @@ export default (Vue as VueConstructor<Vue & any>).extend({
     }
   },
 
-  computed: {
-    avatar () {
-      const first: string = this.contact.first_name || ''
-      const last: string = this.contact.last_name || ''
-      return first.charAt(0) + last.charAt(0)
-    },
-
-    sessionStopwatch () {
-      return this.$jsSIP.sessionStopwatch
-    }
-  },
-
-  mounted () {
-    this.$root.$on('root-main-search', this.onRootMainSearch)
-    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
-    // Prevent booting or closing a tab!!!
-    // window.onbeforeunload = () => {
-    //   return true
-    // }
-  },
-
-  beforeRouteUpdate (to, from, next) {
-    if (from.params.contact_id !== to.params.contact_id) {
-      const contacts: Contacts = new Contacts()
-
-      this.dataLoading = true
-      contacts
-        .getById(+to.params.contact_id)
-        .then((contact: ContactInterface) => {
-          this.contact = contact
-        }).finally(() => {
-          this.dataLoading = false
-          this.$root.$emit('root-loading-data-hide')
-        })
-    }
-    next()
-  },
-
-  created () {
-    const contacts: Contacts = new Contacts()
-
-    this.dataLoading = true
-    contacts
-      .getById(+this.$route.params.contact_id)
-      .then((contact: ContactInterface) => {
-        this.contact = contact
-      }).finally(() => {
-        this.dataLoading = false
-        this.$root.$emit('root-loading-data-hide')
-      })
-  },
-
-  beforeDestroy () {
-    this.$root.$off('root-main-search', this.onRootMainSearch)
-    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
-  },
-
   methods: {
-
-    onRootMainSearch (q: string, set: MainSearchMethod) {
-      new Contacts()
-        .find({
-          q,
-          offset: 0,
-          count: 10
-        }).then((response: ContactResponseInterface) => {
-          set(response.items.map((e: ContactInterface) => {
-            return {
-              ...e,
-              title: `${e.first_name} ${e.last_name}`,
-              subtitle: e.city
-            }
-          }))
-        })
-    },
-
-    onRootMainSearchSelected (data: ContactInterface) {
-      this.$router.push({ path: `/contacts/${data.id}/script` })
-    },
 
     onCall (target: string, contactId: number) {
       /* eslint-disable */
@@ -351,10 +319,6 @@ export default (Vue as VueConstructor<Vue & any>).extend({
       /* eslint-enable */
     },
 
-    secondsToHmsDigital (s: number) {
-      return secondsToHmsDigital(s)
-    },
-
     onDefaultPhoneSet (value?: PhoneNumberInterface) {
       /* eslint-disable */
       if (value) {
@@ -362,6 +326,27 @@ export default (Vue as VueConstructor<Vue & any>).extend({
         new Contacts().setDefaultPhoneNumber(this.contact.id, value?.id)
       }
       /* eslint-enable */
+    },
+
+    onRootMainSearch (q: string, set: MainSearchMethod) {
+      new Contacts()
+        .find({
+          count: 10,
+          offset: 0,
+          q
+        }).then((response: ContactResponseInterface) => {
+          set(response.items.map((e: ContactInterface) => {
+            return {
+              ...e,
+              subtitle: e.city,
+              title: `${e.first_name} ${e.last_name}`
+            }
+          }))
+        })
+    },
+
+    onRootMainSearchSelected (data: ContactInterface) {
+      this.$router.push({ path: `/contacts/${data.id}/script` })
     },
 
     onSaveComment () {
@@ -380,7 +365,22 @@ export default (Vue as VueConstructor<Vue & any>).extend({
         this.comment.buttonSave.loading = false
       })
       /* eslint-enable */
+    },
+
+    secondsToHmsDigital (s: number) {
+      return secondsToHmsDigital(s)
     }
+  },
+
+  mixins: [lvovich],
+
+  mounted () {
+    this.$root.$on('root-main-search', this.onRootMainSearch)
+    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
+    // Prevent booting or closing a tab!!!
+    // window.onbeforeunload = () => {
+    //   return true
+    // }
   }
 })
 </script>

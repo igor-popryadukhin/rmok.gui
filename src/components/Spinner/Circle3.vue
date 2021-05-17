@@ -3,10 +3,19 @@
 </template>
 <script>
 export default {
+  computed: {
+    styles () {
+      const size = parseInt(this.size)
+      const halfSize = size / 3
+      return {
+        border: '0px solid ' + this.background,
+        boxShadow: '0 -' + halfSize + 'px 0 ' + this.dotSize + 'px ' + this.background + ' inset',
+        height: this.size,
+        width: this.size
+      }
+    }
+  },
   props: {
-    size: {
-      default: '40px'
-    },
     background: {
       default: '#41b883'
     },
@@ -15,18 +24,9 @@ export default {
         const size = parseInt(this.size)
         return size / 3 + 1
       }
-    }
-  },
-  computed: {
-    styles () {
-      const size = parseInt(this.size)
-      const halfSize = size / 3
-      return {
-        width: this.size,
-        height: this.size,
-        border: '0px solid ' + this.background,
-        boxShadow: '0 -' + halfSize + 'px 0 ' + this.dotSize + 'px ' + this.background + ' inset'
-      }
+    },
+    size: {
+      default: '40px'
     }
   }
 }

@@ -19,13 +19,16 @@ import '@/plugins/permission'
 import '@/plugins/cookie'
 import '@/plugins/router-query'
 import '@/plugins/moment'
+import '@/plugins/activity'
 import '@/plugins/yandex-metrika'
-import CleanLayout from '@/layouts/Clean.vue'
+import '@/plugins/file-dialog'
+import '@/plugins/lvovich'
+import '@/plugins/vuetify-dialog'
+import '@/plugins/libphonenumber-js'
+import '@/plugins/html-audio-element'
+import '@/jsSIP'
 
-import(/* webpackChunkName: "plugin-lvovich", webpackPreload: true */ '@/plugins/lvovich')
-import(/* webpackChunkName: "plugin-vuetify-dialog", webpackPreload: true */ '@/plugins/vuetify-dialog')
-import(/* webpackChunkName: "plugin-libphonenumber-js", webpackPreload: true */ '@/plugins/libphonenumber-js')
-import(/* webpackChunkName: "plugin-jsSIP", webpackPreload: true */ '@/jsSIP')
+import CleanLayout from '@/layouts/Clean.vue'
 
 // layouts
 Vue.component('administrator', () => import(/* webpackPreload: true */ './layouts/Administrator.vue'))
@@ -39,9 +42,9 @@ Vue.config.productionTip = false
 loadLanguageAsync('ru', 'main').then()
 
 export const app: Vue = new Vue({
+  i18n,
+  render: (h) => h(App),
   router,
   store,
-  vuetify,
-  i18n,
-  render: (h) => h(App)
+  vuetify
 }).$mount('#app')

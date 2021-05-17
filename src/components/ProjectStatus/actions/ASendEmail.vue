@@ -25,23 +25,23 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'ASendEmail',
-
-  props: {
-    data: {
-      type: Object,
-      default: () => null
-    }
-  },
-
   data () {
     return {
       email: null
     }
   },
 
-  watch: {},
+  methods: {},
 
-  methods: {}
+  name: 'ASendEmail',
+
+  props: {
+    data: {
+      default: () => null,
+      type: Object
+    }
+  },
+
+  watch: {}
 })
 </script>

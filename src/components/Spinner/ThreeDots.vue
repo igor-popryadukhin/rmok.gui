@@ -8,14 +8,6 @@
 </template>
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    },
-    color: {
-      default: '#41b883'
-    }
-  },
   computed: {
     blobStyles () {
       return {
@@ -24,15 +16,23 @@ export default {
     },
     moveBlobStyles () {
       return {
-        borderColor: this.color,
-        background: this.color
+        background: this.color,
+        borderColor: this.color
       }
     },
     styles () {
       return {
-        width: this.size,
-        height: this.size
+        height: this.size,
+        width: this.size
       }
+    }
+  },
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
     }
   }
 }

@@ -72,56 +72,14 @@ import { debounce } from 'vuetify/src/util/helpers'
 import { GroupFindQueryInterface, GroupInterface, Groups } from '@/api/Groups'
 
 export default Vue.extend({
-  name: 'SAutocompleteGroups',
-  model: {
-    prop: 'selected',
-    event: 'change'
-  },
-  props: {
-    selectedId: {
-      type: Number,
-      default: 0
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    organizationId: {
-      type: Number,
-      default: 0
-    },
-    search: {
-      type: [String, Object],
-      default: null
-    },
-    visibleOrganizationName: {
-      type: Boolean,
-      default: true
-    },
-    rules: {
-      type: Array,
-      default: undefined
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    label: {
-      type: String,
-      default: ''
-    },
-    autoLoad: {
-      type: Boolean,
-      default: false
+  created () {
+    if (this.autoLoad && this.disabled === false) {
+      this.loadGroups()
     }
   },
-
   data () {
     return {
-      loading: false,
-      selectOnce: false,
-      selected: null as any,
-      groupsSearchQuery: null as null | string,
+      groups: [],
       groupsSearchDebounce: debounce((context: any) => {
         if (context.disabled) { return }
         context.loading = true
@@ -141,46 +99,18 @@ export default Vue.extend({
             context.loading = false
           })
       }, 400),
-      groups: []
+      groupsSearchQuery: null as null | string,
+      loading: false,
+      selectOnce: false,
+      selected: null as any
     }
   },
-
-  watch: {
-    selected (value) {
-      if (!this.disabled) {
-        this.$emit('change', value)
-      }
-    },
-
-    groupsSearchQuery () {
-      if (!this.disabled) {
-        this.groupsSearchDebounce(this)
-      }
-    },
-
-    organizationId () {
-      if (!this.disabled) {
-        this.groupsSearchDebounce(this)
-      }
-    },
-
-    async selectedId () {
-      this.groupsSearchDebounce(this)
-    }
-  },
-
-  created () {
-    if (this.autoLoad && this.disabled === false) {
-      this.loadGroups()
-    }
-  },
-
   methods: {
     loadGroups () {
       this.loading = true
       const query: GroupFindQueryInterface = {
-        offset: 0,
-        count: 100
+        count: 100,
+        offset: 0
       }
 
       if (this.organizationId) {
@@ -195,6 +125,76 @@ export default Vue.extend({
         }).finally(() => {
           this.loading = false
         })
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'selected'
+  },
+
+  name: 'SAutocompleteGroups',
+
+  props: {
+    autoLoad: {
+      default: false,
+      type: Boolean
+    },
+    disabled: {
+      default: false,
+      type: Boolean
+    },
+    label: {
+      default: '',
+      type: String
+    },
+    organizationId: {
+      default: 0,
+      type: Number
+    },
+    rules: {
+      default: undefined,
+      type: Array
+    },
+    search: {
+      default: null,
+      type: [String, Object]
+    },
+    selectedId: {
+      default: 0,
+      type: Number
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    },
+    visibleOrganizationName: {
+      default: true,
+      type: Boolean
+    }
+  },
+
+  watch: {
+    groupsSearchQuery () {
+      if (!this.disabled) {
+        this.groupsSearchDebounce(this)
+      }
+    },
+
+    organizationId () {
+      if (!this.disabled) {
+        this.groupsSearchDebounce(this)
+      }
+    },
+
+    selected (value) {
+      if (!this.disabled) {
+        this.$emit('change', value)
+      }
+    },
+
+    async selectedId () {
+      this.groupsSearchDebounce(this)
     }
   }
 })

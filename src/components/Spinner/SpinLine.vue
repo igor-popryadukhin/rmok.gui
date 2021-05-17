@@ -7,33 +7,33 @@
 </template>
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    },
-    color: {
-      default: '#41b883'
-    },
-    stroke: {
-      default: '5px'
-    }
-  },
   computed: {
     lineStyles () {
       return {
-        width: this.size,
-        height: this.stroke,
         background: this.color,
-        borderRadius: this.stroke
+        borderRadius: this.stroke,
+        height: this.stroke,
+        width: this.size
       }
     },
     styles () {
       const size = parseInt(this.size)
       return {
-        width: this.size,
         height: this.size,
-        transform: 'scale(' + (size / 75) + ')'
+        transform: 'scale(' + (size / 75) + ')',
+        width: this.size
       }
+    }
+  },
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
+    },
+    stroke: {
+      default: '5px'
     }
   }
 }

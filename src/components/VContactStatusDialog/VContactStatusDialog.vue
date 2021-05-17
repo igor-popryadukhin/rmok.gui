@@ -94,53 +94,17 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'VContactStatusDialog',
-  props: {
-    title: {
-      type: String,
-      default: 'Title'
-    },
-    statuses: {
-      type: Array
-    },
-    text: {
-      type: String,
-      default: ''
-    },
-    saveTitle: {
-      type: String,
-      default: 'Save'
-    },
-    cancelTitle: {
-      type: String,
-      default: 'Cancel'
-    },
-    comment: {
-      type: String,
-      default: ''
-    },
-    onCancel: {
-      type: Function,
-      default: null
-    },
-    width: {
-      type: String,
-      default: () => '100%'
-    }
-  },
-
-  data () {
-    return {
-      dComment: '',
-      tabStatus: 0,
-      tab: null,
-      selected: undefined
-    }
-  },
-
   created () {
     console.log(this);
     (this as any).dComment = (this as any).comment
+  },
+  data () {
+    return {
+      dComment: '',
+      selected: undefined,
+      tab: null,
+      tabStatus: 0
+    }
   },
 
   methods: {
@@ -151,6 +115,42 @@ export default Vue.extend({
     onSave () {
       console.log('on save')
       this.$emit('on-save')
+    }
+  },
+
+  name: 'VContactStatusDialog',
+
+  props: {
+    cancelTitle: {
+      default: 'Cancel',
+      type: String
+    },
+    comment: {
+      default: '',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    saveTitle: {
+      default: 'Save',
+      type: String
+    },
+    statuses: {
+      type: Array
+    },
+    text: {
+      default: '',
+      type: String
+    },
+    title: {
+      default: 'Title',
+      type: String
+    },
+    width: {
+      default: () => '100%',
+      type: String
     }
   }
 

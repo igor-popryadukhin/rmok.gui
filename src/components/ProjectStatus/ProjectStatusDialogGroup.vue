@@ -46,67 +46,67 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  props: {
-    name: {
-      type: String,
-      default: ''
-    },
-    color: {
-      type: String,
-      default: '#FF0000BB'
-    },
-    value: Boolean
-  },
-
-  data () {
-    return {
-      dialogVisible: false,
-      dName: '',
-      dColor: '#FF0000BB'
-    }
-  },
-
-  watch: {
-    name (val: string) {
-      this.dName = val
-    },
-
-    color (val: string) {
-      this.dColor = val
-    },
-
-    value (val: boolean) {
-      this.dialogVisible = val
-    },
-
-    dialogVisible (val) {
-      this.$emit('change', val)
-    }
-  },
-
   computed: {
     ruleNotBlank () {
       return (value: string) => !!value || this.$tc('This field should not be blank.')
     }
   },
 
+  data () {
+    return {
+      dColor: '#FF0000BB',
+      dName: '',
+      dialogVisible: false
+    }
+  },
+
   methods: {
+    formReset () {
+      this.dName = ''
+    },
+
     save (name: string, color = '#000000') {
       if (!this.$refs.textFieldName.validate()) {
         return
       }
-      this.$emit('save-click', { name, color })
+      this.$emit('save-click', { color, name })
       this.dialogVisible = false
       this.formReset()
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    color: {
+      default: '#FF0000BB',
+      type: String
+    },
+    name: {
+      default: '',
+      type: String
+    },
+    value: Boolean
+  },
+
+  watch: {
+    color (val: string) {
+      this.dColor = val
     },
 
-    formReset () {
-      this.dName = ''
+    dialogVisible (val) {
+      this.$emit('change', val)
+    },
+
+    name (val: string) {
+      this.dName = val
+    },
+
+    value (val: boolean) {
+      this.dialogVisible = val
     }
   }
 })

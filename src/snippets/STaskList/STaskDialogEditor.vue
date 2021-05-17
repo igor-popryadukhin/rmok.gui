@@ -3,7 +3,7 @@
     :actions="actions"
   >
     <template v-slot:title>
-      <v-card-title>{{ $t('Create a new task') }}</v-card-title>
+      <v-card-title>{{ $t('Редактор задач') }}</v-card-title>
     </template>
 
     <!-- Form -->
@@ -35,6 +35,7 @@
               @input="menuDatePicker = false"
               @click="$refs.menuDatePicker.save(dDate)"
               :locale="$i18n.locale"
+              :first-day-of-week="1"
             ></v-date-picker>
           </v-menu>
         </v-col>
@@ -42,9 +43,9 @@
         <!-- Time -->
         <v-col>
           <v-text-field
+            v-model="dTime"
             type="time"
             :label="$tc('Time')"
-            :value="dTime"
             :rules="[rules.notBlank]"
           ></v-text-field>
         </v-col>
@@ -116,6 +117,7 @@
 </template>
 
 <script lang="ts">
+import { $moment } from '@/plugins/moment'
 import Vue, { PropType } from 'vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import { UserInterface } from '@/api/Users'
@@ -127,18 +129,29 @@ interface RecordInterface {
 }
 
 export interface DTaskInterface {
-  date: string;
-  time: string;
+  /**
+   * Unixtime
+   **/
+  planned_for: number;
+  /**
+   * Тип задачи
+   **/
   type: RecordInterface;
+  /**
+   * Идентификатор исполнителя
+   **/
   performer_id: number;
+  /**
+   * Описание
+   **/
   description: string;
-  automaticExecution: boolean;
 }
 
 interface IProps {
   performerId: string | number;
   performers: any;
   types: any;
+  plannedForUnixtime: number;
   date: Record<string, unknown>;
   time: Record<string, unknown>;
   description: string;
@@ -149,12 +162,11 @@ interface IProps {
 interface IData {
   menuDatePicker: boolean;
   menuTimePicker: boolean;
-  dDate: undefined;
-  dTime: undefined;
+  dDate: string;
+  dTime: string;
   dType: string;
   dPerformer?: UserInterface;
   dDescription: undefined;
-  dAutomaticExecution: boolean;
 }
 
 interface IMethods {
@@ -174,140 +186,38 @@ interface IPropTypeType {
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
   components: { SUsers },
 
-  props: {
-
-    // Деактивировать возможность изменять ответственного
-    responsibleDisabled: {
-      type: Boolean,
-      default: false
-    },
-
-    // Исполнитель по умолчанию
-    performerId: {
-      type: [Number, String],
-      default: 0
-    },
-
-    // Типы задач (по умолчанию опции типов имеются)
-    types: {
-      type: Array as PropType<IPropTypeType[]>,
-      default: (): IPropTypeType[] => {
-        return [
-          // Данные по умолчанию
-          {
-            title: 'Call',
-            value: 'call',
-            disabled: false
-          },
-          {
-            title: 'Task',
-            value: 'task',
-            disabled: true
-          },
-          {
-            title: 'Meeting',
-            value: 'meeting',
-            disabled: true
-          },
-          {
-            title: 'Letter',
-            value: 'letter',
-            disabled: true
-          },
-          {
-            title: 'Other',
-            value: 'other',
-            disabled: true
-          }
-        ]
-      }
-    },
-
-    // Тип задачи
-    type: {
-      type: String as PropType<string>,
-      default: () => 'call'
-    },
-
-    // Дата
-    date: {
-      type: [Object, String] as PropType<string | Date>,
-      default: () => {
-        const date = new Date()
-        date.setDate(date.getDate() + 1)
-        return date.toISOString().substr(0, 10)
-      }
-    },
-
-    // Время
-    time: {
-      type: [Object, String] as PropType<string | Date>,
-      default: () => new Date().toTimeString().substr(0, 5)
-    },
-
-    // Описание
-    description: {
-      type: String,
-      default: () => ''
-    },
-
-    onSave: {
-      type: Function as PropType<(scope: DTaskInterface) => boolean>,
-      default: undefined
-    },
-
-    onCancel: {
-      type: Function as PropType<() => void>,
-      default: undefined
-    }
-  },
-
-  data (): IData {
-    return {
-      menuDatePicker: false,
-      menuTimePicker: false,
-      dDate: '',
-      dTime: '',
-      dType: '',
-      dPerformer: null,
-      dDescription: undefined,
-      dAutomaticExecution: false
-    }
-  },
-
   computed: {
     actions () {
       return {
         cancel: {
-          flat: true,
-          text: this.$tc('Cancel'),
           color: 'red',
+          flat: true,
           handle: () => {
             if (typeof this.$props.onCancel === 'function') {
               this.$props.onCancel()
             }
-          }
+          },
+          text: this.$tc('Cancel')
         },
 
         save: {
           flat: true,
-          text: this.$tc('Save'),
           handle: (): boolean => {
             if (typeof this.$props.onSave === 'function') {
               if (!this.$refs.form.validate()) {
                 return false
               }
-
               return this.$props.onSave({
-                date: this.dDate,
-                automaticExecution: false,
-                time: this.dTime,
-                type: this.dType,
+                description: this.dDescription,
                 performer_id: this.dPerformer.id,
-                description: this.dDescription
+
+                planned_for: this.$moment(`${this.dDate} ${this.dTime}`, 'YYYY-MM-DD HH:mm').utc().unix(),
+                // Unixtime
+                type: this.dType
               })
             }
-          }
+          },
+          text: this.$tc('Save')
         }
       }
     },
@@ -319,18 +229,21 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
 
-  mounted () {
-    if (this.time instanceof Date) {
-      this.dTime = this.time.toTimeString().substr(0, 5)
-    } else {
-      this.dTime = this.time
+  data (): IData {
+    return {
+      dDate: '',
+      dDescription: undefined,
+      dPerformer: null,
+      dTime: '',
+      dType: '',
+      menuDatePicker: false,
+      menuTimePicker: false
     }
+  },
 
-    if (this.date instanceof Date) {
-      this.dDate = this.date.toTimeString().substr(0, 5)
-    } else {
-      this.dDate = this.date
-    }
+  mounted () {
+    this.dTime = this.$moment.unix(this.$props.plannedFor).format('HH:mm')
+    this.dDate = this.$moment.unix(this.$props.plannedFor).format('YYYY-MM-DD')
 
     this.dDescription = this.description
     this.dType = this.type
@@ -338,6 +251,94 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     this.$refs
       .sUsersAutocomplete
       .setDefault(this.performerId)
+  },
+
+  props: {
+
+    // Описание
+    description: {
+      default: () => '',
+      type: String
+    },
+
+    onCancel: {
+      default: undefined,
+      type: Function as PropType<() => void>
+    },
+
+    onSave: {
+      default: undefined,
+      type: Function as PropType<(scope: DTaskInterface) => boolean>
+    },
+
+    // Исполнитель по умолчанию
+    performerId: {
+      default: 0,
+      type: [Number, String]
+    },
+
+    /**
+     * Запланировано на (в формате Unixtime)
+     */
+    plannedFor: {
+      default: () => {
+        return $moment().add(30, 'minute').unix()
+      },
+      type: [Number]
+    },
+
+    // Деактивировать возможность изменять ответственного
+    responsibleDisabled: {
+      default: false,
+      type: Boolean
+    },
+
+    // Тип задачи
+    type: {
+      default: () => 'call',
+      type: String as PropType<string>
+    },
+
+    // Типы задач (по умолчанию опции типов имеются)
+    types: {
+      default: (): IPropTypeType[] => {
+        return [
+          // Данные по умолчанию
+          {
+            disabled: false,
+            title: 'Call',
+            value: 'call'
+          },
+          {
+            disabled: true,
+            title: 'Task',
+            value: 'task'
+          },
+          {
+            disabled: true,
+            title: 'Meeting',
+            value: 'meeting'
+          },
+          {
+            disabled: true,
+            title: 'Letter',
+            value: 'letter'
+          },
+          {
+            disabled: true,
+            title: 'Other',
+            value: 'other'
+          }
+        ]
+      },
+      type: Array as PropType<IPropTypeType[]>
+    }
+  },
+
+  watch: {
+    dTime (v: any) {
+      console.log(v)
+    }
   }
 })
 </script>

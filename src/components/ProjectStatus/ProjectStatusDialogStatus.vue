@@ -143,26 +143,10 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  props: {
-    name: {
-      type: String,
-      default: ''
-    },
-
-    actions: {
-      type: Array as PropType<ActionInterface[]>,
-      default: () => []
-    },
-    value: Boolean
-  },
-
   data (): IData {
     return {
+
+      actionTab: 0,
       /*
         Доступные действия
         Добавь новый объект.
@@ -170,34 +154,77 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       */
       availableActions: [
         {
-          title: 'Автозадача',
-          type: 'create_task',
           component: 'ATask',
-          data: null
+          data: null,
+          title: 'Автозадача',
+          type: 'create_task'
         },
         {
-          title: 'Отправить Email',
-          type: 'send_email',
           component: 'ASendEmail',
-          data: null
+          data: null,
+          title: 'Отправить Email',
+          type: 'send_email'
         }
       ] as ActionInterface[],
       currentActions: [] as ActionInterface[],
-      actionTab: 0,
 
       dialogVisible: false,
       status: {
-        name: '',
-        actions: [] as ActionInterface[]
+        actions: [] as ActionInterface[],
+        name: ''
       } as StatusInterface
     }
   },
 
-  watch: {
-    name (val: string) {
-      this.status.name = val
+  methods: {
+
+    formReset () {
+      this.status.name = ''
+      this.status.actions = []
     },
 
+    /**
+     * Срабатывает когда пользователь кликнул на кнопку добавить действие
+     * @param item
+     */
+    onAddActionClick (item: ActionInterface) {
+      this.currentActions.push({
+        component: () => import(
+          /* webpackPrefetch: false, webpackPreload: false  */
+          './actions/ATask.vue'
+        ),
+        data: null,
+        title: item.title,
+        type: item.type
+      })
+    },
+
+    save (status: StatusInterface) {
+      this.$emit('save-click', status)
+      this.dialogVisible = false
+      this.formReset()
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    actions: {
+      default: () => [],
+      type: Array as PropType<ActionInterface[]>
+    },
+
+    name: {
+      default: '',
+      type: String
+    },
+    value: Boolean
+  },
+
+  watch: {
     actions (items: ActionInterface[]) {
       const actions: ActionInterface[] = []
       for (let i = 0; i < items.length; i++) {
@@ -216,56 +243,30 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.currentActions = actions
     },
 
-    value (val: boolean) {
-      this.dialogVisible = val
+    currentActions: {
+      deep: true,
+      handler (actions: ActionInterface[]) {
+        // Очищаю от ненужных данных...
+        this.status.actions = actions.map((value: ActionInterface) => {
+          return {
+            data: value.data,
+            title: value.title,
+            type: value.type
+          }
+        })
+      }
     },
 
     dialogVisible (val) {
       this.$emit('change', val)
     },
 
-    currentActions: {
-      handler (actions: ActionInterface[]) {
-        // Очищаю от ненужных данных...
-        this.status.actions = actions.map((value: ActionInterface) => {
-          return {
-            title: value.title,
-            type: value.type,
-            data: value.data
-          }
-        })
-      },
-      deep: true
-    }
-  },
-
-  methods: {
-
-    /**
-     * Срабатывает когда пользователь кликнул на кнопку добавить действие
-     * @param item
-     */
-    onAddActionClick (item: ActionInterface) {
-      this.currentActions.push({
-        title: item.title,
-        type: item.type,
-        component: () => import(
-          /* webpackPrefetch: false, webpackPreload: false  */
-          './actions/ATask.vue'
-        ),
-        data: null
-      })
+    name (val: string) {
+      this.status.name = val
     },
 
-    save (status: StatusInterface) {
-      this.$emit('save-click', status)
-      this.dialogVisible = false
-      this.formReset()
-    },
-
-    formReset () {
-      this.status.name = ''
-      this.status.actions = []
+    value (val: boolean) {
+      this.dialogVisible = val
     }
   }
 })

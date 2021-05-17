@@ -1,16 +1,19 @@
 
-function declOfNum (number: number, words: string[]): string {
-  return words[(number % 100 > 4 && number % 100 < 20) ? 2 : [2, 0, 1, 1, 1, 2][(number % 10 < 5) ? number % 10 : 5]]
+function declOfNum (number: number, words: string[] | string): string {
+  if (Array.isArray(words)) {
+    return words[(number % 100 > 4 && number % 100 < 20) ? 2 : [2, 0, 1, 1, 1, 2][(number % 10 < 5) ? number % 10 : 5]]
+  }
+  return words
 }
 
 interface TitleOptionsInterface {
-  h: string[];
-  m: string[];
-  s: string[];
+  h: string[] | string;
+  m: string[] | string;
+  s: string[] | string;
 }
 
 const defaultOptions = {
-  h: ['час', 'часов', 'часа'],
+  h: ['час', 'часа', 'часов'],
   m: ['минута', 'минуты', 'минут'],
   s: ['секунда', 'секунды', 'секунд']
 } as TitleOptionsInterface
@@ -26,10 +29,10 @@ export function secondsToHms (d: number, titles: TitleOptionsInterface = default
   return hDisplay + mDisplay + sDisplay
 }
 
-export function secondsToHmsDigital (d: number) {
-  const h: number = Math.floor(d / 3600)
-  const m: number = Math.floor(d % 3600 / 60)
-  const s: number = Math.floor(d % 3600 % 60)
+export function secondsToHmsDigital (seconds: number) {
+  const h: number = Math.floor(seconds / 3600)
+  const m: number = Math.floor(seconds % 3600 / 60)
+  const s: number = Math.floor(seconds % 3600 % 60)
 
   return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00')
 }

@@ -49,32 +49,12 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  props: {
-    attrs: Object,
+  computed: {},
 
-    title: {
-      type: String,
-      default: 'Title'
-    },
-
-    subTitle: {
-      type: String,
-      default: 'Sub title'
-    },
-
-    onHangup: {
-      type: Function,
-      default: () => undefined
-    },
-
-    onAnswer: {
-      type: Function,
-      default: () => undefined
-    },
-
-    onShowing: {
-      type: Function,
-      default: () => undefined
+  created () {
+    this.$title = this.title
+    if (this.onShowing) {
+      this.onShowing(this)
     }
   },
 
@@ -84,7 +64,15 @@ export default Vue.extend({
     }
   },
 
-  computed: {},
+  methods: {
+    _onAnswer () {
+      this.onAnswer()
+    },
+
+    _onHangup () {
+      this.onHangup()
+    }
+  },
 
   mounted () {
     this.$on('update-title', (text: string) => {
@@ -92,20 +80,32 @@ export default Vue.extend({
     })
   },
 
-  created () {
-    this.$title = this.title
-    if (this.onShowing) {
-      this.onShowing(this)
-    }
-  },
+  props: {
+    attrs: Object,
 
-  methods: {
-    _onHangup () {
-      this.onHangup()
+    onAnswer: {
+      default: () => undefined,
+      type: Function
     },
 
-    _onAnswer () {
-      this.onAnswer()
+    onHangup: {
+      default: () => undefined,
+      type: Function
+    },
+
+    onShowing: {
+      default: () => undefined,
+      type: Function
+    },
+
+    subTitle: {
+      default: 'Sub title',
+      type: String
+    },
+
+    title: {
+      default: 'Title',
+      type: String
     }
   }
 

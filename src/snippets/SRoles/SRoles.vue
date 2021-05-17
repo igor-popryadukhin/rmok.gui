@@ -23,37 +23,45 @@ import Vue from 'vue'
 import { RoleInterface } from '@/api/Roles'
 
 export default Vue.extend({
-  model: {
-    prop: 'selected',
-    event: 'change'
+  created () {
+    if (this.options.length === 0) {
+      this.roles = this.$store.getters['system/roles']
+    } else {
+      this.roles = this.options
+    }
   },
-  props: {
-    rules: {
-      type: Array,
-      default: () => []
-    },
-    options: {
-      type: Array,
-      default: () => []
-    },
-    value: {
-      type: Object,
-      default: undefined
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    label: {
-      type: String,
-      default: ''
+  data () {
+    return {
+      roles: [] as RoleInterface[],
+      selected: null
     }
   },
 
-  data () {
-    return {
-      selected: null,
-      roles: [] as RoleInterface[]
+  model: {
+    event: 'change',
+    prop: 'selected'
+  },
+
+  props: {
+    label: {
+      default: '',
+      type: String
+    },
+    options: {
+      default: () => [],
+      type: Array
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: undefined,
+      type: Object
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
     }
   },
 
@@ -64,14 +72,6 @@ export default Vue.extend({
 
     value (val) {
       this.selected = val
-    }
-  },
-
-  created () {
-    if (this.options.length === 0) {
-      this.roles = this.$store.getters['system/roles']
-    } else {
-      this.roles = this.options
     }
   }
 })

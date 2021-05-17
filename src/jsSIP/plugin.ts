@@ -1,6 +1,12 @@
-/* eslint-disable */
+import {
+  EventHandler,
+  EventHandlerAccepted,
+  EventHandlerConnecting,
+  EventHandlerEnded,
+  EventHandlerFailed, EventHandlerProgress
+} from '@/jsSIP/types'
 import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
-import { debug, UA} from 'jssip'
+import { debug, UA } from 'jssip'
 import {
   AnswerOptions,
   ConnectingEvent,
@@ -10,23 +16,13 @@ import {
   PeerConnectionEvent,
   RTCSession
 } from 'jssip/lib/RTCSession'
-import {ConnectedEvent, IncomingRTCSessionEvent, OutgoingRTCSessionEvent, RegisteredEvent} from 'jssip/lib/UA'
+import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import { makeAudioElement } from '@/jsSIP/utils'
 import { Timer } from './Timer'
-import { Debugger } from 'debug'
-import Vue from "vue";
-import {DisconnectEvent} from "jssip/lib/WebSocketInterface";
 
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
 const audioElementForSound: HTMLAudioElement = makeAudioElement('audio-jssip-sound')
-
-export type EventHandler = (...args: any[]) => void
-export type EventHandlerConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => void
-export type EventHandlerProgress = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => void
-export type EventHandlerAccepted = (self: JsSIP, session: RTCSession, event: IncomingEvent | OutgoingEvent) => void
-export type EventHandlerEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => void
-export type EventHandlerFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => void
 
 /**
  * Call direction
@@ -86,14 +82,11 @@ export enum JsSIPState {
 }
 
 export class JsSIP {
-
-  get processConnectingAndDisconnecting(): boolean {
-    return this._processConnectingAndDisconnecting;
+  get processConnectingAndDisconnecting (): boolean {
+    return this._processConnectingAndDisconnecting
   }
 
-  private _processConnectingAndDisconnecting: boolean
-
-  get uuid(): string {
+  get uuid (): string {
     return this._uuid
   }
 
@@ -128,22 +121,27 @@ export class JsSIP {
     return this._state
   }
 
+  // eslint-disable-next-line accessor-pairs
   set onSessionConnecting (value: EventHandlerConnecting) {
     this._onSessionConnecting = value
   }
 
+  // eslint-disable-next-line accessor-pairs
   set onSessionProgress (value: EventHandler) {
     this._onSessionProgress = value
   }
 
+  // eslint-disable-next-line accessor-pairs
   set onSessionAccepted (value: EventHandler) {
     this._onSessionAccepted = value
   }
 
+  // eslint-disable-next-line accessor-pairs
   set onSessionEnded (value: EventHandler) {
     this._onSessionEnded = value
   }
 
+  // eslint-disable-next-line accessor-pairs
   set onSessionFailed (value: EventHandler) {
     this._onSessionFailed = value
   }
@@ -163,9 +161,11 @@ export class JsSIP {
     audioElementForSound.currentTime = 0.0
   }
 
-  private _uuid: string = ''
+  private _processConnectingAndDisconnecting: boolean
+
+  private _uuid = ''
   private _payload: any = undefined
-  private _target: string = ''
+  private _target = ''
   private _session?: RTCSession
   private _ua: UA
   private _timerId: any = undefined
@@ -173,7 +173,7 @@ export class JsSIP {
   // Session time
   private _timer: Timer
   private _sessionStopwatchTimerId: any = undefined
-  private _sessionStopwatch: string = '00:00:000'
+  private _sessionStopwatch = '00:00:000'
   private _sessionStartTime: Date = new Date()
   private _sessionEndTime: Date = new Date()
 
@@ -277,11 +277,11 @@ export class JsSIP {
     this._ua.unregister({ all: true })
   }
 
-  getPayload<T> (): T {
+  public getPayload<T> (): T {
     return this._payload
   }
 
-  setPayload<T> (payload: T): void {
+  public setPayload<T> (payload: T): void {
     this._payload = payload
   }
 
@@ -482,12 +482,15 @@ export class JsSIP {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
       let r = Math.random() * 16// random number between 0 and 16
       if (d > 0) { // Use timestamp until depleted
+        // tslint:disable-next-line:no-bitwise
         r = (d + r) % 16 | 0
         d = Math.floor(d / 16)
       } else { // Use microseconds since page-load if supported
+        // tslint:disable-next-line:no-bitwise
         r = (d2 + r) % 16 | 0
         d2 = Math.floor(d2 / 16)
       }
+      // tslint:disable-next-line:no-bitwise
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
     })
   }

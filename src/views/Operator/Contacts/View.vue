@@ -1,31 +1,44 @@
 <template>
   <v-row>
     <v-col
+      :style="leftColumnStyleComputed"
       cols="12"
       md="4"
-      lg="4"
-      class="py-lg-0 py-md-0 pt-sm-0 pt-xl-0"
+      lg="3"
     >
       <v-card
         class="fill-height"
+        :style="leftColumnStyleComputed"
         flat
         tile
-        outlined
       >
-        <v-card-title class="mb-2 py-2">
-          <template>
-            {{ contact.first_name }} {{ contact.last_name }} {{ contact.middle_name }}
-          </template>
+        <v-card-title class="mb-2 py-2 px-0">
+          {{ contact.last_name }} {{ contact.first_name }} {{ contact.middle_name }}
         </v-card-title>
-        <v-card-subtitle v-if="assertObjectHasAttribute(contact.default_phone, 'international')">
+        <v-card-subtitle
+          v-if="assertObjectHasAttribute(contact.default_phone, 'international')"
+          class="px-0"
+        >
           {{ contact.default_phone.international }}
         </v-card-subtitle>
-        <v-card-text class="py-0 d-flex justify-space-between">
-          <div class="d-flex align-center">{{ $jsSIP.sessionStopwatch }}</div>
+        <v-card-text class="py-0 px-0 d-flex justify-end">
+          <v-btn
+            color="primary"
+            class="mr-2"
+            text
+            outlined
+            small
+            tile
+            @click="onTaskAddClick"
+          >
+            {{ $tc('Add task') }}
+          </v-btn>
           <v-btn
             v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
             text
             outlined
+            small
+            tile
             color="red"
             @click="$jsSIP.cancel()"
           >
@@ -33,18 +46,26 @@
           </v-btn>
           <v-btn
             v-else
-            :disabled="!$jsSIP.isConnected || !assertObjectHasAttribute(contact.default_phone, 'raw') || !$libPhoneNumberJs.validate(contact.default_phone.raw)"
+            :disabled="callBtnIsDisabled"
             color="primary"
             text
             outlined
+            small
+            tile
             @click="onCall(contact.default_phone.raw, contact.id)"
           >
             {{ $tc('Call') }}
           </v-btn>
         </v-card-text>
-        <v-divider class="my-4 mx-4"/>
-        <v-card-text>
+        <v-card-text class="d-flex align-center justify-end pb-0 px-0">
+          <span>{{ $jsSIP.sessionStopwatch }}</span>
+        </v-card-text>
+        <v-divider class="mt-4"/>
+        <v-card-text
+          class="px-0"
+        >
           <v-list
+            :style="leftColumnStyleComputed"
             tile
           >
             <!-- Номера телефонов -->
@@ -65,17 +86,14 @@
                 </v-list-item-avatar>
                 <v-item-group>
                   <v-list-item-title>{{ phone.international }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ phone.label }}</v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="['idle'].includes($jsSIP.state)">
+                    {{ phone.label }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>
+                    {{ $jsSIP.sessionStopwatch }}
+                  </v-list-item-subtitle>
                 </v-item-group>
                 <v-spacer/>
-                <v-item-group
-                >
-                  <template
-                    v-if="!['idle'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
-                  >
-                    {{ $jsSIP.sessionStopwatch }}
-                  </template>
-                </v-item-group>
                 <v-item-group
                 >
                   <v-btn
@@ -118,7 +136,7 @@
                     v-else
                     icon
                     :key="`phone-call-btn-${phoneIndex}`"
-                    :disabled="!$jsSIP.isConnected || ['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target !== phone.raw"
+                    :disabled="callBtnIsDisabled"
                     @click="onCall(phone.raw, contact.id)"
                   >
                     <v-icon>mdi-phone</v-icon>
@@ -147,7 +165,7 @@
                   <v-list-item-title>{{ email.value }}</v-list-item-title>
                   <v-list-item-subtitle>{{ email.label }}</v-list-item-subtitle>
                 </v-list-item-group>
-                <v-spacer />
+                <v-spacer/>
                 <v-list-item-action>
                   <v-btn
                     icon
@@ -160,7 +178,7 @@
               </v-list-item>
             </template>
 
-            <v-divider class="mt-5" />
+            <v-divider class="mt-5"/>
 
             <!-- Геолокация -->
             <v-skeleton-loader
@@ -195,7 +213,9 @@
                 <v-icon color="primary">mdi-clock-time-two-outline</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title :key="tick">{{ contactDateTimeNow.toISOString().substr(11, 8) }} {{ gmt }}</v-list-item-title>
+                <v-list-item-title :key="clientTimeTick">
+                  {{ $moment().tz(contact.tz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
+                </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Client\'s current time') }}
                 </v-list-item-subtitle>
@@ -215,13 +235,102 @@
                 <v-icon color="primary">mdi-clock</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title>{{ new Date(contact.created_at * 1000).toLocaleString() }}</v-list-item-title>
+                <v-list-item-title>
+                  {{ $moment.unix(contact.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Date the contact was created') }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+
+            <!-- Владелец -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+              max-height="61"
+            />
+            <v-list-item
+              v-else
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">mdi-account</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contactResponsible }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Responsible') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <!-- Проект -->
+            <v-skeleton-loader
+              v-if="dataLoading"
+              type="list-item-avatar-two-line"
+              max-height="61"
+            />
+            <v-list-item
+              v-else-if="contactProject"
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">mdi-projector-screen</v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contactProject }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Project') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
+        </v-card-text>
+
+        <!-- Теги -->
+        <template v-if="contact.tags.length">
+          <v-card-text class="pa-0 text-right">
+            <v-divider />
+          </v-card-text>
+          <v-card-text class="px-0 text-right">
+            <v-chip-group>
+              <v-chip
+                v-for="(item, key) in contact.tags"
+                :key="key"
+                :color="item.color"
+                label
+                small
+                outlined
+              >{{ item.name }}</v-chip>
+            </v-chip-group>
+          </v-card-text>
+        </template>
+        <!-- Теги -->
+
+        <!-- Заметки -->
+        <template v-if="contact.notes">
+          <v-card-text class="pa-0">
+            <v-divider />
+          </v-card-text>
+          <v-card-text class="px-0 text-justify">
+            <p v-html="contact.notes"></p>
+          </v-card-text>
+        </template>
+        <!-- Заметки -->
+
+        <v-card-text class="pa-0 text-right">
+          <v-divider />
+        </v-card-text>
+        <v-card-text class="px-0 text-right">
+          <v-btn
+            color="primary"
+            text
+            outlined
+            small
+            tile
+            @click="onContactEditClick($route.params.contact_id)"
+          >
+            {{ $tc('Редактировать контакт') }}
+          </v-btn>
         </v-card-text>
       </v-card>
     </v-col>
@@ -230,25 +339,23 @@
     <v-col
       cols="12"
       md="8"
-      lg="8"
-      class="py-lg-0 py-md-0 pt-sm-0 pt-xl-0 pl-md-0 pl-lg-0 pl-xl-0"
+      lg="9"
+      class="pl-md-0 pl-lg-0"
     >
       <v-card
         :height="tabsHeight"
         class="d-flex flex-column"
         flat
         tile
-        outlined
       >
         <v-card-actions class="px-4">
           <v-tabs
-            v-model="tab"
+            v-model="currentTabIndex"
             height="35"
           >
             <v-tab
               v-for="(tab, tabIndex) in tabs"
               :key="`tab-${tabIndex}`"
-              :to="tab.to"
               :disabled="tab.disabled"
             >
               <v-icon left>
@@ -261,18 +368,56 @@
         </v-card-actions>
 
         <v-card-text class="py-0 ">
-          <v-divider />
+          <v-divider/>
         </v-card-text>
 
         <v-card-text class="py-1 flex-grow-1 overflow-y-auto">
-          <router-view />
+          <component
+            :ref="tabs[currentTabIndex].ref"
+            :is="tabs[currentTabIndex].component"
+          />
         </v-card-text>
 
+        <!-- Статусы -->
+
+        <v-fade-transition mode="in-out">
+          <v-card-text v-show="status.visible" class="py-0">
+            <s-contact-statuses
+              v-model="status.status_id"
+              min-height="200"
+              @on-close="status.visible = false"
+            />
+
+            <v-divider/>
+
+            <v-textarea
+              v-model="status.comment"
+              :placeholder="$t('Comment')"
+              rows="4"
+            >
+              <template v-slot:prepend-inner>
+                <v-icon>
+                  mdi-comment
+                </v-icon>
+              </template>
+              <template v-slot:append>
+                <v-btn
+                  icon
+                  text
+                  disabled
+                >
+                  <v-icon>
+                    mdi-microphone
+                  </v-icon>
+                </v-btn>
+              </template>
+            </v-textarea>
+          </v-card-text>
+        </v-fade-transition>
+
         <v-footer color="white" class="pa-4">
-          <v-spacer />
+          <v-spacer/>
           <v-btn-toggle
-            :disabled="comment.disabled || comment.text === ''"
-            :loading="comment.buttonSave.loading"
             color="primary"
             dense
             tile
@@ -280,13 +425,13 @@
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
-                  color="primary"
-                  text
-                  disabled
                   v-on="on"
                   v-bind="attrs"
                   :loading="saveAndNextLoading"
-                  @click="onSaveAndNext"
+                  :disabled="!status.visible"
+                  color="primary"
+                  text
+                  @click="onSaveClick(status)"
                 >
                   {{ $t('Save') }}
                 </v-btn>
@@ -299,7 +444,7 @@
                   color="primary"
                   v-bind="attrs"
                   v-on="on"
-                  disabled
+                  :disabled="!status.visible"
                   text
                   icon
                 >
@@ -307,7 +452,10 @@
                 </v-btn>
               </template>
               <v-list class="pa-0">
-                <v-list-item link>
+                <v-list-item
+                  link
+                  @click="onSaveAndStayClick(status)"
+                >
                   <v-list-item-title>{{ $tc('Сохранить и остаться') }}</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -320,14 +468,27 @@
 </template>
 
 <script lang="ts">
-import { ContactResponseInterface, Contacts } from '@/api/Contacts'
+import APIError from '@/api/classes/APIError'
+import { Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import {
+  ContactEmailInterface,
+  ContactInterface,
+  ContactPhoneInterface,
+  ContactTagInterface
+} from '@/api/Schemas/ContactInterface'
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
+import Tasks, { TaskInterface } from '@/api/Tasks'
+import { UserInterface } from '@/api/Users'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
-import { MainSearchMethod } from '@/Interfaces'
+import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInterface'
 import lvovich from '@/mixins/lvovich'
 import '@/plugins/libphonenumber-js'
+import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
+import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
+import SContactStatuses from '@/snippets/SContactStatuses/SContactStatuses.vue'
+import STaskDialogEditor from '@/snippets/STaskList/STaskDialogEditor.vue'
+import store from '@/store'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
@@ -338,79 +499,90 @@ interface TabInterface {
   icon: string;
   disabled: boolean;
   to?: string | Route;
+  ref: string;
+  component?: any;
+}
+
+interface IStatus {
+  /** Положительный идентификатор статуса. */
+  status_id: number;
+  /** Положительный идентификатор контакта. */
+  contact_id: number;
+  /** Положительный идентификатор исторической записи. */
+  contact_history_id: number;
+  /** Видимость компонента выбора статуса. */
+  visible: boolean;
+  /** Комментарий */
+  comment: string;
 }
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  mixins: [lvovich],
-
-  data () {
-    return {
-      /* eslint-disable */
-      statuses: {
-        historyId: 0,
-        visible: false
-      },
-      tab: null,
-      tabs: [
-        {
-          name: 'operator_contacts_view_script',
-          icon: 'mdi-script-text',
-          disabled: false,
-          to: {
-            name: 'operator_contacts_view_script'
-          }
-        },
-        {
-          name: 'operator_contacts_view_history',
-          icon: 'mdi-history',
-          disabled: false,
-          to: {
-            name: 'operator_contacts_view_history'
-          }
-        },
-        {
-          name: 'operator_contacts_view_tasks',
-          icon: 'mdi-clipboard-list',
-          disabled: false,
-          to: {
-            name: 'operator_contacts_view_tasks'
-          }
-        }
-      ] as TabInterface[],
-      saveAndNextLoading: false,
-      dataLoading: false,
-      comment: {
-        disabled: false,
-        text: '',
-        buttonSave: {
-          loading: false
-        }
-      },
-      contact: {
-        city: '',
-        default_phone: undefined,
-        emails: [],
-        first_name: '',
-        id: 0,
-        last_name: '',
-        middle_name: '',
-        phones: [],
-        user: undefined,
-        current_date_time: 0,
-        timezone_offset: 0,
-        created_at: 0
-      },
-      tick: 0,
-      contactDateTimeNow: new Date()
-      /* eslint-enable */
-    }
+  beforeDestroy () {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
   },
+
+  beforeRouteEnter (to, from, next) {
+    // Сохраняю маршрут, откуда пришёл
+    store.commit('system/route_last_full_path', from.fullPath)
+    new Contacts()
+      .getById(+to.params.contact_id)
+      .then((response: ContactInterface) => {
+        next((vm: VInterface) => {
+          vm.$activity.begin({
+            type: 'card_filling'
+          })
+          vm.contact = response
+        })
+      }).catch(() => {
+        next({ name: 'not_found' })
+      })
+  },
+
+  beforeRouteLeave (to, from, next) {
+    this.$activity.end()
+    next()
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      const contacts: Contacts = new Contacts()
+      this.$activity.end()
+      this.dataLoading = true
+      contacts
+        .getById(+to.params.contact_id)
+        .then((contact: ContactInterface) => {
+          this.$activity.begin({
+            type: 'card_filling'
+          })
+          this.contact = contact
+        }).finally(() => {
+          this.tabPageUpdate()
+          this.dataLoading = false
+        })
+    }
+    next()
+  },
+
+  components: { SContactStatuses },
 
   computed: {
     avatar () {
-      const first: string = this.contact.first_name || ''
-      const last: string = this.contact.last_name || ''
+      const first: string = this.contact?.first_name || ''
+      const last: string = this.contact?.last_name || ''
       return first.charAt(0) + last.charAt(0)
+    },
+
+    /**
+     * Делает кнопку позвонить недоступной, если не выполнены условия
+     **/
+    callBtnIsDisabled () {
+      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
+    },
+
+    leftColumnStyleComputed () {
+      return {}
     },
 
     sessionStopwatch () {
@@ -419,93 +591,157 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     tabsHeight () {
       let h: number = this.$screenHeight - 115
-      if (h < 640) { h = 640 }
+      if (h < 850) {
+        h = 850
+      }
       return h
     },
 
-    gmt () {
-      const offset: number | null = this.contact.timezone_offset || null
+    contactResponsible () {
+      const collection: string[] = []
 
-      if (offset === null) {
-        return ''
+      if (this.contact?.responsible?.first_name) {
+        collection.push(this.contact?.responsible?.first_name)
       }
 
-      if (offset > 0) {
-        return `(GMT+${offset})`
-      } else if (offset < 0) {
-        return `(GMT${offset})`
-      } else {
-        return `(GMT ${offset})`
+      if (this.contact?.responsible?.last_name) {
+        collection.push(this.contact?.responsible?.last_name)
       }
+      return collection.join(' ')
+    },
+
+    contactProject () {
+      return this.contact?.project?.name || false
     }
   },
 
-  mounted () {
-    this.$root.$on('root-main-search', this.onRootMainSearch)
-    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
-    // Prevent booting or closing a tab!!!
-    // window.onbeforeunload = () => {
-    //   return true
-    // }
-  },
-
-  beforeRouteEnter (to, from, next) {
-    new Contacts()
-      .getById(+to.params.contact_id)
-      .then((response: ContactInterface) => {
-        // TODO: Фамилия имя отчество в хлебных крошках
-        // from.meta.route_breadcrumb_name = `${response.first_name} ${response.last_name} ${response.middle_name}`
-        next((vm: VInterface) => {
-          vm.contact = response
-          vm.contactDateTimeNow = new Date(response.current_date_time * 1000)
-        })
-      }).catch(() => {
-        next({ name: 'not_found' })
-      })
-  },
-
-  beforeRouteUpdate (to, from, next) {
-    if (from.params.contact_id !== to.params.contact_id) {
-      const contacts: Contacts = new Contacts()
-
-      this.dataLoading = true
-      contacts
-        .getById(+to.params.contact_id)
-        .then((contact: ContactInterface) => {
-          this.contact = contact
-          this.contactDateTimeNow = new Date(contact.current_date_time * 1000)
-        }).finally(() => {
-          this.dataLoading = false
-        })
+  created () {
+    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
+      this.currentTabIndex = Number(this.$route.query.current_tab_index)
     }
-    next()
+
+    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
+    this.$store.dispatch('database/statuses', {
+      contact_id: this.$route.params.contact_id
+    })
   },
 
-  beforeDestroy () {
-    this.$root.$off('root-main-search', this.onRootMainSearch)
-    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+  data () {
+    return {
+      /* eslint-disable */
+      statuses: {
+        historyId: 0,
+        visible: false
+      },
+      currentTabIndex: 0,
+      tabs: [
+        {
+          name: 'operator_contacts_view_script',
+          icon: 'mdi-script-text',
+          disabled: false,
+          to: {
+            name: 'operator_contacts_view_script'
+          },
+          ref: 'script',
+          component: () => import('./Script.vue')
+        },
+        {
+          name: 'operator_contacts_view_history',
+          icon: 'mdi-history',
+          disabled: false,
+          to: {
+            name: 'operator_contacts_view_history'
+          },
+          ref: 'history',
+          component: () => import('./History.vue')
+        },
+        {
+          name: 'operator_contacts_view_tasks',
+          icon: 'mdi-clipboard-list',
+          disabled: false,
+          to: {
+            name: 'operator_contacts_view_tasks'
+          },
+          ref: 'task',
+          component: () => import('./Task.vue')
+        }
+      ] as TabInterface[],
+      saveAndNextLoading: false,
+      dataLoading: false,
+      status: {
+        status_id: 0,
+        contact_id: 0,
+        contact_history_id: 0,
+        visible: false,
+        comment: ''
+      } as IStatus,
+      contact: {
+        city: '',
+        default_phone: undefined,
+        emails: [],
+        first_name: '',
+        id: 0,
+        last_name: '',
+        middle_name: '',
+        owner: null,
+        responsible: {
+          id: 0,
+          first_name: '',
+          last_name: '',
+          middle_name: ''
+        } as UserInterface,
+        project: null as unknown,
+        phones: [] as ContactPhoneInterface[],
+        user: undefined,
+        created_at: 0,
+        last_status: null,
+        notes: null,
+        tags: [] as ContactTagInterface[],
+        tz: 'Europe/Moscow'
+      },
+      clientTimeTick: 0
+      /* eslint-enable */
+    }
+  },
+
+  destroyed () {
+    this.$activity.end()
   },
 
   methods: {
-    onRootMainSearch (q: string, set: MainSearchMethod) {
+    fetchContact (contact_id: number) {
       new Contacts()
-        .find({
-          q,
-          offset: 0,
-          count: 10
-        }).then((response: ContactResponseInterface) => {
-          set(response.items.map((e: ContactInterface) => {
-            return {
-              ...e,
-              title: `${e.first_name} ${e.last_name}`,
-              subtitle: e.city
-            }
-          }))
+        .getById(contact_id)
+        .then((response: ContactInterface) => {
+          this.contact = response
         })
     },
 
-    onRootMainSearchSelected (data: ContactInterface) {
-      this.$router.push({ path: `/contacts/${data.id}/script` })
+    /**
+     * Перейти к следующему контакту
+     * Передайте действительный идентификатор контакта, для того что бы загрузить очередной контакт
+     *
+     * @param current_contact_id
+     */
+    nextContact (current_contact_id: number) {
+      new Leads()
+        .next(current_contact_id)
+        .then((contact_id) => {
+          const name = String(this.$route.name)
+          this.$router.push({
+            name,
+            params: {
+              contact_id: String(contact_id)
+            }
+          })
+        })
+        .catch(() => {
+          this.$router.push({
+            name: 'operator_leads'
+          })
+        }).finally(() => {
+          this.saveAndNextLoading = false
+        })
     },
 
     onCall (target: string, contactId: number) {
@@ -514,11 +750,91 @@ export default (Vue as VueConstructor<VInterface>).extend({
         contact_id: contactId,
         target
       })
+
+      // Формируем объект с параметрами, для поиска задача статуса pending
+      const contactParams = {
+        contact_id: String(this.contact.id),
+        planned_for: 'all',
+        state: 'pending'
+      }
+
+      new Tasks()
+        .find<any, TaskInterface[]>(contactParams)
+        .then(response => response.data)
+        .then(data => {
+          if (data.length) {
+            data.map(t => {
+              new Tasks().setState(t.id, 'done')
+            })
+          } else {
+            this.$toast.success(this.$tc('Is tasks status pending'))
+          }
+        }).catch(e => console.log(e))
       /* eslint-enable */
     },
 
-    secondsToHmsDigital (s: number) {
-      return secondsToHmsDigital(s)
+    /**
+     *
+     **/
+    onContactEditClick (contact_id: number) {
+      new Contacts()
+        .getById(contact_id)
+        .then(async (response: ContactInterface) => {
+          const instance = await this.$dialog.show(SContactDialogEditor, {
+            on: {
+              cancel: () => {
+                instance.close()
+              },
+
+              /** @param data Новые данные контакта **/
+              save: (data: SCEContactInterface) => {
+                new Contacts()
+                  .update(contact_id, {
+                    address: data.address,
+                    city: data.city,
+                    emails: data.emails,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    middle_name: data.middle_name,
+                    notes: data.notes,
+                    phones: data.phones,
+                    region: data.region,
+                    tags: data.tags
+                  })
+                  .then(() => {
+                    this.$toast.success(this.$tc('Contact updated'))
+                    this.fetchContact(+this.$route.params.contact_id)
+                  })
+                  .finally(() => (instance.close()))
+              }
+            },
+            title: this.$tc('Editing a contact'),
+            value: {
+              address: response?.address || '',
+              city: response?.city || '',
+              emails: response.emails?.map((value: ContactEmailInterface) => {
+                return {
+                  label: value.label,
+                  value: value.value
+                }
+              }) || [],
+              first_name: response?.first_name || '',
+              last_name: response?.last_name || '',
+              middle_name: response?.middle_name || '',
+              notes: response?.notes,
+              phones: response.phones?.map((value: ContactPhoneInterface) => {
+                return {
+                  label: value.label,
+                  value: value.raw
+                }
+              }) || [],
+              region: response.region,
+              tags: response.tags
+            } as SCEContactInterface,
+            waitForResult: false,
+            width: '60%'
+          })
+        })
     },
 
     onDefaultPhoneSet (value?: PhoneNumberInterface) {
@@ -530,50 +846,162 @@ export default (Vue as VueConstructor<VInterface>).extend({
       /* eslint-enable */
     },
 
-    onSaveComment () {
-      /* eslint-disable */
-      this.comment.disabled = true
-      this.comment.buttonSave.loading = true
-      new Contacts()
-        .addHistory(+this.$route.params.contact_id, {
-          type: 'comment',
-          comment: this.comment.text
-        }).then(() => {
-        this.comment.text = ''
-        this.$root.$emit('root-contact-history-change')
-      }).finally(() => {
-        this.comment.disabled = false
-        this.comment.buttonSave.loading = false
-      })
-      /* eslint-enable */
+    onRootJssipSessionEnded (event: REJssipSessionEndedInterface) {
+      this.showStatuses()
+      this.status.contact_id = event.contact_id
+      this.status.contact_history_id = event.contact_history_id
     },
 
-    onSaveAndNext () {
+    /**
+     * Сохранить статус и остаться на странице
+     *
+     * @param status
+     **/
+    async onSaveAndStayClick (status: IStatus) {
+      await this.save(status)
+    },
+
+    /**
+     * Сохранить статус
+     *
+     * @param status
+     **/
+    async onSaveClick (status: IStatus) {
+      await this.save(status)
+
+      // Переход на страницу откуда пришел
+      if (this.$store.getters['system/route_last_full_path']) {
+        this.$router.push(this.$store.getters['system/route_last_full_path'])
+      }
+
+      // // Если оператор, то открываем страницу со следующим контактом, если таковой имеется.
+      // if (this.$store.getters['profile/role_use'] === 'for_calls') {
+      //   this.nextContact(+this.$route.params.contact_id)
+      // }
+    },
+
+    onTaskAddClick () {
+      this.$dialog.show(STaskDialogEditor, {
+        onSave: (data: any) => {
+          const taskData: any = {
+            contact_id: +this.$route.params.contact_id,
+            description: data.description,
+            performer_id: data.performer_id,
+            planned_for: data.planned_for,
+            type: data.type
+          }
+
+          new Tasks()
+            .add<number>(taskData)
+            .then(() => {
+              this.$toast.success(this.$tc('Task successfully created'))
+            }).catch((e: APIError) => {
+              let text = ''
+              if (this.assertObjectHasAttribute(e, 'errors')) {
+                text = e.errors.map(e => e.message).join('\n')
+              }
+              this.$toast.error(`${e.message}\n${text}`)
+            }).finally(() => {
+              this.tabPageUpdate()
+            })
+        },
+        performerId: this.$store.getters['profile/id'],
+        persistent: true,
+        responsibleDisabled: true,
+        waitForResult: true,
+        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%'
+      })
+    },
+
+    async save (status: IStatus) {
+      if (!this.validate()) {
+        return
+      }
+
       this.saveAndNextLoading = true
-      new Leads()
-        .next(+this.$route.params.contact_id)
-        .then((contact_id) => {
-          const name = String(this.$route.name)
-          this.$router.push({
-            name,
-            params: {
-              contact_id: String(contact_id)
-            }
-          })
-        })
-        .catch(() => {
-          this.$router.replace({
-            name: 'operator_contacts_view'
-          })
-        }).finally(() => {
-          this.saveAndNextLoading = false
-        })
+      return new Promise<void>((resolve) => {
+        new Contacts()
+          .updateHistory(status.contact_history_id, {
+            // Идентификатор статуса для истории
+            comment: status.comment,
+            status_id: status.status_id // Комментарий для истории.
+          }).then(() => {
+          // Через секунду обновляю текущую страницу в Tab
+            setTimeout(() => {
+              this.tabPageUpdate()
+            }, 500)
+
+            // Очистить предыдущий результат выбранного
+            status.contact_id = 0
+            status.contact_history_id = 0
+            status.status_id = 0
+            status.visible = false
+            status.comment = ''
+
+            resolve()
+          }).finally(() => (this.saveAndNextLoading = false))
+      })
+    },
+
+    secondsToHmsDigital (s: number) {
+      return secondsToHmsDigital(s)
+    },
+
+    /**
+     * Показать статусы
+     */
+    showStatuses () {
+      this.status.visible = true
+    },
+
+    /**
+     * Обновит текущую страницу во вкладке
+     **/
+    tabPageUpdate () {
+      // Незамысловатый механизм доступа к методам компонента
+      setTimeout(() => {
+        if (typeof this.$refs[this.tabs[this.currentTabIndex].ref].update === 'function') {
+          this.$refs[this.tabs[this.currentTabIndex].ref].update()
+        }
+      }, 1000)
+    },
+
+    validate (): boolean {
+      if (this.status.status_id <= 0) {
+        this.$toast.warning('Выберите статус!')
+        return false
+      }
+
+      return true
+    }
+  },
+
+  mixins: [lvovich],
+
+  mounted () {
+    this.$root.$on('root-main-search', this.onRootMainSearch)
+    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
+    // Prevent booting or closing a tab!!!
+    // window.onbeforeunload = () => {
+    //   return true
+    // }
+
+    setInterval(() => {
+      this.clientTimeTick++
+    }, 1000)
+  },
+
+  watch: {
+    currentTabIndex (val: number) {
+      this.$routerQuery.setQuery({
+        current_tab_index: val
+      })
     }
   }
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 
 .tool-bar div {
   padding-left: 0;

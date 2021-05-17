@@ -75,54 +75,6 @@ interface IStack {
 }
 
 export default Vue.extend({
-  name: 'VCallDirection',
-
-  props: {
-    direction: {
-      type: String,
-      required: true
-    },
-    cause: {
-      type: String,
-      required: true
-    },
-    originator: {
-      type: String,
-      required: true
-    }
-  },
-
-  data () {
-    return {
-      stack: [
-        {
-          direction: Direction.OUTGOING,
-          originator: Originator.REMOTE,
-          cause: RTCSessionCause.CANCELED,
-          color: '#3a3a3a',
-          icon: 'mdi-phone-outgoing',
-          text: 'Исходящий, отменён'
-        },
-        {
-          direction: Direction.INCOMING,
-          originator: Originator.REMOTE,
-          cause: RTCSessionCause.BYE,
-          color: '#3a3a3a',
-          icon: 'mdi-phone-incoming',
-          text: 'Входящий, клиент сам завершил разговор'
-        },
-        {
-          direction: Direction.INCOMING,
-          originator: Originator.REMOTE,
-          cause: RTCSessionCause.CANCELED,
-          color: '',
-          icon: 'mdi-phone-incoming',
-          text: 'Без ответа'
-        }
-      ] as IStack[]
-    }
-  },
-
   computed: {
     callDirection () {
       const obj: IStack | undefined = this.$data.stack.find((e: IStack) => {
@@ -130,10 +82,58 @@ export default Vue.extend({
       })
 
       return obj || {
-        icon: 'mdi-bug',
         color: 'red',
+        icon: 'mdi-bug',
         text: 'Неизвестно: ' + `${this.direction} / ${this.originator} / ${this.cause}`
       }
+    }
+  },
+
+  data () {
+    return {
+      stack: [
+        {
+          cause: RTCSessionCause.CANCELED,
+          color: '#3a3a3a',
+          direction: Direction.OUTGOING,
+          icon: 'mdi-phone-outgoing',
+          originator: Originator.REMOTE,
+          text: 'Исходящий, отменён'
+        },
+        {
+          cause: RTCSessionCause.BYE,
+          color: '#3a3a3a',
+          direction: Direction.INCOMING,
+          icon: 'mdi-phone-incoming',
+          originator: Originator.REMOTE,
+          text: 'Входящий, клиент сам завершил разговор'
+        },
+        {
+          cause: RTCSessionCause.CANCELED,
+          color: '',
+          direction: Direction.INCOMING,
+          icon: 'mdi-phone-incoming',
+          originator: Originator.REMOTE,
+          text: 'Без ответа'
+        }
+      ] as IStack[]
+    }
+  },
+
+  name: 'VCallDirection',
+
+  props: {
+    cause: {
+      required: true,
+      type: String
+    },
+    direction: {
+      required: true,
+      type: String
+    },
+    originator: {
+      required: true,
+      type: String
     }
   }
 })

@@ -126,65 +126,72 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: { VCallDirection },
-  mixins: [audioPlayer],
+  computed: {
+    apexchartOptions (): any {
+      return {
+        colors: this.pieColors,
+        labels: this.pieLabels,
+        legend: {
+          position: 'right',
+          show: true
+        }
+      }
+    },
+
+    dataTableHistoryHeight () {
+      let h: number = this.$screenHeight - 180
+      if (h < 640) {
+        h = 640
+      }
+      return h
+    }
+  },
 
   data () {
     return {
-      menuDateRange: null,
-      dateRange: null as string[] | null,
-      menuContactDateCreated: null as boolean | null,
-
       // Data table
       dataTableHistory: {
-        processLoading: false,
-        page: 1,
-        pages: 1,
-        totalCount: 0,
-        itemsPerPage: 50,
-        pageStart: 0,
-        pageStop: 0,
-        items: [],
         headers: [
           {
-            text: '#',
             align: 'start',
+            class: 'header-direction',
             sortable: false,
-            value: 'direction',
-            class: 'header-direction'
+            text: '#',
+            value: 'direction'
           },
           {
-            text: 'Номер',
             align: 'start',
-            sortable: false,
             class: 'header-target',
+            sortable: false,
+            text: 'Номер',
             value: 'target'
           },
           {
-            text: 'Длительность сессии',
             align: 'start',
-            sortable: false,
             class: 'header-session-duration',
+            sortable: false,
+            text: 'Длительность сессии',
             value: 'session_duration'
           },
           {
-            text: 'Длительность разговора',
             align: 'start',
-            sortable: false,
             class: 'header-call-duration',
+            sortable: false,
+            text: 'Длительность разговора',
             value: 'call_duration'
           },
           {
-            text: 'Дата и время',
             align: 'start',
-            sortable: false,
             class: 'header-created-at',
+            sortable: false,
+            text: 'Дата и время',
             value: 'created_at'
           },
           {
-            text: 'Запись',
             align: 'end',
-            sortable: false,
             class: 'header-audio-record',
+            sortable: false,
+            text: 'Запись',
             value: 'record'
           }
           // {
@@ -227,75 +234,23 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           //   value: 'record'
           // }
         ],
-        options: {}
+        items: [],
+        itemsPerPage: 50,
+        options: {},
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 1,
+        processLoading: false,
+        totalCount: 0
       },
-      loading: true
-    }
-  },
 
-  watch: {
-    'dataTableHistory.options': {
-      handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
-        }
-      },
-      deep: true
-    },
+      dateRange: null as string[] | null,
 
-    usersSelected: {
-      handler (user: UserInterface | null) {
-        if (user) {
-          this.$routerQuery.setQuery({
-            owner_id: user.id
-          }).then(() => {
-            this.fetchDataHistory()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['owner_id'])
-            .then(() => {
-              this.fetchDataHistory()
-            })
-        }
-      }
-    },
+      loading: true,
 
-    'dataTableHistory.page': {
-      handler (page: number) {
-        this.$routerQuery.setQuery({ history_page: page })
-      }
-    }
-  },
-
-  computed: {
-    apexchartOptions (): any {
-      return {
-        legend: {
-          show: true,
-          position: 'right'
-        },
-        labels: this.pieLabels,
-        colors: this.pieColors
-      }
-    },
-
-    dataTableHistoryHeight () {
-      let h: number = this.$screenHeight - 180
-      if (h < 640) {
-        h = 640
-      }
-      return h
+      menuContactDateCreated: null as boolean | null,
+      menuDateRange: null
     }
   },
 
@@ -307,8 +262,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
 
       const params: any = {
-        offset,
         count: this.dataTableHistory.itemsPerPage,
+        offset,
         type: 'all' // Показать всю историю
       }
 
@@ -365,6 +320,53 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     secondsToHmsDigital (d: number) {
       return secondsToHmsDigital(d)
+    }
+  },
+
+  mixins: [audioPlayer],
+
+  watch: {
+    'dataTableHistory.options': {
+      deep: true,
+      handler ({ sortBy, sortDesc }) {
+        if (Array.isArray(sortBy)) {
+          if (sortBy.length > 0) {
+            this.$routerQuery.setQuery({
+              history_sort_by: sortBy.join(','),
+              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
+            }).then(() => (this.fetchDataHistory()))
+          } else {
+            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
+            this.$routerQuery
+              .removeQuery(['history_sort_by', 'history_sort_direction'])
+              .then(() => (this.fetchDataHistory()))
+          }
+        }
+      }
+    },
+
+    'dataTableHistory.page': {
+      handler (page: number) {
+        this.$routerQuery.setQuery({ history_page: page })
+      }
+    },
+
+    usersSelected: {
+      handler (user: UserInterface | null) {
+        if (user) {
+          this.$routerQuery.setQuery({
+            owner_id: user.id
+          }).then(() => {
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['owner_id'])
+            .then(() => {
+              this.fetchDataHistory()
+            })
+        }
+      }
     }
   }
 })

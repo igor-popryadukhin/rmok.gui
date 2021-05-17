@@ -24,17 +24,17 @@ import Vue from 'vue'
 export default Vue.extend({
   name: 'VToast',
   props: {
-    title: {
-      type: String,
-      required: true
+    actions: {
+      default: () => [],
+      type: Array
     },
     text: {
-      type: String,
-      default: ''
+      default: '',
+      type: String
     },
-    actions: {
-      type: Array,
-      default: () => []
+    title: {
+      required: true,
+      type: String
     }
   }
 })

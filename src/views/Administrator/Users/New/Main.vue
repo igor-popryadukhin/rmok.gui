@@ -316,56 +316,11 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  mixins: [rules],
-
   components: {
-    SProjectsAutocomplete,
-    SOrganizationsAutocomplete,
     SGroups,
+    SOrganizationsAutocomplete,
+    SProjectsAutocomplete,
     SRoles
-  },
-
-  data (): IData {
-    return {
-      permissions: [],
-      tab: 0,
-      passwordShow: false,
-      buttonDelete: {
-        disabled: false,
-        loading: false
-      },
-      buttonSave: {
-        disabled: false,
-        loading: false
-      },
-      user: {
-        id: 0,
-        first_name: '',
-        last_name: '',
-        middle_name: '',
-        login: '',
-        password: '',
-        password2: '',
-        email: '',
-        phone: '',
-        role: null as unknown as RoleInterface,
-        group: null as unknown as GroupInterface,
-        organization: null as unknown as OrganizationInterface,
-        project: null as unknown as ProjectInterface
-      }
-    }
-  },
-
-  watch: {
-    tab (val: number) {
-      switch (val) {
-        case 3: {
-          this.$router.push({ name: 'administrator_users_edit_permissions' })
-          break
-        }
-        default: this.$router.push({ name: 'administrator_users_edit', params: this.$route.params })
-      }
-    }
   },
 
   computed: {
@@ -380,6 +335,37 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     }
   },
 
+  data (): IData {
+    return {
+      buttonDelete: {
+        disabled: false,
+        loading: false
+      },
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      passwordShow: false,
+      permissions: [],
+      tab: 0,
+      user: {
+        email: '',
+        first_name: '',
+        group: null as unknown as GroupInterface,
+        id: 0,
+        last_name: '',
+        login: '',
+        middle_name: '',
+        organization: null as unknown as OrganizationInterface,
+        password: '',
+        password2: '',
+        phone: '',
+        project: null as unknown as ProjectInterface,
+        role: null as unknown as RoleInterface
+      }
+    }
+  },
+
   methods: {
     onSave () {
       if (!this.$refs.form.validate()) {
@@ -391,8 +377,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       const requestData: any = {
         first_name: this.user.first_name,
         last_name: this.user.last_name,
-        middle_name: this.user.middle_name,
         login: this.user.login,
+        middle_name: this.user.middle_name,
         role_id: this.user.role?.id
       }
 
@@ -441,6 +427,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
           this.$toast.error(e.error)
         }).finally(() => (this.buttonSave.loading = false))
+    }
+  },
+
+  mixins: [rules],
+
+  watch: {
+    tab (val: number) {
+      switch (val) {
+        case 3: {
+          this.$router.push({ name: 'administrator_users_edit_permissions' })
+          break
+        }
+        default: this.$router.push({ name: 'administrator_users_edit', params: this.$route.params })
+      }
     }
   }
 })

@@ -58,67 +58,19 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'SEmails',
-  model: {
-    prop: 'value',
-    event: 'change'
+  beforeDestroy () {
+    this.$off('change', this.onChange)
   },
-  props: {
-    textLabel: {
-      type: String,
-      default: 'Label'
-    },
-    textEmail: {
-      type: String,
-      default: 'Email'
-    },
-    rulesEmail: {
-      type: [Array],
-      default: undefined
-    },
-    rulesLabel: {
-      type: [Array],
-      default: undefined
-    },
-    value: {
-      type: [Array],
-      default: undefined
-    }
+  created () {
+    this.emails = this.value
   },
-
   data () {
     return {
       emails: [] as any[]
     }
   },
 
-  watch: {
-    value (value) {
-      this.emails = value
-    }
-  },
-
-  mounted () {
-    this.$on('change', this.onChange)
-  },
-
-  created () {
-    this.emails = this.value
-  },
-
-  beforeDestroy () {
-    this.$off('change', this.onChange)
-  },
-
   methods: {
-    onChange (value: any) {
-      this.emails = value
-    },
-
-    onAddClick () {
-      this.doAddEmail()
-    },
-
     doAddEmail (label = '', value = '') {
       this.emails.push({
         label,
@@ -126,8 +78,56 @@ export default Vue.extend({
       })
     },
 
+    onAddClick () {
+      this.doAddEmail()
+    },
+
+    onChange (value: any) {
+      this.emails = value
+    },
+
     onDeleteClick (index: number) {
       this.emails.splice(index, 1)
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  mounted () {
+    this.$on('change', this.onChange)
+  },
+
+  name: 'SEmails',
+
+  props: {
+    rulesEmail: {
+      default: undefined,
+      type: [Array]
+    },
+    rulesLabel: {
+      default: undefined,
+      type: [Array]
+    },
+    textEmail: {
+      default: 'Email',
+      type: String
+    },
+    textLabel: {
+      default: 'Label',
+      type: String
+    },
+    value: {
+      default: undefined,
+      type: [Array]
+    }
+  },
+
+  watch: {
+    value (value) {
+      this.emails = value
     }
   }
 })

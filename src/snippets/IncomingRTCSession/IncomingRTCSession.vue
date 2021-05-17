@@ -41,12 +41,12 @@ import Vue from 'vue'
 export default Vue.extend({
   props: {
     displayName: {
-      type: String,
-      default: ''
+      default: '',
+      type: String
     },
     phoneNumber: {
-      type: String,
-      default: ''
+      default: '',
+      type: String
     }
   }
 })

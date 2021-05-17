@@ -12,15 +12,13 @@ export class RouterQuery {
   /**
    * @param query
    */
-  setQuery (query: any): Promise<any> {
+  public setQuery (query: any): Promise<any> {
     return new Promise<void>((resolve) => {
       const obj = Object.assign({}, this._vueRouter.currentRoute.query)
 
       Object.keys(query).forEach((key: string) => {
         const value = query[key]
         if (value) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           obj[key] = value
         } else {
           delete obj[key]
@@ -28,8 +26,8 @@ export class RouterQuery {
       })
 
       this._vueRouter.push({
-        path: this._vueRouter.currentRoute.path,
         params: this._vueRouter.currentRoute.params,
+        path: this._vueRouter.currentRoute.path,
         query: obj
       }).catch((reason) => {
         return reason
@@ -41,7 +39,7 @@ export class RouterQuery {
    * @param key
    * @param def
    */
-  public getQuery<T = string | number> (key: string, def = null): T {
+  public getQuery<T = string | number> (key: string, def?: T): T {
     if (key in this._vueRouter.currentRoute.query) {
       const val: any = this._vueRouter.currentRoute.query[key]
       return val
@@ -62,8 +60,8 @@ export class RouterQuery {
       })
 
       this._vueRouter.push({
-        path: this._vueRouter.currentRoute.path,
         params: this._vueRouter.currentRoute.params,
+        path: this._vueRouter.currentRoute.path,
         query: obj
       }).catch((reason) => {
         return false

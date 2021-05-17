@@ -75,70 +75,22 @@ import parsePhoneNumber from 'libphonenumber-js'
 import { CountryCode } from 'libphonenumber-js/types'
 
 export default Vue.extend({
-  name: 'SPhoneNumbers',
+  beforeDestroy () {
+    this.$off('change', this.onChange)
+  },
   components: {
     PhoneNumbersCountryCallingCode
   },
-  model: {
-    prop: 'value',
-    event: 'change'
+  created () {
+    this.phones = this.value
   },
-  props: {
-    messageError: {
-      type: String,
-      default: 'Invalid number format'
-    },
-    rulesLabel: {
-      type: Array,
-      default: undefined
-    },
-    rulesNumber: {
-      type: Array,
-      default: undefined
-    },
-    rulesCountryCode: {
-      type: Array,
-      default: undefined
-    },
-    value: {
-      type: [Array],
-      default: undefined
-    }
-  },
-
   data () {
     return {
       phones: [] as any[]
     }
   },
 
-  watch: {
-    value (value) {
-      this.phones = value
-    }
-  },
-
-  mounted () {
-    this.$on('change', this.onChange)
-  },
-
-  created () {
-    this.phones = this.value
-  },
-
-  beforeDestroy () {
-    this.$off('change', this.onChange)
-  },
-
   methods: {
-    onChange (value: any) {
-      this.phones = value
-    },
-
-    onAddClick () {
-      this.doAddPhoneNumber()
-    },
-
     doAddPhoneNumber (id = 0, countryCode = '', countryCallingCode = '', label = '', raw = '') {
       this.phones.push({
         /* eslint-disable */
@@ -151,6 +103,14 @@ export default Vue.extend({
       })
     },
 
+    onAddClick () {
+      this.doAddPhoneNumber()
+    },
+
+    onChange (value: any) {
+      this.phones = value
+    },
+
     onDeleteClick (index: number) {
       this.phones.splice(index, 1)
     },
@@ -161,6 +121,46 @@ export default Vue.extend({
       } catch (e) {
         return false
       }
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  mounted () {
+    this.$on('change', this.onChange)
+  },
+
+  name: 'SPhoneNumbers',
+
+  props: {
+    messageError: {
+      default: 'Invalid number format',
+      type: String
+    },
+    rulesCountryCode: {
+      default: undefined,
+      type: Array
+    },
+    rulesLabel: {
+      default: undefined,
+      type: Array
+    },
+    rulesNumber: {
+      default: undefined,
+      type: Array
+    },
+    value: {
+      default: undefined,
+      type: [Array]
+    }
+  },
+
+  watch: {
+    value (value) {
+      this.phones = value
     }
   }
 })

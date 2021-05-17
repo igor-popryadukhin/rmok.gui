@@ -6,27 +6,6 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const package = require('./package.json')
 
 module.exports = {
-  devServer: {
-    host: '0.0.0.0',
-    public: 'https://develop.rmok.online',
-    disableHostCheck: true
-  },
-
-  parallel: 4,
-
-  transpileDependencies: [
-    'vuetify'
-  ],
-
-  productionSourceMap: false,
-  filenameHashing: true,
-
-  pluginOptions: {
-    webpackBundleAnalyzer: {
-      openAnalyzer: true
-    }
-  },
-
   chainWebpack: config => {
     config.plugins.delete('prefetch')
 
@@ -44,10 +23,31 @@ module.exports = {
       .use('i18n')
       .loader('@kazupon/vue-i18n-loader')
   },
+
   configureWebpack: config => {
     // remove the existing ForkTsCheckerWebpackPlugin
     config.plugins = config.plugins.filter(
       p => !(p instanceof ForkTsCheckerWebpackPlugin)
     )
-  }
+  },
+
+  devServer: {
+    disableHostCheck: true,
+    host: '0.0.0.0',
+    public: '0.0.0.0:3000'
+  },
+
+  filenameHashing: true,
+  parallel: 4,
+
+  pluginOptions: {
+    webpackBundleAnalyzer: {
+      openAnalyzer: true
+    }
+  },
+
+  productionSourceMap: false,
+  transpileDependencies: [
+    'vuetify'
+  ]
 }

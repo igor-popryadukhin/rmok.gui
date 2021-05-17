@@ -18,12 +18,12 @@
           <span :style="{ color: group.color }">{{ group.name }}</span>
         </v-tab>
       </v-tabs>
+      <v-divider />
       <v-tabs-items
         v-model="tabStatus"
       >
-        <!-- Все -->
         <v-tab-item>
-          <v-container fluid>
+          <v-container class="px-5" fluid>
             <v-radio-group
               column
             >
@@ -31,12 +31,13 @@
                 v-for="(status, statusIndex) in statuses"
                 :key="`v-row-status-${statusIndex}`"
                 justify="start"
+                align="start"
               >
                 <v-col
-                  v-for="(item, statusIndex) in status.children"
+                  v-for="(item, statusIndex) in status.statuses"
                   :key="`v-col-status-${statusIndex}`"
-                  cols="3"
-                  class="mr-10 pa-0 mb-1"
+                  cols="4"
+                  class="pa-0 mb-1"
                 >
                   <v-radio
                     :key="`v-radio-${statusIndex}`"
@@ -57,27 +58,27 @@
           v-for="(tabItem, tabIndex) in statuses"
           :key="`tab-item-status-${tabIndex}`"
         >
-          <v-radio-group
-            :key="`v-radio-group-${tabIndex}`"
-            column
-          >
-            <v-row justify="start">
-              <v-col
-                v-for="(status, statusIndex) in tabItem.children"
-                :key="`status-${statusIndex}`"
-                cols="auto"
-                class="mr-10"
-              >
-                <v-radio
-                  :ref="`vRadio${status.id}`"
-                  :label="status.name"
-                  :color="tabItem.color"
-                  :id="`v-radio-${status.id}`"
-                  @change="onRadioChange(status)"
-                ></v-radio>
-              </v-col>
-            </v-row>
-          </v-radio-group>
+          <v-container class="px-5" fluid>
+            <v-radio-group
+              :key="`v-radio-group-${tabIndex}`"
+              column
+            >
+              <v-row>
+                <v-col
+                  v-for="(status, statusIndex) in tabItem.statuses"
+                  :key="`status-${statusIndex}`"
+                  cols="4"
+                >
+                  <v-radio
+                    :label="status.name"
+                    :color="tabItem.color"
+                    :id="`v-radio-${status.id}`"
+                    @change="onRadioChange(status)"
+                  ></v-radio>
+                </v-col>
+              </v-row>
+            </v-radio-group>
+          </v-container>
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -103,85 +104,79 @@ export interface StatusInterface {
 }
 
 export default Vue.extend({
-  props: {
-    statuses: {
-      type: Array
-    },
-    statusId: {
-      type: Number,
-      default: 0
-    },
-    comment: {
-      type: String,
-      default: ''
-    },
+  computed: {
+    actions () {
+      return {
+        cancel: {
+          color: 'red',
+          disabled: true,
+          flat: true,
+          handle: () => {
+            if (typeof this.onCancel === 'function') {
+              this.onCancel()
+            }
+          },
+          text: this.$tc('Cancel')
+        },
 
-    // Обратные вызовы
-    onSave: {
-      type: Function,
-      default: null
-    },
-    onCancel: {
-      type: Function,
-      default: null
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof this.onSave === 'function') {
+              this.onSave({
+                comment: this.dComment,
+                status: this.selected
+              })
+            }
+          },
+          text: this.$tc('Save')
+        }
+      }
     }
   },
 
   data () {
     return {
-      dStatusId: 0,
       dComment: '',
-      tabStatus: 0,
+      dStatusId: 0,
+      selected: undefined,
       tab: null,
-      selected: undefined
-    }
-  },
-
-  mounted () {
-    for (let i = 0; i < this.statuses.length; i++) {
-      const status = this.statuses[i].children.find((e: any) => e.id === this.statusId)
-      if (typeof status === 'object') {
-        console.log(this.$refs[`vRadio${status.id}`])
-      }
-    }
-
-    this.dComment = this.comment
-  },
-
-  computed: {
-    actions () {
-      return {
-        cancel: {
-          flat: true,
-          text: this.$tc('Cancel'),
-          color: 'red',
-          disabled: true,
-          handle: () => {
-            if (typeof this.onCancel === 'function') {
-              this.onCancel()
-            }
-          }
-        },
-
-        save: {
-          flat: true,
-          text: this.$tc('Save'),
-          handle: () => {
-            if (typeof this.onSave === 'function') {
-              this.onSave({
-                status: this.selected,
-                comment: this.dComment
-              })
-            }
-          }
-        }
-      }
+      tabStatus: 0
     }
   },
 
   methods: {
     onRadioChange (status: any) {
       (this as any).selected = status
+    }
+  },
+
+  mounted () {
+    this.dComment = this.comment
+  },
+
+  props: {
+    comment: {
+      default: '',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    // Обратные вызовы
+    onSave: {
+      default: null,
+      type: Function
+    },
+
+    statusId: {
+      default: 0,
+      type: Number
+    },
+
+    statuses: {
+      type: Array
     }
   }
 

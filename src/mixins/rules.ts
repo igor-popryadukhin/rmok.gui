@@ -54,15 +54,6 @@ export default Vue.extend({
   },
 
   methods: {
-    ruleDynamic (val: number | string | boolean | RegExp, message?: string): DynamicRuleInterface {
-      return {
-        val: () => val || message || this.$t('rule_max_dynamic_length', { val }),
-        max: (value: string) => isEmpty(value) || value.length <= val || message || this.$t('rule_max_dynamic_length', { val }),
-        min: (value: string) => isEmpty(value) || value.length >= val || message || this.$t('rule_min_dynamic_length', { val }),
-        regex: (value: string) => isEmpty(value) || new RegExp(val as string | RegExp).test(value) || message || this.$t('rule_regex_dynamic', { val })
-      }
-    },
-
     assertLength (options: AssertLengthInterface) {
       return (value: string) => {
         if (options.max) {
@@ -89,11 +80,15 @@ export default Vue.extend({
 
     ruleComparer (val1: number | string | boolean, val2: number | string | boolean, message?: string) {
       return () => val1 === val2 || message || this.$t('rule_value_is_not_equal')
-    }
-  },
+    },
 
-  beforeRouteEnter (to: Route, from: Route, next: NavigationGuardNext) {
-    // todo: Solve the question of how we will change the locale
-    loadLanguageAsync('ru', 'rules').then(() => next())
+    ruleDynamic (val: number | string | boolean | RegExp, message?: string): DynamicRuleInterface {
+      return {
+        max: (value: string) => isEmpty(value) || value.length <= val || message || this.$t('rule_max_dynamic_length', { val }),
+        min: (value: string) => isEmpty(value) || value.length >= val || message || this.$t('rule_min_dynamic_length', { val }),
+        regex: (value: string) => isEmpty(value) || new RegExp(val as string | RegExp).test(value) || message || this.$t('rule_regex_dynamic', { val }),
+        val: () => val || message || this.$t('rule_max_dynamic_length', { val })
+      }
+    }
   }
 })

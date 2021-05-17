@@ -82,21 +82,16 @@ import axios, { AxiosResponse } from 'axios'
 export default Vue.extend({
   data () {
     return {
-      isError: false,
-      errorMessage: '',
-      processMessage: '',
-      processAuthorization: false,
       authorization: {
+        loading: false,
         login: '',
-        password: '',
-        loading: false
-      }
+        password: ''
+      },
+      errorMessage: '',
+      isError: false,
+      processAuthorization: false,
+      processMessage: ''
     }
-  },
-
-  created () {
-    this.$cookie.delete('access_token')
-    this.$cookie.delete('refresh_token')
   },
 
   methods: {
@@ -112,9 +107,9 @@ export default Vue.extend({
         if (response.status === 200) {
           /* eslint-disable */
           // @ts-ignore
-          this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 600 })
+          this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 })
           // @ts-ignore
-          this.$cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
+          this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
 
           this.processMessage = this.$tc('Loading profile data...')
           await this.$store.dispatch('profile/loadProfile')
@@ -122,20 +117,17 @@ export default Vue.extend({
 
           if (this.$store.getters['profile/role_use'] === 'for_administration') {
             this.$router.replace({ name: 'administrator' })
-              .finally(() => {
-                this.$root.$emit('root-jssip-set-configuration')
-                this.$root.$emit('root-loading-projects')
-              })
           } else if (this.$store.getters['profile/role_use'] === 'for_calls') {
-
-            this.processMessage = this.$tc('Loading projects...')
-            await this.$store.dispatch('project/load')
 
             // Если авторизовался оператор
             this.$router.replace({ name: 'operator_leads' })
               .finally(() => {
-                this.$root.$emit('root-jssip-set-configuration')
-                this.$root.$emit('root-loading-projects')
+                setTimeout(async () => {
+                  this.$root.$emit('root-jssip-initialize')
+                  this.$root.$emit('root-loading-projects')
+
+                  await this.$store.dispatch('project/load')
+                }, 1000)
               })
           }
 
@@ -143,10 +135,10 @@ export default Vue.extend({
           this.processMessage = this.$tc('Login successful!')
           /* eslint-enable */
         } else {
-          this.processMessage = this.$tc('Authorisation Error!')
+          this.processMessage = this.$tc('Authentication Error!')
         }
       }).catch(() => {
-        this.processMessage = this.$tc('Authorisation Error!')
+        this.processMessage = this.$tc('Authentication Error!')
       }).finally(() => {
         setTimeout(() => {
           this.authorization.loading = false

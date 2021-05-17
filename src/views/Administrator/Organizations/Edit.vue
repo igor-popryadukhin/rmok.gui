@@ -311,48 +311,6 @@ import { UserInterface } from '@/api/Users'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 
 export default Vue.extend({
-  components: { SUsers },
-
-  mixins: [rules],
-
-  data () {
-    return {
-      regExPatterns: {
-        companyName: /[A-zА-я0-9"&\s+]+/
-      },
-      buttonSave: {
-        disabled: false,
-        loading: false
-      },
-      buttonDelete: {
-        disabled: false,
-        loading: false,
-        class: 'mr-2'
-      },
-      form: {
-        valid: false
-      },
-      /* eslint-disable */
-      dataChanged: false,
-      organizationId: 0,
-      organizationName: '',
-      organizationInn: '',
-      organizationCpp: '',
-      organizationSite: '',
-      organizationEmail: '',
-      organizationPhone: '',
-      organizationSphereActivity: '',
-      organizationTags: [] as any[],
-      organizationResponsible: {} as unknown as UserInterface,
-      organizationCity: '' as string,
-      organizationRegion: '' as string,
-      organizationAddress: '' as string,
-      organizationDescription: '' as string,
-      tags: [] as OrganizationTagInterface[]
-      /* eslint-enable */
-    }
-  },
-
   beforeRouteEnter (to, from, next) {
     new Organizations()
       .getById(+to.params.id)
@@ -389,8 +347,8 @@ export default Vue.extend({
 
           // Загрузка доступных ответственных
           vm.$refs.sUsers.fetchData({
-            q: organization.responsible ? organization.responsible.first_name : '',
-            organization_id: organization.id
+            organization_id: organization.id,
+            q: organization.responsible ? organization.responsible.first_name : ''
           })
         })
       }).catch(() => {
@@ -413,7 +371,51 @@ export default Vue.extend({
     }
   },
 
+  components: { SUsers },
+
+  data () {
+    return {
+      buttonDelete: {
+        class: 'mr-2',
+        disabled: false,
+        loading: false
+      },
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      form: {
+        valid: false
+      },
+      regExPatterns: {
+        companyName: /[A-zА-я0-9"&\s+]+/
+      },
+      /* eslint-disable */
+      dataChanged: false,
+      organizationId: 0,
+      organizationName: '',
+      organizationInn: '',
+      organizationCpp: '',
+      organizationSite: '',
+      organizationEmail: '',
+      organizationPhone: '',
+      organizationSphereActivity: '',
+      organizationTags: [] as any[],
+      organizationResponsible: {} as unknown as UserInterface,
+      organizationCity: '' as string,
+      organizationRegion: '' as string,
+      organizationAddress: '' as string,
+      organizationDescription: '' as string,
+      tags: [] as OrganizationTagInterface[]
+      /* eslint-enable */
+    }
+  },
+
   methods: {
+    onBtnDeleteClick () {
+      console.log('onBtnDeleteClick')
+    },
+
     onChanged () {
       this.dataChanged = true
     },
@@ -491,12 +493,10 @@ export default Vue.extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
-    },
-
-    onBtnDeleteClick () {
-      console.log('onBtnDeleteClick')
     }
-  }
+  },
+
+  mixins: [rules]
 })
 </script>
 

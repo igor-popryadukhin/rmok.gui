@@ -186,25 +186,6 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  mixins: [rules, countryCodes],
-
-  data (): IData {
-    return {
-      pbxPasswordVisible: false,
-      pbxConfig: {
-        display_name: '',
-        login: '',
-        password: '',
-        port: 0,
-        server: ''
-      },
-      buttonSave: {
-        loading: false,
-        disabled: false
-      }
-    }
-  },
-
   beforeRouteEnter (to, from, next) {
     new Users()
       .getById(+to.params.user_id, {
@@ -221,6 +202,23 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
         })
       })
+  },
+
+  data (): IData {
+    return {
+      buttonSave: {
+        disabled: false,
+        loading: false
+      },
+      pbxConfig: {
+        display_name: '',
+        login: '',
+        password: '',
+        port: 0,
+        server: ''
+      },
+      pbxPasswordVisible: false
+    }
   },
 
   methods: {
@@ -248,7 +246,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
         }).finally(() => (this.buttonSave.loading = false))
     }
-  }
+  },
+
+  mixins: [rules, countryCodes]
 })
 </script>
 

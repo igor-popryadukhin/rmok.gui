@@ -36,22 +36,6 @@ import router from '@/router'
 
 export default Vue.extend({
 
-  name: 'VRouterComboBox',
-
-  props: {
-    patternRouteName: {
-      type: [String, RegExp],
-      required: true
-    }
-  },
-
-  data () {
-    return {
-      select: null as any,
-      routes: []
-    }
-  },
-
   created () {
     const tree = (node: Route, handler: (a: Route) => void) => {
       if (node.children) {
@@ -70,14 +54,30 @@ export default Vue.extend({
       tree(e, (route: Route) => {
         if (reg.test(route.name)) {
           this.routes.push({
-            name: this.$tc(route.name || ''),
-            icon: route.meta.icon,
             disabled: false,
+            icon: route.meta.icon,
+            name: this.$tc(route.name || ''),
             to: route
           })
         }
       })
     })
+  },
+
+  data () {
+    return {
+      routes: [],
+      select: null as any
+    }
+  },
+
+  name: 'VRouterComboBox',
+
+  props: {
+    patternRouteName: {
+      required: true,
+      type: [String, RegExp]
+    }
   }
 })
 </script>

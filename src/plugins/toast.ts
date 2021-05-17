@@ -3,15 +3,15 @@ import Toast, { POSITION } from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 // see: https://maronato.github.io/vue-toastification
 Vue.use(Toast, {
-  transition: 'Vue-Toastification__bounce',
-  maxToasts: 14,
-  position: POSITION.TOP_RIGHT,
-  newestOnTop: true,
+  closeButton: 'button',
   closeOnClick: true,
   draggable: true,
   draggablePercent: 0.6,
-  showCloseButtonOnHover: true,
   hideProgressBar: true,
-  closeButton: 'button',
-  timeout: 4500
+  maxToasts: 14,
+  newestOnTop: true,
+  position: POSITION.TOP_RIGHT,
+  showCloseButtonOnHover: true,
+  timeout: 4500,
+  transition: 'Vue-Toastification__bounce'
 })

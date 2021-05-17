@@ -13,6 +13,7 @@ import { sleep } from '@/Utils'
 const config = {
   baseURL: process.env.VUE_APP_API,
   timeout: 30000,
+  withCredentials: process.env.NODE_ENV === 'development',
   validateStatus (status: number) {
     return status < 500 // Resolve only if the status code is less than 500
   }
@@ -23,6 +24,12 @@ const _axios: AxiosInstance = axios.create(config)
 const cookie: Cookie = new Cookie()
 let isRefreshTokenProcess = false
 const promises: any[] = []
+
+if (process.env.NODE_ENV === 'development') {
+  // Связан с параметром withCredentials
+  cookie.set('XDEBUG_SESSION', 'PHPSTORM', { path: '/' })
+}
+
 /* eslint-disable */
 // @ts-ignore
 _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
@@ -54,8 +61,8 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
           refresh_token: cookie.get('refresh_token')
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {
-            cookie.set('access_token', response.data.access_token, { 'max-age': 600, 'path': '/' })
-            cookie.set('refresh_token', response.data.refresh_token, { path: '/' })
+            cookie.set('access_token', response.data.access_token, { 'max-age': 86400, 'path': '/' })
+            cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
             config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
           }
         }).catch(() => {

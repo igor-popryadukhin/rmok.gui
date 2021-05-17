@@ -16,11 +16,6 @@
 
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    }
-  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size)
@@ -30,9 +25,14 @@ export default {
     },
     styles () {
       return {
-        width: this.size,
-        height: this.size
+        height: this.size,
+        width: this.size
       }
+    }
+  },
+  props: {
+    size: {
+      default: '40px'
     }
   }
 }

@@ -4,6 +4,49 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v.1.0.3]
+
+## Добавлено
+- Для интерфейса оператора, добавлен редактор vueditor (без tool) [@Programmer900](https://gitlab.com/Programmer900)
+
+## Добавлено
+- ESLint `sort-keys-fix` плагин для сортировки свойств [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Сортировка контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Сортировка списка пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Полнотекстовый поиск контактов в панели администратора [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Возможность сохранять состояние боковой панели основного меню в панели администратора. [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Параметры часового пояса [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Установка тегов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Фильтрация контактов по тегам [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Аудио плеер для прослушивания аудиозаписей записи разговора [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+
+## Исправлено
+- Прочие мелкие ошибки.
+- Отсортированы все свойства в `*.ts, *.js, *.vue`
+- Диалог создания и редактирования контактов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- В статистке "По всем вызовам" фильтрация по создателю, а не по текущему владельцу истории [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- В статистке "По всем вызовам" показать создателя истории, а текущего владельца [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+
+## [v1.0.2] - 2021-04-14
+
+## Изменено
+- Понедельник первый день в календаре (пока для всех национальностей) [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Отчёт активности, время в формате `hh:mm:ss` вместо процентов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Перемещена кнопка добавления задачи в леву часть экрана  [@Programmer900](https://gitlab.com/Programmer900).
+
+## Добавлено
+- Раздел статистики, "Занятость сотрудников" [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Переход из статистики в карточку контакта для прозвона [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Раздел "Задачи" для операторов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Строка для поиска пользователей [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- На фронтенде, добавлен функционал автоматического закрытия списка задач, со статусом -pending [@Programmer900](https://gitlab.com/Programmer900).
+
+## Исправлено
+- Переиспользование компонента `s-task-list` [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Изменение в логике `s-task-list` [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Ошибка, при создании и редактировании задач, устанавливалось неверное время. [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- В таблице отчётов, для преобразования unixtime используется [Moment](https://momentjs.com/) [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+
 ## [1.0.1] - 2021-03-10
 
 ## Добавлено

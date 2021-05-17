@@ -38,42 +38,42 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  props: {},
-
-  data () {
-    return {
-      items: [
-        {
-          name: 'profile',
-          icon: 'mdi-user',
-          to: {
-            name: 'profile'
-          }
-        },
-        {
-          name: 'settings',
-          icon: 'mdi-settings',
-          to: {
-            name: 'settings'
-          }
-        },
-        {
-          name: 'exit',
-          icon: 'mdi-exit',
-          click: () => {
-            // todo: delete cookie
-          }
-        }
-      ]
-    }
-  },
-
   computed: {
     avatar () {
       const first: string = this.$store.getters['profile/first_name'] || ''
       const last: string = this.$store.getters['profile/last_name'] || ''
       return first.charAt(0) + last.charAt(0)
     }
-  }
+  },
+
+  data () {
+    return {
+      items: [
+        {
+          icon: 'mdi-user',
+          name: 'profile',
+          to: {
+            name: 'profile'
+          }
+        },
+        {
+          icon: 'mdi-settings',
+          name: 'settings',
+          to: {
+            name: 'settings'
+          }
+        },
+        {
+          click: () => {
+            // todo: delete cookie
+          },
+          icon: 'mdi-exit',
+          name: 'exit'
+        }
+      ]
+    }
+  },
+
+  props: {}
 })
 </script>

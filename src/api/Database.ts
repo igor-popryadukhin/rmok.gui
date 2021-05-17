@@ -1,8 +1,9 @@
+import APIError from '@/api/classes/APIError'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
 export interface CountryCodeInterface {
-  /* eslint-disable */
   name: string;
   name2: string;
   country_code: string;
@@ -10,7 +11,22 @@ export interface CountryCodeInterface {
   example_format: string;
   example: string;
   region: string;
-  /* eslint-enable */
+}
+
+export interface StatusGroupInterface {
+  id: number;
+  name: string;
+}
+
+export interface StatusInterface {
+  id: number;
+  name: string;
+  color: string;
+  group?: StatusGroupInterface;
+  statuses?: unknown & {
+    id: number;
+    name: string;
+  };
 }
 
 export class Database {
@@ -26,6 +42,22 @@ export class Database {
           }
           resolve(response.data as CountryCodeInterface[])
         }).catch(reject)
+    })
+  }
+
+  /**
+   * Список статусов
+   */
+  public statuses<TM = null, TD = StatusInterface[]> (params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+      $axios.get('/database/statuses', {
+        params
+      }).then((response: AxiosResponse) => {
+        if (response.status === 200) {
+          resolve(response.data)
+        }
+        throw new APIError(response.data)
+      }).catch(reject)
     })
   }
 }

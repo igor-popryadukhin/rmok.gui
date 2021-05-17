@@ -91,46 +91,29 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  props: {
-    title: {
-      type: String,
-      default: 'Title'
-    },
-    statuses: {
-      type: Array
-    },
-    text: {
-      type: String,
-      default: ''
-    },
-    saveTitle: {
-      type: String,
-      default: 'Save'
-    },
-    cancelTitle: {
-      type: String,
-      default: 'Cancel'
-    },
-    comment: {
-      type: String,
-      default: ''
-    },
-    onSave: {
-      type: Function,
-      default: null
-    },
-    onCancel: {
-      type: Function,
-      default: null
-    }
-  },
+  computed: {
+    actions () {
+      return {
+        cancel: {
+          flat: true,
+          handle: () => {
+            if (typeof (this as any).onCancel === 'function') {
+              ((this as any).onCancel)()
+            }
+          },
+          text: (this as any).cancelTitle
+        },
 
-  data () {
-    return {
-      dComment: '',
-      tabStatus: 0,
-      tab: null,
-      selected: undefined
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof (this as any).onSave === 'function') {
+              (this as any).onSave((this as any).selected)
+            }
+          },
+          text: (this as any).saveTitle
+        }
+      }
     }
   },
 
@@ -138,35 +121,52 @@ export default Vue.extend({
     (this as any).dComment = (this as any).comment
   },
 
-  computed: {
-    actions () {
-      return {
-        cancel: {
-          flat: true,
-          text: (this as any).cancelTitle,
-          handle: () => {
-            if (typeof (this as any).onCancel === 'function') {
-              ((this as any).onCancel)()
-            }
-          }
-        },
-
-        save: {
-          flat: true,
-          text: (this as any).saveTitle,
-          handle: () => {
-            if (typeof (this as any).onSave === 'function') {
-              (this as any).onSave((this as any).selected)
-            }
-          }
-        }
-      }
+  data () {
+    return {
+      dComment: '',
+      selected: undefined,
+      tab: null,
+      tabStatus: 0
     }
   },
 
   methods: {
     onRadioChange (status: any) {
       (this as any).selected = status
+    }
+  },
+
+  props: {
+    cancelTitle: {
+      default: 'Cancel',
+      type: String
+    },
+    comment: {
+      default: '',
+      type: String
+    },
+    saveTitle: {
+      default: 'Save',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    statuses: {
+      type: Array
+    },
+    onSave: {
+      default: null,
+      type: Function
+    },
+    title: {
+      type: String,
+      default: 'Title'
+    },
+    text: {
+      default: '',
+      type: String
     }
   }
 

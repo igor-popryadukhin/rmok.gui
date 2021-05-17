@@ -23,20 +23,20 @@
 </template>
 <script>
 export default {
-  props: {
-    size: {
-      default: '40px'
-    },
-    background: {
-      default: '#41b883'
-    }
-  },
   computed: {
     styles () {
       return {
-        width: this.size,
-        height: this.size
+        height: this.size,
+        width: this.size
       }
+    }
+  },
+  props: {
+    background: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
     }
   }
 }

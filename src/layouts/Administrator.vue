@@ -4,18 +4,19 @@
     <!-- Nav drawer -->
     <v-navigation-drawer
       v-model="drawer"
-      :mini-variant.sync="mini"
+      :mini-variant.sync="navigation_drawer_mini"
       class="background--drawer"
+      permanent
       app
       dark
     >
-      <v-list-item class="px-2">
+      <v-list-item class="px-2 pth-63">
         <v-list-item-avatar class="v-icon--link" color="white">
           <v-btn
             icon
             link
             color="primary"
-            @click.stop="mini = !mini"
+            @click.stop="navigation_drawer_mini = !navigation_drawer_mini"
           >
             R
           </v-btn>
@@ -118,7 +119,7 @@
       app
       dark
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="navigation_drawer_mini = !navigation_drawer_mini"></v-app-bar-nav-icon>
       <v-toolbar-title class="d-inline-block toolbar-title mr-md-5 mr-lg-5">
         <div class="hidden-sm-and-down">RMOK</div>
         <div class="hidden-sm-and-down toolbar-title-subtitle text-lowercase">{{ $store.getters['profile/role_name'] }}</div>
@@ -214,71 +215,10 @@
 </template>
 
 <script lang="ts">
+import jssip from '@/mixins/jssip'
 import Vue from 'vue'
-import breadcrumbs from '@/mixins/breadcrumbs'
 
 export default Vue.extend({
-  mixins: [breadcrumbs],
-
-  data () {
-    return {
-      drawer: true,
-      mini: false,
-      settings: {
-        suppressScrollY: false,
-        suppressScrollX: false,
-        wheelPropagation: false
-      },
-      dialog: false,
-      accountMenuItems: [
-        {
-          title: 'Profile',
-          icon: {
-            name: 'mdi-account',
-            attrs: {}
-          },
-          attrs: {
-            dense: true,
-            to: {
-              name: 'administrator_profile'
-            }
-          }
-        },
-        {
-          title: 'Exit',
-          icon: {
-            name: 'mdi-exit-run',
-            attrs: {}
-          },
-          attrs: {
-            dense: true
-          },
-          on: {
-            click: () => {
-              this.$dialog.confirm({
-                title: this.$tc('Подтверждение действия.'),
-                text: this.$tc('Вы действительно хотите выйти?'),
-                actions: {
-                  false: {
-                    color: 'red',
-                    text: this.$tc('no')
-                  },
-                  true: {
-                    color: 'primary',
-                    text: this.$tc('yes'),
-                    handle: () => {
-                      this.$router.replace({ name: 'login' })
-                    }
-                  }
-                }
-              })
-            }
-          }
-        }
-      ]
-    }
-  },
-
   computed: {
     avatar () {
       const first: string = this.$store.getters['profile/first_name'] || 'N'
@@ -289,156 +229,234 @@ export default Vue.extend({
     mainMenu () {
       return [
         {
-          title: 'Organizations',
           icon: 'mdi-city',
-          visible: this.$permission.isGranted(['section.organization']),
           list_item: {
             to: {
               name: 'administrator_organizations_list'
             }
-          }
+          },
+          title: 'Organizations',
+          visible: this.$permission.isGranted(['section.organization'])
         },
         {
-          title: 'Contacts',
           icon: 'mdi-contacts',
-          visible: this.$permission.isGranted(['section.contacts']),
           list_item: {
             to: {
               name: 'administrator_contacts'
             }
-          }
+          },
+          title: 'Contacts',
+          visible: this.$permission.isGranted(['section.contacts'])
         },
         {
-          title: 'Groups',
           icon: 'mdi-account-group',
-          visible: this.$permission.isGranted(['section.groups']),
           list_item: {
             to: {
               name: 'administrator_groups_list'
             }
-          }
+          },
+          title: 'Groups',
+          visible: this.$permission.isGranted(['section.groups'])
         },
         {
-          title: 'Users',
           icon: 'mdi-account-multiple-outline',
-          visible: this.$permission.isGranted(['section.users']),
           list_item: {
             to: {
               name: 'administrator_users_list'
             }
-          }
+          },
+          title: 'Users',
+          visible: this.$permission.isGranted(['section.users'])
         },
         {
-          title: 'Roles',
           icon: 'mdi-account-tie',
-          visible: this.$permission.isGranted('role.view'),
           list_item: {
             to: {
               name: 'administrator_roles_list'
             }
-          }
+          },
+          title: 'Roles',
+          visible: this.$permission.isGranted('role.view')
         },
         {
-          title: 'Projects',
           icon: 'mdi-projector-screen',
-          visible: this.$permission.isGranted(['section.projects']),
           list_item: {
             to: {
               name: 'administrator_projects_list'
             }
-          }
+          },
+          title: 'Projects',
+          visible: this.$permission.isGranted(['section.projects'])
         },
         {
-          title: 'Statistic',
-          icon: 'mdi-chart-arc',
-          visible: this.$permission.isGranted(['section.statistics']),
-          list_item: {},
           active: false,
           children: [
             {
+              attrs: {
+                to: {
+                  name: 'administrator_statistics_recent_calls'
+                }
+              },
+              icon: '',
               title: 'Last call statistics',
-              icon: '',
-              visible: true,
-              attrs: {
-                to: {
-                  name: 'administrator_reports_recent_calls'
-                }
-              }
+              visible: true
             },
             {
+              attrs: {
+                to: {
+                  name: 'administrator_statistics_all_calls'
+                }
+              },
+              icon: '',
               title: 'Statistics for all calls',
-              icon: '',
-              visible: true,
-              attrs: {
-                to: {
-                  name: 'administrator_reports_all_calls'
-                }
-              }
+              visible: true
             },
             {
-              title: 'By the number of calls',
-              icon: '',
-              visible: true,
               attrs: {
                 to: {
-                  name: 'administrator_reports_call_count'
+                  name: 'administrator_statistics_call_count'
                 }
-              }
+              },
+              icon: '',
+              title: 'By the number of calls',
+              visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_statistics_activity'
+                }
+              },
+              icon: '',
+              title: 'Employment of employees',
+              visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_statistics_unauthorized_breaks'
+                }
+              },
+              icon: '',
+              title: 'Unauthorized breaks',
+              visible: true
             }
-          ]
+          ],
+          icon: 'mdi-chart-arc',
+          list_item: {},
+          title: 'Statistic',
+          visible: this.$permission.isGranted(['section.statistics'])
         },
         { divider: true },
         {
-          title: 'Settings',
-          icon: 'mdi-cog-outline',
           active: true,
-          visible: true,
           children: [
             {
-              title: 'Profile',
-              icon: 'mdi-account',
-              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_profile'
                 }
-              }
+              },
+              icon: 'mdi-account',
+              title: 'Profile',
+              visible: true
             },
             {
-              title: 'Journal',
-              icon: 'mdi-history',
-              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_journal'
                 }
-              }
+              },
+              icon: 'mdi-history',
+              title: 'Journal',
+              visible: true
             },
             {
-              title: 'Security',
-              icon: 'mdi-security',
-              visible: true,
               attrs: {
                 to: {
                   name: 'administrator_security'
                 }
-              }
+              },
+              icon: 'mdi-security',
+              title: 'Security',
+              visible: true
             },
             {
-              title: 'For developer',
-              icon: 'mdi-flask',
-              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/is_super_admin'],
               attrs: {
                 to: {
                   name: 'administrator_for_developer'
                 }
-              }
+              },
+              icon: 'mdi-flask',
+              title: 'For developer',
+              visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/is_super_admin']
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_settings_regional'
+                }
+              },
+              icon: 'mdi-translate',
+              title: 'Regional settings',
+              visible: true
             }
-          ]
+          ],
+          icon: 'mdi-cog-outline',
+          title: 'Settings',
+          visible: true
         }
       ]
+    },
+
+    navigation_drawer_mini: {
+      get () { return this.$store.getters['settings/navigation_drawer_mini'] },
+      set (value: boolean) { this.$store.commit('settings/navigation_drawer_mini', value) }
     }
-  }
+  },
+
+  data () {
+    return {
+      accountMenuItems: [
+        {
+          attrs: {
+            dense: true,
+            to: {
+              name: 'administrator_profile'
+            }
+          },
+          icon: {
+            attrs: {},
+            name: 'mdi-account'
+          },
+          title: 'Profile'
+        },
+        {
+          attrs: {
+            dense: true
+          },
+          icon: {
+            attrs: {},
+            name: 'mdi-exit-run'
+          },
+          on: {
+            click: () => this.$router.replace({ name: 'login' })
+          },
+          title: 'Exit'
+        }
+      ],
+      dialog: false,
+      drawer: true,
+      mini: false,
+      settings: {
+        suppressScrollX: false,
+        suppressScrollY: false,
+        wheelPropagation: false
+      }
+    }
+  },
+
+  mixins: [jssip]
 })
 </script>
 
@@ -481,6 +499,11 @@ export default Vue.extend({
     100% {
       opacity: 1;
     }
+  }
+
+  .v-application .pth-63 {
+    padding-top: 4px !important;
+    padding-bottom: 3px !important;
   }
 
 </style>

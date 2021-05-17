@@ -1,268 +1,186 @@
 <template>
-  <div>
-    <v-row class="ma-0">
+  <v-row>
 
-      <!-- List -->
-      <v-col
-        order-sm="2"
-        order-lg="1"
-        order-md="1"
-        cols="12"
-        md="8"
-        lg="8"
-        class="pt-0"
-      >
-        <!-- Лиды -->
-        <v-row class="mb-3">
-          <v-col
-            order="1"
-            cols="12"
-            class="pa-0 pr-lg-3 pr-md-3"
+    <!-- Лиды и задачи -->
+    <v-col
+      cols="12"
+    >
+      <!-- Лиды -->
+      <v-row>
+        <v-col
+          order="1"
+          cols="12"
+          class="pb-0"
+        >
+          <v-card
+            :height="350"
+            class="overflow-y-auto v-card"
+            elevation="0"
+            tile
           >
-            <v-card
-              :height="350"
-              class="overflow-y-auto v-card"
-              elevation="0"
-              outlined
-              tile
-            >
-              <v-card-title>{{ $tc('Leads not called') }}</v-card-title>
-              <v-card-subtitle>{{ $tc('Total') }}: {{ leadsCount }}</v-card-subtitle>
-              <v-card-text class="v-card__text">
-                <template v-if="leads.length > 0">
-                  <template
-                    v-for="item in leads"
+            <v-card-title class="px-0">{{ $tc('Leads not called') }}</v-card-title>
+            <v-card-subtitle class="px-0">{{ $tc('Total') }}: <app-count-up :delay="1000" :end-val="leadsCount" /></v-card-subtitle>
+            <v-card-text class="v-card__text px-0">
+              <template v-if="leads.length > 0">
+                <template
+                  v-for="item in leads"
+                >
+                  <v-divider
+                    :key="`divider-${item.id}`"
+                  />
+                  <v-list-item
+                    :key="`list-item-${item.id}`"
+                    ripple
+                    selectable
+                    :to="{ name: 'operator_contacts_view', params: { contact_id: item.id } }"
+                    style="min-height: 35px"
                   >
-                    <v-divider
-                      :key="`divider-${item.id}`"
-                    />
-                    <v-list-item
-                      :key="`list-item-${item.id}`"
-                      ripple
-                      selectable
-                      :to="{ name: 'operator_leads_script', params: { contact_id: item.id } }"
-                      style="min-height: 35px"
-                    >
-                      <v-list-item-content class="pa-0">
-                        <v-list-item-title>
-                          {{ item.first_name }} {{ item.last_name }}
-                        </v-list-item-title>
-                        <!--                  <v-list-item-subtitle>{{ new Date(item.created_at * 1000).toLocaleDateString() }}</v-list-item-subtitle>-->
-                      </v-list-item-content>
-                      <v-spacer />
-                      <v-list-item-content class="pa-0">
-                        <v-list-item-title
-                          v-if="item.default_phone"
-                          class="text-right"
-                        >{{ item.default_phone.international }}
-                        </v-list-item-title>
-                        <v-list-item-title
-                          v-else-if="item.phones.length > 0"
-                          class="text-right"
-                        >{{ item.phones[0].international }}
-                        </v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </template>
-                </template>
-                <template v-else-if="leadsLoading && leads.length === 0">
-                  <v-list-item class="text-center">
+                    <v-list-item-content class="pa-0">
+                      <v-list-item-title>
+                        {{ item.first_name }} {{ item.last_name }}
+                      </v-list-item-title>
+                      <!--                  <v-list-item-subtitle>{{ new Date(item.created_at * 1000).toLocaleDateString() }}</v-list-item-subtitle>-->
+                    </v-list-item-content>
                     <v-spacer />
-                    <span class="grey--text">{{ $tc('Loading content...') }}</span>
-                    <v-spacer />
+                    <v-list-item-content class="pa-0">
+                      <v-list-item-title
+                        v-if="item.default_phone"
+                        class="text-right"
+                      >{{ item.default_phone.international }}
+                      </v-list-item-title>
+                      <v-list-item-title
+                        v-else-if="item.phones.length > 0"
+                        class="text-right"
+                      >{{ item.phones[0].international }}
+                      </v-list-item-title>
+                    </v-list-item-content>
                   </v-list-item>
                 </template>
-                <template v-else>
-                  <v-list-item class="text-center">
-                    <v-spacer />
-                    <span class="grey--text">
+              </template>
+              <template v-else-if="leadsLoading && leads.length === 0">
+                <v-list-item class="text-center">
+                  <v-spacer />
+                  <span class="grey--text">{{ $tc('Loading content...') }}</span>
+                  <v-spacer />
+                </v-list-item>
+              </template>
+              <template v-else>
+                <v-list-item class="text-center">
+                  <v-spacer />
+                  <span class="grey--text">
                       {{ $tc('You have no leads') }}
                     </span>
-                    <v-spacer />
-                  </v-list-item>
-                </template>
-              </v-card-text>
-              <v-footer color="white">
-              </v-footer>
-            </v-card>
-          </v-col>
-        </v-row>
+                  <v-spacer />
+                </v-list-item>
+              </template>
+            </v-card-text>
+            <v-footer color="white">
+            </v-footer>
+          </v-card>
+        </v-col>
+      </v-row>
 
-        <!-- Задачи -->
-        <v-row>
-          <v-col
-            order="2"
-            cols="12"
-            class="pa-0 pr-lg-3 pr-md-3"
-          >
-            <s-task-list
-              ref="sTaskList"
-              :height="790"
-              tile
-              flat
-              outlined
-            />
-          </v-col>
-        </v-row>
-      </v-col>
+      <v-row>
+        <v-col class="px-5">
+          <v-divider />
+        </v-col>
+      </v-row>
 
-      <!-- Filter -->
-      <v-col
-        order-sm="1"
-        order-lg="2"
-        order-md="2"
-        cols="12"
-        md="4"
-        lg="4"
-        class="pt-0 px-0"
-      >
-        <v-card
-          height="100%"
-          flat
-          tile
-          outlined
-          disabled
+      <!-- Задачи -->
+      <v-row>
+        <v-col
+          order="2"
+          cols="12"
         >
-          <v-card-text class="pt-5">
-            <v-tooltip bottom max-width="400">
-              <template v-slot:activator="{ on }">
-                <v-combobox
-                  v-model="filter.scenario.selected"
-                  :items="filter.scenario.items"
-                  :disabled="filter.scenario.disabled || filter.scenario.length === 0"
-                  :label="$tc('Scenario')"
-                  item-value="id"
-                  item-text="name"
-                  small-chips
-                  multiple
-                  outlined
-                  dense
-                  v-on="on"
-                ></v-combobox>
-              </template>
-              <span>{{ $tc('Filter by scenario') }}</span>
-            </v-tooltip>
-            <v-menu
-              ref="filterDataRange"
-              v-model="filter.dataRange.visible"
-              :close-on-content-click="false"
-              :return-value.sync="filter.dataRange.dates"
-              transition="scale-transition"
-              offset-y
-              max-width="290px"
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  v-model="dateRangeText"
-                  :label="$t('Date the contact was created')"
-                  persistent-hint
-                  prepend-inner-icon="mdi-calendar"
-                  readonly
-                  outlined
-                  dense
-                  clearable
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                v-model="filter.dataRange.dates"
-                no-title
-                :show-current="false"
-                :locale="$i18n.locale"
-                range
+          <s-task-list
+            :params="taskListParams"
+            filters-enabled
+            tile
+            flat
+            @loaded-data="onTasksLoadedData"
+          >
+            <template v-slot:item="{ item }">
+              <v-list-item-title
+                v-if="item.type === 'call'"
+                :style="{ color: item.expired ? 'red' : '' }"
               >
-                <v-spacer></v-spacer>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="filter.dataRange.dates = []"
-                  @mouseup="filter.dataRange.visible = false"
-                >
-                  {{ $t('Clear') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="filter.dataRange.visible = false"
-                >
-                  {{ $t('Cancel') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="$refs.filterDataRange.save(filter.dataRange.dates)"
-                >
-                  {{ $t('Ok') }}
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </div>
+                {{ `Позвонить ${$moment.unix(item.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}` }}
+              </v-list-item-title>
+              <v-list-item-subtitle v-if="item.contact">
+                {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+              </v-list-item-subtitle>
+              <v-list-item-subtitle>
+                        <span
+                          class="label mr-2"
+                          :style="{'background-color': lastContactStatus(item.contact).color }"
+                          :class="lastContactStatus(item.contact).class"
+                        >
+                            {{ lastContactStatus(item.contact).name }}
+                          </span> {{ item.description || '—' }}
+              </v-list-item-subtitle>
+            </template>
+          </s-task-list>
+        </v-col>
+      </v-row>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
+import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import store from '@/store'
 import Vue from 'vue'
-import { ContactResponseInterface, Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
-import { ContactInterface, ContactPhoneInterface, HistoryInterface } from '@/api/Schemas/ContactInterface'
-import Projects, { ProjectInterface } from '@/api/Projects'
+import { Contacts, ContactSearchQueryInterface } from '@/api/Contacts'
+import { ContactInterface, ContactPhoneInterface, ContactHistoryInterface } from '@/api/Schemas/ContactInterface'
+import { ProjectInterface } from '@/api/Projects'
 import { MainSearchMethod } from '@/Interfaces'
 import { UserInterface } from '@/api/Users'
-import { TaskInterface } from '@/api/Tasks'
 import Leads from '@/api/Leads'
 import secondsToHms from '@/mixins/secondsToHms'
 import STaskList from '@/snippets/STaskList/STaskList.vue'
 
-interface DataInterface {
+interface IData {
   filter: any;
   leads: ContactInterface[];
   contact: ContactInterface;
   leadsLoading: boolean;
-  task: any;
+  taskCount: number;
   vueScrollLeads: any;
   vueScrollTasks: any;
   paginator: any;
   leadsCount: number;
 }
 
-interface MethodsInterface {
+interface IMethods {
   onVueScrollTaskHandleComplete: (data: any) => void
   onVueScrollLeadsHandleComplete: (data: any) => void
   onRootMainSearch: (q: string, set: MainSearchMethod) => void
   onRootMainSearchSelected: (data: ContactInterface) => void
   onContactItemClick: (contact: ContactInterface) => void
   onItemDeleteClick: (id: number) => void
+  onTasksLoadedData: (data: any) => void
   loadLeads: () => void
 }
 
-interface ComputedInterface {
+interface IComputed {
   avatar: string;
+  taskListParams: any;
   dateRangeText: any[];
 }
 
-export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
-  components: { STaskList },
-  mixins: [
-    secondsToHms
-  ],
+export default Vue.extend<IData, IMethods, IComputed>({
+  async beforeRouteEnter (to, from, next) {
+    // Нужно загрузить задачи до того как страница будет отрисована
+    await store.dispatch('tasks/reset_filter') // Очищаю фильтр
+    store.dispatch('tasks/items', {
+      planned_for: 'today',
+      state: 'pending'
+    }).finally(() => (next()))
+  },
+  components: { AppCountUp, STaskList },
 
   data () {
     return {
-      vueScrollLeads: {
-        offset: 0
-      },
-      vueScrollTasks: {
-        offset: 0
-      },
-      paginator: {
-        perPage: 10,
-        pages: 0,
-        page: 1
-      },
       contact: {
         /* eslint-disable */
         city: '',
@@ -277,12 +195,19 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
         created_at: 0
         /* eslint-enabled */
       },
-      task: {
-        loading: false,
-        count: 0,
-        items: [] as TaskInterface[],
+      paginator: {
+        pages: 0,
+        perPage: 10,
+        page: 1
       },
-      contactHistory: [] as HistoryInterface[],
+      vueScrollLeads: {
+        offset: 0
+      },
+      vueScrollTasks: {
+        offset: 0
+      },
+      taskCount: 0,
+      contactHistory: [] as ContactHistoryInterface[],
       leadsLoading: false,
       leads: [] as ContactInterface[],
       leadsCount: 0,
@@ -314,11 +239,21 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
     }
   },
 
+  mixins: [
+    secondsToHms
+  ],
+
   computed: {
     avatar (): string {
       const first: string = this.contact.first_name || ''
       const last: string = this.contact.last_name || ''
       return first.charAt(0) + last.charAt(0)
+    },
+
+    taskListParams () {
+      return {
+        state: 'pending'
+      }
     },
 
     dateRangeText: {
@@ -400,39 +335,21 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
   },
 
   mounted () {
-    this.$root.$on('root-main-search', this.onRootMainSearch)
-    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
     this.$root.$on('root-load-leads', this.loadLeads)
-    this.$root.$on('root-load-tasks', this.onRootLoadTasks)
-
-    // Загружаю задачи
-    this.$refs.sTaskList.fetchData()
   },
 
   created () {
-    new Projects()
-    .find<{count: number}, ProjectInterface[]>()
-    .then((response) => {
-      this.filter.project.items = response.data
-    }).finally(() => {
-      const index: number = this.filter.project.items.findIndex((e: any) => +this.$route.query.project_id === e.id)
-      if (index > -1) {
-        this.filter.project.selected = this.filter.project.items[index]
-      }
-    })
-
     this.loadLeads()
   },
 
   beforeDestroy() {
-    this.$root.$off('root-main-search', this.onRootMainSearch)
-    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
     this.$root.$off('root-load-leads', this.loadLeads)
-    this.$root.$off('root-load-tasks', this.onRootLoadTasks)
   },
 
   methods: {
-    /* eslint-disable */
+    onTasksLoadedData (data: any) {
+      this.$data.taskCount = data.meta.count
+    },
 
     /**
      * Происходит, когда полоса прокрутки списка задач завершил прокрутку
@@ -444,32 +361,6 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
           this.loadLeads()
         }
       }
-    },
-
-    onRootMainSearch (q: string, set: MainSearchMethod) {
-      new Contacts()
-        .find({
-          q,
-          offset: 0,
-          count: 10
-        }).then((response: ContactResponseInterface) => {
-        set(response.items.map((e: ContactInterface) => {
-          return {
-            ...e,
-            title: `${e.first_name} ${e.last_name}`,
-            subtitle: e.city
-          }
-        }))
-      })
-    },
-
-    onRootMainSearchSelected (data: ContactInterface) {
-      this.$router.push({
-        name: 'operator_leads_script',
-        params: {
-          contact_id: String(data.id)
-        }
-      })
     },
 
     /**
@@ -543,8 +434,21 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface>({
         })
     },
 
-    onRootLoadTasks () {
-      this.$refs.sTaskList.fetchData()
+    lastContactStatus (contact: ContactInterface) {
+      if (contact) {
+        if (contact.last_status) {
+          return {
+            name: contact.last_status.name,
+            class: '',
+            color: contact.last_status.color
+          }
+        }
+      }
+      return {
+        name: this.$tc('Status not set'),
+        class: 'label-outlined label-color-grey',
+        color: ''
+      }
     }
   }
 })

@@ -128,54 +128,25 @@ export default Vue.extend({
     ProjectStatusDialogStatus
   },
 
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  props: {
-    value: {
-      type: Array,
-      default: () => null
-    },
-    actions: {
-      type: Array,
-      default: () => []
-    }
-  },
-
   data () {
     return {
+      currentGroup: null as GroupInterface | any,
       dialogGroup: {
-        visible: false,
+        color: '',
         id: '' as number | string,
         name: '',
-        color: ''
+        visible: false
       },
       dialogStatus: {
-        selected: null,
-        visible: false,
+        actions: [] as ActionInterface[],
         id: '' as number | string,
         name: '',
-        actions: [] as ActionInterface[]
+        selected: null,
+        visible: false
       },
-      currentGroup: null as GroupInterface | any,
       initiallyOpen: [],
-      tree: [],
-      items: [] as GroupInterface[]
-    }
-  },
-
-  watch: {
-    items: {
-      handler (value) {
-        this.$emit('change', value)
-      },
-      deep: true
-    },
-
-    value (data: any) {
-      this.items = data
+      items: [] as GroupInterface[],
+      tree: []
     }
   },
 
@@ -197,32 +168,6 @@ export default Vue.extend({
       })
     },
 
-    onSaveGroupClick ({ name, color }: any) {
-      const index = this.items.findIndex((e: GroupInterface) => e.id === this.dialogGroup.id)
-      if (index > -1) {
-        this.items[index].name = name
-        this.items[index].color = color
-      } else {
-        this.items.push({
-          id: this.generateUUID(),
-          name,
-          color,
-          children: []
-        })
-      }
-
-      this.dialogGroup.id = ''
-      this.dialogGroup.name = ''
-      this.dialogGroup.color = ''
-    },
-
-    onGroupRemoveClick (item: GroupInterface) {
-      const index: number = this.items.findIndex((e: GroupInterface) => e.id === item.id)
-      if (index > -1) {
-        this.items.splice(index, 1)
-      }
-    },
-
     onGroupAddClick () {
       this.dialogGroup.id = ''
       this.dialogGroup.name = ''
@@ -237,13 +182,30 @@ export default Vue.extend({
       this.dialogGroup.visible = true
     },
 
-    onStatusRemoveClick (item: StatusInterface) {
-      this.items.forEach((element: any, i: number) => {
-        const index: number = element.children.findIndex((e: any) => e.id === item.id)
-        if (index > -1) {
-          this.items[i].children.splice(index, 1)
-        }
-      })
+    onGroupRemoveClick (item: GroupInterface) {
+      const index: number = this.items.findIndex((e: GroupInterface) => e.id === item.id)
+      if (index > -1) {
+        this.items.splice(index, 1)
+      }
+    },
+
+    onSaveGroupClick ({ name, color }: any) {
+      const index = this.items.findIndex((e: GroupInterface) => e.id === this.dialogGroup.id)
+      if (index > -1) {
+        this.items[index].name = name
+        this.items[index].color = color
+      } else {
+        this.items.push({
+          children: [],
+          color,
+          id: this.generateUUID(),
+          name
+        })
+      }
+
+      this.dialogGroup.id = ''
+      this.dialogGroup.name = ''
+      this.dialogGroup.color = ''
     },
 
     /**
@@ -265,9 +227,9 @@ export default Vue.extend({
         this.items.forEach((group: GroupInterface) => {
           if (group.id === this.dialogGroup.id) {
             group.children.push({
+              actions: status.actions,
               id: this.generateUUID(),
-              name: status.name,
-              actions: status.actions
+              name: status.name
             })
           }
         })
@@ -287,6 +249,44 @@ export default Vue.extend({
       this.dialogStatus.name = item.name
       this.dialogStatus.actions = item.actions
       this.dialogStatus.visible = true
+    },
+
+    onStatusRemoveClick (item: StatusInterface) {
+      this.items.forEach((element: any, i: number) => {
+        const index: number = element.children.findIndex((e: any) => e.id === item.id)
+        if (index > -1) {
+          this.items[i].children.splice(index, 1)
+        }
+      })
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    actions: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: () => null,
+      type: Array
+    }
+  },
+
+  watch: {
+    items: {
+      deep: true,
+      handler (value) {
+        this.$emit('change', value)
+      }
+    },
+
+    value (data: any) {
+      this.items = data
     }
   }
 })

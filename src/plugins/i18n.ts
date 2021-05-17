@@ -8,9 +8,8 @@ const loadedPackages: string[] = [] // our default language that is preloaded
 const locale: string | undefined = process.env.VUE_APP_I18N_LOCALE
 
 const i18n = new VueI18n({
-  locale,
-  silentTranslationWarn: true,
   fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'ru',
+  locale,
   pluralizationRules: {
     /**
      * @param choice {number} индекс выбора, переданный в $tc: `$tc('path.to.rule', choiceIndex)`
@@ -40,7 +39,8 @@ const i18n = new VueI18n({
 
       return (choicesLength < 4) ? 2 : 3
     }
-  }
+  },
+  silentTranslationWarn: true
 })
 
 class VueI18nPlugin {

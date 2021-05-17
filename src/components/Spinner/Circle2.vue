@@ -3,28 +3,28 @@
 </template>
 <script>
 export default {
+  computed: {
+    styles () {
+      return {
+        border: this.stroke + ' solid ' + this.background,
+        borderTopColor: this.color,
+        height: this.size,
+        width: this.size
+      }
+    }
+  },
   props: {
-    size: {
-      default: '40px'
-    },
     background: {
       default: '#3a70d4'
     },
     color: {
       default: 'white'
     },
+    size: {
+      default: '40px'
+    },
     stroke: {
       default: '5px'
-    }
-  },
-  computed: {
-    styles () {
-      return {
-        width: this.size,
-        height: this.size,
-        border: this.stroke + ' solid ' + this.background,
-        borderTopColor: this.color
-      }
     }
   }
 }

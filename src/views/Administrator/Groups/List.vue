@@ -117,35 +117,13 @@
           <v-toolbar-title class="grey--text">{{ $tc('Filter') }}</v-toolbar-title>
           <v-spacer></v-spacer>
         </v-toolbar>
-
         <!-- FILTERS -->
-        <v-card-text>
-          <s-organizations-autocomplete
-            ref="sOrganizationsAutocomplete"
-            v-model="filter.organization"
-            :label="$tc('Organization')"
-            clearable
-            outlined
-            dense
-          />
-        </v-card-text>
         <v-card-text>
           <s-projects-autocomplete
             ref="sProjectsAutocomplete"
             v-model="filter.project"
             :label="$tc('Project')"
             clearable
-            outlined
-            dense
-          />
-        </v-card-text>
-        <v-card-text>
-          <s-groups
-            ref="sGroupsAutocomplete"
-            v-model="filter.group"
-            :label="$tc('Group')"
-            clearable
-            outlined
             dense
           />
         </v-card-text>
@@ -159,7 +137,6 @@
 import Vue, { VueConstructor } from 'vue'
 import { GroupInterface, Groups } from '@/api/Groups'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { OrganizationInterface } from '@/api/Organizations'
 import { ProjectInterface } from '@/api/Projects'
 import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
@@ -167,82 +144,7 @@ import SGroups from '@/snippets/SGroups/SGroups.vue'
 import VInterface from '@/VInterface'
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  components: { SGroups, SProjectsAutocomplete, SOrganizationsAutocomplete },
-  data () {
-    return {
-      negativeScreenHeightSize: 220,
-      buttonAdd: {
-        disabled: false
-      },
-      dataTableGroups: {
-        page: 1,
-        pages: 1,
-        totalCount: 0,
-        itemsPerPage: 20,
-        pageStart: 0,
-        pageStop: 0,
-        processLoading: false,
-        headers: [
-          { text: 'Имя', align: 'start', sortable: false, value: 'name', width: 'auto' },
-          { text: 'Организация', align: 'start', sortable: false, value: 'organization' },
-          { text: 'Ответственный', align: 'start', sortable: false, value: 'responsible' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
-        ],
-        items: [] as GroupInterface[]
-      },
-      groupsProcessLoading: false,
-      filter: {
-        organization: null,
-        project: null,
-        group: null
-      }
-    }
-  },
-
-  watch: {
-    'filter.organization': {
-      handler (val: OrganizationInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            organization_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'organization_id'
-          ]).then(this.fetchUsers)
-        }
-      }
-    },
-
-    'filter.project': {
-      handler (val: ProjectInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            project_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'project_id'
-          ]).then(this.fetchUsers)
-        }
-      }
-    },
-
-    'filter.group': {
-      handler (val: GroupInterface) {
-        if (val) {
-          this.$routerQuery.setQuery({
-            group_id: val.id
-          }).then(this.fetchUsers)
-        } else {
-          this.$routerQuery.removeQuery([
-            'group_id'
-          ]).then(this.fetchUsers)
-        }
-      }
-    }
-  },
-
+  components: { SProjectsAutocomplete },
   computed: {
     // Вычисляю высоту таблицы
     dataTableGroupsHeight () {
@@ -256,16 +158,63 @@ export default (Vue as VueConstructor<VInterface>).extend({
     this.fetchGroups()
   },
 
+  data () {
+    return {
+      buttonAdd: {
+        disabled: false
+      },
+      dataTableGroups: {
+        headers: [
+          { align: 'start', sortable: false, text: 'Имя', value: 'name', width: 'auto' },
+          { align: 'start', sortable: false, text: 'Организация', value: 'organization' },
+          { align: 'start', sortable: false, text: 'Ответственный', value: 'responsible' },
+          { align: 'end', sortable: true, text: '', value: 'actions', width: '100%' }
+        ],
+        items: [] as GroupInterface[],
+        itemsPerPage: 20,
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 1,
+        processLoading: false,
+        totalCount: 0
+      },
+      filter: {
+        project: null
+      },
+      groupsProcessLoading: false,
+      negativeScreenHeightSize: 220
+    }
+  },
+
   methods: {
+    fetchGroups () {
+      this.dataTableGroups.processLoading = true
+      const offset = (this.dataTableGroups.itemsPerPage * this.dataTableGroups.page) - this.dataTableGroups.itemsPerPage
+      new Groups()
+        .find({
+          count: this.dataTableGroups.itemsPerPage,
+          offset
+        })
+        .then((response: ResponseInterface<{ count: number }, GroupInterface[]>) => {
+          this.dataTableGroups.totalCount = response.meta.count
+          this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
+          this.dataTableGroups.items = response.data
+        }).finally(() => {
+          this.dataTableGroups.processLoading = false
+        })
+    },
+
+    onButtonRefreshClick () {
+      this.fetchGroups()
+    },
+
     onDeleteItem (id: number) {
       this.$dialog.confirm({
-        text: this.$tc('confirm_group_deletion'),
-        title: this.$tc('confirmation_request'),
         actions: {
           false: this.$tc('no'),
           true: {
             color: 'red',
-            text: this.$tc('yes'),
             handle: () => {
               return new Promise((resolve) => {
                 new Groups()
@@ -280,31 +229,29 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
                 resolve()
               })
-            }
+            },
+            text: this.$tc('yes')
           }
-        }
+        },
+        text: this.$tc('confirm_group_deletion'),
+        title: this.$tc('confirmation_request')
       })
-    },
+    }
+  },
 
-    fetchGroups () {
-      this.dataTableGroups.processLoading = true
-      const offset = (this.dataTableGroups.itemsPerPage * this.dataTableGroups.page) - this.dataTableGroups.itemsPerPage
-      new Groups()
-        .find({
-          offset,
-          count: this.dataTableGroups.itemsPerPage
-        })
-        .then((response: ResponseInterface<{ count: number }, GroupInterface[]>) => {
-          this.dataTableGroups.totalCount = response.meta.count
-          this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
-          this.dataTableGroups.items = response.data
-        }).finally(() => {
-          this.dataTableGroups.processLoading = false
-        })
-    },
-
-    onButtonRefreshClick () {
-      this.fetchGroups()
+  watch: {
+    'filter.project': {
+      handler (val: ProjectInterface) {
+        if (val) {
+          this.$routerQuery.setQuery({
+            project_id: val.id
+          }).then(this.fetchUsers)
+        } else {
+          this.$routerQuery.removeQuery([
+            'project_id'
+          ]).then(this.fetchUsers)
+        }
+      }
     }
   }
 })

@@ -100,24 +100,6 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
 
-  data (): IData {
-    return {
-      filter: {
-        organization: null,
-        project: null,
-        group: null
-      },
-      dataTableRoles: {
-        processLoading: false,
-        headers: [
-          { text: 'Role name', align: 'start', sortable: true, value: 'name', width: 'auto' },
-          { text: '', align: 'end', sortable: true, value: 'actions', width: '100%' }
-        ],
-        items: [] as RoleInterface[]
-      }
-    }
-  },
-
   computed: {
     // Вычисляю высоту таблицы
     dataTableUsersHeight () {
@@ -131,14 +113,32 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     this.fetchRoles()
   },
 
+  data (): IData {
+    return {
+      dataTableRoles: {
+        headers: [
+          { align: 'start', sortable: true, text: 'Role name', value: 'name', width: 'auto' },
+          { align: 'end', sortable: true, text: '', value: 'actions', width: '100%' }
+        ],
+        items: [] as RoleInterface[],
+        processLoading: false
+      },
+      filter: {
+        group: null,
+        organization: null,
+        project: null
+      }
+    }
+  },
+
   methods: {
     fetchRoles () {
       this.dataTableRoles.processLoading = true
       const offset = (this.dataTableRoles.itemsPerPage * this.dataTableRoles.page) - this.dataTableRoles.itemsPerPage
 
       const params: any = {
-        offset,
-        count: this.dataTableRoles.itemsPerPage
+        count: this.dataTableRoles.itemsPerPage,
+        offset
       }
 
       if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
@@ -152,14 +152,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).finally(() => (this.dataTableRoles.processLoading = false))
     },
 
-    onButtonRefreshClick () {
-      this.fetchRoles()
-    },
-
     async onAddClick () {
       // Показать диалог создания новой роли
       const instance = await this.$dialog.show(RoleUseTypeDialog, {
-        waitForResult: false,
+        onCancel: () => {
+          instance.close()
+        },
         onCreate: (scope: any) => {
           new Roles()
             .add({
@@ -182,10 +180,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             })
             .finally(() => (instance.close()))
         },
-        onCancel: () => {
-          instance.close()
-        }
+        waitForResult: false
       })
+    },
+
+    onButtonRefreshClick () {
+      this.fetchRoles()
     }
   }
 })

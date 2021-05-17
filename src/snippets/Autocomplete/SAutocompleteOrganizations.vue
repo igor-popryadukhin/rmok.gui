@@ -48,39 +48,13 @@ import { OrganizationInterface, Organizations } from '@/api/Organizations'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
-  model: {
-    prop: 'selected',
-    event: 'change'
+  created () {
+    this.organizationsSearchQuery = this.search
   },
-  props: {
-    selectedId: {
-      type: Number,
-      default: 0
-    },
-    search: {
-      type: String,
-      default: ''
-    },
-    rules: {
-      type: Array,
-      default: undefined
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    label: {
-      type: String,
-      default: ''
-    }
-  },
-
   data () {
     return {
       loading: false,
-      selectOnce: false,
-      selected: null,
-      organizationsSearchQuery: null as null | string,
+      organizations: [] as OrganizationInterface[],
       organizationsSearchDebounce: debounce((q: string, context: any) => {
         context.loading = true
         new Organizations().find({
@@ -97,26 +71,52 @@ export default Vue.extend({
             context.loading = false
           })
       }, 400),
-      organizations: [] as OrganizationInterface[]
+      organizationsSearchQuery: null as null | string,
+      selectOnce: false,
+      selected: null
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'selected'
+  },
+
+  props: {
+    label: {
+      default: '',
+      type: String
+    },
+    rules: {
+      default: undefined,
+      type: Array
+    },
+    search: {
+      default: '',
+      type: String
+    },
+    selectedId: {
+      default: 0,
+      type: Number
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
     }
   },
 
   watch: {
-    selected (value) {
-      this.$emit('change', value)
-    },
-
     organizationsSearchQuery (val: string) {
       this.organizationsSearchDebounce(val, this)
+    },
+
+    selected (value) {
+      this.$emit('change', value)
     },
 
     selectedId (id: number) {
       this.organizations.find((e: OrganizationInterface) => e.id === id)
     }
-  },
-
-  created () {
-    this.organizationsSearchQuery = this.search
   }
 })
 </script>

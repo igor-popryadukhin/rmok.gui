@@ -1,26 +1,18 @@
 <template>
-  <ol style="">
-    <li>Приветствую</li>
-    <li>Представляюсь</li>
-    <li>Уточняю, возможность разговора</li>
-    <li>Объясняю цель звонка</li>
-    <li>Задаю вопросы, выясняю потребности</li>
-    <li>Презентую преимущества продукта</li>
-    <li>Уважительно выслушиваю возражения</li>
-    <li>Используя возражения, дополнительно рассказываю о продукте</li>
-    <li>Убеждаюсь, что понят</li>
-    <li>Финализирую звонок: продажа, назначение встречи, повторный звонок</li>
-  </ol>
+  <div v-html="scenario" > {{ scenario }} </div>
 </template>
 
 <script lang="ts">
+
 import Vue from 'vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
-  data () {
-    return {
-      history: [1, 2, 3, 4, 5]
-    }
+  computed: {
+    ...mapGetters({
+      project_id: 'project/id',
+      scenario: 'project/scenario'
+    })
   }
 })
 </script>

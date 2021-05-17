@@ -1,7 +1,20 @@
 import Vue from 'vue'
+import { mapGetters } from 'vuex'
 
 Vue.mixin(Vue.extend({
   computed: {
+    $headerHeight () {
+      return 64 // Высота header
+    },
+
+    $isDebug (): boolean {
+      return Boolean(localStorage.getItem('debug-enabled'))
+    },
+
+    $locale (): string {
+      return 'ru'
+    },
+
     $screenHeight () {
       return this.$vuetify.breakpoint.height
     },
@@ -10,17 +23,9 @@ Vue.mixin(Vue.extend({
       return this.$vuetify.breakpoint.width
     },
 
-    $headerHeight () {
-      return 64 // Высота header
-    },
-
-    $locale (): string {
-      return 'ru'
-    },
-
-    $isDebug (): boolean {
-      return Boolean(localStorage.getItem('debug-enabled'))
-    }
+    ...mapGetters({
+      date_time_format: 'settings/date_time_format'
+    })
   },
 
   methods: {

@@ -30,54 +30,59 @@ import { RoleInterface } from '@/api/Roles'
 import { CountryCodeInterface } from '@/api/Database'
 
 export default Vue.extend({
-  name: 'ComboBoxCountryCallingCode',
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-  props: {
-    rules: {
-      type: Array,
-      default: undefined
-    },
-    visibleIcon: {
-      type: Boolean,
-      default: false
-    },
-    icon: {
-      type: String,
-      default: ''
-    },
-    label: {
-      type: String,
-      default: ''
-    },
-    countryCodeSelected: {
-      type: String,
-      required: false,
-      default: ''
-    },
-    onSelected: {
-      type: Function,
-      required: false
+  created () {
+    const countryCodes: CountryCodeInterface[] = this.$store.getters['system/country_codes']
+    if (countryCodes) {
+      for (const item of countryCodes) {
+        if (item.country_code === this.countryCodeSelected) {
+          this.selected = item
+          break
+        }
+      }
     }
   },
-
   data () {
     return {
-      selected: {} as CountryCodeInterface,
-      roles: [] as RoleInterface[]
+      roles: [] as RoleInterface[],
+      selected: {} as CountryCodeInterface
+    }
+  },
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  name: 'ComboBoxCountryCallingCode',
+
+  props: {
+    countryCodeSelected: {
+      default: '',
+      required: false,
+      type: String
+    },
+    icon: {
+      default: '',
+      type: String
+    },
+    label: {
+      default: '',
+      type: String
+    },
+    onSelected: {
+      required: false,
+      type: Function
+    },
+    rules: {
+      default: undefined,
+      type: Array
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
     }
   },
 
   watch: {
-
-    selected (value) {
-      this.$emit('change', value.country_code)
-      if (typeof this.onSelected === 'function') {
-        this.onSelected(value)
-      }
-    },
 
     countryCodeSelected (value: string) {
       /* eslint-disable */
@@ -91,17 +96,12 @@ export default Vue.extend({
         }
       }
       /* eslint-enable */
-    }
-  },
+    },
 
-  created () {
-    const countryCodes: CountryCodeInterface[] = this.$store.getters['system/country_codes']
-    if (countryCodes) {
-      for (const item of countryCodes) {
-        if (item.country_code === this.countryCodeSelected) {
-          this.selected = item
-          break
-        }
+    selected (value) {
+      this.$emit('change', value.country_code)
+      if (typeof this.onSelected === 'function') {
+        this.onSelected(value)
       }
     }
   }

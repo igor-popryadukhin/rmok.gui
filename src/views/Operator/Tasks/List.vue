@@ -1,134 +1,86 @@
 <template>
-  <v-row class="ma-0">
-    <v-col
-      cols="12"
-    >
-      <vuescroll
-        :ops="vueScrollOptions"
-        :style="{ height: `${$screenHeight - 250}px` }"
-        style="width: 100%"
+  <s-task-list
+    filters-enabled
+  >
+    <template v-slot:item="{ item }">
+      <v-list-item-title
+        v-if="item.type === 'call'"
+        :style="{ color: item.expired ? 'red' : '' }"
       >
-        <template v-if="tasks.length > 0">
-          <v-list>
-            <template
-              v-for="item in organizations"
-            >
-              <v-divider
-                :key="`divider-${item.id}`"
-              />
-              <v-list-item
-                :key="`list-item-${item.id}`"
-                ripple
-                selectable
-                link
-              >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ item.name }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ item.sphere_activity }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-spacer />
-                <v-list-item-group>
-                  <v-list-item-subtitle v-if="item.responsible">
-                    {{ item.responsible.first_name }} {{ item.responsible.last_name }}
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle v-else>
-                    {{ $tc('feckless') }}
-                  </v-list-item-subtitle>
-                </v-list-item-group>
-                <v-list-item-action>
-                  <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        icon
-                        large
-                        v-bind="attrs"
-                        v-on.stop="on"
-                      >
-                        <v-icon>mdi-dots-horizontal</v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item
-                        :to="{ name: 'administrator_organizations_edit', params: { id: item.id } }"
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-square-edit-outline</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Редактировать</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
-                        link
-                        @click.stop="onDeleteItem(item.id)"
-                        disabled
-                      >
-                        <v-list-item-icon>
-                          <v-icon>mdi-delete</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                          <v-list-item-title>Удалить</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
-          </v-list>
-        </template>
-        <template v-else-if="tasksProcessLoading">
-          <v-list-item class="text-center">
-            <v-spacer />
-            <span class="grey--text">
-                {{ $tc('Loading content...') }}
-              </span>
-            <v-spacer />
-          </v-list-item>
-        </template>
-        <template v-else>
-          <v-list-item class="text-center">
-            <v-spacer />
-            <span class="grey--text">
-                {{ $tc('organizations_list_empty') }}
-              </span>
-            <v-spacer />
-          </v-list-item>
-        </template>
-      </vuescroll>
-    </v-col>
-  </v-row>
+        {{ `Позвонить ${$moment.unix(item.planned_for).format('Do MMMM, dddd, HH:mm:ss') }` }}
+      </v-list-item-title>
+      <v-list-item-subtitle v-if="item.contact">
+        {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+      </v-list-item-subtitle>
+      <v-list-item-subtitle>
+        <span
+          class="label mr-2"
+          :style="{'background-color': lastContactStatus(item.contact).color }"
+          :class="lastContactStatus(item.contact).class"
+        >
+          {{ lastContactStatus(item.contact).name }}
+        </span> {{ item.description || '—' }}
+      </v-list-item-subtitle>
+    </template>
+  </s-task-list>
 </template>
 
 <script lang="ts">
+import { ContactInterface } from '@/api/Schemas/ContactInterface'
+import { TaskInterface } from '@/api/Tasks'
+import STaskList from '@/snippets/STaskList/STaskList.vue'
 import Vue from 'vue'
-import vuescroll from 'vuescroll/dist/vuescroll-native'
-import vueScrollOptions from '@/mixins/vueScrollOptions'
 
 export default Vue.extend({
+  components: { STaskList },
 
-  mixins: [vueScrollOptions],
+  methods: {
 
-  components: {
-    vuescroll
-  },
+    lastContactStatus (contact: ContactInterface) {
+      if (contact) {
+        if (contact.last_status) {
+          return {
+            class: '',
+            color: contact.last_status.color,
+            name: contact.last_status.name
+          }
+        }
+      }
+      return {
+        class: 'label-outlined label-color-grey',
+        color: '',
+        name: this.$tc('Status not set')
+      }
+    },
 
-  data () {
-    return {
-      tasksProcessLoading: false,
-      tasks: []
+    vListItemStyleComputed (task: TaskInterface) {
+      const style: any = {}
+
+      if (this.tabsCurrentValue === 'pending') {
+        if (task.state === 'done') {
+          style.opacity = 0.5
+        }
+      }
+
+      return style
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-  .border {
-    border-left: 2px #3A70D4 solid;
-    margin-left: 5px;
+.task-toolbar {
+  flex: none !important;
+  box-shadow: none !important;
+
+  &-extension {
+    display: flex;
+    flex-flow: column;
   }
+
+  &-extension small {
+    font-size: 12px;
+    color: #848484;
+  }
+}
 </style>

@@ -1,21 +1,48 @@
 stages:
+  - merge-request
   - build-review
   - deploy-review
   - build-production
   - deploy-production
+
+
+.only-default: &only-default
+  only:
+    - develop
+    - merge_requests
 
 cache:
   policy: pull-push
   paths:
     - node_modules/
 
+# Запускается каждый раз, когда создают новый запрос на слияние.
+# Здесь мы должны протестировать функционал, до того как запрос будет слит в общую ветку.
+build_merge_requests:
+  image: node:14.16.0-alpine3.12
+  stage: merge-request
+  before_script:
+    - curl --location --request GET 'https://api.telegram.org/bot1771388084:AAHxswf1LQmqGIypwKsyfnR4SVZZYhExZ9g/sendMessage?chat_id=693950562&text=Pipeline%20merge%20request%20start'
+  script:
+    - npm install --progress=false
+    - cat $VUE_ENV_DEVELOPMENT >> ./.env
+    - npm run build
+    - rsync -rq --delete ./dist/* /var/www/feature.rmok.online
+    - curl --location --request GET 'https://api.telegram.org/bot1771388084:AAHxswf1LQmqGIypwKsyfnR4SVZZYhExZ9g/sendMessage?chat_id=693950562&text=Pipeline%20merge%20request%20success'
+  artifacts:
+    expire_in: 30 mins
+    paths:
+      - dist
+  only:
+    - merge_requests
 
 # Review
 build_review:
   image: node:14.16.0-alpine3.12
   stage: build-review
+  <<: *only-default
   script:
-    - cat $VUE_ENV_DEVELOPMENT >> ./.env
+    - cat $VUE_ENV_REVIEW >> ./.env
     - npm install --progress=false
     - npm run build
   only:
@@ -25,26 +52,25 @@ build_review:
     paths:
       - dist
   tags:
-    - review
+    - vue
+    - development
 
 # todo: Test stage
 
 deploy_review:
   stage: deploy-review
+  <<: *only-default
   script:
-    - rsync -rq --delete ./dist/* /var/www/www-root/data/www/rmok.online
+    - rsync -rq --delete ./dist/* ~/rmok.ui
   artifacts:
     expire_in: 30 days
     paths:
       - dist
   tags:
-    - review
+    - vue
+    - development
   only:
     - develop
-
-
-
-
 
 
 # Production
