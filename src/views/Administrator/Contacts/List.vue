@@ -1627,6 +1627,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               .transfer(params)
               .then((count: number) => {
                 this.$toast.success(this.$tc('Contacts not transferred | {n} contact transferred | {n} contact transferred | {n} contacts transferred', count))
+                this.dataTableContacts.selected = [] // Отменить выделение всех контактов
+                instance.close() // Закрыть диалог
               })
               .catch((error) => {
                 if (error instanceof APIError) {
@@ -1637,9 +1639,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
                 }
               })
               .finally(() => {
-                this.dataTableContacts.selected = [] // Отменить выделение всех контактов
                 this.fetchContacts() // Обновить список контактов
-                instance.close() // Закрыть диалог
               })
           },
           persistent: true,

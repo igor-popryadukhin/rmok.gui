@@ -54,6 +54,7 @@
         :label="$tc('The project to which the contacts will be transferred')"
         :error-messages="errors.project"
         :disabled="project_id > 0"
+        @change="errors.project = []"
         dense
         outlined
       />
@@ -64,6 +65,7 @@
         :label="$tc('Users to receive contacts')"
         :error-messages="errors.users"
         :params="{ role_use: 'for_calls' }"
+        @change="errors.users = []"
         dense
         outlined
         multiple
@@ -88,7 +90,6 @@
 </template>
 
 <script lang="ts">
-
 import { ProjectInterface } from '@/api/Projects'
 import { UserInterface } from '@/api/Users'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
@@ -200,10 +201,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         this.errors.project = [this.$tc('This field should not be blank.')]
       }
 
-      if (!this.target_users) {
+      if (this.target_users.length === 0) {
         this.errors.users = [this.$tc('This field should not be blank.')]
       }
-      if (this.errors.users.length > 0 || this.errors.users.length > 0) {
+      if (this.errors.project.length > 0 || this.errors.users.length > 0) {
         return
       }
 
