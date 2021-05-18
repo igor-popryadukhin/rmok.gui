@@ -3,10 +3,10 @@
     flat
     tile
   >
+    <!-- Даты -->
     <v-row>
       <v-col>
-        <div class="d-flex">
-          <v-spacer/>
+        <div class="d-flex justify-end">
           <app-btn-toggle-date
             v-model="filter.date_period"
             :items="dateRangeCollection"
@@ -125,6 +125,7 @@
         />
       </v-col>
 
+      <!-- Фильтр по группам -->
       <v-col
         class="py-0"
         md="4"
@@ -142,6 +143,8 @@
           multiple
         />
       </v-col>
+
+      <!-- Фильтр по проектам -->
       <v-col
         class="py-0"
         md="4"
@@ -157,6 +160,24 @@
           dense
           outlined
           multiple
+        />
+      </v-col>
+
+      <!-- Фильтр по тегам -->
+      <v-col
+        class="py-0"
+        md="4"
+        lg="4"
+        sm="12"
+        xs="12"
+      >
+        <s-contact-tags
+          v-model="filter.tags"
+          :label="$tc('Tags')"
+          multiple
+          clearable
+          outlined
+          dense
         />
       </v-col>
     </v-row>
@@ -178,7 +199,17 @@
                   text
                   small
                 >
-                  {{ dataTableHistory.pageStart }}-{{ dataTableHistory.pageStop }} из {{ dataTableHistory.totalCount }}
+                  <app-count-up
+                    :end-val="dataTableHistory.pageStart"
+                  />
+                  <span class="mx-1">—</span>
+                  <app-count-up
+                    :end-val="dataTableHistory.pageStop"
+                  />
+                  <span class="mx-1">из</span>
+                  <app-number-format
+                    :value="dataTableHistory.totalCount"
+                  />
                 </v-btn>
               </template>
               <v-list
@@ -332,19 +363,22 @@
 
 <script lang="ts">
 import ContactHistory from '@/api/ContactHistory'
+import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
 import Statistics from '@/api/Statistics'
 import { UserInterface } from '@/api/Users'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
+import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
+import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import audioPlayer from '@/mixins/audioPlayer'
 import dateRangeCollection from '@/mixins/dateRangeCollection'
+import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
-
 import VueApexCharts from 'vue-apexcharts'
 import { debounce } from 'vuetify/src/util/helpers'
 import { GroupInterface } from '@/api/Groups'
@@ -357,6 +391,9 @@ Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: {
+    SContactTags,
+    AppNumberFormat,
+    AppCountUp,
     AppBtnToggleDate,
     AppDatePickerInput,
     AppPagination,
@@ -486,6 +523,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         // Дата или диапазон дат
         user: [] as unknown & UserInterface[],
         groups: [] as unknown & GroupInterface[],
+        tags: [] as unknown & ContactTagInterface[],
         project_id: null as unknown & ProjectInterface | null
       },
       filterDate: undefined,
@@ -553,6 +591,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
         if (this.assertObjectHasAttribute(this.$route.query, 'group_ids')) {
           params.group_ids = this.$route.query.group_ids
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'tag_ids')) {
+          params.tag_ids = this.$route.query.tag_ids
         }
 
         new Statistics()
@@ -636,11 +678,24 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            group_ids: newVal.map((e: GroupInterface) => e.id)
+            group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
           }).then(this.fetchDataHistory)
         } else {
           this.$routerQuery.removeQuery([
             'group_ids'
+          ]).then(this.fetchDataHistory)
+        }
+      })
+
+      // Фильтрация по группам
+      this.$watch('filter.tags', (newVal: number[]) => {
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            tag_ids: newVal.join(',')
+          }).then(this.fetchDataHistory)
+        } else {
+          this.$routerQuery.removeQuery([
+            'tag_ids'
           ]).then(this.fetchDataHistory)
         }
       })
@@ -750,6 +805,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     if (this.$routerQuery.hasQuery('group_ids')) {
       promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids')))
+    }
+
+    if (this.$routerQuery.hasQuery('tag_ids')) {
+      const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+      this.filter.tags = tag_ids.map(value => +value)
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {

@@ -412,10 +412,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
       })
 
       // Фильтрация по тегам контактов
-      this.$watch('filter.tags', (newVal: unknown & ContactTagInterface[]) => {
+      this.$watch('filter.tags', (newVal?: number[]) => {
         if (Array.isArray(newVal)) {
           this.$routerQuery.setQuery({
-            tag_ids: newVal.map((e: ContactTagInterface) => e.id).join(',')
+            tag_ids: newVal.join(',')
           }).then(() => {
             this.fetchDiagramData()
           })
@@ -476,14 +476,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     // Восстановление фильтра тегов после перезагрузки
     if (this.$routerQuery.hasQuery('tag_ids')) {
-      promises.push(new Promise<void>(resolve => {
-        new Contacts()
-          .getTags({
-            tag_ids: this.$routerQuery.getQuery<string>('tag_ids')
-          }).then(response => {
-            this.$data.filter.tags = response?.data || []
-          }).finally(() => (resolve()))
-      }))
+      const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+      this.filter.tags = tag_ids.map(value => +value)
     }
 
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры

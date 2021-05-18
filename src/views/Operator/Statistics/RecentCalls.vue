@@ -182,7 +182,17 @@
                   text
                   small
                 >
-                  {{ dataTableHistory.pageStart }}-{{ dataTableHistory.pageStop }} из {{ dataTableHistory.totalCount }}
+                  <app-count-up
+                    :end-val="dataTableHistory.pageStart"
+                  />
+                  <span class="mx-1">—</span>
+                  <app-count-up
+                    :end-val="dataTableHistory.pageStop"
+                  />
+                  <span class="mx-1">из</span>
+                  <app-number-format
+                    :value="dataTableHistory.totalCount"
+                  />
                 </v-btn>
               </template>
               <v-list
@@ -273,7 +283,7 @@
 
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
-            {{ $moment.unix(item.created_at).format('DD.MM.YYYY HH:mm') }}
+            {{ $moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
@@ -366,6 +376,7 @@ import { UserInterface } from '@/api/Users'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
+import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import audioPlayer from '@/mixins/audioPlayer'
 import dateRangeCollection from '@/mixins/dateRangeCollection'
@@ -384,6 +395,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
   mixins: [audioPlayer, dateRangeCollection],
 
   components: {
+    AppNumberFormat,
     AppBtnToggleDate,
     AppCountUp,
     AppDatePickerInput,
