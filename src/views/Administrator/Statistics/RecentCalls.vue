@@ -321,7 +321,10 @@
           dense
           fixed-header
           hide-default-footer
+          multi-sort
           @pagination="onPaginationChange"
+          :sort-by.sync="dataTableHistory.sortBy"
+          :sort-desc.sync="dataTableHistory.sortDesc"
         >
 
           <!-- slots item -->
@@ -489,6 +492,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
           show: true
         }
       }
+    },
+    paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
+      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      return JSON.parse(json)
     }
   },
 
@@ -529,20 +536,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
           },
           {
             align: 'end',
-            sortable: false,
+            sortable: true,
             text: 'Длительность разговора',
             value: 'call_duration',
             width: 'auto'
           },
           {
             align: 'end',
-            sortable: false,
+            sortable: true,
             text: 'Общее время сессии',
             value: 'session_duration',
             width: 'auto'
           },
           {
-            sortable: false,
+            sortable: true,
             text: 'Менеджер',
             value: 'creator',
             width: 'auto'
@@ -569,7 +576,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         selected: [],
         // Количество данных на страниц
         selectedAll: false,
-        totalCount: 0
+        totalCount: 0,
+        sortBy: [],
+        sortDesc: []
       },
 
       dateRange: null as string[] | null,
@@ -658,13 +667,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
         offset
       }, this.paramFilters()) // Общие параметры подъехали
 
-      if (this.$routerQuery.hasQuery('history_sort_by')) {
-        params.history_sort_by = this.$routerQuery.getQuery<number>('history_sort_by')
-      }
-
-      if (this.$routerQuery.hasQuery('history_sort_direction')) {
-        params.history_sort_direction = this.$routerQuery.getQuery<number>('history_sort_direction')
-      }
+      // Формирую параметры сортировки
+      this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
+        params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
+      })
 
       if (this.$routerQuery.hasQuery('project_id')) {
         params.project_id = this.$routerQuery.getQuery<number>('project_id')
@@ -726,6 +732,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * Инициализировать слежение за изменением фильтров
      */
     initializeWatchForFilters () {
+      const debounceDelay = 350 // Задержка, избавит от дребезга
       // Фильтрация по пользователям
       this.$watch('filter.user', (newVal: unknown & UserInterface) => {
         if (newVal) {
@@ -782,6 +789,41 @@ export default (Vue as VueConstructor<VInterface>).extend({
           ]).then(this.fetchAllData)
         }
       })
+
+      // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
+
+      /**
+       * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableContacts
+       */
+      const dataTableSortUpdate = debounce(() => {
+        const sort = []
+        for (let i = 0; i < Math.min(this.dataTableHistory.sortBy.length, this.dataTableHistory.sortDesc.length); i++) {
+          const sortDesc: string = this.dataTableHistory.sortDesc[i]
+          const sortBy: boolean = this.dataTableHistory.sortBy[i]
+
+          sort.push({ sort_by: sortBy, sort_desc: sortDesc })
+        }
+
+        if (sort.length > 0) {
+          // Преобразовываю в JSON и сохраняю в строку браузера
+          this.$routerQuery.setQuery({
+            sort: JSON.stringify(sort)
+          }).then(() => {
+            this.fetchContacts()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['sort'])
+            .then(() => {
+              this.fetchContacts()
+            })
+        }
+      }, debounceDelay)
+
+      // Поля, по которым буду осуществлять сортировку
+      this.$watch('dataTableContacts.sortBy', dataTableSortUpdate)
+      // Направление сортировки
+      this.$watch('dataTableContacts.sortDesc', dataTableSortUpdate)
     },
 
     onPaginationChange (data: any) {
@@ -963,6 +1005,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
         .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
     }
 
+    // Восстановление параметров сортировки после перезагрузки страницы
+    if (this.$routerQuery.hasQuery('sort')) {
+      this.paramsSort.forEach((e: unknown & { sort_by: string, sort_desc: boolean }) => {
+        this.$data.dataTableHistory.options.sortBy.push(e.sort_by)
+        this.$data.dataTableHistory.options.sortDesc.push(e.sort_desc)
+      })
+    }
+
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
     // Загружаю данные после инициализации фильтров
     Promise.all(promises)
@@ -978,18 +1028,24 @@ export default (Vue as VueConstructor<VInterface>).extend({
     'dataTableHistory.options': {
       deep: true,
       handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
+        const sort = []
+        for (let i = 0; i < Math.min(sortBy.length, sortDesc.length); i++) {
+          sort.push({ sort_by: sortBy[i], sort_desc: sortDesc[i] })
+        }
+        console.log('sss sort', sort)
+        if (sort.length > 0) {
+          // Преобразовываю в JSON и сохраняю в строку браузера
+          this.$routerQuery.setQuery({
+            sort: JSON.stringify(sort)
+          }).then(() => {
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['sort'])
+            .then(() => {
+              this.fetchDataHistory()
+            })
         }
       }
     },
