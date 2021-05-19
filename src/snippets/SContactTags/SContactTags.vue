@@ -8,12 +8,13 @@
     :loading="process"
     :error-messages="errorMessages"
     :no-data-text="$tc('No data available')"
-    full-width
+    :label="label"
     ref="ref"
+    item-text="name"
     item-value="id"
     item-color="color"
+    full-width
     disable-lookup
-    return-object
     no-filter
     persistent-hint
     @update:search-input="onTagsSearchInput"
@@ -79,47 +80,6 @@ import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
   name: 'SContactTags',
-
-  data () {
-    return {
-      // Поиск тегов
-      onTagsSearchInput: debounce((q: string) => {
-        new Contacts()
-          .getTags({ q })
-          .then((response) => {
-            this.options = response.data
-          })
-      }, 250),
-      // Коллекция доступных тегов
-      options: [] as unknown & ContactTagInterface[],
-      process: false,
-      q: null,
-      selected: null as unknown & ContactTagInterface | ContactTagInterface[]
-    }
-  },
-
-  methods: {
-    chipRemove (item: ContactTagInterface | null) {
-      if (Array.isArray(this.selected) && item) {
-        const index = this.selected.findIndex((e: ContactTagInterface) => e.id === item.id)
-        if (index >= 0) this.selected.splice(index, 1)
-      } else {
-        this.selected = null
-      }
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  mounted () {
-    if (Array.isArray(this.value)) {
-      this.selected = this.value
-      this.options = this.value
-    }
-  },
 
   props: {
     autoload: {
@@ -190,16 +150,60 @@ export default Vue.extend({
     }
   },
 
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  data () {
+    return {
+      // Поиск тегов
+      onTagsSearchInput: debounce((q: string) => {
+        new Contacts()
+          .getTags({ q })
+          .then((response) => {
+            this.options = response.data
+          })
+      }, 250),
+      // Коллекция доступных тегов
+      process: false,
+      q: null,
+      selected: null as unknown & ContactTagInterface | ContactTagInterface[]
+    }
+  },
+
   watch: {
     selected (value) {
       this.$emit('change', value)
     },
 
-    value (value: ContactTagInterface | ContactTagInterface[]) {
+    value (value: number | number[]) {
       this.selected = value
+    }
+  },
 
-      if (this.options.length === 0 && Array.isArray(value)) {
-        this.options = value
+  computed: {
+    /**
+     * Список тегов контактов
+     */
+    options: {
+      get () {
+        return this.$store.getters['filter/contact_tags']
+      },
+
+      set (val?: ContactTagInterface) {
+        this.$store.commit('filter/contact_tags', val)
+      }
+    }
+  },
+
+  methods: {
+    chipRemove (item: ContactTagInterface | null) {
+      if (Array.isArray(this.selected) && item) {
+        const index = this.selected.findIndex((value: number) => value === item.id)
+        if (index >= 0) this.selected.splice(index, 1)
+      } else {
+        this.selected = null
       }
     }
   }

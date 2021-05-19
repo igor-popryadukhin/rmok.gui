@@ -4,6 +4,11 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Неизданный]
+
+### Добавлено
+- Фильтрация по тегам в статистике [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+
 ## [v1.0.3] - 2021-05-17
 
 ## Добавлено
