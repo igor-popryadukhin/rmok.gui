@@ -9,7 +9,7 @@
           lazy-validation
         >
           <v-card flat outlined tile>
-            <v-card-text class="pb-0">
+            <v-card-text class="pb-6">
               <v-row>
                 <v-col
                   cols="12"
