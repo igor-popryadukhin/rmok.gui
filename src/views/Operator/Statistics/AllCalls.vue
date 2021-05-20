@@ -198,9 +198,18 @@
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
-              <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">
-                {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
-              </router-link>
+              <template v-if="item.contact.owner_id.id !== item.owner.id">
+                <span class="grey--text">
+                   <v-icon small class="mr-1"
+                  >mdi-account-convert</v-icon>
+                  {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+                </span>
+              </template>
+              <template v-else>
+                <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">
+                  {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
+                </router-link>
+              </template>
             </template>
             <template v-else>
               —
