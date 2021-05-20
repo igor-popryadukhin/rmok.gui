@@ -503,6 +503,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
                   .finally(() => {
                     this.fetchDataPie()
                     this.fetchDataHistory()
+                    this.fetchTotalCallCount()
                   })
               } else {
                 throw new Error('В объекте scope отсутствует свойство status_id')
