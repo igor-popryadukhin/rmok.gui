@@ -206,6 +206,7 @@
                   :disabled="process === 'setting-tags'"
                   offset-y
                   @input="onMenuSetTegInputChange"
+                  @keydown.esc="menuSetTagsShowing = false"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
