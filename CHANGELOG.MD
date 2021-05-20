@@ -4,10 +4,11 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Неизданный]
+## [v1.0.4] - 2021-05-20
 
 ### Добавлено
-- Фильтрация по тегам в статистике [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Фильтрация по тегам в статистике: По последним вызовам, по всем вызовам, по количеству вызовов [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
+- Фильтрация по статусам в списке контактов. [@igorpopryadukhin](https://gitlab.com/igorpopryadukhin).
 
 ## [v1.0.3] - 2021-05-17
 
