@@ -143,6 +143,7 @@ import { makeAudioElement } from './utils'
 import Vue from 'vue'
 
 interface IData {
+  src: string;
   stateSpeed: 'x1' | 'x2' | 'x3',
   stateSpeedIcon: string;
   audioPlayer: HTMLAudioElement;
@@ -162,7 +163,6 @@ interface IMethods {
 
 interface IComputed {
   breakpointWidth: string;
-  src: string;
   [key: string]: any;
 }
 
@@ -197,6 +197,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
   data (): IData {
     return {
+      src: '',
       stateSpeed: 'x1',
       stateSpeedIcon: 'mdi-numeric-1-circle-outline',
       audioPlayer: makeAudioElement(),
@@ -250,10 +251,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
     isShowing () {
       return this.showing
-    },
-
-    src () {
-      return this.audioPlayer.src
     }
   },
 
@@ -278,6 +275,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.setSpeedNormal()
 
       if (options?.src) {
+        this.src = options.src
         this.audioPlayer.src = options.src
       }
 
