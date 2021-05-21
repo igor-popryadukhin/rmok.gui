@@ -50,7 +50,7 @@ export default class Projects {
   /**
    * @param params
    */
-  public find<TM, TD> (params: any = null): Promise<ResponseInterface<TM, TD>> {
+  public find<TM = unknown & { count: number }, TD = ProjectInterface[]> (params: any = null): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve: (response: ResponseInterface<TM, TD>) => void, reject) => {
       $axios.get('/projects', {
         params

@@ -1,3 +1,4 @@
+import { ProjectInterface } from '@/api/Projects'
 import { ProjectStateInterface } from './state'
 import { MutationTree } from 'vuex'
 
@@ -35,7 +36,10 @@ const mutations: MutationTree<ProjectStateInterface> = {
    * @param state
    * @param payload
    */
-  created_at (state, payload: number) { state.created_at = payload }
+  created_at (state, payload: number) { state.created_at = payload },
+
+  available_count (state, payload: number) { state.available_count = payload },
+  available (state, payload: ProjectInterface[]) { state.available = payload }
 }
 
 export default mutations

@@ -18,6 +18,18 @@ const actions: ActionTree<ProjectStateInterface, RootStateInterface> = {
           resolve()
         })
     })
+  },
+
+  /**
+   * Получить доступные проекты
+   * @param ctx
+   */
+  async fetchAvailableProjects (ctx: ActionContext<ProjectStateInterface, RootStateInterface>) {
+    return new Projects()
+      .find()
+      .then((response) => {
+        ctx.commit('available', response.data)
+      })
   }
 }
 

@@ -369,6 +369,7 @@
 </template>
 
 <script lang="ts">
+import AppProjectDialogSelect from '@/components/AppProjectDialogSelect/AppProjectDialogSelect.vue'
 import jssip from '@/mixins/jssip'
 import SIncomingRTC from '@/snippets/SIncomingRTC/SIncomingRTC.vue'
 import Vue, { VueConstructor } from 'vue'
@@ -379,7 +380,7 @@ import Projects, { ProjectInterface } from '@/api/Projects'
 import Users from '@/api/Users'
 
 import callMachine from '@/xState/machines/callMachine'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import { interpret } from 'xstate'
 import Account, { UserStatus } from '@/api/Account'
 import VInterface from '@/VInterface'
@@ -405,7 +406,8 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
   computed: {
     ...mapGetters({
-      task_pending_count: 'tasks/pending_count'
+      task_pending_count: 'tasks/pending_count',
+      projects_available: 'project/available'
     }),
 
     avatar () {
@@ -630,6 +632,27 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           },
           icon: {
             attrs: {},
+            name: 'mdi-swap-horizontal-bold mdi-swap-horizontal-bold'
+          },
+          on: {
+            click: async () => {
+              await this.fetchAvailableProjects() // Загрузить доступные мне проекты
+              const instance = this.$dialog.show(AppProjectDialogSelect, {
+                waitForResult: false,
+                items: this.projects_available
+              })
+            }
+          },
+          title: 'Сменить проект'
+        },
+
+        { divider: true },
+        {
+          attrs: {
+            dense: true
+          },
+          icon: {
+            attrs: {},
             name: 'mdi-exit-run'
           },
           on: {
@@ -703,7 +726,11 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             this.projectDialog.visible = true
           }
         })
-    }
+    },
+
+    ...mapActions({
+      fetchAvailableProjects: 'project/fetchAvailableProjects'
+    })
   },
 
   mixins: [breadcrumbs, jssip],
