@@ -58,6 +58,7 @@
                   open-delay="500"
                   color="primary"
                   right
+                  nudge-right="8"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-list-item-title
@@ -84,27 +85,26 @@
             v-bind="mainMenuItem.list_item"
             link
           >
-            <v-list-item-icon>
-              <v-icon>{{ mainMenuItem.icon }}</v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-tooltip
+            <v-tooltip
                 open-delay="500"
                 color="primary"
                 right
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-list-item-title
-                    v-on="on"
-                    v-bind="attrs"
-                  >
+                nudge-right="8"
+            >
+              <template v-slot:activator="{ on, attrs }">
+
+                <v-list-item-icon v-on="on" v-bind="attrs">
+                  <v-icon>{{ mainMenuItem.icon }}</v-icon>
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title v-on="on" v-bind="attrs">
                     {{ $tc(mainMenuItem.title) }}
                   </v-list-item-title>
-                </template>
-                <span>{{ $tc(mainMenuItem.title) }}</span>
-              </v-tooltip>
-            </v-list-item-content>
+                </v-list-item-content>
+              </template>
+              <span>{{ $tc(mainMenuItem.title) }}</span>
+            </v-tooltip>
           </v-list-item>
         </template>
 
