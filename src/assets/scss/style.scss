@@ -17,3 +17,7 @@ html {
 body {
   background-color: #ffffff;
 }
+
+.apexcharts-canvas .apexcharts-toolbar {
+  z-index: 0;
+}
