@@ -11,7 +11,11 @@
     item-value="id"
     return-object
     @focus="onFocus"
+    :multiple="multiple"
   >
+    <template v-slot:selection="{ item }">
+      <div :style="{ color: item.color }" class="v-select__selection v-select__selection--comma">{{ item.name }}</div>
+    </template>
     <template v-slot:item="{ item, on, attrs }">
       <v-list-item
         v-bind="attrs"
@@ -96,7 +100,7 @@ export default Vue.extend({
     },
     value: {
       default: () => null,
-      type: Object as PropType<StatusInterface>
+      type: [Object, Array] as PropType<StatusInterface | StatusInterface[]>
     }
   },
 

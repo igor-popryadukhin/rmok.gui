@@ -534,6 +534,7 @@
               clearable
               outlined
               dense
+              multiple
             />
           </v-card-text>
 
@@ -887,8 +888,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           params.project_id = this.$routerQuery.getQuery<number>('project_id')
         }
 
-        if (this.$routerQuery.hasQuery('status_id')) {
-          params.status_id = this.$routerQuery.getQuery<number>('status_id')
+        if (this.$routerQuery.hasQuery('status_ids')) {
+          params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
         }
 
         if (this.$routerQuery.hasQuery('responsible_id')) {
@@ -965,7 +966,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         tags: [] as ContactTagInterface[],
 
         // Фильтрация по статусам
-        status: null as unknown & StatusInterface,
+        status: [] as unknown & StatusInterface[],
 
         // Фильтрация по задачам
         task: {
@@ -1021,8 +1022,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
       }
 
-      if (this.$routerQuery.hasQuery('status_id')) {
-        promises.push(this.$refs.sStatusesSelect.setDefault(this.$routerQuery.getQuery<number>('status_id')))
+      if (this.$routerQuery.hasQuery('status_ids')) {
+        const status_ids = this.$routerQuery.getQuery<string>('status_ids').split(',')
+        this.filter.status = status_ids.map(value => +value)
       }
 
       if (this.$routerQuery.hasQuery('responsible_id')) {
@@ -1113,21 +1115,21 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         } else {
           this.$routerQuery.removeQuery([
             'project_id',
-            'status_id'
+            'status_ids'
           ]).then(this.fetchContacts)
         }
       })
 
       // Фильтрация по статусам
-      this.$watch('filter.status', (newVal: unknown & StatusInterface) => {
+      this.$watch('filter.status', (newVal: unknown & StatusInterface[]) => {
         this.dataTableContacts.page = 1
-        if (newVal?.id) {
+        if (Array.isArray(newVal)) {
           this.$routerQuery.setQuery({
-            status_id: newVal.id
+            status_ids: newVal.map(val => val.id).join(',')
           }).then(this.fetchContacts)
         } else {
           this.$routerQuery.removeQuery([
-            'status_id'
+            'status_ids'
           ]).then(this.fetchContacts)
         }
       })
