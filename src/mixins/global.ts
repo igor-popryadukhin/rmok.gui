@@ -32,6 +32,13 @@ Vue.mixin(Vue.extend({
     assertObjectHasAttribute (obj: any, key: string): boolean {
       if (obj === null || obj === undefined) { return false }
       return {}.hasOwnProperty.call(obj, key)
+    },
+
+    /**
+     * Метод Window.confirm() отображает модальное диалоговое окно с дополнительным сообщением и двумя кнопками: OK и Отмена.
+     */
+    $confirm (): boolean {
+      return window.confirm(this.$tc('Do you really want to leave? you have unsaved changes!'))
     }
   }
 }))

@@ -61,7 +61,6 @@ export default Vue.extend({
       .finally(() => {
         this.$root.$emit('root-jssip-initialize')
       })
-    this.$store.dispatch('project/load')
   },
 
   components: {

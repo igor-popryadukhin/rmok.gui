@@ -1,5 +1,5 @@
 <template>
-  <div v-html="scenario" > {{ scenario }} </div>
+  <div v-html="scenario" ></div>
 </template>
 
 <script lang="ts">
@@ -10,9 +10,12 @@ import { mapGetters } from 'vuex'
 export default Vue.extend({
   computed: {
     ...mapGetters({
-      project_id: 'project/id',
-      scenario: 'project/scenario'
-    })
+      project_current: 'project/current'
+    }),
+
+    scenario () {
+      return this.project_current?.scenario || ''
+    }
   }
 })
 </script>

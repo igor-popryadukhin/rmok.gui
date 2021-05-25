@@ -47,7 +47,7 @@
               align="start"
             >
               <v-col
-                v-for="(item, statusIndex) in status.statuses"
+                v-for="(item, statusIndex) in status.children"
                 :key="`v-col-status-${statusIndex}`"
                 cols="4"
                 class="pa-0 mb-1"
@@ -78,7 +78,7 @@
         >
           <v-row>
             <v-col
-              v-for="(status, statusIndex) in tabItem.statuses"
+              v-for="(status, statusIndex) in tabItem.children"
               :key="`status-${statusIndex}`"
               cols="4"
             >
@@ -107,8 +107,12 @@ export default Vue.extend({
 
   computed: {
     ...mapGetters({
-      statuses: 'database/statuses_grouped'
+      project_current: 'project/current'
     }),
+
+    statuses () {
+      return this.project_current?.statuses || []
+    },
 
     styleWrapper () {
       return {
@@ -120,7 +124,7 @@ export default Vue.extend({
 
   data () {
     return {
-      currentStatus: null as unknown & StatusInterface,
+      currentStatus: {} as unknown & StatusInterface,
       tab: null,
       tabStatus: 0
     }

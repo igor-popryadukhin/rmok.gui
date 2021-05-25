@@ -1,5 +1,5 @@
 
-export interface ProjectStateInterface {
+export interface CurrentProjectInterface {
   id: number;
   name: string;
   scenario: string;
@@ -7,13 +7,15 @@ export interface ProjectStateInterface {
   created_at: number;
 }
 
+export interface ProjectStateInterface {
+  current?: CurrentProjectInterface;
+  available: CurrentProjectInterface[];
+}
+
 function state (): ProjectStateInterface {
   return {
-    id: 0,
-    name: '',
-    scenario: '',
-    statuses: [],
-    created_at: 0
+    current: undefined,
+    available: []
   }
 }
 

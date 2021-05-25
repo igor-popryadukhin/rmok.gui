@@ -1,3 +1,4 @@
+import APIError from '@/api/classes/APIError'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { OrganizationInterface } from '@/api/Organizations'
@@ -43,6 +44,22 @@ export class Account {
             return resolve(response.data as ProfileInterface)
           }
           reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Выход из системы.
+   */
+  public logout (): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get('/account/logout')
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve()
+          }
+
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

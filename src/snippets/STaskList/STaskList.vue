@@ -248,6 +248,7 @@ import Tasks, { TaskInterface } from '@/api/Tasks'
 import STaskDialogEditor, { DTaskInterface } from '@/snippets/STaskList/STaskDialogEditor.vue'
 import { sleep } from '@/Utils'
 import VInterface from '@/VInterface'
+import moment from 'moment'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
@@ -335,83 +336,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
 
   data () {
     return {
-      btnToggles: [
-        {
-          badge: {
-            color: 'red'
-          },
-          count: 0,
-          params: () => {
-            return {
-              planned_for: 'tomorrow',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          },
-          title: 'For tomorrow',
-          value: 'tomorrow'
-        },
-        {
-          badge: {
-            color: 'red'
-          },
-          count: 0,
-          params: () => {
-            return {
-              planned_for: 'today',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          },
-          title: 'For today',
-          value: 'today'
-        },
-        {
-          badge: {
-            color: 'red'
-          },
-          count: 0,
-          params: () => {
-            return {
-              planned_for: 'yesterday',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          },
-          title: 'Yesterday\'s',
-          value: 'yesterday'
-        },
-        {
-          badge: {
-            color: 'red'
-          },
-          count: 0,
-          params: () => {
-            return {
-              planned_for: 'the_day_before_yesterday',
-              state: 'pending',
-              status_id: +this.filter.status_id
-            }
-          },
-          title: 'The day before yesterday',
-          value: 'the_day_before_yesterday'
-        },
-        {
-          badge: {
-            color: 'grey'
-          },
-          count: 0,
-          params: () => {
-            return {
-              planned_for: 'all',
-              state: 'all',
-              status_id: +this.filter.status_id
-            }
-          },
-          title: 'All tasks',
-          value: 'all'
-        }
-      ],
       dateRange: null as string[] | null,
 
       // Фильтр
@@ -457,6 +381,128 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         pages: 1,
         per_page_count: 25
       },
+
+      // Метод загрузки задач
+      fetchTasks: debounce((params = {}) => {
+        let offset = this.task_paginator.per_page_count * this.task_paginator.page - this.task_paginator.per_page_count
+        if (offset < 0) {
+          offset = 0
+        }
+        const newParams: any = Object.assign({}, {
+          count: this.task_paginator.per_page_count,
+          offset
+        }, params)
+
+        // Поиск по тексту
+        if (this.$route.query[this.prefix('q')]) {
+          newParams.q = this.$route.query[this.prefix('q')]
+        }
+
+        if (this.$route.query[this.prefix('sort')]) {
+          newParams.sort = this.$route.query[this.prefix('sort')]
+        }
+
+        // Статус контакта
+        if (this.$route.query[this.prefix('status_id')]) {
+          newParams.status_id = this.$route.query[this.prefix('status_id')]
+        }
+
+        // Статус Задачи
+        if (this.$route.query[this.prefix('state')]) {
+          newParams.state = this.$route.query[this.prefix('state')]
+        }
+
+        // Статус контакта
+        if (this.$route.query[this.prefix('planned_for')]) {
+          newParams.planned_for = this.$route.query[this.prefix('planned_for')]
+        }
+
+        new Tasks()
+          .find<any, TaskInterface[]>(newParams)
+          .then((response) => {
+            this.task_count = response.meta?.count
+            this.task_paginator.pages = Math.ceil(response.meta?.count / this.task_paginator.per_page_count)
+            this.task_items = response.data
+          })
+      }, 350),
+
+      btnToggles: [
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: `${moment('00:00:00', 'hh:mm:ss').add(1, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').add(1, 'day').unix()}`,
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'For tomorrow',
+          value: `${moment('00:00:00', 'hh:mm:ss').add(1, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').add(1, 'day').unix()}`
+        },
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: `${moment('00:00:00', 'hh:mm:ss').unix()},${moment('23:59:59', 'hh:mm:ss').unix()}`,
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'For today',
+          value: `${moment('00:00:00', 'hh:mm:ss').unix()},${moment('23:59:59', 'hh:mm:ss').unix()}`
+        },
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: `${moment('00:00:00', 'hh:mm:ss').subtract(1, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').subtract(1, 'day').unix()}`,
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'Yesterday\'s',
+          value: `${moment('00:00:00', 'hh:mm:ss').subtract(1, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').subtract(1, 'day').unix()}`
+        },
+        {
+          badge: {
+            color: 'red'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: `${moment('00:00:00', 'hh:mm:ss').subtract(2, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').subtract(2, 'day').unix()}`,
+              state: 'pending',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'The day before yesterday',
+          value: `${moment('00:00:00', 'hh:mm:ss').subtract(2, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').subtract(2, 'day').unix()}`
+        },
+        {
+          badge: {
+            color: 'grey'
+          },
+          count: 0,
+          params: () => {
+            return {
+              planned_for: 'all',
+              state: 'all',
+              status_id: +this.filter.status_id
+            }
+          },
+          title: 'All tasks',
+          value: 'all'
+        }
+      ],
 
       // --------------------
       tasksLoading: false
@@ -513,22 +559,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
     initializeWatchFilters (debounceDelay = 200) {
       // Запланировано на
       this.$watch('filter.planned_for', debounce((val: string | string[]) => {
+        // Устанавливаю первую страницу
+        this.task_paginator.page = 1
         if (val) {
-          // Зарезервированная константа даты
-          switch (val) {
-            case 'all':
-            case 'the_day_before_yesterday':
-            case 'yesterday':
-            case 'tomorrow':
-            case 'today': {
-              this.$routerQuery.setQuery({
-                [this.prefix('planned_for')]: val
-              }).then(() => {
-                this.update()
-              })
-              break
-            }
-          }
+          this.$routerQuery.setQuery({
+            [this.prefix('planned_for')]: val
+          }).then(() => {
+            this.update()
+          })
         } else {
           this.$routerQuery.removeQuery([
             this.prefix('planned_for')
