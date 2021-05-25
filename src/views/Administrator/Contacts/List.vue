@@ -559,6 +559,7 @@
               outlined
               dense
               multiple
+              notags
             />
           </v-card-text>
 

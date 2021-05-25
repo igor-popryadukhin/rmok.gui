@@ -147,6 +147,11 @@ export default Vue.extend({
     visibleIcon: {
       default: false,
       type: Boolean
+    },
+
+    notags: {
+      default: () => false,
+      type: Boolean
     }
   },
 
@@ -188,7 +193,12 @@ export default Vue.extend({
      */
     options: {
       get () {
-        return this.$store.getters['filter/contact_tags']
+        let tags = this.$store.getters['filter/contact_tags']
+        // Внедряем тег "Без тегов" если передана опция notags
+        if (this.notags) {
+          tags = [{ id: 0, name: this.$tc('Without tags') }, ...tags]
+        }
+        return tags
       },
 
       set (val?: ContactTagInterface) {

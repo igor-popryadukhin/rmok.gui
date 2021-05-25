@@ -469,5 +469,6 @@
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
   "yes": "Да",
-  "The structure of the incoming data is broken!": "Структура входящих данных нарушена!"
+  "The structure of the incoming data is broken!": "Структура входящих данных нарушена!",
+  "Without tags": "Без тегов"
 }
