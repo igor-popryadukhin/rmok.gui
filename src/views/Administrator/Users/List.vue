@@ -241,19 +241,19 @@
 </template>
 
 <script lang="ts">
-  import { GroupInterface } from '@/api/Groups'
-  import { OrganizationInterface } from '@/api/Organizations'
-  import { ProjectInterface } from '@/api/Projects'
-  import { UserInterface, Users } from '@/api/Users'
-  import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-  import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
-  import SGroups from '@/snippets/SGroups/SGroups.vue'
-  import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
-  import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
-  import SUserDialogDelete from '@/snippets/SUserDialogDelete/SUserDialogDelete.vue'
-  import VInterface from '@/VInterface'
-  import Vue, { VueConstructor } from 'vue'
-  import { debounce } from 'vuetify/src/util/helpers'
+import { GroupInterface } from '@/api/Groups'
+import { OrganizationInterface } from '@/api/Organizations'
+import { ProjectInterface } from '@/api/Projects'
+import { UserInterface, Users } from '@/api/Users'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
+import SGroups from '@/snippets/SGroups/SGroups.vue'
+import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
+import SUserDialogDelete from '@/snippets/SUserDialogDelete/SUserDialogDelete.vue'
+import VInterface from '@/VInterface'
+import Vue, { VueConstructor } from 'vue'
+import { debounce } from 'vuetify/src/util/helpers'
 
   interface IRef {
     [key: string]: any;
@@ -282,334 +282,334 @@
     $refs: IRef;
   }
 
-  export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, IComputed, IProps>({
-    components: {
-      AppPagination,
-      AppSearchInput,
-      SGroups,
-      SOrganizationsAutocomplete,
-      SProjectsAutocomplete
-    },
+export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, IComputed, IProps>({
+  components: {
+    AppPagination,
+    AppSearchInput,
+    SGroups,
+    SOrganizationsAutocomplete,
+    SProjectsAutocomplete
+  },
 
-    computed: {
-      // Вычисляю высоту таблицы
-      dataTableUsersHeight () {
-        let h: number = this.$screenHeight - 150
-        if (h < 640) { h = 640 }
-        return h
-      }
-    },
+  computed: {
+    // Вычисляю высоту таблицы
+    dataTableUsersHeight () {
+      let h: number = this.$screenHeight - 150
+      if (h < 640) { h = 640 }
+      return h
+    }
+  },
 
-    created () {
-      // Опционально только для супер администраторов
-      if (this.$permission.isGranted('user.view_outside_your_group')) {
-        this.dataTableUsers.headers.push({
-          align: 'start',
-          divider: true,
-          sortable: true,
-          text: 'Группа',
-          value: 'group',
-          width: 'auto'
-        })
-      }
-
-      // Всегда добавляем в конец
+  created () {
+    // Опционально только для супер администраторов
+    if (this.$permission.isGranted('user.view_outside_your_group')) {
       this.dataTableUsers.headers.push({
-        align: 'end',
+        align: 'start',
         divider: true,
-        sortable: false,
-        text: '',
-        value: 'actions',
+        sortable: true,
+        text: 'Группа',
+        value: 'group',
         width: 'auto'
       })
-    },
+    }
 
-    data (): IData {
-      return {
-        dataTableUsers: {
-          headers: [
-            {
-              align: 'start',
-              divider: true,
-              sortable: true,
-              text: 'Пользователь',
-              value: 'name',
-              width: '100%'
-            },
-            {
-              align: 'start',
-              divider: true,
-              sortable: true,
-              text: 'Роль',
-              value: 'role',
-              width: 'auto'
-            },
-            {
-              align: 'start',
-              divider: true,
-              sortable: true,
-              text: 'Текущий проект',
-              value: 'project',
-              width: 'auto'
-            }
-          ],
-          items: [] as UserInterface[],
-          itemsPerPage: 50,
-          page: 1,
-          pageStart: 0,
-          pageStop: 0,
-          pages: 0,
-          processLoading: false,
-          selected: [],
-          selectedWhole: false,
-          sortBy: [],
-          sortDesc: [],
-          totalCount: 0
-        },
-        fetchUsers: debounce(() => {
-          this.dataTableUsers.processLoading = true
-          const offset = (this.dataTableUsers.itemsPerPage * this.dataTableUsers.page) - this.dataTableUsers.itemsPerPage
+    // Всегда добавляем в конец
+    this.dataTableUsers.headers.push({
+      align: 'end',
+      divider: true,
+      sortable: false,
+      text: '',
+      value: 'actions',
+      width: 'auto'
+    })
+  },
 
-          const params: any = {
-            count: this.dataTableUsers.itemsPerPage,
-            offset
+  data (): IData {
+    return {
+      dataTableUsers: {
+        headers: [
+          {
+            align: 'start',
+            divider: true,
+            sortable: true,
+            text: 'Пользователь',
+            value: 'name',
+            width: '100%'
+          },
+          {
+            align: 'start',
+            divider: true,
+            sortable: true,
+            text: 'Роль',
+            value: 'role',
+            width: 'auto'
+          },
+          {
+            align: 'start',
+            divider: true,
+            sortable: true,
+            text: 'Текущий проект',
+            value: 'project',
+            width: 'auto'
           }
-
-          if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
-            params.q = this.$route.query.q
-          }
-
-          if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
-            params.organization_id = this.$route.query.organization_id
-          }
-
-          if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
-            params.project_id = this.$route.query.project_id
-          }
-
-          if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
-            params.group_id = this.$route.query.group_id
-          }
-
-          // Дополнительные реквизиты
-          params.props = []
-          if (this.$permission.isSuperAdmin) {
-            params.props.push('organization')
-          }
-
-          if (this.$permission.isGranted('user.view_outside_your_group')) {
-            params.props.push('group')
-          }
-
-          params.props.push('project')
-
-          // Параметры сортировки
-          this.dataTableUsers.sortBy.forEach((sortBy: string, index: number) => {
-            params[`order_by[${sortBy}]`] = this.dataTableUsers.sortDesc[index] ? 'desc' : 'asc'
-          })
-
-          new Users()
-            .find<{count: number}, UserInterface[]>(params)
-            .then((response) => {
-              const count: number = response.meta.count || 0
-
-              this.dataTableUsers.totalCount = count
-              this.dataTableUsers.pages = Math.ceil(count / this.dataTableUsers.itemsPerPage)
-              this.dataTableUsers.items = response.data
-            }).finally(() => (this.dataTableUsers.processLoading = false))
-        }, 250),
-
-        filter: {
-          group: null,
-          organization: null,
-          project: null,
-          q: ''
-        }
-      }
-    },
-
-    methods: {
-
-      onButtonRefreshClick () {
-        this.fetchUsers()
+        ],
+        items: [] as UserInterface[],
+        itemsPerPage: 50,
+        page: 1,
+        pageStart: 0,
+        pageStop: 0,
+        pages: 0,
+        processLoading: false,
+        selected: [],
+        selectedWhole: false,
+        sortBy: [],
+        sortDesc: [],
+        totalCount: 0
       },
+      fetchUsers: debounce(() => {
+        this.dataTableUsers.processLoading = true
+        const offset = (this.dataTableUsers.itemsPerPage * this.dataTableUsers.page) - this.dataTableUsers.itemsPerPage
 
-      /**
+        const params: any = {
+          count: this.dataTableUsers.itemsPerPage,
+          offset
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
+          params.q = this.$route.query.q
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
+          params.organization_id = this.$route.query.organization_id
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
+          params.project_id = this.$route.query.project_id
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
+          params.group_id = this.$route.query.group_id
+        }
+
+        // Дополнительные реквизиты
+        params.props = []
+        if (this.$permission.isSuperAdmin) {
+          params.props.push('organization')
+        }
+
+        if (this.$permission.isGranted('user.view_outside_your_group')) {
+          params.props.push('group')
+        }
+
+        params.props.push('project')
+
+        // Параметры сортировки
+        this.dataTableUsers.sortBy.forEach((sortBy: string, index: number) => {
+          params[`order_by[${sortBy}]`] = this.dataTableUsers.sortDesc[index] ? 'desc' : 'asc'
+        })
+
+        new Users()
+          .find<{count: number}, UserInterface[]>(params)
+          .then((response) => {
+            const count: number = response.meta.count || 0
+
+            this.dataTableUsers.totalCount = count
+            this.dataTableUsers.pages = Math.ceil(count / this.dataTableUsers.itemsPerPage)
+            this.dataTableUsers.items = response.data
+          }).finally(() => (this.dataTableUsers.processLoading = false))
+      }, 250),
+
+      filter: {
+        group: null,
+        organization: null,
+        project: null,
+        q: ''
+      }
+    }
+  },
+
+  methods: {
+
+    onButtonRefreshClick () {
+      this.fetchUsers()
+    },
+
+    /**
        * Срабатывает когда в списке "пользователи системы" нажали кнопу удалить пользователя
        * @param item Элемент массива UserInterface[]
        */
-      onDelete (item: UserInterface) {
-        this.$dialog.showAndWait(SUserDialogDelete, {
-          onDelete: (data: unknown & { user_id: number; option: string }) => {
-            // Процедура удаления пользователя
-            // В полезной нагрузке мы передаём дополнительную информацию
-            // receiver_user_id - идентификатор пользователя, которому будет передан контакт
-            // Если не передать receiver_user_id то в качестве приёмщика, выступает удаляющий
+    onDelete (item: UserInterface) {
+      this.$dialog.showAndWait(SUserDialogDelete, {
+        onDelete: (data: unknown & { user_id: number; option: string }) => {
+          // Процедура удаления пользователя
+          // В полезной нагрузке мы передаём дополнительную информацию
+          // receiver_user_id - идентификатор пользователя, которому будет передан контакт
+          // Если не передать receiver_user_id то в качестве приёмщика, выступает удаляющий
 
-            const payload: any = {}
+          const payload: any = {}
 
-            if (data.option === 'transfer_contacts_to_an_employee') {
-              payload.receiver_user_id = data.user_id
-            }
+          if (data.option === 'transfer_contacts_to_an_employee') {
+            payload.receiver_user_id = data.user_id
+          }
 
-            new Users()
-              .delete(item.id, payload)
-              .then(() => {
-                this.$toast.success('User deleted successfully')
-                this.fetchUsers()
-              }).catch((e) => {
+          new Users()
+            .delete(item.id, payload)
+            .then(() => {
+              this.$toast.success('User deleted successfully')
+              this.fetchUsers()
+            }).catch((e) => {
               this.$toast.error(e.message)
             })
-          },
-          responsibleDisabled: true,
-          text: this.$tc('The employee will be deleted, in order to save the contacts of this employee, you can transfer them to another owner.'),
-          title: this.$tc('Removing an employee'),
-          userDefaultId: this.$store.getters['profile/id'],
-          width: '700px'
-        })
-      },
+        },
+        responsibleDisabled: true,
+        text: this.$tc('The employee will be deleted, in order to save the contacts of this employee, you can transfer them to another owner.'),
+        title: this.$tc('Removing an employee'),
+        userDefaultId: this.$store.getters['profile/id'],
+        width: '700px'
+      })
+    },
 
-      onPaginationChange (data: any) {
-        this.dataTableUsers.pageStart = data.pageStart + 1
-        this.dataTableUsers.pageStop = data.pageStop
-      },
+    onPaginationChange (data: any) {
+      this.dataTableUsers.pageStart = data.pageStart + 1
+      this.dataTableUsers.pageStop = data.pageStop
+    },
 
-      /**
+    /**
        * Происходит когда пользователь вводит текст в поле поиска.
        **/
-      onUserSearch (text: string) {
-        console.log(text)
-      },
-
-      vDataTableItemClass (scope: any) {
-        return 'v-dt-item'
-      },
-      onAddClick () {
-        this.$router.push({ name: 'administrator_users_new_main' })
-      }
+    onUserSearch (text: string) {
+      console.log(text)
     },
 
-    mounted () {
-      // this.$refs.sOrganizationsAutocomplete.fetchData()
+    vDataTableItemClass (scope: any) {
+      return 'v-dt-item'
+    },
+    onAddClick () {
+      this.$router.push({ name: 'administrator_users_new_main' })
+    }
+  },
 
-      const promises: Promise<any>[] = []
-      // Установка фильтров
-      if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
-        this.$data.filter.q = this.$route.query.q
-      }
+  mounted () {
+    // this.$refs.sOrganizationsAutocomplete.fetchData()
 
-      if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
-        promises.push(this.$refs.sOrganizationsAutocomplete.setDefault(this.$route.query.organization_id))
-      }
-      if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
-        promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$route.query.project_id))
-      }
+    const promises: Promise<any>[] = []
+    // Установка фильтров
+    if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
+      this.$data.filter.q = this.$route.query.q
+    }
 
-      if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
-        promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$route.query.group_id))
-      }
+    if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
+      promises.push(this.$refs.sOrganizationsAutocomplete.setDefault(this.$route.query.organization_id))
+    }
+    if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
+      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$route.query.project_id))
+    }
 
-      // Нужно подождать, пока будут установлены все фильтры.
-      Promise.all(promises)
-        .finally(() => {
-          this.fetchUsers()
+    if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$route.query.group_id))
+    }
 
-          // Слежу за строкой поиска
-          this.$watch('filter.q', (s: string) => {
-            if (s) {
-              this.$routerQuery.setQuery({
-                q: s
-              }).then(this.fetchUsers)
-            } else {
-              this.$routerQuery.removeQuery([
-                'q'
-              ]).then(this.fetchUsers)
-            }
-          })
+    // Нужно подождать, пока будут установлены все фильтры.
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchUsers()
 
-          // Слежу за изменениями фильтра "Организации"
-          this.$watch('filter.organization', (org: OrganizationInterface) => {
-            if (org) {
-              this.$routerQuery.setQuery({
-                organization_id: org.id
-              }).then(this.fetchUsers)
-            } else {
-              this.$routerQuery.removeQuery([
-                'organization_id'
-              ]).then(this.fetchUsers)
-            }
-          })
+        // Слежу за строкой поиска
+        this.$watch('filter.q', (s: string) => {
+          if (s) {
+            this.$routerQuery.setQuery({
+              q: s
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'q'
+            ]).then(this.fetchUsers)
+          }
+        })
 
-          // Слежу за изменениями фильтра "Проекты"
-          this.$watch('filter.project', (project: ProjectInterface) => {
-            if (project) {
-              this.$routerQuery.setQuery({
-                project_id: project.id
-              }).then(this.fetchUsers)
-            } else {
-              this.$routerQuery.removeQuery([
-                'project_id'
-              ]).then(this.fetchUsers)
-            }
-          })
+        // Слежу за изменениями фильтра "Организации"
+        this.$watch('filter.organization', (org: OrganizationInterface) => {
+          if (org) {
+            this.$routerQuery.setQuery({
+              organization_id: org.id
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'organization_id'
+            ]).then(this.fetchUsers)
+          }
+        })
 
-          // Слежу за изменениями фильтра "Группы"
-          this.$watch('filter.group', (group: GroupInterface) => {
-            if (group) {
-              this.$routerQuery.setQuery({
-                group_id: group.id
-              }).then(this.fetchUsers)
-            } else {
-              this.$routerQuery.removeQuery([
-                'group_id'
-              ]).then(this.fetchUsers)
-            }
-          })
+        // Слежу за изменениями фильтра "Проекты"
+        this.$watch('filter.project', (project: ProjectInterface) => {
+          if (project) {
+            this.$routerQuery.setQuery({
+              project_id: project.id
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'project_id'
+            ]).then(this.fetchUsers)
+          }
+        })
 
-          // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
+        // Слежу за изменениями фильтра "Группы"
+        this.$watch('filter.group', (group: GroupInterface) => {
+          if (group) {
+            this.$routerQuery.setQuery({
+              group_id: group.id
+            }).then(this.fetchUsers)
+          } else {
+            this.$routerQuery.removeQuery([
+              'group_id'
+            ]).then(this.fetchUsers)
+          }
+        })
 
-          /**
+        // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
+
+        /**
            * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableUsers
            */
-          const dataTableSortUpdate = debounce(() => {
-            const sort = []
-            for (let i = 0; i < Math.min(this.dataTableUsers.sortBy.length, this.dataTableUsers.sortDesc.length); i++) {
-              const sortDesc: string = this.dataTableUsers.sortDesc[i]
-              const sortBy: boolean = this.dataTableUsers.sortBy[i]
+        const dataTableSortUpdate = debounce(() => {
+          const sort = []
+          for (let i = 0; i < Math.min(this.dataTableUsers.sortBy.length, this.dataTableUsers.sortDesc.length); i++) {
+            const sortDesc: string = this.dataTableUsers.sortDesc[i]
+            const sortBy: boolean = this.dataTableUsers.sortBy[i]
 
-              sort.push({ sort_by: sortBy, sort_desc: sortDesc })
-            }
+            sort.push({ sort_by: sortBy, sort_desc: sortDesc })
+          }
 
-            if (sort.length > 0) {
-              // Преобразовываю в JSON и сохраняю в строку браузера
-              this.$routerQuery.setQuery({
-                sort: JSON.stringify(sort)
-              }).then(() => {
+          if (sort.length > 0) {
+            // Преобразовываю в JSON и сохраняю в строку браузера
+            this.$routerQuery.setQuery({
+              sort: JSON.stringify(sort)
+            }).then(() => {
+              this.fetchUsers()
+            })
+          } else {
+            this.$routerQuery
+              .removeQuery(['sort'])
+              .then(() => {
                 this.fetchUsers()
               })
-            } else {
-              this.$routerQuery
-                .removeQuery(['sort'])
-                .then(() => {
-                  this.fetchUsers()
-                })
-            }
-          }, 100)
+          }
+        }, 100)
 
-          // Слежу за изменениями параметров сортировки
-          this.$watch('dataTableUsers.sortBy', dataTableSortUpdate)
-          this.$watch('dataTableUsers.sortDesc', dataTableSortUpdate)
-        })
-    },
+        // Слежу за изменениями параметров сортировки
+        this.$watch('dataTableUsers.sortBy', dataTableSortUpdate)
+        this.$watch('dataTableUsers.sortDesc', dataTableSortUpdate)
+      })
+  },
 
-    watch: {
-      'dataTableUsers.page': {
-        handler () {
-          this.fetchUsers()
-        }
+  watch: {
+    'dataTableUsers.page': {
+      handler () {
+        this.fetchUsers()
       }
     }
-  })
+  }
+})
 </script>
 
 <style lang="scss">
