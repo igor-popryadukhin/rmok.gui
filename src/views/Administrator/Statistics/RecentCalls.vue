@@ -539,7 +539,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
   created () {
     this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
   },
-  
+
   data () {
     return {
       DtOptions: {},
