@@ -20,13 +20,8 @@ export interface RootStateInterface {
 }
 
 const store = new Vuex.Store({
-  state (): RootStateInterface {
-    return {
-      root: 0 // todo: example
-    }
+  actions: {
   },
-
-  actions: {},
 
   modules: {
     database,
@@ -37,10 +32,8 @@ const store = new Vuex.Store({
     system,
     tasks
   },
-
   mutations: {
   },
-
   plugins: [
     createPersistedState({
       key: 'rmok',
@@ -114,7 +107,12 @@ const store = new Vuex.Store({
         setItem: (key, value) => set(key, value)
       }
     })
-  ]
+  ],
+  state (): RootStateInterface {
+    return {
+      root: 0 // todo: example
+    }
+  }
 })
 
 export default store

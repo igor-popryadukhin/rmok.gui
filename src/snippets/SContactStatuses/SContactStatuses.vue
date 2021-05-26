@@ -73,24 +73,24 @@
       >
         <v-container class="px-5" fluid>
           <v-radio-group
-          :key="`v-radio-group-${tabIndex}`"
-          column
-        >
-          <v-row>
-            <v-col
-              v-for="(status, statusIndex) in tabItem.children"
-              :key="`status-${statusIndex}`"
-              cols="4"
-            >
-              <v-radio
-                :label="status.name"
-                :color="tabItem.color"
-                :id="`v-radio-${status.id}`"
-                @change="onRadioChange(status)"
-              ></v-radio>
-            </v-col>
-          </v-row>
-        </v-radio-group>
+            :key="`v-radio-group-${tabIndex}`"
+            column
+          >
+            <v-row>
+              <v-col
+                v-for="(status, statusIndex) in tabItem.children"
+                :key="`status-${statusIndex}`"
+                cols="4"
+              >
+                <v-radio
+                  :label="status.name"
+                  :color="tabItem.color"
+                  :id="`v-radio-${status.id}`"
+                  @change="onRadioChange(status)"
+                ></v-radio>
+              </v-col>
+            </v-row>
+          </v-radio-group>
         </v-container>
       </v-tab-item>
     </v-tabs-items>

@@ -61,7 +61,6 @@
   "Create": "Создать",
   "Create a new task": "Создание новой задачи",
   "Create a new user": "Создание нового пользователя",
-  "Create user": "Создать пользователя",
   "Create access token": "Создать токен доступа",
   "Created at": "Дата создания",
   "Creating a new project": "Создание нового проекта",
@@ -475,6 +474,5 @@
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
   "yes": "Да",
-  "The structure of the incoming data is broken!": "Структура входящих данных нарушена!",
-  "Without tags": "Без тегов"
+  "The structure of the incoming data is broken!": "Структура входящих данных нарушена!"
 }

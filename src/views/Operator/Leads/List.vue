@@ -431,8 +431,8 @@ export default Vue.extend<IData, IMethods, IComputed>({
           this.leadsCount = response?.meta?.count || 0
           this.leads = response?.data || []
         }).finally(() => {
-          this.leadsLoading = false
-        })
+        this.leadsLoading = false
+      })
     },
 
     lastContactStatus (contact: ContactInterface) {
@@ -456,30 +456,30 @@ export default Vue.extend<IData, IMethods, IComputed>({
 </script>
 
 <style lang="scss" scoped>
-  .border {
-    border-left: 2px #3A70D4 solid;
-    margin-left: 5px;
+.border {
+  border-left: 2px #3A70D4 solid;
+  margin-left: 5px;
+}
+
+.toolbar {
+  &-subtitle {
+    display: flex;
+    flex-flow: column;
   }
 
-  .toolbar {
-    &-subtitle {
-      display: flex;
-      flex-flow: column;
-    }
-
-    &-subtitle small {
-      font-size: 12px;
-      color: #848484;
-    }
+  &-subtitle small {
+    font-size: 12px;
+    color: #848484;
   }
+}
 
-  .v-card {
-    display: flex !important;
-    flex-direction: column;
-  }
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
 
-  .v-card__text {
-    flex-grow: 1;
-    overflow: auto;
-  }
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+}
 </style>
