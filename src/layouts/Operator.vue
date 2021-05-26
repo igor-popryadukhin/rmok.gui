@@ -626,27 +626,9 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
           },
           title: 'Profile'
         },
-        {
-          attrs: {
-            dense: true
-          },
-          icon: {
-            attrs: {},
-            name: 'mdi-swap-horizontal-bold mdi-swap-horizontal-bold'
-          },
-          on: {
-            click: async () => {
-              await this.fetchAvailableProjects() // Загрузить доступные мне проекты
-              const instance = this.$dialog.show(AppProjectDialogSelect, {
-                waitForResult: false,
-                items: this.projects_available
-              })
-            }
-          },
-          title: 'Сменить проект'
-        },
 
         { divider: true },
+
         {
           attrs: {
             dense: true

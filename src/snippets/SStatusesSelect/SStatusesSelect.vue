@@ -29,8 +29,7 @@
 </template>
 
 <script lang="ts">
-import { Database, StatusInterface } from '@/api/Database'
-import { ProjectInterface } from '@/api/Projects'
+import { StatusInterface } from '@/api/Database'
 import Statuses from '@/api/Statuses'
 import i18n from '@/plugins/i18n'
 import Vue, { PropType } from 'vue'

@@ -447,7 +447,6 @@
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
-import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
