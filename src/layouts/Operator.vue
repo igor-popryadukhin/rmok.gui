@@ -733,34 +733,36 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
       await this.$store.dispatch('project/current')
 
       // Если хранилище не заполнено, загрузить доступные проекты и предложить выбор.
-      if (!this.$store.getters['project/current']) {
-        // Показать диалог выбора проекта если таковые имеются
-        if (this.project_available.length > 0) {
-          const instance = await this.$dialog.show(AppDialogList, {
-            waitForResult: false,
-            showClose: true,
-            persistent: true,
-            itemText: 'name',
-            options: this.$store.getters['project/available'],
-            onItemClick: (item: ProjectInterface) => {
-              // Устанавливаю текущий проект
-              new Projects()
-                .active(item.id)
-                .then(async () => {
-                  // Теперь загружаю проект в хранилище
-                  await this.$store.dispatch('project/current')
-                  this.$root.$emit('root-project-change')
-                })
+      setTimeout(async () => {
+        if (!this.$store.getters['project/current']) {
+          // Показать диалог выбора проекта если таковые имеются
+          if (this.project_available.length > 0) {
+            const instance = await this.$dialog.show(AppDialogList, {
+              waitForResult: false,
+              showClose: true,
+              persistent: true,
+              itemText: 'name',
+              options: this.$store.getters['project/available'],
+              onItemClick: (item: ProjectInterface) => {
+                // Устанавливаю текущий проект
+                new Projects()
+                  .active(item.id)
+                  .then(async () => {
+                    // Теперь загружаю проект в хранилище
+                    await this.$store.dispatch('project/current')
+                    this.$root.$emit('root-project-change')
+                  })
 
-              // Закрываю диалог
-              instance.close()
-            }
-          })
-        } else {
-          // Сообщить пользователю о том что у него нет проектов
-          this.$toast.info(this.$tc('You don\'t have a single project'))
+                // Закрываю диалог
+                instance.close()
+              }
+            })
+          } else {
+            // Сообщить пользователю о том что у него нет проектов
+            this.$toast.info(this.$tc('You don\'t have a single project'))
+          }
         }
-      }
+      }, 1000)
     }
   }
 })

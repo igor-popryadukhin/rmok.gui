@@ -1,9 +1,11 @@
-export default function auth ({ next }: any) {
+import { MiddlewareContextInterface } from '@/router'
+
+export default function auth (context: MiddlewareContextInterface) {
   // if(condition) {
   //   return next({
   //     name: 'login'
   //   })
   // }
 
-  return next()
+  return context.next()
 }
