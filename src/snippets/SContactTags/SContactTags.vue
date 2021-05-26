@@ -22,9 +22,15 @@
   >
     <template
       slot="item"
-      slot-scope="{ item }"
+      slot-scope="{ item, on, attrs }"
     >
-      {{ item.name }}
+      <v-list-item
+        v-on="on"
+        v-bind="attrs"
+        :disabled="item.id > 0 && itemDisabled === 0 || item.id === 0 && itemDisabled === -1"
+      >
+        {{ item.name }}
+      </v-list-item>
     </template>
 
     <template v-slot:append-item>
@@ -173,7 +179,7 @@ export default Vue.extend({
       // Коллекция доступных тегов
       process: false,
       q: null,
-      selected: null as unknown & ContactTagInterface | ContactTagInterface[]
+      selected: null as unknown & number | number[]
     }
   },
 
@@ -204,6 +210,25 @@ export default Vue.extend({
       set (val?: ContactTagInterface) {
         this.$store.commit('filter/contact_tags', val)
       }
+    },
+    /**
+     * Toggle тегов между переключениями c тегом "без тегов"
+     */
+    itemDisabled: function () {
+      if (Array.isArray(this.selected)) {
+        const index = this.selected.findIndex((value: number) => value === 0)
+        if (index === 0) {
+          return 0
+        } else {
+          const index = this.selected.findIndex((value: number) => value !== 0)
+          if (index === 0) {
+            return -1
+          } else {
+            return 1
+          }
+        }
+      }
+      return false
     }
   },
 
