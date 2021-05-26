@@ -325,6 +325,16 @@ const routes: RouteConfig[] = [
             name: 'operator_settings_headset_configure',
             path: 'headset-configure'
           }
+          // {
+          //   component: () => import(/* webpackChunkName: "operator-settings-my-projects" */ '../views/Settings/MyProjects.vue'),
+          //   meta: {
+          //     icon: 'mdi-projector-screen',
+          //     layout: 'operator-layout',
+          //     middleware: [secure]
+          //   },
+          //   name: 'operator_settings_my_projects',
+          //   path: 'my-projects'
+          // }
         ],
         component: () => import(/* webpackChunkName: "operator-settings-layout-operator" */ '../views/Settings/LayoutOperator.vue'),
         meta: {

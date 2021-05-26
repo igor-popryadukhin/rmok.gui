@@ -1,6 +1,6 @@
 import Tasks, { TaskInterface } from '@/api/Tasks'
 import { RootStateInterface } from '@/store'
-import { ActionTree } from 'vuex'
+import { ActionContext, ActionTree } from 'vuex'
 import { TasksStateInterface } from './state'
 
 const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
@@ -10,55 +10,55 @@ const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
    * @param ctx
    * @param payload
    */
-  async items ({ state, commit }, payload = null) {
+  async items (ctx: ActionContext<TasksStateInterface, RootStateInterface>, payload = null) {
     return new Promise<void>((resolve, reject) => {
       if (payload) {
         // Установить параметры, это позволит сохранить параметры последней загрузки
-        commit('filter', Object.assign(state.filter, payload))
+        ctx.commit('filter', Object.assign(ctx.state.filter, payload))
       }
 
-      const offset = state.options.per_page * state.options.page - state.options.per_page
+      const offset = ctx.state.options.per_page * ctx.state.options.page - ctx.state.options.per_page
 
       const newParams: any = {
-        count: state.options.per_page,
+        count: ctx.state.options.per_page,
         offset
       }
 
       // Поиск по тексту
-      if (state.filter.contact_id) {
-        newParams.contact_id = state.filter.contact_id
+      if (ctx.state.filter.contact_id) {
+        newParams.contact_id = ctx.state.filter.contact_id
       }
 
       // Поиск по тексту
-      if (state.filter.q) {
-        newParams.q = state.filter.q
+      if (ctx.state.filter.q) {
+        newParams.q = ctx.state.filter.q
       }
 
-      if (state.filter.sort) {
-        newParams.sort = state.filter.sort
+      if (ctx.state.filter.sort) {
+        newParams.sort = ctx.state.filter.sort
       }
 
       // Статус контакта
-      if (state.filter.status_id) {
-        newParams.status_id = state.filter.status_id
+      if (ctx.state.filter.status_id) {
+        newParams.status_id = ctx.state.filter.status_id
       }
 
       // Статус Задачи
-      if (state.filter.state) {
-        newParams.state = state.filter.state
+      if (ctx.state.filter.state) {
+        newParams.state = ctx.state.filter.state
       }
 
       // Статус контакта
-      if (state.filter.planned_for) {
-        newParams.planned_for = state.filter.planned_for
+      if (ctx.state.filter.planned_for) {
+        newParams.planned_for = ctx.state.filter.planned_for
       }
 
       new Tasks()
         .find<any, TaskInterface[]>(newParams)
         .then((response) => {
-          commit('options_count', response.meta?.count)
-          commit('options_pages', Math.ceil(response.meta?.count / state.options.per_page))
-          commit('items', response.data)
+          ctx.commit('options_count', response.meta?.count)
+          ctx.commit('options_pages', Math.ceil(response.meta?.count / ctx.state.options.per_page))
+          ctx.commit('items', response.data)
 
           resolve()
         }).catch(reject)
@@ -69,12 +69,12 @@ const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
    *
    * @param ctx
    */
-  async pending_count ({ commit }) {
+  async pending_count (ctx: ActionContext<TasksStateInterface, RootStateInterface>) {
     return new Promise<void>((resolve) => {
       new Tasks()
         .count({ state: 'pending' })
         .then((response) => {
-          commit('pending_count', response.data.count)
+          ctx.commit('pending_count', response.data.count)
           resolve()
         })
     })
@@ -84,8 +84,8 @@ const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
    * Сбросить параметры запроса
    * @param commit
    */
-  reset_filter ({ commit }) {
-    commit('filter', {
+  reset_filter (ctx: ActionContext<TasksStateInterface, RootStateInterface>) {
+    ctx.commit('filter', {
       contact_id: 0,
       planned_for: 'all',
       q: null,
@@ -101,9 +101,9 @@ const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
    * @param commit
    * @param payload
    */
-  async sort ({ state, commit }) {
+  async sort (ctx: ActionContext<TasksStateInterface, RootStateInterface>) {
     return new Promise<void>((resolve) => {
-      commit('items', state.items.sort((a: TaskInterface, b: TaskInterface) => {
+      ctx.commit('items', ctx.state.items.sort((a: TaskInterface, b: TaskInterface) => {
         if (a.state === b.state) {
           return -1
         } else {

@@ -179,7 +179,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
   },
   components: { AppCountUp, STaskList },
 
-  data () {
+  data (): IData {
     return {
       contact: {
         /* eslint-disable */
@@ -336,19 +336,22 @@ export default Vue.extend<IData, IMethods, IComputed>({
 
   mounted () {
     this.$root.$on('root-load-leads', this.loadLeads)
-  },
-
-  created () {
+    this.$root.$on('root-project-change', this.onRootProjectChange)
     this.loadLeads()
   },
 
   beforeDestroy() {
     this.$root.$off('root-load-leads', this.loadLeads)
+    this.$root.$off('root-project-change', this.onRootProjectChange)
   },
 
   methods: {
     onTasksLoadedData (data: any) {
       this.$data.taskCount = data.meta.count
+    },
+
+    onRootProjectChange () {
+      this.loadLeads()
     },
 
     /**
@@ -425,10 +428,8 @@ export default Vue.extend<IData, IMethods, IComputed>({
       new Leads()
         .get<{ count: number }, ContactInterface[]>(query)
         .then((response) => {
-          this.leadsCount = response.meta.count
-          this.leads = response.data
-        }).catch((e: Error) => {
-          this.$toast.error(e.message)
+          this.leadsCount = response?.meta?.count || 0
+          this.leads = response?.data || []
         }).finally(() => {
           this.leadsLoading = false
         })
