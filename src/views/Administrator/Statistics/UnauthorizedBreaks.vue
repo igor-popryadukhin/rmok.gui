@@ -374,7 +374,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     xSeries () {
       return this.reportItems.map((value: any) => {
-        return value.first_name + ' ' + value.last_name
+        const name = value.first_name ? value.first_name : 'Имя'
+        const last_name = value.last_name ? value.last_name : 'Фамилия'
+        return name + ' ' + last_name
       })
     }
   },
