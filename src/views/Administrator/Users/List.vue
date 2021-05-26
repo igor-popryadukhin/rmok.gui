@@ -52,12 +52,14 @@
                 </v-btn>
               </template>
               <v-btn
-                color="primary"
+                color="ml-5 float-right"
                 :disabled="!$permission.isGranted('role.create')"
-                icon
+                small
+                tile
+                text
                 @click="onAddClick"
               >
-                <v-icon>mdi-plus</v-icon>
+                {{ $tc('Create user') }}
               </v-btn>
               <v-spacer/>
               <!-- Paginator -->
