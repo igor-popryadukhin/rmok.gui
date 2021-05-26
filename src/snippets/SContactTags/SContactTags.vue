@@ -27,7 +27,7 @@
       <v-list-item
         v-on="on"
         v-bind="attrs"
-        :disabled="item.id > 0 && itemDisabled === 0 || item.id == 0 && itemDisabled === -1"
+        :disabled="item.id > 0 && itemDisabled === 0 || item.id === 0 && itemDisabled === -1"
       >
         {{ item.name }}
       </v-list-item>
@@ -179,7 +179,7 @@ export default Vue.extend({
       // Коллекция доступных тегов
       process: false,
       q: null,
-      selected: null as unknown & ContactTagInterface | ContactTagInterface[]
+      selected: null as unknown & number | number[]
     }
   },
 
