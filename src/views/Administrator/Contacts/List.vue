@@ -738,6 +738,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         params.responsible_id = this.$data.filter.responsible.id
       }
 
+      // Статусы
+      if (this.$routerQuery.hasQuery('status_ids')) {
+        params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
+      }
+
       // Дата последнего звонка
       if (this.$data.filter.call_up.selected) {
         switch (this.$data.filter.call_up.selected) {
