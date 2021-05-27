@@ -633,6 +633,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
               this.fetchDiagramData()
             })
         }
+        // Чистим селект действий если не выбран сотрудник
+        if (Array.isArray(this.filter.users) && this.filter.users.length === 0) {
+          this.filter.actions.selected = []
+        }
       }, debounceDelay))
 
       // Фильтрация по проектам
