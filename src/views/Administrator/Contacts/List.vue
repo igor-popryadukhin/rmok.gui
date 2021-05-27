@@ -1739,7 +1739,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           this.unselectAll()
           this.$toast.warning(this.$tc('It is forbidden to select all elements without filters installed'))
         }
-        if (this.dataTableContacts.selectedWhole && JSON.stringify(this.paramFilters) !== '{}') {
+        if (val && JSON.stringify(this.paramFilters) !== '{}') {
           // Чекаем все видимые чекбоксы визуально если выбраны все цепочки
           this.$data.dataTableContacts.selected = this.$data.dataTableContacts.items
         } else {
@@ -1750,11 +1750,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     // Следим за параметрами фильтра
     paramFilters: {
-      handler (val: any) {
+      handler (val?: Record<string, unknown>) {
         // Сброс чекбоксов если не установлены фильтры и выбраны все цепочки контактов
-        if (this.dataTableContacts.selectedWhole && JSON.stringify(val) === '{}') {
-          this.unselectAll()
-        }
+        this.unselectAll()
       }
     }
   }
