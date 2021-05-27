@@ -1749,11 +1749,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     // Следим за параметрами фильтра
-    paramFilters: {
-      handler (val?: Record<string, unknown>) {
-        // Сброс чекбоксов если не установлены фильтры и выбраны все цепочки контактов
-        this.unselectAll()
-      }
+    paramFilters () {
+      // Сброс чекбоксов если не установлены фильтры и выбраны все цепочки контактов
+      this.unselectAll()
     }
   }
 })
