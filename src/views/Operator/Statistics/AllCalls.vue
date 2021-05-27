@@ -200,8 +200,12 @@
             <template v-if="item.contact">
               <template v-if="item.contact.owner_id.id !== item.owner.id">
                 <span class="grey--text">
-                   <v-icon small class="mr-1"
-                  >mdi-account-convert</v-icon>
+                   <v-icon
+                     class="mr-1"
+                     small
+                   >
+                     mdi-account-convert
+                   </v-icon>
                   {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
                 </span>
               </template>
