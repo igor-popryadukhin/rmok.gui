@@ -504,8 +504,55 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         }
       ],
 
-      // --------------------
-      tasksLoading: false
+      tasksLoading: false,
+
+      /**
+       * Параметры которые будут добавлены в фильтр
+       * @param params
+       */
+      update: debounce((params = {}) => {
+        let offset = this.task_paginator.per_page_count * this.task_paginator.page - this.task_paginator.per_page_count
+        if (offset < 0) {
+          offset = 0
+        }
+
+        const newParams: any = Object.assign({}, {
+          count: this.task_paginator.per_page_count,
+          offset
+        }, this.params, params)
+
+        // Поиск по тексту
+        if (this.$route.query[this.prefix('q')]) {
+          newParams.q = this.$route.query[this.prefix('q')]
+        }
+
+        if (this.$route.query[this.prefix('sort')]) {
+          newParams.sort = this.$route.query[this.prefix('sort')]
+        }
+
+        // Статус контакта
+        if (this.$route.query[this.prefix('status_id')]) {
+          newParams.status_id = this.$route.query[this.prefix('status_id')]
+        }
+
+        // Статус Задачи
+        if (this.$route.query[this.prefix('state')]) {
+          newParams.state = this.$route.query[this.prefix('state')]
+        }
+
+        // Статус контакта
+        if (this.$route.query[this.prefix('planned_for')]) {
+          newParams.planned_for = this.$route.query[this.prefix('planned_for')]
+        }
+
+        new Tasks()
+          .find<any, TaskInterface[]>(newParams)
+          .then((response) => {
+            this.task_count = response.meta?.count
+            this.task_paginator.pages = Math.ceil(response.meta?.count / this.task_paginator.per_page_count)
+            this.task_items = response.data
+          })
+      })
     }
   },
 
@@ -565,7 +612,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           this.$routerQuery.setQuery({
             [this.prefix('planned_for')]: val
           }).then(() => {
-            this.update()
+            if (val === 'all') {
+              this.update({
+                state: 'all'
+              })
+            } else {
+              this.update()
+            }
           })
         } else {
           this.$routerQuery.removeQuery([
@@ -835,56 +888,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
 
     prefix (name: string) {
       return this.paramPrefix + name
-    },
-
-    /**
-     * Параметры которые будут добавлены в фильтр
-     * @param params
-     */
-    update (params = {}) {
-      return new Promise<void>((resolve, reject) => {
-        let offset = this.task_paginator.per_page_count * this.task_paginator.page - this.task_paginator.per_page_count
-        if (offset < 0) {
-          offset = 0
-        }
-        const newParams: any = Object.assign({}, {
-          count: this.task_paginator.per_page_count,
-          offset
-        }, params, this.params)
-
-        // Поиск по тексту
-        if (this.$route.query[this.prefix('q')]) {
-          newParams.q = this.$route.query[this.prefix('q')]
-        }
-
-        if (this.$route.query[this.prefix('sort')]) {
-          newParams.sort = this.$route.query[this.prefix('sort')]
-        }
-
-        // Статус контакта
-        if (this.$route.query[this.prefix('status_id')]) {
-          newParams.status_id = this.$route.query[this.prefix('status_id')]
-        }
-
-        // Статус Задачи
-        if (this.$route.query[this.prefix('state')]) {
-          newParams.state = this.$route.query[this.prefix('state')]
-        }
-
-        // Статус контакта
-        if (this.$route.query[this.prefix('planned_for')]) {
-          newParams.planned_for = this.$route.query[this.prefix('planned_for')]
-        }
-
-        new Tasks()
-          .find<any, TaskInterface[]>(newParams)
-          .then((response) => {
-            this.task_count = response.meta?.count
-            this.task_paginator.pages = Math.ceil(response.meta?.count / this.task_paginator.per_page_count)
-            this.task_items = response.data
-            resolve()
-          }).catch(reject)
-      })
     },
 
     vListItemStyleComputed (item: TaskInterface) {
