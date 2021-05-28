@@ -125,8 +125,6 @@ export default Vue.extend({
                 setTimeout(async () => {
                   this.$root.$emit('root-jssip-initialize')
                   this.$root.$emit('root-loading-projects')
-
-                  await this.$store.dispatch('project/load')
                 }, 1000)
               })
           }

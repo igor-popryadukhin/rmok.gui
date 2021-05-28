@@ -32,11 +32,11 @@ export interface ProjectInterface {
   id: number;
   name: string;
   description: string;
-  owner: ProjectOwnerInterface;
+  owner?: ProjectOwnerInterface;
   organization?: ProjectOrganizationInterface;
   members: ProjectMemberInterface[];
-  statuses: StatusInterface[];
-  users_groups: GroupInterface[];
+  statuses?: StatusInterface[];
+  users_groups?: GroupInterface[];
   scenario?: string;
   created_at: number;
 }
@@ -50,7 +50,7 @@ export default class Projects {
   /**
    * @param params
    */
-  public find<TM, TD> (params: any = null): Promise<ResponseInterface<TM, TD>> {
+  public find<TM, TD = ProjectInterface[]> (params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve: (response: ResponseInterface<TM, TD>) => void, reject) => {
       $axios.get('/projects', {
         params
@@ -80,16 +80,16 @@ export default class Projects {
   }
 
   /**
-   * Get current user project.
+   * Вернёт текущий проект пользователя если таковой имеется, в противном случае будет брошено исключение.
    */
-  public current (): Promise<ProjectInterface | any> | any {
-    return new Promise((resolve, reject): Promise<ProjectInterface | any> | any => {
+  public current (): Promise<ProjectInterface> {
+    return new Promise<ProjectInterface>((resolve, reject) => {
       $axios.get('/projects/current')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
@@ -105,6 +105,37 @@ export default class Projects {
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
             return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Установить текущий проект пользователю.
+   * @param id Идентификатор проекта
+   */
+  public active (id: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get(`/projects/${id}/activate`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Покинуть текущий проект.
+   */
+  public inactive (): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get('/projects/inactive')
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve()
           }
           throw new APIError(response.data)
         }).catch(reject)

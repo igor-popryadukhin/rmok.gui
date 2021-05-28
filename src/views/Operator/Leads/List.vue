@@ -101,7 +101,6 @@
           >
             <template v-slot:item="{ item }">
               <v-list-item-title
-                v-if="item.type === 'call'"
                 :style="{ color: item.expired ? 'red' : '' }"
               >
                 {{ `Позвонить ${$moment.unix(item.planned_for).format('Do MMMM, dddd, hh:mm:ss a')}` }}
@@ -179,7 +178,7 @@ export default Vue.extend<IData, IMethods, IComputed>({
   },
   components: { AppCountUp, STaskList },
 
-  data () {
+  data (): IData {
     return {
       contact: {
         /* eslint-disable */
@@ -336,19 +335,22 @@ export default Vue.extend<IData, IMethods, IComputed>({
 
   mounted () {
     this.$root.$on('root-load-leads', this.loadLeads)
-  },
-
-  created () {
+    this.$root.$on('root-project-change', this.onRootProjectChange)
     this.loadLeads()
   },
 
   beforeDestroy() {
     this.$root.$off('root-load-leads', this.loadLeads)
+    this.$root.$off('root-project-change', this.onRootProjectChange)
   },
 
   methods: {
     onTasksLoadedData (data: any) {
       this.$data.taskCount = data.meta.count
+    },
+
+    onRootProjectChange () {
+      this.loadLeads()
     },
 
     /**
@@ -425,13 +427,11 @@ export default Vue.extend<IData, IMethods, IComputed>({
       new Leads()
         .get<{ count: number }, ContactInterface[]>(query)
         .then((response) => {
-          this.leadsCount = response.meta.count
-          this.leads = response.data
-        }).catch((e: Error) => {
-          this.$toast.error(e.message)
+          this.leadsCount = response?.meta?.count || 0
+          this.leads = response?.data || []
         }).finally(() => {
-          this.leadsLoading = false
-        })
+        this.leadsLoading = false
+      })
     },
 
     lastContactStatus (contact: ContactInterface) {
@@ -455,30 +455,30 @@ export default Vue.extend<IData, IMethods, IComputed>({
 </script>
 
 <style lang="scss" scoped>
-  .border {
-    border-left: 2px #3A70D4 solid;
-    margin-left: 5px;
+.border {
+  border-left: 2px #3A70D4 solid;
+  margin-left: 5px;
+}
+
+.toolbar {
+  &-subtitle {
+    display: flex;
+    flex-flow: column;
   }
 
-  .toolbar {
-    &-subtitle {
-      display: flex;
-      flex-flow: column;
-    }
-
-    &-subtitle small {
-      font-size: 12px;
-      color: #848484;
-    }
+  &-subtitle small {
+    font-size: 12px;
+    color: #848484;
   }
+}
 
-  .v-card {
-    display: flex !important;
-    flex-direction: column;
-  }
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
 
-  .v-card__text {
-    flex-grow: 1;
-    overflow: auto;
-  }
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+}
 </style>

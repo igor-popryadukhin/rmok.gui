@@ -3,10 +3,10 @@
     flat
     tile
   >
+    <!-- Даты -->
     <v-row>
       <v-col>
-        <div class="d-flex">
-          <v-spacer/>
+        <div class="d-flex justify-end">
           <app-btn-toggle-date
             v-model="filter.date_period"
             :items="dateRangeCollection"
@@ -125,6 +125,7 @@
         />
       </v-col>
 
+      <!-- Фильтр по группам -->
       <v-col
         class="py-0"
         md="4"
@@ -142,6 +143,8 @@
           multiple
         />
       </v-col>
+
+      <!-- Фильтр по проектам -->
       <v-col
         class="py-0"
         md="4"
@@ -157,6 +160,24 @@
           dense
           outlined
           multiple
+        />
+      </v-col>
+
+      <!-- Фильтр по тегам -->
+      <v-col
+        class="py-0"
+        md="4"
+        lg="4"
+        sm="12"
+        xs="12"
+      >
+        <s-contact-tags
+          v-model="filter.tags"
+          :label="$tc('Tags')"
+          multiple
+          clearable
+          outlined
+          dense
         />
       </v-col>
     </v-row>
@@ -178,7 +199,17 @@
                   text
                   small
                 >
-                  {{ dataTableHistory.pageStart }}-{{ dataTableHistory.pageStop }} из {{ dataTableHistory.totalCount }}
+                  <app-count-up
+                    :end-val="dataTableHistory.pageStart"
+                  />
+                  <span class="mx-1">—</span>
+                  <app-count-up
+                    :end-val="dataTableHistory.pageStop"
+                  />
+                  <span class="mx-1">из</span>
+                  <app-number-format
+                    :value="dataTableHistory.totalCount"
+                  />
                 </v-btn>
               </template>
               <v-list
@@ -244,7 +275,10 @@
           fixed-header
           hide-default-footer
           show-select
+          multi-sort
           @pagination="onPaginationChange"
+          :sort-by.sync="dataTableHistory.sortBy"
+          :sort-desc.sync="dataTableHistory.sortDesc"
         >
           <!-- slots item -->
           <template slot="item.created_at" slot-scope="{ item }">
@@ -332,19 +366,22 @@
 
 <script lang="ts">
 import ContactHistory from '@/api/ContactHistory'
+import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
 import Statistics from '@/api/Statistics'
 import { UserInterface } from '@/api/Users'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
+import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
+import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import audioPlayer from '@/mixins/audioPlayer'
 import dateRangeCollection from '@/mixins/dateRangeCollection'
+import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
-
 import VueApexCharts from 'vue-apexcharts'
 import { debounce } from 'vuetify/src/util/helpers'
 import { GroupInterface } from '@/api/Groups'
@@ -357,6 +394,9 @@ Vue.component('apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: {
+    SContactTags,
+    AppNumberFormat,
+    AppCountUp,
     AppBtnToggleDate,
     AppDatePickerInput,
     AppPagination,
@@ -384,6 +424,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
         return 500
       }
       return this.$screenHeight - 150
+    },
+
+    paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
+      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      return JSON.parse(json)
     }
   },
 
@@ -426,20 +471,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
           },
           {
             align: 'end',
-            sortable: false,
+            sortable: true,
             text: 'Длительность разговора',
             value: 'call_duration',
             width: 'auto'
           },
           {
             align: 'end',
-            sortable: false,
+            sortable: true,
             text: 'Общее время сессии',
             value: 'session_duration',
             width: 'auto'
           },
           {
-            sortable: false,
+            sortable: true,
             text: 'Менеджер',
             value: 'creator',
             width: 'auto'
@@ -459,7 +504,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         pageStart: 0,
         pageStop: 0,
         pages: 1,
-        totalCount: 0
+        totalCount: 0,
+        sortBy: [],
+        sortDesc: []
       },
       dateRange: null as string[] | null,
       filter: {
@@ -486,6 +533,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         // Дата или диапазон дат
         user: [] as unknown & UserInterface[],
         groups: [] as unknown & GroupInterface[],
+        tags: [] as unknown & ContactTagInterface[],
         project_id: null as unknown & ProjectInterface | null
       },
       filterDate: undefined,
@@ -521,6 +569,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
           type: 'all' // Показать всю историю
         }
 
+        // Формирую параметры сортировки
+        this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
+          params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
+        })
+
         if (this.assertObjectHasAttribute(this.$route.query, 'date_period')) {
           params.date_period = this.$route.query.date_period
         }
@@ -539,20 +592,16 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }
 
-        if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_by')) {
-          params.history_sort_by = this.$route.query.history_sort_by
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'history_sort_direction')) {
-          params.history_sort_direction = this.$route.query.history_sort_direction
-        }
-
         if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
           params.project_id = this.$route.query.project_id
         }
 
         if (this.assertObjectHasAttribute(this.$route.query, 'group_ids')) {
           params.group_ids = this.$route.query.group_ids
+        }
+
+        if (this.assertObjectHasAttribute(this.$route.query, 'tag_ids')) {
+          params.tag_ids = this.$route.query.tag_ids
         }
 
         new Statistics()
@@ -585,6 +634,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * Инициализировать слежение за изменением фильтров
      */
     initializeWatchForFilters () {
+      const debounceDelay = 350 // Задержка, избавит от дребезга
       // Фильтрация по пользователям
       this.$watch('filter.user', (newVal: unknown & UserInterface) => {
         this.dataTableHistory.page = 1
@@ -636,7 +686,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
         if (newVal) {
           this.$routerQuery.setQuery({
-            group_ids: newVal.map((e: GroupInterface) => e.id)
+            group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
           }).then(this.fetchDataHistory)
         } else {
           this.$routerQuery.removeQuery([
@@ -644,6 +694,41 @@ export default (Vue as VueConstructor<VInterface>).extend({
           ]).then(this.fetchDataHistory)
         }
       })
+
+      // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
+
+      /**
+       * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableContacts
+       */
+      const dataTableSortUpdate = debounce(() => {
+        const sort = []
+        for (let i = 0; i < Math.min(this.dataTableHistory.sortBy.length, this.dataTableHistory.sortDesc.length); i++) {
+          const sortDesc: string = this.dataTableHistory.sortDesc[i]
+          const sortBy: boolean = this.dataTableHistory.sortBy[i]
+
+          sort.push({ sort_by: sortBy, sort_desc: sortDesc })
+        }
+
+        if (sort.length > 0) {
+          // Преобразовываю в JSON и сохраняю в строку браузера
+          this.$routerQuery.setQuery({
+            sort: JSON.stringify(sort)
+          }).then(() => {
+            this.fetchContacts()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['sort'])
+            .then(() => {
+              this.fetchContacts()
+            })
+        }
+      }, debounceDelay)
+
+      // Поля, по которым буду осуществлять сортировку
+      this.$watch('dataTableContacts.sortBy', dataTableSortUpdate)
+      // Направление сортировки
+      this.$watch('dataTableContacts.sortDesc', dataTableSortUpdate)
     },
 
     onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
@@ -752,12 +837,25 @@ export default (Vue as VueConstructor<VInterface>).extend({
       promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids')))
     }
 
+    if (this.$routerQuery.hasQuery('tag_ids')) {
+      const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+      this.filter.tags = tag_ids.map(value => +value)
+    }
+
     if (this.$routerQuery.hasQuery('contact_created_at')) {
       const dateRange = this.$routerQuery.getQuery<string>('contact_created_at')
       this.filter.contact_created_at = dateRange
         .split(',', 2)
         .map((e: string) => +e)
         .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
+    }
+
+    // Восстановление параметров сортировки после перезагрузки страницы
+    if (this.$routerQuery.hasQuery('sort')) {
+      this.paramsSort.forEach((e: unknown & { sort_by: string, sort_desc: boolean }) => {
+        this.$data.dataTableHistory.options.sortBy.push(e.sort_by)
+        this.$data.dataTableHistory.options.sortDesc.push(e.sort_desc)
+      })
     }
 
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
@@ -774,18 +872,24 @@ export default (Vue as VueConstructor<VInterface>).extend({
     'dataTableHistory.options': {
       deep: true,
       handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
+        const sort = []
+        for (let i = 0; i < Math.min(sortBy.length, sortDesc.length); i++) {
+          sort.push({ sort_by: sortBy[i], sort_desc: sortDesc[i] })
+        }
+        console.log('sss sort', sort)
+        if (sort.length > 0) {
+          // Преобразовываю в JSON и сохраняю в строку браузера
+          this.$routerQuery.setQuery({
+            sort: JSON.stringify(sort)
+          }).then(() => {
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['sort'])
+            .then(() => {
+              this.fetchDataHistory()
+            })
         }
       }
     },

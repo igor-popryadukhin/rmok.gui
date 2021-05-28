@@ -36,9 +36,12 @@
               height="48"
               flat
             >
-
+              <v-toolbar-title class="grey--text ">
+                {{ $tc('Users') }}
+              </v-toolbar-title>
               <template v-if="dataTableUsers.selected.length === 0">
                 <v-btn
+                  class="ml-5 float-right"
                   :disabled="dataTableUsers.processLoading"
                   small
                   tile
@@ -48,9 +51,17 @@
                   Обновить
                 </v-btn>
               </template>
-
+              <v-btn
+                color="ml-5 float-right"
+                :disabled="!$permission.isGranted('role.create')"
+                small
+                tile
+                text
+                @click="onAddClick"
+              >
+                {{ $tc('Create user') }}
+              </v-btn>
               <v-spacer/>
-
               <!-- Paginator -->
               <app-pagination
                 v-model="dataTableUsers.page"
@@ -141,35 +152,35 @@
           </template>
 
           <!--          <template slot="item" slot-scope="{ item }">-->
-<!--            <tr class="v-datatable-item">-->
-<!--              <td class="text-no-wrap">-->
-<!--                {{ item.first_name }} {{ item.last_name }} {{ item.middle_name }}-->
-<!--              </td>-->
-<!--              <td class="text-no-wrap">-->
-<!--                {{ item.role ? item.role.name : '—' }}-->
-<!--              </td>-->
-<!--              <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>-->
-<!--              <td v-if="$permission.isGranted('user.view_outside_your_group')" class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>-->
-<!--              <td v-if="$permission.isSuperAdmin" class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>-->
-<!--              <td class="text-no-wrap text-right">-->
-<!--                <v-btn-->
-<!--                  :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"-->
-<!--                  icon-->
-<!--                  small-->
-<!--                >-->
-<!--                  <v-icon>mdi-pencil-box-outline</v-icon>-->
-<!--                </v-btn>-->
-<!--                <v-btn-->
-<!--                  color="red"-->
-<!--                  icon-->
-<!--                  small-->
-<!--                  @click="onDelete(item)"-->
-<!--                >-->
-<!--                  <v-icon>mdi-delete-outline</v-icon>-->
-<!--                </v-btn>-->
-<!--              </td>-->
-<!--            </tr>-->
-<!--          </template>-->
+          <!--            <tr class="v-datatable-item">-->
+          <!--              <td class="text-no-wrap">-->
+          <!--                {{ item.first_name }} {{ item.last_name }} {{ item.middle_name }}-->
+          <!--              </td>-->
+          <!--              <td class="text-no-wrap">-->
+          <!--                {{ item.role ? item.role.name : '—' }}-->
+          <!--              </td>-->
+          <!--              <td class="text-no-wrap">{{ item.project ? item.project.name : '—' }}</td>-->
+          <!--              <td v-if="$permission.isGranted('user.view_outside_your_group')" class="text-no-wrap">{{ item.group ? item.group.name : '—' }}</td>-->
+          <!--              <td v-if="$permission.isSuperAdmin" class="text-no-wrap">{{ item.organization ? item.organization.name : '—' }}</td>-->
+          <!--              <td class="text-no-wrap text-right">-->
+          <!--                <v-btn-->
+          <!--                  :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"-->
+          <!--                  icon-->
+          <!--                  small-->
+          <!--                >-->
+          <!--                  <v-icon>mdi-pencil-box-outline</v-icon>-->
+          <!--                </v-btn>-->
+          <!--                <v-btn-->
+          <!--                  color="red"-->
+          <!--                  icon-->
+          <!--                  small-->
+          <!--                  @click="onDelete(item)"-->
+          <!--                >-->
+          <!--                  <v-icon>mdi-delete-outline</v-icon>-->
+          <!--                </v-btn>-->
+          <!--              </td>-->
+          <!--            </tr>-->
+          <!--          </template>-->
         </v-data-table>
       </v-col>
 
@@ -246,32 +257,32 @@ import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
-interface IRef {
-  [key: string]: any;
-}
+  interface IRef {
+    [key: string]: any;
+  }
 
-interface IData {
-  [key: string]: any;
-  /** Метод для загрузки списка пользователей */
-  fetchUsers: () => void;
-}
+  interface IData {
+    [key: string]: any;
+    /** Метод для загрузки списка пользователей */
+    fetchUsers: () => void;
+  }
 
-interface IMethods {
-  [key: string]: any;
-}
+  interface IMethods {
+    [key: string]: any;
+  }
 
-interface IComputed {
-  [key: string]: any;
-}
+  interface IComputed {
+    [key: string]: any;
+  }
 
-interface IProps {
-  [key: string]: any;
-}
+  interface IProps {
+    [key: string]: any;
+  }
 
-interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
-}
+  interface VInnerInterface extends VInterface {
+    $data: IData;
+    $refs: IRef;
+  }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, IComputed, IProps>({
   components: {
@@ -426,9 +437,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
     },
 
     /**
-     * Срабатывает когда в списке "пользователи системы" нажали кнопу удалить пользователя
-     * @param item Элемент массива UserInterface[]
-     */
+       * Срабатывает когда в списке "пользователи системы" нажали кнопу удалить пользователя
+       * @param item Элемент массива UserInterface[]
+       */
     onDelete (item: UserInterface) {
       this.$dialog.showAndWait(SUserDialogDelete, {
         onDelete: (data: unknown & { user_id: number; option: string }) => {
@@ -466,14 +477,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
     },
 
     /**
-     * Происходит когда пользователь вводит текст в поле поиска.
-     **/
+       * Происходит когда пользователь вводит текст в поле поиска.
+       **/
     onUserSearch (text: string) {
       console.log(text)
     },
 
     vDataTableItemClass (scope: any) {
       return 'v-dt-item'
+    },
+    onAddClick () {
+      this.$router.push({ name: 'administrator_users_new_main' })
     }
   },
 
@@ -557,8 +571,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
         // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
 
         /**
-         * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableUsers
-         */
+           * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableUsers
+           */
         const dataTableSortUpdate = debounce(() => {
           const sort = []
           for (let i = 0; i < Math.min(this.dataTableUsers.sortBy.length, this.dataTableUsers.sortDesc.length); i++) {
@@ -601,17 +615,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
 </script>
 
 <style lang="scss">
-.v-dt-item {
-  & > td {
-    white-space:nowrap;
+  .v-dt-item {
+    & > td {
+      white-space:nowrap;
+    }
   }
-}
 
-.v-toolbar-header div {
-  padding: 0 !important;
-}
+  .v-toolbar-header div {
+    padding: 0 !important;
+  }
 
-.v-toolbar-header div:last-child {
-  margin-right: 10px;
-}
+  .v-toolbar-header div:last-child {
+    margin-right: 10px;
+  }
 </style>

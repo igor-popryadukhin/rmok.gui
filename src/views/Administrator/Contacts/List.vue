@@ -206,6 +206,7 @@
                   :disabled="process === 'setting-tags'"
                   offset-y
                   @input="onMenuSetTegInputChange"
+                  @keydown.esc="menuSetTagsShowing = false"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -348,6 +349,7 @@
                     </template>
                     <v-list
                       :disabled="dataTableContacts.pages < 4"
+                      v-ripple="false"
                       class="py-0"
                       dense
                       flat
@@ -525,10 +527,14 @@
           <!-- Статусы -->
           <v-card-text class="pt-0">
             <s-statuses-select
-              disabled
+              v-model="filter.status"
+              :params="sStatusesParams"
+              :disabled="!isActiveFilterStatus"
+              ref="sStatusesSelect"
+              clearable
               outlined
               dense
-              autoload
+              multiple
             />
           </v-card-text>
 
@@ -554,6 +560,7 @@
               outlined
               dense
               multiple
+              notags
             />
           </v-card-text>
 
@@ -634,6 +641,7 @@
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
 import { ContactExportParamsInterface, Contacts, ContactsParamsFind } from '@/api/Contacts'
+import { StatusInterface } from '@/api/Database'
 import { ProjectInterface } from '@/api/Projects'
 import {
   ContactEmailInterface,
@@ -722,12 +730,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       // Теги
       if (this.$data.filter.tags.length > 0) {
-        params.tag_ids = this.$data.filter.tags.map((value: ContactTagInterface) => value.id).join(',')
+        params.tag_ids = this.$data.filter.tags.join(',')
       }
 
       // Ответственный
       if (this.$data.filter.responsible) {
         params.responsible_id = this.$data.filter.responsible.id
+      }
+
+      // Статусы
+      if (this.$routerQuery.hasQuery('status_ids')) {
+        params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
       }
 
       // Дата последнего звонка
@@ -760,6 +773,16 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       return params
+    },
+
+    sStatusesParams () {
+      return this.filter.project?.id ? {
+        project_id: this.filter.project?.id
+      } : {}
+    },
+
+    isActiveFilterStatus () {
+      return Boolean(this.filter.project?.id)
     },
 
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
@@ -871,6 +894,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           params.project_id = this.$routerQuery.getQuery<number>('project_id')
         }
 
+        if (this.$routerQuery.hasQuery('status_ids')) {
+          params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
+        }
+
         if (this.$routerQuery.hasQuery('responsible_id')) {
           params.responsible_id = this.$routerQuery.getQuery<number>('responsible_id')
         }
@@ -944,6 +971,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         // Фильтрация по тегам
         tags: [] as ContactTagInterface[],
 
+        // Фильтрация по статусам
+        status: [] as unknown & StatusInterface[],
+
         // Фильтрация по задачам
         task: {
           options: [
@@ -998,6 +1028,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
       }
 
+      if (this.$routerQuery.hasQuery('status_ids')) {
+        const status_ids = this.$routerQuery.getQuery<string>('status_ids').split(',')
+        this.filter.status = status_ids.map(value => +value)
+      }
+
       if (this.$routerQuery.hasQuery('responsible_id')) {
         promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
       }
@@ -1043,14 +1078,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('tag_ids')) {
-        promises.push(new Promise<void>(resolve => {
-          new Contacts()
-            .getTags({
-              tag_ids: this.$routerQuery.getQuery<string>('tag_ids')
-            }).then(response => {
-              this.$data.filter.tags = response?.data || []
-            }).finally(() => (resolve()))
-        }))
+        const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+        this.filter.tags = tag_ids.map(value => +value)
       }
 
       // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
@@ -1091,7 +1120,22 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }).then(this.fetchContacts)
         } else {
           this.$routerQuery.removeQuery([
-            'project_id'
+            'project_id',
+            'status_ids'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Фильтрация по статусам
+      this.$watch('filter.status', (newVal: unknown & StatusInterface[]) => {
+        this.dataTableContacts.page = 1
+        if (Array.isArray(newVal)) {
+          this.$routerQuery.setQuery({
+            status_ids: newVal.map(val => val.id).join(',')
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'status_ids'
           ]).then(this.fetchContacts)
         }
       })
@@ -1167,7 +1211,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
 
       // Фильтрация по тегам
-      this.$watch('filter.tags', (value: ContactTagInterface[]) => {
+      this.$watch('filter.tags', (value: number[]) => {
         if (!Array.isArray(value)) {
           this.$routerQuery.removeQuery([
             'tag_ids'
@@ -1176,7 +1220,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
         this.dataTableContacts.page = 1
         this.$routerQuery.setQuery({
-          tag_ids: value.map((value: ContactTagInterface) => value.id).join(',')
+          tag_ids: value.join(',')
         }).then(this.fetchContacts)
       })
 
@@ -1627,6 +1671,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               .transfer(params)
               .then((count: number) => {
                 this.$toast.success(this.$tc('Contacts not transferred | {n} contact transferred | {n} contact transferred | {n} contacts transferred', count))
+                this.dataTableContacts.selected = [] // Отменить выделение всех контактов
+                instance.close() // Закрыть диалог
               })
               .catch((error) => {
                 if (error instanceof APIError) {
@@ -1637,9 +1683,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
                 }
               })
               .finally(() => {
-                this.dataTableContacts.selected = [] // Отменить выделение всех контактов
                 this.fetchContacts() // Обновить список контактов
-                instance.close() // Закрыть диалог
               })
           },
           persistent: true,
@@ -1649,15 +1693,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
     },
 
-    selectAll () {
-      this.$data.dataTableContacts.selectedAll = true
-    },
-
     unselectAll (e?: Event) {
       if (e instanceof Event) {
         e.preventDefault()
       }
       this.$data.dataTableContacts.selected = []
+      this.dataTableContacts.selectedWhole = false
     },
 
     vDataTableItemClass (scope: any) {
@@ -1698,7 +1739,19 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           this.unselectAll()
           this.$toast.warning(this.$tc('It is forbidden to select all elements without filters installed'))
         }
+        if (val && JSON.stringify(this.paramFilters) !== '{}') {
+          // Чекаем все видимые чекбоксы визуально если выбраны все цепочки
+          this.$data.dataTableContacts.selected = this.$data.dataTableContacts.items
+        } else {
+          this.unselectAll()
+        }
       }
+    },
+
+    // Следим за параметрами фильтра
+    paramFilters () {
+      // Сброс чекбоксов если не установлены фильтры и выбраны все цепочки контактов
+      this.unselectAll()
     }
   }
 })

@@ -111,6 +111,11 @@ export interface ContactsParamsFind {
    * Положительное число, по умолчанию 50, максимальное значение 1000
    */
   offset?: number;
+  /**
+   * Перечисленные через запятую идентификаторы статусов.
+   * -------------------------------------------------
+   */
+  status_ids?: string;
 }
 
 export interface ContactsParamsSetTagsInterface {

@@ -8,12 +8,13 @@
     :loading="process"
     :error-messages="errorMessages"
     :no-data-text="$tc('No data available')"
-    full-width
+    :label="label"
     ref="ref"
+    item-text="name"
     item-value="id"
     item-color="color"
+    full-width
     disable-lookup
-    return-object
     no-filter
     persistent-hint
     @update:search-input="onTagsSearchInput"
@@ -21,9 +22,15 @@
   >
     <template
       slot="item"
-      slot-scope="{ item }"
+      slot-scope="{ item, on, attrs }"
     >
-      {{ item.name }}
+      <v-list-item
+        v-on="on"
+        v-bind="attrs"
+        :disabled="item.id > 0 && itemDisabled === 0 || item.id === 0 && itemDisabled === -1"
+      >
+        {{ item.name }}
+      </v-list-item>
     </template>
 
     <template v-slot:append-item>
@@ -79,47 +86,6 @@ import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
   name: 'SContactTags',
-
-  data () {
-    return {
-      // Поиск тегов
-      onTagsSearchInput: debounce((q: string) => {
-        new Contacts()
-          .getTags({ q })
-          .then((response) => {
-            this.options = response.data
-          })
-      }, 250),
-      // Коллекция доступных тегов
-      options: [] as unknown & ContactTagInterface[],
-      process: false,
-      q: null,
-      selected: null as unknown & ContactTagInterface | ContactTagInterface[]
-    }
-  },
-
-  methods: {
-    chipRemove (item: ContactTagInterface | null) {
-      if (Array.isArray(this.selected) && item) {
-        const index = this.selected.findIndex((e: ContactTagInterface) => e.id === item.id)
-        if (index >= 0) this.selected.splice(index, 1)
-      } else {
-        this.selected = null
-      }
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  mounted () {
-    if (Array.isArray(this.value)) {
-      this.selected = this.value
-      this.options = this.value
-    }
-  },
 
   props: {
     autoload: {
@@ -187,6 +153,33 @@ export default Vue.extend({
     visibleIcon: {
       default: false,
       type: Boolean
+    },
+
+    notags: {
+      default: () => false,
+      type: Boolean
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  data () {
+    return {
+      // Поиск тегов
+      onTagsSearchInput: debounce((q: string) => {
+        new Contacts()
+          .getTags({ q })
+          .then((response) => {
+            this.options = response.data
+          })
+      }, 250),
+      // Коллекция доступных тегов
+      process: false,
+      q: null,
+      selected: null as unknown & number | number[]
     }
   },
 
@@ -195,11 +188,57 @@ export default Vue.extend({
       this.$emit('change', value)
     },
 
-    value (value: ContactTagInterface | ContactTagInterface[]) {
+    value (value: number | number[]) {
       this.selected = value
+    }
+  },
 
-      if (this.options.length === 0 && Array.isArray(value)) {
-        this.options = value
+  computed: {
+    /**
+     * Список тегов контактов
+     */
+    options: {
+      get () {
+        let tags = this.$store.getters['filter/contact_tags']
+        // Внедряем тег "Без тегов" если передана опция notags
+        if (this.notags) {
+          tags = [{ id: 0, name: this.$tc('Without tags') }, ...tags]
+        }
+        return tags
+      },
+
+      set (val?: ContactTagInterface) {
+        this.$store.commit('filter/contact_tags', val)
+      }
+    },
+    /**
+     * Toggle тегов между переключениями c тегом "без тегов"
+     */
+    itemDisabled: function () {
+      if (Array.isArray(this.selected)) {
+        const index = this.selected.findIndex((value: number) => value === 0)
+        if (index === 0) {
+          return 0
+        } else {
+          const index = this.selected.findIndex((value: number) => value !== 0)
+          if (index === 0) {
+            return -1
+          } else {
+            return 1
+          }
+        }
+      }
+      return false
+    }
+  },
+
+  methods: {
+    chipRemove (item: ContactTagInterface | null) {
+      if (Array.isArray(this.selected) && item) {
+        const index = this.selected.findIndex((value: number) => value === item.id)
+        if (index >= 0) this.selected.splice(index, 1)
+      } else {
+        this.selected = null
       }
     }
   }

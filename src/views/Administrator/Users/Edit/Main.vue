@@ -120,7 +120,7 @@
             v-model="user.password2"
             :label="$tc('Password')"
             :type="passwordShow ? '' : 'password'"
-            :rules="[rules.lengthMinOrZero(6)]"
+            :rules="[rules.lengthMinOrZero(6), (user.password !== '' ? rules.mismatchPassword(user.password) : null)]"
             autocomplete="new-password"
             required
           >

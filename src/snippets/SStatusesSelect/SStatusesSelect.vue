@@ -5,61 +5,46 @@
     :dense="dense"
     :outlined="outlined"
     :label="label"
+    :disabled="disabled"
+    :clearable="clearable"
     item-text="name"
     item-value="id"
+    return-object
+    @focus="onFocus"
+    :multiple="multiple"
   >
+    <template v-slot:selection="{ item }">
+      <div :style="{ color: item.color }" class="v-select__selection v-select__selection--comma">{{ item.name }}</div>
+    </template>
     <template v-slot:item="{ item, on, attrs }">
       <v-list-item
         v-bind="attrs"
         v-on="on"
         :color="item.color"
       >
-        {{ item.name }}
+        <span :style="{ color: item.color }">{{ item.name }}</span>
       </v-list-item>
     </template>
   </v-select>
 </template>
 
 <script lang="ts">
-import { Database } from '@/api/Database'
+import { StatusInterface } from '@/api/Database'
+import Statuses from '@/api/Statuses'
 import i18n from '@/plugins/i18n'
 import Vue, { PropType } from 'vue'
-import { UserInterface } from '@/api/Users'
 
 interface ParamsInterface {
   project_id?: number
 }
 
 export default Vue.extend({
-  created () {
-    if (this.autoload) {
-      this.fetchData()
-    }
-  },
-
-  data () {
-    return {
-      options: [],
-      selected: null
-    }
-  },
-
-  methods: {
-    fetchData (params = {}) {
-      new Database()
-        .statuses(Object.assign({}, params, this.params))
-        .then((response) => {
-          this.options = response.data
-        })
-    }
-  },
+  name: 'SStatusesSelect',
 
   model: {
     event: 'change',
     prop: 'value'
   },
-
-  name: 'SStatusesSelect',
 
   props: {
     autoload: {
@@ -114,18 +99,24 @@ export default Vue.extend({
     },
     value: {
       default: () => null,
-      type: [Object, Array] as PropType<UserInterface | UserInterface[]>
-    },
-    visibleIcon: {
-      default: false,
-      type: Boolean
+      type: [Object, Array] as PropType<StatusInterface | StatusInterface[]>
+    }
+  },
+
+  created () {
+    if (this.autoload) {
+      this.fetchData()
+    }
+  },
+
+  data () {
+    return {
+      options: [],
+      selected: null
     }
   },
 
   watch: {
-    q (q: string) {
-      this.fetchData({ q })
-    },
 
     selected (value) {
       this.$emit('change', value)
@@ -133,6 +124,41 @@ export default Vue.extend({
 
     value (val: any) {
       this.selected = val
+    },
+
+    params (val: any) {
+      this.fetchData(val ?? {})
+    }
+  },
+
+  methods: {
+    fetchData (params = {}) {
+      new Statuses()
+        .findBy(Object.assign({}, params, this.params))
+        .then((response) => {
+          this.options = response.data
+        })
+    },
+
+    /**
+     * Загрузить с сервера для установки текущего значения
+     * @param id
+     */
+    setDefault (id: number) {
+      return new Statuses()
+        .findById(id)
+        .then((response: StatusInterface) => {
+          this.selected = response
+          if (!this.options.includes(response)) {
+            this.options.push(response)
+          }
+        })
+    },
+
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
     }
   }
 })

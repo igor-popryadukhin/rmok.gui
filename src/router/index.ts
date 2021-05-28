@@ -4,7 +4,7 @@ import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
-import { NavigationGuardNext, Position } from 'vue-router/types/router'
+import { NavigationGuardNext } from 'vue-router/types/router'
 import secure from '@/middleware/secure'
 
 import { Store } from 'vuex'
@@ -45,11 +45,11 @@ const routes: RouteConfig[] = [
   {
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
     meta: {
-      layout: 'default',
-      middleware: [secure],
+      layout: 'clean',
+      middleware: [],
       title: 'documents'
     },
-    name: 'About',
+    name: 'about',
     path: '/about'
   },
 
@@ -324,7 +324,27 @@ const routes: RouteConfig[] = [
             },
             name: 'operator_settings_headset_configure',
             path: 'headset-configure'
+          },
+          {
+            component: () => import(/* webpackChunkName: "operator-settings-system" */ '../views/Settings/System.vue'),
+            meta: {
+              icon: 'mdi-cog',
+              layout: 'operator-layout',
+              middleware: [secure]
+            },
+            name: 'operator_settings_system',
+            path: 'system'
           }
+          // {
+          //   component: () => import(/* webpackChunkName: "operator-settings-my-projects" */ '../views/Settings/MyProjects.vue'),
+          //   meta: {
+          //     icon: 'mdi-projector-screen',
+          //     layout: 'operator-layout',
+          //     middleware: [secure]
+          //   },
+          //   name: 'operator_settings_my_projects',
+          //   path: 'my-projects'
+          // }
         ],
         component: () => import(/* webpackChunkName: "operator-settings-layout-operator" */ '../views/Settings/LayoutOperator.vue'),
         meta: {

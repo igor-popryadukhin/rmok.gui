@@ -590,6 +590,47 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     }
   },
 
+  watch: {
+    /**
+     * Идентификаторы выделенных контактов
+     *
+     **/
+    'dataTableContacts.selected': {
+      handler (selected: UserInterface[]) {
+        if (selected.length === this.dataTableContacts.itemsPerPage) {
+          this.dataTableContacts.selectedAll = true
+        } else {
+          this.dataTableContacts.selectedAll = false
+          this.dataTableContacts.selectedWhole = false
+        }
+
+        if (this.dataTableContacts.selectedWhole) {
+          this.dataTableContacts.selectedCount = this.dataTableContacts.totalCount
+        } else {
+          this.dataTableContacts.selectedCount = selected.length
+        }
+      }
+    },
+
+    // Идентификаторы выделенных контактов
+    'dataTableContacts.selectedWhole': {
+      handler (val: boolean) {
+        if (val && (this.dataTableContacts.totalCount > 10000)) {
+          this.$toast.warning('Не рекомендуется выделять больше 10 тыс!')
+        }
+      }
+    }
+  },
+
+  mounted () {
+    this.initializeFilters()
+    this.$root.$on('root-project-change', this.onRootProjectChange)
+  },
+
+  destroyed () {
+    this.$root.$off('root-project-change', this.onRootProjectChange)
+  },
+
   methods: {
 
     /**
@@ -840,6 +881,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       this.$watch('dataTableContacts.sortBy', dataTableSortUpdate)
       // Направление сортировки
       this.$watch('dataTableContacts.sortDesc', dataTableSortUpdate)
+    },
+
+    onRootProjectChange () {
+      this.fetchContacts()
     },
 
     onButtonRefreshClick () {
@@ -1263,42 +1308,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     vDataTableItemClass (scope: any) {
       return 'v-dt-item'
-    }
-  },
-
-  mounted () {
-    this.initializeFilters()
-  },
-
-  watch: {
-    /**
-     * Идентификаторы выделенных контактов
-     *
-     **/
-    'dataTableContacts.selected': {
-      handler (selected: UserInterface[]) {
-        if (selected.length === this.dataTableContacts.itemsPerPage) {
-          this.dataTableContacts.selectedAll = true
-        } else {
-          this.dataTableContacts.selectedAll = false
-          this.dataTableContacts.selectedWhole = false
-        }
-
-        if (this.dataTableContacts.selectedWhole) {
-          this.dataTableContacts.selectedCount = this.dataTableContacts.totalCount
-        } else {
-          this.dataTableContacts.selectedCount = selected.length
-        }
-      }
-    },
-
-    // Идентификаторы выделенных контактов
-    'dataTableContacts.selectedWhole': {
-      handler (val: boolean) {
-        if (val && (this.dataTableContacts.totalCount > 10000)) {
-          this.$toast.warning('Не рекомендуется выделять больше 10 тыс!')
-        }
-      }
     }
   }
 })

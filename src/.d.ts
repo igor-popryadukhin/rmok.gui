@@ -15,6 +15,10 @@ declare module 'vue/types/vue' {
   // 3. Declare augmentation for Vue
 
   interface Vue  {
+    /**
+     * Метод Window.confirm() отображает модальное диалоговое окно с дополнительным сообщением и двумя кнопками: OK и Отмена.
+     */
+    $confirm: () => boolean,
     $screenHeight: number
     $screenWidth: number
     $headerHeight: number
@@ -31,14 +35,17 @@ declare module 'vue/types/vue' {
     $axios: AxiosInstance;
     $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     $htmlAudioElement: HTMLAudioElement,
+    $version: string;
     assertObjectHasAttribute (obj: any, key: string): boolean
   }
 
   interface VueConstructor {
+    $confirm: () => boolean,
     $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     $jsSIP: JsSIP;
     $myGlobal: string;
     $htmlAudioElement: HTMLAudioElement;
+    $version: string;
   }
 }
 

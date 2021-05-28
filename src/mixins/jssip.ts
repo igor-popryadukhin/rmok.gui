@@ -303,6 +303,10 @@ const jssip = Vue.extend({
              * @param event
              */
             this.$jsSIP.onSessionFailed = (self: JsSIP, session: RTCSession, event: EndEvent) => {
+              // JsSIP.IncomingRequest or JsSIP.IncomingResponse instance generating the call failure when originator value is ‘remote’, null otherwise.
+              if (this.$isDebug && event.message) {
+                console.log(event.message)
+              }
               this.$toast.error(`Event: ${event.cause}`, { timeout: 3000 })
             }
 
@@ -402,20 +406,21 @@ const jssip = Vue.extend({
     // Сразу проинициализируем телефонию.
     this.$root.$emit('root-jssip-initialize')
 
-    this.$store.subscribe(
-      ({ payload, type }) => {
-        if (type === 'profile/setStatus') {
-          if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(payload)) {
-            if (!this.$jsSIP.isConnected) {
-              this.$jsSIP.start()
-            }
-          } else {
-            if (this.$jsSIP.isConnected) {
-              this.$jsSIP.stop()
-            }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.$store.subscribe(({ payload, type }) => {
+      if (type === 'profile/setStatus') {
+        if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(payload)) {
+          if (!this.$jsSIP.isConnected) {
+            this.$jsSIP.start()
+          }
+        } else {
+          if (this.$jsSIP.isConnected) {
+            this.$jsSIP.stop()
           }
         }
       }
+    }
     )
   }
 })

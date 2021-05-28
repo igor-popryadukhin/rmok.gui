@@ -13,6 +13,22 @@
         {{ $tc(`route.${tab.name}`) }}
         <v-spacer />
       </v-tab>
+
+      <v-divider />
+
+      <v-tab
+        v-if="project_available.length > 1"
+        :disabled="tabChangeProjectDisabled"
+        link
+        @click="onChangeProjectClick"
+      >
+        <v-icon left>
+          mdi-swap-horizontal-bold
+        </v-icon>
+        {{ $tc('Change project') }}
+        <v-spacer />
+      </v-tab>
+
       <v-tabs-items class="pa-2 border">
         <router-view />
       </v-tabs-items>
@@ -21,9 +37,11 @@
 </template>
 
 <script lang="ts">
+import Projects from '@/api/Projects'
 import Vue from 'vue'
 import { Route } from 'vue-router'
 import router from '@/router'
+import { mapGetters } from 'vuex'
 
 interface TabInterface {
   name: string;
@@ -61,15 +79,37 @@ export default Vue.extend({
 
   data () {
     return {
+      tabChangeProjectDisabled: false,
       tabs: [] as TabInterface[]
+    }
+  },
+
+  computed: {
+    ...mapGetters({
+      project_available: 'project/available'
+    })
+  },
+
+  methods: {
+    onChangeProjectClick () {
+      this.tabChangeProjectDisabled = true
+      // Очищаю локальное хранилище
+      this.$store.dispatch('project/clear')
+      new Projects()
+        .inactive()
+        .then(() => {
+          this.$router.replace({
+            name: 'login'
+          })
+        })
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-  .border {
-    border-left: 2px #3A70D4 solid;
-    margin-left: 5px;
-  }
+.border {
+  border-left: 2px #3A70D4 solid;
+  margin-left: 5px;
+}
 </style>

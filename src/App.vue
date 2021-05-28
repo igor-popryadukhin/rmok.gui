@@ -61,7 +61,6 @@ export default Vue.extend({
       .finally(() => {
         this.$root.$emit('root-jssip-initialize')
       })
-    this.$store.dispatch('project/load')
   },
 
   components: {
@@ -216,15 +215,15 @@ export default Vue.extend({
 
 <style lang="scss">
 
-  //.v-overlay {
-  //  backdrop-filter: blur(1px);
-  //}
-  //
-  //.v-overlay__scrim {
-  //  backdrop-filter: blur(1px);
-  //}
+//.v-overlay {
+//  backdrop-filter: blur(1px);
+//}
+//
+//.v-overlay__scrim {
+//  backdrop-filter: blur(1px);
+//}
 
-  .is-dev {
-    padding: 10px;
-  }
+.is-dev {
+  padding: 10px;
+}
 </style>

@@ -540,11 +540,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       })
   },
 
-  beforeRouteLeave (to, from, next) {
-    this.$activity.end()
-    next()
-  },
-
   beforeRouteUpdate (to, from, next) {
     if (from.params.contact_id !== to.params.contact_id) {
       const contacts: Contacts = new Contacts()
@@ -563,6 +558,21 @@ export default (Vue as VueConstructor<VInterface>).extend({
         })
     }
     next()
+  },
+
+  beforeRouteLeave (to, from, next) {
+    let answer = true
+
+    if (this.status.visible) {
+      answer = this.$confirm()
+    }
+
+    if (answer) {
+      this.$activity.end()
+      next()
+    } else {
+      next(false)
+    }
   },
 
   components: { SContactStatuses },
@@ -745,7 +755,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     onCall (target: string, contactId: number) {
-      /* eslint-disable */
       this.$jsSIP.call<JSSIPPayloadInterface>(target, {
         contact_id: contactId,
         target
@@ -770,7 +779,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
             this.$toast.success(this.$tc('Is tasks status pending'))
           }
         }).catch(e => console.log(e))
-      /* eslint-enable */
+
+      window.onbeforeunload = (evt) => {
+        const message = this.$tc('Do you really want to leave? you have unsaved changes!')
+        if (typeof evt === 'undefined') {
+          evt = window.event
+        }
+        if (evt) {
+          evt.returnValue = message
+        }
+        return message
+      }
     },
 
     /**
@@ -918,6 +937,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         return
       }
 
+      window.onbeforeunload = null // Отменяю запрос подтверждения ухода
       this.saveAndNextLoading = true
       return new Promise<void>((resolve) => {
         new Contacts()
@@ -979,13 +999,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
   mixins: [lvovich],
 
   mounted () {
-    this.$root.$on('root-main-search', this.onRootMainSearch)
-    this.$root.$on('root-main-search-selected', this.onRootMainSearchSelected)
-    // Prevent booting or closing a tab!!!
-    // window.onbeforeunload = () => {
-    //   return true
-    // }
-
     setInterval(() => {
       this.clientTimeTick++
     }, 1000)

@@ -88,6 +88,7 @@
   "Empty": "Пусто",
   "Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.": "Пустое значение | Это значение слишком длинное. Он должен содержать не более {n} символа. | Это значение слишком длинное. Он должен содержать не более {n} символов.",
   "Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.": "Это значение слишком короткое. Оно должно содержать символ {n} или более. | Это значение слишком короткое. Он должен содержать {n} символов или более. | Это значение слишком короткое. Он должен содержать {n} символов или более.",
+  "Empty. | Password mismatch.": "Это значение слишком короткое. Оно должно содержать символ {n} или более. | Пароли не совпадают",
   "Error connecting to PBX": "Ошибка при подключении к АТС",
   "Exit": "Выход",
   "Export": "Экспорт",
@@ -261,6 +262,9 @@
   "Transfer to": "Передать",
   "Tune": "Настроить",
   "Type": "Тип",
+  "Do you really want to leave? you have unsaved changes!": "Вы действительно хотите уйти? у вас есть несохраненные изменения!",
+  "You don't have a single project": "У вас нет ни одного проекта",
+  "Change project": "Сменить проект",
   "Unauthorized breaks": "Несанкционированные перерывы",
   "Undo": "Отменить",
   "User added successfully": "Пользователь успешно добавлен",
@@ -283,6 +287,8 @@
   "caution": "Внимание!",
   "change_password": "Изменить пароль",
   "close": "Закрыть",
+  "Clear local storage": "Очистить локальное хранилище",
+  "Without tags": "Без тегов",
   "company": "Компания",
   "confirm_new_password": "Повторите новый пароль",
   "confirm_password": "Подтвердите пароль",
@@ -308,6 +314,7 @@
   "last_name": "Фамилия",
   "location": "Локация",
   "login_to_the_system": "Вход в систему",
+  "Project {name} activated": "Проект {name} активирован",
   "message": "hello i18n !!",
   "messages": {
     "authorisation_success": "Успешная авторизация",
@@ -347,6 +354,8 @@
     "operator_settings_telephony": "@:Telephony",
     "operator_settings_regional": "Региональные настройки",
     "operator_settings_headset_configure": "Настройка гарнитуры",
+    "operator_settings_my_projects": "Мои проекты",
+    "operator_settings_system": "Система",
     "operator_leads_view": "@:Leads",
     "operator_leads_script": "Сценарий",
     "operator_leads_history": "@:History",
@@ -467,5 +476,6 @@
   },
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
-  "yes": "Да"
+  "yes": "Да",
+  "The structure of the incoming data is broken!": "Структура входящих данных нарушена!"
 }

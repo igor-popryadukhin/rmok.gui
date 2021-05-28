@@ -4,21 +4,58 @@ import { ActionContext, ActionTree } from 'vuex'
 import { ProjectStateInterface } from './state'
 
 const actions: ActionTree<ProjectStateInterface, RootStateInterface> = {
-  async load (ctx: ActionContext<ProjectStateInterface, RootStateInterface>) {
-    return new Promise<void>((resolve) => {
-      new Projects()
-        .current()
-        .then((response: ProjectInterface) => {
-          ctx.commit('id', response.id || 0)
-          ctx.commit('name', response.name || '')
-          ctx.commit('statuses', response.statuses || [])
-          ctx.commit('scenario', response.scenario || '')
-          ctx.commit('created_at', response.created_at || 0)
 
-          resolve()
+  /**
+   * Загрузить текущий проект пользователя.
+   *
+   * @param ctx
+   */
+  async current (ctx: ActionContext<ProjectStateInterface, RootStateInterface>) {
+    new Projects()
+      .current()
+      .then((response: ProjectInterface) => {
+        ctx.commit('current', {
+          id: response.id,
+          name: response.name,
+          scenario: response.scenario,
+          statuses: response.statuses,
+          created_at: response.created_at
         })
-    })
+      }).catch(() => {
+        ctx.commit('current', null)
+      })
+  },
+
+  /**
+   * Загрузить проекты пользователя.
+   *
+   * @param ctx
+   * @param params параметр которые будут переданы конечной точке.
+   */
+  async available (ctx: ActionContext<ProjectStateInterface, RootStateInterface>, params = {}) {
+    return new Projects()
+      .find(params)
+      .then((response) => {
+        ctx.commit('available', response.data.map((value) => {
+          return {
+            id: value?.id,
+            name: value?.name,
+            created_at: value?.created_at
+          }
+        }))
+      })
+  },
+
+  /**
+   * Очистить текущее хранилище
+   *
+   * @param ctx
+   */
+  clear (ctx: ActionContext<ProjectStateInterface, RootStateInterface>) {
+    ctx.commit('available', [])
+    ctx.commit('current', null)
   }
+
 }
 
 export default actions

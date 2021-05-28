@@ -13,7 +13,14 @@
       class="background--header"
     >
       <v-toolbar-title>
-        <span class="hidden-sm-and-down">RMOK</span>
+        <div class="hidden-sm-and-down">RMOK</div>
+        <div
+          v-if="project_current"
+          class="hidden-sm-and-down toolbar-title-subtitle text-lowercase"
+          style="margin-top: -8px"
+        >
+          {{ project_current.name }}
+        </div>
       </v-toolbar-title>
       <v-spacer/>
 
@@ -369,20 +376,19 @@
 </template>
 
 <script lang="ts">
+import Account, { UserStatus } from '@/api/Account'
+import Projects, { ProjectInterface } from '@/api/Projects'
+import AppDialogList from '@/components/AppDialogList/AppDialogList.vue'
+import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
+import breadcrumbs from '@/mixins/breadcrumbs'
 import jssip from '@/mixins/jssip'
 import SIncomingRTC from '@/snippets/SIncomingRTC/SIncomingRTC.vue'
-import Vue, { VueConstructor } from 'vue'
-import breadcrumbs from '@/mixins/breadcrumbs'
-import { MainSearchInterface, NotificationInterface } from '@/Interfaces'
-import { debounce } from 'vuetify/src/util/helpers'
-import Projects, { ProjectInterface } from '@/api/Projects'
-import Users from '@/api/Users'
-
+import VInterface from '@/VInterface'
 import callMachine from '@/xState/machines/callMachine'
+import Vue, { VueConstructor } from 'vue'
+import { debounce } from 'vuetify/src/util/helpers'
 import { mapGetters } from 'vuex'
 import { interpret } from 'xstate'
-import Account, { UserStatus } from '@/api/Account'
-import VInterface from '@/VInterface'
 
 interface IProps {
   [key: string]: any;
@@ -403,9 +409,13 @@ interface IComputed {
 export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, IComputed, IProps>({
   components: { SIncomingRTC },
 
+  mixins: [breadcrumbs, jssip],
+
   computed: {
     ...mapGetters({
-      task_pending_count: 'tasks/pending_count'
+      task_pending_count: 'tasks/pending_count',
+      project_current: 'project/current',
+      project_available: 'project/available'
     }),
 
     avatar () {
@@ -633,7 +643,10 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
             name: 'mdi-exit-run'
           },
           on: {
-            click: () => this.$router.replace({ name: 'login' })
+            click: () => {
+              this.$router.replace({ name: 'login' })
+              new Account().logout()
+            }
           },
           title: 'Exit'
         }
@@ -662,56 +675,23 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
     }
   },
 
-  methods: {
-    /**
-     * Происходит при каждом клике по элементу списка проектов в диалоговом окне
-     *
-     * @param item
-     */
-    onProjectItemClick (item: ProjectInterface & { loading: boolean }) {
-      this.projectDialog.disabled = true
-      item.loading = true
-      new Users()
-        .setProject(this.$store.getters['profile/id'], item.id)
-        .then(() => {
-          this.projectDialog.visible = false
-          this.$store.dispatch('project/load')
-        }).catch((e) => {
-          console.log(e)
-        }).finally(() => {
-          item.loading = false
-          this.projectDialog.disabled = false
-
-          this.$root.$emit('root-load-leads')
-          this.$root.$emit('root-load-tasks')
-        })
+  watch: {
+    'mainSearch.q': {
+      handler (q: string) {
+        this.mainSearch.debounce(q, this)
+      }
     },
 
-    onRootLoadingProjects () {
-      new Projects()
-        .find<{ count: number }, ProjectInterface[]>({
-          count: 100,
-          offset: 0
-        }).then((response) => {
-          this.projectDialog.projects = response.data.map((e: any) => {
-            e.loading = false
-            return e
-          })
-
-          // Показать диалог выбора проекта, если таковые имеются
-          if (this.projectDialog.projects.length > 0) {
-            this.projectDialog.visible = true
-          }
-        })
+    'mainSearch.selected': {
+      handler (value) {
+        if (value) {
+          this.$root.$emit('root-main-search-selected', value)
+        }
+      }
     }
   },
 
-  mixins: [breadcrumbs, jssip],
-
   mounted () {
-    // Событие загрузки проектов для выбора
-    this.$root.$on('root-loading-projects', this.onRootLoadingProjects)
-
     this.callMachineService = interpret(callMachine.withContext(this))
     this.callMachineService
       .onTransition((state: any) => {
@@ -735,34 +715,54 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
       }
     )
 
-    // Notification.requestPermission(function (permission) {
-    //   console.log('Результат запроса прав:', permission)
-    //   setInterval(() => {
-    //     const notification = new Notification('Sex', {
-    //       body: '<div style="background-color: #9C27B0">SEX</div>',
-    //       dir: 'auto'
-    //     })
-    //
-    //     notification.onclick = () => {
-    //       console.log('Вы кликнули!')
-    //     }
-    //   }, 3000)
-    // })
+    setTimeout(() => {
+      this.loadProject()
+    }, 3000)
   },
 
-  watch: {
-    'mainSearch.q': {
-      handler (q: string) {
-        this.mainSearch.debounce(q, this)
-      }
-    },
+  methods: {
+    /**
+     * Загрузить текущий проект пользователя если таковой имеется.
+     * Иначе предложить выбрать из списка.
+     */
+    async loadProject () {
+      // Загружаю доступные проекты
+      await this.$store.dispatch('project/available')
 
-    'mainSearch.selected': {
-      handler (value) {
-        if (value) {
-          this.$root.$emit('root-main-search-selected', value)
+      // Загружаю текущий проект пользователя и заполняю хранилище.
+      await this.$store.dispatch('project/current')
+
+      // Если хранилище не заполнено, загрузить доступные проекты и предложить выбор.
+      setTimeout(async () => {
+        if (!this.$store.getters['project/current']) {
+          // Показать диалог выбора проекта если таковые имеются
+          if (this.project_available.length > 0) {
+            const instance = await this.$dialog.show(AppDialogList, {
+              waitForResult: false,
+              showClose: true,
+              persistent: true,
+              itemText: 'name',
+              options: this.$store.getters['project/available'],
+              onItemClick: (item: ProjectInterface) => {
+                // Устанавливаю текущий проект
+                new Projects()
+                  .active(item.id)
+                  .then(async () => {
+                    // Теперь загружаю проект в хранилище
+                    await this.$store.dispatch('project/current')
+                    this.$root.$emit('root-project-change')
+                  })
+
+                // Закрываю диалог
+                instance.close()
+              }
+            })
+          } else {
+            // Сообщить пользователю о том что у него нет проектов
+            this.$toast.info(this.$tc('You don\'t have a single project'))
+          }
         }
-      }
+      }, 1000)
     }
   }
 })
