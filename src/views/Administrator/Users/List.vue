@@ -36,12 +36,9 @@
               height="48"
               flat
             >
-              <v-toolbar-title class="grey--text ">
-                {{ $tc('Users') }}
-              </v-toolbar-title>
               <template v-if="dataTableUsers.selected.length === 0">
                 <v-btn
-                  class="ml-5 float-right"
+                  class="float-right"
                   :disabled="dataTableUsers.processLoading"
                   small
                   tile
@@ -59,7 +56,7 @@
                 text
                 @click="onAddClick"
               >
-                {{ $tc('Create user') }}
+                {{ $tc('Add') }}
               </v-btn>
               <v-spacer/>
               <!-- Paginator -->
