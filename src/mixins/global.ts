@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
+import { version } from '../../package.json'
 
 Vue.mixin(Vue.extend({
   computed: {
@@ -21,6 +22,10 @@ Vue.mixin(Vue.extend({
 
     $screenWidth () {
       return this.$vuetify.breakpoint.width
+    },
+
+    $version () {
+      return version
     },
 
     ...mapGetters({

@@ -4,7 +4,7 @@ import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
-import { NavigationGuardNext, Position } from 'vue-router/types/router'
+import { NavigationGuardNext } from 'vue-router/types/router'
 import secure from '@/middleware/secure'
 
 import { Store } from 'vuex'
@@ -45,11 +45,11 @@ const routes: RouteConfig[] = [
   {
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
     meta: {
-      layout: 'default',
-      middleware: [secure],
+      layout: 'clean',
+      middleware: [],
       title: 'documents'
     },
-    name: 'About',
+    name: 'about',
     path: '/about'
   },
 

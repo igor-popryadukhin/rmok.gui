@@ -35,6 +35,7 @@ declare module 'vue/types/vue' {
     $axios: AxiosInstance;
     $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     $htmlAudioElement: HTMLAudioElement,
+    $version: string;
     assertObjectHasAttribute (obj: any, key: string): boolean
   }
 
@@ -44,6 +45,7 @@ declare module 'vue/types/vue' {
     $jsSIP: JsSIP;
     $myGlobal: string;
     $htmlAudioElement: HTMLAudioElement;
+    $version: string;
   }
 }
 
