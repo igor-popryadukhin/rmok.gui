@@ -286,7 +286,7 @@
           </template>
           <template slot="item.contact" slot-scope="{ item }">
             <template v-if="item.contact">
-              {{ item.contact.first_name }} {{ item.contact.last_name }}
+              {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
             </template>
             <template v-else>
               —
