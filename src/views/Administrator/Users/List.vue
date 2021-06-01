@@ -375,7 +375,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
         }
 
         if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
-          params.q = this.$route.query.q
+          params.q = this.$route.query.q.trim()
         }
 
         if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
