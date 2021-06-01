@@ -17,8 +17,6 @@
       :is="layout"
       :key="2"
       tabindex="-1"
-      @keydown.ctrl="$root.$emit('on-keydown-ctrl')"
-      @keyup.ctrl="$root.$emit('on-keyup-ctrl')"
     />
 
     <!-- AUDIO PLAYER -->
@@ -196,17 +194,19 @@ export default Vue.extend({
   mounted () {
     this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$on('on-keydown-ctrl', this.onKeyDown)
-    this.$root.$on('on-keyup-ctrl', this.onKeyUp)
     this.$root.$on('on-audio-player-show', this.onAudioPlayerShow)
+
+    window.addEventListener('keydown', this.onKeyDown)
+    window.addEventListener('keyup', this.onKeyUp)
   },
 
   beforeDestroy () {
     this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$off('on-keydown-ctrl', this.onKeyDown)
-    this.$root.$off('on-keyup-ctrl', this.onKeyUp)
     this.$root.$off('on-audio-player-show', this.onAudioPlayerShow)
+
+    window.removeEventListener('keydown', this.onKeyDown)
+    window.removeEventListener('keyup', this.onKeyUp)
   },
 
   name: 'App'
