@@ -709,7 +709,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         .history<any, any>(params)
         .then((response) => {
           this.dataTableHistory.totalCount = response?.meta?.count || 0
-          this.dataTableHistory.pages = Math.ceil(response?.meta?.count || 0 / this.dataTableHistory.itemsPerPage)
+          this.dataTableHistory.pages = Math.ceil((response?.meta?.count || 0) / this.dataTableHistory.itemsPerPage)
           this.dataTableHistory.items = response.data.map((e: any) => {
             e.isPlaying = false
             return e
@@ -756,6 +756,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       const debounceDelay = 350 // Задержка, избавит от дребезга
       // Фильтрация по пользователям
       this.$watch('filter.user', (newVal: unknown & UserInterface) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             creator_id: newVal.id
@@ -773,11 +774,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по датам
       this.$watch('filter.date_period', (newVal: unknown & string) => {
+        this.dataTableHistory.page = 1
         this.$routerQuery.setQuery({ date_period: newVal }).finally(this.fetchAllData)
       })
 
       // Фильтрация по дате создания контактов
       this.$watch('filter.contact_created_at', (val: number[]) => {
+        this.dataTableHistory.page = 1
         this.$routerQuery.setQuery({
           contact_created_at: val.join(',')
         }).then(() => {
@@ -787,6 +790,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по проектам
       this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             project_id: newVal.id
@@ -814,6 +818,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по группам
       this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
@@ -827,6 +832,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по тегам
       this.$watch('filter.tags', (newVal: number[]) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             tag_ids: newVal.join(',')
@@ -1052,17 +1058,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
     if (this.$routerQuery.hasQuery('tag_ids')) {
       const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
       this.filter.tags = tag_ids.map(value => +value)
-    }
-
-    if (this.$routerQuery.hasQuery('status_id')) {
-      const status_id = +this.$routerQuery.getQuery<number>('status_id', 0)
-      const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === status_id)
-      if (index > -1) {
-        this.filter.status = this.filter_statuses[index]
-      } else {
-        // Удаляю параметр если нет в хранилище
-        this.$routerQuery.removeQuery(['status_id'])
-      }
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {

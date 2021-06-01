@@ -671,6 +671,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по проектам
       this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             project_id: newVal.id
@@ -684,6 +685,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по группам
       this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
