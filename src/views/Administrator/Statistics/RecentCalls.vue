@@ -89,20 +89,19 @@
         xs="12"
       >
         <v-combobox
-          v-model="filter.status.selected"
-          :items="filter.status.items"
+          v-model="filter.status"
+          :items="filter_statuses"
           :label="$tc('Фильтр по результату')"
-          item-text="status_result"
-          item-value="status_id"
-          cache-items
+          item-text="name"
+          item-value="id"
+          item-color="color"
           return-object
           clearable
           dense
           outlined
-          v-on="filter.status.on"
         >
           <template v-slot:item="{ item }">
-            <v-list-item-title>{{ item.status_result }}</v-list-item-title>
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
           </template>
         </v-combobox>
@@ -214,7 +213,7 @@
         </div>
       </v-col>
       <v-col
-        class="d-flex justify-center"
+        class="d-flex align-center justify-center"
         cols="12"
         md="6"
         lg="6"
@@ -229,7 +228,7 @@
           v-else
         >
           <apexchart
-            width="600"
+            width="800"
             type="pie"
             :options="apexchartOptions"
             :series="pieSeries"
@@ -490,6 +489,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   computed: {
+    // Статусы используются дл фильтрации результатов
+    filter_statuses: {
+      get () {
+        return this.$store.getters['filter/statuses']
+      },
+
+      set (val: any[]) {
+        this.$store.commit('filter/statuses', val)
+      }
+    },
+
     apexchartOptions (): any {
       return {
         chart: {
@@ -497,16 +507,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
             enabled: false // Off animations
           },
           events: {
-            legendClick: (chartContext: any, seriesIndex: any, config: any) => {
-              const scope: any = this.pieData[seriesIndex]
+            // Происходит при клике по легенде диаграммы
+            legendClick: (chartContext: any, seriesIndex: any) => {
+              const scope: unknown & { status_id: number } = this.pieData[seriesIndex]
               if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.filter.status.selected = this.pieData[seriesIndex]
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                  .finally(() => {
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                    this.fetchTotalCallCount()
-                  })
+                const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === +scope.status_id)
+                if (index > -1) {
+                  this.filter.status = this.filter_statuses[index]
+                }
               } else {
                 throw new Error('В объекте scope отсутствует свойство status_id')
               }
@@ -529,6 +537,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
       }
     },
+
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
       const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
       return JSON.parse(json)
@@ -628,30 +637,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         contact_created_at: [] as string[] | number[],
         date_period: null as unknown & string,
         tags: [],
-        status: {
-          items: [],
-          on: {
-            input: (scope: any) => {
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery
-                  .setQuery({ status_id: scope.status_id })
-                  .finally(() => {
-                    this.fetchTotalCallCount()
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
-              } else {
-                this.$routerQuery.removeQuery(['status_id'])
-                  .finally(() => {
-                    this.fetchTotalCallCount()
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
-              }
-            }
-          },
-          selected: null
-        },
+        status: null,
         // Дата или диапазон дат
         user: [] as unknown & UserInterface[],
         groups: [] as unknown & GroupInterface[],
@@ -728,14 +714,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
             e.isPlaying = false
             return e
           }) || []
-          this.filter.status.items = response?.meta?.statuses || []
-
-          if (this.$routerQuery.hasQuery('status_id')) {
-            const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
-            if (index > -1) {
-              this.filter.status.selected = this.filter.status.items[index]
-            }
-          }
         }).finally(() => (this.historyProcessLoading = false))
     },
 
@@ -759,6 +737,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.pieColors = response.pie_chart.colors || []
 
           this.pieData = response.pie_data || []
+
+          // Статусы для фильтра
+          this.filter_statuses = response.statuses || []
         }).finally(() => (this.processPieLoading = false))
     },
 
@@ -811,8 +792,22 @@ export default (Vue as VueConstructor<VInterface>).extend({
             project_id: newVal.id
           }).then(this.fetchAllData)
         } else {
+          this.filter.status = null // Очистить фильтр по статусам
           this.$routerQuery.removeQuery([
             'project_id'
+          ]).then(this.fetchAllData)
+        }
+      })
+
+      // Фильтрация по проектам
+      this.$watch('filter.status', (val: unknown & { id: number; name: string }) => {
+        if (val) {
+          this.$routerQuery.setQuery({
+            status_id: val.id
+          }).then(this.fetchAllData)
+        } else {
+          this.$routerQuery.removeQuery([
+            'status_id'
           ]).then(this.fetchAllData)
         }
       })
@@ -1057,6 +1052,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
     if (this.$routerQuery.hasQuery('tag_ids')) {
       const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
       this.filter.tags = tag_ids.map(value => +value)
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      const status_id = +this.$routerQuery.getQuery<number>('status_id', 0)
+      const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === status_id)
+      if (index > -1) {
+        this.filter.status = this.filter_statuses[index]
+      } else {
+        // Удаляю параметр если нет в хранилище
+        this.$routerQuery.removeQuery(['status_id'])
+      }
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {

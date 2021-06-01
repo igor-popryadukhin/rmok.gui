@@ -8,7 +8,14 @@ const mutations: MutationTree<FilterStateInterface> = {
    * @param state
    * @param payload
    */
-  contact_tags (state, payload) { state.contact_tags = payload }
+  contact_tags (state, payload) { state.contact_tags = payload },
+
+  /**
+   * Статусы
+   * @param state
+   * @param payload
+   */
+  statuses (state, payload) { state.statuses = payload }
 }
 
 export default mutations

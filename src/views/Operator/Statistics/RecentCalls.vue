@@ -423,6 +423,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
             enabled: false // Off animations
           },
           events: {
+            // Происходит при клике по легенде диаграммы
             legendClick: (chartContext: any, seriesIndex: any, config: any) => {
               const scope: any = this.pieData[seriesIndex]
               if (this.assertObjectHasAttribute(scope, 'status_id')) {
