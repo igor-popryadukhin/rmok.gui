@@ -6,6 +6,7 @@ import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import secure from '@/middleware/secure'
+// import development from '@/middleware/development'
 
 import { Store } from 'vuex'
 import store from '@/store'
@@ -51,6 +52,16 @@ const routes: RouteConfig[] = [
     },
     name: 'about',
     path: '/about'
+  },
+  {
+    component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/SymfonyProfiler.vue'),
+    meta: {
+      layout: 'clean',
+      middleware: [],
+      title: 'Symfony profiler'
+    },
+    name: 'symfony_profiler',
+    path: '/_profiler'
   },
 
   /** Error Pages */
