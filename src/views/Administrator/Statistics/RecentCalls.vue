@@ -673,49 +673,49 @@ export default (Vue as VueConstructor<VInterface>).extend({
         this.fetchTotalCallCount()
         this.fetchDataHistory()
         this.fetchDataPie()
+      }, 350),
+
+      // Получить данные для таблицы
+      fetchDataHistory: debounce(() => {
+        this.historyProcessLoading = true
+        let offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
+
+        if (offset < 0) {
+          offset = 0
+        }
+
+        const params: any = Object.assign({
+          count: this.dataTableHistory.itemsPerPage,
+          offset
+        }, this.paramFilters()) // Общие параметры подъехали
+
+        // Формирую параметры сортировки
+        this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
+          params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
+        })
+
+        if (this.$routerQuery.hasQuery('project_id')) {
+          params.project_id = this.$routerQuery.getQuery<number>('project_id')
+        }
+
+        if (this.$routerQuery.hasQuery('group_ids')) {
+          params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
+        }
+        new Statistics()
+          .history<any, any>(params)
+          .then((response) => {
+            this.dataTableHistory.totalCount = response?.meta?.count || 0
+            this.dataTableHistory.pages = Math.ceil((response?.meta?.count || 0) / this.dataTableHistory.itemsPerPage)
+            this.dataTableHistory.items = response.data.map((e: any) => {
+              e.isPlaying = false
+              return e
+            }) || []
+          }).finally(() => (this.historyProcessLoading = false))
       }, 350)
     }
   },
 
   methods: {
-
-    // Загрузить историю
-    fetchDataHistory () {
-      this.historyProcessLoading = true
-      let offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
-
-      if (offset < 0) {
-        offset = 0
-      }
-
-      const params: any = Object.assign({
-        count: this.dataTableHistory.itemsPerPage,
-        offset
-      }, this.paramFilters()) // Общие параметры подъехали
-
-      // Формирую параметры сортировки
-      this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
-        params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
-      })
-
-      if (this.$routerQuery.hasQuery('project_id')) {
-        params.project_id = this.$routerQuery.getQuery<number>('project_id')
-      }
-
-      if (this.$routerQuery.hasQuery('group_ids')) {
-        params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
-      }
-      new Statistics()
-        .history<any, any>(params)
-        .then((response) => {
-          this.dataTableHistory.totalCount = response?.meta?.count || 0
-          this.dataTableHistory.pages = Math.ceil((response?.meta?.count || 0) / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.data.map((e: any) => {
-            e.isPlaying = false
-            return e
-          }) || []
-        }).finally(() => (this.historyProcessLoading = false))
-    },
 
     // Загрузить график
     fetchDataPie () {
@@ -1095,7 +1095,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         for (let i = 0; i < Math.min(sortBy.length, sortDesc.length); i++) {
           sort.push({ sort_by: sortBy[i], sort_desc: sortDesc[i] })
         }
-        console.log('sss sort', sort)
         if (sort.length > 0) {
           // Преобразовываю в JSON и сохраняю в строку браузера
           this.$routerQuery.setQuery({
