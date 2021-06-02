@@ -14,7 +14,7 @@
             :label="$tc('SIP phone number')"
             :hint="$tc('The phone number that is displayed when calling from your PBX')"
             persistent-hint
-            :rules="[rules.phoneNumber]"
+            :rules="[assertLength({ max: 20 })]"
             counter
             autofocus
           >
@@ -41,7 +41,7 @@
             :label="$tc('Server address')"
             :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
             persistent-hint
-            :rules="[rules.ipOrDomain]"
+            :rules="[rules.notBlank, rules.ipOrDomain]"
             required
           >
             <template
@@ -83,7 +83,7 @@
             :label="$tc('Login')"
             :hint="$tc('Login to access your PBX. For example: 003452')"
             persistent-hint
-            :rules="[rules.noSpace]"
+            :rules="[rules.notBlank, rules.noSpace]"
             required
           >
             <template
@@ -110,7 +110,8 @@
             :hint="$tc('PBX access password')"
             :type="pbxPasswordVisible ? '' : 'password'"
             persistent-hint
-            :rules="[rules.noSpace]"
+            required
+            :rules="[rules.notBlank, rules.noSpace]"
             autocomplete="new-password"
           >
             <template
