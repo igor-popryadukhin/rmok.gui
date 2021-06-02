@@ -24,7 +24,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-list :key="counter">
+        <v-list>
           <template v-for="(item, key) in symfony_call_collection">
             <v-list-item
               :key="key"
@@ -50,21 +50,10 @@ import Vue from 'vue'
 import { mapGetters } from 'vuex'
 
 export default Vue.extend({
-  data () {
-    return {
-      counter: 0
-    }
-  },
   computed: {
     ...mapGetters({
       symfony_call_collection: 'symfony/call_collection'
     })
-  },
-
-  mounted () {
-    setInterval(() => {
-      this.counter++
-    }, 1000)
   }
 })
 </script>

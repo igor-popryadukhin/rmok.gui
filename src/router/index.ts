@@ -53,16 +53,6 @@ const routes: RouteConfig[] = [
     name: 'about',
     path: '/about'
   },
-  {
-    component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/SymfonyProfiler.vue'),
-    meta: {
-      layout: 'clean',
-      middleware: [],
-      title: 'Symfony profiler'
-    },
-    name: 'symfony_profiler',
-    path: '/_profiler'
-  },
 
   /** Error Pages */
   {
@@ -846,6 +836,20 @@ const routes: RouteConfig[] = [
     path: '/administrator'
   }
 ]
+
+// Symfony profiler
+if (process.env.NODE_ENV === 'development') {
+  routes.push({
+    component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/SymfonyProfiler.vue'),
+    meta: {
+      layout: 'clean',
+      middleware: [],
+      title: 'Symfony profiler'
+    },
+    name: 'symfony_profiler',
+    path: '/_profiler'
+  })
+}
 
 const router = new VueRouter({
   base: process.env.BASE_URL,
