@@ -409,14 +409,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       this.buttonSave.loading = true
       new Users()
         .add<{ id: number }>(requestData)
-        .then((response) => {
+        .then(() => {
           this.$toast.success(this.$tc('User added successfully'))
-          this.$router.push({
-            name: 'administrator_users_edit_main',
-            params: {
-              user_id: response.id
-            }
-          })
+          this.$router.push({ name: 'administrator_users_list' })
         }).catch((e) => {
           if ('errors' in e) {
             if (Array.isArray(e.errors)) {
