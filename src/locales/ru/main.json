@@ -480,5 +480,13 @@
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
   "yes": "Да",
-  "The structure of the incoming data is broken!": "Структура входящих данных нарушена!"
+  "The structure of the incoming data is broken!": "Структура входящих данных нарушена!",
+  "sip_display_name": "Номер SIP телефона",
+  "sip_display_name_hint": "Номер телефона, который отображается при звонке с вашей АТС",
+  "server_address": "Адрес сервера",
+  "server_address_hint": "Адрес вашего сервера АТС. Например: pbx.mycompany.ru",
+  "login_hint": "Логин доступа к вашей АТС. Например: 003452",
+  "password_hint": "Пароль доступа к АТС",
+  "password": "Пароль",
+  "server_port": "Порт"
 }
