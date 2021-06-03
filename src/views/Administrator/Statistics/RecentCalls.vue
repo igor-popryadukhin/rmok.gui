@@ -345,6 +345,8 @@
           :loading="historyProcessLoading"
           :no-data-text="$tc('No data for the selected period')"
           :item-class="vDataTableItemClass"
+          :sort-by.sync="dataTableHistory.sortBy"
+          :sort-desc.sync="dataTableHistory.sortDesc"
           locale="ru"
           item-key="id"
           show-select
@@ -353,8 +355,6 @@
           hide-default-footer
           multi-sort
           @pagination="onPaginationChange"
-          :sort-by.sync="dataTableHistory.sortBy"
-          :sort-desc.sync="dataTableHistory.sortDesc"
         >
 
           <!-- slots item -->
