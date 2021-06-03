@@ -315,7 +315,14 @@
           </template>
           <template slot="item.creator" slot-scope="{ item }">
             <template v-if="item.creator">
-              {{ item.creator.first_name }} {{ item.creator.last_name }}
+              <template v-if="item.creator.is_deleted">
+                <span style="text-decoration: line-through">
+                  {{ item.creator.first_name }} {{ item.creator.last_name }}
+                </span>
+              </template>
+              <template v-else>
+                {{ item.creator.first_name }} {{ item.creator.last_name }}
+              </template>
             </template>
             <template v-else>
               —

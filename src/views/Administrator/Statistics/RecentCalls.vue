@@ -394,7 +394,14 @@
           </template>
           <template slot="item.creator" slot-scope="{ item }">
             <template v-if="item.creator">
-              {{ item.creator.first_name }} {{ item.creator.last_name }}
+              <template v-if="item.creator.is_deleted">
+                <span style="text-decoration: line-through">
+                  {{ item.creator.first_name }} {{ item.creator.last_name }}
+                </span>
+              </template>
+              <template v-else>
+                {{ item.creator.first_name }} {{ item.creator.last_name }}
+              </template>
             </template>
             <template v-else>
               —
@@ -635,7 +642,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       filter: {
         // Дата создания контакта
         contact_created_at: [] as string[] | number[],
-        date_period: null as unknown & string,
+        date_period: null as unknown as string,
         tags: [],
         status: null,
         // Дата или диапазон дат
