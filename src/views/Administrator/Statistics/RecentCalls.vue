@@ -546,7 +546,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
       return JSON.parse(json)
     }
   },
@@ -702,11 +702,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
         })
 
         if (this.$routerQuery.hasQuery('project_id')) {
-          params.project_id = this.$routerQuery.getQuery<number>('project_id')
+          params.project_id = this.$routerQuery.getQuery('project_id')
         }
 
         if (this.$routerQuery.hasQuery('group_ids')) {
-          params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
+          params.group_ids = this.$routerQuery.getQuery('group_ids')
         }
         new Statistics()
           .history<any, any>(params)
@@ -985,7 +985,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('status_id')) {
-        params.status_id = this.$routerQuery.getQuery<number>('status_id')
+        params.status_id = this.$routerQuery.getQuery('status_id')
       }
 
       if (this.$routerQuery.hasQuery('date_period')) {
@@ -993,23 +993,23 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('creator_id')) {
-        params.creator_id = this.$routerQuery.getQuery<number>('creator_id')
+        params.creator_id = this.$routerQuery.getQuery('creator_id')
       }
 
       if (this.$routerQuery.hasQuery('contact_created_at')) {
-        params.contact_created_at = this.$routerQuery.getQuery<number>('contact_created_at')
+        params.contact_created_at = this.$routerQuery.getQuery('contact_created_at')
       }
 
       if (this.$routerQuery.hasQuery('project_id')) {
-        params.project_id = this.$routerQuery.getQuery<number>('project_id')
+        params.project_id = this.$routerQuery.getQuery('project_id')
       }
 
       if (this.$routerQuery.hasQuery('group_ids')) {
-        params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
+        params.group_ids = this.$routerQuery.getQuery('group_ids')
       }
 
       if (this.$routerQuery.hasQuery('tag_ids')) {
-        params.tag_ids = this.$routerQuery.getQuery<string>('tag_ids')
+        params.tag_ids = this.$routerQuery.getQuery('tag_ids')
       }
 
       return params
@@ -1051,24 +1051,32 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('creator_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery<number>('creator_id')))
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
     }
 
     if (this.$routerQuery.hasQuery('project_id')) {
-      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery<number>('project_id')))
+      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      const index = (this.filter_statuses as { id: number }[]).findIndex(value => value.id === +this.$routerQuery.getQuery('status_id'))
+
+      if (index > -1) {
+        this.filter.status = this.filter_statuses[index]
+      }
     }
 
     if (this.$routerQuery.hasQuery('group_ids')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery<string>('group_ids').split(',')))
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids').split(',')))
     }
 
     if (this.$routerQuery.hasQuery('tag_ids')) {
-      const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+      const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
       this.filter.tags = tag_ids.map(value => +value)
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery<string>('contact_created_at')
+      const dateRange = this.$routerQuery.getQuery('contact_created_at')
       this.filter.contact_created_at = dateRange
         .split(',', 2)
         .map((e: string) => +e)
