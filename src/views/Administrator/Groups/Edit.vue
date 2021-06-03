@@ -195,7 +195,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       if (this.assertObjectHasAttribute(this.group.responsible, 'id')) {
         putData.responsible_id = this.group.responsible.id
       }
-
       new Groups()
         .update(+this.$route.params.id, putData)
         .then(() => {
@@ -213,7 +212,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     selectedUser (user: UserInterface) {
-      this.userSelected = user.id
+      this.userSelected = user ? user.id : 0
     }
   },
 
