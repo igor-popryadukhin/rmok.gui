@@ -60,11 +60,10 @@
         >
           <v-text-field
             v-model="pbxConfig.port"
-            :label="$tc('Port')"
+            :label="$tc('server_port')"
             type="number"
             persistent-hint
             required
-            single-line
             :rules="[rules.positive]"
           ></v-text-field>
         </v-col>
