@@ -185,7 +185,7 @@
       <v-col
         cols="12"
         md="4"
-        lg="6"
+        lg="4"
       >
         <div class="d-flex flex-column fill-height" style="min-height: 320px">
           <div class="mb-5">
@@ -215,8 +215,8 @@
       <v-col
         class="d-flex align-center justify-center"
         cols="12"
-        md="6"
-        lg="6"
+        md="8"
+        lg="8"
       >
         <div
           v-if="pieSeries.length === 0"
@@ -531,9 +531,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         colors: this.pieColors,
         labels: this.pieLabels,
         legend: {
-          formatter: function (seriesName: string, opts: any) {
-            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
-          },
+          // formatter: function (seriesName: string, opts: any) {
+          //   return [opts.w.globals.series[opts.seriesIndex], ' - ', seriesName]
+          // },
           markers: {
             onClick: (chart: any, seriesIndex: any, opts: any) => {
               console.log('series- ' + seriesIndex + "'s marker was clicked")
