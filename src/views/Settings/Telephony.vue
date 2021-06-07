@@ -38,6 +38,7 @@
             <v-text-field
               v-model="config.port"
               :label="$tc('server_port')"
+              type="number"
               persistent-hint
               :rules="[rules.positive]"
               required
