@@ -315,7 +315,14 @@
           </template>
           <template slot="item.creator" slot-scope="{ item }">
             <template v-if="item.creator">
-              {{ item.creator.first_name }} {{ item.creator.last_name }}
+              <template v-if="item.creator.is_deleted">
+                <span style="text-decoration: line-through">
+                  {{ item.creator.first_name }} {{ item.creator.last_name }}
+                </span>
+              </template>
+              <template v-else>
+                {{ item.creator.first_name }} {{ item.creator.last_name }}
+              </template>
             </template>
             <template v-else>
               —
@@ -427,7 +434,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
       return JSON.parse(json)
     }
   },
@@ -671,6 +678,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по проектам
       this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             project_id: newVal.id
@@ -684,6 +692,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по группам
       this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
@@ -838,12 +847,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('tag_ids')) {
-      const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+      const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
       this.filter.tags = tag_ids.map(value => +value)
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery<string>('contact_created_at')
+      const dateRange = this.$routerQuery.getQuery('contact_created_at')
       this.filter.contact_created_at = dateRange
         .split(',', 2)
         .map((e: string) => +e)

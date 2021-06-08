@@ -444,6 +444,8 @@
   "rule_email": "Адрес электронной почты не соответствует требованиям",
   "rule_invalid_email": "Неверный адрес электронной почты!",
   "rule_invalid_phone_number": "Неверный номер телефона!",
+  "rule_invalid_ip_or_domain": "Неверный IP или домен адрес!",
+  "rule_no_space": "Поле не должно содержать пробел!",
   "rule_max_dynamic_length": "Максимум {val}",
   "rule_max_length_256": "Максимум 256 символов!",
   "rule_max_length_3000": "Максимум 3000 символов!",

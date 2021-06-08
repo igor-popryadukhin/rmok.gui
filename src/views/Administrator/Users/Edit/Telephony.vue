@@ -41,7 +41,7 @@
             :label="$tc('Server address')"
             :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru')"
             persistent-hint
-            :rules="[rules.notBlank]"
+            :rules="[rules.notBlank, rules.ipOrDomain]"
             required
           >
             <template
@@ -60,11 +60,10 @@
         >
           <v-text-field
             v-model="pbxConfig.port"
-            :label="$tc('Port')"
+            :label="$tc('server_port')"
             type="number"
             persistent-hint
             required
-            single-line
             :rules="[rules.positive]"
           ></v-text-field>
         </v-col>
@@ -83,7 +82,7 @@
             :label="$tc('Login')"
             :hint="$tc('Login to access your PBX. For example: 003452')"
             persistent-hint
-            :rules="[rules.notBlank]"
+            :rules="[rules.notBlank, rules.noSpace]"
             required
           >
             <template
@@ -110,7 +109,8 @@
             :hint="$tc('PBX access password')"
             :type="pbxPasswordVisible ? '' : 'password'"
             persistent-hint
-            :rules="[rules.notBlank]"
+            required
+            :rules="[rules.notBlank, rules.noSpace]"
             autocomplete="new-password"
           >
             <template

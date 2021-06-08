@@ -686,7 +686,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery<string>('contact_created_at')
+      const dateRange = this.$routerQuery.getQuery('contact_created_at')
       this.filter.contact_created_at = dateRange
         .split(',', 2)
         .map((e: string) => +e)

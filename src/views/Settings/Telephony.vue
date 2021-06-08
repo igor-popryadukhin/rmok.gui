@@ -13,7 +13,9 @@
               :label="$tc('sip_display_name')"
               :hint="$tc('sip_display_name_hint')"
               persistent-hint
-              required
+              :rules="[assertLength({ max: 20 })]"
+              counter
+              autofocus
             ></v-text-field>
           </v-col>
         </v-row>
@@ -26,6 +28,7 @@
               :label="$tc('server_address')"
               :hint="$tc('server_address_hint')"
               persistent-hint
+              :rules="[rules.notBlank, rules.ipOrDomain]"
               required
             ></v-text-field>
           </v-col>
@@ -35,7 +38,9 @@
             <v-text-field
               v-model="config.port"
               :label="$tc('server_port')"
+              type="number"
               persistent-hint
+              :rules="[rules.positive]"
               required
             ></v-text-field>
           </v-col>
@@ -51,6 +56,7 @@
               :label="$tc('Login')"
               :hint="$tc('login_hint')"
               persistent-hint
+              :rules="[rules.notBlank, rules.noSpace]"
               required
             ></v-text-field>
           </v-col>
@@ -68,6 +74,8 @@
               :type="password.visible ? '' : 'password'"
               persistent-hint
               required
+              :rules="[rules.notBlank, rules.noSpace]"
+              autocomplete="new-password"
             >
               <template v-slot:append>
                 <v-btn
@@ -107,6 +115,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import rules from '@/mixins/rules'
 import { Configurations } from '@/api/Configurations'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 
@@ -154,7 +163,8 @@ export default Vue.extend({
         })
         .finally(() => (this.processSave = false))
     }
-  }
+  },
+  mixins: [rules]
 })
 </script>
 

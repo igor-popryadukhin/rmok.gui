@@ -50,6 +50,27 @@ export default Vue.extend({
         },
         mismatchPassword: (value: string, message = 'Empty. | Password mismatch.') => {
           return (v: string) => (v === value ? true : this.$tc(message))
+        },
+        noSpace: (value: string) => {
+          if (!value) {
+            return true
+          }
+          const pattern = /^\S*$/
+          return pattern.test(value) || this.$t('rule_no_space')
+        },
+        ipOrDomain: (value: string) => {
+          if (!value) {
+            return true
+          }
+          const patternIp = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+          if (patternIp.test(value)) {
+            return true
+          }
+          const patternDomain = /^[a-zA-Z0-9][a-zA-Z0-9-.]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/
+          if (patternDomain.test(value)) {
+            return true
+          }
+          return this.$t('rule_invalid_ip_or_domain')
         }
         /* eslint-enable */
       }

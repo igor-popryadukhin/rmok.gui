@@ -206,6 +206,7 @@
           tile
         >
 
+          <!-- Поиск -->
           <v-card-text>
             <v-text-field
               v-model="filter.q"
@@ -214,6 +215,17 @@
               clearable
               outlined
               dense
+            />
+          </v-card-text>
+
+          <!-- Статусы -->
+          <v-card-text class="pt-0">
+            <s-statuses-select
+              v-model="filter.status"
+              clearable
+              outlined
+              dense
+              multiple
             />
           </v-card-text>
 
@@ -307,6 +319,7 @@ import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEdit
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import SContactTransferDialog, { SContactTransferScopeInterface } from '@/snippets/SContactTransferDialog/SContactTransferDialog.vue'
 import SContactTagsEditDialog from '@/snippets/SContactTagsEditDialog/SContactTagsEditDialog.vue'
+import SStatusesSelect from '@/snippets/SStatusesSelect/SStatusesSelect.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { DataOptions } from 'vuetify'
@@ -330,6 +343,7 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
+    SStatusesSelect,
     AppPagination
   },
 
@@ -394,7 +408,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
       return JSON.parse(json)
     },
 
@@ -482,11 +496,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }
 
         if (this.$routerQuery.hasQuery('project_id')) {
-          params.project_id = this.$routerQuery.getQuery<number>('project_id')
+          params.project_id = this.$routerQuery.getQuery('project_id')
+        }
+
+        if (this.$routerQuery.hasQuery('status_ids')) {
+          params.status_ids = this.$routerQuery.getQuery('status_ids')
         }
 
         if (this.$routerQuery.hasQuery('responsible_id')) {
-          params.responsible_id = this.$routerQuery.getQuery<number>('responsible_id')
+          params.responsible_id = this.$routerQuery.getQuery('responsible_id')
         }
 
         if (this.$routerQuery.hasQuery('call_up')) {
@@ -548,6 +566,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
         // Фильтрация по проектам
         project: null,
+
+        // Фильтрация по статусам
+        status: null,
 
         // Поиск
         q: null as string | null,
@@ -652,15 +673,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
       }
 
+      if (this.$routerQuery.hasQuery('status_ids')) {
+        const status_ids = this.$routerQuery.getQuery('status_ids').split(',')
+        this.filter.status = status_ids.map(value => +value)
+      }
+
       if (this.$routerQuery.hasQuery('responsible_id')) {
         promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
       }
 
-      this.filter.call_up.selected = this.$routerQuery.getQuery<string>('call_up', '')
+      this.filter.call_up.selected = this.$routerQuery.getQuery('call_up', '')
 
       // Инициализация фильтров
       if (this.$routerQuery.hasQuery('contact_created_at')) {
-        const date = this.$routerQuery.getQuery<string>('contact_created_at')
+        const date = this.$routerQuery.getQuery('contact_created_at')
         if (/^(\d+),(\d+)$/s.test(date)) {
           // Диапазон
           this.filter.contact_created_at.range = true
@@ -693,14 +719,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('q')) {
-        this.filter.q = this.$routerQuery.getQuery<string>('q')
+        this.filter.q = this.$routerQuery.getQuery('q')
       }
 
       if (this.$routerQuery.hasQuery('tag_ids')) {
         promises.push(new Promise<void>(resolve => {
           new Contacts()
             .getTags({
-              tag_ids: this.$routerQuery.getQuery<string>('tag_ids')
+              tag_ids: this.$routerQuery.getQuery('tag_ids')
             }).then(response => {
               this.$data.filter.tags = response?.data || []
             }).finally(() => (resolve()))
@@ -746,6 +772,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         } else {
           this.$routerQuery.removeQuery([
             'project_id'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Фильтрация по статусам
+      this.$watch('filter.status', (newVal: unknown & { id: number }[]) => {
+        this.dataTableContacts.page = 1
+        if (Array.isArray(newVal)) {
+          this.$routerQuery.setQuery({
+            status_ids: newVal.map(val => val.id).join(',')
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'status_ids'
           ]).then(this.fetchContacts)
         }
       })

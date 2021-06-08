@@ -336,7 +336,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
 
         if (this.$routerQuery.hasQuery('tag_ids')) {
-          params.tag_ids = this.$routerQuery.getQuery<string>('tag_ids')
+          params.tag_ids = this.$routerQuery.getQuery('tag_ids')
         }
 
         new Statistics()
@@ -476,7 +476,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     // Восстановление фильтра тегов после перезагрузки
     if (this.$routerQuery.hasQuery('tag_ids')) {
-      const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+      const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
       this.filter.tags = tag_ids.map(value => +value)
     }
 

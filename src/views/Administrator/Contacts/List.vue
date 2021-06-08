@@ -740,7 +740,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       // Статусы
       if (this.$routerQuery.hasQuery('status_ids')) {
-        params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
+        params.status_ids = this.$routerQuery.getQuery('status_ids')
       }
 
       // Дата последнего звонка
@@ -786,7 +786,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
       return JSON.parse(json)
     },
 
@@ -891,15 +891,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }
 
         if (this.$routerQuery.hasQuery('project_id')) {
-          params.project_id = this.$routerQuery.getQuery<number>('project_id')
+          params.project_id = this.$routerQuery.getQuery('project_id')
         }
 
         if (this.$routerQuery.hasQuery('status_ids')) {
-          params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
+          params.status_ids = this.$routerQuery.getQuery('status_ids')
         }
 
         if (this.$routerQuery.hasQuery('responsible_id')) {
-          params.responsible_id = this.$routerQuery.getQuery<number>('responsible_id')
+          params.responsible_id = this.$routerQuery.getQuery('responsible_id')
         }
 
         if (this.$routerQuery.hasQuery('call_up')) {
@@ -1029,7 +1029,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('status_ids')) {
-        const status_ids = this.$routerQuery.getQuery<string>('status_ids').split(',')
+        const status_ids = this.$routerQuery.getQuery('status_ids').split(',')
         this.filter.status = status_ids.map(value => +value)
       }
 
@@ -1037,11 +1037,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
       }
 
-      this.filter.call_up.selected = this.$routerQuery.getQuery<string>('call_up', '')
+      this.filter.call_up.selected = this.$routerQuery.getQuery('call_up', '')
 
       // Инициализация фильтров
       if (this.$routerQuery.hasQuery('contact_created_at')) {
-        const date = this.$routerQuery.getQuery<string>('contact_created_at')
+        const date = this.$routerQuery.getQuery('contact_created_at')
         if (/^(\d+),(\d+)$/s.test(date)) {
           // Диапазон
           this.filter.contact_created_at.range = true
@@ -1074,11 +1074,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('q')) {
-        this.filter.q = this.$routerQuery.getQuery<string>('q')
+        this.filter.q = this.$routerQuery.getQuery('q')
       }
 
       if (this.$routerQuery.hasQuery('tag_ids')) {
-        const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+        const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
         this.filter.tags = tag_ids.map(value => +value)
       }
 
