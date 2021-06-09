@@ -25,6 +25,7 @@ export interface GroupInterface {
 export interface GroupFindQueryInterface {
   q?: string;
   organization_id?: number;
+  project_id?: number;
   offset?: number;
   count?: number;
 }
