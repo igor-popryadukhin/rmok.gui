@@ -25,7 +25,7 @@
 
               <!-- slots item -->
               <template slot="item.direction" slot-scope="{ item }">
-                <v-call-direction
+                <app-call-direction
                   :direction="item.direction"
                   :cause="item.cause"
                   :originator="item.originator"
@@ -114,7 +114,7 @@ import ContactHistory from '@/api/ContactHistory'
 import audioPlayer from '@/mixins/audioPlayer'
 import VInterface from '@/VInterface'
 import { Contacts } from '@/api/Contacts'
-import VCallDirection from '@/components/VCallDirection/VCallDirection.vue'
+import AppCallDirection from '@/components/AppCallDirection/AppCallDirection.vue'
 
 interface IData {
   [key: string]: string;
@@ -125,7 +125,7 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  components: { VCallDirection },
+  components: { AppCallDirection },
   computed: {
     apexchartOptions (): any {
       return {
