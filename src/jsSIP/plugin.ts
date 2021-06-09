@@ -58,7 +58,7 @@ export enum Direction {
  * Call direction conversion
  * @param direction
  */
-export function directionToNum (direction: string) {
+export function directionToNum (direction: string): string {
   switch (direction) {
     case 'missed':
       return Direction.MISSED
@@ -70,7 +70,7 @@ export function directionToNum (direction: string) {
       return Direction.OUTGOING
     case 'outgoing_canceled':
       return Direction.OUTGOING_CANCELED
-    default: return -1
+    default: return ''
   }
 }
 
@@ -105,8 +105,8 @@ export class JsSIP {
   /**
    * Returns true if the transport is connected, false otherwise.
    */
-  get isConnected () {
-    return this._ua.isConnected() && this._ua.isRegistered()
+  get isConnected (): boolean {
+    return this._ua.isConnected()
   }
 
   get session (): RTCSession | undefined {
@@ -138,7 +138,7 @@ export class JsSIP {
 
   // eslint-disable-next-line accessor-pairs
   set onSessionEnded (value: EventHandler) {
-    this._onSessionEnded = value
+    this._onSessionEnded.push(value)
   }
 
   // eslint-disable-next-line accessor-pairs
@@ -181,7 +181,7 @@ export class JsSIP {
   private _onSessionConnecting?: EventHandlerConnecting
   private _onSessionProgress?: EventHandlerProgress
   private _onSessionAccepted?: EventHandlerAccepted
-  private _onSessionEnded?: EventHandlerEnded
+  private _onSessionEnded: EventHandlerEnded[] = []
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
@@ -424,12 +424,12 @@ export class JsSIP {
   }
 
   private doSessionEnded (session: RTCSession, event: EndEvent) {
-    if (typeof this._onSessionEnded === 'function') {
-      try {
-        this._onSessionEnded(this, session, event)
-      } catch (e) {
-        console.error(e)
-      }
+    try {
+      this._onSessionEnded.forEach((handler) => {
+        handler(this, session, event)
+      })
+    } catch (e) {
+      console.error(e)
     }
   }
 

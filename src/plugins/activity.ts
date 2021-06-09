@@ -14,9 +14,8 @@ const socket = io(uri, {
     })
   },
   autoConnect: false,
-  filter: {},
   path: '/activity',
-  reconnection: true,
+  reconnection: false,
   transports: ['websocket']
 })
 
