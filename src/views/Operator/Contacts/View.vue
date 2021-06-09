@@ -530,9 +530,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       .getById(+to.params.contact_id)
       .then((response: ContactInterface) => {
         next((vm: VInterface) => {
-          vm.$activity.begin({
-            type: 'card_filling'
-          })
           vm.contact = response
         })
       }).catch(() => {
@@ -548,9 +545,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       contacts
         .getById(+to.params.contact_id)
         .then((contact: ContactInterface) => {
-          this.$activity.begin({
-            type: 'card_filling'
-          })
           this.contact = contact
         }).finally(() => {
           this.tabPageUpdate()
@@ -760,6 +754,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
         target
       })
 
+      this.$jsSIP.onSessionEnded = () => {
+        this.$activity.begin({
+          type: 'card_filling'
+        })
+      }
+
       // Формируем объект с параметрами, для поиска задача статуса pending
       const contactParams = {
         contact_id: String(this.contact.id),
@@ -772,7 +772,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         .then(response => response.data)
         .then(data => {
           if (data.length) {
-            data.map(t => {
+            data.map((t: any) => {
               new Tasks().setState(t.id, 'done')
             })
           } else {
@@ -780,7 +780,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }).catch(e => console.log(e))
 
-      window.onbeforeunload = (evt) => {
+      window.onbeforeunload = (evt: any) => {
         const message = this.$tc('Do you really want to leave? you have unsaved changes!')
         if (typeof evt === 'undefined') {
           evt = window.event
@@ -936,7 +936,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       if (!this.validate()) {
         return
       }
-
+      this.$activity.end() // Завершаю измерение активности
       window.onbeforeunload = null // Отменяю запрос подтверждения ухода
       this.saveAndNextLoading = true
       return new Promise<void>((resolve) => {
