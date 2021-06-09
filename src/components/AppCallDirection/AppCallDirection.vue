@@ -15,7 +15,7 @@
   ---------------------------------------------------
   //-->
 
-  <div bottom content-class='custom-tooltip'>
+  <div>
 
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
@@ -107,6 +107,25 @@ interface ICallStackIcons {
 }
 
 export default Vue.extend({
+  name: 'AppCallDirection',
+
+  props: {
+    cause: {
+      required: true,
+      type: String
+    },
+
+    direction: {
+      required: true,
+      type: String
+    },
+
+    originator: {
+      required: true,
+      type: String
+    }
+  },
+
   computed: {
     callStackIcons () {
       const callStackIcons: ICallStackIcons = {
@@ -155,23 +174,6 @@ export default Vue.extend({
       }
 
       return callStackIcons
-    }
-  },
-
-  name: 'AppCallDirection',
-
-  props: {
-    cause: {
-      required: true,
-      type: String
-    },
-    direction: {
-      required: true,
-      type: String
-    },
-    originator: {
-      required: true,
-      type: String
     }
   }
 })
