@@ -885,7 +885,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         for (let i = 0; i < Math.min(sortBy.length, sortDesc.length); i++) {
           sort.push({ sort_by: sortBy[i], sort_desc: sortDesc[i] })
         }
-        console.log('sss sort', sort)
         if (sort.length > 0) {
           // Преобразовываю в JSON и сохраняю в строку браузера
           this.$routerQuery.setQuery({
@@ -905,7 +904,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     'dataTableHistory.page': {
       handler (page: number) {
-        console.log(page)
         this.$routerQuery.setQuery({ history_page: page })
       }
     }
