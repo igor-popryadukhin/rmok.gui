@@ -3,9 +3,10 @@ import {
   EventHandlerAccepted,
   EventHandlerConnecting,
   EventHandlerEnded,
-  EventHandlerFailed, EventHandlerProgress
+  EventHandlerFailed,
+  EventHandlerProgress
 } from '@/jsSIP/types'
-import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
+import { makeAudioElement } from '@/jsSIP/utils'
 import { debug, UA } from 'jssip'
 import {
   AnswerOptions,
@@ -17,7 +18,7 @@ import {
   RTCSession
 } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
-import { makeAudioElement } from '@/jsSIP/utils'
+import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
 import { Timer } from './Timer'
 import jssipVersion from './version'
 
@@ -71,7 +72,8 @@ export function directionToNum (direction: string): string {
       return Direction.OUTGOING
     case 'outgoing_canceled':
       return Direction.OUTGOING_CANCELED
-    default: return ''
+    default:
+      return ''
   }
 }
 
@@ -227,7 +229,15 @@ export class JsSIP {
         // @ts-ignore
         hackStripTcp: true, // Важно для хрома, чтоб он не тупил при звонке
         // rtcpMuxPolicy: 'negotiate', // Важно для хрома, чтоб работал multiplexing. Эту штуку обязательно нужно включить на астере.
-        iceServers: []
+        iceServers: [
+          {
+            urls: [
+              'stun:stun.l.google.com:19302',
+              'stun:stun.ideasip.com',
+              'stun:s1.voipstation.jp'
+            ]
+          }
+        ]
       },
       mediaConstraints: {
         audio: true, // Поддерживаем только аудио
