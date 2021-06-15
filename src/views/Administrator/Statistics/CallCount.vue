@@ -19,6 +19,7 @@
               transition="scale-transition"
               offset-y
               min-width="290px"
+              z-index="4"
             >
               <template v-slot:activator="{ on }">
                 <v-btn
