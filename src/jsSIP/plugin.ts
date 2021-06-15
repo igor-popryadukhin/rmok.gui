@@ -22,6 +22,8 @@ import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
 import { Timer } from './Timer'
 import jssipVersion from './version'
 
+const myCandidateTimeout: any = null
+
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
 const audioElementForSound: HTMLAudioElement = makeAudioElement('audio-jssip-sound')
@@ -351,6 +353,10 @@ export class JsSIP {
     this._sessionStartTime = new Date()
     const session: RTCSession = event.session
     this._session = event.session
+
+    session.on('icecandidate', (event) => {
+      event.ready()
+    })
 
     // Запускается после добавления локального медиа потока RTCSession и
     // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».
