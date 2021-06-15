@@ -1808,4 +1808,38 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       white-space:nowrap;
     }
   }
+
+  @media  screen and (max-width: 1280px) {
+    .v-chip__content {
+      align-items: center;
+      display: inline-block !important;
+      height: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .v-chip__close {
+      position: absolute !important;
+      top: 1px;
+      right: 5px;
+      width: 38px;
+    }
+  }
+
+  @media  screen and (max-width: 1440px) {
+    .v-chip__content {
+      align-items: center;
+      display: inline-block !important;
+      height: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .v-chip__close {
+      position: absolute !important;
+      top: 1px;
+      right: 5px;
+      width: 38px;
+    }
+  }
 </style>
