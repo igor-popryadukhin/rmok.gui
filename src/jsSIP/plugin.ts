@@ -19,6 +19,7 @@ import {
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import { makeAudioElement } from '@/jsSIP/utils'
 import { Timer } from './Timer'
+import jssipVersion from './version'
 
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
@@ -82,6 +83,10 @@ export enum JsSIPState {
 }
 
 export class JsSIP {
+  get version (): string {
+    return this._version
+  }
+
   get processConnectingAndDisconnecting (): boolean {
     return this._processConnectingAndDisconnecting
   }
@@ -169,6 +174,7 @@ export class JsSIP {
   private _session?: RTCSession
   private _ua: UA
   private _timerId: any = undefined
+  private _version = ''
 
   // Session time
   private _timer: Timer
@@ -185,6 +191,7 @@ export class JsSIP {
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
+    this._version = jssipVersion()
     this._processConnectingAndDisconnecting = false
     this._timer = new Timer()
     this._state = JsSIPState.IDLE
