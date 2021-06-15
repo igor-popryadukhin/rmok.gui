@@ -486,5 +486,6 @@
   "Terminated": "Прекращено",
   "Canceled": "Отменено",
   "Busy": "Занят",
-  "SIP Failure Code": "Ошибка SIP"
+  "SIP Failure Code": "Ошибка SIP",
+  "Unavailable": "Недоступен"
 }
