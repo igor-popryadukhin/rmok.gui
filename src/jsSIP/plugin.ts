@@ -372,6 +372,8 @@ export class JsSIP {
 
       if (session.direction === 'incoming') {
         JsSIP.playSound('ringing2.mp3', true)
+      } else {
+        JsSIP.playSound('ringback.ogg', true)
       }
       this.doSessionProgress(session, event)
     })
@@ -379,7 +381,7 @@ export class JsSIP {
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
     session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
       JsSIP.stopSound()
-      JsSIP.playSound('answered.ogg', false)
+      JsSIP.playSound('answered.mp3', false)
       this._state = JsSIPState.ACCEPTED
       this.doSessionAccepted(session, event)
     })
@@ -397,11 +399,7 @@ export class JsSIP {
       this._sessionEndTime = new Date()
       this.stopRenderSessionStopwatch()
 
-      if (session.direction === 'outgoing') {
-        JsSIP.playSound('rejected.mp3')
-      } else {
-        JsSIP.stopSound()
-      }
+      JsSIP.playSound('rejected.mp3')
 
       this._state = JsSIPState.IDLE
 
