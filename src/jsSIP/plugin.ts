@@ -204,7 +204,8 @@ export class JsSIP {
       /* eslint-disable */
       uri: config.uri,
       display_name: config.display_name,
-      password: config.password
+      password: config.password,
+      realm: config.realm
       /* eslint-enable */
     })
     this.initializeListeners()
@@ -235,9 +236,7 @@ export class JsSIP {
         iceServers: [
           {
             urls: [
-              // 'stun:stun.l.google.com:19302',
-              // 'stun:stun.ideasip.com',
-              // 'stun:s1.voipstation.jp'
+              'stun:stun.l.google.com:19302'
             ]
           }
         ]
@@ -247,10 +246,8 @@ export class JsSIP {
         video: false
       },
       rtcOfferConstraints: {
-        // @ts-ignore
-        offerToReceiveAudio: 1, // Принимаем только аудио
-        // @ts-ignore
-        offerToReceiveVideo: 0
+        offerToReceiveAudio: true, // Принимаем только аудио
+        offerToReceiveVideo: false
       }
     })
   }
@@ -355,9 +352,9 @@ export class JsSIP {
     const session: RTCSession = event.session
     this._session = event.session
 
-    session.on('icecandidate', (event) => {
-      event.ready()
-    })
+    // session.on('icecandidate', (event) => {
+    //   event.ready()
+    // })
 
     // Запускается после добавления локального медиа потока RTCSession и
     // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».
