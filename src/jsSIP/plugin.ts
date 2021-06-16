@@ -234,9 +234,9 @@ export class JsSIP {
         iceServers: [
           {
             urls: [
-              'stun:stun.l.google.com:19302',
-              'stun:stun.ideasip.com',
-              'stun:s1.voipstation.jp'
+              // 'stun:stun.l.google.com:19302',
+              // 'stun:stun.ideasip.com',
+              // 'stun:s1.voipstation.jp'
             ]
           }
         ]
