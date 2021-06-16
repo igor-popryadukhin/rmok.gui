@@ -233,13 +233,7 @@ export class JsSIP {
         // @ts-ignore
         hackStripTcp: true, // Важно для хрома, чтоб он не тупил при звонке
         // rtcpMuxPolicy: 'negotiate', // Важно для хрома, чтоб работал multiplexing. Эту штуку обязательно нужно включить на астере.
-        iceServers: [
-          {
-            urls: [
-              'stun:stun.l.google.com:19302'
-            ]
-          }
-        ]
+        iceServers: []
       },
       mediaConstraints: {
         audio: true, // Поддерживаем только аудио
