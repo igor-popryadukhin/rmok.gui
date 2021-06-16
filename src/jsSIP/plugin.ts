@@ -155,13 +155,14 @@ export class JsSIP {
     this._onSessionFailed = value
   }
 
-  private static playSound (name: string, loop = false) {
+  private static playSound (name: string, loop = false, playbackRate = 1) {
     if (!audioElementForSound.paused) {
       audioElementForSound.pause()
     }
     audioElementForSound.currentTime = 0.0
     audioElementForSound.src = '/sounds/' + name
     audioElementForSound.loop = loop
+    audioElementForSound.playbackRate = playbackRate
     audioElementForSound.play()
   }
 
@@ -373,7 +374,7 @@ export class JsSIP {
       if (session.direction === 'incoming') {
         JsSIP.playSound('ringing2.mp3', true)
       } else {
-        JsSIP.playSound('ringback.ogg', true)
+        JsSIP.playSound('ringback2.mp3', true)
       }
       this.doSessionProgress(session, event)
     })
