@@ -115,7 +115,7 @@ export class JsSIP {
    * Returns true if the transport is connected, false otherwise.
    */
   get isConnected (): boolean {
-    return this._ua.isConnected()
+    return Boolean(this._ua?.isConnected() && this._ua?.isRegistered())
   }
 
   get session (): RTCSession | undefined {
