@@ -155,7 +155,7 @@ export class JsSIP {
     this._onSessionFailed = value
   }
 
-  private static playSound (name: string, loop = false, playbackRate = 1) {
+  private static playSound (name: string, loop = false, playbackRate = 1, volume = 1) {
     if (!audioElementForSound.paused) {
       audioElementForSound.pause()
     }
@@ -163,6 +163,7 @@ export class JsSIP {
     audioElementForSound.src = '/sounds/' + name
     audioElementForSound.loop = loop
     audioElementForSound.playbackRate = playbackRate
+    audioElementForSound.volume = volume
     audioElementForSound.play()
   }
 
@@ -347,7 +348,8 @@ export class JsSIP {
     this._session = event.session
 
     // session.on('icecandidate', (event) => {
-    //   event.ready()
+    //   console.log(event.candidate.candidate)
+    //   setTimeout(event.ready, 5000)
     // })
 
     // Запускается после добавления локального медиа потока RTCSession и
@@ -365,15 +367,15 @@ export class JsSIP {
       if (session.direction === 'incoming') {
         JsSIP.playSound('ringing2.mp3', true)
       } else {
-        JsSIP.playSound('ringback2.mp3', true)
+        // КПВ
+        // JsSIP.playSound('ringback2.mp3', true)
       }
       this.doSessionProgress(session, event)
     })
 
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
     session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
-      JsSIP.stopSound()
-      JsSIP.playSound('answered.mp3', false)
+      JsSIP.playSound('answered.mp3', false, 1, 0.2)
       this._state = JsSIPState.ACCEPTED
       this.doSessionAccepted(session, event)
     })
