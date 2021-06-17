@@ -367,8 +367,8 @@ export class JsSIP {
       if (session.direction === 'incoming') {
         JsSIP.playSound('ringing2.mp3', true)
       } else {
-        // КПВ
-        // JsSIP.playSound('ringback2.mp3', true)
+        audioElementForCall.muted = true
+        JsSIP.playSound('ringback2.mp3', true)
       }
       this.doSessionProgress(session, event)
     })
@@ -376,6 +376,7 @@ export class JsSIP {
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
     session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
       JsSIP.playSound('answered.mp3', false, 1, 0.2)
+      audioElementForCall.muted = false
       this._state = JsSIPState.ACCEPTED
       this.doSessionAccepted(session, event)
     })
