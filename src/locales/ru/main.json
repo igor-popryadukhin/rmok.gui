@@ -487,5 +487,7 @@
   "Canceled": "Отменено",
   "Busy": "Занят",
   "SIP Failure Code": "Ошибка SIP",
-  "Unavailable": "Недоступен"
+  "Unavailable": "Недоступен",
+  "rule_login_not_first_digit": "Логин не должен начинаться с цифры",
+  "rule_login_valid_name": "Пожалуйста, используйте латиницу, цифры, точку, дефис или нижнее тире"
 }

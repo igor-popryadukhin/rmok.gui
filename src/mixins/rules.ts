@@ -71,6 +71,26 @@ export default Vue.extend({
             return true
           }
           return this.$t('rule_invalid_ip_or_domain')
+        },
+        notFirstDigit: (value: string) => {
+          if (!value) {
+            return true
+          }
+          const firstChar = value.substring(0, 1)
+          if (+firstChar) {
+            return this.$t('rule_login_not_first_digit')
+          }
+          return true
+        },
+        isValidLoginName: (value: string) => {
+          if (!value) {
+            return true
+          }
+          const patternLoginName = /^[_a-zA-Z0-9.-]+$/
+          if (patternLoginName.test(value)) {
+            return true
+          }
+          return this.$t('rule_login_valid_name')
         }
         /* eslint-enable */
       }
