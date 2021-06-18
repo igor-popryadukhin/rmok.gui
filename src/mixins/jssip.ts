@@ -213,27 +213,6 @@ const jssip = Vue.extend({
              * @param event
              */
             this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-              let audioRecordId = null
-              if (session.direction === 'incoming') {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                if ('X-Call-Filename' in session._request.headers) {
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  if (session._request.headers.length > 0) {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    if (session._request.headers['X-Call-Filename'][0].raw) {
-                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                      // @ts-ignore
-                      audioRecordId = session._request.headers['X-Call-Filename'][0].raw
-                    }
-                  }
-                }
-              } else {
-                audioRecordId = self.uuid
-              }
-
               // Прячу тост
               if (session.direction === 'incoming') {
                 this.$toast.dismiss(session.id)
@@ -248,9 +227,8 @@ const jssip = Vue.extend({
                 type: 'call'
               } as any
 
-              // Если есть идентификатор файла записи
-              if (audioRecordId) {
-                historyData.audio_record_id = audioRecordId
+              if (event.message?.hasHeader('Call-ID')) {
+                historyData.audio_record_id = event.message.getHeader('Call-ID')
               }
 
               // Если есть время разговора
@@ -286,7 +264,6 @@ const jssip = Vue.extend({
                 console.group('JsSIP: Завершение сессии')
                 console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
                 console.log('%c%s', 'color: green;', '----------------------------------------------------')
-                console.log(`X-Call-Filename: ${audioRecordId}`)
                 console.log(event)
                 console.log(session.direction)
                 console.log(session)
