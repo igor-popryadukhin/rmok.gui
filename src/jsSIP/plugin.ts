@@ -147,7 +147,7 @@ export class JsSIP {
 
   // eslint-disable-next-line accessor-pairs
   set onSessionEnded (value: EventHandler) {
-    this._onSessionEnded.push(value)
+    this._onSessionEnded = value
   }
 
   // eslint-disable-next-line accessor-pairs
@@ -193,7 +193,7 @@ export class JsSIP {
   private _onSessionConnecting?: EventHandlerConnecting
   private _onSessionProgress?: EventHandlerProgress
   private _onSessionAccepted?: EventHandlerAccepted
-  private _onSessionEnded: EventHandlerEnded[] = []
+  private _onSessionEnded?: EventHandlerEnded
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
@@ -441,9 +441,9 @@ export class JsSIP {
 
   private doSessionEnded (session: RTCSession, event: EndEvent) {
     try {
-      this._onSessionEnded.forEach((handler) => {
-        handler(this, session, event)
-      })
+      if (typeof this._onSessionEnded === 'function') {
+        this._onSessionEnded(this, session, event)
+      }
     } catch (e) {
       console.error(e)
     }

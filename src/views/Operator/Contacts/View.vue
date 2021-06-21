@@ -517,12 +517,6 @@ interface IStatus {
 }
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  beforeDestroy () {
-    this.$root.$off('root-main-search', this.onRootMainSearch)
-    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
-    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
-  },
-
   beforeRouteEnter (to, from, next) {
     // Сохраняю маршрут, откуда пришёл
     store.commit('system/route_last_full_path', from.fullPath)
@@ -570,65 +564,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   components: { SContactStatuses },
-
-  computed: {
-    avatar () {
-      const first: string = this.contact?.first_name || ''
-      const last: string = this.contact?.last_name || ''
-      return first.charAt(0) + last.charAt(0)
-    },
-
-    /**
-     * Делает кнопку позвонить недоступной, если не выполнены условия
-     **/
-    callBtnIsDisabled () {
-      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
-    },
-
-    leftColumnStyleComputed () {
-      return {}
-    },
-
-    sessionStopwatch () {
-      return this.$jsSIP.sessionStopwatch
-    },
-
-    tabsHeight () {
-      let h: number = this.$screenHeight - 115
-      if (h < 850) {
-        h = 850
-      }
-      return h
-    },
-
-    contactResponsible () {
-      const collection: string[] = []
-
-      if (this.contact?.responsible?.first_name) {
-        collection.push(this.contact?.responsible?.first_name)
-      }
-
-      if (this.contact?.responsible?.last_name) {
-        collection.push(this.contact?.responsible?.last_name)
-      }
-      return collection.join(' ')
-    },
-
-    contactProject () {
-      return this.contact?.project?.name || false
-    }
-  },
-
-  created () {
-    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
-      this.currentTabIndex = Number(this.$route.query.current_tab_index)
-    }
-
-    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
-    this.$store.dispatch('database/statuses', {
-      contact_id: this.$route.params.contact_id
-    })
-  },
 
   data () {
     return {
@@ -708,6 +643,71 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
+  computed: {
+    avatar () {
+      const first: string = this.contact?.first_name || ''
+      const last: string = this.contact?.last_name || ''
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    /**
+     * Делает кнопку позвонить недоступной, если не выполнены условия
+     **/
+    callBtnIsDisabled () {
+      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
+    },
+
+    leftColumnStyleComputed () {
+      return {}
+    },
+
+    sessionStopwatch () {
+      return this.$jsSIP.sessionStopwatch
+    },
+
+    tabsHeight () {
+      let h: number = this.$screenHeight - 115
+      if (h < 850) {
+        h = 850
+      }
+      return h
+    },
+
+    contactResponsible () {
+      const collection: string[] = []
+
+      if (this.contact?.responsible?.first_name) {
+        collection.push(this.contact?.responsible?.first_name)
+      }
+
+      if (this.contact?.responsible?.last_name) {
+        collection.push(this.contact?.responsible?.last_name)
+      }
+      return collection.join(' ')
+    },
+
+    contactProject () {
+      return this.contact?.project?.name || false
+    }
+  },
+
+  created () {
+    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
+      this.currentTabIndex = Number(this.$route.query.current_tab_index)
+    }
+
+    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
+    this.$store.dispatch('database/statuses', {
+      contact_id: this.$route.params.contact_id
+    })
+  },
+
+  beforeDestroy () {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
+  },
+
   destroyed () {
     this.$activity.end()
   },
@@ -753,12 +753,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         contact_id: contactId,
         target
       })
-
-      this.$jsSIP.onSessionEnded = () => {
-        this.$activity.begin({
-          type: 'card_filling'
-        })
-      }
 
       // Формируем объект с параметрами, для поиска задача статуса pending
       const contactParams = {
@@ -865,7 +859,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
       /* eslint-enable */
     },
 
+    /**
+     * Событие происходит когда положили трубку
+     **/
     onRootJssipSessionEnded (event: REJssipSessionEndedInterface) {
+      this.$activity.begin({
+        type: 'card_filling'
+      })
       this.showStatuses()
       this.status.contact_id = event.contact_id
       this.status.contact_history_id = event.contact_history_id
