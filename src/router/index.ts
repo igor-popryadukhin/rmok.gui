@@ -825,6 +825,26 @@ const routes: RouteConfig[] = [
         },
         name: 'administrator_statistics',
         path: 'statistics'
+      },
+      {
+        children: [
+          {
+            component: () => import(/* webpackChunkName: "administrator-calendar-index" */ '../views/Administrator/Calendar/Index.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_calendar',
+            path: ''
+          }
+        ],
+        component: () => import(/* webpackChunkName: "administrator-calendar-layout" */ '../views/Administrator/Calendar/Layout.vue'),
+        meta: {
+          layout: 'administrator',
+          middleware: [secure]
+        },
+        path: 'calendar'
       }
     ],
     component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Layout.vue'),
