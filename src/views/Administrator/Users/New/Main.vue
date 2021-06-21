@@ -65,7 +65,7 @@
           <v-text-field
             v-model="user.login"
             :label="$tc('Login')"
-            :rules="[rules.notBlank]"
+            :rules="[rules.notBlank, rules.noSpace, rules.notFirstDigit, rules.isValidLoginName]"
             autocomplete="new-login"
           >
             <template
