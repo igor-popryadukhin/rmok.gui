@@ -528,11 +528,6 @@ const routes: RouteConfig[] = [
             path: ':contact_id/history'
           },
           {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              // Проинициализируем WebRTC
-              app.$root.$emit('root-jssip-initialize')
-              next()
-            },
             children: [],
             component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
             meta: { layout: 'administrator', middleware: [secure] },
