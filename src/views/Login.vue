@@ -122,10 +122,7 @@ export default Vue.extend({
             // Если авторизовался оператор
             this.$router.replace({ name: 'operator_leads' })
               .finally(() => {
-                setTimeout(async () => {
-                  this.$root.$emit('root-jssip-initialize')
-                  this.$root.$emit('root-loading-projects')
-                }, 1000)
+                this.$root.$emit('root-loading-projects')
               })
           }
 
