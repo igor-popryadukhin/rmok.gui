@@ -52,6 +52,8 @@ const jssip = Vue.extend({
         console.log('%c%s', 'color: blue;', 'Инициализация RTC')
       }
 
+      let audio_record_id: string | null = null
+
       /**
        * Инициализация JSSIP
        * Загружаю данные для авторизации и настройки телефонии.
@@ -102,11 +104,10 @@ const jssip = Vue.extend({
             // Далее инициализация слушателей
             // Глобальные обработчики
             this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
-              // Слушатель событий в рамках одной сессии
-              // TODO: Реализовать обработчик
-              // session.on('failed', (event: EndEvent) => {
-              //   ctx.$toast.error(event.cause)
-              // })
+              if (event.request.hasHeader('Call-ID')) {
+                audio_record_id = event.request.getHeader('Call-ID')
+              }
+
               if (this.$isDebug) {
                 console.group('JsSIP: Начало сессии')
                 console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
@@ -219,6 +220,7 @@ const jssip = Vue.extend({
               }
 
               const historyData = {
+                audio_record_id,
                 cause: event.cause,
                 direction: session.direction,
                 originator: event.originator,
@@ -226,10 +228,6 @@ const jssip = Vue.extend({
                 session_start_time: self.sessionStartTime.getTime() / 1000,
                 type: 'call'
               } as any
-
-              if (event.message?.hasHeader('Call-ID')) {
-                historyData.audio_record_id = event.message.getHeader('Call-ID')
-              }
 
               // Если есть время разговора
               if ((session.start_time) && (session.end_time)) {
