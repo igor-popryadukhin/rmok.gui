@@ -394,6 +394,16 @@ export default Vue.extend({
             {
               attrs: {
                 to: {
+                  name: 'administrator_itegrationset_list'
+                }
+              },
+              icon: 'mdi-flask',
+              title: 'Integration Settings',
+              visible: true
+            },
+            {
+              attrs: {
+                to: {
                   name: 'administrator_settings_regional'
                 }
               },
