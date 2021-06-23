@@ -136,7 +136,7 @@ export default Vue.extend({
     },
 
     onFocus () {
-      if (this.options.length === 0) {
+      if (this.options.length < 2) {
         this.fetchData()
       }
     },

@@ -1,4 +1,3 @@
-import { app } from '@/main'
 import { loadLanguageAsync } from '@/plugins/i18n'
 import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
@@ -598,6 +597,16 @@ const routes: RouteConfig[] = [
               middleware: [secure]
             },
             path: ':user_id'
+          },
+          {
+            component: () => import(/* webpackChunkName: "administrator-users-schedule" */ '../views/Administrator/Users/Schedule.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_users_schedule',
+            path: ':user_id/schedule'
           }
         ],
         component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/Layout.vue'),
@@ -820,26 +829,6 @@ const routes: RouteConfig[] = [
         },
         name: 'administrator_statistics',
         path: 'statistics'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "administrator-calendar-index" */ '../views/Administrator/Calendar/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_calendar',
-            path: ''
-          }
-        ],
-        component: () => import(/* webpackChunkName: "administrator-calendar-layout" */ '../views/Administrator/Calendar/Layout.vue'),
-        meta: {
-          layout: 'administrator',
-          middleware: [secure]
-        },
-        path: 'calendar'
       }
     ],
     component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Layout.vue'),

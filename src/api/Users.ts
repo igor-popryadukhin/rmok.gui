@@ -160,6 +160,36 @@ export class Users {
         }).catch(reject)
     })
   }
+
+  /**
+   * Установить график для пользователя
+   *
+   * @param user_id     Идентификатор пользователя
+   * @param data
+   */
+  public setSchedule (user_id: number, data: any): Promise<void> {
+    return new Promise<void>((resolve, reject): Promise<void> | any => {
+      $axios.patch(`/users/${user_id}/schedule`, data)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  public getSchedule (user_id: number): Promise<any> {
+    return new Promise<any>((resolve, reject): Promise<any> | any => {
+      $axios.get(`/users/${user_id}/schedule`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
 }
 
 export default Users
