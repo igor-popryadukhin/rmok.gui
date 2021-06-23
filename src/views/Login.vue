@@ -99,7 +99,7 @@ export default Vue.extend({
       this.processAuthorization = true
       this.isError = false
       this.authorization.loading = true
-      this.processMessage = this.$tc('Authorization...')
+      this.processMessage = this.$tc('Authentication...')
       axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
         login,
         password

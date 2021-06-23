@@ -37,7 +37,6 @@
       <div
         class="for-dev-info"
       >
-        <span>screen.width: {{ $vuetify.application.routes }}</span><br>
       </div>
     </div>
     <!-- FOR DEVELOPMENT -->

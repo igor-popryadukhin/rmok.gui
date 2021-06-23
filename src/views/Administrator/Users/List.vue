@@ -18,13 +18,11 @@
           :loading="dataTableUsers.processLoading"
           :loading-text="$tc('Loading content...')"
           :no-data-text="$tc('No data available')"
-          :height="dataTableUsersHeight"
           :item-class="vDataTableItemClass"
           :sort-by.sync="dataTableUsers.sortBy"
           :sort-desc.sync="dataTableUsers.sortDesc"
           item-key="id"
           multi-sort
-          fixed-header
           calculate-widths
           hide-default-footer
           dense

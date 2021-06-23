@@ -13,6 +13,7 @@
   "Add task": "Добавить задачу",
   "Address": "Адрес",
   "All": "Все",
+  "Authentication...": "Аутентификация...",
   "An error occurred while saving the schedule.": "Произошла ошибка при сохранении расписания.",
   "The schedule has been successfully saved!": "Расписание успешно сохранено!",
   "All chains selected ({n}) on the page.": "Выбраны все цепочки ({n}) на странице.",

@@ -28,7 +28,6 @@
           item-key="id"
           calculate-widths
           multi-sort
-          fixed-header
           hide-default-footer
           dense
           @pagination="onPaginationChange"
