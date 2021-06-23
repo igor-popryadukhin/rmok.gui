@@ -1,4 +1,3 @@
-import { app } from '@/main'
 import { loadLanguageAsync } from '@/plugins/i18n'
 import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
@@ -598,6 +597,16 @@ const routes: RouteConfig[] = [
               middleware: [secure]
             },
             path: ':user_id'
+          },
+          {
+            component: () => import(/* webpackChunkName: "administrator-users-schedule" */ '../views/Administrator/Users/Schedule.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_users_schedule',
+            path: ':user_id/schedule'
           }
         ],
         component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/Layout.vue'),

@@ -18,13 +18,11 @@
           :loading="dataTableUsers.processLoading"
           :loading-text="$tc('Loading content...')"
           :no-data-text="$tc('No data available')"
-          :height="dataTableUsersHeight"
           :item-class="vDataTableItemClass"
           :sort-by.sync="dataTableUsers.sortBy"
           :sort-desc.sync="dataTableUsers.sortDesc"
           item-key="id"
           multi-sort
-          fixed-header
           calculate-widths
           hide-default-footer
           dense
@@ -131,6 +129,28 @@
           </template>
 
           <template slot="item.actions" slot-scope="{ item }">
+            <v-tooltip
+              :color="$vuetify.theme.currentTheme.primary"
+              :open-delay="1000"
+              bottom
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  v-on="on"
+                  v-bind="attrs"
+                  :to="{ name: 'administrator_users_schedule', params: { user_id: item.id } }"
+                  :color="item.schedule_available ? 'primary' : 'grey'"
+                  icon
+                  small
+                >
+                  <v-icon>mdi-calendar</v-icon>
+                </v-btn>
+              </template>
+              <span>
+                {{ $tc('Расписание пользователя') }}
+              </span>
+            </v-tooltip>
+
             <v-btn
               :to="{ name: 'administrator_users_edit_main', params: { user_id: item.id } }"
               icon
@@ -254,32 +274,33 @@ import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
-  interface IRef {
-    [key: string]: any;
-  }
+interface IRef {
+  [key: string]: any;
+}
 
-  interface IData {
-    [key: string]: any;
-    /** Метод для загрузки списка пользователей */
-    fetchUsers: () => void;
-  }
+interface IData {
+  [key: string]: any;
 
-  interface IMethods {
-    [key: string]: any;
-  }
+  /** Метод для загрузки списка пользователей */
+  fetchUsers: () => void;
+}
 
-  interface IComputed {
-    [key: string]: any;
-  }
+interface IMethods {
+  [key: string]: any;
+}
 
-  interface IProps {
-    [key: string]: any;
-  }
+interface IComputed {
+  [key: string]: any;
+}
 
-  interface VInnerInterface extends VInterface {
-    $data: IData;
-    $refs: IRef;
-  }
+interface IProps {
+  [key: string]: any;
+}
+
+interface VInnerInterface extends VInterface {
+  $data: IData;
+  $refs: IRef;
+}
 
 export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, IComputed, IProps>({
   components: {
@@ -294,7 +315,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
     // Вычисляю высоту таблицы
     dataTableUsersHeight () {
       let h: number = this.$screenHeight - 150
-      if (h < 640) { h = 640 }
+      if (h < 640) {
+        h = 640
+      }
       return h
     }
   },
@@ -408,7 +431,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
         })
 
         new Users()
-          .find<{count: number}, UserInterface[]>(params)
+          .find<{ count: number }, UserInterface[]>(params)
           .then((response) => {
             const count: number = response.meta.count || 0
 
@@ -434,9 +457,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
     },
 
     /**
-       * Срабатывает когда в списке "пользователи системы" нажали кнопу удалить пользователя
-       * @param item Элемент массива UserInterface[]
-       */
+     * Срабатывает когда в списке "пользователи системы" нажали кнопу удалить пользователя
+     * @param item Элемент массива UserInterface[]
+     */
     onDelete (item: UserInterface) {
       this.$dialog.showAndWait(SUserDialogDelete, {
         onDelete: (data: unknown & { user_id: number; option: string }) => {
@@ -474,8 +497,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
     },
 
     /**
-       * Происходит когда пользователь вводит текст в поле поиска.
-       **/
+     * Происходит когда пользователь вводит текст в поле поиска.
+     **/
     onUserSearch (text: string) {
       console.log(text)
     },
@@ -568,8 +591,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
         // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
 
         /**
-           * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableUsers
-           */
+         * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableUsers
+         */
         const dataTableSortUpdate = debounce(() => {
           const sort = []
           for (let i = 0; i < Math.min(this.dataTableUsers.sortBy.length, this.dataTableUsers.sortDesc.length); i++) {
@@ -612,17 +635,17 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
 </script>
 
 <style lang="scss">
-  .v-dt-item {
-    & > td {
-      white-space:nowrap;
-    }
+.v-dt-item {
+  & > td {
+    white-space: nowrap;
   }
+}
 
-  .v-toolbar-header div {
-    padding: 0 !important;
-  }
+.v-toolbar-header div {
+  padding: 0 !important;
+}
 
-  .v-toolbar-header div:last-child {
-    margin-right: 10px;
-  }
+.v-toolbar-header div:last-child {
+  margin-right: 10px;
+}
 </style>
