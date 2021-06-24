@@ -70,19 +70,6 @@ export default Vue.extend({
         next((vm: any) => {
           vm.new_schedule = response
           vm.old_schedule = response
-          vm.$watch('user', (val?: UserInterface) => {
-            if (val) {
-              if (val.id !== +to.params.user_id) {
-                vm.$router.push({
-                  name: 'administrator_users_schedule',
-                  params: {
-                    user_id: val.id
-                  }
-                })
-              }
-            }
-          })
-
           vm.$refs.sUsers.setDefault(+to.params.user_id)
         })
       })
@@ -148,6 +135,19 @@ export default Vue.extend({
         }
       } else {
         window.onbeforeunload = null
+      }
+    },
+
+    user (val?: UserInterface) {
+      if (val) {
+        if (val.id !== +this.$route.params.user_id) {
+          this.$router.push({
+            name: 'administrator_users_schedule',
+            params: {
+              user_id: val.id
+            }
+          })
+        }
       }
     }
   },
