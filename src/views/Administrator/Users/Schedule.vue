@@ -88,6 +88,8 @@ export default Vue.extend({
       if (this.$confirm()) {
         next()
       }
+    } else {
+      next()
     }
   },
 
