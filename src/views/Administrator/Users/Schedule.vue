@@ -41,6 +41,14 @@
         {{ $tc('Cancel') }}
       </v-btn>
       <v-btn
+        :disabled="save_process"
+        text
+        tile
+        @click="onBtnDefaultClick"
+      >
+        {{ $tc('Default') }}
+      </v-btn>
+      <v-btn
         :loading="save_process"
         :disabled="!isChanged"
         text
@@ -95,8 +103,8 @@ export default Vue.extend({
   data: () => ({
     save_process: false,
     user: null as any,
-    old_schedule: [],
-    new_schedule: []
+    old_schedule: [] as { time:string, day: number }[],
+    new_schedule: [] as { time:string, day: number }[]
   }),
 
   computed: {
@@ -161,6 +169,24 @@ export default Vue.extend({
 
     onBtnCancelClick () {
       this.new_schedule = this.old_schedule
+    },
+
+    onBtnDefaultClick () {
+      const days: number[] = [1, 2, 3, 4, 5]
+      const times: string[] = []
+      for (let i = 10; i < 19; i++) {
+        times.push(String(i).padStart(2, '00') + ':00')
+      }
+
+      this.new_schedule = []
+      days.forEach((day: number) => {
+        times.forEach((time: string) => {
+          this.new_schedule.push({
+            time,
+            day
+          })
+        })
+      })
     },
 
     onClearClick () {
