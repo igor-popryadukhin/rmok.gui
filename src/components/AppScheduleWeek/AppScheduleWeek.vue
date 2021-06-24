@@ -231,6 +231,7 @@ export default Vue.extend({
       this.setMatrixState(x, y || 0, !this.getMatrixState(x, y))
 
       this.$emit('change', this.selected)
+      this.$emit('click:square', this.getMatrix(x, y))
     },
 
     setMatrixState (x: number, y: number, selected: boolean) {

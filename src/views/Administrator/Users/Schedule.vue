@@ -11,7 +11,7 @@
         v-model="user"
         :label="$tc('Manager')"
         :params="{ role_use: 'for_calls' }"
-        :disabled="save_process"
+        :disabled="save_process || isChanged"
         ref="sUsers"
         style="width: 752px"
         clearable
@@ -19,7 +19,7 @@
         dense
       />
       <app-schedule-week
-        v-model="schedule"
+        v-model="new_schedule"
         :element-color="$vuetify.theme.currentTheme.primary"
       />
     </v-card-text>
@@ -33,7 +33,16 @@
         {{ $tc('Clear') }}
       </v-btn>
       <v-btn
+        :disabled="save_process || !isChanged"
+        text
+        tile
+        @click="onBtnCancelClick"
+      >
+        {{ $tc('Cancel') }}
+      </v-btn>
+      <v-btn
         :loading="save_process"
+        :disabled="!isChanged"
         text
         tile
         @click="onSaveClick"
@@ -59,7 +68,8 @@ export default Vue.extend({
       .getSchedule(+to.params.user_id)
       .then((response: any) => {
         next((vm: any) => {
-          vm.schedule = response
+          vm.new_schedule = response
+          vm.old_schedule = response
           vm.$watch('user', (val?: UserInterface) => {
             if (val) {
               if (val.id !== +to.params.user_id) {
@@ -78,8 +88,15 @@ export default Vue.extend({
       })
   },
 
-  beforeRouteUpdate (to: Route, from: Route, next: any) {
-    console.log('beforeRouteUpdate')
+  beforeRouteLeave (to: Route, from: Route, next: any) {
+    if (this.isChanged) {
+      if (this.$confirm()) {
+        next()
+      }
+    }
+  },
+
+  async beforeRouteUpdate (to: Route, from: Route, next: any) {
     if ('user_id' in to.params) {
       if (+to.params.user_id !== +from.params.user_id) {
         this.fetchSchedule(+to.params.user_id)
@@ -89,21 +106,65 @@ export default Vue.extend({
   },
 
   data: () => ({
-    from: null,
     save_process: false,
     user: null as any,
-    schedule: []
+    old_schedule: [],
+    new_schedule: []
   }),
+
+  computed: {
+    isChanged () {
+      const old_array: any[] = this.old_schedule
+      const new_array: any[] = this.new_schedule
+
+      if (old_array.length !== new_array.length) {
+        return true
+      }
+
+      for (let i = 0; i < old_array.length; i++) {
+        if (new_array.findIndex(value => value.time === old_array[i].time && value.day === old_array[i].day) === -1) {
+          return true
+        }
+      }
+
+      return false
+    }
+  },
+
+  watch: {
+    isChanged (val: boolean) {
+      if (val) {
+        if (typeof window.onbeforeunload !== 'function') {
+          window.onbeforeunload = (evt: any) => {
+            const message = this.$tc('Do you really want to leave? you have unsaved changes!')
+            if (typeof evt === 'undefined') {
+              evt = window.event
+            }
+            if (evt) {
+              evt.returnValue = message
+            }
+            return message
+          }
+        }
+      } else {
+        window.onbeforeunload = null
+      }
+    }
+  },
 
   methods: {
     onSaveClick () {
       if (this.user?.id) {
-        this.saveSchedule(this.user.id, this.schedule)
+        this.saveSchedule(this.user.id, this.new_schedule)
       }
     },
 
+    onBtnCancelClick () {
+      this.new_schedule = this.old_schedule
+    },
+
     onClearClick () {
-      this.schedule = []
+      this.new_schedule = []
     },
 
     saveSchedule (user_id: number, data: any) {
@@ -111,6 +172,7 @@ export default Vue.extend({
       new Users()
         .setSchedule(user_id, data)
         .then(() => {
+          this.old_schedule = this.new_schedule
           this.$toast.success(this.$tc('The schedule has been successfully saved!'))
         }).catch(() => {
           this.$toast.error(this.$tc('An error occurred while saving the schedule.'))
@@ -125,7 +187,8 @@ export default Vue.extend({
       new Users()
         .getSchedule(user_id)
         .then((response: any) => {
-          this.schedule = response
+          this.old_schedule = response
+          this.new_schedule = response
         })
     }
   }
