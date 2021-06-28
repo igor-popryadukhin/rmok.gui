@@ -304,8 +304,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
       new Projects()
         .find<{ count: number }, ProjectInterface[]>(params)
         .then((response) => {
-          this.dataTableProjects.totalCount = response.meta.count
-          this.dataTableProjects.pages = Math.ceil(+response.meta.count / this.dataTableProjects.itemsPerPage)
+          this.dataTableProjects.totalCount = response?.meta?.count || 0
+          this.dataTableProjects.pages = Math.ceil(response?.meta?.count || 0 / this.dataTableProjects.itemsPerPage)
           this.dataTableProjects.items = response.data
         }).finally(() => {
           this.dataTableProjects.processLoading = false
