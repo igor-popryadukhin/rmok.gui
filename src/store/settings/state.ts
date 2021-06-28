@@ -20,11 +20,17 @@ interface ContactListInterface {
   count_per_page: number;
 }
 
+interface TooltipInterface {
+  openDelay: number;
+  color: string;
+}
+
 export interface SettingsStateInterface {
   contact_list: ContactListInterface,
   navigation_drawer: NavigationDrawerInterface;
   audio_player: AudioPlayerInterface;
   date_time_format: DateTimeFormatInterface;
+  tooltip: TooltipInterface;
 }
 
 function state (): SettingsStateInterface {
@@ -44,6 +50,10 @@ function state (): SettingsStateInterface {
     },
     audio_player: {
       volume: 1
+    },
+    tooltip: {
+      openDelay: 1200,
+      color: 'primary'
     }
   }
 }

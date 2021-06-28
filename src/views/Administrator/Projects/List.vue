@@ -2,14 +2,25 @@
   <v-sheet>
     <app-tools>
       <template v-slot:left>
-        <v-btn
-          :to="{ name: 'administrator_projects_new' }"
-          small
-          tile
-          text
+        <v-tooltip
+          :open-delay="$tooltip.openDelay"
+          :color="$tooltip.color"
+          right
         >
-          {{ $tc('Add') }}
-        </v-btn>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-on="on"
+              v-bind="attrs"
+              :to="{ name: 'administrator_projects_new' }"
+              small
+              tile
+              text
+            >
+              {{ $tc('Add') }}
+            </v-btn>
+          </template>
+          <span>{{ $tc('Add new project') }}</span>
+        </v-tooltip>
       </template>
       <template v-slot:right>
         <app-pagination
@@ -91,19 +102,28 @@
               {{ item.name }}
             </v-list-item-title>
           </v-list-item-content>
+
+          <!-- Actions -->
           <v-list-item-action
-            v-if="projectHoverId === item.id"
             style="margin: 0"
           >
-            <v-btn
-              :to="{ name: 'administrator_projects_edit', params: { project_id: item.id } }"
-              small
-              icon
-            >
-              <v-icon>
-                mdi-pencil-box-outline
-              </v-icon>
-            </v-btn>
+            <div class="d-flex d-inline">
+              <div v-if="projectHoverId !== item.id">
+                <span style="font-size: 12px; padding: 2px; margin-right: 10px">
+                  {{ $moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                </span>
+              </div>
+              <v-btn
+                v-if="projectHoverId === item.id"
+                :to="{ name: 'administrator_projects_edit', params: { project_id: item.id } }"
+                small
+                icon
+              >
+                <v-icon>
+                  mdi-pencil-box-outline
+                </v-icon>
+              </v-btn>
+            </div>
           </v-list-item-action>
         </v-list-item>
 

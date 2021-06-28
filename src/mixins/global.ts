@@ -29,7 +29,8 @@ Vue.mixin(Vue.extend({
     },
 
     ...mapGetters({
-      date_time_format: 'settings/date_time_format'
+      date_time_format: 'settings/date_time_format',
+      $tooltip: 'settings/tooltip'
     })
   },
 
