@@ -22,8 +22,6 @@ import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
 import { Timer } from './Timer'
 import jssipVersion from './version'
 
-const myCandidateTimeout: any = null
-
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
 const audioElementForSound: HTMLAudioElement = makeAudioElement('audio-jssip-sound')
@@ -233,7 +231,8 @@ export class JsSIP {
       pcConfig: {
         // @ts-ignore
         hackStripTcp: true, // Важно для хрома, чтоб он не тупил при звонке
-        // rtcpMuxPolicy: 'negotiate', // Важно для хрома, чтоб работал multiplexing. Эту штуку обязательно нужно включить на астере.
+        // Важно для хрома, чтоб работал multiplexing. Эту штуку обязательно нужно включить на астере.
+        rtcpMuxPolicy: undefined,
         iceServers: []
       },
       mediaConstraints: {
@@ -372,6 +371,10 @@ export class JsSIP {
       }
       this.doSessionProgress(session, event)
     })
+
+    // session.on('confirmed', (event: IncomingEvent | OutgoingEvent) => {
+    //   console.log('confirmed', event)
+    // })
 
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
     session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
