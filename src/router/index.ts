@@ -777,7 +777,7 @@ const routes: RouteConfig[] = [
         },
         children: [
           {
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
