@@ -8,16 +8,25 @@ export interface OrganizationInterface {
   name: string;
 }
 
-export interface GroupInterface {
+export interface ProjectInterface {
   id: number;
-  main_project_id: number;
-  half_project_id: number;
-  cross_project_id: number;
-  half_cross_project_id: number;
+  name: string;
+  description: string;
+  created_at: number;
+}
+
+export interface ProfileInterface {
+  id: number;
+  main_project?: ProjectInterface | null;
+  half_project?: ProjectInterface | null;
+  cross_project?: ProjectInterface | null;
+  half_cross_project?: ProjectInterface | null;
   half_cross_tag: string;
   half_tag: string;
   cross_tag: string;
   main_tag: string;
+  name: string;
+  external_project_id: string;
   organization?: OrganizationInterface | null;
 }
 
@@ -34,7 +43,7 @@ export class ProjectIntegrationSettings {
    * @param params
    */
   public find (params: ProfileFindQueryInterface = {}): Promise<ResponseInterface<any, any> | any> {
-    return new Promise<ResponseInterface<any, any>>((resolve, reject): Promise<GroupInterface[] | any> | any => {
+    return new Promise<ResponseInterface<any, any>>((resolve, reject): Promise<ProfileInterface[] | any> | any => {
       $axios.get('/configurations/projectintegration', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
@@ -51,8 +60,8 @@ export class ProjectIntegrationSettings {
    * @param ids
    * @param params
    */
-  public getByIds<TM, TD = GroupInterface[]> (ids: number[], params = {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise((resolve, reject): Promise<GroupInterface> | any => {
+  public getByIds<TM, TD = ProfileInterface[]> (ids: number[], params = {}): Promise<ResponseInterface<TM, TD>> {
+    return new Promise((resolve, reject): Promise<ProfileInterface> | any => {
       $axios.get('/configurations/projectintegration', {
         params: Object.assign({}, { target_groups: ids }, params)
       }).then((response: AxiosResponse) => {
@@ -113,8 +122,8 @@ export class ProjectIntegrationSettings {
     })
   }
 
-  public getById (id: number): Promise<GroupInterface> {
-    return new Promise((resolve, reject): Promise<GroupInterface> | any => {
+  public getById (id: number): Promise<ProfileInterface> {
+    return new Promise((resolve, reject): Promise<ProfileInterface> | any => {
       $axios.get(`/configurations/projectintegration/${id}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {

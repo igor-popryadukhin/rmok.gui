@@ -13,41 +13,190 @@
       >
         <!-- eslint-disable -->
         <v-text-field
-          ref="groupName"
-          v-model="group.name"
-          :label="$tc('Group name')"
+          ref=""
+          v-model="profile.name"
+          :label="$tc('profile name')"
           :rules="[rules.notBlank]"
           persistent-hint
-          @keydown.enter="$refs.sOrganizations.focus"
         >
         </v-text-field>
       </v-col>
-    </v-row>
-
-    <!-- Users -->
-    <v-row>
       <v-col
         cols="12"
         md="6"
         lg="6"
       >
-        <s-users
-          ref="sUsers"
-          v-model="group.responsible"
-          :label="$tc('Responsible group')"
-          @change="selectedUser"
-          :rules="[]"
+        <!-- eslint-disable -->
+        <v-text-field
+          ref=""
+          v-model="profile.external_project_id"
+          :label="$tc('external_project_id')"
+          persistent-hint
+        >
+        </v-text-field>
+      </v-col>
+    </v-row>
+    <v-row >
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <s-projects-autocomplete
+          ref="SProjectsAutocomplete"
+          v-model="profile.main_project"
+          :label="$tc('main')"
         />
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        <!-- eslint-disable -->
+        <v-text-field
+          ref=""
+          v-model="profile.main_tag"
+          :label="$tc('main_tag')"
+          persistent-hint
+        >
+        </v-text-field>
+
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        + будет добавлена дата интеграции
+      </v-col>
+    </v-row>
+    <v-row >
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <s-projects-autocomplete
+          ref="Half"
+          v-model="profile.half_project"
+          :label="$tc('half')"
+        />
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        <!-- eslint-disable -->
+        <v-text-field
+          ref=""
+          v-model="profile.half_tag"
+          :label="$tc('half_tag')"
+          persistent-hint
+        >
+        </v-text-field>
+
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        + будет добавлена дата интеграции
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row >
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <s-projects-autocomplete
+          ref="Cross"
+          v-model="profile.cross_project"
+          :label="$tc('cross')"
+        />
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        <!-- eslint-disable -->
+        <v-text-field
+          ref=""
+          v-model="profile.cross_tag"
+          :label="$tc('cross_tag')"
+          persistent-hint
+        >
+        </v-text-field>
+
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        + будет добавлена дата интеграции
+      </v-col>
+    </v-row>
+    <v-row >
+      <v-col
+        cols="12"
+        md="6"
+        lg="6"
+      >
+        <s-projects-autocomplete
+          ref="HalfCross"
+          v-model="profile.half_cross_project"
+          :label="$tc('half_cross')"
+        />
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        <!-- eslint-disable -->
+        <v-text-field
+          ref=""
+          v-model="profile.half_cross_tag"
+          :label="$tc('half_cross_tag')"
+          persistent-hint
+        >
+        </v-text-field>
+
+      </v-col>
+      <v-col
+        cols="2"
+        md="2"
+        lg="2"
+      >
+        + будет добавлена дата интеграции
+      </v-col>
+    </v-row>
+
+
+
+    <v-row class="mr-2">
       <v-col
         cols="12"
         md="6"
         lg="6"
         class="text-right"
       >
+        <v-btn
+          text
+          tile
+          :loading="buttonSave.loading"
+          :disabled="buttonSave.disabled"
+          @click="onSave"
+        >
+          {{ $tc('Save') }}
+        </v-btn>
+
         <v-btn
           v-bind="buttonDelete"
           color="red"
@@ -58,15 +207,6 @@
         >
           {{ $tc('Delete') }}
         </v-btn>
-        <v-btn
-          text
-          tile
-          :loading="buttonSave.loading"
-          :disabled="buttonSave.disabled"
-          @click="onSave"
-        >
-          {{ $tc('Save') }}
-        </v-btn>
       </v-col>
     </v-row>
 
@@ -75,12 +215,14 @@
 </template>
 
 <script lang="ts">
+import ProjectIntegrationSettings, {
+  ProfileInterface,
+  OrganizationInterface, ProjectInterface
+} from '@/api/ProjectIntegrationSettings'
+import rules from '@/mixins/rules'
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
-import rules from '@/mixins/rules'
-import Groups, { GroupInterface, GroupOrganizationInterface, GroupResponsibleInterface } from '@/api/Groups'
-import SUsers from '@/snippets/SUsers/SUsers.vue'
-import { UserInterface } from '@/api/Users'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import APIError from '@/api/classes/APIError'
 
@@ -99,15 +241,36 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   beforeRouteEnter (to, from, next: NavigationGuardNext<any>) {
-    new Groups()
+    new ProjectIntegrationSettings()
       .getById(+to.params.id)
-      .then(async (response: GroupInterface) => {
+      .then(async (response: ProfileInterface) => {
         next(vm => {
-          vm.group.name = response.name
+          console.log(response)
+          vm.profile.name = response.name
+          vm.profile.external_project_id = response.external_project_id
+          vm.profile.main_tag = response.main_tag
+          vm.profile.cross_tag = response.cross_tag
+          vm.profile.half_cross_tag = response.half_cross_tag
+          vm.profile.half_tag = response.half_tag
 
-          if (vm.assertObjectHasAttribute(vm.$refs, 'sUsers')) {
-            if (vm.assertObjectHasAttribute(response.responsible, 'id')) {
-              vm.$refs.sUsers.setDefault(response.responsible?.id)
+          if (vm.assertObjectHasAttribute(vm.$refs, 'SProjectsAutocomplete')) {
+            if (vm.assertObjectHasAttribute(response.main_project, 'id')) {
+              vm.$refs.SProjectsAutocomplete.setDefault(response.main_project?.id)
+            }
+          }
+          if (vm.assertObjectHasAttribute(vm.$refs, 'Cross')) {
+            if (vm.assertObjectHasAttribute(response.cross_project, 'id')) {
+              vm.$refs.Cross.setDefault(response.cross_project?.id)
+            }
+          }
+          if (vm.assertObjectHasAttribute(vm.$refs, 'Half')) {
+            if (vm.assertObjectHasAttribute(response.half_project, 'id')) {
+              vm.$refs.Half.setDefault(response.half_project?.id)
+            }
+          }
+          if (vm.assertObjectHasAttribute(vm.$refs, 'HalfCross')) {
+            if (vm.assertObjectHasAttribute(response.half_cross_project, 'id')) {
+              vm.$refs.HalfCross.setDefault(response.half_cross_project?.id)
             }
           }
         })
@@ -119,7 +282,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   components: {
-    SUsers
+    SProjectsAutocomplete
   },
 
   data () {
@@ -135,24 +298,22 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       form: {
         valid: false
       },
-      group: {
-        name: null,
-        organization: null as unknown as GroupOrganizationInterface,
-        responsible: null as unknown as GroupResponsibleInterface
-      },
 
-      userSelected: 0
+      profile: {
+        main_project: null as unknown as ProjectInterface,
+        half_project: null as unknown as ProjectInterface,
+        cross_project: null as unknown as ProjectInterface,
+        half_cross_project: null as unknown as ProjectInterface,
+        half_cross_tag: null,
+        half_tag: null,
+        cross_tag: null,
+        main_tag: null,
+        name: null,
+        external_project_id: null,
+        organization: null as unknown as OrganizationInterface
+      }
     }
   },
-
-  // watch: {
-  //   organizationSelected (val: OrganizationInterface) {
-  //     if (val && this.firstLoad) {
-  //       this.$refs.sUsers.focus()
-  //       this.$refs.sUsers.fetchData({ organization_id: val.id })
-  //     }
-  //   }
-  // },
   methods: {
 
     onBtnDeleteClick () {
@@ -165,10 +326,10 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           true: {
             color: 'red',
             handle: () => {
-              new Groups()
+              new ProjectIntegrationSettings()
                 .delete(+this.$route.params.id)
                 .then(() => {
-                  this.$toast.success(this.$tc('The group was successfully deleted.'))
+                  this.$toast.success(this.$tc(' was successfully deleted.'))
                   this.$router.back()
                 }).catch((e: APIError) => {
                   this.$toast.error(e.message)
@@ -177,7 +338,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             text: this.$tc('Yes')
           }
         },
-        text: this.$tc('All information about the group and information associated with it will be deleted permanently.'),
+        text: this.$tc('All information  will be deleted permanently.'),
         title: this.$tc('Confirmation request')
       })
     },
@@ -188,17 +349,38 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
       this.buttonSave.loading = true
 
-      const putData = {
-        name: this.group.name,
-        responsible_id: this.userSelected ? this.userSelected : 0
+      const request = {
+        name: this.profile.name,
+        external_id: this.profile.external_id,
+        main_tag: this.profile.main_tag,
+        half_tag: this.profile.half_tag,
+        cross_tag: this.profile.cross_tag,
+        half_cross_tag: this.profile.half_cross_tag
+      } as any
+
+      if (this.assertObjectHasAttribute(this.profile.main_project, 'id')) {
+        request.main_project_id = this.profile.main_project.id
       }
-      if (this.assertObjectHasAttribute(this.group.responsible, 'id')) {
-        putData.responsible_id = this.group.responsible.id
+
+      if (this.assertObjectHasAttribute(this.profile.cross_project, 'id')) {
+        request.cross_project_id = this.profile.cross_project.id
       }
-      new Groups()
-        .update(+this.$route.params.id, putData)
-        .then(() => {
-          this.$toast.success(this.$tc('Group updated successfully.'))
+
+      if (this.assertObjectHasAttribute(this.profile.half_project, 'id')) {
+        request.half_project_id = this.profile.half_project.id
+      }
+
+      if (this.assertObjectHasAttribute(this.profile.half_cross_project, 'id')) {
+        request.half_cross_project_id = this.profile.half_cross_project.id
+      }
+      new ProjectIntegrationSettings()
+        .add(request)
+        .then((id: number) => {
+          this.$router.replace({
+            name: 'administrator_itegrationset_edit',
+            params: { id }
+          })
+          this.$toast.success(this.$tc(' added successfully'))
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
             e.errors.map((e: any) => {
@@ -209,10 +391,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
-    },
-
-    selectedUser (user: UserInterface) {
-      this.userSelected = user ? user.id : 0
     }
   },
 

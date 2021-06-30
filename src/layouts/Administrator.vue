@@ -397,7 +397,7 @@ export default Vue.extend({
                   name: 'administrator_itegrationset_list'
                 }
               },
-              icon: 'mdi-flask',
+              icon: 'mdi-arrow-decision-outline',
               title: 'Integration Settings',
               visible: true
             },

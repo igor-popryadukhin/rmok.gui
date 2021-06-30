@@ -100,10 +100,12 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue'
-import { GroupInterface, Groups, GroupFindQueryInterface } from '@/api/Groups'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import VInterface from '@/VInterface'
-import ProjectIntegrationSettings, { ProfileFindQueryInterface } from '@/api/ProjectIntegrationSettings'
+import ProjectIntegrationSettings, {
+  ProfileFindQueryInterface,
+  ProfileInterface
+} from '@/api/ProjectIntegrationSettings'
 
 export default (Vue as VueConstructor<VInterface>).extend({
   computed: {
@@ -129,7 +131,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           { align: 'start', sortable: false, text: 'Имя', value: 'name', width: 'auto' },
           { align: 'end', sortable: true, text: '', value: 'actions', width: '100%' }
         ],
-        items: [] as GroupInterface[],
+        items: [] as ProfileInterface[],
         itemsPerPage: 20,
         page: 1,
         pageStart: 0,
@@ -156,7 +158,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
       new ProjectIntegrationSettings()
         .find<{count: number}, ProfileFindQueryInterface[]>(params)
-        .then((response: ResponseInterface<{ count: number }, GroupInterface[]>) => {
+        .then((response: ResponseInterface<{ count: number }, ProfileInterface[]>) => {
           this.dataTableGroups.totalCount = response.meta.count
           this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
           this.dataTableGroups.items = response.data
@@ -180,7 +182,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
                 new ProjectIntegrationSettings()
                   .delete(id)
                   .then(() => {
-                    this.groups = this.groups.filter((e: GroupInterface) => e.id !== id)
+                    this.groups = this.groups.filter((e: ProfileInterface) => e.id !== id)
                     this.$toast.success(this.$t('group_delete_successfully'), { icon: true })
                   }).catch((e: any) => {
                     const cause: string = e.data ? e.data.error_message : e.error_message || e.statusText || 'undefined'
