@@ -245,7 +245,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       .getById(+to.params.id)
       .then(async (response: ProfileInterface) => {
         next(vm => {
-          console.log(response)
           vm.profile.name = response.name
           vm.profile.external_project_id = response.external_project_id
           vm.profile.main_tag = response.main_tag
@@ -374,13 +373,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         request.half_cross_project_id = this.profile.half_cross_project.id
       }
       new ProjectIntegrationSettings()
-        .add(request)
-        .then((id: number) => {
-          this.$router.replace({
-            name: 'administrator_itegrationset_edit',
-            params: { id }
-          })
-          this.$toast.success(this.$tc(' added successfully'))
+        .update(+this.$route.params.id, request)
+        .then(() => {
+          this.$toast.success(this.$tc('Group updated successfully.'))
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
             e.errors.map((e: any) => {
