@@ -1,271 +1,33 @@
 <template>
   <v-card
-    flat
     tile
+    flat
   >
-    <v-row>
-      <v-col
-        cols="12"
-        md="6"
-        lg="6"
+    <v-tabs
+      v-model="tab"
+      style="margin-left: 15px"
+    >
+      <v-tab
+        v-for="(tab, tabKey) in tabs"
+        v-bind="tab.attrs"
+        :key="tabKey"
       >
-        <v-text-field
-          v-model="projectName"
-          :label="$tc('Project name')"
-          :rules="[rules.notBlank]"
-          persistent-hint
-          required
-        >
-        </v-text-field>
-      </v-col>
-    </v-row>
+        {{ tab.title }}
+      </v-tab>
+    </v-tabs>
 
-    <!-- Users -->
-    <v-row class="mb-5">
-      <v-col
-        class="pb-0"
-        cols="12"
-        md="6"
-        lg="6"
-        xl="6"
-      >
-        <v-card
-          height="500"
-          class="overflow-y-auto v-card"
-          tile
-          flat
-        >
-          <v-card-title class="grey--text">
-            {{ $tc('Available members') }}
-          </v-card-title>
-          <v-card-actions class="px-4">
-            <v-text-field
-              v-model="availableQ"
-              :label="$tc('Search')"
-              autocomplete="off"
-              hide-details
-              clearable
-            >
-              <template v-slot:prepend-inner>
-                <v-icon>mdi-account-search</v-icon>
-              </template>
-            </v-text-field>
-          </v-card-actions>
-          <v-card-text class="v-card__text">
-            <template v-if="availableMembers.length > 0">
-              <v-list>
-                <template v-for="(item, index) in availableMembers">
-                  <v-divider :key="`v-divider-${index}`"/>
-                  <v-list-item
-                    :key="`v-list-item-${index}`"
-                    link
-                  >
-                    <v-list-item-avatar
-                      size="30"
-                      color="indigo"
-                      class="headline font-weight-light white--text"
-                    >
-                      {{ (item.first_name || '-').charAt(0) }}
-                    </v-list-item-avatar>
-                    <v-list-item-content>
-                      <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-                    </v-list-item-content>
-                    <v-list-item-action>
-                      <v-btn
-                        text
-                        small
-                        @click="memberToRight(item)"
-                      >
-                        {{ $tc('Add') }}
-                      </v-btn>
-                    </v-list-item-action>
-                  </v-list-item>
-                </template>
-              </v-list>
-            </template>
-            <template v-else-if="availableMembersLoading && availableMembers.length === 0">
-              <div class="d-flex pa-0" style="height: 250px">
-                <v-row
-                  class="fill-height"
-                  align-content="center"
-                  justify="center"
-                  no-gutters
-                >
-                  <v-col
-                    class="subtitle-1 text-center"
-                    cols="12"
-                  >
-                    {{ $tc('Getting available members') }}
-                  </v-col>
-                  <v-col cols="9">
-                    <v-progress-linear
-                      color="deep-purple accent-4"
-                      indeterminate
-                      rounded
-                      height="6"
-                    ></v-progress-linear>
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-            <template v-else>
-              <div class="d-flex pa-0" style="height: 250px">
-                <v-row
-                  class="fill-height"
-                  align-content="center"
-                  justify="center"
-                  no-gutters
-                >
-                  <v-col
-                    class="subtitle-1 text-center"
-                    cols="12"
-                  >
-                    {{ $tc('Empty') }}
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-          </v-card-text>
-          <v-divider/>
-          <v-footer color="white">
-            <small class="grey--text">{{
-                $tc('Click the add button to add the participant to the project.')
-              }}</small>
-          </v-footer>
-        </v-card>
-      </v-col>
-      <v-col
-        class="pl-md-0 pl-lg-0 pl-xl-0"
-        cols="12"
-        md="6"
-        lg="6"
-        xl="6"
-      >
-        <v-card
-          height="500"
-          class="overflow-y-auto v-card"
-          tile
-          flat
-        >
-          <v-card-title class="grey--text">
-            {{ $tc('Project members') }}
-          </v-card-title>
-          <v-card-text class="v-card__text">
-            <template v-if="members.length > 0">
-              <v-list>
-                <template v-for="(item, index) in members">
-                  <v-divider :key="`v-divider-${index}`"/>
-                  <v-list-item
-                    :key="`v-list-item-${index}`"
-                  >
-                    <v-list-item-avatar
-                      size="30"
-                      color="indigo"
-                      class="headline font-weight-light white--text"
-                    >
-                      {{ (item.first_name || '-').charAt(0) }}
-                    </v-list-item-avatar>
-                    <v-list-item-content>
-                      <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-                    </v-list-item-content>
-                    <v-list-item-action>
-                      <v-btn
-                        text
-                        small
-                        @click="memberToLeft(item)"
-                      >
-                        {{ $tc('Delete') }}
-                      </v-btn>
-                    </v-list-item-action>
-                  </v-list-item>
-                </template>
-              </v-list>
-            </template>
-            <template v-else>
-              <div class="d-flex pa-0" style="height: 100%">
-                <v-row
-                  class="fill-height"
-                  align-content="center"
-                  justify="center"
-                  no-gutters
-                >
-                  <v-col
-                    class="subtitle-1 text-center"
-                    cols="12"
-                  >
-                    {{ $tc('Empty') }}
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-          </v-card-text>
-          <v-divider/>
-          <v-footer color="white">
-            <small class="grey--text">{{
-                $tc('Click the remove button to remove a member from the project.')
-              }}</small>
-          </v-footer>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Сценарий -->
-    <v-row class="mb-5">
-      <v-col
-        cols="12"
-      >
-        <h3 class="grey--text mb-1">Сценарий</h3>
-        <app-wysiwyg
-          v-model="scenario"
-          ref="wysiwyg"
-        />
-      </v-col>
-    </v-row>
-    <!-- Сценарий -->
-
-    <!-- Статусы -->
-    <v-row>
-      <v-col
-        cols="12"
-      >
-        <h3 class="grey--text mb-1">Статусы звонков</h3>
-        <project-status v-model="statuses" />
-      </v-col>
-    </v-row>
-    <!-- Статусы -->
-
-    <v-row class="mb-10">
-      <v-col
-        cols="12"
-        class="d-flex"
-      >
-        <v-spacer/>
-        <v-btn
-          color="red"
-          :loading="buttonDelete.loading"
-          :disabled="buttonDelete.disabled"
-          class="mr-2"
-          tile
-          outlined
-          @click="onBtnDeleteClick"
-        >
-          {{ $tc('Delete') }}
-        </v-btn>
-        <v-btn
-          text
-          tile
-          :loading="buttonSave.loading"
-          :disabled="buttonSave.disabled"
-          @click="onBtnSaveClick"
-        >
-          {{ $tc('Save') }}
-        </v-btn>
-      </v-col>
-    </v-row>
+    <v-card tile flat>
+      <v-card-text>
+        <router-view/>
+      </v-card-text>
+    </v-card>
   </v-card>
 </template>
 
 <script lang="ts">
+import VProjectMain from './VProjectMain.vue'
+import VProjectMembers from './VProjectMembers.vue'
+import VProjectStatuses from 'src/views/Administrator/Projects/VProjectSettings.vue'
 import AppWysiwyg from '@/components/AppWysiwyg/AppWysiwyg.vue'
 import Vue, { VueConstructor } from 'vue'
 import rules from '@/mixins/rules'
@@ -307,8 +69,8 @@ interface VInnerInterface extends VInterface {
 export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   components: {
-    AppWysiwyg,
-    ProjectStatus
+    // AppWysiwyg,
+    // ProjectStatus
   },
 
   beforeRouteEnter (to, from, next) {
@@ -339,6 +101,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   data (): IData {
     return {
+      tab: null,
+      items: [
+        'administrator_projects_edit_main', 'administrator_projects_edit_members'
+      ],
+      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
       availableMembers: [] as UserInterface[],
       availableMembersCount: 0,
       availableMembersLoading: false,
@@ -357,6 +124,30 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       statuses: [],
       users_groups: [],
       scenario: ''
+    }
+  },
+
+  computed: {
+    tabs () {
+      return [
+        {
+          title: 'Основная информация',
+          attrs: {
+            to: {
+              name: 'administrator_projects_main'
+            }
+          }
+        },
+        {
+          title: 'Участники проекта',
+          component: VProjectMembers,
+          attrs: {
+            to: {
+              name: 'administrator_projects_members'
+            }
+          }
+        }
+      ]
     }
   },
 

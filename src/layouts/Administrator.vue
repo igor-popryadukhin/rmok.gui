@@ -347,9 +347,27 @@ export default Vue.extend({
           title: 'Statistic',
           visible: this.$permission.isGranted(['section.statistics'])
         },
+        {
+          active: false,
+          children: [
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_integrations_contacts'
+                }
+              },
+              icon: '',
+              title: 'Integration of contacts',
+              visible: true
+            }
+          ],
+          icon: 'mdi-api',
+          title: 'Integrations',
+          visible: true
+        },
         { divider: true },
         {
-          active: true,
+          active: false,
           children: [
             {
               attrs: {
