@@ -18,6 +18,6 @@ export default {
 <style lang="scss" scoped>
   .app-tools {}
   .app-tools > * {
-    margin-right: 2px;
+    margin-right: 5px;
   }
 </style>

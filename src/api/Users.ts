@@ -181,8 +181,8 @@ export class Users {
     })
   }
 
-  public getSchedule (user_id: number): Promise<RS.Schedule[]> {
-    return new Promise<RS.Schedule[]>((resolve, reject) => {
+  public getSchedule (user_id: number): Promise<RS.ScheduleInterface[]> {
+    return new Promise<RS.ScheduleInterface[]>((resolve, reject) => {
       $axios.get(`/users/${user_id}/schedule`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {

@@ -30,8 +30,8 @@ module.exports = {
 
   devServer: {
     disableHostCheck: true,
-    host: '0.0.0.0',
-    public: '0.0.0.0:3000'
+    host: 'develop.rmok.online',
+    public: '0.0.0.0'
   },
 
   filenameHashing: true,
