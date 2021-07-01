@@ -29,7 +29,6 @@ interface IProps {
 
 interface IData {
   text: string;
-  textChanged: (s: string) => void;
 }
 
 interface IComputed {
@@ -41,23 +40,9 @@ interface IMethod {
 }
 
 export default Vue.extend<IData, IMethod, IComputed, IProps>({
-  data (): IData {
-    return {
-      text: '',
-      textChanged: debounce((s: string) => {
-        this.$emit('change', s)
-      }, this.debounceDelay)
-    }
-  },
+  name: 'AppSearchInput',
 
   inheritAttrs: false,
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  name: 'AppSearchInput',
 
   props: {
     clearable: {
@@ -86,14 +71,29 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
     }
   },
 
-  watch: {
-    text (val: string) {
-      this.textChanged(val)
-    },
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
 
+  data (): IData {
+    return {
+      text: ''
+    }
+  },
+
+  watch: {
     value (val: string) {
       this.text = val
     }
+  },
+
+  created () {
+    this.text = this.value
+
+    this.$watch('text', debounce((val?: string) => {
+      this.$emit('change', val)
+    }, this.debounceDelay))
   }
 })
 </script>

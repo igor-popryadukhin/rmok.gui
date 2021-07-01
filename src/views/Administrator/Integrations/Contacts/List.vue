@@ -76,12 +76,11 @@
 
         <v-divider/>
 
-        <div class="d-flex">
-          <s-users
-            v-model="userForJoin"
-            :label="$t('Members available for integration')"
-            :disabled="projectSelectedId < 1"
-            :params="paramsForUsers"
+        <div class="py-2">
+          <app-search-input
+            v-model="integrationSearch"
+            :label="$tc('Search for project participants')"
+            @change="onSearchChange"
           />
         </div>
 
@@ -232,12 +231,12 @@ import ContactsIntegrations from '@/api/ContactsIntegrations'
 import Projects from '@/api/Projects'
 import { UserInterface } from '@/api/Users'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import AppTools from '@/components/AppTools/AppTools.vue'
-import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue from 'vue'
 
 export default Vue.extend({
-  components: { AppLoading, SUsers, AppTools },
+  components: { AppSearchInput, AppLoading, AppTools },
 
   data () {
     return {
@@ -306,6 +305,20 @@ export default Vue.extend({
 
       get () {
         return +this.$route.query?.project_id || -1
+      }
+    },
+
+    integrationSearch: {
+      set (val?: string) {
+        if (typeof val === 'string') {
+          this.$routerQuery.setQuery({ q: val })
+        } else {
+          this.$routerQuery.removeQuery(['q'])
+        }
+      },
+
+      get () {
+        return this.$route.query?.q || null
       }
     },
 
@@ -392,10 +405,10 @@ export default Vue.extend({
     /**
      * Загрузить с сервера параметры интеграций
      */
-    fetchIntegrations (project_id: number) {
+    fetchIntegrations (project_id: number, params = {}) {
       this.$data.integrationsLoading = true
       new ContactsIntegrations()
-        .get({ project_id })
+        .find(Object.assign(params, { project_id }))
         .then((response) => {
           this.$data.integrationsTotal = response.meta?.count || 0
           this.$data.integrations = response.data
@@ -405,12 +418,24 @@ export default Vue.extend({
     },
 
     /**
+     * Событие, которое генерируется при вводе текста в строку поиска участников проекта.
+     */
+    onSearchChange (q?: string) {
+      if (typeof q === 'string') {
+        this.fetchIntegrations(this.projectSelectedId, { q })
+      } else {
+        this.fetchIntegrations(this.projectSelectedId)
+      }
+    },
+
+    /**
      * Событие, которое генерируется при нажатии на элемент списка проектов.
      *
      * @param id
      * @param event
      */
     onProjectListItemClick (id: number, event: Event) {
+      this.integrationSearch = ''
       this.fetchIntegrations(id)
     },
 

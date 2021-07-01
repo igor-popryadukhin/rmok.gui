@@ -9,7 +9,9 @@ export default class ContactsIntegrations {
    *
    * @param params
    */
-  public get (params: unknown & {
+  public find (params: unknown & {
+    /** Поиск по ключевому слову */
+    q?: string;
     /** Идентификатор проекта */
     project_id?: number,
     /** Идентификатор пользователя */
