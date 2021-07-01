@@ -18,6 +18,7 @@
     :dense="dense"
     :clearable="clearable"
     :multiple="multiple"
+    :hide-details="hideDetails"
     hide-selected
     single-line
     disable-lookup
@@ -93,11 +94,79 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
 import Users, { UserInterface } from '@/api/Users'
+import { compareObjects } from '@/utils/utils'
+import Vue, { PropType } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
+  name: 'SUsers',
+
+  props: {
+    autoload: {
+      default: false,
+      type: Boolean
+    },
+    clearable: {
+      default: () => false,
+      type: Boolean
+    },
+    dense: {
+      default: () => false,
+      type: Boolean
+    },
+    disabled: {
+      default: () => false,
+      type: Boolean
+    },
+    errorMessages: {
+      default: () => [],
+      type: Array as PropType<string[]>
+    },
+    label: {
+      default: () => '',
+      type: String
+    },
+    multiple: {
+      default: () => false,
+      type: Boolean
+    },
+    outlined: {
+      default: () => false,
+      type: Boolean
+    },
+    hideDetails: {
+      default: () => false,
+      type: Boolean
+    },
+    params: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    readonly: {
+      default: () => false,
+      type: Boolean
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    showOrganization: {
+      default: false,
+      type: Boolean
+    },
+    value: {
+      default: () => null,
+      type: [Object, Array] as PropType<UserInterface | UserInterface[]>
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    }
+  },
+
   created () {
     if (this.autoload) {
       this.fetchData()
@@ -106,6 +175,7 @@ export default Vue.extend({
 
   data () {
     return {
+      oldParams: {},
       dParams: {},
       hintMessage: '',
       lockSearch: false,
@@ -198,67 +268,6 @@ export default Vue.extend({
     prop: 'value'
   },
 
-  props: {
-    autoload: {
-      default: false,
-      type: Boolean
-    },
-    clearable: {
-      default: () => false,
-      type: Boolean
-    },
-    dense: {
-      default: () => false,
-      type: Boolean
-    },
-    disabled: {
-      default: () => false,
-      type: Boolean
-    },
-    errorMessages: {
-      default: () => [],
-      type: Array as PropType<string[]>
-    },
-    label: {
-      default: () => '',
-      type: String
-    },
-    multiple: {
-      default: () => false,
-      type: Boolean
-    },
-    outlined: {
-      default: () => false,
-      type: Boolean
-    },
-    params: {
-      default: () => {
-        return {}
-      },
-      type: Object
-    },
-    readonly: {
-      default: () => false,
-      type: Boolean
-    },
-    rules: {
-      default: () => [],
-      type: Array
-    },
-    showOrganization: {
-      default: false,
-      type: Boolean
-    },
-    value: {
-      default: () => null,
-      type: [Object, Array] as PropType<UserInterface | UserInterface[]>
-    },
-    visibleIcon: {
-      default: false,
-      type: Boolean
-    }
-  },
-
   watch: {
     q (q: string) {
       this.fetchData({ q })
@@ -269,7 +278,19 @@ export default Vue.extend({
     },
 
     value (val: any) {
+      if (val === null) {
+        (this as any).$refs.ref.blur()
+      }
       this.selected = val
+    },
+
+    params (val: any) {
+      if (typeof val === 'object') {
+        if (!compareObjects(this.oldParams, val)) {
+          this.oldParams = val
+          this.fetchData()
+        }
+      }
     }
   }
 })
@@ -282,7 +303,7 @@ const search = debounce((ctx: any, params: any) => {
   new Users()
     .find<{ count: number }, UserInterface[]>(params)
     .then((response) => {
-      ctx.hintMessage = ctx.$t('found', { count: response.meta.count })
+      ctx.hintMessage = ctx.$t('Found', { count: response.meta.count })
       ctx.options = response.data
     }).finally(() => (ctx.process = false))
 }, 400)

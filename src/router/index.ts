@@ -662,6 +662,27 @@ const routes: RouteConfig[] = [
         path: 'groups'
       },
       {
+        component: () => import(/* webpackChunkName: "administrator-integrations-layout" */ '../views/Settings/LayoutAdmin.vue'),
+        children: [
+          {
+            component: () => import(/* webpackChunkName: "administrator-integrations-contacts-list" */ '@/views/Administrator/Integrations/Contacts/List.vue'),
+            meta: {
+              icon: '',
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_integrations_contacts',
+            path: 'contacts'
+          }
+        ],
+        meta: {
+          layout: 'administrator',
+          middleware: [secure]
+        },
+        name: 'administrator_integrations',
+        path: 'integrations'
+      },
+      {
         children: [
           {
             component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Settings/Profile.vue'),
@@ -751,7 +772,36 @@ const routes: RouteConfig[] = [
             path: 'new'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '../views/Administrator/Projects/Edit.vue'),
+            children: [
+              {
+                component: () => import(/* webpackChunkName: "administrator-projects-main" */ '../views/Administrator/Projects/VProjectMain.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_projects_main',
+                path: 'main'
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-projects-members" */ '../views/Administrator/Projects/VProjectMembers.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_projects_members',
+                path: 'members'
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-projects-settings" */ '../views/Administrator/Projects/VProjectSettings.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_projects_settings',
+                path: 'settings'
+              }
+            ],
             meta: {
               layout: 'administrator',
               middleware: [secure]

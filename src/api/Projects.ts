@@ -50,7 +50,7 @@ export default class Projects {
   /**
    * @param params
    */
-  public find<TM, TD = ProjectInterface[]> (params = {}): Promise<ResponseInterface<TM, TD>> {
+  public find<TM = { count: number }, TD = ProjectInterface[]> (params = {}): Promise<ResponseInterface<TM, TD>> {
     return new Promise<ResponseInterface<TM, TD>>((resolve: (response: ResponseInterface<TM, TD>) => void, reject) => {
       $axios.get('/projects', {
         params
@@ -155,6 +155,29 @@ export default class Projects {
           }
           reject(response.data)
         }).catch(reject)
+    })
+  }
+
+  /**
+   * Вернёт список участников проекта.
+   *
+   * @param id Идентификатор проекта.
+   * @param offset Смещение для выборки подмножеств.
+   * @param count Количество возвращаемых элементов.
+   */
+  public getMembers (id: number, offset = 0, count = 50): Promise<ResponseInterface<any, any>> {
+    return new Promise<ResponseInterface<any, any>>((resolve, reject) => {
+      $axios.get(`/projects/${id}/members`, {
+        params: {
+          offset,
+          count
+        }
+      }).then((response: AxiosResponse) => {
+        if (response.status === 200) {
+          return resolve(response.data)
+        }
+        reject(response.data)
+      }).catch(reject)
     })
   }
 
