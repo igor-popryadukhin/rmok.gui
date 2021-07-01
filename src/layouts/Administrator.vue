@@ -359,6 +359,16 @@ export default Vue.extend({
               icon: '',
               title: 'Integration of contacts',
               visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_itegrationset_list'
+                }
+              },
+              icon: 'mdi-arrow-decision-outline',
+              title: 'Project Integration Settings',
+              visible: true
             }
           ],
           icon: 'mdi-api',
