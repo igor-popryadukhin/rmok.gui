@@ -411,6 +411,7 @@
             <v-btn
               v-if="!item.isPlaying"
               :disabled="item.audio_recording_id === null"
+              :loading="item.process_download"
               icon
               small
               @click="onPlayClick(item)"
@@ -715,6 +716,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
             this.dataTableHistory.pages = Math.ceil((response?.meta?.count || 0) / this.dataTableHistory.itemsPerPage)
             this.dataTableHistory.items = response.data.map((e: any) => {
               e.isPlaying = false
+              e.process_download = false
               return e
             }) || []
           }).finally(() => (this.historyProcessLoading = false))
@@ -1020,6 +1022,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
+      item.process_download = true
       new ContactHistory()
         .getAudioFile(item.id)
         .then((response: any) => {
@@ -1029,6 +1032,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
           })
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).finally(() => {
+          item.process_download = false
         })
     }
   },
