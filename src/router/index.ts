@@ -673,6 +673,51 @@ const routes: RouteConfig[] = [
             },
             name: 'administrator_integrations_contacts',
             path: 'contacts'
+          },
+          {
+            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+              if ($permission.isGranted(['section.groups'])) {
+                next()
+              } else {
+                next({ name: 'access_denied' })
+              }
+            },
+            children: [
+              {
+                component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Administrator/Integrations/IntegrationSettings/List.vue'),
+                meta: {
+                  anonymous: true,
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_itegrationset_list',
+                path: ''
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-itegrationset-new" */ '../views/Administrator/Integrations/IntegrationSettings/New.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_itegrationset_new',
+                path: 'new'
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-itegrationset-new" */ '../views/Administrator/Integrations/IntegrationSettings/Edit.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_itegrationset_edit',
+                path: ':id'
+              }
+            ],
+            component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Administrator/Integrations/IntegrationSettings/Layout.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            path: 'itegrationset'
           }
         ],
         meta: {
@@ -733,51 +778,6 @@ const routes: RouteConfig[] = [
             },
             name: 'administrator_for_developer',
             path: 'development'
-          },
-          {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              if ($permission.isGranted(['section.groups'])) {
-                next()
-              } else {
-                next({ name: 'access_denied' })
-              }
-            },
-            children: [
-              {
-                component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Settings/IntegrationSettings/List.vue'),
-                meta: {
-                  anonymous: true,
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_itegrationset_list',
-                path: ''
-              },
-              {
-                component: () => import(/* webpackChunkName: "administrator-itegrationset-new" */ '../views/Settings/IntegrationSettings/New.vue'),
-                meta: {
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_itegrationset_new',
-                path: 'new'
-              },
-              {
-                component: () => import(/* webpackChunkName: "administrator-itegrationset-new" */ '../views/Settings/IntegrationSettings/Edit.vue'),
-                meta: {
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_itegrationset_edit',
-                path: ':id'
-              }
-            ],
-            component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Settings/IntegrationSettings/Layout.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            path: 'itegrationset'
           }
         ],
         component: () => import(/* webpackChunkName: "administrator-settings-layout-admin" */ '../views/Settings/LayoutAdmin.vue'),

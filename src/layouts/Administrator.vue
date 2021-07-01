@@ -359,6 +359,16 @@ export default Vue.extend({
               icon: '',
               title: 'Integration of contacts',
               visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_itegrationset_list'
+                }
+              },
+              icon: 'mdi-arrow-decision-outline',
+              title: 'Project Integration Settings',
+              visible: true
             }
           ],
           icon: 'mdi-api',
@@ -408,16 +418,6 @@ export default Vue.extend({
               icon: 'mdi-flask',
               title: 'For developer',
               visible: this.$store.getters['profile/permissions'].includes('dev_tool.view') || this.$store.getters['profile/is_super_admin']
-            },
-            {
-              attrs: {
-                to: {
-                  name: 'administrator_itegrationset_list'
-                }
-              },
-              icon: 'mdi-arrow-decision-outline',
-              title: 'Integration Settings',
-              visible: true
             },
             {
               attrs: {

@@ -350,7 +350,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       const request = {
         name: this.profile.name,
-        external_id: this.profile.external_id,
+        external_project_id: this.profile.external_project_id,
         main_tag: this.profile.main_tag,
         half_tag: this.profile.half_tag,
         cross_tag: this.profile.cross_tag,
