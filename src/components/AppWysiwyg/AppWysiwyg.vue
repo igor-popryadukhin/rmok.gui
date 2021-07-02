@@ -1,7 +1,7 @@
 <template>
   <Vueditor
     ref="editor"
-    style="min-height: 600px"
+    class="vueditor"
   ></Vueditor>
 </template>
 
@@ -141,8 +141,14 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .vueditor {
-  min-height: 400px
+  min-height: 600px;
 }
+@media only screen and (min-height: 800px) {
+  .vueditor {
+    min-height: 70vh!important;
+  }
+}
+
 </style>
