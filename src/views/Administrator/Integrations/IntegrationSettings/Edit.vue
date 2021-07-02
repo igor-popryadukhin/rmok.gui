@@ -324,7 +324,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           },
           true: {
             color: 'red',
-            handle: () => {
+            handler: () => {
               new ProjectIntegrationSettings()
                 .delete(+this.$route.params.id)
                 .then(() => {
