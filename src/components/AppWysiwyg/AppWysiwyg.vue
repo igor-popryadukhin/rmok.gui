@@ -117,16 +117,20 @@ export default Vue.extend({
   mounted () {
     const vEditor = this.$children[0]
 
-    this.setContent(this.value)
-
-    vEditor.$store.subscribe((mutation, state) => {
-      switch (mutation.type) {
-        case 'UPDATE_CONTENT': {
-          this.$emit('change', mutation.payload)
-          break
+    setTimeout(() => {
+      let oldContent = this.value
+      vEditor.$store.subscribe((mutation, state) => {
+        switch (mutation.type) {
+          case 'UPDATE_CONTENT': {
+            if (oldContent !== mutation.payload) {
+              oldContent = mutation.payload
+              this.$emit('change', mutation.payload)
+            }
+            break
+          }
         }
-      }
-    })
+      })
+    }, 1000)
   },
 
   methods: {
