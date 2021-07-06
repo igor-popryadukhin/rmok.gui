@@ -1,46 +1,39 @@
 <template>
-  <v-card
-    tile
-    flat
-  >
+  <v-sheet>
     <v-tabs
       v-model="tab"
-      style="margin-left: 15px"
+      class="mb-5"
+      height="35"
     >
       <v-tab
         v-for="(tab, tabKey) in tabs"
         v-bind="tab.attrs"
         :key="tabKey"
       >
-        {{ tab.title }}
+        {{ $tc(tab.title) }}
       </v-tab>
     </v-tabs>
 
-    <v-card tile flat>
-      <v-card-text>
-        <router-view/>
-      </v-card-text>
-    </v-card>
-  </v-card>
+    <div>
+      <keep-alive exclude="ProjectEditMain">
+        <router-view />
+      </keep-alive>
+    </div>
+  </v-sheet>
 </template>
 
 <script lang="ts">
-import VProjectMain from './VProjectMain.vue'
-import VProjectMembers from './VProjectMembers.vue'
-import VProjectStatuses from 'src/views/Administrator/Projects/VProjectSettings.vue'
-import AppWysiwyg from '@/components/AppWysiwyg/AppWysiwyg.vue'
-import Vue, { VueConstructor } from 'vue'
-import rules from '@/mixins/rules'
-import Users, { UserInterface } from '@/api/Users'
-import Projects, { ProjectInterface, ProjectMemberInterface } from '@/api/Projects'
-import ProjectStatus from '@/components/ProjectStatus/ProjectStatus.vue'
-import vueScrollOptions from '@/mixins/vueScrollOptions'
-import statusActions from '@/mixins/statusActions'
-import VInterface from '@/VInterface'
-import { debounce } from 'vuetify/src/util/helpers'
 import APIError from '@/api/classes/APIError'
 import { GroupInterface } from '@/api/Groups'
+import Projects, { ProjectMemberInterface } from '@/api/Projects'
+import Users, { UserInterface } from '@/api/Users'
 import { StatusInterface } from '@/components/ProjectStatus/Interfaces'
+import rules from '@/mixins/rules'
+import statusActions from '@/mixins/statusActions'
+import vueScrollOptions from '@/mixins/vueScrollOptions'
+import VInterface from '@/VInterface'
+import Vue, { VueConstructor } from 'vue'
+import { debounce } from 'vuetify/src/util/helpers'
 
 interface IRefs {
   [key: string]: any;
@@ -73,27 +66,27 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     // ProjectStatus
   },
 
-  beforeRouteEnter (to, from, next) {
-    new Projects()
-      .getById(+to.params.project_id)
-      .then((response: ProjectInterface) => {
-        to.meta.route_breadcrumb_name = response.name
-        next((vm: VInnerInterface) => {
-          // Проверяю наличие ссылки на компонент, её может не быть
-          if (vm.assertObjectHasAttribute(vm.$refs, 'sOrganizationsAutocomplete')) {
-            if (vm.assertObjectHasAttribute(response.organization, 'id')) {
-              vm.$refs.sOrganizationsAutocomplete.setDefault(response.organization?.id)
-            }
-          }
-
-          vm.$data.projectName = response.name
-          vm.$data.members = response.members || []
-          vm.$data.statuses = response?.statuses || []
-          vm.$data.scenario = response?.scenario || ''
-          vm.$data.users_groups = response.users_groups || []
-        })
-      })
-  },
+  // beforeRouteEnter (to, from, next) {
+  //   new Projects()
+  //     .getById(+to.params.project_id)
+  //     .then((response: ProjectInterface) => {
+  //       to.meta.route_breadcrumb_name = response.name
+  //       next((vm: VInnerInterface) => {
+  //         // Проверяю наличие ссылки на компонент, её может не быть
+  //         if (vm.assertObjectHasAttribute(vm.$refs, 'sOrganizationsAutocomplete')) {
+  //           if (vm.assertObjectHasAttribute(response.organization, 'id')) {
+  //             vm.$refs.sOrganizationsAutocomplete.setDefault(response.organization?.id)
+  //           }
+  //         }
+  //
+  //         vm.$data.projectName = response.name
+  //         vm.$data.members = response.members || []
+  //         vm.$data.statuses = response?.statuses || []
+  //         vm.$data.scenario = response?.scenario || ''
+  //         vm.$data.users_groups = response.users_groups || []
+  //       })
+  //     })
+  // },
 
   created () {
     findAvailableUsers({}, this)
@@ -102,10 +95,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   data (): IData {
     return {
       tab: null,
-      items: [
-        'administrator_projects_edit_main', 'administrator_projects_edit_members'
-      ],
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
       availableMembers: [] as UserInterface[],
       availableMembersCount: 0,
       availableMembersLoading: false,
@@ -131,7 +120,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     tabs () {
       return [
         {
-          title: 'Основная информация',
+          title: 'Main information',
           attrs: {
             to: {
               name: 'administrator_projects_main'
@@ -139,11 +128,18 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
         },
         {
-          title: 'Участники проекта',
-          component: VProjectMembers,
+          title: 'Project members',
           attrs: {
             to: {
               name: 'administrator_projects_members'
+            }
+          }
+        },
+        {
+          title: 'Statuses',
+          attrs: {
+            to: {
+              name: 'administrator_projects_statuses'
             }
           }
         }
@@ -181,7 +177,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           false: this.$tc('no'),
           true: {
             color: 'red',
-            handle: () => {
+            handler: () => {
               return new Promise<void>((resolve) => {
                 new Projects()
                   .delete(+this.$route.params.project_id)
