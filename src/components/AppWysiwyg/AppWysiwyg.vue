@@ -117,6 +117,8 @@ export default Vue.extend({
   mounted () {
     const vEditor = this.$children[0]
 
+    vEditor.setContent(this.value)
+
     setTimeout(() => {
       let oldContent = this.value
       vEditor.$store.subscribe((mutation, state) => {
