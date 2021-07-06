@@ -50,3 +50,4 @@ declare module 'vue/types/vue' {
 }
 
 declare module 'vuescroll/dist/vuescroll-native'
+declare module 'petrovich';

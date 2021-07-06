@@ -1,7 +1,7 @@
 <template>
   <Vueditor
     ref="editor"
-    style="min-height: 600px"
+    class="vueditor"
   ></Vueditor>
 </template>
 
@@ -117,16 +117,22 @@ export default Vue.extend({
   mounted () {
     const vEditor = this.$children[0]
 
-    this.setContent(this.value)
+    vEditor.setContent(this.value)
 
-    vEditor.$store.subscribe((mutation, state) => {
-      switch (mutation.type) {
-        case 'UPDATE_CONTENT': {
-          this.$emit('change', mutation.payload)
-          break
+    setTimeout(() => {
+      let oldContent = this.value
+      vEditor.$store.subscribe((mutation, state) => {
+        switch (mutation.type) {
+          case 'UPDATE_CONTENT': {
+            if (oldContent !== mutation.payload) {
+              oldContent = mutation.payload
+              this.$emit('change', mutation.payload)
+            }
+            break
+          }
         }
-      }
-    })
+      })
+    }, 1000)
   },
 
   methods: {
@@ -141,8 +147,14 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .vueditor {
-  min-height: 400px
+  min-height: 600px;
 }
+@media only screen and (min-height: 800px) {
+  .vueditor {
+    min-height: 70vh!important;
+  }
+}
+
 </style>

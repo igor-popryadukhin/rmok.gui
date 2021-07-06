@@ -101,13 +101,64 @@ export default class Projects {
    */
   public update<DT = any> (id: number, data: DT): Promise<ProjectResponseItemsInterface> {
     return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
-      $axios.put(`/projects/${id}`, data)
+      $axios.post(`/projects/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
             return resolve(response.data)
           }
           throw new APIError(response.data)
         }).catch(reject)
+    })
+  }
+
+  /**
+   * Добавить участников в проект.
+   *
+   * @param id Идентификатор проекта.
+   * @param number_ids Массив идентификаторов пользователей.
+   */
+  public addMembers (id: number, number_ids: number[]): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.post(`/projects/${id}/members`, number_ids)
+        .then((response: AxiosResponse) => {
+          if ([200, 204].includes(response.status)) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Удалить участников из проекта.
+   *
+   * @param id Идентификатор проекта.
+   * @param member_ids
+   */
+  public deleteMembers (id: number, member_ids: number[]): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (member_ids.length === 1) {
+        // Если нужно удалить одного.
+        $axios.delete(`/projects/${id}/members/${member_ids[0]}`)
+          .then((response: AxiosResponse) => {
+            if (response.status === 200) {
+              return resolve()
+            }
+            throw new APIError(response.data)
+          }).catch(reject)
+      } else {
+        // Если нужно удалить одного и более.
+        $axios.delete(`/projects/${id}/members`, {
+          params: {
+            member_ids
+          }
+        }).then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+      }
     })
   }
 

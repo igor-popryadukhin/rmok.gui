@@ -817,25 +817,35 @@ const routes: RouteConfig[] = [
             path: 'new'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '../views/Administrator/Projects/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '@/views/Administrator/Projects/ProjectEdit.vue'),
             children: [
               {
-                component: () => import(/* webpackChunkName: "administrator-projects-edit-main" */ '../views/Administrator/Projects/VProjectMain.vue'),
+                component: () => import(/* webpackChunkName: "administrator-projects-edit-main" */ '@/views/Administrator/Projects/ProjectEditMain.vue'),
                 meta: {
                   layout: 'administrator',
                   middleware: [secure]
                 },
                 name: 'administrator_projects_main',
-                path: ''
+                path: 'main',
+                props: true
               },
               {
-                component: () => import(/* webpackChunkName: "administrator-projects-edit-members" */ '../views/Administrator/Projects/VProjectMembers.vue'),
+                component: () => import(/* webpackChunkName: "administrator-projects-edit-members" */ '@/views/Administrator/Projects/ProjectEditMembers.vue'),
                 meta: {
                   layout: 'administrator',
                   middleware: [secure]
                 },
                 name: 'administrator_projects_members',
                 path: 'members'
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-projects-edit-statuses" */ '@/views/Administrator/Projects/ProjectEditStatuses.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_projects_statuses',
+                path: 'statuses'
               }
             ],
             meta: {
@@ -843,7 +853,10 @@ const routes: RouteConfig[] = [
               middleware: [secure]
             },
             name: 'administrator_projects_edit',
-            path: ':project_id'
+            path: ':project_id',
+            redirect: {
+              name: 'administrator_projects_main'
+            }
           }
         ],
         component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/Layout.vue'),
