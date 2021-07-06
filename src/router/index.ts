@@ -703,7 +703,7 @@ const routes: RouteConfig[] = [
                 path: 'new'
               },
               {
-                component: () => import(/* webpackChunkName: "administrator-itegrationset-new" */ '../views/Administrator/Integrations/IntegrationSettings/Edit.vue'),
+                component: () => import(/* webpackChunkName: "administrator-itegrationset-edit" */ '../views/Administrator/Integrations/IntegrationSettings/Edit.vue'),
                 meta: {
                   layout: 'administrator',
                   middleware: [secure]
