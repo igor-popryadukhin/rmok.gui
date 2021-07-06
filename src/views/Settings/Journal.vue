@@ -380,11 +380,11 @@
                 </v-list-item>
                 <v-divider/>
               </template>
-              <template v-if="!Array.isArray(log.context)">
+              <template v-if="log.context">
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>
-                      {{ $tc('Ответ:') }}
+                      {{ $tc('Контекст:') }}
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
