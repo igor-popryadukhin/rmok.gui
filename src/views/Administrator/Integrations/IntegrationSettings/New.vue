@@ -293,7 +293,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             name: 'administrator_itegrationset_edit',
             params: { id }
           })
-          this.$toast.success(this.$tc(' added successfully'))
+          this.$toast.success(this.$tc('Profile added successfully'))
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
             e.errors.map((e: any) => {

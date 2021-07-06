@@ -328,7 +328,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               new ProjectIntegrationSettings()
                 .delete(+this.$route.params.id)
                 .then(() => {
-                  this.$toast.success(this.$tc(' was successfully deleted.'))
+                  this.$toast.success(this.$tc('profile_delete_successfully'))
                   this.$router.back()
                 }).catch((e: APIError) => {
                   this.$toast.error(e.message)
@@ -375,7 +375,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       new ProjectIntegrationSettings()
         .update(+this.$route.params.id, request)
         .then(() => {
-          this.$toast.success(this.$tc('Group updated successfully.'))
+          this.$toast.success(this.$tc('Profile updated successfully.'))
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
             e.errors.map((e: any) => {
