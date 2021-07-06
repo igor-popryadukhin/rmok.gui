@@ -13,7 +13,7 @@
         ></v-text-field>
         <v-color-picker
           v-model="dColor"
-          mode=""
+          mode="rgba"
           class="ma-2"
           hide-inputs
         ></v-color-picker>
@@ -46,34 +46,7 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  computed: {
-    ruleNotBlank () {
-      return (value: string) => !!value || this.$tc('This field should not be blank.')
-    }
-  },
-
-  data () {
-    return {
-      dColor: '#FF0000BB',
-      dName: '',
-      dialogVisible: false
-    }
-  },
-
-  methods: {
-    formReset () {
-      this.dName = ''
-    },
-
-    save (name: string, color = '#000000') {
-      if (!this.$refs.textFieldName.validate()) {
-        return
-      }
-      this.$emit('save-click', { color, name })
-      this.dialogVisible = false
-      this.formReset()
-    }
-  },
+  name: 'AppProjectStatusesDialogGroup',
 
   model: {
     event: 'change',
@@ -82,7 +55,7 @@ export default Vue.extend({
 
   props: {
     color: {
-      default: '#FF0000BB',
+      default: () => '#FF0000BB',
       type: String
     },
     name: {
@@ -90,6 +63,14 @@ export default Vue.extend({
       type: String
     },
     value: Boolean
+  },
+
+  data () {
+    return {
+      dColor: '#FF0000BB',
+      dName: '',
+      dialogVisible: false
+    }
   },
 
   watch: {
@@ -107,6 +88,27 @@ export default Vue.extend({
 
     value (val: boolean) {
       this.dialogVisible = val
+    }
+  },
+
+  computed: {
+    ruleNotBlank () {
+      return (value: string) => !!value || this.$tc('This field should not be blank.')
+    }
+  },
+
+  methods: {
+    formReset () {
+      this.dName = ''
+    },
+
+    save (name: string, color = '#000000') {
+      if (!this.$refs.textFieldName.validate()) {
+        return
+      }
+      this.$emit('save-click', { color, name })
+      this.dialogVisible = false
+      this.formReset()
     }
   }
 })

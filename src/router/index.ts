@@ -808,15 +808,6 @@ const routes: RouteConfig[] = [
             path: ''
           },
           {
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/New.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_projects_new',
-            path: 'new'
-          },
-          {
             component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '@/views/Administrator/Projects/ProjectEdit.vue'),
             children: [
               {

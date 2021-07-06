@@ -1,14 +1,16 @@
 <template>
   <div class="d-flex">
-    <slot
-      name="display"
-      :page="dPage"
-      :length="length"
-    >
-      <div class="mr-2" style="padding: 4px; font-size: 13px">
-        {{ dPage }} - {{ length }}
-      </div>
-    </slot>
+    <div class="align-self-center" style="font-size: 14px; margin-right: 10px">
+      <slot
+        name="display"
+        :page="dPage"
+        :length="length"
+      >
+        <div class="mr-2" style="padding: 4px; font-size: 13px">
+          {{ dPage }} - {{ length }}
+        </div>
+      </slot>
+    </div>
     <v-btn
       :disabled="dPage <= 1 || disabled"
       icon

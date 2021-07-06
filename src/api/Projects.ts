@@ -64,14 +64,15 @@ export default class Projects {
   }
 
   /**
-   * Add new project
+   * Создаёт новый проект.
+   *
    * @param data
    */
-  public add<DT = any, RT = any> (data: DT): Promise<APIError | RT> {
-    return new Promise<APIError | RT>((resolve, reject) => {
+  public create (data: { name: string }): Promise<{ id: number }> {
+    return new Promise<{ id: number }>((resolve, reject) => {
       $axios.post('/projects', data)
         .then((response: AxiosResponse) => {
-          if ([200, 201].includes(response.status)) {
+          if (response.status === 201) {
             return resolve(response.data)
           }
           throw new APIError(response.data)
@@ -229,6 +230,23 @@ export default class Projects {
         }
         reject(response.data)
       }).catch(reject)
+    })
+  }
+
+  /**
+   * Вернёт все статусы проекта.
+   *
+   * @param id Идентификатор проекта.
+   */
+  public getStatuses (id: number): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      $axios.get(`/projects/${id}/statuses`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          reject(response.data)
+        }).catch(reject)
     })
   }
 

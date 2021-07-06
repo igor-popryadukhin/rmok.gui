@@ -15,6 +15,20 @@
     </v-tabs>
 
     <div>
+      <v-fab-transition>
+        <v-btn
+          :color="$vuetify.theme.currentTheme.primary"
+          text
+          tile
+          outlined
+          absolute
+          top
+          right
+          @click="$emit('save')"
+        >
+          {{ $tc('Save') }}
+        </v-btn>
+      </v-fab-transition>
       <keep-alive exclude="ProjectEditMain">
         <router-view />
       </keep-alive>
@@ -27,7 +41,6 @@ import APIError from '@/api/classes/APIError'
 import { GroupInterface } from '@/api/Groups'
 import Projects, { ProjectMemberInterface } from '@/api/Projects'
 import Users, { UserInterface } from '@/api/Users'
-import { StatusInterface } from '@/components/ProjectStatus/Interfaces'
 import rules from '@/mixins/rules'
 import statusActions from '@/mixins/statusActions'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
@@ -216,7 +229,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               id: e.id,
               name: e.name,
               color: e.color,
-              children: e.children.map((e: StatusInterface) => ({
+              children: e.children.map((e: any) => ({
                 id: e.id,
                 name: e.name,
                 actions: e.actions

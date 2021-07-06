@@ -11,15 +11,15 @@
             <v-btn
               v-on="on"
               v-bind="attrs"
-              :to="{ name: 'administrator_projects_new' }"
               small
               tile
               text
+              @click="onBtnCreateProject"
             >
-              {{ $tc('Add') }}
+              {{ $tc('Create') }}
             </v-btn>
           </template>
-          <span>{{ $tc('Add new project') }}</span>
+          <span>{{ $tc('Create new project') }}</span>
         </v-tooltip>
       </template>
       <template v-slot:right>
@@ -223,6 +223,35 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }).finally(() => {
           this.projects.processLoading = false
         })
+    },
+
+    onBtnCreateProject () {
+      this.$dialog.prompt({
+        title: this.$tc('Creating a new project'),
+        text: this.$tc('Name of the new project'),
+        actions: {
+          false: {
+            text: this.$tc('Cancel')
+          },
+          true: {
+            text: this.$tc('Create')
+          }
+        }
+      }).then((value?: string) => {
+        if (value) {
+          new Projects()
+            .create({
+              name: value
+            }).then(({ id }) => {
+              this.$router.push({
+                name: 'administrator_projects_edit',
+                params: {
+                  project_id: id
+                }
+              })
+            })
+        }
+      })
     },
 
     onButtonRefreshClick () {

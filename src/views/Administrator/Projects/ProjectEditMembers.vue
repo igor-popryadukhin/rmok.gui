@@ -32,6 +32,27 @@
           {{ $tc('Cancel') }}
         </v-btn>
       </template>
+      <template v-slot:right>
+        <app-pagination
+          v-model="queryPage"
+          :length="membersPages"
+          :disabled="processLoadingData"
+        >
+          <template v-slot:display>
+            <app-count-up
+              :end-val="((queryPage * membersPerPage) - membersPerPage) + 1"
+            />
+            <span class="mx-1">—</span>
+            <app-count-up
+              :end-val="(queryPage * membersPerPage) >= membersTotal ? membersTotal : (queryPage * membersPerPage)"
+            />
+            <span class="mx-1">из</span>
+            <app-number-format
+              :value="membersTotal"
+            />
+          </template>
+        </app-pagination>
+      </template>
     </app-tools>
 
     <v-divider class="mt-5" />
@@ -68,7 +89,7 @@
                   small
                   text
                   tile
-                  @click="onDeleteMemberClick(item)"
+                  @click="onDeleteMemberClick(item, $event)"
                 >
                   {{ $tc('To exclude') }}
                 </v-btn>
@@ -77,12 +98,6 @@
             <v-divider :key="'v-divider-' + key"/>
           </template>
         </v-list>
-        <v-btn
-          text
-          block
-        >
-          Загрузить ещё
-        </v-btn>
       </template>
       <template v-else>
         <div class="d-flex justify-center">
@@ -98,7 +113,10 @@
 <script lang="ts">
 import Projects from '@/api/Projects'
 import { UserInterface } from '@/api/Users'
+import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import AppTools from '@/components/AppTools/AppTools.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue from 'vue'
@@ -109,25 +127,35 @@ interface IProps {
 }
 
 interface IData {
+  membersPerPage: number;
+  membersTotal: number;
+  membersForJoin: UserInterface[];
   [key: string]: unknown;
 }
 
 interface IComputed {
+  projectId: number;
+  queryPage: number;
   [key: string]: unknown;
 }
 
 interface IMethod {
+  fetchProjectMembers: () => void;
+  onSave: () => void;
   [key: string]: unknown;
 }
 
 export default Vue.extend<IData, IMethod, IComputed, IProps>({
   name: 'ProjectEditMembers',
 
-  components: { AppLoading, AppTools, SUsers },
+  components: { AppCountUp, AppNumberFormat, AppPagination, AppLoading, AppTools, SUsers },
 
   data () {
     return {
       memberHoverId: 0,
+      membersTotal: 0,
+      membersPerPage: 50,
+      membersPages: 1,
       members: [],
       membersForJoin: [],
       processLoadingData: false,
@@ -140,29 +168,42 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
     projectId (): number {
       return +this.$route.params.project_id
     },
-    /** Смещение для выборки подмножеств */
-    queryOffset: {
+
+    queryPage: {
       get () {
-        return +this.$route.query?.offset || 0
+        return +this.$route.query?.page || 1
       },
 
       set (val: number) {
-        this.$routerQuery.setQuery({ offset: val })
+        this.$routerQuery.setQuery({ page: val })
       }
+    }
+  },
+
+  watch: {
+    queryPage () {
+      this.fetchProjectMembers()
     }
   },
 
   mounted () {
     this.fetchProjectMembers()
+    this.$parent.$on('save', this.onSave)
   },
 
   methods: {
+    onSave () {
+      console.log('on save')
+    },
+
     fetchProjectMembers () {
       this.processLoadingData = true
       new Projects()
-        .getMembers(+this.$route.params.project_id, this.queryOffset, 50)
+        .getMembers(+this.$route.params.project_id, (this.queryPage * this.membersPerPage) - this.membersPerPage, this.membersPerPage)
         .then((response) => {
-          this.$data.members = response
+          this.$data.membersTotal = response.meta?.count
+          this.$data.membersPages = Math.ceil((response.meta?.count ?? 0) / this.$data.membersPerPage)
+          this.$data.members = response.data
         }).finally(() => (this.processLoadingData = false))
     },
 

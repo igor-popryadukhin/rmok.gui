@@ -53,9 +53,15 @@ export default Vue.extend({
         this.projectName = response.name
         this.projectScenario = response?.scenario || ''
       })
+
+    this.$parent.$on('save', this.onSave)
   },
 
   methods: {
+    onSave () {
+      console.log('on save')
+    },
+
     onProjectNameChange () {
       new Projects()
         .update(this.projectId, {
