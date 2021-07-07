@@ -1,6 +1,14 @@
 <template>
   <v-sheet>
 
+    <app-tools>
+      <template v-slot:left>
+        <h2 class="grey--text">
+          {{ $tc('Project participants') }}
+        </h2>
+      </template>
+    </app-tools>
+
     <s-users
       v-model="membersForJoin"
       :label="$tc('Доступные участники')"
@@ -188,14 +196,9 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
 
   mounted () {
     this.fetchProjectMembers()
-    this.$parent.$on('save', this.onSave)
   },
 
   methods: {
-    onSave () {
-      console.log('on save')
-    },
-
     fetchProjectMembers () {
       this.processLoadingData = true
       new Projects()
@@ -218,7 +221,7 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
     },
 
     /**
-     * Событие, генерируется при изменении нажатии на кнопку исключения участника из проекта
+     * Событие, генерируется при нажатии на кнопку исключения участника из проекта
      *
      * @param item
      */
