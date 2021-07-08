@@ -1,3 +1,5 @@
+import Status from '@/api/Schemas/Status'
+import StatusGroup from '@/api/Schemas/StatusGroup'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
@@ -236,22 +238,92 @@ export default class Projects {
   /**
    * Вернёт все статусы проекта.
    *
-   * @param id Идентификатор проекта.
+   * @param project_id
    */
-  public getStatuses (id: number): Promise<any> {
+  public getStatuses (project_id: number): Promise<any> {
     return new Promise<any>((resolve, reject) => {
-      $axios.get(`/projects/${id}/statuses`)
+      $axios.get(`/projects/${project_id}/statuses`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
 
   /**
-   * Получить текущий пользовательский проект по идентификатору пользователя
+   * Возвращает статус по идентификатору.
+   *
+   * @param id идентификатор статуса
+   */
+  public getStatusById (id: number): Promise<Status> {
+    return new Promise<Status>((resolve, reject) => {
+      $axios.get(`/projects/statuses/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Добавить статус в проект.
+   *
+   * @param data данные нового статуса.
+   */
+  public addStatus (data: { project_id: number; group_id: number; name: string; actions: any[] }): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      $axios.post('/projects/statuses', data)
+        .then((response: AxiosResponse) => {
+          if (response.status === 201) {
+            return resolve(response.data?.id)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Редактирует статус.
+   *
+   * @param id идентификатор статуса
+   * @param data данные для редактирования.
+   */
+  public editStatus (id: number, data: { name: string; actions: any[]}): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.put(`/projects/statuses/${id}`, data)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Удаляет статус.
+   *
+   * @param id идентификатор статуса
+   */
+  public deleteStatus (id: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.delete(`/projects/statuses/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Получить текущий пользовательский проект по идентификатору пользователя.
+   *
    * @param user_id
    */
   public getCurrentUserProjectByUserId (user_id: number): Promise<ProjectInterface> {
@@ -276,6 +348,75 @@ export default class Projects {
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
             return resolve(true)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Добавит новый статус в проект
+   *
+   * @param data
+   */
+  public addStatusGroup (data: { project_id: number; name: string, color: string }): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      $axios.post('/projects/statuses/groups', data)
+        .then((response: AxiosResponse) => {
+          if ([201].includes(response.status)) {
+            return resolve(response.data?.id)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Редактирует имя и цвет группы статуса.
+   *
+   * @param id
+   * @param data
+   */
+  public editStatusGroup (id: number, data: { name: string, color: string }): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.put(`/projects/statuses/groups/${id}`, data)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Получить группу статуса по его идентификатору.
+   *
+   * @param id идентификатор группы статуса.
+   */
+  public getStatusGroupById (id: number): Promise<StatusGroup> {
+    return new Promise<StatusGroup>((resolve, reject) => {
+      $axios.get(`/projects/statuses/groups/${id}`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Удалит группу статуса.
+   *
+   * @param id
+   */
+  public deleteStatusGroup (id: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.delete(`/projects/statuses/groups/${id}`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve()
           }
           throw new APIError(response.data)
         }).catch(reject)

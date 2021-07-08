@@ -1,9 +1,7 @@
 <template>
   <v-sheet>
     <v-tabs
-      v-model="tab"
-      class="mb-5"
-      height="35"
+      vertical
     >
       <v-tab
         v-for="(tab, tabKey) in tabs"
@@ -11,28 +9,15 @@
         :key="tabKey"
       >
         {{ $tc(tab.title) }}
+        <v-spacer/>
       </v-tab>
-    </v-tabs>
 
-    <div>
-      <v-fab-transition>
-        <v-btn
-          :color="$vuetify.theme.currentTheme.primary"
-          text
-          tile
-          outlined
-          absolute
-          top
-          right
-          @click="$emit('save')"
-        >
-          {{ $tc('Save') }}
-        </v-btn>
-      </v-fab-transition>
-      <keep-alive exclude="ProjectEditMain">
-        <router-view />
-      </keep-alive>
-    </div>
+      <v-tabs-items class="pa-2 v-tabs-items__border" style="min-height: 500px">
+        <keep-alive exclude="ProjectEditMain">
+          <router-view/>
+        </keep-alive>
+      </v-tabs-items>
+    </v-tabs>
   </v-sheet>
 </template>
 
@@ -215,40 +200,40 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
      * Происходит, когда нажали на кнопку "Сохранить"
      **/
     onBtnSaveClick () {
-      if (this.members.length === 0) {
-        return this.$toast.warning(this.$tc('The project requires one or more participants', 1))
-      }
-
-      this.buttonSave.loading = true
-      new Projects()
-        .update(+this.$route.params.project_id, {
-          name: this.projectName,
-          members: this.members.map((e: ProjectMemberInterface) => e.id),
-          statuses: this.statuses.map((e: any) => {
-            return {
-              id: e.id,
-              name: e.name,
-              color: e.color,
-              children: e.children.map((e: any) => ({
-                id: e.id,
-                name: e.name,
-                actions: e.actions
-              }))
-            }
-          }),
-          scenario: this.$refs.wysiwyg.getContent()
-        }).then(() => {
-          this.$toast.success(this.$tc('Project updated successfully!'))
-        }).catch((e: APIError) => {
-          if (Array.isArray(e.errors)) {
-            e.errors.forEach((e) => {
-              this.$toast.error(e.message)
-            })
-          }
-          this.$toast.error(e.message)
-        }).finally(() => {
-          this.buttonSave.loading = false
-        })
+      // if (this.members.length === 0) {
+      //   return this.$toast.warning(this.$tc('The project requires one or more participants', 1))
+      // }
+      //
+      // this.buttonSave.loading = true
+      // new Projects()
+      //   .update(+this.$route.params.project_id, {
+      //     name: this.projectName,
+      //     members: this.members.map((e: ProjectMemberInterface) => e.id),
+      //     statuses: this.statuses.map((e: any) => {
+      //       return {
+      //         id: e.id,
+      //         name: e.name,
+      //         color: e.color,
+      //         children: e.children.map((e: any) => ({
+      //           id: e.id,
+      //           name: e.name,
+      //           actions: e.actions
+      //         }))
+      //       }
+      //     }),
+      //     scenario: this.$refs.wysiwyg.getContent()
+      //   }).then(() => {
+      //     this.$toast.success(this.$tc('Project updated successfully!'))
+      //   }).catch((e: APIError) => {
+      //     if (Array.isArray(e.errors)) {
+      //       e.errors.forEach((e) => {
+      //         this.$toast.error(e.message)
+      //       })
+      //     }
+      //     this.$toast.error(e.message)
+      //   }).finally(() => {
+      //     this.buttonSave.loading = false
+      //   })
     },
 
     /**
@@ -298,20 +283,9 @@ const findAvailableUsers = debounce((params = {}, ctx: VInterface) => {
 }, 400)
 </script>
 
-<style scoped>
-.v-card {
-  display: flex !important;
-  flex-direction: column;
-}
-
-.v-card__text {
-  flex-grow: 1;
-  overflow: auto;
-}
-
-.empty-list {
-  height: 50px;
-  width: 100%;
-  background-color: #f5f3f5;
+<style lang="scss" scoped>
+.v-tabs-items__border {
+  border-left: 2px #3A70D4 solid;
+  margin-left: 5px;
 }
 </style>
