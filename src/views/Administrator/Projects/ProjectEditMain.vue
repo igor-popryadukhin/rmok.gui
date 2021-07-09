@@ -101,6 +101,8 @@ export default Vue.extend({
           scenario: this.projectScenario
         }).then(() => {
           this.$toast.success(this.$tc('Changes accepted'))
+        }).catch((e) => {
+          this.$toast.error(e.message)
         }).finally(() => (this.$data.processOfSaving = false))
     }
   }
