@@ -103,7 +103,7 @@ export default class Projects {
    * @param id идентификатор проекта.
    * @param data
    */
-  public update (id: number, data: { name?: string; scenario?: string; }): Promise<void> {
+  public edit (id: number, data: { name?: string; scenario?: string; }): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.patch(`/projects/${id}`, data)
         .then((response: AxiosResponse) => {
