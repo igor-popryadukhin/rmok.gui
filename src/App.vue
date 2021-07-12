@@ -103,7 +103,6 @@ export default Vue.extend({
     },
 
     ...mapGetters({
-      // Текущая временная зона.
       profile_role_use: 'profile/role_use',
       profile_tz: 'profile/tz' // Текущая временная зона.
     })
@@ -119,7 +118,9 @@ export default Vue.extend({
   created () {
     // Отложенная проверка корректности временной зоны пользователя.
     setTimeout(() => {
-      this.checkTimeZoneSet()
+      if (this.$route.name !== 'login') {
+        this.checkTimeZoneSet()
+      }
     }, 10000)
   },
 
