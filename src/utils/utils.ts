@@ -54,3 +54,12 @@ export function compareObjects (obj1: unknown, obj2: unknown): boolean {
   }
   return true
 }
+
+export function randomColor (): string {
+  const letters = '0123456789ABCDEF'
+  let color = '#'
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)]
+  }
+  return color
+}

@@ -1,7 +1,25 @@
+import APIError from '@/api/classes/APIError'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 
 export class Calls {
+  /**
+   * Позволяет оценить качество связи.
+   *
+   * @param request
+   */
+  public communicationQualityAssessment (request: {rating: number; comment: string; contact_id: number}): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      $axios.post('/calls/quality', request)
+        .then((response: AxiosResponse) => {
+          if (response.status === 201) {
+            resolve(response.data?.id || 0)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
   /**
    * Receives all calls
    */

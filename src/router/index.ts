@@ -276,6 +276,16 @@ const routes: RouteConfig[] = [
             path: 'profile'
           },
           {
+            component: () => import(/* webpackChunkName: "operator-settings-contacts" */ '../views/Settings/Contacts.vue'),
+            meta: {
+              icon: 'mdi-phone',
+              layout: 'operator-layout',
+              middleware: [secure]
+            },
+            name: 'operator_settings_contacts',
+            path: 'contacts'
+          },
+          {
             component: () => import(/* webpackChunkName: "operator-settings-journal" */ '../views/Settings/Journal.vue'),
             meta: {
               icon: 'mdi-history',

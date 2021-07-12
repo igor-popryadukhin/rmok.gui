@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-sheet>
     <v-tabs vertical>
       <v-tab
         v-for="(tab, index) in tabs"
@@ -29,11 +29,11 @@
         <v-spacer />
       </v-tab>
 
-      <v-tabs-items class="pa-2 border">
+      <v-tabs-items class="px-2 border">
         <router-view />
       </v-tabs-items>
     </v-tabs>
-  </div>
+  </v-sheet>
 </template>
 
 <script lang="ts">

@@ -1,21 +1,26 @@
 import { Account, ProfileInterface, Role } from '@/api/Account'
+import Country from '@/api/Schemas/Country'
+import UserInterface from '@/api/Schemas/UserInterface'
 
 interface StateInterface {
+  country?: Country;
   [key: string]: any;
 }
 
 export const profile = {
 
   actions: {
-    loadProfile ({ commit }: any): Promise<any> {
+    loadProfile ({ commit }: any): Promise<UserInterface> {
       return new Promise((resolve: any) => {
         new Account()
           .getProfile()
-          .then((profile) => {
-            commit('set', profile)
-            commit('setStatus', profile.status)
-            commit('permissions', profile.permissions)
-          }).finally(resolve)
+          .then((response) => {
+            commit('set', response)
+            commit('setStatus', response.status)
+            commit('permissions', response.permissions)
+
+            resolve(response)
+          })
       })
     }
   },
@@ -41,7 +46,8 @@ export const profile = {
     role_use (state: StateInterface): 'for_administration' | 'for_calls' { return state.role.use },
     status (state: StateInterface) { return state.status },
     tz (state: StateInterface): string { return state.tz },
-    userpic (state: StateInterface): string { return state.userpic }
+    userpic (state: StateInterface): string { return state.userpic },
+    country (state: StateInterface): string { return state.country }
   },
 
   mutations: {
@@ -63,6 +69,7 @@ export const profile = {
       state.userpic = payload.userpic
       state.created_at = payload.created_at
       state.organization = payload.organization
+      state.country = payload.country
       state.tz = payload.tz
       /* eslint-enable */
     },
@@ -94,6 +101,7 @@ export const profile = {
       },
       userpic: null,
       status: '',
+      country: null,
       organization: {
         address: '',
         description: '',
