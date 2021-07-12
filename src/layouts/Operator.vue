@@ -411,135 +411,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
   mixins: [breadcrumbs, jssip],
 
-  computed: {
-    ...mapGetters({
-      task_pending_count: 'tasks/pending_count',
-      project_current: 'project/current',
-      project_available: 'project/available'
-    }),
-
-    avatar () {
-      const first: string = this.$store.getters['profile/first_name'] || ''
-      const last: string = this.$store.getters['profile/last_name'] || ''
-      return first.charAt(0) + last.charAt(0)
-    },
-
-    mainMenu () {
-      return [
-        {
-          attrs: {
-            text: true,
-            to: { name: 'operator_leads' },
-            value: this.$tc('Leads')
-          },
-          title: this.$tc('Leads')
-        },
-        {
-          attrs: {
-            text: true,
-            to: { name: 'operator_contacts_list' }
-          },
-          title: this.$tc('Contacts')
-        },
-        {
-          attrs: {
-            disabled: false,
-            link: true,
-            to: { name: 'operator_tasks_list' }
-          },
-          badge: () => { // Может быть как функция возвращающая объект, так и обычный объект
-            let visible = false
-            const attrs: any = {
-              color: 'red',
-              content: this.task_pending_count,
-              inline: true
-            }
-
-            if (this.task_pending_count > 0) {
-              visible = true
-            }
-
-            return {
-              attrs,
-              visible
-            }
-          },
-          icon: '',
-          title: this.$tc('Tasks')
-        },
-        {
-          attrs: {
-            link: true
-          },
-          children: [
-            {
-              attrs: {
-                to: {
-                  name: 'operator_statistics_recent_calls'
-                }
-              },
-              icon: '',
-              title: 'Recent call statistics',
-              visible: true
-            },
-            {
-              attrs: {
-                to: {
-                  name: 'operator_statistics_all_calls'
-                }
-              },
-              icon: '',
-              title: 'Statistics for all calls',
-              visible: true
-            }
-          ],
-          icon: 'mdi-chart-arc',
-          title: 'Statistic'
-        }
-        // {
-        //   title: this.$tc('Help'),
-        //   attrs: {
-        //     text: true,
-        //     disabled: true,
-        //     to: { name: 'operator_help' }
-        //   }
-        // }
-      ]
-    },
-
-    // Ширина окна диалога для выбора проекта, зависит от размера экрана
-    projectDialogWidth () {
-      switch (this.$vuetify.breakpoint.name) {
-        case 'xs':
-          return 100 + '%'
-        case 'sm':
-          return 100 + '%'
-        case 'md':
-          return 60 + '%'
-        case 'lg':
-          return 40 + '%'
-        default:
-          return 100 + '%'
-      }
-    }
-  },
-
-  created () {
-    this.$store.dispatch('tasks/pending_count')
-    this.$store.subscribe(
-      ({ payload, type }) => {
-        if (type === 'project/set') {
-          if (payload.statuses) {
-            if (payload.statuses.length === 0) {
-              // TODO: TASKS FETCH DATA
-            }
-          }
-        }
-      }
-    )
-    this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
-  },
-
   data (): IData {
     return {
       accountMenuItems: [
@@ -718,6 +589,135 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
     setTimeout(() => {
       this.loadProject()
     }, 3000)
+  },
+
+  computed: {
+    ...mapGetters({
+      task_pending_count: 'tasks/pending_count',
+      project_current: 'project/current',
+      project_available: 'project/available'
+    }),
+
+    avatar () {
+      const first: string = this.$store.getters['profile/first_name'] || ''
+      const last: string = this.$store.getters['profile/last_name'] || ''
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    mainMenu () {
+      return [
+        {
+          attrs: {
+            text: true,
+            to: { name: 'operator_leads' },
+            value: this.$tc('Leads')
+          },
+          title: this.$tc('Leads')
+        },
+        {
+          attrs: {
+            text: true,
+            to: { name: 'operator_contacts_list' }
+          },
+          title: this.$tc('Contacts')
+        },
+        {
+          attrs: {
+            disabled: false,
+            link: true,
+            to: { name: 'operator_tasks_list' }
+          },
+          badge: () => { // Может быть как функция возвращающая объект, так и обычный объект
+            let visible = false
+            const attrs: any = {
+              color: 'red',
+              content: this.task_pending_count,
+              inline: true
+            }
+
+            if (this.task_pending_count > 0) {
+              visible = true
+            }
+
+            return {
+              attrs,
+              visible
+            }
+          },
+          icon: '',
+          title: this.$tc('Tasks')
+        },
+        {
+          attrs: {
+            link: true
+          },
+          children: [
+            {
+              attrs: {
+                to: {
+                  name: 'operator_statistics_recent_calls'
+                }
+              },
+              icon: '',
+              title: 'Recent call statistics',
+              visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'operator_statistics_all_calls'
+                }
+              },
+              icon: '',
+              title: 'Statistics for all calls',
+              visible: true
+            }
+          ],
+          icon: 'mdi-chart-arc',
+          title: 'Statistic'
+        }
+        // {
+        //   title: this.$tc('Help'),
+        //   attrs: {
+        //     text: true,
+        //     disabled: true,
+        //     to: { name: 'operator_help' }
+        //   }
+        // }
+      ]
+    },
+
+    // Ширина окна диалога для выбора проекта, зависит от размера экрана
+    projectDialogWidth () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs':
+          return 100 + '%'
+        case 'sm':
+          return 100 + '%'
+        case 'md':
+          return 60 + '%'
+        case 'lg':
+          return 40 + '%'
+        default:
+          return 100 + '%'
+      }
+    }
+  },
+
+  created () {
+    this.$store.dispatch('tasks/pending_count')
+    this.$store.subscribe(
+      ({ payload, type }) => {
+        if (type === 'project/set') {
+          if (payload.statuses) {
+            if (payload.statuses.length === 0) {
+              // TODO: TASKS FETCH DATA
+            }
+          }
+        }
+      }
+    )
+    this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
   },
 
   methods: {
