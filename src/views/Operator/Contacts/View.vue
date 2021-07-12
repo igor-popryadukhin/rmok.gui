@@ -1,7 +1,6 @@
 <template>
   <v-row>
     <v-col
-      :style="leftColumnStyleComputed"
       cols="12"
       md="4"
       lg="3"
@@ -65,7 +64,6 @@
           class="px-0"
         >
           <v-list
-            :style="leftColumnStyleComputed"
             tile
           >
             <!-- Номера телефонов -->
@@ -348,7 +346,7 @@
         flat
         tile
       >
-        <v-card-actions class="px-4">
+        <v-card-actions class="px-0">
           <v-tabs
             v-model="currentTabIndex"
             height="35"
@@ -367,11 +365,11 @@
           </v-tabs>
         </v-card-actions>
 
-        <v-card-text class="py-0 ">
+        <v-card-text class="pa-0 ">
           <v-divider/>
         </v-card-text>
 
-        <v-card-text class="py-1 flex-grow-1 overflow-y-auto">
+        <v-card-text class="px-0 py-1 flex-grow-1 overflow-y-auto">
           <component
             :ref="tabs[currentTabIndex].ref"
             :is="tabs[currentTabIndex].component"
@@ -381,41 +379,49 @@
         <!-- Статусы -->
 
         <v-fade-transition mode="in-out">
-          <v-card-text v-show="status.visible" class="py-0">
+          <v-card-text v-show="status.visible" class="pa-0" style="border-top: solid rgb(58, 112, 212);">
             <s-contact-statuses
               v-model="status.status_id"
               min-height="200"
               @on-close="status.visible = false"
             />
-
-            <v-divider/>
-
-            <v-textarea
-              v-model="status.comment"
-              :placeholder="$t('Comment')"
-              rows="4"
-            >
-              <template v-slot:prepend-inner>
-                <v-icon>
-                  mdi-comment
-                </v-icon>
-              </template>
-              <template v-slot:append>
-                <v-btn
-                  icon
-                  text
-                  disabled
-                >
+            <div class="pt-5">
+              <v-textarea
+                v-model="status.comment"
+                :placeholder="$t('Comment')"
+                rows="4"
+                outlined
+              >
+                <template v-slot:prepend-inner>
                   <v-icon>
-                    mdi-microphone
+                    mdi-comment
                   </v-icon>
-                </v-btn>
-              </template>
-            </v-textarea>
+                </template>
+                <template v-slot:append>
+                  <v-btn
+                    icon
+                    text
+                    disabled
+                  >
+                    <v-icon>
+                      mdi-microphone
+                    </v-icon>
+                  </v-btn>
+                </template>
+              </v-textarea>
+            </div>
           </v-card-text>
         </v-fade-transition>
 
-        <v-footer color="white" class="pa-4">
+        <v-card-actions class="pa-4 px-0" style="border-top: #3a70d4 solid">
+          <v-btn
+            color="primary"
+            text
+            tile
+            small
+          >
+            {{ $tc('Rate the quality of the connection') }}
+          </v-btn>
           <v-spacer/>
           <v-btn-toggle
             color="primary"
@@ -431,6 +437,7 @@
                   :disabled="!status.visible"
                   color="primary"
                   text
+                  small
                   @click="onSaveClick(status)"
                 >
                   {{ $t('Save') }}
@@ -447,6 +454,7 @@
                   :disabled="!status.visible"
                   text
                   icon
+                  small
                 >
                   <v-icon color="primary">mdi-arrow-down-drop-circle-outline</v-icon>
                 </v-btn>
@@ -461,7 +469,7 @@
               </v-list>
             </v-menu>
           </v-btn-toggle>
-        </v-footer>
+        </v-card-actions>
       </v-card>
     </v-col>
   </v-row>
@@ -611,7 +619,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         status_id: 0,
         contact_id: 0,
         contact_history_id: 0,
-        visible: false,
+        visible: true,
         comment: ''
       } as IStatus,
       contact: {
@@ -658,7 +666,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     leftColumnStyleComputed () {
-      return {}
+      return {
+        'border-right': '#3a70d4 solid',
+        'padding-right': '8px'
+      }
     },
 
     sessionStopwatch () {
@@ -1015,6 +1026,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
 </script>
 
 <style lang="scss">
+.card-left {
+  border-right: #3a70d4 solid 4px
+}
 
 .tool-bar div {
   padding-left: 0;
