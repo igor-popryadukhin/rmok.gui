@@ -1,3 +1,5 @@
+import Country from '@/api/Schemas/Country'
+
 export default interface UserInterface {
   id: number;
   first_name: string;
@@ -12,4 +14,5 @@ export default interface UserInterface {
   project?: ProjectInterface;
   projects?: ProjectInterface[];
   pbx_config?: PBXInterface;
+  country?: Country;
 }
