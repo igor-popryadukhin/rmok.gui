@@ -1,4 +1,5 @@
 import APIError from '@/api/classes/APIError'
+import Country from '@/api/Schemas/Country'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { OrganizationInterface } from '@/api/Organizations'
@@ -26,6 +27,7 @@ export interface ProfileInterface {
   tz?: boolean;
   permissions: PermissionGroupInterface[];
   organization?: OrganizationInterface;
+  country?: Country;
   /* eslint-enable */
 }
 
@@ -65,7 +67,7 @@ export class Account {
   }
 
   /**
-   * Update profile details
+   * Редактирует информацию текущего профиля.
    */
   public updateProfile (data: any): Promise<any> {
     return new Promise((resolve, reject): Promise<any> | any => {

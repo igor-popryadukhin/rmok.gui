@@ -379,7 +379,7 @@
         <!-- Статусы -->
 
         <v-fade-transition mode="in-out">
-          <v-card-text v-show="status.visible" class="pa-0" style="border-top: solid rgb(58, 112, 212);">
+          <v-card-text v-show="status.visible" class="pa-0" style="border-top: solid rgb(58,112,212);">
             <s-contact-statuses
               v-model="status.status_id"
               min-height="200"
@@ -391,6 +391,7 @@
                 :placeholder="$t('Comment')"
                 rows="4"
                 outlined
+                hide-details
               >
                 <template v-slot:prepend-inner>
                   <v-icon>
@@ -410,18 +411,22 @@
                 </template>
               </v-textarea>
             </div>
+            <div class="py-2">
+              <v-btn
+                v-if="btnRateQualityAvailable"
+                :color="$vuetify.theme.currentTheme.primary"
+                text
+                tile
+                small
+                @click="onBtnRateQualityClick"
+              >
+                {{ $tc('Rate the quality of the connection') }}
+              </v-btn>
+            </div>
           </v-card-text>
         </v-fade-transition>
 
         <v-card-actions class="pa-4 px-0" style="border-top: #3a70d4 solid">
-          <v-btn
-            color="primary"
-            text
-            tile
-            small
-          >
-            {{ $tc('Rate the quality of the connection') }}
-          </v-btn>
           <v-spacer/>
           <v-btn-toggle
             color="primary"
@@ -476,6 +481,7 @@
 </template>
 
 <script lang="ts">
+import { Calls } from '@/api/Calls'
 import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
@@ -488,6 +494,8 @@ import {
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import Tasks, { TaskInterface } from '@/api/Tasks'
 import { UserInterface } from '@/api/Users'
+import AppCardCommunicationQualityAssessment
+  from '@/components/AppCardCommunicationQualityAssessment/AppCardCommunicationQualityAssessment.vue'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInterface'
 import lvovich from '@/mixins/lvovich'
@@ -619,7 +627,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         status_id: 0,
         contact_id: 0,
         contact_history_id: 0,
-        visible: true,
+        visible: false,
         comment: ''
       } as IStatus,
       contact: {
@@ -646,12 +654,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
         tags: [] as ContactTagInterface[],
         tz: 'Europe/Moscow'
       },
-      clientTimeTick: 0
+      clientTimeTick: 0,
+      btnRateQualityAvailable: true
       /* eslint-enable */
     }
   },
 
   computed: {
+    /**
+     * Просматриваемый идентификатор контакта.
+     */
+    contactId (): number {
+      return +this.$route.params.contact_id
+    },
+
     avatar () {
       const first: string = this.contact?.first_name || ''
       const last: string = this.contact?.last_name || ''
@@ -660,7 +676,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     /**
      * Делает кнопку позвонить недоступной, если не выполнены условия
-     **/
+     */
     callBtnIsDisabled () {
       return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
     },
@@ -940,6 +956,33 @@ export default (Vue as VueConstructor<VInterface>).extend({
         responsibleDisabled: true,
         waitForResult: true,
         width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%'
+      })
+    },
+
+    /**
+     * Событие, генерируется при нажатии на кнопку "оценить качество связи"
+     */
+    async onBtnRateQualityClick () {
+      const dialog = await this.$dialog.show(AppCardCommunicationQualityAssessment, {
+        waitForResult: false,
+        persistent: true,
+        showClose: false,
+        handler: (btn: 'ok' | 'cancel', data: {comment: string; rating: number}) => {
+          if (btn === 'ok' && data?.rating) {
+            new Calls()
+              .communicationQualityAssessment({
+                contact_id: this.contactId,
+                comment: data.comment,
+                rating: data.rating
+              })
+              .then(() => {
+                this.btnRateQualityAvailable = false
+                this.$toast.success(this.$tc('Thank you for your feedback!'))
+              })
+          }
+
+          dialog.close()
+        }
       })
     },
 
