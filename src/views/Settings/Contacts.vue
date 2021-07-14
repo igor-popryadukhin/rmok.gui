@@ -31,11 +31,13 @@
           v-model="countryId"
           :items="countries"
           :label="$tc('Country')"
+          :error-messages="countryMessageError"
           item-text="name"
           item-value="id"
           flat
           dense
           outlined
+          @focus="countryMessageError = null"
         >
           <template v-slot:item="{ item }">
             <v-list-item-content>
@@ -80,13 +82,14 @@ export default Vue.extend({
       // Идентификатор страны
       countryId: 0,
       saveProcess: false,
-      countries: []
+      countries: [],
+      countryMessageError: null
     }
   },
 
   computed: {
     ...mapGetters({
-      profile_country: 'profile/country'
+      profileCountry: 'profile/country'
     }),
 
     colsDisplay () {
@@ -101,7 +104,7 @@ export default Vue.extend({
     },
 
     isModified () {
-      if (this.profile_country?.id !== this.countryId) {
+      if (this.profileCountry?.id !== this.countryId) {
         return true
       }
 
@@ -110,13 +113,19 @@ export default Vue.extend({
   },
 
   created () {
-    this.countryId = this.profile_country?.id || 0
+    this.countryId = this.profileCountry?.id || 0
 
     new Database()
       .getCountries()
       .then((response) => {
-        this.countries = response
+        this.$data.countries = response
       })
+  },
+
+  mounted () {
+    if (!this.profileCountry?.id) {
+      this.$data.countryMessageError = this.$tc('Choose your country')
+    }
   },
 
   methods: {
