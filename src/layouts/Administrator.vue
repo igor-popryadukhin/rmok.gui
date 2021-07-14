@@ -216,6 +216,7 @@
 </template>
 
 <script lang="ts">
+import { Calls } from '@/api/Calls'
 import jssip from '@/mixins/jssip'
 import Vue from 'vue'
 
@@ -428,6 +429,16 @@ export default Vue.extend({
               },
               icon: 'mdi-translate',
               title: 'Regional settings',
+              visible: true
+            },
+            {
+              attrs: {},
+              on: {
+                click: () => {
+                  new Calls().communicationQualityDownload()
+                }
+              },
+              title: 'Скачать результаты опроса качества связи',
               visible: true
             }
           ],
