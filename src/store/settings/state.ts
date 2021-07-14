@@ -31,6 +31,7 @@ export interface SettingsStateInterface {
   audio_player: AudioPlayerInterface;
   date_time_format: DateTimeFormatInterface;
   tooltip: TooltipInterface;
+  pc_config: RTCConfiguration;
 }
 
 function state (): SettingsStateInterface {
@@ -54,6 +55,14 @@ function state (): SettingsStateInterface {
     tooltip: {
       openDelay: 1200,
       color: 'primary'
+    },
+    pc_config: {
+      bundlePolicy: undefined,
+      certificates: [],
+      iceCandidatePoolSize: 0,
+      iceServers: [],
+      iceTransportPolicy: 'all',
+      rtcpMuxPolicy: undefined
     }
   }
 }

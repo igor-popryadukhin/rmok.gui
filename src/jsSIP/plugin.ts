@@ -170,6 +170,8 @@ export class JsSIP {
     audioElementForSound.currentTime = 0.0
   }
 
+  private _pcConfig?: RTCConfiguration | undefined
+
   private _processConnectingAndDisconnecting: boolean
 
   private _uuid = ''
@@ -195,6 +197,13 @@ export class JsSIP {
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
+    if (!config.pcConfig) {
+      this._pcConfig = {
+        rtcpMuxPolicy: undefined,
+        iceServers: []
+      }
+    }
+    this._pcConfig = config.pcConfig
     this._version = jssipVersion()
     this._processConnectingAndDisconnecting = false
     this._timer = new Timer()
@@ -228,21 +237,7 @@ export class JsSIP {
       extraHeaders: [
         'X-Call-Filename: ' + this._uuid
       ],
-      pcConfig: {
-        // @ts-ignore
-        hackStripTcp: true, // Важно для хрома, чтоб он не тупил при звонке
-        // Важно для хрома, чтоб работал multiplexing. Эту штуку обязательно нужно включить на астере.
-        rtcpMuxPolicy: undefined,
-        // iceCandidatePoolSize: 2,
-        iceServers: [
-          // {
-          //   urls: ['stun:188.93.210.187:3478', 'turn:188.93.210.187:3478'],
-          //   credentialType: 'password',
-          //   username: 'rmok',
-          //   credential: 'rmok'
-          // }
-        ]
-      },
+      pcConfig: this._pcConfig,
       mediaConstraints: {
         audio: true, // Поддерживаем только аудио
         video: false
@@ -276,6 +271,22 @@ export class JsSIP {
    */
   public setConfiguration (url: string, config: JsSPConfiguration) {
     this.unInitializeListeners()
+
+    if (!config.pcConfig) {
+      this._pcConfig = {
+        rtcpMuxPolicy: undefined,
+        iceServers: [
+          {
+            username: '',
+            credential: '',
+            credentialType: 'password',
+            urls: ''
+          }
+        ]
+      }
+    }
+    this._pcConfig = config.pcConfig
+
     // @ts-ignore
     this._ua = null
     this._ua = JsSIPFactory.create(url, {

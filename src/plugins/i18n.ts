@@ -18,6 +18,13 @@ const i18n = new VueI18n({
      */
     ru (choice: number, choicesLength: number) {
       // this === VueI18n instance, so the locale property also exists here
+      if (choice === 1 && choicesLength === 2) {
+        return 0
+      }
+
+      if (choice === 2 && choicesLength === 2) {
+        return 1
+      }
 
       // 12 вариантов
       if (choicesLength === 11) {

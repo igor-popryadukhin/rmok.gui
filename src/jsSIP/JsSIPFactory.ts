@@ -6,6 +6,7 @@ export interface JsSPConfiguration {
   password?: string;
   display_name?: string | undefined;
   realm?: string;
+  pcConfig?: RTCConfiguration;
 }
 
 /**

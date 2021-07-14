@@ -38,6 +38,7 @@ Vue.component('operator-layout', () => import(/* webpackPreload: true */ './layo
 Vue.component('clean', CleanLayout)
 
 Vue.component('app-divider', () => import(/* webpackPreload: true */ './components/AppDivider/AppDivider.vue'))
+Vue.component('app-tools', () => import(/* webpackPreload: true */ './components/AppTools/AppTools.vue'))
 
 Vue.config.productionTip = false
 

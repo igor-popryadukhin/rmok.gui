@@ -13,6 +13,7 @@ import { UnRegisteredEvent } from 'jssip/lib/UA'
 import Vue from 'vue'
 import { POSITION } from 'vue-toastification'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
+import { mapGetters } from 'vuex'
 import SipErrors from '@/api/SipErrors'
 
 const jssip = Vue.extend({
@@ -43,6 +44,12 @@ const jssip = Vue.extend({
       incomingDialogVisible: false,
       toastId: 0 as string | number
     }
+  },
+
+  computed: {
+    ...mapGetters({
+      pcConfig: 'settings/pc_config'
+    })
   },
 
   methods: {
@@ -99,7 +106,15 @@ const jssip = Vue.extend({
             this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
               password: config.password,
               realm: config.server,
-              uri: `sip:${config.login}@${config.server}`
+              uri: `sip:${config.login}@${config.server}`,
+              pcConfig: {
+                bundlePolicy: this.pcConfig.bundlePolicy,
+                certificates: this.pcConfig.certificates,
+                iceCandidatePoolSize: this.pcConfig.iceCandidatePoolSize,
+                iceServers: this.pcConfig.iceServers,
+                iceTransportPolicy: this.pcConfig.iceTransportPolicy,
+                rtcpMuxPolicy: this.pcConfig.rtcpMuxPolicy
+              }
             })
 
             // Далее инициализация слушателей
