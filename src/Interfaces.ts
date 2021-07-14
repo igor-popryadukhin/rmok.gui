@@ -24,6 +24,7 @@ export interface NotificationInterface {
   message: string;
   message2?: string;
   context?: Record<string, any>;
+  /** @deprecated */
   click?: (e: NotificationInterface, i: number) => void;
   actions?: NotificationActionInterface[];
 }

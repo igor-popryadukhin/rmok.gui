@@ -136,7 +136,8 @@
         <v-card
           v-if="notifications.length > 0"
           class="overflow-y-auto"
-          max-width="600"
+          max-width="800"
+          min-width="500"
           max-height="500"
           flat
           tile
@@ -151,7 +152,7 @@
                   :style="item.style || {}"
                   link
                 >
-                  <v-list-item-avatar>
+                  <v-list-item-avatar v-if="item.icon">
                     <v-icon :color="item.color">
                       {{ item.icon }}
                     </v-icon>
@@ -589,10 +590,31 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
     setTimeout(() => {
       this.loadProject()
     }, 3000)
+
+    // Проверка установки страны
+    setTimeout(() => {
+      if (!this.profile_country?.id) {
+        this.$data.notifications.unshift({
+          title: 'Укажите страну проживания',
+          message: 'Для повышения качества обслуживания, пожалуйста укажите вашу страну проживания.',
+          message2: 'Нажмите на данное сообщение для редактирования вашего профиля.',
+          color: 'primary',
+          icon: 'mdi-message-alert-outline',
+          click: (item: NotificationInterface, index: number) => {
+            this.$router.push({
+              name: 'operator_settings_contacts'
+            }).finally(() => {
+              this.$data.notifications.splice(index, 1)
+            })
+          }
+        })
+      }
+    }, 10000)
   },
 
   computed: {
     ...mapGetters({
+      profile_country: 'profile/country',
       task_pending_count: 'tasks/pending_count',
       project_current: 'project/current',
       project_available: 'project/available'
