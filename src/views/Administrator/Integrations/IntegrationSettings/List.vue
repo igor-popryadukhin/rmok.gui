@@ -50,6 +50,26 @@
                         {{ item.name }}
                       </v-list-item-title>
                     </v-list-item-content>
+                    <v-list-item-action
+                      style="margin: 0"
+                      class="d-flex d-inline-flex"
+                    >
+                      <v-tooltip>
+                        <template v-slot:activator="{ attrs, on}">
+                          <v-switch
+                            v-model="item.active"
+                            v-bind="attrs"
+                            v-on="on"
+                            :loading="switchChangeProcess && item.id === integrationHoverId"
+                            dense
+                            @change="onSwitchChange(item.id, item.active)"
+                          />
+                        </template>
+                        <span>
+                  {{ $tc('Активность') }}
+                </span>
+                      </v-tooltip>
+                    </v-list-item-action>
                     <v-list-item-action class="ma-0">
                       <v-btn
                         v-if="dataTableGroups.itemHoverId === item.id"
@@ -92,6 +112,7 @@ import ProjectIntegrationSettings, {
   ProfileFindQueryInterface,
   ProfileInterface
 } from '@/api/ProjectIntegrationSettings'
+import ContactsIntegrations from '@/api/ContactsIntegrations'
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: { AppLoading, AppTools },
@@ -110,6 +131,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
   data () {
     return {
+      switchChangeProcess: false,
+      integrationHoverI: 0,
       buttonAdd: {
         disabled: false
       },
@@ -155,7 +178,25 @@ export default (Vue as VueConstructor<VInterface>).extend({
     onButtonRefreshClick () {
       this.fetchGroups()
     },
-
+    /**
+     * Событие, которое генерируется при изменении состояния активности интеграции.
+     *
+     * @param id
+     * @param state
+     */
+    onSwitchChange (id: number, state: boolean) {
+      this.$data.switchChangeProcess = true
+      new ProjectIntegrationSettings()
+        .setActive(id, state)
+        .then(() => {
+          this.$toast.success(this.$tc('Changes accepted'))
+        })
+        .catch((e: Error) => {
+          this.$toast.error(e.message)
+        }).finally(() => {
+          this.$data.switchChangeProcess = false
+        })
+    },
     onDeleteItem (id: number) {
       this.$dialog.confirm({
         text: this.$tc('confirm_profile_deletion'),
