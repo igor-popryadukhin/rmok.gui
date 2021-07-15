@@ -13,6 +13,7 @@ import { UnRegisteredEvent } from 'jssip/lib/UA'
 import Vue from 'vue'
 import { POSITION } from 'vue-toastification'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
+import SipErrors from '@/api/SipErrors'
 
 const jssip = Vue.extend({
 
@@ -282,6 +283,18 @@ const jssip = Vue.extend({
               if (this.$isDebug && event.message) {
                 console.log(event.message)
               }
+              // Отправка логов c ошибками SIP на сервер
+              if (event) {
+                try {
+                  new SipErrors().addLog({
+                    message: event.cause,
+                    context: JSON.stringify(event)
+                  }).then()
+                } catch (e) {
+                  console.error(e)
+                }
+              }
+
               this.$toast.error(`Event: ${event.cause}`, { timeout: 3000 })
             }
 

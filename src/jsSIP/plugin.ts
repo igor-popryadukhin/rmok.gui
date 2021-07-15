@@ -233,7 +233,15 @@ export class JsSIP {
         hackStripTcp: true, // Важно для хрома, чтоб он не тупил при звонке
         // Важно для хрома, чтоб работал multiplexing. Эту штуку обязательно нужно включить на астере.
         rtcpMuxPolicy: undefined,
-        iceServers: []
+        // iceCandidatePoolSize: 2,
+        iceServers: [
+          // {
+          //   urls: ['stun:188.93.210.187:3478', 'turn:188.93.210.187:3478'],
+          //   credentialType: 'password',
+          //   username: 'rmok',
+          //   credential: 'rmok'
+          // }
+        ]
       },
       mediaConstraints: {
         audio: true, // Поддерживаем только аудио

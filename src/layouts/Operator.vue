@@ -136,7 +136,8 @@
         <v-card
           v-if="notifications.length > 0"
           class="overflow-y-auto"
-          max-width="600"
+          max-width="800"
+          min-width="500"
           max-height="500"
           flat
           tile
@@ -151,7 +152,7 @@
                   :style="item.style || {}"
                   link
                 >
-                  <v-list-item-avatar>
+                  <v-list-item-avatar v-if="item.icon">
                     <v-icon :color="item.color">
                       {{ item.icon }}
                     </v-icon>
@@ -411,135 +412,6 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
 
   mixins: [breadcrumbs, jssip],
 
-  computed: {
-    ...mapGetters({
-      task_pending_count: 'tasks/pending_count',
-      project_current: 'project/current',
-      project_available: 'project/available'
-    }),
-
-    avatar () {
-      const first: string = this.$store.getters['profile/first_name'] || ''
-      const last: string = this.$store.getters['profile/last_name'] || ''
-      return first.charAt(0) + last.charAt(0)
-    },
-
-    mainMenu () {
-      return [
-        {
-          attrs: {
-            text: true,
-            to: { name: 'operator_leads' },
-            value: this.$tc('Leads')
-          },
-          title: this.$tc('Leads')
-        },
-        {
-          attrs: {
-            text: true,
-            to: { name: 'operator_contacts_list' }
-          },
-          title: this.$tc('Contacts')
-        },
-        {
-          attrs: {
-            disabled: false,
-            link: true,
-            to: { name: 'operator_tasks_list' }
-          },
-          badge: () => { // Может быть как функция возвращающая объект, так и обычный объект
-            let visible = false
-            const attrs: any = {
-              color: 'red',
-              content: this.task_pending_count,
-              inline: true
-            }
-
-            if (this.task_pending_count > 0) {
-              visible = true
-            }
-
-            return {
-              attrs,
-              visible
-            }
-          },
-          icon: '',
-          title: this.$tc('Tasks')
-        },
-        {
-          attrs: {
-            link: true
-          },
-          children: [
-            {
-              attrs: {
-                to: {
-                  name: 'operator_statistics_recent_calls'
-                }
-              },
-              icon: '',
-              title: 'Recent call statistics',
-              visible: true
-            },
-            {
-              attrs: {
-                to: {
-                  name: 'operator_statistics_all_calls'
-                }
-              },
-              icon: '',
-              title: 'Statistics for all calls',
-              visible: true
-            }
-          ],
-          icon: 'mdi-chart-arc',
-          title: 'Statistic'
-        }
-        // {
-        //   title: this.$tc('Help'),
-        //   attrs: {
-        //     text: true,
-        //     disabled: true,
-        //     to: { name: 'operator_help' }
-        //   }
-        // }
-      ]
-    },
-
-    // Ширина окна диалога для выбора проекта, зависит от размера экрана
-    projectDialogWidth () {
-      switch (this.$vuetify.breakpoint.name) {
-        case 'xs':
-          return 100 + '%'
-        case 'sm':
-          return 100 + '%'
-        case 'md':
-          return 60 + '%'
-        case 'lg':
-          return 40 + '%'
-        default:
-          return 100 + '%'
-      }
-    }
-  },
-
-  created () {
-    this.$store.dispatch('tasks/pending_count')
-    this.$store.subscribe(
-      ({ payload, type }) => {
-        if (type === 'project/set') {
-          if (payload.statuses) {
-            if (payload.statuses.length === 0) {
-              // TODO: TASKS FETCH DATA
-            }
-          }
-        }
-      }
-    )
-    this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
-  },
-
   data (): IData {
     return {
       accountMenuItems: [
@@ -718,6 +590,156 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
     setTimeout(() => {
       this.loadProject()
     }, 3000)
+
+    // Проверка установки страны
+    setTimeout(() => {
+      if (!this.profile_country?.id) {
+        this.$data.notifications.unshift({
+          title: 'Укажите страну проживания',
+          message: 'Для повышения качества обслуживания, пожалуйста укажите вашу страну проживания.',
+          message2: 'Нажмите на данное сообщение для редактирования вашего профиля.',
+          color: 'primary',
+          icon: 'mdi-message-alert-outline',
+          click: (item: NotificationInterface, index: number) => {
+            this.$router.push({
+              name: 'operator_settings_contacts'
+            }).finally(() => {
+              this.$data.notifications.splice(index, 1)
+            })
+          }
+        })
+      }
+    }, 10000)
+  },
+
+  computed: {
+    ...mapGetters({
+      profile_country: 'profile/country',
+      task_pending_count: 'tasks/pending_count',
+      project_current: 'project/current',
+      project_available: 'project/available'
+    }),
+
+    avatar () {
+      const first: string = this.$store.getters['profile/first_name'] || ''
+      const last: string = this.$store.getters['profile/last_name'] || ''
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    mainMenu () {
+      return [
+        {
+          attrs: {
+            text: true,
+            to: { name: 'operator_leads' },
+            value: this.$tc('Leads')
+          },
+          title: this.$tc('Leads')
+        },
+        {
+          attrs: {
+            text: true,
+            to: { name: 'operator_contacts_list' }
+          },
+          title: this.$tc('Contacts')
+        },
+        {
+          attrs: {
+            disabled: false,
+            link: true,
+            to: { name: 'operator_tasks_list' }
+          },
+          badge: () => { // Может быть как функция возвращающая объект, так и обычный объект
+            let visible = false
+            const attrs: any = {
+              color: 'red',
+              content: this.task_pending_count,
+              inline: true
+            }
+
+            if (this.task_pending_count > 0) {
+              visible = true
+            }
+
+            return {
+              attrs,
+              visible
+            }
+          },
+          icon: '',
+          title: this.$tc('Tasks')
+        },
+        {
+          attrs: {
+            link: true
+          },
+          children: [
+            {
+              attrs: {
+                to: {
+                  name: 'operator_statistics_recent_calls'
+                }
+              },
+              icon: '',
+              title: 'Recent call statistics',
+              visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'operator_statistics_all_calls'
+                }
+              },
+              icon: '',
+              title: 'Statistics for all calls',
+              visible: true
+            }
+          ],
+          icon: 'mdi-chart-arc',
+          title: 'Statistic'
+        }
+        // {
+        //   title: this.$tc('Help'),
+        //   attrs: {
+        //     text: true,
+        //     disabled: true,
+        //     to: { name: 'operator_help' }
+        //   }
+        // }
+      ]
+    },
+
+    // Ширина окна диалога для выбора проекта, зависит от размера экрана
+    projectDialogWidth () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs':
+          return 100 + '%'
+        case 'sm':
+          return 100 + '%'
+        case 'md':
+          return 60 + '%'
+        case 'lg':
+          return 40 + '%'
+        default:
+          return 100 + '%'
+      }
+    }
+  },
+
+  created () {
+    this.$store.dispatch('tasks/pending_count')
+    this.$store.subscribe(
+      ({ payload, type }) => {
+        if (type === 'project/set') {
+          if (payload.statuses) {
+            if (payload.statuses.length === 0) {
+              // TODO: TASKS FETCH DATA
+            }
+          }
+        }
+      }
+    )
+    this.$store.dispatch('database/statuses') // Загрузить статусы текущего проекта пользователя
   },
 
   methods: {

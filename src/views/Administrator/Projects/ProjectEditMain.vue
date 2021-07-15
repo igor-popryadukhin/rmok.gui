@@ -96,11 +96,13 @@ export default Vue.extend({
     onBtnSaveClick () {
       this.$data.processOfSaving = true
       new Projects()
-        .update(this.projectId, {
+        .edit(this.projectId, {
           name: this.projectName,
           scenario: this.projectScenario
         }).then(() => {
           this.$toast.success(this.$tc('Changes accepted'))
+        }).catch((e) => {
+          this.$toast.error(e.message)
         }).finally(() => (this.$data.processOfSaving = false))
     }
   }

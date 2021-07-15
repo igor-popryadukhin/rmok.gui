@@ -166,16 +166,6 @@ export default Vue.extend({
   },
 
   methods: {
-    onBtnSaveClick () {
-      this.$data.processOfSaving = true
-      new Projects()
-        .update(this.projectId, {
-          statuses: []
-        }).then(() => {
-          this.$toast.success(this.$tc('Changes accepted'))
-        }).finally(() => (this.$data.processOfSaving = false))
-    },
-
     /**
      * Событие, генерируется при нажатии на кнопку "добавить группу"
      */

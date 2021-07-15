@@ -53,45 +53,10 @@ import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { mapGetters } from 'vuex'
 
 export default Vue.extend({
-  beforeCreate () {
-    this.$store.dispatch('profile/loadProfile')
-      .finally(() => {
-        this.$root.$emit('root-jssip-initialize')
-      })
-  },
 
   components: {
     AppAudioPlayer,
     VApp
-  },
-
-  computed: {
-    layout () {
-      return this.$route.meta.layout || 'clean'
-    },
-
-    audioPlayerVolume: {
-      get () {
-        return this.$store.getters['settings/audio_player_volume']
-      },
-
-      set (value: number) {
-        this.$store.commit('settings/audio_player_volume', value)
-      }
-    },
-
-    ...mapGetters({
-      // Текущая временная зона.
-      profile_role_use: 'profile/role_use',
-      profile_tz: 'profile/tz' // Текущая временная зона.
-    })
-  },
-
-  created () {
-    // Отложенная проверка корректности временной зоны пользователя.
-    setTimeout(() => {
-      this.checkTimeZoneSet()
-    }, 10000)
   },
 
   data () {
@@ -120,6 +85,43 @@ export default Vue.extend({
       screenDevVisible: false,
       toastId: 0 as number | string
     }
+  },
+
+  computed: {
+    layout () {
+      return this.$route.meta.layout || 'clean'
+    },
+
+    audioPlayerVolume: {
+      get () {
+        return this.$store.getters['settings/audio_player_volume']
+      },
+
+      set (value: number) {
+        this.$store.commit('settings/audio_player_volume', value)
+      }
+    },
+
+    ...mapGetters({
+      profile_role_use: 'profile/role_use',
+      profile_tz: 'profile/tz' // Текущая временная зона.
+    })
+  },
+
+  beforeCreate () {
+    this.$store.dispatch('profile/loadProfile')
+      .finally(() => {
+        this.$root.$emit('root-jssip-initialize')
+      })
+  },
+
+  created () {
+    // Отложенная проверка корректности временной зоны пользователя.
+    setTimeout(() => {
+      if (this.$route.name !== 'login') {
+        this.checkTimeZoneSet()
+      }
+    }, 10000)
   },
 
   methods: {

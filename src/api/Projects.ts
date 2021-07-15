@@ -98,16 +98,17 @@ export default class Projects {
   }
 
   /**
-   * Add new project
-   * @param id
+   * Редактирует параметры проекта.
+   *
+   * @param id идентификатор проекта.
    * @param data
    */
-  public update<DT = any> (id: number, data: DT): Promise<ProjectResponseItemsInterface> {
-    return new Promise<ProjectResponseItemsInterface>((resolve, reject) => {
-      $axios.post(`/projects/${id}`, data)
+  public edit (id: number, data: { name?: string; scenario?: string; }): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.patch(`/projects/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve()
           }
           throw new APIError(response.data)
         }).catch(reject)
