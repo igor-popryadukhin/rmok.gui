@@ -51,8 +51,7 @@
                       </v-list-item-title>
                     </v-list-item-content>
                     <v-list-item-action
-                      style="margin: 0"
-                      class="d-flex d-inline-flex"
+                      class="d-flex d-inline-flex ma-0 mr-2"
                     >
                       <v-tooltip>
                         <template v-slot:activator="{ attrs, on}">
@@ -60,8 +59,9 @@
                             v-model="item.active"
                             v-bind="attrs"
                             v-on="on"
-                            :loading="switchChangeProcess && item.id === integrationHoverId"
+                            :loading="switchChangeProcess"
                             dense
+                            :ripple="false"
                             @change="onSwitchChange(item.id, item.active)"
                           />
                         </template>
@@ -70,9 +70,8 @@
                 </span>
                       </v-tooltip>
                     </v-list-item-action>
-                    <v-list-item-action class="ma-0">
+                    <v-list-item-action class="ma-0 mr-2">
                       <v-btn
-                        v-if="dataTableGroups.itemHoverId === item.id"
                         :to="{ name: 'administrator_itegrationset_edit', params: { id: item.id } }"
                         small
                         icon
