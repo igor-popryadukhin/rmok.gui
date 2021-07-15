@@ -413,8 +413,8 @@
             </div>
             <div class="py-2">
               <v-btn
-                v-if="btnRateQualityAvailable"
                 :color="$vuetify.theme.currentTheme.primary"
+                :disabled="!(btnRateQualityAvailable && countryAvailable)"
                 text
                 tile
                 small
@@ -715,6 +715,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     contactProject () {
       return this.contact?.project?.name || false
+    },
+
+    countryAvailable (): boolean {
+      return Boolean(this.$store.getters['profile/country'])
     }
   },
 
