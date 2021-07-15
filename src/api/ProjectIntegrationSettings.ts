@@ -28,6 +28,7 @@ export interface ProfileInterface {
   name: string;
   external_project_id: string;
   organization?: OrganizationInterface | null;
+  active: boolean;
 }
 
 export interface ProfileFindQueryInterface {
@@ -130,6 +131,25 @@ export class ProjectIntegrationSettings {
             return resolve(response.data)
           }
           reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   *
+   * @param id
+   * @param state
+   * @throws APIError|Error
+   */
+  public setActive (id: number, state: boolean): Promise<void> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/configurations/projectintegration/${id}/active/${state ? 1 : 0}`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            resolve(response.data)
+          } else {
+            throw new APIError(response.data)
+          }
         }).catch(reject)
     })
   }
