@@ -75,6 +75,53 @@ import { debounce } from 'vuetify/src/util/helpers'
 import Projects, { ProjectInterface } from '@/api/Projects'
 
 export default Vue.extend({
+  name: 'SProjectsAutocomplete',
+
+  props: {
+    clearable: {
+      default: () => false,
+      type: Boolean
+    },
+    dense: {
+      default: () => false,
+      type: Boolean
+    },
+    disabled: {
+      default: () => false,
+      type: Boolean
+    },
+    errorMessages: {
+      default: () => [],
+      type: Array
+    },
+    label: {
+      default: () => '',
+      type: String
+    },
+    outlined: {
+      default: () => false,
+      type: Boolean
+    },
+    params: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: () => null,
+      type: Object
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    }
+  },
+
   created () {
     this.dParams = Object.assign({}, this.params)
   },
@@ -150,51 +197,6 @@ export default Vue.extend({
   model: {
     event: 'change',
     prop: 'value'
-  },
-
-  props: {
-    clearable: {
-      default: () => false,
-      type: Boolean
-    },
-    dense: {
-      default: () => false,
-      type: Boolean
-    },
-    disabled: {
-      default: () => false,
-      type: Boolean
-    },
-    errorMessages: {
-      default: () => [],
-      type: Array
-    },
-    label: {
-      default: () => '',
-      type: String
-    },
-    outlined: {
-      default: () => false,
-      type: Boolean
-    },
-    params: {
-      default: () => {
-        return {}
-      },
-      type: Object
-    },
-    rules: {
-      default: () => [],
-      type: Array
-    },
-    value: {
-      default: () => null,
-      type: Object
-    },
-    visibleIcon: {
-      default: false,
-      type: Boolean
-    }
   },
 
   watch: {

@@ -89,20 +89,19 @@
         xs="12"
       >
         <v-combobox
-          v-model="filter.status.selected"
-          :items="filter.status.items"
+          v-model="filter.status"
+          :items="filter_statuses"
           :label="$tc('Фильтр по результату')"
-          item-text="status_result"
-          item-value="status_id"
-          cache-items
+          item-text="name"
+          item-value="id"
+          item-color="color"
           return-object
           clearable
           dense
           outlined
-          v-on="filter.status.on"
         >
           <template v-slot:item="{ item }">
-            <v-list-item-title>{{ item.status_result }}</v-list-item-title>
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
           </template>
         </v-combobox>
@@ -186,7 +185,7 @@
       <v-col
         cols="12"
         md="4"
-        lg="6"
+        lg="4"
       >
         <div class="d-flex flex-column fill-height" style="min-height: 320px">
           <div class="mb-5">
@@ -214,10 +213,10 @@
         </div>
       </v-col>
       <v-col
-        class="d-flex justify-center"
+        class="d-flex align-center justify-center"
         cols="12"
-        md="6"
-        lg="6"
+        md="8"
+        lg="8"
       >
         <div
           v-if="pieSeries.length === 0"
@@ -229,7 +228,7 @@
           v-else
         >
           <apexchart
-            width="600"
+            width="800"
             type="pie"
             :options="apexchartOptions"
             :series="pieSeries"
@@ -346,6 +345,8 @@
           :loading="historyProcessLoading"
           :no-data-text="$tc('No data for the selected period')"
           :item-class="vDataTableItemClass"
+          :sort-by.sync="dataTableHistory.sortBy"
+          :sort-desc.sync="dataTableHistory.sortDesc"
           locale="ru"
           item-key="id"
           show-select
@@ -354,8 +355,6 @@
           hide-default-footer
           multi-sort
           @pagination="onPaginationChange"
-          :sort-by.sync="dataTableHistory.sortBy"
-          :sort-desc.sync="dataTableHistory.sortDesc"
         >
 
           <!-- slots item -->
@@ -395,7 +394,14 @@
           </template>
           <template slot="item.creator" slot-scope="{ item }">
             <template v-if="item.creator">
-              {{ item.creator.first_name }} {{ item.creator.last_name }}
+              <template v-if="item.creator.is_deleted">
+                <span style="text-decoration: line-through">
+                  {{ item.creator.first_name }} {{ item.creator.last_name }}
+                </span>
+              </template>
+              <template v-else>
+                {{ item.creator.first_name }} {{ item.creator.last_name }}
+              </template>
             </template>
             <template v-else>
               —
@@ -405,6 +411,7 @@
             <v-btn
               v-if="!item.isPlaying"
               :disabled="item.audio_recording_id === null"
+              :loading="item.process_download"
               icon
               small
               @click="onPlayClick(item)"
@@ -490,6 +497,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   computed: {
+    // Статусы используются дл фильтрации результатов
+    filter_statuses: {
+      get () {
+        return this.$store.getters['filter/statuses']
+      },
+
+      set (val: any[]) {
+        this.$store.commit('filter/statuses', val)
+      }
+    },
+
     apexchartOptions (): any {
       return {
         chart: {
@@ -497,16 +515,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
             enabled: false // Off animations
           },
           events: {
-            legendClick: (chartContext: any, seriesIndex: any, config: any) => {
-              const scope: any = this.pieData[seriesIndex]
+            // Происходит при клике по легенде диаграммы
+            legendClick: (chartContext: any, seriesIndex: any) => {
+              const scope: unknown & { status_id: number } = this.pieData[seriesIndex]
               if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.filter.status.selected = this.pieData[seriesIndex]
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                  .finally(() => {
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                    this.fetchTotalCallCount()
-                  })
+                const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === +scope.status_id)
+                if (index > -1) {
+                  this.filter.status = this.filter_statuses[index]
+                }
               } else {
                 throw new Error('В объекте scope отсутствует свойство status_id')
               }
@@ -516,9 +532,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         colors: this.pieColors,
         labels: this.pieLabels,
         legend: {
-          formatter: function (seriesName: string, opts: any) {
-            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
-          },
+          // formatter: function (seriesName: string, opts: any) {
+          //   return [opts.w.globals.series[opts.seriesIndex], ' - ', seriesName]
+          // },
           markers: {
             onClick: (chart: any, seriesIndex: any, opts: any) => {
               console.log('series- ' + seriesIndex + "'s marker was clicked")
@@ -529,8 +545,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
       }
     },
+
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
       return JSON.parse(json)
     }
   },
@@ -626,32 +643,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       filter: {
         // Дата создания контакта
         contact_created_at: [] as string[] | number[],
-        date_period: null as unknown & string,
+        date_period: null as unknown as string,
         tags: [],
-        status: {
-          items: [],
-          on: {
-            input: (scope: any) => {
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery
-                  .setQuery({ status_id: scope.status_id })
-                  .finally(() => {
-                    this.fetchTotalCallCount()
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
-              } else {
-                this.$routerQuery.removeQuery(['status_id'])
-                  .finally(() => {
-                    this.fetchTotalCallCount()
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
-              }
-            }
-          },
-          selected: null
-        },
+        status: null,
         // Дата или диапазон дат
         user: [] as unknown & UserInterface[],
         groups: [] as unknown & GroupInterface[],
@@ -687,57 +681,50 @@ export default (Vue as VueConstructor<VInterface>).extend({
         this.fetchTotalCallCount()
         this.fetchDataHistory()
         this.fetchDataPie()
+      }, 350),
+
+      // Получить данные для таблицы
+      fetchDataHistory: debounce(() => {
+        this.historyProcessLoading = true
+        let offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
+
+        if (offset < 0) {
+          offset = 0
+        }
+
+        const params: any = Object.assign({
+          count: this.dataTableHistory.itemsPerPage,
+          offset
+        }, this.paramFilters()) // Общие параметры подъехали
+
+        // Формирую параметры сортировки
+        this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
+          params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
+        })
+
+        if (this.$routerQuery.hasQuery('project_id')) {
+          params.project_id = this.$routerQuery.getQuery('project_id')
+        }
+
+        if (this.$routerQuery.hasQuery('group_ids')) {
+          params.group_ids = this.$routerQuery.getQuery('group_ids')
+        }
+        new Statistics()
+          .history<any, any>(params)
+          .then((response) => {
+            this.dataTableHistory.totalCount = response?.meta?.count || 0
+            this.dataTableHistory.pages = Math.ceil((response?.meta?.count || 0) / this.dataTableHistory.itemsPerPage)
+            this.dataTableHistory.items = response.data.map((e: any) => {
+              e.isPlaying = false
+              e.process_download = false
+              return e
+            }) || []
+          }).finally(() => (this.historyProcessLoading = false))
       }, 350)
     }
   },
 
   methods: {
-
-    // Загрузить историю
-    fetchDataHistory () {
-      this.historyProcessLoading = true
-      let offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
-
-      if (offset < 0) {
-        offset = 0
-      }
-
-      const params: any = Object.assign({
-        count: this.dataTableHistory.itemsPerPage,
-        offset
-      }, this.paramFilters()) // Общие параметры подъехали
-
-      // Формирую параметры сортировки
-      this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
-        params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
-      })
-
-      if (this.$routerQuery.hasQuery('project_id')) {
-        params.project_id = this.$routerQuery.getQuery<number>('project_id')
-      }
-
-      if (this.$routerQuery.hasQuery('group_ids')) {
-        params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
-      }
-      new Statistics()
-        .history<any, any>(params)
-        .then((response) => {
-          this.dataTableHistory.totalCount = response?.meta?.count || 0
-          this.dataTableHistory.pages = Math.ceil(response?.meta?.count || 0 / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.data.map((e: any) => {
-            e.isPlaying = false
-            return e
-          }) || []
-          this.filter.status.items = response?.meta?.statuses || []
-
-          if (this.$routerQuery.hasQuery('status_id')) {
-            const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
-            if (index > -1) {
-              this.filter.status.selected = this.filter.status.items[index]
-            }
-          }
-        }).finally(() => (this.historyProcessLoading = false))
-    },
 
     // Загрузить график
     fetchDataPie () {
@@ -759,6 +746,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.pieColors = response.pie_chart.colors || []
 
           this.pieData = response.pie_data || []
+
+          // Статусы для фильтра
+          this.filter_statuses = response.statuses || []
         }).finally(() => (this.processPieLoading = false))
     },
 
@@ -775,6 +765,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       const debounceDelay = 350 // Задержка, избавит от дребезга
       // Фильтрация по пользователям
       this.$watch('filter.user', (newVal: unknown & UserInterface) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             creator_id: newVal.id
@@ -792,11 +783,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по датам
       this.$watch('filter.date_period', (newVal: unknown & string) => {
+        this.dataTableHistory.page = 1
         this.$routerQuery.setQuery({ date_period: newVal }).finally(this.fetchAllData)
       })
 
       // Фильтрация по дате создания контактов
       this.$watch('filter.contact_created_at', (val: number[]) => {
+        this.dataTableHistory.page = 1
         this.$routerQuery.setQuery({
           contact_created_at: val.join(',')
         }).then(() => {
@@ -806,19 +799,35 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по проектам
       this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             project_id: newVal.id
           }).then(this.fetchAllData)
         } else {
+          this.filter.status = null // Очистить фильтр по статусам
           this.$routerQuery.removeQuery([
             'project_id'
           ]).then(this.fetchAllData)
         }
       })
 
+      // Фильтрация по проектам
+      this.$watch('filter.status', (val: unknown & { id: number; name: string }) => {
+        if (val) {
+          this.$routerQuery.setQuery({
+            status_id: val.id
+          }).then(this.fetchAllData)
+        } else {
+          this.$routerQuery.removeQuery([
+            'status_id'
+          ]).then(this.fetchAllData)
+        }
+      })
+
       // Фильтрация по группам
       this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
@@ -832,6 +841,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Фильтрация по тегам
       this.$watch('filter.tags', (newVal: number[]) => {
+        this.dataTableHistory.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
             tag_ids: newVal.join(',')
@@ -977,7 +987,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('status_id')) {
-        params.status_id = this.$routerQuery.getQuery<number>('status_id')
+        params.status_id = this.$routerQuery.getQuery('status_id')
       }
 
       if (this.$routerQuery.hasQuery('date_period')) {
@@ -985,23 +995,23 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('creator_id')) {
-        params.creator_id = this.$routerQuery.getQuery<number>('creator_id')
+        params.creator_id = this.$routerQuery.getQuery('creator_id')
       }
 
       if (this.$routerQuery.hasQuery('contact_created_at')) {
-        params.contact_created_at = this.$routerQuery.getQuery<number>('contact_created_at')
+        params.contact_created_at = this.$routerQuery.getQuery('contact_created_at')
       }
 
       if (this.$routerQuery.hasQuery('project_id')) {
-        params.project_id = this.$routerQuery.getQuery<number>('project_id')
+        params.project_id = this.$routerQuery.getQuery('project_id')
       }
 
       if (this.$routerQuery.hasQuery('group_ids')) {
-        params.group_ids = this.$routerQuery.getQuery<string>('group_ids')
+        params.group_ids = this.$routerQuery.getQuery('group_ids')
       }
 
       if (this.$routerQuery.hasQuery('tag_ids')) {
-        params.tag_ids = this.$routerQuery.getQuery<string>('tag_ids')
+        params.tag_ids = this.$routerQuery.getQuery('tag_ids')
       }
 
       return params
@@ -1012,6 +1022,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
+      item.process_download = true
       new ContactHistory()
         .getAudioFile(item.id)
         .then((response: any) => {
@@ -1021,6 +1032,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
           })
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).finally(() => {
+          item.process_download = false
         })
     }
   },
@@ -1043,24 +1056,32 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('creator_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery<number>('creator_id')))
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
     }
 
     if (this.$routerQuery.hasQuery('project_id')) {
-      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery<number>('project_id')))
+      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      const index = (this.filter_statuses as { id: number }[]).findIndex(value => value.id === +this.$routerQuery.getQuery('status_id'))
+
+      if (index > -1) {
+        this.filter.status = this.filter_statuses[index]
+      }
     }
 
     if (this.$routerQuery.hasQuery('group_ids')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery<string>('group_ids').split(',')))
+      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids').split(',')))
     }
 
     if (this.$routerQuery.hasQuery('tag_ids')) {
-      const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+      const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
       this.filter.tags = tag_ids.map(value => +value)
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery<string>('contact_created_at')
+      const dateRange = this.$routerQuery.getQuery('contact_created_at')
       this.filter.contact_created_at = dateRange
         .split(',', 2)
         .map((e: string) => +e)
@@ -1094,7 +1115,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
         for (let i = 0; i < Math.min(sortBy.length, sortDesc.length); i++) {
           sort.push({ sort_by: sortBy[i], sort_desc: sortDesc[i] })
         }
-        console.log('sss sort', sort)
         if (sort.length > 0) {
           // Преобразовываю в JSON и сохраняю в строку браузера
           this.$routerQuery.setQuery({

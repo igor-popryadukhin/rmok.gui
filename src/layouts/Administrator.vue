@@ -50,8 +50,9 @@
             <template v-for="(mainMenuItemChildren, mainMenuItemChildrenIndex) in mainMenuItem.children">
               <v-list-item
                 v-if="mainMenuItemChildren.visible"
-                :key="`child-${mainMenuItemChildrenIndex}`"
                 v-bind="mainMenuItemChildren.attrs"
+                v-on="mainMenuItemChildren.on"
+                :key="`child-${mainMenuItemChildrenIndex}`"
                 link
               >
                 <v-tooltip
@@ -144,10 +145,10 @@
       >
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-            class="mr-1 ml-1"
-            icon
             v-bind="attrs"
             v-on="on"
+            class="mr-1 ml-1"
+            icon
           >
             <v-icon>mdi-bell</v-icon>
           </v-btn>
@@ -159,10 +160,10 @@
       <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
-            icon
-            large
             v-bind="attrs"
             v-on="on"
+            icon
+            large
           >
             <v-avatar
               class="avatar"
@@ -215,6 +216,7 @@
 </template>
 
 <script lang="ts">
+import { Calls } from '@/api/Calls'
 import jssip from '@/mixins/jssip'
 import Vue from 'vue'
 
@@ -347,9 +349,37 @@ export default Vue.extend({
           title: 'Statistic',
           visible: this.$permission.isGranted(['section.statistics'])
         },
+        {
+          active: false,
+          children: [
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_integrations_contacts'
+                }
+              },
+              icon: '',
+              title: 'Integration of contacts',
+              visible: true
+            },
+            {
+              attrs: {
+                to: {
+                  name: 'administrator_itegrationset_list'
+                }
+              },
+              icon: 'mdi-arrow-decision-outline',
+              title: 'Project Integration Settings',
+              visible: true
+            }
+          ],
+          icon: 'mdi-api',
+          title: 'Integrations',
+          visible: true
+        },
         { divider: true },
         {
-          active: true,
+          active: false,
           children: [
             {
               attrs: {
@@ -399,6 +429,16 @@ export default Vue.extend({
               },
               icon: 'mdi-translate',
               title: 'Regional settings',
+              visible: true
+            },
+            {
+              attrs: {},
+              on: {
+                click: () => {
+                  new Calls().communicationQualityDownload()
+                }
+              },
+              title: 'Скачать результаты опроса качества связи',
               visible: true
             }
           ],

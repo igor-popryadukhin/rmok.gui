@@ -143,6 +143,7 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
+  name: 'AppProjectStatusesDialogStatus',
   data (): IData {
     return {
 

@@ -1,6 +1,16 @@
 <template>
-  <div>
-    <slot name="display"></slot>
+  <div class="d-flex">
+    <div class="align-self-center" style="font-size: 14px; margin-right: 10px">
+      <slot
+        name="display"
+        :page="dPage"
+        :length="length"
+      >
+        <div class="mr-2" style="padding: 4px; font-size: 13px">
+          {{ dPage }} - {{ length }}
+        </div>
+      </slot>
+    </div>
     <v-btn
       :disabled="dPage <= 1 || disabled"
       icon
@@ -22,18 +32,12 @@
 
 <script>
 export default {
-  data () {
-    return {
-      dPage: this.value
-    }
-  },
+  name: 'AppPagination',
 
   model: {
     event: 'change',
     prop: 'value'
   },
-
-  name: 'AppPagination',
 
   props: {
 
@@ -51,6 +55,12 @@ export default {
       default: 0,
       required: false,
       type: Number
+    }
+  },
+
+  data () {
+    return {
+      dPage: this.value
     }
   },
 

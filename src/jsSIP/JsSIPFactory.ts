@@ -6,6 +6,7 @@ export interface JsSPConfiguration {
   password?: string;
   display_name?: string | undefined;
   realm?: string;
+  pcConfig?: RTCConfiguration;
 }
 
 /**
@@ -25,7 +26,7 @@ export class JsSIPFactory {
       password: configuration.password,
       display_name: configuration.display_name,
       register: true,
-      realm: configuration.realm || '',
+      realm: configuration.realm || 'asterisk',
       contact_uri: configuration.uri,
       session_timers_refresh_method: 'invite',
       session_timers: true

@@ -13,6 +13,8 @@ import { UnRegisteredEvent } from 'jssip/lib/UA'
 import Vue from 'vue'
 import { POSITION } from 'vue-toastification'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
+import { mapGetters } from 'vuex'
+import SipErrors from '@/api/SipErrors'
 
 const jssip = Vue.extend({
 
@@ -44,6 +46,12 @@ const jssip = Vue.extend({
     }
   },
 
+  computed: {
+    ...mapGetters({
+      pcConfig: 'settings/pc_config'
+    })
+  },
+
   methods: {
 
     // Телефония
@@ -51,6 +59,8 @@ const jssip = Vue.extend({
       if (this.$isDebug) {
         console.log('%c%s', 'color: blue;', 'Инициализация RTC')
       }
+
+      let audio_record_id: string | null = null
 
       /**
        * Инициализация JSSIP
@@ -96,17 +106,24 @@ const jssip = Vue.extend({
             this.$jsSIP.setConfiguration(`wss://${config.server}:${config.port}/ws`, {
               password: config.password,
               realm: config.server,
-              uri: `sip:${config.login}@${config.server}`
+              uri: `sip:${config.login}@${config.server}`,
+              pcConfig: {
+                bundlePolicy: this.pcConfig.bundlePolicy,
+                certificates: this.pcConfig.certificates,
+                iceCandidatePoolSize: this.pcConfig.iceCandidatePoolSize,
+                iceServers: this.pcConfig.iceServers,
+                iceTransportPolicy: this.pcConfig.iceTransportPolicy,
+                rtcpMuxPolicy: this.pcConfig.rtcpMuxPolicy
+              }
             })
 
             // Далее инициализация слушателей
             // Глобальные обработчики
             this.$jsSIP.onSessionConnecting = (self: JsSIP, session: RTCSession, event: ConnectingEvent) => {
-              // Слушатель событий в рамках одной сессии
-              // TODO: Реализовать обработчик
-              // session.on('failed', (event: EndEvent) => {
-              //   ctx.$toast.error(event.cause)
-              // })
+              if (event.request.hasHeader('Call-ID')) {
+                audio_record_id = event.request.getHeader('Call-ID')
+              }
+
               if (this.$isDebug) {
                 console.group('JsSIP: Начало сессии')
                 console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
@@ -213,33 +230,13 @@ const jssip = Vue.extend({
              * @param event
              */
             this.$jsSIP.onSessionEnded = (self: JsSIP, session: RTCSession, event: EndEvent) => {
-              let audioRecordId = null
-              if (session.direction === 'incoming') {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                if ('X-Call-Filename' in session._request.headers) {
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  if (session._request.headers.length > 0) {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    if (session._request.headers['X-Call-Filename'][0].raw) {
-                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                      // @ts-ignore
-                      audioRecordId = session._request.headers['X-Call-Filename'][0].raw
-                    }
-                  }
-                }
-              } else {
-                audioRecordId = self.uuid
-              }
-
               // Прячу тост
               if (session.direction === 'incoming') {
                 this.$toast.dismiss(session.id)
               }
 
               const historyData = {
+                audio_record_id,
                 cause: event.cause,
                 direction: session.direction,
                 originator: event.originator,
@@ -247,11 +244,6 @@ const jssip = Vue.extend({
                 session_start_time: self.sessionStartTime.getTime() / 1000,
                 type: 'call'
               } as any
-
-              // Если есть идентификатор файла записи
-              if (audioRecordId) {
-                historyData.audio_record_id = audioRecordId
-              }
 
               // Если есть время разговора
               if ((session.start_time) && (session.end_time)) {
@@ -286,7 +278,6 @@ const jssip = Vue.extend({
                 console.group('JsSIP: Завершение сессии')
                 console.log('%c%s', 'color: green;', session.direction === 'outgoing' ? 'Исходящий' : 'Входящий')
                 console.log('%c%s', 'color: green;', '----------------------------------------------------')
-                console.log(`X-Call-Filename: ${audioRecordId}`)
                 console.log(event)
                 console.log(session.direction)
                 console.log(session)
@@ -307,6 +298,18 @@ const jssip = Vue.extend({
               if (this.$isDebug && event.message) {
                 console.log(event.message)
               }
+              // Отправка логов c ошибками SIP на сервер
+              if (event) {
+                try {
+                  new SipErrors().addLog({
+                    message: event.cause,
+                    context: JSON.stringify(event)
+                  }).then()
+                } catch (e) {
+                  console.error(e)
+                }
+              }
+
               this.$toast.error(`Event: ${event.cause}`, { timeout: 3000 })
             }
 

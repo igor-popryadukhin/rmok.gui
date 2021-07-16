@@ -1,4 +1,5 @@
 import APIError from '@/api/classes/APIError'
+import Country from '@/api/Schemas/Country'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
@@ -30,6 +31,21 @@ export interface StatusInterface {
 }
 
 export class Database {
+  /**
+   * Возвращает список стран.
+   */
+  public getCountries (): Promise<Country[]> {
+    return new Promise<Promise<Country[]>>((resolve, reject): Promise<Country[]> => {
+      $axios.get('/database/countries')
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
   /**
    * Receives all telephone country codes of the world
    */

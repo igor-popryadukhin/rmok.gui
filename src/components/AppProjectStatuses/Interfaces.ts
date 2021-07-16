@@ -6,7 +6,7 @@ export interface ActionInterface {
 }
 
 export interface StatusInterface {
-  id: string | number;
+  id?: string | number;
   name: string;
   actions: ActionInterface[];
 }

@@ -1,7 +1,6 @@
 <template>
   <v-row>
     <v-col
-      :style="leftColumnStyleComputed"
       cols="12"
       md="4"
       lg="3"
@@ -65,7 +64,6 @@
           class="px-0"
         >
           <v-list
-            :style="leftColumnStyleComputed"
             tile
           >
             <!-- Номера телефонов -->
@@ -348,7 +346,7 @@
         flat
         tile
       >
-        <v-card-actions class="px-4">
+        <v-card-actions class="px-0">
           <v-tabs
             v-model="currentTabIndex"
             height="35"
@@ -367,11 +365,11 @@
           </v-tabs>
         </v-card-actions>
 
-        <v-card-text class="py-0 ">
+        <v-card-text class="pa-0 ">
           <v-divider/>
         </v-card-text>
 
-        <v-card-text class="py-1 flex-grow-1 overflow-y-auto">
+        <v-card-text class="px-0 py-1 flex-grow-1 overflow-y-auto">
           <component
             :ref="tabs[currentTabIndex].ref"
             :is="tabs[currentTabIndex].component"
@@ -381,41 +379,54 @@
         <!-- Статусы -->
 
         <v-fade-transition mode="in-out">
-          <v-card-text v-show="status.visible" class="py-0">
+          <v-card-text v-show="status.visible" class="pa-0" style="border-top: solid rgb(58,112,212);">
             <s-contact-statuses
               v-model="status.status_id"
               min-height="200"
               @on-close="status.visible = false"
             />
-
-            <v-divider/>
-
-            <v-textarea
-              v-model="status.comment"
-              :placeholder="$t('Comment')"
-              rows="4"
-            >
-              <template v-slot:prepend-inner>
-                <v-icon>
-                  mdi-comment
-                </v-icon>
-              </template>
-              <template v-slot:append>
-                <v-btn
-                  icon
-                  text
-                  disabled
-                >
+            <div class="pt-5">
+              <v-textarea
+                v-model="status.comment"
+                :placeholder="$t('Comment')"
+                rows="4"
+                outlined
+                hide-details
+              >
+                <template v-slot:prepend-inner>
                   <v-icon>
-                    mdi-microphone
+                    mdi-comment
                   </v-icon>
-                </v-btn>
-              </template>
-            </v-textarea>
+                </template>
+                <template v-slot:append>
+                  <v-btn
+                    icon
+                    text
+                    disabled
+                  >
+                    <v-icon>
+                      mdi-microphone
+                    </v-icon>
+                  </v-btn>
+                </template>
+              </v-textarea>
+            </div>
+            <div class="py-2">
+              <v-btn
+                :color="$vuetify.theme.currentTheme.primary"
+                :disabled="!(btnRateQualityAvailable && countryAvailable)"
+                text
+                tile
+                small
+                @click="onBtnRateQualityClick"
+              >
+                {{ $tc('Rate the quality of the connection') }}
+              </v-btn>
+            </div>
           </v-card-text>
         </v-fade-transition>
 
-        <v-footer color="white" class="pa-4">
+        <v-card-actions class="pa-4 px-0" style="border-top: #3a70d4 solid">
           <v-spacer/>
           <v-btn-toggle
             color="primary"
@@ -431,6 +442,7 @@
                   :disabled="!status.visible"
                   color="primary"
                   text
+                  small
                   @click="onSaveClick(status)"
                 >
                   {{ $t('Save') }}
@@ -447,6 +459,7 @@
                   :disabled="!status.visible"
                   text
                   icon
+                  small
                 >
                   <v-icon color="primary">mdi-arrow-down-drop-circle-outline</v-icon>
                 </v-btn>
@@ -461,13 +474,14 @@
               </v-list>
             </v-menu>
           </v-btn-toggle>
-        </v-footer>
+        </v-card-actions>
       </v-card>
     </v-col>
   </v-row>
 </template>
 
 <script lang="ts">
+import { Calls } from '@/api/Calls'
 import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import Leads from '@/api/Leads'
@@ -480,6 +494,8 @@ import {
 import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import Tasks, { TaskInterface } from '@/api/Tasks'
 import { UserInterface } from '@/api/Users'
+import AppCardCommunicationQualityAssessment
+  from '@/components/AppCardCommunicationQualityAssessment/AppCardCommunicationQualityAssessment.vue'
 import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
 import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInterface'
 import lvovich from '@/mixins/lvovich'
@@ -517,12 +533,6 @@ interface IStatus {
 }
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  beforeDestroy () {
-    this.$root.$off('root-main-search', this.onRootMainSearch)
-    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
-    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
-  },
-
   beforeRouteEnter (to, from, next) {
     // Сохраняю маршрут, откуда пришёл
     store.commit('system/route_last_full_path', from.fullPath)
@@ -530,9 +540,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       .getById(+to.params.contact_id)
       .then((response: ContactInterface) => {
         next((vm: VInterface) => {
-          vm.$activity.begin({
-            type: 'card_filling'
-          })
           vm.contact = response
         })
       }).catch(() => {
@@ -548,9 +555,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       contacts
         .getById(+to.params.contact_id)
         .then((contact: ContactInterface) => {
-          this.$activity.begin({
-            type: 'card_filling'
-          })
           this.contact = contact
         }).finally(() => {
           this.tabPageUpdate()
@@ -576,65 +580,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   components: { SContactStatuses },
-
-  computed: {
-    avatar () {
-      const first: string = this.contact?.first_name || ''
-      const last: string = this.contact?.last_name || ''
-      return first.charAt(0) + last.charAt(0)
-    },
-
-    /**
-     * Делает кнопку позвонить недоступной, если не выполнены условия
-     **/
-    callBtnIsDisabled () {
-      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
-    },
-
-    leftColumnStyleComputed () {
-      return {}
-    },
-
-    sessionStopwatch () {
-      return this.$jsSIP.sessionStopwatch
-    },
-
-    tabsHeight () {
-      let h: number = this.$screenHeight - 115
-      if (h < 850) {
-        h = 850
-      }
-      return h
-    },
-
-    contactResponsible () {
-      const collection: string[] = []
-
-      if (this.contact?.responsible?.first_name) {
-        collection.push(this.contact?.responsible?.first_name)
-      }
-
-      if (this.contact?.responsible?.last_name) {
-        collection.push(this.contact?.responsible?.last_name)
-      }
-      return collection.join(' ')
-    },
-
-    contactProject () {
-      return this.contact?.project?.name || false
-    }
-  },
-
-  created () {
-    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
-      this.currentTabIndex = Number(this.$route.query.current_tab_index)
-    }
-
-    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
-    this.$store.dispatch('database/statuses', {
-      contact_id: this.$route.params.contact_id
-    })
-  },
 
   data () {
     return {
@@ -709,9 +654,89 @@ export default (Vue as VueConstructor<VInterface>).extend({
         tags: [] as ContactTagInterface[],
         tz: 'Europe/Moscow'
       },
-      clientTimeTick: 0
+      clientTimeTick: 0,
+      btnRateQualityAvailable: true
       /* eslint-enable */
     }
+  },
+
+  computed: {
+    /**
+     * Просматриваемый идентификатор контакта.
+     */
+    contactId (): number {
+      return +this.$route.params.contact_id
+    },
+
+    avatar () {
+      const first: string = this.contact?.first_name || ''
+      const last: string = this.contact?.last_name || ''
+      return first.charAt(0) + last.charAt(0)
+    },
+
+    /**
+     * Делает кнопку позвонить недоступной, если не выполнены условия
+     */
+    callBtnIsDisabled () {
+      return !this.$jsSIP.isConnected || !this.assertObjectHasAttribute(this.contact.default_phone, 'raw') || !this.$libPhoneNumberJs.validate(this.contact.default_phone.raw) || this.status.visible
+    },
+
+    leftColumnStyleComputed () {
+      return {
+        'border-right': '#3a70d4 solid',
+        'padding-right': '8px'
+      }
+    },
+
+    sessionStopwatch () {
+      return this.$jsSIP.sessionStopwatch
+    },
+
+    tabsHeight () {
+      let h: number = this.$screenHeight - 115
+      if (h < 850) {
+        h = 850
+      }
+      return h
+    },
+
+    contactResponsible () {
+      const collection: string[] = []
+
+      if (this.contact?.responsible?.first_name) {
+        collection.push(this.contact?.responsible?.first_name)
+      }
+
+      if (this.contact?.responsible?.last_name) {
+        collection.push(this.contact?.responsible?.last_name)
+      }
+      return collection.join(' ')
+    },
+
+    contactProject () {
+      return this.contact?.project?.name || false
+    },
+
+    countryAvailable (): boolean {
+      return Boolean(this.$store.getters['profile/country'])
+    }
+  },
+
+  created () {
+    if (this.assertObjectHasAttribute(this.$route.query, 'current_tab_index')) {
+      this.currentTabIndex = Number(this.$route.query.current_tab_index)
+    }
+
+    this.$root.$on('root-jssip-session-ended', this.onRootJssipSessionEnded)
+    this.$store.dispatch('database/statuses', {
+      contact_id: this.$route.params.contact_id
+    })
+  },
+
+  beforeDestroy () {
+    this.$root.$off('root-main-search', this.onRootMainSearch)
+    this.$root.$off('root-main-search-selected', this.onRootMainSearchSelected)
+    this.$root.$off('root-jssip-session-ended', this.onRootJssipSessionEnded)
   },
 
   destroyed () {
@@ -772,7 +797,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         .then(response => response.data)
         .then(data => {
           if (data.length) {
-            data.map(t => {
+            data.map((t: any) => {
               new Tasks().setState(t.id, 'done')
             })
           } else {
@@ -780,7 +805,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }
         }).catch(e => console.log(e))
 
-      window.onbeforeunload = (evt) => {
+      window.onbeforeunload = (evt: any) => {
         const message = this.$tc('Do you really want to leave? you have unsaved changes!')
         if (typeof evt === 'undefined') {
           evt = window.event
@@ -865,7 +890,13 @@ export default (Vue as VueConstructor<VInterface>).extend({
       /* eslint-enable */
     },
 
+    /**
+     * Событие происходит когда положили трубку
+     **/
     onRootJssipSessionEnded (event: REJssipSessionEndedInterface) {
+      this.$activity.begin({
+        type: 'card_filling'
+      })
       this.showStatuses()
       this.status.contact_id = event.contact_id
       this.status.contact_history_id = event.contact_history_id
@@ -932,11 +963,38 @@ export default (Vue as VueConstructor<VInterface>).extend({
       })
     },
 
+    /**
+     * Событие, генерируется при нажатии на кнопку "оценить качество связи"
+     */
+    async onBtnRateQualityClick () {
+      const dialog = await this.$dialog.show(AppCardCommunicationQualityAssessment, {
+        waitForResult: false,
+        persistent: true,
+        showClose: false,
+        handler: (btn: 'ok' | 'cancel', data: {comment: string; rating: number}) => {
+          if (btn === 'ok' && data?.rating) {
+            new Calls()
+              .communicationQualityAssessment({
+                contact_id: this.contactId,
+                comment: data.comment,
+                rating: data.rating
+              })
+              .then(() => {
+                this.btnRateQualityAvailable = false
+                this.$toast.success(this.$tc('Thank you for your feedback!'))
+              })
+          }
+
+          dialog.close()
+        }
+      })
+    },
+
     async save (status: IStatus) {
       if (!this.validate()) {
         return
       }
-
+      this.$activity.end() // Завершаю измерение активности
       window.onbeforeunload = null // Отменяю запрос подтверждения ухода
       this.saveAndNextLoading = true
       return new Promise<void>((resolve) => {
@@ -1015,6 +1073,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
 </script>
 
 <style lang="scss">
+.card-left {
+  border-right: #3a70d4 solid 4px
+}
 
 .tool-bar div {
   padding-left: 0;

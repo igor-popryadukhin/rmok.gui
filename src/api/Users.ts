@@ -6,6 +6,8 @@ import { GroupInterface } from '@/api/Groups'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import {ProjectInterface} from '@/api/Projects'
+import * as QP from 'QP'
+import * as RS from 'RS'
 import APIError from './classes/APIError'
 
 interface UserOrganizationInterface {
@@ -157,6 +159,36 @@ export class Users {
             return resolve(response.data)
           }
           reject(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Установить график для пользователя
+   *
+   * @param user_id     Идентификатор пользователя
+   * @param data
+   */
+  public setSchedule (user_id: number, data: QP.Schedule[]): Promise<void> {
+    return new Promise<void>((resolve, reject): Promise<void> | any => {
+      $axios.patch(`/users/${user_id}/schedule`, data)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  public getSchedule (user_id: number): Promise<RS.ScheduleInterface[]> {
+    return new Promise<RS.ScheduleInterface[]>((resolve, reject) => {
+      $axios.get(`/users/${user_id}/schedule`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

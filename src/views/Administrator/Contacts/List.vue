@@ -28,7 +28,6 @@
           item-key="id"
           calculate-widths
           multi-sort
-          fixed-header
           hide-default-footer
           dense
           @pagination="onPaginationChange"
@@ -551,6 +550,18 @@
             />
           </v-card-text>
 
+          <!-- Группа -->
+          <v-card-text class="pt-0">
+            <s-groups
+              ref="sGroupsAutocomplete"
+              v-model="filter.group"
+              :label="$tc('Группа')"
+              clearable
+              outlined
+              dense
+            />
+          </v-card-text>
+
           <!-- Теги -->
           <v-card-text class="pt-0">
             <s-contact-tags
@@ -650,6 +661,7 @@ import {
   ContactTagInterface
 } from '@/api/Schemas/ContactInterface'
 import { UserInterface } from '@/api/Users'
+import { GroupInterface } from '@/api/Groups'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
@@ -662,6 +674,7 @@ import SContactTagsEditDialog from '@/snippets/SContactTagsEditDialog/SContactTa
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import SStatusesSelect from '@/snippets/SStatusesSelect/SStatusesSelect.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
+import SGroups from '@/snippets/SGroups/SGroups.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { DataOptions } from 'vuetify'
@@ -693,7 +706,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     SContactTags,
     SProjectsAutocomplete,
     SStatusesSelect,
-    SUsers
+    SUsers,
+    SGroups
   },
 
   computed: {
@@ -738,9 +752,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         params.responsible_id = this.$data.filter.responsible.id
       }
 
+      // Группа
+      if (this.$data.filter.group) {
+        params.group_id = this.$data.filter.group.id
+      }
+
       // Статусы
       if (this.$routerQuery.hasQuery('status_ids')) {
-        params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
+        params.status_ids = this.$routerQuery.getQuery('status_ids')
       }
 
       // Дата последнего звонка
@@ -786,7 +805,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery<string>('sort', '[]')
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
       return JSON.parse(json)
     },
 
@@ -891,15 +910,19 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }
 
         if (this.$routerQuery.hasQuery('project_id')) {
-          params.project_id = this.$routerQuery.getQuery<number>('project_id')
+          params.project_id = this.$routerQuery.getQuery('project_id')
         }
 
         if (this.$routerQuery.hasQuery('status_ids')) {
-          params.status_ids = this.$routerQuery.getQuery<string>('status_ids')
+          params.status_ids = this.$routerQuery.getQuery('status_ids')
         }
 
         if (this.$routerQuery.hasQuery('responsible_id')) {
-          params.responsible_id = this.$routerQuery.getQuery<number>('responsible_id')
+          params.responsible_id = this.$routerQuery.getQuery('responsible_id')
+        }
+
+        if (this.$routerQuery.hasQuery('group_id')) {
+          params.group_id = this.$routerQuery.getQuery('group_id')
         }
 
         if (this.$routerQuery.hasQuery('call_up')) {
@@ -968,6 +991,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         // Фильтрация по владельцу/ответственному
         responsible: null,
 
+        // Фильтрация по группам
+        group: null,
+
         // Фильтрация по тегам
         tags: [] as ContactTagInterface[],
 
@@ -1029,7 +1055,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('status_ids')) {
-        const status_ids = this.$routerQuery.getQuery<string>('status_ids').split(',')
+        const status_ids = this.$routerQuery.getQuery('status_ids').split(',')
         this.filter.status = status_ids.map(value => +value)
       }
 
@@ -1037,11 +1063,15 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('responsible_id')))
       }
 
-      this.filter.call_up.selected = this.$routerQuery.getQuery<string>('call_up', '')
+      if (this.$routerQuery.hasQuery('group_id')) {
+        promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_id')))
+      }
+
+      this.filter.call_up.selected = this.$routerQuery.getQuery('call_up', '')
 
       // Инициализация фильтров
       if (this.$routerQuery.hasQuery('contact_created_at')) {
-        const date = this.$routerQuery.getQuery<string>('contact_created_at')
+        const date = this.$routerQuery.getQuery('contact_created_at')
         if (/^(\d+),(\d+)$/s.test(date)) {
           // Диапазон
           this.filter.contact_created_at.range = true
@@ -1074,11 +1104,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('q')) {
-        this.filter.q = this.$routerQuery.getQuery<string>('q')
+        this.filter.q = this.$routerQuery.getQuery('q')
       }
 
       if (this.$routerQuery.hasQuery('tag_ids')) {
-        const tag_ids = this.$routerQuery.getQuery<string>('tag_ids').split(',')
+        const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
         this.filter.tags = tag_ids.map(value => +value)
       }
 
@@ -1150,6 +1180,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         } else {
           this.$routerQuery.removeQuery([
             'responsible_id'
+          ]).then(this.fetchContacts)
+        }
+      })
+
+      // Фильтрация по группам
+      this.$watch('filter.group', (newVal: unknown & GroupInterface) => {
+        this.dataTableContacts.page = 1
+        if (newVal) {
+          this.$routerQuery.setQuery({
+            group_id: newVal.id
+          }).then(this.fetchContacts)
+        } else {
+          this.$routerQuery.removeQuery([
+            'group_id'
           ]).then(this.fetchContacts)
         }
       })
@@ -1761,6 +1805,40 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   .v-dt-item {
     & td {
       white-space:nowrap;
+    }
+  }
+
+  @media  screen and (max-width: 1280px) {
+    .v-chip__content {
+      align-items: center;
+      display: inline-block !important;
+      height: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .v-chip__close {
+      position: absolute !important;
+      top: 1px;
+      right: 5px;
+      width: 38px;
+    }
+  }
+
+  @media  screen and (max-width: 1440px) {
+    .v-chip__content {
+      align-items: center;
+      display: inline-block !important;
+      height: 100%;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .v-chip__close {
+      position: absolute !important;
+      top: 1px;
+      right: 5px;
+      width: 38px;
     }
   }
 </style>

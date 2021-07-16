@@ -3,9 +3,10 @@ import {
   EventHandlerAccepted,
   EventHandlerConnecting,
   EventHandlerEnded,
-  EventHandlerFailed, EventHandlerProgress
+  EventHandlerFailed,
+  EventHandlerProgress
 } from '@/jsSIP/types'
-import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
+import { makeAudioElement } from '@/jsSIP/utils'
 import { debug, UA } from 'jssip'
 import {
   AnswerOptions,
@@ -17,8 +18,9 @@ import {
   RTCSession
 } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
-import { makeAudioElement } from '@/jsSIP/utils'
+import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
 import { Timer } from './Timer'
+import jssipVersion from './version'
 
 // Audio element for playing the sound of an incoming or outgoing call
 const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
@@ -58,7 +60,7 @@ export enum Direction {
  * Call direction conversion
  * @param direction
  */
-export function directionToNum (direction: string) {
+export function directionToNum (direction: string): string {
   switch (direction) {
     case 'missed':
       return Direction.MISSED
@@ -70,7 +72,8 @@ export function directionToNum (direction: string) {
       return Direction.OUTGOING
     case 'outgoing_canceled':
       return Direction.OUTGOING_CANCELED
-    default: return -1
+    default:
+      return ''
   }
 }
 
@@ -82,6 +85,10 @@ export enum JsSIPState {
 }
 
 export class JsSIP {
+  get version (): string {
+    return this._version
+  }
+
   get processConnectingAndDisconnecting (): boolean {
     return this._processConnectingAndDisconnecting
   }
@@ -105,8 +112,8 @@ export class JsSIP {
   /**
    * Returns true if the transport is connected, false otherwise.
    */
-  get isConnected () {
-    return this._ua.isConnected() && this._ua.isRegistered()
+  get isConnected (): boolean {
+    return Boolean(this._ua?.isConnected() && this._ua?.isRegistered())
   }
 
   get session (): RTCSession | undefined {
@@ -146,13 +153,15 @@ export class JsSIP {
     this._onSessionFailed = value
   }
 
-  private static playSound (name: string, loop = false) {
+  private static playSound (name: string, loop = false, playbackRate = 1, volume = 1) {
     if (!audioElementForSound.paused) {
       audioElementForSound.pause()
     }
     audioElementForSound.currentTime = 0.0
     audioElementForSound.src = '/sounds/' + name
     audioElementForSound.loop = loop
+    audioElementForSound.playbackRate = playbackRate
+    audioElementForSound.volume = volume
     audioElementForSound.play()
   }
 
@@ -160,6 +169,8 @@ export class JsSIP {
     audioElementForSound.pause()
     audioElementForSound.currentTime = 0.0
   }
+
+  private _pcConfig?: RTCConfiguration | undefined
 
   private _processConnectingAndDisconnecting: boolean
 
@@ -169,6 +180,7 @@ export class JsSIP {
   private _session?: RTCSession
   private _ua: UA
   private _timerId: any = undefined
+  private _version = ''
 
   // Session time
   private _timer: Timer
@@ -185,6 +197,14 @@ export class JsSIP {
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
+    if (!config.pcConfig) {
+      this._pcConfig = {
+        rtcpMuxPolicy: undefined,
+        iceServers: []
+      }
+    }
+    this._pcConfig = config.pcConfig
+    this._version = jssipVersion()
     this._processConnectingAndDisconnecting = false
     this._timer = new Timer()
     this._state = JsSIPState.IDLE
@@ -192,7 +212,8 @@ export class JsSIP {
       /* eslint-disable */
       uri: config.uri,
       display_name: config.display_name,
-      password: config.password
+      password: config.password,
+      realm: config.realm
       /* eslint-enable */
     })
     this.initializeListeners()
@@ -216,21 +237,14 @@ export class JsSIP {
       extraHeaders: [
         'X-Call-Filename: ' + this._uuid
       ],
-      pcConfig: {
-        // @ts-ignore
-        hackStripTcp: true, // Важно для хрома, чтоб он не тупил при звонке
-        // rtcpMuxPolicy: 'negotiate', // Важно для хрома, чтоб работал multiplexing. Эту штуку обязательно нужно включить на астере.
-        iceServers: []
-      },
+      pcConfig: this._pcConfig,
       mediaConstraints: {
         audio: true, // Поддерживаем только аудио
         video: false
       },
       rtcOfferConstraints: {
-        // @ts-ignore
-        offerToReceiveAudio: 1, // Принимаем только аудио
-        // @ts-ignore
-        offerToReceiveVideo: 0
+        offerToReceiveAudio: true, // Принимаем только аудио
+        offerToReceiveVideo: false
       }
     })
   }
@@ -257,6 +271,22 @@ export class JsSIP {
    */
   public setConfiguration (url: string, config: JsSPConfiguration) {
     this.unInitializeListeners()
+
+    if (!config.pcConfig) {
+      this._pcConfig = {
+        rtcpMuxPolicy: undefined,
+        iceServers: [
+          {
+            username: '',
+            credential: '',
+            credentialType: 'password',
+            urls: ''
+          }
+        ]
+      }
+    }
+    this._pcConfig = config.pcConfig
+
     // @ts-ignore
     this._ua = null
     this._ua = JsSIPFactory.create(url, {
@@ -335,6 +365,11 @@ export class JsSIP {
     const session: RTCSession = event.session
     this._session = event.session
 
+    // session.on('icecandidate', (event) => {
+    //   console.log(event.candidate.candidate)
+    //   setTimeout(event.ready, 5000)
+    // })
+
     // Запускается после добавления локального медиа потока RTCSession и
     // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».
     session.on('connecting', (event: ConnectingEvent) => {
@@ -349,14 +384,21 @@ export class JsSIP {
 
       if (session.direction === 'incoming') {
         JsSIP.playSound('ringing2.mp3', true)
+      } else {
+        audioElementForCall.muted = true
+        JsSIP.playSound('ringback2.mp3', true)
       }
       this.doSessionProgress(session, event)
     })
 
+    // session.on('confirmed', (event: IncomingEvent | OutgoingEvent) => {
+    //   console.log('confirmed', event)
+    // })
+
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
     session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
-      JsSIP.stopSound()
-      JsSIP.playSound('answered.ogg', false)
+      JsSIP.playSound('answered.mp3', false, 1, 0.2)
+      audioElementForCall.muted = false
       this._state = JsSIPState.ACCEPTED
       this.doSessionAccepted(session, event)
     })
@@ -374,11 +416,7 @@ export class JsSIP {
       this._sessionEndTime = new Date()
       this.stopRenderSessionStopwatch()
 
-      if (session.direction === 'outgoing') {
-        JsSIP.playSound('rejected.mp3')
-      } else {
-        JsSIP.stopSound()
-      }
+      JsSIP.playSound('rejected.mp3')
 
       this._state = JsSIPState.IDLE
 
@@ -424,12 +462,12 @@ export class JsSIP {
   }
 
   private doSessionEnded (session: RTCSession, event: EndEvent) {
-    if (typeof this._onSessionEnded === 'function') {
-      try {
+    try {
+      if (typeof this._onSessionEnded === 'function') {
         this._onSessionEnded(this, session, event)
-      } catch (e) {
-        console.error(e)
       }
+    } catch (e) {
+      console.error(e)
     }
   }
 

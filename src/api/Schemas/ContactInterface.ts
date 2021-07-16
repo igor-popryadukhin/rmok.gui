@@ -49,5 +49,5 @@ export interface ContactHistoryInterface {
   duration: number;
   start_time: number;
   end_time: number;
-  creator?: UserInterface
+  creator?: UserInterface & { is_deleted: boolean }
 }

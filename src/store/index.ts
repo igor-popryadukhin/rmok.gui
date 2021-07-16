@@ -7,6 +7,7 @@ import project from './project'
 import tasks from '@/store/tasks'
 import settings from '@/store/settings'
 import filter from '@/store/filter'
+import symfony from '@/store/symfony'
 import { database } from '@/store/database'
 
 Vue.use(Vuex)
@@ -16,11 +17,14 @@ const set = (key: string, value: string) => localStorage.setItem(key, value)
 const remove = (key: string) => localStorage.getItem(key)
 
 export interface RootStateInterface {
-  root: number
+  root: number;
 }
 
 const store = new Vuex.Store({
-  actions: {
+  state (): RootStateInterface {
+    return {
+      root: 0
+    }
   },
 
   modules: {
@@ -30,10 +34,14 @@ const store = new Vuex.Store({
     settings,
     filter,
     system,
+    symfony,
     tasks
   },
-  mutations: {
-  },
+
+  mutations: {},
+
+  getters: {},
+
   plugins: [
     createPersistedState({
       key: 'rmok',
@@ -106,13 +114,17 @@ const store = new Vuex.Store({
         removeItem: (key: string) => remove(key),
         setItem: (key, value) => set(key, value)
       }
+    }),
+    createPersistedState({
+      key: 'rmok-symfony',
+      paths: ['symfony'],
+      storage: {
+        getItem: (key: string) => get(key),
+        removeItem: (key: string) => remove(key),
+        setItem: (key, value) => set(key, value)
+      }
     })
-  ],
-  state (): RootStateInterface {
-    return {
-      root: 0 // todo: example
-    }
-  }
+  ]
 })
 
 export default store

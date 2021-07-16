@@ -1,18 +1,18 @@
 <template>
-  <div>
+  <v-sheet>
     <v-treeview
       v-if="items.length > 0"
       v-model="tree"
       :open="initiallyOpen"
       :items="items"
-      open-all
-      item-key="name"
+      item-key="id"
+      item-children="statuses"
       open-on-click
       class="border-solid mb-2"
     >
       <template v-slot:prepend="{ item, open }">
         <v-icon
-          v-if="'children' in item"
+          v-if="item.statuses"
         >
           {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
         </v-icon>
@@ -22,7 +22,7 @@
       </template>
       <template v-slot:append="append">
         <template
-          v-if="'children' in append.item"
+          v-if="append.item.statuses"
         >
           <v-btn
             icon
@@ -106,31 +106,50 @@
       :actions="dialogStatus.actions"
       @save-click="onSaveStatusClick"
     />
-  </div>
+  </v-sheet>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import ProjectStatusDialogGroup from './ProjectStatusDialogGroup.vue'
-import ProjectStatusDialogStatus from './ProjectStatusDialogStatus.vue'
+import ProjectStatusDialogGroup from './AppProjectStatusesDialogGroup.vue'
+import ProjectStatusDialogStatus from './AppProjectStatusesDialogStatus.vue'
 import { ActionInterface, StatusInterface } from './Interfaces'
 
 interface GroupInterface {
   id: string | number;
   name: string;
   color: string;
-  children: StatusInterface[]
+  statuses: StatusInterface[];
+  isNew?: boolean;
 }
 
 export default Vue.extend({
+  name: 'AppProjectStatuses',
+
   components: {
     ProjectStatusDialogGroup,
     ProjectStatusDialogStatus
   },
 
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    actions: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: () => [],
+      type: Array
+    }
+  },
+
   data () {
     return {
-      currentGroup: null as GroupInterface | any,
+      currentGroup: null as unknown as GroupInterface,
       dialogGroup: {
         color: '',
         id: '' as number | string,
@@ -150,23 +169,24 @@ export default Vue.extend({
     }
   },
 
-  methods: {
-
-    generateUUID () {
-      let d = new Date().getTime()
-      let d2 = (performance && performance.now && (performance.now() * 1000)) || 0// Time in microseconds since page-load or 0 if unsupported
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16// random number between 0 and 16
-        if (d > 0) { // Use timestamp until depleted
-          r = (d + r) % 16 | 0
-          d = Math.floor(d / 16)
-        } else { // Use microseconds since page-load if supported
-          r = (d2 + r) % 16 | 0
-          d2 = Math.floor(d2 / 16)
-        }
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
-      })
+  watch: {
+    items: {
+      deep: true,
+      handler (value) {
+        this.$emit('change', value)
+      }
     },
+
+    value (data: any) {
+      this.items = data
+    }
+  },
+
+  mounted () {
+    this.items = this.value
+  },
+
+  methods: {
 
     onGroupAddClick () {
       this.dialogGroup.id = ''
@@ -196,9 +216,9 @@ export default Vue.extend({
         this.items[index].color = color
       } else {
         this.items.push({
-          children: [],
+          statuses: [],
           color,
-          id: this.generateUUID(),
+          id: `group-${this.items.length}`,
           name
         })
       }
@@ -215,10 +235,10 @@ export default Vue.extend({
     onSaveStatusClick (status: StatusInterface) {
       let isEdit = false
       this.items.forEach((e: GroupInterface) => {
-        const index = e.children.findIndex((status: StatusInterface) => status.id === this.dialogStatus.id)
+        const index = e.statuses.findIndex((status: StatusInterface) => status.id === this.dialogStatus.id)
         if (index > -1) {
-          e.children[index].name = status.name
-          e.children[index].actions = status.actions
+          e.statuses[index].name = status.name
+          e.statuses[index].actions = status.actions
           isEdit = true
         }
       })
@@ -226,9 +246,9 @@ export default Vue.extend({
       if (!isEdit) {
         this.items.forEach((group: GroupInterface) => {
           if (group.id === this.dialogGroup.id) {
-            group.children.push({
+            group.statuses.push({
               actions: status.actions,
-              id: this.generateUUID(),
+              id: `status-${group.statuses.length}`,
               name: status.name
             })
           }
@@ -253,40 +273,11 @@ export default Vue.extend({
 
     onStatusRemoveClick (item: StatusInterface) {
       this.items.forEach((element: any, i: number) => {
-        const index: number = element.children.findIndex((e: any) => e.id === item.id)
+        const index: number = element.statuses.findIndex((e: any) => e.id === item.id)
         if (index > -1) {
-          this.items[i].children.splice(index, 1)
+          this.items[i].statuses.splice(index, 1)
         }
       })
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  props: {
-    actions: {
-      default: () => [],
-      type: Array
-    },
-    value: {
-      default: () => null,
-      type: Array
-    }
-  },
-
-  watch: {
-    items: {
-      deep: true,
-      handler (value) {
-        this.$emit('change', value)
-      }
-    },
-
-    value (data: any) {
-      this.items = data
     }
   }
 })
@@ -296,12 +287,10 @@ export default Vue.extend({
 .blank {
   height: 50px;
   width: 100%;
-  border: #9C27B0 1px dashed;
 }
 .border {
 
   &-solid {
-    border-color: #8d3eb1;
     border-style: solid;
     border-width: 1px !important;
   }

@@ -37,6 +37,9 @@ Vue.component('administrator', () => import(/* webpackPreload: true */ './layout
 Vue.component('operator-layout', () => import(/* webpackPreload: true */ './layouts/Operator.vue'))
 Vue.component('clean', CleanLayout)
 
+Vue.component('app-divider', () => import(/* webpackPreload: true */ './components/AppDivider/AppDivider.vue'))
+Vue.component('app-tools', () => import(/* webpackPreload: true */ './components/AppTools/AppTools.vue'))
+
 Vue.config.productionTip = false
 
 loadLanguageAsync('ru', 'main').then()

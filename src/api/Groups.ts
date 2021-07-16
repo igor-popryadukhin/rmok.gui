@@ -25,6 +25,7 @@ export interface GroupInterface {
 export interface GroupFindQueryInterface {
   q?: string;
   organization_id?: number;
+  project_id?: number;
   offset?: number;
   count?: number;
 }
@@ -88,7 +89,7 @@ export class Groups {
    */
   public update (id: number, data: any): Promise<any> | any {
     return new Promise((resolve, reject): Promise<any> | any => {
-      $axios.put(`/groups/${id}`, data)
+      $axios.patch(`/groups/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
             return resolve(response.data)

@@ -136,12 +136,10 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue'
-import { GroupInterface, Groups } from '@/api/Groups'
+import { GroupInterface, Groups, GroupFindQueryInterface } from '@/api/Groups'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { ProjectInterface } from '@/api/Projects'
-import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
-import SGroups from '@/snippets/SGroups/SGroups.vue'
 import VInterface from '@/VInterface'
 
 export default (Vue as VueConstructor<VInterface>).extend({
@@ -188,15 +186,34 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
+  mounted () {
+    const promises: Promise<any>[] = []
+
+    if (this.$refs.sProjectsAutocomplete) {
+      this.$refs.sProjectsAutocomplete.fetchData()
+    }
+
+    if (this.$routerQuery.hasQuery('project_id')) {
+      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
+    }
+  },
+
   methods: {
     fetchGroups () {
       this.dataTableGroups.processLoading = true
       const offset = (this.dataTableGroups.itemsPerPage * this.dataTableGroups.page) - this.dataTableGroups.itemsPerPage
+
+      const params: any = {
+        count: this.dataTableGroups.itemsPerPage,
+        offset
+      }
+
+      if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
+        params.project_id = this.$route.query.project_id
+      }
+
       new Groups()
-        .find({
-          count: this.dataTableGroups.itemsPerPage,
-          offset
-        })
+        .find<{count: number}, GroupFindQueryInterface[]>(params)
         .then((response: ResponseInterface<{ count: number }, GroupInterface[]>) => {
           this.dataTableGroups.totalCount = response.meta.count
           this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
@@ -246,11 +263,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
         if (val) {
           this.$routerQuery.setQuery({
             project_id: val.id
-          }).then(this.fetchUsers)
+          }).then(this.fetchGroups)
         } else {
           this.$routerQuery.removeQuery([
             'project_id'
-          ]).then(this.fetchUsers)
+          ]).then(this.fetchGroups)
         }
       }
     }

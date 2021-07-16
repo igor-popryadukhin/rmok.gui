@@ -1,7 +1,7 @@
 <template>
   <v-select
     v-model="selected"
-    :items="options"
+    :items="statuses"
     :dense="dense"
     :outlined="outlined"
     :label="label"
@@ -13,8 +13,25 @@
     @focus="onFocus"
     :multiple="multiple"
   >
-    <template v-slot:selection="{ item }">
-      <div :style="{ color: item.color }" class="v-select__selection v-select__selection--comma">{{ item.name }}</div>
+    <template v-slot:selection="{ attrs, item, select, selected }">
+      <template v-if="multiple">
+        <v-chip
+          v-bind="attrs"
+          :input-value="selected"
+          close
+          :color="item.color"
+          label
+          small
+          outlined
+          @click="select"
+          @click:close="removeChip(item)"
+        >
+          {{ item.name }}
+        </v-chip>
+      </template>
+      <template v-else>
+        {{ item.name }}
+      </template>
     </template>
     <template v-slot:item="{ item, on, attrs }">
       <v-list-item
@@ -29,13 +46,18 @@
 </template>
 
 <script lang="ts">
-import { StatusInterface } from '@/api/Database'
-import Statuses from '@/api/Statuses'
 import i18n from '@/plugins/i18n'
 import Vue, { PropType } from 'vue'
+import { mapGetters } from 'vuex'
 
 interface ParamsInterface {
   project_id?: number
+}
+
+interface StatusInterface {
+  id: number;
+  name: string;
+  color?: string;
 }
 
 export default Vue.extend({
@@ -111,9 +133,14 @@ export default Vue.extend({
 
   data () {
     return {
-      options: [],
-      selected: null
+      selected: null as unknown as StatusInterface | StatusInterface[]
     }
+  },
+
+  computed: {
+    ...mapGetters({
+      statuses: 'filter/statuses'
+    })
   },
 
   watch: {
@@ -133,31 +160,21 @@ export default Vue.extend({
 
   methods: {
     fetchData (params = {}) {
-      new Statuses()
-        .findBy(Object.assign({}, params, this.params))
-        .then((response) => {
-          this.options = response.data
-        })
-    },
-
-    /**
-     * Загрузить с сервера для установки текущего значения
-     * @param id
-     */
-    setDefault (id: number) {
-      return new Statuses()
-        .findById(id)
-        .then((response: StatusInterface) => {
-          this.selected = response
-          if (!this.options.includes(response)) {
-            this.options.push(response)
-          }
-        })
+      this.$store.dispatch('filter/statuses', Object.assign({}, params, this.params))
     },
 
     onFocus () {
-      if (this.options.length === 0) {
-        this.fetchData()
+      // Загружаю статусы с сервера
+      this.fetchData()
+    },
+
+    removeChip (item: unknown & StatusInterface) {
+      if (Array.isArray(this.selected)) {
+        const index = this.selected.findIndex(value => value.id === item.id)
+        if (index > -1) {
+          this.selected.splice(index, 1)
+          this.selected = [...this.selected]
+        }
       }
     }
   }

@@ -71,20 +71,19 @@
         xs="12"
       >
         <v-combobox
-          v-model="filter.status.selected"
-          :items="filter.status.items"
+          v-model="filter.status"
+          :items="filter_statuses"
           :label="$tc('Фильтр по результату')"
-          item-text="status_result"
-          item-value="status_id"
-          cache-items
+          item-text="name"
+          item-value="id"
+          item-color="color"
           return-object
           clearable
           dense
           outlined
-          v-on="filter.status.on"
         >
           <template v-slot:item="{ item }">
-            <v-list-item-title>{{ item.status_result }}</v-list-item-title>
+            <v-list-item-title>{{ item.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
           </template>
         </v-combobox>
@@ -269,9 +268,11 @@
           :page.sync="dataTableHistory.page"
           :items-per-page="dataTableHistory.itemsPerPage"
           :options.sync="dataTableHistory.options"
-          :loading="historyProcessLoading"
+          :loading="dataTableHistory.processLoading"
           :no-data-text="$tc('No data for the selected period')"
           :item-class="vDataTableItemClass"
+          :sort-by.sync="dataTableHistory.sortBy"
+          :sort-desc.sync="dataTableHistory.sortDesc"
           locale="ru"
           item-key="id"
           show-select
@@ -399,6 +400,7 @@ import VInterface from '@/VInterface'
 import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
 import VueApexCharts from 'vue-apexcharts'
+import { DataOptions } from 'vuetify'
 import { debounce } from 'vuetify/src/util/helpers'
 
 Vue.use(VueApexCharts)
@@ -416,6 +418,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   computed: {
+    // Статусы используются дл фильтрации результатов
+    filter_statuses: {
+      get () {
+        return this.$store.getters['filter/statuses']
+      },
+
+      set (val: any[]) {
+        this.$store.commit('filter/statuses', val)
+      }
+    },
+
     apexchartOptions (): any {
       return {
         chart: {
@@ -423,15 +436,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
             enabled: false // Off animations
           },
           events: {
+            // Происходит при клике по легенде диаграммы
             legendClick: (chartContext: any, seriesIndex: any, config: any) => {
-              const scope: any = this.pieData[seriesIndex]
+              const scope: unknown & { status_id: number } = this.pieData[seriesIndex]
               if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.filter.status.selected = this.pieData[seriesIndex]
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                  .finally(() => {
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
+                const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === +scope.status_id)
+                if (index > -1) {
+                  this.filter.status = this.filter_statuses[index]
+                }
               } else {
                 throw new Error('В объекте scope отсутствует свойство status_id')
               }
@@ -453,7 +465,16 @@ export default (Vue as VueConstructor<VInterface>).extend({
           show: true
         }
       }
+    },
+
+    paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
+      return JSON.parse(json)
     }
+  },
+
+  created () {
+    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
   },
 
   data () {
@@ -463,6 +484,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       // Data table
       dataTableHistory: {
+        processLoading: false,
         headers: [
           {
             align: 'start',
@@ -493,20 +515,20 @@ export default (Vue as VueConstructor<VInterface>).extend({
           },
           {
             align: 'end',
-            sortable: false,
+            sortable: true,
             text: 'Длительность разговора',
             value: 'call_duration',
             width: 'auto'
           },
           {
             align: 'end',
-            sortable: false,
+            sortable: true,
             text: 'Общее время сессии',
             value: 'session_duration',
             width: 'auto'
           },
           {
-            sortable: false,
+            sortable: true,
             text: 'Менеджер',
             value: 'creator',
             width: 'auto'
@@ -533,7 +555,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
         selected: [],
         // Количество данных на страниц
         selectedAll: false,
-        totalCount: 0
+        totalCount: 0,
+        sortBy: [],
+        sortDesc: []
       },
 
       dateRange: null as string[] | null,
@@ -541,35 +565,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
       filter: {
         // Дата создания контакта
         contact_created_at: [] as string[] | number[],
-        date_period: null as unknown & string,
-
-        status: {
-          items: [],
-          on: {
-            input: (scope: any) => {
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                this.fetchDataPie()
-                this.fetchDataHistory()
-              } else {
-                this.$routerQuery.removeQuery(['status_id'])
-                  .finally(() => {
-                    this.fetchDataPie()
-                    this.fetchDataHistory()
-                  })
-              }
-            }
-          },
-          selected: null
-        },
+        date_period: null as unknown as string,
+        status: null,
         // Дата или диапазон дат
         user: [] as unknown & UserInterface[]
       },
 
       filterDate: undefined,
-      historyProcessLoading: false,
       history_count: 0,
-      itemsPerPage: 10,
       loading: true,
       menuDateRange: null,
       options: {
@@ -595,52 +598,38 @@ export default (Vue as VueConstructor<VInterface>).extend({
         this.fetchTotalCallCount()
         this.fetchDataHistory()
         this.fetchDataPie()
+      }, 350),
+
+      // Загрузить историю
+      fetchDataHistory: debounce(() => {
+        this.dataTa = true
+        let offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
+
+        if (offset < 0) {
+          offset = 0
+        }
+
+        const params: any = Object.assign({
+          count: this.dataTableHistory.itemsPerPage,
+          offset
+        }, this.paramFilters()) // Общие параметры подъехали
+
+        this.dataTableHistory.processLoading = true
+        new Statistics()
+          .history<any, any>(params)
+          .then((response) => {
+            this.dataTableHistory.totalCount = response?.meta?.count || 0
+            this.dataTableHistory.pages = Math.ceil((response?.meta?.count || 0) / this.dataTableHistory.itemsPerPage)
+            this.dataTableHistory.items = response.data.map((e: any) => {
+              e.isPlaying = false
+              return e
+            }) || []
+          }).finally(() => (this.dataTableHistory.processLoading = false))
       }, 350)
     }
   },
 
   methods: {
-
-    // Загрузить историю
-    fetchDataHistory () {
-      this.historyProcessLoading = true
-      let offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
-
-      if (offset < 0) {
-        offset = 0
-      }
-
-      const params: any = Object.assign({
-        count: this.dataTableHistory.itemsPerPage,
-        offset
-      }, this.paramFilters()) // Общие параметры подъехали
-
-      if (this.$routerQuery.hasQuery('history_sort_by')) {
-        params.history_sort_by = this.$routerQuery.getQuery<number>('history_sort_by')
-      }
-
-      if (this.$routerQuery.hasQuery('history_sort_direction')) {
-        params.history_sort_direction = this.$routerQuery.getQuery<number>('history_sort_direction')
-      }
-      new Statistics()
-        .history<any, any>(params)
-        .then((response) => {
-          this.dataTableHistory.totalCount = response?.meta?.count || 0
-          this.dataTableHistory.pages = Math.ceil(response?.meta?.count || 0 / this.dataTableHistory.itemsPerPage)
-          this.dataTableHistory.items = response.data.map((e: any) => {
-            e.isPlaying = false
-            return e
-          }) || []
-          this.filter.status.items = response?.meta?.statuses || []
-
-          if (this.$routerQuery.hasQuery('status_id')) {
-            const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
-            if (index > -1) {
-              this.filter.status.selected = this.filter.status.items[index]
-            }
-          }
-        }).finally(() => (this.historyProcessLoading = false))
-    },
 
     // Загрузить график
     fetchDataPie () {
@@ -662,6 +651,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.pieColors = response.pie_chart.colors || []
 
           this.pieData = response.pie_data || []
+          this.filter_statuses = response.statuses || []
         }).finally(() => (this.processPieLoading = false))
     },
 
@@ -707,6 +697,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }).then(() => {
           this.fetchAllData()
         })
+      })
+
+      // Фильтрация по проектам
+      this.$watch('filter.status', (val: unknown & { id: number; name: string }) => {
+        if (val) {
+          this.$routerQuery.setQuery({
+            status_id: val.id
+          }).then(this.fetchAllData)
+        } else {
+          this.$routerQuery.removeQuery([
+            'status_id'
+          ]).then(this.fetchAllData)
+        }
       })
     },
 
@@ -845,7 +848,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('status_id')) {
-        params.status_id = this.$routerQuery.getQuery<number>('status_id')
+        params.status_id = this.$routerQuery.getQuery('status_id')
       }
 
       if (this.$routerQuery.hasQuery('date_period')) {
@@ -853,12 +856,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (this.$routerQuery.hasQuery('owner_id')) {
-        params.owner_id = this.$routerQuery.getQuery<number>('owner_id')
+        params.owner_id = this.$routerQuery.getQuery('owner_id')
       }
 
       if (this.$routerQuery.hasQuery('contact_created_at')) {
-        params.contact_created_at = this.$routerQuery.getQuery<number>('contact_created_at')
+        params.contact_created_at = this.$routerQuery.getQuery('contact_created_at')
       }
+
+      // Формирую параметры сортировки
+      this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
+        params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
+      })
 
       return params
     },
@@ -886,11 +894,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('owner_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery<number>('owner_id')))
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      const index = (this.filter_statuses as { id: number }[]).findIndex(value => value.id === +this.$routerQuery.getQuery('status_id'))
+
+      if (index > -1) {
+        this.filter.status = this.filter_statuses[index]
+      }
     }
 
     if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery<string>('contact_created_at')
+      const dateRange = this.$routerQuery.getQuery('contact_created_at')
       this.filter.contact_created_at = dateRange
         .split(',', 2)
         .map((e: string) => +e)
@@ -911,19 +927,24 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     'dataTableHistory.options': {
       deep: true,
-      handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
+      handler (ctx: DataOptions) {
+        const sort = []
+        for (let i = 0; i < Math.min(ctx.sortBy.length, ctx.sortDesc.length); i++) {
+          sort.push({ sort_by: ctx.sortBy[i], sort_desc: ctx.sortDesc[i] })
+        }
+        if (sort.length > 0) {
+          // Преобразовываю в JSON и сохраняю в строку браузера
+          this.$routerQuery.setQuery({
+            sort: JSON.stringify(sort)
+          }).then(() => {
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['sort'])
+            .then(() => {
+              this.fetchDataHistory()
+            })
         }
       }
     },

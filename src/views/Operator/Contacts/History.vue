@@ -169,6 +169,7 @@
               <div class="d-flex flex-wrap">
                 <v-btn
                   :key="`v-list-item-action-play-${index}`"
+                  :loading="item.actions.playing.loading"
                   icon
                   @click="onPlayClick(item)"
                 >
@@ -266,6 +267,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
           this.history = response.data.map((e: any) => {
             return Object.assign({
               actions: {
+                playing: {
+                  loading: false
+                },
                 edit: {
                   loading: false
                 }
@@ -320,6 +324,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
+      item.actions.playing.loading = true
       new ContactHistory()
         .getAudioFile(item.id)
         .then((response: any) => {
@@ -329,6 +334,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
           })
         }).catch((e) => {
           this.$toast.error(e.statusText || e.error_message || e || 'undefined')
+        }).finally(() => {
+          item.actions.playing.loading = false
         })
     },
 

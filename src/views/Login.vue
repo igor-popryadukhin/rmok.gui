@@ -99,7 +99,7 @@ export default Vue.extend({
       this.processAuthorization = true
       this.isError = false
       this.authorization.loading = true
-      this.processMessage = this.$tc('Authorization...')
+      this.processMessage = this.$tc('Authentication...')
       axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
         login,
         password
@@ -122,10 +122,7 @@ export default Vue.extend({
             // Если авторизовался оператор
             this.$router.replace({ name: 'operator_leads' })
               .finally(() => {
-                setTimeout(async () => {
-                  this.$root.$emit('root-jssip-initialize')
-                  this.$root.$emit('root-loading-projects')
-                }, 1000)
+                this.$root.$emit('root-loading-projects')
               })
           }
 

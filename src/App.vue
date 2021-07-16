@@ -17,8 +17,6 @@
       :is="layout"
       :key="2"
       tabindex="-1"
-      @keydown.ctrl="$root.$emit('on-keydown-ctrl')"
-      @keyup.ctrl="$root.$emit('on-keyup-ctrl')"
     />
 
     <!-- AUDIO PLAYER -->
@@ -39,7 +37,6 @@
       <div
         class="for-dev-info"
       >
-        <span>screen.width: {{ $vuetify.application.routes }}</span><br>
       </div>
     </div>
     <!-- FOR DEVELOPMENT -->
@@ -56,45 +53,10 @@ import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import { mapGetters } from 'vuex'
 
 export default Vue.extend({
-  beforeCreate () {
-    this.$store.dispatch('profile/loadProfile')
-      .finally(() => {
-        this.$root.$emit('root-jssip-initialize')
-      })
-  },
 
   components: {
     AppAudioPlayer,
     VApp
-  },
-
-  computed: {
-    layout () {
-      return this.$route.meta.layout || 'clean'
-    },
-
-    audioPlayerVolume: {
-      get () {
-        return this.$store.getters['settings/audio_player_volume']
-      },
-
-      set (value: number) {
-        this.$store.commit('settings/audio_player_volume', value)
-      }
-    },
-
-    ...mapGetters({
-      // Текущая временная зона.
-      profile_role_use: 'profile/role_use',
-      profile_tz: 'profile/tz' // Текущая временная зона.
-    })
-  },
-
-  created () {
-    // Отложенная проверка корректности временной зоны пользователя.
-    setTimeout(() => {
-      this.checkTimeZoneSet()
-    }, 10000)
   },
 
   data () {
@@ -123,6 +85,43 @@ export default Vue.extend({
       screenDevVisible: false,
       toastId: 0 as number | string
     }
+  },
+
+  computed: {
+    layout () {
+      return this.$route.meta.layout || 'clean'
+    },
+
+    audioPlayerVolume: {
+      get () {
+        return this.$store.getters['settings/audio_player_volume']
+      },
+
+      set (value: number) {
+        this.$store.commit('settings/audio_player_volume', value)
+      }
+    },
+
+    ...mapGetters({
+      profile_role_use: 'profile/role_use',
+      profile_tz: 'profile/tz' // Текущая временная зона.
+    })
+  },
+
+  beforeCreate () {
+    this.$store.dispatch('profile/loadProfile')
+      .finally(() => {
+        this.$root.$emit('root-jssip-initialize')
+      })
+  },
+
+  created () {
+    // Отложенная проверка корректности временной зоны пользователя.
+    setTimeout(() => {
+      if (this.$route.name !== 'login') {
+        this.checkTimeZoneSet()
+      }
+    }, 10000)
   },
 
   methods: {
@@ -196,17 +195,19 @@ export default Vue.extend({
   mounted () {
     this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$on('on-keydown-ctrl', this.onKeyDown)
-    this.$root.$on('on-keyup-ctrl', this.onKeyUp)
     this.$root.$on('on-audio-player-show', this.onAudioPlayerShow)
+
+    window.addEventListener('keydown', this.onKeyDown)
+    window.addEventListener('keyup', this.onKeyUp)
   },
 
   beforeDestroy () {
     this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$off('on-keydown-ctrl', this.onKeyDown)
-    this.$root.$off('on-keyup-ctrl', this.onKeyUp)
     this.$root.$off('on-audio-player-show', this.onAudioPlayerShow)
+
+    window.removeEventListener('keydown', this.onKeyDown)
+    window.removeEventListener('keyup', this.onKeyUp)
   },
 
   name: 'App'

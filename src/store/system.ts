@@ -3,6 +3,7 @@ import { GroupInterface, Groups } from '@/api/Groups'
 import { CountryCodeInterface, Database } from '@/api/Database'
 
 interface StateInterface {
+  route_from_path: string;
   /**
    * Полный путь URL для перенаправления
    * --------------------------------------
@@ -22,6 +23,7 @@ export const system = {
 
   state (): StateInterface {
     return {
+      route_from_path: '',
       route_last_full_path: '',
       roles: [] as RoleInterface[],
       country_codes: [] as CountryCodeInterface[],
@@ -30,6 +32,7 @@ export const system = {
   },
 
   mutations: {
+    route_from_path (state: StateInterface, payload: string) { state.route_from_path = payload },
     route_last_full_path (state: StateInterface, payload: string) { state.route_last_full_path = payload },
     roles (state: any, payload: RoleInterface[]) { state.roles = payload },
     country_codes (state: any, payload: CountryCodeInterface[]) { state.country_codes = payload },
@@ -43,6 +46,7 @@ export const system = {
   },
 
   getters: {
+    route_from_path (state: StateInterface): string { return state.route_from_path },
     route_last_full_path (state: StateInterface): string {
       return state.route_last_full_path
     },

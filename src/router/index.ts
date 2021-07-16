@@ -1,4 +1,3 @@
-import { app } from '@/main'
 import { loadLanguageAsync } from '@/plugins/i18n'
 import { $permission } from '@/plugins/permission'
 import Home from '@/views/Home.vue'
@@ -6,6 +5,7 @@ import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import secure from '@/middleware/secure'
+// import development from '@/middleware/development'
 
 import { Store } from 'vuex'
 import store from '@/store'
@@ -276,6 +276,16 @@ const routes: RouteConfig[] = [
             path: 'profile'
           },
           {
+            component: () => import(/* webpackChunkName: "operator-settings-contacts" */ '../views/Settings/Contacts.vue'),
+            meta: {
+              icon: 'mdi-phone',
+              layout: 'operator-layout',
+              middleware: [secure]
+            },
+            name: 'operator_settings_contacts',
+            path: 'contacts'
+          },
+          {
             component: () => import(/* webpackChunkName: "operator-settings-journal" */ '../views/Settings/Journal.vue'),
             meta: {
               icon: 'mdi-history',
@@ -527,11 +537,6 @@ const routes: RouteConfig[] = [
             path: ':contact_id/history'
           },
           {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              // Проинициализируем WebRTC
-              app.$root.$emit('root-jssip-initialize')
-              next()
-            },
             children: [],
             component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
             meta: { layout: 'administrator', middleware: [secure] },
@@ -602,6 +607,16 @@ const routes: RouteConfig[] = [
               middleware: [secure]
             },
             path: ':user_id'
+          },
+          {
+            component: () => import(/* webpackChunkName: "administrator-users-schedule" */ '../views/Administrator/Users/Schedule.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_users_schedule',
+            path: ':user_id/schedule'
           }
         ],
         component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/Layout.vue'),
@@ -655,6 +670,72 @@ const routes: RouteConfig[] = [
           middleware: [secure]
         },
         path: 'groups'
+      },
+      {
+        component: () => import(/* webpackChunkName: "administrator-integrations-layout" */ '../views/Settings/LayoutAdmin.vue'),
+        children: [
+          {
+            component: () => import(/* webpackChunkName: "administrator-integrations-contacts-list" */ '@/views/Administrator/Integrations/Contacts/List.vue'),
+            meta: {
+              icon: '',
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            name: 'administrator_integrations_contacts',
+            path: 'contacts'
+          },
+          {
+            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
+              if ($permission.isGranted(['section.groups'])) {
+                next()
+              } else {
+                next({ name: 'access_denied' })
+              }
+            },
+            children: [
+              {
+                component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Administrator/Integrations/IntegrationSettings/List.vue'),
+                meta: {
+                  anonymous: true,
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_itegrationset_list',
+                path: ''
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-itegrationset-new" */ '../views/Administrator/Integrations/IntegrationSettings/New.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_itegrationset_new',
+                path: 'new'
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-itegrationset-edit" */ '../views/Administrator/Integrations/IntegrationSettings/Edit.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_itegrationset_edit',
+                path: ':id'
+              }
+            ],
+            component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Administrator/Integrations/IntegrationSettings/Layout.vue'),
+            meta: {
+              layout: 'administrator',
+              middleware: [secure]
+            },
+            path: 'itegrationset'
+          }
+        ],
+        meta: {
+          layout: 'administrator',
+          middleware: [secure]
+        },
+        name: 'administrator_integrations',
+        path: 'integrations'
       },
       {
         children: [
@@ -727,7 +808,7 @@ const routes: RouteConfig[] = [
         },
         children: [
           {
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/List.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/List.vue'),
             meta: {
               anonymous: true,
               layout: 'administrator',
@@ -737,22 +818,46 @@ const routes: RouteConfig[] = [
             path: ''
           },
           {
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/New.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_projects_new',
-            path: 'new'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/Edit.vue'),
+            component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '@/views/Administrator/Projects/ProjectEdit.vue'),
+            children: [
+              {
+                component: () => import(/* webpackChunkName: "administrator-projects-edit-main" */ '@/views/Administrator/Projects/ProjectEditMain.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_projects_main',
+                path: 'main',
+                props: true
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-projects-edit-members" */ '@/views/Administrator/Projects/ProjectEditMembers.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_projects_members',
+                path: 'members'
+              },
+              {
+                component: () => import(/* webpackChunkName: "administrator-projects-edit-statuses" */ '@/views/Administrator/Projects/ProjectEditStatuses.vue'),
+                meta: {
+                  layout: 'administrator',
+                  middleware: [secure]
+                },
+                name: 'administrator_projects_statuses',
+                path: 'statuses'
+              }
+            ],
             meta: {
               layout: 'administrator',
               middleware: [secure]
             },
             name: 'administrator_projects_edit',
-            path: ':project_id'
+            path: ':project_id',
+            redirect: {
+              name: 'administrator_projects_main'
+            }
           }
         ],
         component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/Layout.vue'),
@@ -835,6 +940,20 @@ const routes: RouteConfig[] = [
     path: '/administrator'
   }
 ]
+
+// Symfony profiler
+if (process.env.NODE_ENV === 'development') {
+  routes.push({
+    component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/SymfonyProfiler.vue'),
+    meta: {
+      layout: 'clean',
+      middleware: [],
+      title: 'Symfony profiler'
+    },
+    name: 'symfony_profiler',
+    path: '/_profiler'
+  })
+}
 
 const router = new VueRouter({
   base: process.env.BASE_URL,

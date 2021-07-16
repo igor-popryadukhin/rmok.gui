@@ -86,6 +86,14 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
 // Add a response interceptor
 _axios.interceptors.response.use(
   (response): Promise<AxiosResponse> | any => {
+
+    if ('x-debug-token-link' in response.headers) {
+      app.$store.commit('symfony/call_collection', {
+        endpoint: response.request.responseURL,
+        profiler: response.headers['x-debug-token-link']
+      })
+    }
+
     if (response.status === 401) {
       return app.$router.replace({ name: 'login' }).finally(() => Promise.reject(response))
     } else {

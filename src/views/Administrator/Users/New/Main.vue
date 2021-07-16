@@ -65,7 +65,7 @@
           <v-text-field
             v-model="user.login"
             :label="$tc('Login')"
-            :rules="[rules.notBlank]"
+            :rules="[rules.notBlank, rules.noSpace, rules.notFirstDigit, rules.isValidLoginName]"
             autocomplete="new-login"
           >
             <template
@@ -208,24 +208,6 @@
         </v-col>
       </v-row>
 
-      <!-- Организация -->
-      <v-row v-if="$permission.isSuperAdmin">
-        <v-col
-          cols="12"
-          md="4"
-          lg="4"
-          xl="4"
-        >
-          <s-organizations-autocomplete
-            ref="sOrganizations"
-            v-model="user.organization"
-            :label="$tc('organization')"
-            :disabled="assertObjectHasAttribute(user.organization, 'id')"
-            visible-icon
-          />
-        </v-col>
-      </v-row>
-
       <v-row>
         <v-col
           cols="12"
@@ -252,7 +234,6 @@
             v-model="user.group"
             :label="$tc('Group')"
             visible-icon
-            :disabled="!assertObjectHasAttribute(user.organization, 'id')"
             :params="sGroupsParams"
           >
           </s-groups>
@@ -292,7 +273,6 @@ import { RoleInterface } from '@/api/Roles'
 import { Users } from '@/api/Users'
 import rules from '@/mixins/rules'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
-import SOrganizationsAutocomplete from '@/snippets/SOrganizations/SOrganizationsAutocomplete.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import SRoles from '@/snippets/SRoles/SRoles.vue'
 import { isEmpty } from '@/Utils'
@@ -318,7 +298,6 @@ interface VInnerInterface extends VInterface {
 export default (Vue as VueConstructor<VInnerInterface>).extend({
   components: {
     SGroups,
-    SOrganizationsAutocomplete,
     SProjectsAutocomplete,
     SRoles
   },
@@ -394,10 +373,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         requestData.project_id = this.user.project.id
       }
 
-      if (this.assertObjectHasAttribute(this.user.organization, 'id')) {
-        requestData.organization_id = this.user.organization.id
-      }
-
       if (this.assertObjectHasAttribute(this.user.group, 'id')) {
         requestData.group_id = this.user.group.id
       }
@@ -409,14 +384,9 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       this.buttonSave.loading = true
       new Users()
         .add<{ id: number }>(requestData)
-        .then((response) => {
+        .then(() => {
           this.$toast.success(this.$tc('User added successfully'))
-          this.$router.push({
-            name: 'administrator_users_edit_main',
-            params: {
-              user_id: response.id
-            }
-          })
+          this.$router.push({ name: 'administrator_users_list' })
         }).catch((e) => {
           if ('errors' in e) {
             if (Array.isArray(e.errors)) {
