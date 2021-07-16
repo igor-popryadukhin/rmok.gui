@@ -102,13 +102,17 @@
                   <v-list-item
                     :key="'v-list-item-' + key"
                     :value="item.id"
+                    :disabled="item.user_is_deleted"
                     link
                     @mouseenter="integrationHoverId = item.id | 0"
                     @mouseleave="integrationHoverId = 0"
                     @mouseup="integrationId = item.id"
                   >
                     <v-list-item-content>
-                      <v-list-item-title>
+                      <v-list-item-title v-if="item.user_is_deleted" style="text-decoration: line-through">
+                        {{ item.user_name }}
+                      </v-list-item-title>
+                      <v-list-item-title v-else>
                         {{ item.user_name }}
                       </v-list-item-title>
                       <v-list-item-subtitle>
