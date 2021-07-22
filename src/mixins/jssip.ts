@@ -298,6 +298,58 @@ const jssip = Vue.extend({
               if (this.$isDebug && event.message) {
                 console.log(event.message)
               }
+
+              if (event.originator === 'local') {
+                // Локальный
+                if (event.cause === 'Canceled') {
+                  this.$toast.info('Call canceled')
+                }
+              } else if (event.originator === 'remote') {
+                // Удалённый
+
+                const message = event.message
+                if (typeof message === 'object' && 'status_code' in message) {
+                  if (message?.status_code === 480) {
+                    /**
+                     * Q.850 описание: No answer from the user
+                     * SIP описание: Temporarily unavailable
+                     */
+                    if (/Q\.850;cause=19/.test(String((message as any)?.data || ''))) {
+                      this.$toast.info('Subscriber unavailable')
+                    } else {
+                      this.$toast.error((message as any)?.data)
+                    }
+                  } else if (message?.status_code === 486) {
+                    /**
+                     * Абонент занят.
+                     * ----------------------------
+                     * Q.850 описание: User busy
+                     * SIP описание: Busy here
+                     */
+                    if (/Q\.850;cause=17/.test(String((message as any)?.data || ''))) {
+                      this.$toast.info('The subscriber is busy')
+                    } else {
+                      this.$toast.error((message as any)?.data)
+                    }
+                  } else if (message?.status_code === 503) {
+                    /**
+                     * Отсутствует доступный канал.
+                     * Эта причина указывает на то, что в настоящее время нет подходящего канала для обработки вызова.
+                     * ------------------------------------------------------------------------
+                     * Q.850 описание: No circuit, channel unavailable
+                     * SIP описание: Service unavailable
+                     */
+                    if (/Q\.850;cause=34/.test(String((message as any)?.data || ''))) {
+                      this.$toast.info('Service unavailable')
+                    } else {
+                      this.$toast.error((message as any)?.data)
+                    }
+                  } else {
+                    this.$toast.error((message as any)?.data)
+                  }
+                }
+              }
+
               // Отправка логов c ошибками SIP на сервер
               if (event) {
                 try {
@@ -309,8 +361,6 @@ const jssip = Vue.extend({
                   console.error(e)
                 }
               }
-
-              this.$toast.error(`Event: ${event.cause}`, { timeout: 3000 })
             }
 
             /**
