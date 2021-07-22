@@ -477,9 +477,9 @@ export default Vue.extend<IData, IMethods, IComputed>({
       new Leads()
         .getQueueLeads<{ count: number }, ContactInterface[]>(query)
         .then((response) => {
-          this.leadsCount = response?.meta?.count || 0
-          this.paginator.pages = Math.ceil(response?.meta?.count / this.paginator.perPage)
-          this.leads = response?.data || []
+          this.$data.leadsCount = response?.meta?.count || 0
+          this.$data.paginator.pages = Math.ceil(response?.meta?.count || 0 / this.paginator.perPage)
+          this.$data.leads = response?.data || []
         }).finally(() => {
         this.leadsLoading = false
       })
