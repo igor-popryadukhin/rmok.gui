@@ -1,4 +1,5 @@
 /* eslint-disable */
+import Task from './interfaces/Task';
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
@@ -60,8 +61,8 @@ export default class Tasks {
    *
    * @param params
    */
-  public find<TM = any, TD = any> (params= {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+  public find (params= {}): Promise<ResponseInterface<any, Task[]>> {
+    return new Promise<ResponseInterface<any, Task[]>>((resolve, reject) => {
       $axios.get('/tasks', {
         params
       }).then((response: AxiosResponse) => {

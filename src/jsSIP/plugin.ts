@@ -5,26 +5,20 @@ import {
   EventHandlerEnded,
   EventHandlerFailed,
   EventHandlerProgress
-} from '@/jsSIP/types'
-import { makeAudioElement } from '@/jsSIP/utils'
-import { debug, UA } from 'jssip'
+} from './types'
+import { debug, UA, Utils as JsSIPUtils } from 'jssip'
 import {
   AnswerOptions,
   ConnectingEvent,
   EndEvent,
   IncomingEvent,
   OutgoingEvent,
-  PeerConnectionEvent,
   RTCSession
 } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import { JsSIPFactory, JsSPConfiguration } from './JsSIPFactory'
 import { Timer } from './Timer'
 import jssipVersion from './version'
-
-// Audio element for playing the sound of an incoming or outgoing call
-const audioElementForCall: HTMLAudioElement = makeAudioElement('audio-jssip-call')
-const audioElementForSound: HTMLAudioElement = makeAudioElement('audio-jssip-sound')
 
 /**
  * Call direction
@@ -153,22 +147,10 @@ export class JsSIP {
     this._onSessionFailed = value
   }
 
-  private static playSound (name: string, loop = false, playbackRate = 1, volume = 1) {
-    if (!audioElementForSound.paused) {
-      audioElementForSound.pause()
-    }
-    audioElementForSound.currentTime = 0.0
-    audioElementForSound.src = '/sounds/' + name
-    audioElementForSound.loop = loop
-    audioElementForSound.playbackRate = playbackRate
-    audioElementForSound.volume = volume
-    audioElementForSound.play()
-  }
-
-  private static stopSound () {
-    audioElementForSound.pause()
-    audioElementForSound.currentTime = 0.0
-  }
+  private _localClonedStream?: MediaStream
+  private _localAudio?: Audio
+  private _remoteAudio?: Audio
+  private _audioElementForSound?: Audio
 
   private _pcConfig?: RTCConfiguration | undefined
 
@@ -197,6 +179,13 @@ export class JsSIP {
   private _onSessionFailed?: EventHandlerFailed
 
   constructor (url: string, config: JsSPConfiguration) {
+    this._localAudio = new Audio()
+    this._remoteAudio = new Audio()
+    this._audioElementForSound = new Audio()
+
+    this._localAudio.autoplay = true
+    this._remoteAudio.autoplay = true
+
     if (!config.pcConfig) {
       this._pcConfig = {
         rtcpMuxPolicy: undefined,
@@ -233,7 +222,7 @@ export class JsSIP {
     this._target = target
     this._uuid = this.generateUUID()
     /* eslint-disable */
-    return this._ua.call(target, {
+    this._session = this._ua.call(target, {
       extraHeaders: [
         'X-Call-Filename: ' + this._uuid
       ],
@@ -247,13 +236,13 @@ export class JsSIP {
         offerToReceiveVideo: false
       }
     })
+    return this._session
   }
 
   public answer (payload: any = null, options?: AnswerOptions) {
     if (payload) {
       this._payload = payload
     }
-    JsSIP.playSound('answered.mp3')
     this._session?.answer(options)
   }
 
@@ -334,18 +323,23 @@ export class JsSIP {
     debug.enable(namespace)
   }
 
+  private stopSound () {
+    this._audioElementForSound.pause()
+    this._audioElementForSound.currentTime = 0.0
+  }
+
   private initializeListeners () {
-    this._ua.on('registered', () => (this.onRegistered()))
-    this._ua.on('disconnected', () => this.onDisconnect)
-    this._ua.on('registrationExpiring', () => this.onRegistrationExpiring)
-    this._ua.on('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
+    this._ua.on('registered', this.onRegistered.bind(this))
+    this._ua.on('disconnected', this.onDisconnect.bind(this))
+    this._ua.on('registrationExpiring', this.onRegistrationExpiring.bind(this))
+    this._ua.on('newRTCSession', this.onNewRTCSession.bind(this))
   }
 
   private unInitializeListeners () {
-    this._ua.off('registered', () => (this.onRegistered()))
-    this._ua.off('disconnected', () => this.onDisconnect)
-    this._ua.off('registrationExpiring', () => this.onRegistrationExpiring)
-    this._ua.off('newRTCSession', (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) => this.onNewRTCSession(event))
+    this._ua.off('registered', this.onRegistered.bind(this))
+    this._ua.off('disconnected', this.onDisconnect.bind(this))
+    this._ua.off('registrationExpiring', this.onRegistrationExpiring.bind(this))
+    this._ua.off('newRTCSession', this.onNewRTCSession.bind(this))
   }
 
   private onRegistered () {
@@ -363,16 +357,18 @@ export class JsSIP {
   private onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
     this._sessionStartTime = new Date()
     const session: RTCSession = event.session
-    this._session = event.session
-
-    // session.on('icecandidate', (event) => {
-    //   console.log(event.candidate.candidate)
-    //   setTimeout(event.ready, 5000)
-    // })
 
     // Запускается после добавления локального медиа потока RTCSession и
     // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».
     session.on('connecting', (event: ConnectingEvent) => {
+      // Тут мы подключаемся к микрофону и цепляем к нему поток, который пойдёт в астер
+      const peerconnection = session.connection
+      this._localClonedStream = peerconnection.getLocalStreams()[0]
+
+      peerconnection.addEventListener('addstream', (event) => {
+        this._remoteAudio.srcObject = event.stream
+      })
+
       this._state = JsSIPState.CONNECTING
       this.startRenderSessionStopwatch()
       this.doSessionConnecting(session, event)
@@ -383,28 +379,24 @@ export class JsSIP {
       this._state = JsSIPState.PROGRESS
 
       if (session.direction === 'incoming') {
-        JsSIP.playSound('ringing2.mp3', true)
-      } else {
-        audioElementForCall.muted = true
-        JsSIP.playSound('ringback2.mp3', true)
+        this.playSound('ringing2.mp3', true)
       }
+
       this.doSessionProgress(session, event)
     })
 
-    // session.on('confirmed', (event: IncomingEvent | OutgoingEvent) => {
-    //   console.log('confirmed', event)
-    // })
-
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
     session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
-      JsSIP.playSound('answered.mp3', false, 1, 0.2)
-      audioElementForCall.muted = false
+      this.playSound('answered.mp3', false, 1, 0.2)
       this._state = JsSIPState.ACCEPTED
       this.doSessionAccepted(session, event)
     })
 
     // Срабатывает, когда установленный вызов завершается.
     session.on('ended', (event: EndEvent) => {
+      // Закрываю локальный MediaStream
+      JsSIPUtils.closeMediaStream(this._localClonedStream)
+
       this._sessionEndTime = new Date()
       this.stopRenderSessionStopwatch()
       this._state = JsSIPState.IDLE
@@ -413,32 +405,19 @@ export class JsSIP {
 
     // Запускается, когда сеанс не может быть установлен.
     session.on('failed', (event: EndEvent) => {
+      // Закрываю локальный MediaStream
+      JsSIPUtils.closeMediaStream(this._localClonedStream)
+
       this._sessionEndTime = new Date()
       this.stopRenderSessionStopwatch()
 
-      JsSIP.playSound('rejected.mp3')
+      this.playSound('rejected.mp3')
 
       this._state = JsSIPState.IDLE
 
       this.doSessionEnded(session, event)
       this.doSessionFailed(session, event)
     })
-
-    // Outgoing media stream
-    if (session.direction === 'outgoing') {
-      session.connection.addEventListener('addstream', (e: any) => {
-        audioElementForCall.srcObject = e.stream
-        audioElementForCall.play()
-      })
-    } else {
-      // Incoming media stream
-      session.once('peerconnection', (event: PeerConnectionEvent) => {
-        event.peerconnection.addEventListener('addstream', (e: any) => {
-          audioElementForCall.srcObject = e.stream
-          audioElementForCall.play()
-        })
-      })
-    }
   }
 
   private doSessionConnecting (session: RTCSession, event: ConnectingEvent) {
@@ -531,5 +510,17 @@ export class JsSIP {
       // tslint:disable-next-line:no-bitwise
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
     })
+  }
+
+  private playSound (name: string, loop = false, playbackRate = 1, volume = 1) {
+    if (!this._audioElementForSound.paused) {
+      this._audioElementForSound.pause()
+    }
+    this._audioElementForSound.currentTime = 0.0
+    this._audioElementForSound.src = '/sounds/' + name
+    this._audioElementForSound.loop = loop
+    this._audioElementForSound.playbackRate = playbackRate
+    this._audioElementForSound.volume = volume
+    this._audioElementForSound.play()
   }
 }

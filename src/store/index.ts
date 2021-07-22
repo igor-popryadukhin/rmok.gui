@@ -1,14 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
-import { profile } from '@/store/profile'
 import { system } from './system'
 import project from './project'
-import tasks from '@/store/tasks'
-import settings from '@/store/settings'
-import filter from '@/store/filter'
-import symfony from '@/store/symfony'
-import { database } from '@/store/database'
+import tasks from './tasks'
+import settings from './settings'
+import filter from './filter'
+import symfony from './symfony'
+import profile from './profile'
+import { database } from './database'
+import debug from 'debug'
 
 Vue.use(Vuex)
 
@@ -16,12 +17,13 @@ const get = (key: string) => localStorage.getItem(key)
 const set = (key: string, value: string) => localStorage.setItem(key, value)
 const remove = (key: string) => localStorage.getItem(key)
 
-export interface RootStateInterface {
+export interface RootState {
   root: number;
 }
 
 const store = new Vuex.Store({
-  state (): RootStateInterface {
+  strict: true,
+  state (): RootState {
     return {
       root: 0
     }
@@ -125,6 +127,13 @@ const store = new Vuex.Store({
       }
     })
   ]
+})
+
+const vuexDebug = debug('VUEX')
+const vuexDebugActions = vuexDebug.extend('ACTION')
+
+store.subscribeAction((ap, rs) => {
+  vuexDebugActions('%o %o', ap, rs)
 })
 
 export default store

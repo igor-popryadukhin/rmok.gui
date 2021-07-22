@@ -7,9 +7,18 @@
       cols="12"
       class="text-center"
     >
-      <div class="oops">Oops!</div>
-      <div class="not-found">404</div>
-      <v-btn text @click="$router.go(-2)">{{ $tc('Go back') }}</v-btn>
+      <div class="oops">
+        Oops!
+      </div>
+      <div class="not-found">
+        404
+      </div>
+      <v-btn
+        text
+        @click="$router.go(-2)"
+      >
+        {{ $tc('Go back') }}
+      </v-btn>
     </v-col>
   </v-row>
 </template>

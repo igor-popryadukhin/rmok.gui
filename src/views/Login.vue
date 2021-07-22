@@ -10,7 +10,10 @@
         sm="8"
         md="4"
       >
-        <div class="d-flex align-center justify-center" style="min-height: 100px">
+        <div
+          class="d-flex align-center justify-center"
+          style="min-height: 100px"
+        >
           {{ processMessage }}
         </div>
       </v-col>
@@ -25,12 +28,15 @@
         sm="8"
         md="4"
       >
-        <v-card tile flat>
+        <v-card
+          tile
+          flat
+        >
           <v-toolbar
             flat
           >
             <v-toolbar-title>{{ $t('login_to_the_system') }}</v-toolbar-title>
-            <v-spacer></v-spacer>
+            <v-spacer />
           </v-toolbar>
           <v-card-text>
             <v-form>
@@ -41,7 +47,7 @@
                 prepend-icon="mdi-account"
                 type="text"
                 @keyup.enter="login(authorization.login, authorization.password)"
-              ></v-text-field>
+              />
 
               <v-text-field
                 v-model="authorization.password"
@@ -50,16 +56,18 @@
                 prepend-icon="mdi-lock"
                 type="password"
                 @keyup.enter="login(authorization.login, authorization.password)"
-              ></v-text-field>
+              />
             </v-form>
           </v-card-text>
           <v-card-actions>
-            <v-spacer></v-spacer>
+            <v-spacer />
             <v-btn
               color="grey"
               tile
               text
-            >{{ $t('Restore access') }}</v-btn>
+            >
+              {{ $t('Restore access') }}
+            </v-btn>
             <v-btn
               id="v-btn-sig-in"
               color="black"
@@ -67,7 +75,9 @@
               tile
               text
               @click="login(authorization.login, authorization.password)"
-            >{{ $t('sign_in') }}</v-btn>
+            >
+              {{ $t('sign_in') }}
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -108,24 +118,18 @@ export default Vue.extend({
           /* eslint-disable */
           // @ts-ignore
           this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 })
+
+          // TODO: SSE JWT
+          this.$cookie.set('mercureAuthorization', 'eyJhbGciOiJIUzUxMiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.DJkY462v8sDVWMdAlmpIjvac_NfXjLoh8nfLfdT6wb-4CN6Vth1qL0HY36U2QFowXsj6JzDQ58r0fOI-J-JSsA', { path: '/', 'max-age': 86400 })
           // @ts-ignore
           this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
 
           this.processMessage = this.$tc('Loading profile data...')
-          await this.$store.dispatch('profile/loadProfile')
+          await this.$store.dispatch('profile/load')
 
-
-          if (this.$store.getters['profile/role_use'] === 'for_administration') {
-            this.$router.replace({ name: 'administrator' })
-          } else if (this.$store.getters['profile/role_use'] === 'for_calls') {
-
-            // Если авторизовался оператор
-            this.$router.replace({ name: 'operator_leads' })
-              .finally(() => {
-                this.$root.$emit('root-loading-projects')
-              })
-          }
-
+          setTimeout(() => {
+            this.$router.replace('/leads')
+          }, 1000)
 
           this.processMessage = this.$tc('Login successful!')
           /* eslint-enable */

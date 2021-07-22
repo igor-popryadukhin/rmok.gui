@@ -26,12 +26,11 @@ export class RouterQuery {
       })
 
       this._vueRouter.push({
+        name: this._vueRouter.currentRoute.name,
         params: this._vueRouter.currentRoute.params,
         path: this._vueRouter.currentRoute.path,
         query: obj
-      }).catch((reason) => {
-        return reason
-      }).finally(resolve)
+      }).catch().finally(resolve)
     })
   }
 

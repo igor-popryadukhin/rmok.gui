@@ -1,5 +1,14 @@
 <template>
-  <div>
+  <v-sheet>
+    <app-tools>
+      <template #left>
+        <h2 class="grey--text">
+          {{ $tc('For the developer') }}
+        </h2>
+      </template>
+    </app-tools>
+    <v-divider class="mb-2" />
+
     <v-row>
       <v-col
         cols="12"
@@ -10,8 +19,7 @@
           outlined
           readonly
           :messages="$tc('To generate a new token, click on <Create access token>')"
-        >
-        </v-textarea>
+        />
       </v-col>
     </v-row>
     <v-row>
@@ -26,15 +34,15 @@
           {{ $tc('Create access token') }}
         </v-btn>
         <v-btn
+          v-clipboard:copy="token.access_token"
           class="mr-2"
           text
-          v-clipboard:copy="token.access_token"
         >
           {{ $tc('Copy') }}
         </v-btn>
       </v-col>
     </v-row>
-  </div>
+  </v-sheet>
 </template>
 
 <script lang="ts">

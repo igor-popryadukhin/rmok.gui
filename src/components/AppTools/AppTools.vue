@@ -1,7 +1,7 @@
 <template>
   <div
     class="d-flex app-tools"
-    style="margin-bottom: 16px"
+    style="margin-bottom: 10px"
   >
     <slot name="left"></slot>
     <v-spacer />

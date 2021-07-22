@@ -1,10 +1,10 @@
 import Statuses from '@/api/Statuses'
-import { RootStateInterface } from '@/store'
+import { RootState } from '@/store'
 import { ActionContext, ActionTree } from 'vuex'
 import { FilterStateInterface } from './state'
 
-const actions: ActionTree<FilterStateInterface, RootStateInterface> = {
-  statuses (ctx: ActionContext<FilterStateInterface, RootStateInterface>, params = {}) {
+const actions: ActionTree<FilterStateInterface, RootState> = {
+  statuses (ctx: ActionContext<FilterStateInterface, RootState>, params = {}) {
     new Statuses()
       .findBy(params)
       .then((response) => {

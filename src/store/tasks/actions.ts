@@ -1,9 +1,9 @@
 import Tasks, { TaskInterface } from '@/api/Tasks'
-import { RootStateInterface } from '@/store'
+import { RootState } from '@/store'
 import { ActionTree } from 'vuex'
 import { TasksStateInterface } from './state'
 
-const actions: ActionTree<TasksStateInterface, RootStateInterface> = {
+const actions: ActionTree<TasksStateInterface, RootState> = {
 
   /**
    *

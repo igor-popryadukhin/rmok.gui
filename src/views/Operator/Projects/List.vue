@@ -24,18 +24,18 @@ import Vue from 'vue'
 import Projects, { ProjectInterface } from '@/api/Projects'
 
 export default Vue.extend({
+
+  data () {
+    return {
+      projects: [] as unknown as ProjectInterface[]
+    }
+  },
   created () {
     new Projects()
       .find<{count: number}, ProjectInterface[]>()
       .then((response) => {
         this.projects = response.data
       })
-  },
-
-  data () {
-    return {
-      projects: [] as unknown as ProjectInterface[]
-    }
   }
 })
 </script>

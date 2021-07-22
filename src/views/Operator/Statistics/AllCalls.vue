@@ -6,12 +6,12 @@
     <v-row>
       <v-col>
         <div class="d-flex">
-          <v-spacer/>
+          <v-spacer />
           <app-btn-toggle-date
             v-model="filter.date_period"
             :items="dateRangeCollection"
           >
-            <template v-slot:item-append>
+            <template #item-append>
               <v-menu
                 ref="menuDateRange"
                 v-model="menuDateRange"
@@ -21,7 +21,7 @@
                 offset-y
                 min-width="290px"
               >
-                <template v-slot:activator="{ on }">
+                <template #activator="{ on }">
                   <v-btn
                     v-on="on"
                   >
@@ -36,7 +36,7 @@
                   no-title
                   locale="ru"
                 >
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
                     text
                     color="primary"
@@ -82,7 +82,7 @@
           outlined
           v-on="filter.status.on"
         >
-          <template v-slot:item="{ item }">
+          <template #item="{ item }">
             <v-list-item-title>{{ item.status_result }}</v-list-item-title>
             <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
           </template>
@@ -114,15 +114,15 @@
           :length="dataTableHistory.pages"
           :disabled="dataTableHistory.processLoading || dataTableHistory.selectedWhole"
         >
-          <template v-slot:display>
+          <template #display>
             <v-menu offset-y>
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-btn
                   v-bind="attrs"
-                  v-on="on"
                   tile
                   text
                   small
+                  v-on="on"
                 >
                   {{ dataTableHistory.pageStart }}-{{ dataTableHistory.pageStop }} из {{ dataTableHistory.totalCount }}
                 </v-btn>
@@ -152,14 +152,16 @@
             </v-menu>
           </template>
         </app-pagination>
-        <v-spacer/>
+        <v-spacer />
         <v-btn-toggle background-color="green">
           <v-btn
             outlined
             tile
             color="white"
           >
-            <v-icon color="white">mdi-cog</v-icon>
+            <v-icon color="white">
+              mdi-cog
+            </v-icon>
           </v-btn>
           <v-btn
             outlined
@@ -193,24 +195,30 @@
           @pagination="onPaginationChange"
         >
           <!-- slots item -->
-          <template slot="item.created_at" slot-scope="{ item }">
-            {{ $moment.unix(item.created_at).utc().format('DD.MM.YYYY HH:mm')  }}
+          <template
+            slot="item.created_at"
+            slot-scope="{ item }"
+          >
+            {{ $moment.unix(item.created_at).utc().format('DD.MM.YYYY HH:mm') }}
           </template>
-          <template slot="item.contact" slot-scope="{ item }">
+          <template
+            slot="item.contact"
+            slot-scope="{ item }"
+          >
             <template v-if="item.contact">
               <template v-if="item.contact.owner_id.id !== item.owner.id">
                 <span class="grey--text">
-                   <v-icon
-                     class="mr-1"
-                     small
-                   >
-                     mdi-account-convert
-                   </v-icon>
+                  <v-icon
+                    class="mr-1"
+                    small
+                  >
+                    mdi-account-convert
+                  </v-icon>
                   {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
                 </span>
               </template>
               <template v-else>
-                <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">
+                <router-link :to="{ name: 'contacts_view', params: { contact_id: item.contact.id } }">
                   {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
                 </router-link>
               </template>
@@ -219,28 +227,53 @@
               —
             </template>
           </template>
-          <template slot="item.status" slot-scope="{ item }">
-            <span class="label" :style="{'background-color': item.status_color}">
+          <template
+            slot="item.status"
+            slot-scope="{ item }"
+          >
+            <span
+              class="label"
+              :style="{'background-color': item.status_color}"
+            >
               {{ item.status_result }}
             </span>
           </template>
-          <template slot="item.comment" slot-scope="{ item }">
-            <v-tooltip color="primary" max-width="300" bottom>
-              <template v-slot:activator="{ on }">
-                <div v-on="on" style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;width: 200px">
+          <template
+            slot="item.comment"
+            slot-scope="{ item }"
+          >
+            <v-tooltip
+              color="primary"
+              max-width="300"
+              bottom
+            >
+              <template #activator="{ on }">
+                <div
+                  style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;width: 200px"
+                  v-on="on"
+                >
                   {{ item.comment || '-' }}
                 </div>
               </template>
               <span>{{ item.comment || '-' }}</span>
             </v-tooltip>
           </template>
-          <template slot="item.call_duration" slot-scope="{ item }">
+          <template
+            slot="item.call_duration"
+            slot-scope="{ item }"
+          >
             {{ secondsToHmsDigital(item.call_duration) }}
           </template>
-          <template slot="item.session_duration" slot-scope="{ item }">
+          <template
+            slot="item.session_duration"
+            slot-scope="{ item }"
+          >
             {{ secondsToHmsDigital(item.session_duration) }}
           </template>
-          <template slot="item.creator" slot-scope="{ item }">
+          <template
+            slot="item.creator"
+            slot-scope="{ item }"
+          >
             <template v-if="item.creator">
               {{ item.creator.first_name }} {{ item.creator.last_name }}
             </template>
@@ -248,7 +281,10 @@
               —
             </template>
           </template>
-          <template slot="item.record" slot-scope="{ item }">
+          <template
+            slot="item.record"
+            slot-scope="{ item }"
+          >
             <v-btn
               v-if="!item.isPlaying"
               :disabled="item.audio_recording_id === null"
@@ -309,7 +345,7 @@ import VueApexCharts from 'vue-apexcharts'
 import { debounce } from 'vuetify/src/util/helpers'
 
 Vue.use(VueApexCharts)
-Vue.component('apexchart', VueApexCharts)
+Vue.component('Apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: {
@@ -319,30 +355,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
   },
 
   mixins: [audioPlayer, dateRangeCollection],
-
-  computed: {
-    apexchartOptions (): any {
-      return {
-        colors: this.pieColors,
-        labels: this.pieLabels,
-        legend: {
-          position: 'right',
-          show: true
-        }
-      }
-    },
-
-    dataTableHistoryHeight () {
-      if (this.$screenHeight < 900) {
-        return 500
-      }
-      return this.$screenHeight - 150
-    }
-  },
-
-  created () {
-    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
-  },
 
   data () {
     return {
@@ -522,6 +534,101 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
   },
 
+  computed: {
+    apexchartOptions (): any {
+      return {
+        colors: this.pieColors,
+        labels: this.pieLabels,
+        legend: {
+          position: 'right',
+          show: true
+        }
+      }
+    },
+
+    dataTableHistoryHeight () {
+      if (this.$screenHeight < 900) {
+        return 500
+      }
+      return this.$screenHeight - 150
+    }
+  },
+
+  watch: {
+
+    'dataTableHistory.options': {
+      deep: true,
+      handler ({ sortBy, sortDesc }) {
+        if (Array.isArray(sortBy)) {
+          if (sortBy.length > 0) {
+            this.$routerQuery.setQuery({
+              history_sort_by: sortBy.join(','),
+              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
+            }).then(() => (this.fetchDataHistory()))
+          } else {
+            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
+            this.$routerQuery
+              .removeQuery(['history_sort_by', 'history_sort_direction'])
+              .then(() => (this.fetchDataHistory()))
+          }
+        }
+      }
+    },
+
+    'dataTableHistory.page': {
+      handler (page: number) {
+        console.log(page)
+        this.$routerQuery.setQuery({ history_page: page })
+      }
+    }
+  },
+
+  created () {
+    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
+  },
+
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
+    if (this.$routerQuery.hasQuery('date_period')) {
+      this.filter.date_period = this.$routerQuery.getQuery('date_period')
+
+      if (/^\d+,\d+/s.test(String(this.filterDate))) {
+        const dateRangeStr = String(this.filterDate)
+        const dates = dateRangeStr.split(',', 2)
+        this.dateRange = [
+          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
+          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
+        ]
+      }
+    }
+
+    if (this.$routerQuery.hasQuery('creator_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      this.$routerQuery.getQuery('status_id')
+    }
+
+    if (this.$routerQuery.hasQuery('contact_created_at')) {
+      const dateRange = this.$routerQuery.getQuery('contact_created_at')
+      this.filter.contact_created_at = dateRange
+        .split(',', 2)
+        .map((e: string) => +e)
+        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
+    }
+
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchDataHistory() // Сначала загружаем данные для диаграммы
+        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
+      })
+  },
+
   methods: {
 
     /**
@@ -657,77 +764,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     vDataTableItemClass (scope: any) {
       return 'v-dt-item'
-    }
-  },
-
-  mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
-
-    if (this.$routerQuery.hasQuery('date_period')) {
-      this.filter.date_period = this.$routerQuery.getQuery('date_period')
-
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
-      }
-    }
-
-    if (this.$routerQuery.hasQuery('creator_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('status_id')) {
-      this.$routerQuery.getQuery('status_id')
-    }
-
-    if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery('contact_created_at')
-      this.filter.contact_created_at = dateRange
-        .split(',', 2)
-        .map((e: string) => +e)
-        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchDataHistory() // Сначала загружаем данные для диаграммы
-        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
-      })
-  },
-
-  watch: {
-
-    'dataTableHistory.options': {
-      deep: true,
-      handler ({ sortBy, sortDesc }) {
-        if (Array.isArray(sortBy)) {
-          if (sortBy.length > 0) {
-            this.$routerQuery.setQuery({
-              history_sort_by: sortBy.join(','),
-              history_sort_direction: sortDesc[0] ? 'asc' : 'desc'
-            }).then(() => (this.fetchDataHistory()))
-          } else {
-            // Если сортировка не нужна, удаляем параметры и з адресной строки браузера
-            this.$routerQuery
-              .removeQuery(['history_sort_by', 'history_sort_direction'])
-              .then(() => (this.fetchDataHistory()))
-          }
-        }
-      }
-    },
-
-    'dataTableHistory.page': {
-      handler (page: number) {
-        console.log(page)
-        this.$routerQuery.setQuery({ history_page: page })
-      }
     }
   }
 })

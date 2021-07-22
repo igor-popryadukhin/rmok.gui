@@ -15,14 +15,17 @@
         <span :style="{ color: group.color }">{{ group.name }}</span>
       </v-tab>
       <v-spacer />
-      <v-tooltip bottom max-width="400">
-        <template v-slot:activator="{ on, attrs }">
+      <v-tooltip
+        bottom
+        max-width="400"
+      >
+        <template #activator="{ on, attrs }">
           <v-btn
-            v-on="on"
             v-bind="attrs"
             color="red"
             tile
             text
+            v-on="on"
             @click="$emit('on-close')"
           >
             <v-icon>mdi-close</v-icon>
@@ -36,7 +39,10 @@
       v-model="tabStatus"
     >
       <v-tab-item>
-        <v-container class="px-5" fluid>
+        <v-container
+          class="px-5"
+          fluid
+        >
           <v-radio-group
             column
           >
@@ -53,12 +59,12 @@
                 class="pa-0 mb-1"
               >
                 <v-radio
+                  :id="`v-radio-${item.id}`"
                   :key="`v-radio-${statusIndex}`"
                   :color="status.color"
-                  :id="`v-radio-${item.id}`"
                   @change="onRadioChange(item)"
                 >
-                  <template v-slot:label>
+                  <template #label>
                     <span :style="{ color: status.color }">{{ item.name }}</span>
                   </template>
                 </v-radio>
@@ -71,7 +77,10 @@
         v-for="(tabItem, tabIndex) in statuses"
         :key="`tab-item-status-${tabIndex}`"
       >
-        <v-container class="px-5" fluid>
+        <v-container
+          class="px-5"
+          fluid
+        >
           <v-radio-group
             :key="`v-radio-group-${tabIndex}`"
             column
@@ -83,11 +92,11 @@
                 cols="4"
               >
                 <v-radio
+                  :id="`v-radio-${status.id}`"
                   :label="status.name"
                   :color="tabItem.color"
-                  :id="`v-radio-${status.id}`"
                   @change="onRadioChange(status)"
-                ></v-radio>
+                />
               </v-col>
             </v-row>
           </v-radio-group>
@@ -122,29 +131,9 @@ export default Vue.extend({
     }
   },
 
-  data () {
-    return {
-      currentStatus: {} as unknown & StatusInterface,
-      tab: null,
-      tabStatus: 0
-    }
-  },
-
-  methods: {
-    onRadioChange (status: any) {
-      this.$data.currentStatus = status
-    }
-  },
-
   model: {
     event: 'change',
     prop: 'value'
-  },
-
-  mounted () {
-    this.$watch('currentStatus', (val: any) => {
-      this.$emit('change', val.id)
-    })
   },
 
   props: {
@@ -161,6 +150,26 @@ export default Vue.extend({
     value: {
       default: null,
       type: Number
+    }
+  },
+
+  data () {
+    return {
+      currentStatus: {} as unknown & StatusInterface,
+      tab: null,
+      tabStatus: 0
+    }
+  },
+
+  mounted () {
+    this.$watch('currentStatus', (val: any) => {
+      this.$emit('change', val.id)
+    })
+  },
+
+  methods: {
+    onRadioChange (status: any) {
+      this.$data.currentStatus = status
     }
   }
 })

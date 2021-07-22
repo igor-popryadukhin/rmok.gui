@@ -8,8 +8,11 @@
           flat
           class="pl-3"
         >
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on }">
+          <v-tooltip
+            bottom
+            max-width="400"
+          >
+            <template #activator="{ on }">
               <v-checkbox
                 ref="checkboxSelectedAll"
                 v-model="checkboxSelectedAll.checked"
@@ -21,46 +24,57 @@
             <span>{{ $tc('select_all_contacts') }}</span>
           </v-tooltip>
           <v-spacer />
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
+          <v-tooltip
+            bottom
+            max-width="400"
+          >
+            <template #activator="{ on, attrs }">
               <v-btn
                 icon
                 :to="{ name: 'operator_contacts_new' }"
-                v-on="on"
                 v-bind="attrs"
+                v-on="on"
               >
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
             <span>{{ $tc('add_new_contact') }}</span>
           </v-tooltip>
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
+          <v-tooltip
+            bottom
+            max-width="400"
+          >
+            <template #activator="{ on, attrs }">
               <v-btn
                 icon
-                v-on="on"
                 v-bind="attrs"
                 :disabled="buttonImport.disabled"
+                v-on="on"
               >
                 <v-icon>mdi-import</v-icon>
               </v-btn>
             </template>
             <span>{{ $tc('import_contact') }}</span>
           </v-tooltip>
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="tooltipActivator">
+          <v-tooltip
+            bottom
+            max-width="400"
+          >
+            <template #activator="tooltipActivator">
               <v-menu offset-y>
-                <template v-slot:activator="menuActivator">
+                <template #activator="menuActivator">
                   <v-btn
                     icon
                     v-bind="menuActivator.attrs"
-                    v-on="menuActivator.on"
                     :disabled="buttonExport.disabled"
+                    v-on="menuActivator.on"
                   >
                     <v-icon
-                      v-on="tooltipActivator.on"
                       v-bind="tooltipActivator.attrs"
-                    >mdi-export</v-icon>
+                      v-on="tooltipActivator.on"
+                    >
+                      mdi-export
+                    </v-icon>
                   </v-btn>
                 </template>
                 <v-list min-width="200">
@@ -85,27 +99,33 @@
             </template>
             <span>{{ $tc('export_contact') }}</span>
           </v-tooltip>
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
+          <v-tooltip
+            bottom
+            max-width="400"
+          >
+            <template #activator="{ on, attrs }">
               <v-btn
                 icon
                 :disabled="buttonDelete.disabled"
+                v-bind="attrs"
                 @click="onSelectedDeleteClick"
                 v-on="on"
-                v-bind="attrs"
               >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </template>
             <span>{{ $tc('delete_selected_contacts') }}</span>
           </v-tooltip>
-          <v-tooltip bottom max-width="400">
-            <template v-slot:activator="{ on, attrs }">
+          <v-tooltip
+            bottom
+            max-width="400"
+          >
+            <template #activator="{ on, attrs }">
               <v-btn
                 icon
                 :disabled="buttonBlacklist.disabled"
-                v-on="on"
                 v-bind="attrs"
+                v-on="on"
               >
                 <v-icon>mdi-block-helper</v-icon>
               </v-btn>
@@ -135,26 +155,31 @@
                 <v-list-item-action>
                   <v-checkbox
                     v-model="item.checked"
-                  ></v-checkbox>
+                  />
                 </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>
                     {{ item.first_name }} {{ item.last_name }}
                   </v-list-item-title>
-                  <v-list-item-subtitle v-if="item.phone_number_default">{{item.phone_number_default.type}}: {{ item.phone_number_default.value }}</v-list-item-subtitle>
-                  <v-list-item-subtitle v-else>Нет номера по умолчанию</v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.phone_number_default">
+                    {{ item.phone_number_default.type }}: {{ item.phone_number_default.value }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>
+                    Нет номера по умолчанию
+                  </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-spacer />
                 <v-list-item-content>
                   <v-list-item-title
                     v-if="item.user"
                     class="text-right"
-                  >{{ item.user.first_name }} {{ item.user.last_name }}
+                  >
+                    {{ item.user.first_name }} {{ item.user.last_name }}
                   </v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
+                    <template #activator="{ on, attrs }">
                       <v-btn
                         icon
                         large
@@ -176,7 +201,7 @@
                         </v-list-item-content>
                       </v-list-item>
                       <v-list-item
-                        :to="{ name: 'operator_contacts_view_history', params: { contact_id: item.id } }"
+                        :to="{ name: 'contacts_view_history', params: { contact_id: item.id } }"
                       >
                         <v-list-item-icon>
                           <v-icon>mdi-history</v-icon>
@@ -221,8 +246,11 @@
             outlined
           >
             <v-card-text class="">
-              <v-tooltip bottom max-width="400">
-                <template v-slot:activator="{ on }">
+              <v-tooltip
+                bottom
+                max-width="400"
+              >
+                <template #activator="{ on }">
                   <v-combobox
                     v-model="select"
                     :items="items"
@@ -231,9 +259,9 @@
                     multiple
                     outlined
                     dense
-                    v-on="on"
                     style="max-width: 400px"
-                  ></v-combobox>
+                    v-on="on"
+                  />
                 </template>
                 <span>{{ $tc('Фильтр') }}</span>
               </v-tooltip>
@@ -278,13 +306,28 @@
                   cols="12"
                   class="d-flex justify-space-between mb-6"
                 >
-                  <v-btn icon x-large color="green" outlined>
+                  <v-btn
+                    icon
+                    x-large
+                    color="green"
+                    outlined
+                  >
                     <v-icon>mdi-phone</v-icon>
                   </v-btn>
-                  <v-btn icon x-large color="green" outlined>
+                  <v-btn
+                    icon
+                    x-large
+                    color="green"
+                    outlined
+                  >
                     <v-icon>mdi-phone</v-icon>
                   </v-btn>
-                  <v-btn icon x-large color="green" outlined>
+                  <v-btn
+                    icon
+                    x-large
+                    color="green"
+                    outlined
+                  >
                     <v-icon>mdi-phone</v-icon>
                   </v-btn>
                 </v-col>
@@ -302,19 +345,19 @@ import Vue from 'vue'
 import { Calls } from '@/api/Calls'
 
 export default Vue.extend({
-  created () {
-    new Calls()
-      .get()
-      .then((calls) => {
-        this.calls = calls
-      })
-  },
 
   data () {
     return {
       calls: [],
       dialogPhone: false
     }
+  },
+  created () {
+    new Calls()
+      .get()
+      .then((calls) => {
+        this.calls = calls
+      })
   }
 })
 </script>

@@ -5,8 +5,8 @@ import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import PBXInterface from '@/api/Schemas/PBXInterface'
 import IncomingRTCSession from '@/components/IncomingRTCSession/IncomingRTCSession.vue'
 import VToast from '@/components/VToast/VToast.vue'
-import JSSIPPayloadInterface from '@/interface/JSSIPPayloadInterface'
-import { REJssipSessionEndedInterface } from '@/interface/REJssipSessionEndedInterface'
+import JSSIPPayloadInterface from '@/interfaces/JSSIPPayloadInterface'
+import { REJssipSessionEndedInterface } from '@/interfaces/REJssipSessionEndedInterface'
 import { JsSIP } from '@/jsSIP/plugin'
 import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
 import { UnRegisteredEvent } from 'jssip/lib/UA'
@@ -17,12 +17,6 @@ import { mapGetters } from 'vuex'
 import SipErrors from '@/api/SipErrors'
 
 const jssip = Vue.extend({
-
-  beforeDestroy () {
-    this.$root.$off('show-rtc-toast', this.showRTCToast)
-    this.$root.$off('update-rtc-toast', this.updateRTCToast)
-    this.$root.$off('root-jssip-initialize', this.jsSIPInitialize)
-  },
 
   data () {
     return {
@@ -46,10 +40,39 @@ const jssip = Vue.extend({
     }
   },
 
+  beforeDestroy () {
+    this.$root.$off('show-rtc-toast', this.showRTCToast)
+    this.$root.$off('update-rtc-toast', this.updateRTCToast)
+    this.$root.$off('root-jssip-initialize', this.jsSIPInitialize)
+  },
+
   computed: {
     ...mapGetters({
       pcConfig: 'settings/pc_config'
     })
+  },
+
+  mounted () {
+    this.$root.$on('show-rtc-toast', this.showRTCToast)
+    this.$root.$on('update-rtc-toast', this.updateRTCToast)
+    this.$root.$on('root-jssip-initialize', this.jsSIPInitialize) // Инициализация телефонии
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    this.$store.subscribe(({ payload, type }) => {
+      if (type === 'profile/setStatus') {
+        if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(payload)) {
+          if (!this.$jsSIP.isConnected) {
+            this.$jsSIP.start()
+          }
+        } else {
+          if (this.$jsSIP.isConnected) {
+            this.$jsSIP.stop()
+          }
+        }
+      }
+    }
+    )
   },
 
   methods: {
@@ -69,6 +92,7 @@ const jssip = Vue.extend({
       new Configurations()
         .getATEConfigurations()
         .then((config: PBXInterface) => {
+          console.log(config)
           // Проверяю наличие данных, сервер может вернуть пустые свойства
           if (config.server === '' || (config.login === '' && config.password === '')) {
             return this.$toast.error({
@@ -344,6 +368,14 @@ const jssip = Vue.extend({
                     } else {
                       this.$toast.error((message as any)?.data)
                     }
+                    /**
+                     * Ошибка SIP 603 обычно возвращается в качестве ответа,
+                     * когда с вызываемой стороной был успешно установлен контакт,
+                     * но она не может или не желает участвовать. Это сообщение об
+                     * ошибке отправляется вашим сервером VoIP, и Zoiper просто отображает его.
+                     */
+                  } else if (message?.status_code === 603) {
+                    this.$toast.info('Subscriber does not exist')
                   } else {
                     this.$toast.error((message as any)?.data)
                   }
@@ -449,32 +481,6 @@ const jssip = Vue.extend({
         }
       })
     }
-  },
-
-  mounted () {
-    this.$root.$on('show-rtc-toast', this.showRTCToast)
-    this.$root.$on('update-rtc-toast', this.updateRTCToast)
-    this.$root.$on('root-jssip-initialize', this.jsSIPInitialize) // Инициализация телефонии
-
-    // Сразу проинициализируем телефонию.
-    this.$root.$emit('root-jssip-initialize')
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    this.$store.subscribe(({ payload, type }) => {
-      if (type === 'profile/setStatus') {
-        if ([UserStatus.AVAILABLE, UserStatus.DO_NOT_DISTURB].includes(payload)) {
-          if (!this.$jsSIP.isConnected) {
-            this.$jsSIP.start()
-          }
-        } else {
-          if (this.$jsSIP.isConnected) {
-            this.$jsSIP.stop()
-          }
-        }
-      }
-    }
-    )
   }
 })
 

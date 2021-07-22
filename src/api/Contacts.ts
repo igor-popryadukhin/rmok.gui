@@ -1,12 +1,9 @@
-import APIError from '@/api/classes/APIError'
+import APIError from './classes/APIError'
+import Contact from './interfaces/Contact'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface, ContactTagInterface } from './Schemas/ContactInterface'
-
-interface Contact extends ContactInterface, CheckedInterface {
-}
 
 export interface ContactResponseInterface {
   count: number;
@@ -64,7 +61,7 @@ export interface ContactsParamsFind {
   group_id?: number;
   /**
    * Дата создания контакта в формате **unixtime.**
-   * ----------------------------------------------
+   *
    * ```js
    * const unixtime = new Date().getTime() / 1000
    * ```
@@ -72,7 +69,7 @@ export interface ContactsParamsFind {
   contact_created_at?: number;
   /**
    * Дата последнего звонка в формате **unixtime.**
-   * ----------------------------------------------
+   *
    * ```js
    * const unixtime = new Date().getTime() / 1000
    * ```
@@ -80,13 +77,13 @@ export interface ContactsParamsFind {
   last_call_at?: number;
   /**
    * Перечисленные через запятую идентификаторы тегов.
-   * -------------------------------------------------
+   *
    * Количество элементов должно составлять не более 1000
    */
   tag_ids?: string;
   /**
    * Факт наличия или отсутствия задач
-   * ------------------------------------------------------------
+   *
    * - available — Вернёт контакты с наличием задач.
    * - unavailable — Вернёт контакты без задач.
    * - overdue — Вернёт контакты с просроченными задачами.
@@ -103,7 +100,7 @@ export interface ContactsParamsFind {
   call_up?: 0 | 1;
   /**
    * Количество возвращаемых контактов.
-   * ----------------------------------
+   *
    * Обратите внимание — даже при использовании параметра offset для получения информации доступны
    * только первые 1000 результатов.
    *
@@ -112,16 +109,19 @@ export interface ContactsParamsFind {
   count?: number;
   /**
    * Смещение относительно первого найденного контакта для выборки определенного подмножества.
-   * -----------------------------------------------------------------------------------------
-   *
    * Положительное число, по умолчанию 50, максимальное значение 1000
    */
   offset?: number;
   /**
    * Перечисленные через запятую идентификаторы статусов.
-   * -------------------------------------------------
    */
   status_ids?: string;
+
+  /**
+   * - 0 - Не используется (по умолчанию).
+   * - 1 - Вернёт только новые контакты.
+   */
+  only_new?: 0 | 1
 }
 
 export interface ContactsParamsSetTagsInterface {
@@ -160,16 +160,16 @@ export class Contacts {
    *
    * @param params
    */
-  public find<TM, TD> (params: ContactsParamsFind = {}): Promise<ResponseInterface<TM, TD> | any> {
-    return new Promise<ResponseInterface<TM, TD> | any>((resolve, reject) => {
+  public find (params: ContactsParamsFind = {}): Promise<ResponseInterface<{ count: number }, Contact[]>> {
+    return new Promise<ResponseInterface<{ count: number }, Contact[]>>((resolve, reject) => {
       $axios.get('/contacts', {
         params
       }).then((response: AxiosResponse) => {
-        if ([200].includes(response.status)) {
-          resolve(response.data)
-        } else {
-          reject(response.data)
+        if (response.status === 200) {
+          return resolve(response.data)
         }
+
+        throw new APIError(response.data)
       }).catch(reject)
     })
   }
@@ -228,13 +228,12 @@ export class Contacts {
    *
    * @param id
    */
-  public getById (id: number): Promise<ContactInterface> {
-    return new Promise((resolve, reject) => {
+  public getById (id: number): Promise<Contact> {
+    return new Promise<Contact>((resolve, reject) => {
       $axios.get(`/contacts/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            resolve(response.data)
-            return
+            return resolve(response.data)
           }
           throw new APIError(response.data)
         }).catch(reject)
@@ -327,12 +326,12 @@ export class Contacts {
    * @param contactId
    * @param data
    */
-  public addHistory<DT> (contactId: number, data: DT): Promise<number | any> {
-    return new Promise((resolve, reject): Promise<number | any> | any => {
+  public addHistory (contactId: number, data: any): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       $axios.post(`/contacts/${contactId}/history`, data)
         .then((response: AxiosResponse) => {
           if (![200, 201].includes(response.status)) {
-            reject(response.data)
+            throw new APIError(response.data)
           }
           resolve(response.data.id)
         }).catch(reject)
@@ -344,12 +343,12 @@ export class Contacts {
    * @param historyId
    * @param data
    */
-  public updateHistory<DT> (historyId: number, data: DT): Promise<any> {
-    return new Promise((resolve, reject) => {
+  public updateHistory (historyId: number, data: any): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       $axios.patch(`/contacts/history/${historyId}`, data)
         .then((response: AxiosResponse) => {
           if (![200, 204].includes(response.status)) {
-            reject(response.data)
+            throw new APIError(response.data)
           }
           resolve(response.data)
         }).catch(reject)

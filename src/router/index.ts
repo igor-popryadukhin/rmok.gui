@@ -1,23 +1,24 @@
-import { loadLanguageAsync } from '@/plugins/i18n'
-import { $permission } from '@/plugins/permission'
+import store from '@/store'
 import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
-import secure from '@/middleware/secure'
-// import development from '@/middleware/development'
-
 import { Store } from 'vuex'
-import store from '@/store'
 
 Vue.use(VueRouter)
+
+// Взлом
+const originPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push (location) {
+  return originPush.call(this, location).catch((error) => error)
+}
 
 const routes: RouteConfig[] = [
   {
     component: Home,
     meta: {
       layout: 'default',
-      middleware: [secure],
+      middleware: [],
       title: 'documents'
     },
     name: 'home',
@@ -28,7 +29,7 @@ const routes: RouteConfig[] = [
     meta: {
       breadcrumbs: [],
       layout: 'clean',
-      middleware: [secure]
+      middleware: []
     },
     name: 'login',
     path: '/login'
@@ -37,7 +38,7 @@ const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "help" */ '../views/Operator/Help/Index.vue'),
     meta: {
       layout: 'default',
-      middleware: [secure]
+      middleware: []
     },
     name: 'help',
     path: '/help'
@@ -61,909 +62,488 @@ const routes: RouteConfig[] = [
       middleware: []
     },
     name: 'not_found',
-    path: '/404'
+    path: '*'
   },
   {
     component: () => import(/* webpackChunkName: "access-denied" */ '../views/AccessDenied.vue'),
     meta: {
       layout: 'clean',
-      middleware: [secure]
+      middleware: []
     },
     name: 'access_denied',
     path: '/access-denied'
   },
 
-  /** Operator */
   {
-    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-      // todo: Solve the question of how we will change the locale
-      store.dispatch('system/roles').then()
-      loadLanguageAsync('ru', 'main').finally(() => next())
-    },
+    path: '/roles',
+    component: () => import(/* webpackChunkName: "roles" */ '../views/Roles/Layout.vue'),
     children: [
       {
-        component: () => import(/* webpackChunkName: "operator-home" */ '../views/Operator/Home/Index.vue'),
+        component: () => import(/* webpackChunkName: "roles-list" */ '../views/Roles/List.vue'),
         meta: {
           anonymous: true,
-          layout: 'operator-layout',
-          middleware: [secure]
+          layout: 'default',
+          middleware: []
         },
-        name: 'operator_home',
+        name: 'roles',
         path: ''
       },
       {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "calls-list" */ '../views/Operator/Calls/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] },
-            name: 'operator_calls',
-            path: ''
-          }
-        ],
-        component: () => import(/* webpackChunkName: "calls-layout" */ '../views/Operator/Calls/Layout.vue'),
+        component: () => import(/* webpackChunkName: "roles-edit" */ '../views/Roles/Edit.vue'),
         meta: {
           anonymous: true,
-          layout: 'operator-layout',
-          middleware: [secure]
+          layout: 'default',
+          middleware: []
         },
-        path: 'calls'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "operator-tasks-list" */ '../views/Operator/Tasks/List.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] },
-            name: 'operator_tasks_list',
-            path: ''
-          }
-        ],
-        component: () => import(/* webpackChunkName: "operator-tasks-layout" */ '../views/Operator/Tasks/Layout.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'operator-layout',
-          middleware: [secure]
-        },
-        path: 'tasks'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/Leads/List.vue'),
-            meta: {
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_leads',
-            path: ''
-          },
-          {
-            children: [
-              // {
-              //   path: 'script',
-              //   name: 'operator_leads_script',
-              //   component: () => import(/* webpackChunkName: "leads-script" */ '../views/Operator/Contacts/Script.vue'),
-              //   meta: { layout: 'operator-layout', middleware: [secure] }
-              // },
-              // {
-              //   path: 'history',
-              //   name: 'operator_leads_history',
-              //   component: () => import(/* webpackChunkName: "leads-history" */ '../views/Operator/Contacts/History.vue'),
-              //   meta: { layout: 'operator-layout', middleware: [secure] }
-              // },
-              // {
-              //   path: 'tasks',
-              //   name: 'operator_leads_tasks',
-              //   component: () => import(/* webpackChunkName: "leads-task" */ '../views/Operator/Contacts/Task.vue'),
-              //   meta: { layout: 'operator-layout', middleware: [secure] }
-              // }
-            ],
-            component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Contacts/View.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] },
-            name: 'operator_leads_view',
-            path: ':contact_id'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Leads/Layout.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'operator-layout',
-          middleware: [secure]
-        },
-        path: 'leads'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/List.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_projects_list',
-            path: ''
-          }
-        ],
-        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/Projects/Layout.vue'),
-        meta: { layout: 'operator-layout', middleware: [secure] },
-        path: 'projects'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/List.vue'),
-            meta: {
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_contacts_list',
-            path: ''
-          },
-          {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              next()
-              store.dispatch('system/country_codes')
-            },
-            component: () => import(/* webpackChunkName: "operator-contacts-new" */ '../views/Operator/Contacts/New.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] },
-            name: 'operator_contacts_new',
-            path: 'new'
-          },
-          {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              next()
-              store.dispatch('system/country_codes')
-            },
-            component: () => import(/* webpackChunkName: "operator-contacts-edit" */ '../views/Operator/Contacts/Edit.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] },
-            name: 'operator_contacts_edit',
-            path: ':contact_id/edit'
-          },
-          {
-            children: [],
-            component: () => import(/* webpackChunkName: "operator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] },
-            name: 'operator_contacts_view',
-            path: ':contact_id'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "operator-contacts" */ '../views/Operator/Contacts/Layout.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'operator-layout',
-          middleware: [secure]
-        },
-        path: 'contacts'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "operator-statistics-recent-calls" */ '../views/Operator/Statistics/RecentCalls.vue'),
-            meta: {
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_statistics_recent_calls',
-            path: 'recent-calls'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-statistics-all-calls" */ '../views/Operator/Statistics/AllCalls.vue'),
-            meta: {
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_statistics_all_calls',
-            path: 'all-calls'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "operator-statistics" */ '../views/Operator/Statistics/Layout.vue'),
-        meta: {
-          layout: 'operator-layout',
-          middleware: [secure]
-        },
-        path: 'statistics'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-profile" */ '../views/Settings/Profile.vue'),
-            meta: {
-              icon: 'mdi-account-circle-outline',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_profile',
-            path: 'profile'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-contacts" */ '../views/Settings/Contacts.vue'),
-            meta: {
-              icon: 'mdi-phone',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_contacts',
-            path: 'contacts'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-journal" */ '../views/Settings/Journal.vue'),
-            meta: {
-              icon: 'mdi-history',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_journal',
-            path: 'journal'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-security" */ '../views/Settings/Security.vue'),
-            meta: {
-              icon: 'mdi-security',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_security',
-            path: 'security'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-telephony" */ '../views/Settings/Telephony.vue'),
-            meta: {
-              icon: 'mdi-webrtc',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_telephony',
-            path: 'telephony'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-regional" */ '../views/Settings/Regional.vue'),
-            meta: {
-              icon: 'mdi-translate',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_regional',
-            path: 'regional'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-headset-configure" */ '../views/Settings/HeadsetConfigure.vue'),
-            meta: {
-              icon: 'mdi-headset',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_headset_configure',
-            path: 'headset-configure'
-          },
-          {
-            component: () => import(/* webpackChunkName: "operator-settings-system" */ '../views/Settings/System.vue'),
-            meta: {
-              icon: 'mdi-cog',
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_settings_system',
-            path: 'system'
-          }
-          // {
-          //   component: () => import(/* webpackChunkName: "operator-settings-my-projects" */ '../views/Settings/MyProjects.vue'),
-          //   meta: {
-          //     icon: 'mdi-projector-screen',
-          //     layout: 'operator-layout',
-          //     middleware: [secure]
-          //   },
-          //   name: 'operator_settings_my_projects',
-          //   path: 'my-projects'
-          // }
-        ],
-        component: () => import(/* webpackChunkName: "operator-settings-layout-operator" */ '../views/Settings/LayoutOperator.vue'),
-        meta: {
-          layout: 'operator-layout',
-          middleware: [secure]
-        },
-        path: 'settings'
-      },
-      {
-        component: () => import(/* webpackChunkName: "operator-help" */ '../views/Operator/Help/Index.vue'),
-        meta: {
-          layout: 'operator-layout',
-          middleware: [secure]
-        },
-        name: 'operator_help',
-        path: 'help'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/QueueLeads/List.vue'),
-            meta: {
-              layout: 'operator-layout',
-              middleware: [secure]
-            },
-            name: 'operator_queue_leads',
-            path: ''
-          },
-          {
-            component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Contacts/View.vue'),
-            meta: { layout: 'operator-layout', middleware: [secure] },
-            name: 'operator_queue_leads_view',
-            path: ':contact_id'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/QueueLeads/Layout.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'operator-layout',
-          middleware: [secure]
-        },
-        path: 'queue-leads'
+        name: 'roles_edit',
+        path: ':role_id'
       }
     ],
-    component: () => import(/* webpackChunkName: "operator-layout" */ '../views/Operator/Layout.vue'),
     meta: {
-      anonymous: true,
-      layout: 'operator-layout',
-      middleware: [secure]
-    },
-    path: '/operator'
+      layout: 'default',
+      middleware: []
+    }
   },
-
-  /** Administrator */
   {
-    beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-      // todo: Solve the question of how we will change the locale
-      store.dispatch('system/roles').then()
-      loadLanguageAsync('ru', 'main').finally(() => next())
-    },
+    path: '/contacts',
     children: [
       {
-        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Home.vue'),
+        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/List.vue'),
         meta: {
-          layout: 'administrator',
-          middleware: [secure]
+          anonymous: true,
+          layout: 'default',
+          middleware: []
         },
-        name: 'administrator',
+        name: 'contacts',
         path: ''
       },
       {
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted(['section.organization'])) {
-            next()
-          } else {
-            next({ name: 'access_denied' })
-          }
-        },
+        path: ':contact_id',
+        component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/View.vue'),
         children: [
           {
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/List.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_organizations_list',
-            path: ''
+            name: 'contacts_view',
+            path: '',
+            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ViewScenario.vue'),
+            meta: { layout: 'default', middleware: [] }
           },
           {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              store.dispatch('system/country_codes').finally(next)
-            },
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/New.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_organizations_new',
-            path: 'new'
+            name: 'contacts_view_scenario',
+            path: 'scenario',
+            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ViewScenario.vue'),
+            meta: { layout: 'default', middleware: [] }
           },
           {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              store.dispatch('system/country_codes').finally(next)
-            },
-            component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/Edit.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_organizations_edit',
-            path: ':id'
+            component: () => import(/* webpackChunkName: "contacts-view-history" */ '../views/Contacts/ViewHistory.vue'),
+            meta: { layout: 'default', middleware: [] },
+            name: 'contacts_view_history',
+            path: 'history'
+          },
+          {
+            component: () => import(/* webpackChunkName: "contacts-view-tasks" */ '../views/Contacts/ViewTasks.vue'),
+            meta: { layout: 'default', middleware: [] },
+            name: 'contacts_view_tasks',
+            path: 'tasks'
           }
         ],
-        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Organizations/Layout.vue'),
+        meta: { layout: 'default', middleware: [] }
+      }
+    ],
+    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    }
+  },
+  {
+    path: '/leads',
+    component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Leads/Layout.vue'),
+    children: [
+      {
+        name: 'leads',
+        path: '',
+        component: () => import(/* webpackChunkName: "leads" */ '../views/Leads/List.vue'),
         meta: {
-          layout: 'administrator',
-          middleware: [secure]
+          layout: 'default',
+          middleware: []
+        }
+      }
+    ],
+    meta: {
+      anonymous: true,
+      layout: 'default',
+      middleware: []
+    }
+  },
+  {
+    name: 'tasks',
+    path: '/tasks',
+    component: () => import(/* webpackChunkName: "tasks-list" */ '../views/Tasks/List.vue'),
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    path: '/users',
+    component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    },
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/List.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
         },
-        path: 'organizations'
+        name: 'users_list',
+        path: ''
       },
       {
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted('role.view')) {
-            next()
-          } else {
-            next({ name: 'access_denied' })
-          }
-        },
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "administrator-roles-list" */ '../views/Administrator/Roles/List.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_roles_list',
-            path: ''
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-roles-edit" */ '../views/Administrator/Roles/Edit.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_roles_edit',
-            path: ':id'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "administrator-roles" */ '../views/Administrator/Roles/Layout.vue'),
-        meta: {
-          layout: 'administrator',
-          middleware: [secure]
-        },
-        path: 'roles'
+        component: () => import(/* webpackChunkName: "users-new" */ '../views/Users/UserNew.vue'),
+        meta: { layout: 'default', middleware: [] },
+        name: 'users_new',
+        path: 'new'
       },
       {
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted(['section.contacts'])) {
-            next()
-          } else {
-            next({ name: 'access_denied' })
-          }
-        },
+        path: ':user_id',
+        component: () => import(/* webpackChunkName: "users-edit" */ '../views/Users/UserEdit.vue'),
         children: [
           {
-            component: () => import(/* webpackChunkName: "administrator-contacts" */ '../views/Administrator/Contacts/List.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_contacts',
-            path: ''
+            component: () => import(/* webpackChunkName: "users-edit-main" */ '../views/Users/UserEditMain.vue'),
+            meta: { layout: 'default', middleware: [] },
+            name: 'users_edit_main',
+            path: 'main'
           },
           {
-            component: () => import(/* webpackChunkName: "administrator-contacts-new" */ '../views/Administrator/Contacts/New.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_contacts_new',
-            path: 'new'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-contacts-edit" */ '../views/Administrator/Contacts/Edit.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_contacts_edit',
-            path: ':contact_id/edit'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-contacts-history" */ '../views/Administrator/Contacts/History.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_contacts_history',
-            path: ':contact_id/history'
-          },
-          {
-            children: [],
-            component: () => import(/* webpackChunkName: "administrator-contacts-view" */ '../views/Operator/Contacts/View.vue'),
-            meta: { layout: 'administrator', middleware: [secure] },
-            name: 'administrator_contacts_view',
-            path: ':contact_id'
+            component: () => import(/* webpackChunkName: "users-edit-telephony" */ '../views/Users/UserEditTelephony.vue'),
+            meta: { layout: 'default', middleware: [] },
+            name: 'users_edit_telephony',
+            path: 'telephony'
           }
         ],
-        component: () => import(/* webpackChunkName: "administrator-contacts" */ '../views/Administrator/Contacts/Layout.vue'),
         meta: {
-          layout: 'administrator',
-          middleware: [secure]
+          layout: 'default',
+          middleware: []
+        }
+      },
+      {
+        component: () => import(/* webpackChunkName: "users-schedule" */ '../views/Users/Schedule.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
         },
+        name: 'users_schedule',
+        path: ':user_id/schedule'
+      }
+    ]
+  },
+  {
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "groups-list" */ '../views/Groups/List.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'groups_list',
+        path: ''
+      },
+      {
+        component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/New.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'groups_new',
+        path: 'new'
+      },
+      {
+        component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/Edit.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'groups_edit',
+        path: ':id'
+      }
+    ],
+    component: () => import(/* webpackChunkName: "groups-list" */ '../views/Users/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    },
+    path: '/groups'
+  },
+  {
+    component: () => import(/* webpackChunkName: "integrations-layout" */ '../views/Settings/Layout.vue'),
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "integrations-contacts-list" */ '@/views/Integrations/Contacts/List.vue'),
+        meta: {
+          icon: '',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'integrations_contacts',
         path: 'contacts'
       },
       {
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted(['section.users'])) {
-            next()
-          } else {
-            next({ name: 'access_denied' })
-          }
-        },
         children: [
           {
-            component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/List.vue'),
+            component: () => import(/* webpackChunkName: "itegrationset-list" */ '../views/Integrations/IntegrationSettings/List.vue'),
             meta: {
               anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
+              layout: 'default',
+              middleware: []
             },
-            name: 'administrator_users_list',
+            name: 'itegrationset_list',
             path: ''
           },
           {
-            children: [
-              {
-                component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/New/Main.vue'),
-                meta: { layout: 'administrator', middleware: [secure] },
-                name: 'administrator_users_new_main',
-                path: ''
-              }
-            ],
-            component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/New/Tabs.vue'),
+            component: () => import(/* webpackChunkName: "itegrationset-new" */ '../views/Integrations/IntegrationSettings/New.vue'),
             meta: {
-              layout: 'administrator',
-              middleware: [secure]
+              layout: 'default',
+              middleware: []
             },
+            name: 'itegrationset_new',
             path: 'new'
           },
           {
-            children: [
-              {
-                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Main.vue'),
-                meta: { layout: 'administrator', middleware: [secure] },
-                name: 'administrator_users_edit_main',
-                path: ''
-              },
-              {
-                component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Telephony.vue'),
-                meta: { layout: 'administrator', middleware: [secure] },
-                name: 'administrator_users_edit_telephony',
-                path: 'telephony'
-              }
-            ],
-            component: () => import(/* webpackChunkName: "administrator-users-edit" */ '../views/Administrator/Users/Edit/Tabs.vue'),
+            component: () => import(/* webpackChunkName: "itegrationset-edit" */ '../views/Integrations/IntegrationSettings/Edit.vue'),
             meta: {
-              layout: 'administrator',
-              middleware: [secure]
+              layout: 'default',
+              middleware: []
             },
-            path: ':user_id'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-users-schedule" */ '../views/Administrator/Users/Schedule.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_users_schedule',
-            path: ':user_id/schedule'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "administrator-users-list" */ '../views/Administrator/Users/Layout.vue'),
-        meta: {
-          layout: 'administrator',
-          middleware: [secure]
-        },
-        path: 'users'
-      },
-      {
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted(['section.groups'])) {
-            next()
-          } else {
-            next({ name: 'access_denied' })
-          }
-        },
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "administrator-groups-list" */ '../views/Administrator/Groups/List.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_groups_list',
-            path: ''
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-groups-new" */ '../views/Administrator/Groups/New.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_groups_new',
-            path: 'new'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-groups-new" */ '../views/Administrator/Groups/Edit.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_groups_edit',
+            name: 'itegrationset_edit',
             path: ':id'
           }
         ],
-        component: () => import(/* webpackChunkName: "administrator-groups-list" */ '../views/Administrator/Users/Layout.vue'),
+        component: () => import(/* webpackChunkName: "itegrationset-list" */ '../views/Integrations/IntegrationSettings/Layout.vue'),
         meta: {
-          layout: 'administrator',
-          middleware: [secure]
+          layout: 'default',
+          middleware: []
         },
-        path: 'groups'
-      },
-      {
-        component: () => import(/* webpackChunkName: "administrator-integrations-layout" */ '../views/Settings/LayoutAdmin.vue'),
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "administrator-integrations-contacts-list" */ '@/views/Administrator/Integrations/Contacts/List.vue'),
-            meta: {
-              icon: '',
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_integrations_contacts',
-            path: 'contacts'
-          },
-          {
-            beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-              if ($permission.isGranted(['section.groups'])) {
-                next()
-              } else {
-                next({ name: 'access_denied' })
-              }
-            },
-            children: [
-              {
-                component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Administrator/Integrations/IntegrationSettings/List.vue'),
-                meta: {
-                  anonymous: true,
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_itegrationset_list',
-                path: ''
-              },
-              {
-                component: () => import(/* webpackChunkName: "administrator-itegrationset-new" */ '../views/Administrator/Integrations/IntegrationSettings/New.vue'),
-                meta: {
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_itegrationset_new',
-                path: 'new'
-              },
-              {
-                component: () => import(/* webpackChunkName: "administrator-itegrationset-edit" */ '../views/Administrator/Integrations/IntegrationSettings/Edit.vue'),
-                meta: {
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_itegrationset_edit',
-                path: ':id'
-              }
-            ],
-            component: () => import(/* webpackChunkName: "administrator-itegrationset-list" */ '../views/Administrator/Integrations/IntegrationSettings/Layout.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            path: 'itegrationset'
-          }
-        ],
-        meta: {
-          layout: 'administrator',
-          middleware: [secure]
-        },
-        name: 'administrator_integrations',
-        path: 'integrations'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "administrator-settings-profile" */ '../views/Settings/Profile.vue'),
-            meta: {
-              icon: 'mdi-account-circle-outline',
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_profile',
-            path: 'profile'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-settings-regional" */ '../views/Settings/Regional.vue'),
-            meta: {
-              icon: 'mdi-translate',
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_settings_regional',
-            path: 'regional'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-settings-journal" */ '../views/Settings/Journal.vue'),
-            meta: {
-              icon: 'mdi-history',
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_journal',
-            path: 'journal'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-settings-security" */ '../views/Settings/Security.vue'),
-            meta: {
-              icon: 'mdi-security',
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_security',
-            path: 'security'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-settings-for-developer" */ '../views/Settings/DeveloperSettings.vue'),
-            meta: {
-              icon: 'mdi-flask',
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_for_developer',
-            path: 'development'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "administrator-settings-layout-admin" */ '../views/Settings/LayoutAdmin.vue'),
-        meta: {
-          layout: 'administrator',
-          middleware: [secure]
-        },
-        name: 'administrator_settings',
-        path: 'settings'
-      },
-      {
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted(['section.projects'])) {
-            next()
-          } else {
-            next({ name: 'access_denied' })
-          }
-        },
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "administrator-projects" */ '../views/Administrator/Projects/List.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_projects_list',
-            path: ''
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-projects-edit" */ '@/views/Administrator/Projects/ProjectEdit.vue'),
-            children: [
-              {
-                component: () => import(/* webpackChunkName: "administrator-projects-edit-main" */ '@/views/Administrator/Projects/ProjectEditMain.vue'),
-                meta: {
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_projects_main',
-                path: 'main',
-                props: true
-              },
-              {
-                component: () => import(/* webpackChunkName: "administrator-projects-edit-members" */ '@/views/Administrator/Projects/ProjectEditMembers.vue'),
-                meta: {
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_projects_members',
-                path: 'members'
-              },
-              {
-                component: () => import(/* webpackChunkName: "administrator-projects-edit-statuses" */ '@/views/Administrator/Projects/ProjectEditStatuses.vue'),
-                meta: {
-                  layout: 'administrator',
-                  middleware: [secure]
-                },
-                name: 'administrator_projects_statuses',
-                path: 'statuses'
-              }
-            ],
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_projects_edit',
-            path: ':project_id',
-            redirect: {
-              name: 'administrator_projects_main'
-            }
-          }
-        ],
-        component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Projects/Layout.vue'),
-        meta: {
-          layout: 'administrator',
-          middleware: [secure]
-        },
-        path: 'projects'
-      },
-      {
-        beforeEnter (to: Route, from: Route, next: NavigationGuardNext) {
-          if ($permission.isGranted(['section.statistics'])) {
-            next()
-          } else {
-            next({ name: 'access_denied' })
-          }
-        },
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "administrator-statistics-recent-calls" */ '../views/Administrator/Statistics/RecentCalls.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_statistics_recent_calls',
-            path: 'recent-calls'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-statistics-all-calls" */ '../views/Administrator/Statistics/AllCalls.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_statistics_all_calls',
-            path: 'all-calls'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-statistics-call-count" */ '../views/Administrator/Statistics/CallCount.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_statistics_call_count',
-            path: 'call-count'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-statistics-activity" */ '../views/Administrator/Statistics/Activity.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_statistics_activity',
-            path: 'activity'
-          },
-          {
-            component: () => import(/* webpackChunkName: "administrator-statistics-unauthorized-breaks" */ '../views/Administrator/Statistics/UnauthorizedBreaks.vue'),
-            meta: {
-              layout: 'administrator',
-              middleware: [secure]
-            },
-            name: 'administrator_statistics_unauthorized_breaks',
-            path: 'unauthorized-breaks'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "administrator-statistics" */ '../views/Administrator/Statistics/Layout.vue'),
-        meta: {
-          layout: 'administrator',
-          middleware: [secure]
-        },
-        name: 'administrator_statistics',
-        path: 'statistics'
+        path: 'itegrationset'
       }
     ],
-    component: () => import(/* webpackChunkName: "administrator" */ '../views/Administrator/Layout.vue'),
     meta: {
-      anonymous: true,
-      layout: 'administrator',
-      middleware: [secure]
+      layout: 'default',
+      middleware: []
     },
-    path: '/administrator'
+    name: 'integrations',
+    path: '/integrations'
+  },
+  {
+    name: 'settings',
+    path: '/settings',
+    component: () => import(/* webpackChunkName: "settings-layout" */ '../views/Settings/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    },
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "settings-profile" */ '../views/Settings/Profile.vue'),
+        meta: {
+          icon: 'mdi-account-circle-outline',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_profile',
+        path: 'profile'
+      },
+      {
+        component: () => import(/* webpackChunkName: "settings-profile" */ '../views/Settings/Contacts.vue'),
+        meta: {
+          icon: 'mdi-account-circle-outline',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_contacts',
+        path: 'contacts'
+      },
+      {
+        component: () => import(/* webpackChunkName: "settings-regional" */ '../views/Settings/Regional.vue'),
+        meta: {
+          icon: 'mdi-translate',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_regional',
+        path: 'regional'
+      },
+      {
+        component: () => import(/* webpackChunkName: "settings-journal" */ '../views/Settings/Journal.vue'),
+        meta: {
+          icon: 'mdi-history',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_journal',
+        path: 'journal'
+      },
+      {
+        component: () => import(/* webpackChunkName: "settings-telephony" */ '../views/Settings/Telephony.vue'),
+        meta: {
+          icon: 'mdi-history',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_telephony',
+        path: 'telephony'
+      },
+      {
+        component: () => import(/* webpackChunkName: "settings-security" */ '../views/Settings/Security.vue'),
+        meta: {
+          icon: 'mdi-security',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_security',
+        path: 'security'
+      },
+      {
+        component: () => import(/* webpackChunkName: "settings-for-developer" */ '../views/Settings/DeveloperSettings.vue'),
+        meta: {
+          icon: 'mdi-flask',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_for_developer',
+        path: 'development'
+      },
+      {
+        component: () => import(/* webpackChunkName: "settings-system" */ '../views/Settings/System.vue'),
+        meta: {
+          icon: 'mdi-cog',
+          layout: 'default',
+          middleware: []
+        },
+        name: 'settings_system',
+        path: 'system'
+      }
+    ]
+  },
+  {
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "projects" */ '../views/Projects/List.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'projects_list',
+        path: ''
+      },
+      {
+        component: () => import(/* webpackChunkName: "projects-edit" */ '@/views/Projects/ProjectEdit.vue'),
+        children: [
+          {
+            component: () => import(/* webpackChunkName: "projects-edit-main" */ '@/views/Projects/ProjectEditMain.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            },
+            name: 'projects_main',
+            path: 'main',
+            props: true
+          },
+          {
+            component: () => import(/* webpackChunkName: "projects-edit-members" */ '@/views/Projects/ProjectEditMembers.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            },
+            name: 'projects_members',
+            path: 'members'
+          },
+          {
+            component: () => import(/* webpackChunkName: "projects-edit-statuses" */ '@/views/Projects/ProjectEditStatuses.vue'),
+            meta: {
+              layout: 'default',
+              middleware: []
+            },
+            name: 'projects_statuses',
+            path: 'statuses'
+          }
+        ],
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'projects_edit',
+        path: ':project_id',
+        redirect: {
+          name: 'projects_main'
+        }
+      }
+    ],
+    component: () => import(/* webpackChunkName: "administrator" */ '../views/Projects/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    },
+    path: '/projects'
+  },
+  {
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "statistics-recent-calls" */ '../views/Statistics/RecentCalls.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'statistics_recent_calls',
+        path: 'recent-calls'
+      },
+      {
+        component: () => import(/* webpackChunkName: "statistics-all-calls" */ '../views/Statistics/AllCalls.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'statistics_all_calls',
+        path: 'all-calls'
+      },
+      {
+        component: () => import(/* webpackChunkName: "statistics-call-count" */ '../views/Statistics/CallCount.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'statistics_call_count',
+        path: 'call-count'
+      },
+      {
+        component: () => import(/* webpackChunkName: "statistics-activity" */ '../views/Statistics/Activity.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'statistics_activity',
+        path: 'activity'
+      },
+      {
+        component: () => import(/* webpackChunkName: "statistics-unauthorized-breaks" */ '../views/Statistics/UnauthorizedBreaks.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'statistics_unauthorized_breaks',
+        path: 'unauthorized-breaks'
+      }
+    ],
+    component: () => import(/* webpackChunkName: "statistics" */ '../views/Statistics/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    },
+    name: 'statistics',
+    path: '/statistics'
   }
 ]
 
@@ -1017,14 +597,6 @@ export interface MiddlewareContextInterface {
 // const timer = new Timer()
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
-  if (to.path === '/') {
-    if (store.getters['profile/role_use'] === 'for_administration') {
-      next('/administrator')
-    } else if (store.getters['profile/role_use'] === 'for_calls') {
-      next('/operator')
-    }
-  }
-
   if (!to.meta.middleware) {
     return next()
   }
@@ -1044,19 +616,5 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
     ...context
   })
 })
-
-// router.afterEach((to, from) => {
-//   timer.stop()
-//
-//   if (to.name !== from.name) {
-//     if (timer.diff() < 800) {
-//       setTimeout(() => {
-//         app.$root.$emit('root-loading-data-hide')
-//       }, 800)
-//     } else {
-//       app.$root.$emit('root-loading-data-hide')
-//     }
-//   }
-// })
 
 export default router

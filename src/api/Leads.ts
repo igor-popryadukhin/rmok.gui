@@ -24,14 +24,14 @@ export interface LeadSearchQueryInterface {
 
 export default class Leads {
   /**
-   * Find contacts
+   * Вернёт список доступных лидов
    *
-   * @param query
+   * @param params
    */
-  public get<MT, DT> (query: LeadSearchQueryInterface | null = { q: '', offset: 0, count: 100 }) {
-    return new Promise<ResponseInterface<MT, DT>>((resolve, reject) => {
+  public get (params: { q?: string, offset?: number, count?: number } = {}): Promise<ResponseInterface<unknown, Contact[]>> {
+    return new Promise<ResponseInterface<unknown, Contact[]>>((resolve, reject) => {
       $axios.get('/leads', {
-        params: { ...query }
+        params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
           resolve(response.data)

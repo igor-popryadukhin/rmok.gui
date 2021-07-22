@@ -101,6 +101,66 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import Groups, { GroupInterface } from '@/api/Groups'
 
 export default Vue.extend({
+  name: 'SGroups',
+
+  props: {
+    clearable: {
+      default: () => false,
+      type: Boolean
+    },
+    dense: {
+      default: () => false,
+      type: Boolean
+    },
+    disabled: {
+      default: () => false,
+      type: Boolean
+    },
+    iconName: {
+      default: 'mdi-account-group',
+      type: String
+    },
+    innerIcon: {
+      default: false,
+      type: Boolean
+    },
+    label: {
+      default: () => '',
+      type: String
+    },
+    multiple: {
+      default: () => false,
+      type: Boolean
+    },
+    outlined: {
+      default: () => false,
+      type: Boolean
+    },
+    params: {
+      default: () => {
+        return {}
+      },
+      type: Object
+    },
+    rules: {
+      default: () => [],
+      type: Array
+    },
+    value: {
+      default: () => null,
+      type: [Object, Array]
+    },
+    visibleIcon: {
+      default: false,
+      type: Boolean
+    }
+  },
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
   data () {
     return {
       dParams: {},
@@ -113,6 +173,20 @@ export default Vue.extend({
       process: false,
       q: null,
       selected: null as unknown & GroupInterface | GroupInterface[] | null
+    }
+  },
+
+  watch: {
+    q (q: string) {
+      this.fetchData(Object.assign({}, this.params, { q }))
+    },
+
+    selected (value) {
+      this.$emit('change', value)
+    },
+
+    value (val: any) {
+      this.selected = val
     }
   },
 
@@ -200,78 +274,6 @@ export default Vue.extend({
 
     setSelected (data: GroupInterface) {
       this.selected = data
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  props: {
-    clearable: {
-      default: () => false,
-      type: Boolean
-    },
-    dense: {
-      default: () => false,
-      type: Boolean
-    },
-    disabled: {
-      default: () => false,
-      type: Boolean
-    },
-    iconName: {
-      default: 'mdi-account-group',
-      type: String
-    },
-    innerIcon: {
-      default: false,
-      type: Boolean
-    },
-    label: {
-      default: () => '',
-      type: String
-    },
-    multiple: {
-      default: () => false,
-      type: Boolean
-    },
-    outlined: {
-      default: () => false,
-      type: Boolean
-    },
-    params: {
-      default: () => {
-        return {}
-      },
-      type: Object
-    },
-    rules: {
-      default: () => [],
-      type: Array
-    },
-    value: {
-      default: () => null,
-      type: [Object, Array]
-    },
-    visibleIcon: {
-      default: false,
-      type: Boolean
-    }
-  },
-
-  watch: {
-    q (q: string) {
-      this.fetchData(Object.assign({}, this.params, { q }))
-    },
-
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (val: any) {
-      this.selected = val
     }
   }
 })

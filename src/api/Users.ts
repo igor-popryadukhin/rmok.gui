@@ -1,4 +1,6 @@
 /* eslint-disable */
+import PBXConfig from '@/api/interfaces/PBXConfig';
+import User from '@/api/interfaces/User';
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { RoleInterface } from '@/api/Roles'
@@ -42,17 +44,18 @@ interface ParamsFindInterface {
 
 export class Users {
   /**
-   * Add new user
+   * Создает нового пользователя.
+   *
    * @param data
    */
-  public add<T = any> (data: any): Promise<T> {
-    return new Promise<T>((resolve, reject): Promise<any> | any => {
+  public create<T = any> (data: T): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       $axios.post('/users', data)
         .then((response: AxiosResponse) => {
-          if ([200, 201].includes(response.status)) {
-            return resolve(response.data)
+          if ([201].includes(response.status)) {
+            return resolve(response.data.id)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
@@ -61,7 +64,7 @@ export class Users {
    * @param id
    * @param data
    */
-  public update (id: number, data: any): Promise<void> {
+  public edit (id: number, data: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.patch(`/users/${id}`, data)
         .then((response: AxiosResponse) => {
@@ -92,12 +95,13 @@ export class Users {
   }
 
   /**
+   * Возвращает расширенную информацию о пользователе.
    *
    * @param id
    * @param params
    */
-  public getById (id: number, params = {}) {
-    return new Promise<UserInterface>((resolve, reject) => {
+  public getById (id: number, params = {}): Promise<User> {
+    return new Promise<User>((resolve, reject) => {
       $axios.get(`/users/${id}`, { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
@@ -187,6 +191,58 @@ export class Users {
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
             return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Возвращает данные параметров пользователя для подключения к телефонии.
+   *
+   * @param user_id
+   */
+  public getPBX (user_id: number): Promise<PBXConfig> {
+    return new Promise<PBXConfig>((resolve, reject) => {
+      $axios.get(`/users/${user_id}/pbx-configuration`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Сохраняет параметры подключения к телефонии.
+   *
+   * @param user_id
+   * @param params
+   */
+  public savePBX (user_id: number, params: PBXConfig): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.put(`/users/${user_id}/pbx-configuration`, params)
+        .then((response: AxiosResponse) => {
+          if ([200, 201].includes(response.status)) {
+            return resolve()
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Удаляет параметры подключения к телефонии.
+   *
+   * @param user_id
+   */
+  public deletePBX (user_id: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.delete(`/users/${user_id}/pbx-configuration`)
+        .then((response: AxiosResponse) => {
+          if ([200].includes(response.status)) {
+            return resolve()
           }
           throw new APIError(response.data)
         }).catch(reject)

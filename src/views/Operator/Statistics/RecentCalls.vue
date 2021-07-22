@@ -11,7 +11,7 @@
             v-model="filter.date_period"
             :items="dateRangeCollection"
           >
-            <template v-slot:item-append>
+            <template #item-append>
               <v-menu
                 ref="menuDateRange"
                 v-model="menuDateRange"
@@ -21,7 +21,7 @@
                 offset-y
                 min-width="290px"
               >
-                <template v-slot:activator="{ on }">
+                <template #activator="{ on }">
                   <v-btn
                     v-on="on"
                   >
@@ -36,7 +36,7 @@
                   no-title
                   locale="ru"
                 >
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
                     text
                     color="primary"
@@ -61,7 +61,6 @@
 
     <!-- Основные фильтры -->
     <v-row>
-
       <!-- Фильтр по результату звонка -->
       <v-col
         class="py-0"
@@ -82,7 +81,7 @@
           dense
           outlined
         >
-          <template v-slot:item="{ item }">
+          <template #item="{ item }">
             <v-list-item-title>{{ item.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
           </template>
@@ -113,9 +112,14 @@
         md="6"
         lg="6"
       >
-        <div class="d-flex flex-column fill-height" style="min-height: 320px">
+        <div
+          class="d-flex flex-column fill-height"
+          style="min-height: 320px"
+        >
           <div class="mb-5">
-            <h4 class="mb-2 font-weight-regular">Всего сделано звонков</h4>
+            <h4 class="mb-2 font-weight-regular">
+              Всего сделано звонков
+            </h4>
             <div style="font-size: 2rem">
               <app-count-up
                 :delay="1000"
@@ -124,7 +128,9 @@
             </div>
           </div>
           <div class="mb-5">
-            <h4 class="mb-2 font-weight-regular">Всего клиентов прозвонено</h4>
+            <h4 class="mb-2 font-weight-regular">
+              Всего клиентов прозвонено
+            </h4>
             <div style="font-size: 2rem">
               <app-count-up
                 :delay="1000"
@@ -132,7 +138,7 @@
               />
             </div>
           </div>
-          <v-spacer/>
+          <v-spacer />
           <p>
             На диаграмме представлены результаты последних звонков каждому клиенту
           </p>
@@ -171,15 +177,15 @@
           :length="dataTableHistory.pages"
           :disabled="dataTableHistory.processLoading"
         >
-          <template v-slot:display>
+          <template #display>
             <v-menu offset-y>
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-btn
                   v-bind="attrs"
-                  v-on="on"
                   tile
                   text
                   small
+                  v-on="on"
                 >
                   <app-count-up
                     :end-val="dataTableHistory.pageStart"
@@ -223,7 +229,7 @@
 
         <v-btn-toggle color="primary">
           <v-menu offset-y>
-            <template v-slot:activator="{ on, attrs }">
+            <template #activator="{ on, attrs }">
               <v-btn
                 :disabled="dataTableHistory.selected.length === 0"
                 v-bind="attrs"
@@ -281,12 +287,17 @@
           hide-default-footer
           @pagination="onPaginationChange"
         >
-
           <!-- slots item -->
-          <template slot="item.created_at" slot-scope="{ item }">
+          <template
+            slot="item.created_at"
+            slot-scope="{ item }"
+          >
             {{ $moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
           </template>
-          <template slot="item.contact" slot-scope="{ item }">
+          <template
+            slot="item.contact"
+            slot-scope="{ item }"
+          >
             <template v-if="item.contact">
               <template v-if="item.contact.owner_id !== item.owner.id">
                 <span class="grey--text">
@@ -300,7 +311,7 @@
                 </span>
               </template>
               <template v-else>
-                <router-link :to="{ name: 'operator_contacts_view', params: { contact_id: item.contact.id } }">
+                <router-link :to="{ name: 'contacts_view', params: { contact_id: item.contact.id } }">
                   {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
                 </router-link>
               </template>
@@ -309,28 +320,53 @@
               —
             </template>
           </template>
-          <template slot="item.status" slot-scope="{ item }">
-            <span class="label" :style="{'background-color': item.status_color}">
+          <template
+            slot="item.status"
+            slot-scope="{ item }"
+          >
+            <span
+              class="label"
+              :style="{'background-color': item.status_color}"
+            >
               {{ item.status_result }}
             </span>
           </template>
-          <template slot="item.comment" slot-scope="{ item }">
-            <v-tooltip color="primary" max-width="300" bottom>
-              <template v-slot:activator="{ on }">
-                <div v-on="on" style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;width: 200px">
+          <template
+            slot="item.comment"
+            slot-scope="{ item }"
+          >
+            <v-tooltip
+              color="primary"
+              max-width="300"
+              bottom
+            >
+              <template #activator="{ on }">
+                <div
+                  style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;width: 200px"
+                  v-on="on"
+                >
                   {{ item.comment || '-' }}
                 </div>
               </template>
               <span>{{ item.comment || '-' }}</span>
             </v-tooltip>
           </template>
-          <template slot="item.call_duration" slot-scope="{ item }">
+          <template
+            slot="item.call_duration"
+            slot-scope="{ item }"
+          >
             {{ secondsToHmsDigital(item.call_duration) }}
           </template>
-          <template slot="item.session_duration" slot-scope="{ item }">
+          <template
+            slot="item.session_duration"
+            slot-scope="{ item }"
+          >
             {{ secondsToHmsDigital(item.session_duration) }}
           </template>
-          <template slot="item.creator" slot-scope="{ item }">
+          <template
+            slot="item.creator"
+            slot-scope="{ item }"
+          >
             <template v-if="item.creator">
               {{ item.creator.first_name }} {{ item.creator.last_name }}
             </template>
@@ -338,7 +374,10 @@
               —
             </template>
           </template>
-          <template slot="item.record" slot-scope="{ item }">
+          <template
+            slot="item.record"
+            slot-scope="{ item }"
+          >
             <v-btn
               v-if="!item.isPlaying"
               :disabled="item.audio_recording_id === null"
@@ -404,10 +443,9 @@ import { DataOptions } from 'vuetify'
 import { debounce } from 'vuetify/src/util/helpers'
 
 Vue.use(VueApexCharts)
-Vue.component('apexchart', VueApexCharts)
+Vue.component('Apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
-  mixins: [audioPlayer, dateRangeCollection],
 
   components: {
     AppNumberFormat,
@@ -416,66 +454,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     AppDatePickerInput,
     AppPagination
   },
-
-  computed: {
-    // Статусы используются дл фильтрации результатов
-    filter_statuses: {
-      get () {
-        return this.$store.getters['filter/statuses']
-      },
-
-      set (val: any[]) {
-        this.$store.commit('filter/statuses', val)
-      }
-    },
-
-    apexchartOptions (): any {
-      return {
-        chart: {
-          animations: {
-            enabled: false // Off animations
-          },
-          events: {
-            // Происходит при клике по легенде диаграммы
-            legendClick: (chartContext: any, seriesIndex: any, config: any) => {
-              const scope: unknown & { status_id: number } = this.pieData[seriesIndex]
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === +scope.status_id)
-                if (index > -1) {
-                  this.filter.status = this.filter_statuses[index]
-                }
-              } else {
-                throw new Error('В объекте scope отсутствует свойство status_id')
-              }
-            }
-          }
-        },
-        colors: this.pieColors,
-        labels: this.pieLabels,
-        legend: {
-          formatter: function (seriesName: string, opts: any) {
-            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
-          },
-          markers: {
-            onClick: (chart: any, seriesIndex: any, opts: any) => {
-              console.log('series- ' + seriesIndex + "'s marker was clicked")
-            }
-          },
-          position: 'right',
-          show: true
-        }
-      }
-    },
-
-    paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery('sort', '[]')
-      return JSON.parse(json)
-    }
-  },
-
-  created () {
-    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
-  },
+  mixins: [audioPlayer, dateRangeCollection],
 
   data () {
     return {
@@ -627,6 +606,146 @@ export default (Vue as VueConstructor<VInterface>).extend({
           }).finally(() => (this.dataTableHistory.processLoading = false))
       }, 350)
     }
+  },
+
+  computed: {
+    // Статусы используются дл фильтрации результатов
+    filter_statuses: {
+      get () {
+        return this.$store.getters['filter/statuses']
+      },
+
+      set (val: any[]) {
+        this.$store.commit('filter/statuses', val)
+      }
+    },
+
+    apexchartOptions (): any {
+      return {
+        chart: {
+          animations: {
+            enabled: false // Off animations
+          },
+          events: {
+            // Происходит при клике по легенде диаграммы
+            legendClick: (chartContext: any, seriesIndex: any, config: any) => {
+              const scope: unknown & { status_id: number } = this.pieData[seriesIndex]
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === +scope.status_id)
+                if (index > -1) {
+                  this.filter.status = this.filter_statuses[index]
+                }
+              } else {
+                throw new Error('В объекте scope отсутствует свойство status_id')
+              }
+            }
+          }
+        },
+        colors: this.pieColors,
+        labels: this.pieLabels,
+        legend: {
+          formatter: function (seriesName: string, opts: any) {
+            return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
+          },
+          markers: {
+            onClick: (chart: any, seriesIndex: any, opts: any) => {
+              console.log('series- ' + seriesIndex + "'s marker was clicked")
+            }
+          },
+          position: 'right',
+          show: true
+        }
+      }
+    },
+
+    paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
+      const json: string = this.$routerQuery.getQuery('sort', '[]')
+      return JSON.parse(json)
+    }
+  },
+
+  watch: {
+
+    'dataTableHistory.options': {
+      deep: true,
+      handler (ctx: DataOptions) {
+        const sort = []
+        for (let i = 0; i < Math.min(ctx.sortBy.length, ctx.sortDesc.length); i++) {
+          sort.push({ sort_by: ctx.sortBy[i], sort_desc: ctx.sortDesc[i] })
+        }
+        if (sort.length > 0) {
+          // Преобразовываю в JSON и сохраняю в строку браузера
+          this.$routerQuery.setQuery({
+            sort: JSON.stringify(sort)
+          }).then(() => {
+            this.fetchDataHistory()
+          })
+        } else {
+          this.$routerQuery
+            .removeQuery(['sort'])
+            .then(() => {
+              this.fetchDataHistory()
+            })
+        }
+      }
+    },
+
+    'dataTableHistory.page': {
+      handler (page: number) {
+        this.$routerQuery.setQuery({ history_page: page })
+      }
+    }
+  },
+
+  created () {
+    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
+  },
+
+  mounted () {
+    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
+    const promises: Promise<any>[] = []
+
+    if (this.$routerQuery.hasQuery('date_period')) {
+      this.filter.date_period = this.$routerQuery.getQuery('date_period')
+
+      if (/^\d+,\d+/s.test(String(this.filterDate))) {
+        const dateRangeStr = String(this.filterDate)
+        const dates = dateRangeStr.split(',', 2)
+        this.dateRange = [
+          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
+          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
+        ]
+      }
+    }
+
+    if (this.$routerQuery.hasQuery('owner_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('status_id')) {
+      const index = (this.filter_statuses as { id: number }[]).findIndex(value => value.id === +this.$routerQuery.getQuery('status_id'))
+
+      if (index > -1) {
+        this.filter.status = this.filter_statuses[index]
+      }
+    }
+
+    if (this.$routerQuery.hasQuery('contact_created_at')) {
+      const dateRange = this.$routerQuery.getQuery('contact_created_at')
+      this.filter.contact_created_at = dateRange
+        .split(',', 2)
+        .map((e: string) => +e)
+        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
+    }
+
+    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
+    // Загружаю данные после инициализации фильтров
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchAllData()
+
+        this.initializeWatchForFilters()
+      })
   },
 
   methods: {
@@ -873,86 +992,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     vDataTableItemClass (scope: any) {
       return 'v-dt-item'
-    }
-  },
-
-  mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
-
-    if (this.$routerQuery.hasQuery('date_period')) {
-      this.filter.date_period = this.$routerQuery.getQuery('date_period')
-
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
-      }
-    }
-
-    if (this.$routerQuery.hasQuery('owner_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('status_id')) {
-      const index = (this.filter_statuses as { id: number }[]).findIndex(value => value.id === +this.$routerQuery.getQuery('status_id'))
-
-      if (index > -1) {
-        this.filter.status = this.filter_statuses[index]
-      }
-    }
-
-    if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery('contact_created_at')
-      this.filter.contact_created_at = dateRange
-        .split(',', 2)
-        .map((e: string) => +e)
-        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchAllData()
-
-        this.initializeWatchForFilters()
-      })
-  },
-
-  watch: {
-
-    'dataTableHistory.options': {
-      deep: true,
-      handler (ctx: DataOptions) {
-        const sort = []
-        for (let i = 0; i < Math.min(ctx.sortBy.length, ctx.sortDesc.length); i++) {
-          sort.push({ sort_by: ctx.sortBy[i], sort_desc: ctx.sortDesc[i] })
-        }
-        if (sort.length > 0) {
-          // Преобразовываю в JSON и сохраняю в строку браузера
-          this.$routerQuery.setQuery({
-            sort: JSON.stringify(sort)
-          }).then(() => {
-            this.fetchDataHistory()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['sort'])
-            .then(() => {
-              this.fetchDataHistory()
-            })
-        }
-      }
-    },
-
-    'dataTableHistory.page': {
-      handler (page: number) {
-        this.$routerQuery.setQuery({ history_page: page })
-      }
     }
   }
 })

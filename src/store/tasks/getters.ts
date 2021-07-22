@@ -1,8 +1,8 @@
-import { RootStateInterface } from '@/store'
+import { RootState } from '@/store'
 import { TasksStateInterface } from '@/store/tasks/state'
 import { GetterTree } from 'vuex'
 
-const getters: GetterTree<TasksStateInterface, RootStateInterface> = {
+const getters: GetterTree<TasksStateInterface, RootState> = {
   filter (state) { return state.filter },
   filter_planned_for (state) { return state.filter.planned_for },
   filter_status_id (state) { return state.filter.status_id },

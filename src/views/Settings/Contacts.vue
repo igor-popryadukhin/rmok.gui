@@ -4,10 +4,12 @@
     flat
   >
     <app-tools>
-      <template v-slot:left>
-        <h2 class="grey--text">{{ $tc('Contacts') }}</h2>
+      <template #left>
+        <h2 class="grey--text">
+          {{ $tc('Contacts') }}
+        </h2>
       </template>
-      <template v-slot:right>
+      <template #right>
         <v-btn
           :color="$vuetify.theme.currentTheme.primary"
           :disabled="!isModified"
@@ -22,6 +24,7 @@
         </v-btn>
       </template>
     </app-tools>
+    <v-divider class="mb-2" />
 
     <v-row>
       <v-col
@@ -35,18 +38,16 @@
           item-text="name"
           item-value="id"
           flat
-          dense
-          outlined
           @focus="countryMessageError = null"
         >
-          <template v-slot:item="{ item }">
+          <template #item="{ item }">
             <v-list-item-content>
               <v-list-item-title>{{ item.name }}</v-list-item-title>
               <v-list-item-subtitle>{{ item.full_name }}</v-list-item-subtitle>
             </v-list-item-content>
           </template>
 
-          <template v-slot:append-item>
+          <template #append-item>
             <v-divider />
             <div class="px-4 pt-2">
               <v-btn
@@ -72,9 +73,24 @@ import Account from '@/api/Account'
 import { Database } from '@/api/Database'
 import AppTools from '@/components/AppTools/AppTools.vue'
 import Vue from 'vue'
-import { mapGetters } from 'vuex'
 
-export default Vue.extend({
+interface Data {
+  [keys: string]: any;
+}
+
+interface Methods {
+  [keys: string]: any;
+}
+
+interface Computed {
+  [keys: string]: any;
+}
+
+interface Props {
+  [keys: string]: any;
+}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
   components: { AppTools },
 
   data () {
@@ -88,9 +104,6 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapGetters({
-      profileCountry: 'profile/country'
-    }),
 
     colsDisplay () {
       return {
@@ -104,16 +117,12 @@ export default Vue.extend({
     },
 
     isModified () {
-      if (this.profileCountry?.id !== this.countryId) {
-        return true
-      }
-
-      return false
+      return this.$profile.country?.id !== this.countryId
     }
   },
 
   created () {
-    this.countryId = this.profileCountry?.id || 0
+    this.countryId = this.$profile.country?.id || 0
 
     new Database()
       .getCountries()
@@ -123,7 +132,7 @@ export default Vue.extend({
   },
 
   mounted () {
-    if (!this.profileCountry?.id) {
+    if (!this.$profile.country?.id) {
       this.$data.countryMessageError = this.$tc('Choose your country')
     }
   },
@@ -137,7 +146,7 @@ export default Vue.extend({
           country_id: this.countryId
         }).then(() => {
           this.$toast.success(this.$tc('Changes accepted'))
-          this.$store.dispatch('profile/loadProfile')
+          this.$store.dispatch('profile/load')
         }).finally(() => (this.saveProcess = false))
     }
   }

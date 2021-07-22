@@ -5,28 +5,36 @@
     dense
   >
     <template v-for="(item, key) in items">
-      <slot name="item" v-bind="{ item }">
+      <slot
+        name="item"
+        v-bind="{ item }"
+      >
         <v-tooltip
           :open-delay="1000"
           :close-delay="1000"
           bottom
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              v-on="on"
               :key="key"
               :value="item.value"
+              v-on="on"
               @click="onBtnClick(item.value)"
             >
-              {{ item.title }}
+              <slot
+                name="btn"
+                :item="item"
+              >
+                {{ item.title }}
+              </slot>
             </v-btn>
           </template>
           <span>{{ tooltip(item.value) }}</span>
         </v-tooltip>
       </slot>
     </template>
-    <slot name="item-append"></slot>
+    <slot name="item-append" />
   </v-btn-toggle>
 </template>
 
@@ -62,14 +70,14 @@ export default Vue.extend({
     }
   },
 
-  mounted () {
-    this.option = this.value
-  },
-
   watch: {
     value (value: any) {
       this.option = value
     }
+  },
+
+  mounted () {
+    this.option = this.value
   },
 
   methods: {

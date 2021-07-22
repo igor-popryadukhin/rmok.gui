@@ -1,10 +1,30 @@
 <template>
-  <v-card
+  <v-sheet
     class="ml-1"
     tile
     flat
   >
-    <h3 class="grey--text mb-5">{{ $tc('Time settings') }}</h3>
+    <app-tools>
+      <template #left>
+        <h2 class="grey--text">
+          {{ $tc('Time settings') }}
+        </h2>
+      </template>
+      <template #right>
+        <v-btn
+          color="primary"
+          outlined
+          small
+          text
+          tile
+          @click="onSaveClick"
+        >
+          {{ $tc('Save settings') }}
+        </v-btn>
+      </template>
+    </app-tools>
+    <v-divider class="mb-2" />
+
     <v-row>
       <v-col
         v-bind="colsDisplay"
@@ -14,10 +34,8 @@
           :items="tz_names"
           :messages="tz_messages"
           :disable-lookup="false"
-          outlined
-          dense
         >
-          <template v-slot:item="{ item }">
+          <template #item="{ item }">
             {{ $moment().tz(item).format('UTC(Z)') }} {{ item }}
           </template>
         </v-select>
@@ -28,16 +46,16 @@
       <v-col
         v-bind="colsDisplay"
       >
-        <h3 class="grey--text mb-5">{{ $tc('Regional data format') }}</h3>
+        <h3 class="grey--text mb-5">
+          {{ $tc('Regional data format') }}
+        </h3>
 
         <!-- Полная дата -->
         <v-text-field
           v-model="date_time_format_long_date"
           :label="$tc('Long date')"
-          dense
-          outlined
         >
-          <template v-slot:append>
+          <template #append>
             <div class="mt-1">
               {{ $moment().format(date_time_format_long_date) }}
             </div>
@@ -49,10 +67,8 @@
         <v-text-field
           v-model="date_time_format_short_date"
           :label="$tc('Short date')"
-          dense
-          outlined
         >
-          <template v-slot:append>
+          <template #append>
             <div class="mt-1">
               {{ $moment().format(date_time_format_short_date) }}
             </div>
@@ -64,10 +80,8 @@
         <v-text-field
           v-model="date_time_format_long_time"
           :label="$tc('Long time')"
-          dense
-          outlined
         >
-          <template v-slot:append>
+          <template #append>
             <div class="mt-1">
               {{ $moment().format(date_time_format_long_time) }}
             </div>
@@ -79,10 +93,8 @@
         <v-text-field
           v-model="date_time_format_short_time"
           :label="$tc('Short time')"
-          dense
-          outlined
         >
-          <template v-slot:append>
+          <template #append>
             <div class="mt-1">
               {{ $moment().format(date_time_format_short_time) }}
             </div>
@@ -91,19 +103,7 @@
         <!-- Краткое время -->
       </v-col>
     </v-row>
-
-    <v-row>
-      <v-col>
-        <v-btn
-          color="success"
-          outlined
-          text
-          tile
-          @click="onSaveClick"
-        >{{ $tc('Save settings') }}</v-btn>
-      </v-col>
-    </v-row>
-  </v-card>
+  </v-sheet>
 </template>
 
 <script lang="ts">
@@ -194,8 +194,8 @@ export default Vue.extend({
       new Account()
         .updateProfile(data)
         .then(() => {
-          this.$toast.success(this.$tc('Changes saved'))
-          this.$store.dispatch('profile/loadProfile')
+          this.$toast.success(this.$tc('Changes accepted'))
+          this.$store.dispatch('profile/load')
         })
     }
   }

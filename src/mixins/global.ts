@@ -1,9 +1,37 @@
+import { ProfileState } from '@/store/profile/state'
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { version } from '../../package.json'
 
-Vue.mixin(Vue.extend({
+interface Data {
+  [keys: string]: any;
+}
+
+interface Methods {
+  [keys: string]: any;
+}
+
+interface Computed {
+  $profile: ProfileState;
+  [keys: string]: any;
+}
+
+interface Props {
+  [keys: string]: any;
+}
+
+Vue.mixin(Vue.extend<Data, Methods, Computed, Props>({
   computed: {
+    ...mapGetters({
+      date_time_format: 'settings/date_time_format',
+      $tooltip: 'settings/tooltip',
+      $settings_vue_keep_alive: 'settings/vue_keep_alive'
+    }),
+
+    $profile (): ProfileState {
+      return this.$store.getters['profile/profile']
+    },
+
     $headerHeight () {
       return 64 // Высота header
     },
@@ -26,15 +54,15 @@ Vue.mixin(Vue.extend({
 
     $version () {
       return version
-    },
-
-    ...mapGetters({
-      date_time_format: 'settings/date_time_format',
-      $tooltip: 'settings/tooltip'
-    })
+    }
   },
 
   methods: {
+    /**
+     * @deprecated
+     * @param obj
+     * @param key
+     */
     assertObjectHasAttribute (obj: any, key: string): boolean {
       if (obj === null || obj === undefined) { return false }
       return {}.hasOwnProperty.call(obj, key)
@@ -45,6 +73,28 @@ Vue.mixin(Vue.extend({
      */
     $confirm (): boolean {
       return window.confirm(this.$tc('Do you really want to leave? you have unsaved changes!'))
+    },
+
+    /**
+     * Проверяет, предоставлен ли атрибут по текущему токену.
+     *
+     * @param value
+     * @param strict
+     */
+    $isGranted (value: string | string[], strict = false): boolean {
+      const rolesAvailable: string[] = this.$profile.role.permissions
+      if (Array.isArray(value)) {
+        let found = false
+        for (const role of value) {
+          if (!found) {
+            found = rolesAvailable.includes(role)
+          }
+        }
+
+        return found
+      }
+
+      return rolesAvailable.includes(value)
     }
   }
 }))

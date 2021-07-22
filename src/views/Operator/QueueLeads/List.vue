@@ -1,11 +1,9 @@
 <template>
   <v-row>
-
     <!-- Лиды и задачи -->
     <v-col
       cols="12"
     >
-
       <!-- Лиды -->
       <v-row>
         <v-col
@@ -21,21 +19,21 @@
           >
             <v-card-title class="px-0">
               {{ $tc('Queue Leads not called') }}
-              <v-spacer/>
+              <v-spacer />
               <!-- Paginator -->
               <app-pagination
                 v-model="page"
                 :length="paginator.pages"
               >
-                <template v-slot:display>
+                <template #display>
                   <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
+                    <template #activator="{ on, attrs }">
                       <v-btn
                         v-bind="attrs"
-                        v-on="on"
                         tile
                         text
                         small
+                        v-on="on"
                       >
                         {{ paginator.pageStart }}-{{ paginator.pageStop }} из {{ leadsCount }}
                       </v-btn>
@@ -65,7 +63,12 @@
               </app-pagination>
               <!-- Paginator -->
             </v-card-title>
-            <v-card-subtitle class="px-0">{{ $tc('Total') }}: <app-count-up :delay="1000" :end-val="leadsCount" /></v-card-subtitle>
+            <v-card-subtitle class="px-0">
+              {{ $tc('Total') }}: <app-count-up
+                :delay="1000"
+                :end-val="leadsCount"
+              />
+            </v-card-subtitle>
             <v-card-text class="v-card__text px-0">
               <template v-if="leads.length > 0">
                 <template
@@ -78,7 +81,7 @@
                     :key="`list-item-${item.id}`"
                     ripple
                     selectable
-                    :to="{ name: 'operator_contacts_view', params: { contact_id: item.id } }"
+                    :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
                     style="min-height: 35px"
                   >
                     <v-list-item-content class="pa-0">
@@ -92,12 +95,14 @@
                       <v-list-item-title
                         v-if="item.default_phone"
                         class="text-right"
-                      >{{ item.default_phone.international }}
+                      >
+                        {{ item.default_phone.international }}
                       </v-list-item-title>
                       <v-list-item-title
                         v-else-if="item.phones.length > 0"
                         class="text-right"
-                      >{{ item.phones[0].international }}
+                      >
+                        {{ item.phones[0].international }}
                       </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
@@ -114,14 +119,13 @@
                 <v-list-item class="text-center">
                   <v-spacer />
                   <span class="grey--text">
-                      {{ $tc('You have no leads') }}
-                    </span>
+                    {{ $tc('You have no leads') }}
+                  </span>
                   <v-spacer />
                 </v-list-item>
               </template>
             </v-card-text>
-            <v-footer color="white">
-            </v-footer>
+            <v-footer color="white" />
           </v-card>
         </v-col>
       </v-row>
@@ -145,7 +149,7 @@
             flat
             @loaded-data="onTasksLoadedData"
           >
-            <template v-slot:item="{ item }">
+            <template #item="{ item }">
               <v-list-item-title
                 :style="{ color: item.expired ? 'red' : '' }"
               >
@@ -155,13 +159,13 @@
                 {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
               </v-list-item-subtitle>
               <v-list-item-subtitle>
-                        <span
-                          class="label mr-2"
-                          :style="{'background-color': lastContactStatus(item.contact).color }"
-                          :class="lastContactStatus(item.contact).class"
-                        >
-                            {{ lastContactStatus(item.contact).name }}
-                          </span> {{ item.description || '—' }}
+                <span
+                  class="label mr-2"
+                  :style="{'background-color': lastContactStatus(item.contact).color }"
+                  :class="lastContactStatus(item.contact).class"
+                >
+                  {{ lastContactStatus(item.contact).name }}
+                </span> {{ item.description || '—' }}
               </v-list-item-subtitle>
             </template>
           </s-task-list>
@@ -216,6 +220,7 @@ interface IComputed {
 }
 
 export default Vue.extend<IData, IMethods, IComputed>({
+  components: { AppCountUp, STaskList, AppPagination },
   async beforeRouteEnter (to, from, next) {
     // Нужно загрузить задачи до того как страница будет отрисована
     await store.dispatch('tasks/reset_filter') // Очищаю фильтр
@@ -224,7 +229,6 @@ export default Vue.extend<IData, IMethods, IComputed>({
       state: 'pending'
     }).finally(() => (next()))
   },
-  components: { AppCountUp, STaskList, AppPagination },
 
   data (): IData {
     return {

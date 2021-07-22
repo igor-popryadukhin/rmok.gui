@@ -1,11 +1,11 @@
-import { RootStateInterface } from '@/store'
+import { RootState } from '@/store'
 import { Module } from 'vuex'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import state, { ProjectStateInterface } from './state'
+import state, { ProjectState } from './state'
 
-const project: Module<ProjectStateInterface, RootStateInterface> = {
+const project: Module<ProjectState, RootState> = {
   actions,
   getters,
   mutations,

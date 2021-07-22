@@ -1,16 +1,16 @@
 import Projects, { ProjectInterface } from '@/api/Projects'
-import { RootStateInterface } from '@/store'
+import { RootState } from '@/store'
 import { ActionContext, ActionTree } from 'vuex'
-import { ProjectStateInterface } from './state'
+import { ProjectState } from './state'
 
-const actions: ActionTree<ProjectStateInterface, RootStateInterface> = {
+const actions: ActionTree<ProjectState, RootState> = {
 
   /**
    * Загрузить текущий проект пользователя.
    *
    * @param ctx
    */
-  async current (ctx: ActionContext<ProjectStateInterface, RootStateInterface>) {
+  async current (ctx: ActionContext<ProjectState, RootState>) {
     new Projects()
       .current()
       .then((response: ProjectInterface) => {
@@ -32,7 +32,7 @@ const actions: ActionTree<ProjectStateInterface, RootStateInterface> = {
    * @param ctx
    * @param params параметр которые будут переданы конечной точке.
    */
-  async available (ctx: ActionContext<ProjectStateInterface, RootStateInterface>, params = {}) {
+  async available (ctx: ActionContext<ProjectState, RootState>, params = {}) {
     return new Projects()
       .find(params)
       .then((response) => {
@@ -51,7 +51,7 @@ const actions: ActionTree<ProjectStateInterface, RootStateInterface> = {
    *
    * @param ctx
    */
-  clear (ctx: ActionContext<ProjectStateInterface, RootStateInterface>) {
+  clear (ctx: ActionContext<ProjectState, RootState>) {
     ctx.commit('available', [])
     ctx.commit('current', null)
   }

@@ -1,3 +1,5 @@
+import Role from '@/api/interfaces/Role'
+import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import APIError from '@/api/classes/APIError'
@@ -15,14 +17,14 @@ export class Roles {
    *
    * @param params
    */
-  public get<T = RoleInterface[]> (params = {}): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+  public get (params = {}): Promise<ResponseInterface<unknown, Role[]>> {
+    return new Promise<ResponseInterface<unknown, Role[]>>((resolve, reject) => {
       $axios.get('/roles', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }
@@ -49,11 +51,11 @@ export class Roles {
    *
    * @param data
    */
-  public add (data: any): Promise<number> {
+  public create (data: { name: string; }): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       $axios.post('/roles', data)
         .then((response: AxiosResponse) => {
-          if ([200, 201].includes(response.status)) {
+          if (response.status === 201) {
             return resolve(response.data.id)
           }
           throw new APIError(response.data)

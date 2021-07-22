@@ -1,21 +1,11 @@
 
-export interface CurrentProjectInterface {
-  id: number;
-  name: string;
+export interface ProjectState {
   scenario: string;
-  statuses: any[];
-  created_at: number;
 }
 
-export interface ProjectStateInterface {
-  current?: CurrentProjectInterface;
-  available: CurrentProjectInterface[];
-}
-
-function state (): ProjectStateInterface {
+function state (): ProjectState {
   return {
-    current: undefined,
-    available: []
+    scenario: ''
   }
 }
 
