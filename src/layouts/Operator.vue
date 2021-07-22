@@ -639,6 +639,14 @@ export default (Vue as VueConstructor<VInterface>).extend<IData, IMethod, ICompu
         {
           attrs: {
             text: true,
+            to: { name: 'operator_queue_leads' },
+            value: this.$tc('QueueLeads')
+          },
+          title: this.$tc('QueueLeads')
+        },
+        {
+          attrs: {
+            text: true,
             to: { name: 'operator_contacts_list' }
           },
           title: this.$tc('Contacts')

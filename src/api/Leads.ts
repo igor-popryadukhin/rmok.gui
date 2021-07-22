@@ -63,4 +63,22 @@ export default class Leads {
       }).catch(reject)
     })
   }
+
+  /**
+   * Получить очередь Лидов с настраиваемой сортировкой
+   *
+   * @param query
+   */
+  public getQueueLeads<MT, DT> (query: LeadSearchQueryInterface | null = { q: '', offset: 0, count: 100 }) {
+    return new Promise<ResponseInterface<MT, DT>>((resolve, reject) => {
+      $axios.get('/leads/queue', {
+        params: { ...query }
+      }).then((response: AxiosResponse) => {
+        if ([200].includes(response.status)) {
+          resolve(response.data)
+        }
+        throw new APIError(response.data)
+      }).catch(reject)
+    })
+  }
 }

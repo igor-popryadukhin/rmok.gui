@@ -499,7 +499,9 @@
     "team_leader_security": "@:Security",
     "team_leader_reports": "Статистика",
     "team_leader_reports_recent_calls": "Статистика по последним вызовам",
-    "team_leader_reports_all_calls": "Статистика по всем вызовам"
+    "team_leader_reports_all_calls": "Статистика по всем вызовам",
+    "operator_queue_leads": "@:QueueLeads",
+    "operator_queue_leads_view": "@:QueueLeads"
   },
   "rule_email": "Адрес электронной почты не соответствует требованиям",
   "rule_invalid_email": "Неверный адрес электронной почты!",
@@ -541,5 +543,7 @@
   },
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
-  "yes": "Да"
+  "yes": "Да",
+  "QueueLeads": "Очередь",
+  "Queue Leads not called": "Очередь лидов"
 }
