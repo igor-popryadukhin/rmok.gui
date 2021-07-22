@@ -371,6 +371,32 @@ const routes: RouteConfig[] = [
         },
         name: 'operator_help',
         path: 'help'
+      },
+      {
+        children: [
+          {
+            component: () => import(/* webpackChunkName: "leads" */ '../views/Operator/QueueLeads/List.vue'),
+            meta: {
+              layout: 'operator-layout',
+              middleware: [secure]
+            },
+            name: 'operator_queue_leads',
+            path: ''
+          },
+          {
+            component: () => import(/* webpackChunkName: "leads-view" */ '../views/Operator/Contacts/View.vue'),
+            meta: { layout: 'operator-layout', middleware: [secure] },
+            name: 'operator_queue_leads_view',
+            path: ':contact_id'
+          }
+        ],
+        component: () => import(/* webpackChunkName: "leads-layout" */ '../views/Operator/QueueLeads/Layout.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'operator-layout',
+          middleware: [secure]
+        },
+        path: 'queue-leads'
       }
     ],
     component: () => import(/* webpackChunkName: "operator-layout" */ '../views/Operator/Layout.vue'),
