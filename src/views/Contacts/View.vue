@@ -397,7 +397,7 @@
               <app-status
                 v-model="status.status_id"
                 :options="contact.project.statuses"
-                min-height="200"
+                min-height="300"
                 @on-close="status.visible = false"
               />
 
