@@ -4,8 +4,7 @@ import { ProfileState } from './state'
 import { GetterTree } from 'vuex'
 
 const getters: GetterTree<ProfileState, RootState> = {
-  profile (state): ProfileState { return state },
-  pbx_config (state): ProfileState { return state.pb_config }
+  profile (state): ProfileState { return state }
 }
 
 export default getters

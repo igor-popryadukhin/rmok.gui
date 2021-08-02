@@ -73,7 +73,7 @@
               <v-divider />
               <v-expansion-panel-content>
                 <v-switch
-                  v-for="(attribute, attribute_index) in permission.permissions"
+                  v-for="(attribute, attribute_index) in permission.attributes"
                   :key="`v-switch-${attribute_index}`"
                   v-model="attribute.granted"
                   :label="attribute.title"
@@ -104,7 +104,7 @@ interface Refs {
 
 interface Data {
   name: string;
-  permissions: string[];
+  permissions: any[];
   [key: string]: any
 }
 
@@ -199,16 +199,16 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       const request = {
         name: this.name,
-        permissions: [] as string[]
+        attributes: [] as string[]
       }
 
       for (let i = 0; i < this.permissions.length; i++) {
         const pg: PermissionGroupInterface = this.permissions[i]
-        for (let j = 0; j < pg.permissions.length; j++) {
-          const p: PermissionInterface = pg.permissions[j]
+        for (let j = 0; j < pg.attributes.length; j++) {
+          const p: PermissionInterface = pg.attributes[j]
 
           if (p.granted) {
-            request.permissions.push(p.name)
+            request.attributes.push(p.name)
           }
         }
       }
