@@ -13,7 +13,9 @@
         >
           <app-tools>
             <template #left>
-              {{ contact.contact_name || '+0 000 000-00-00' }}
+              <span style="font-weight: 500">
+                {{ contact.contact_name || '+0 000 000-00-00' }}
+              </span>
             </template>
           </app-tools>
           <v-divider class="mb-2" />
@@ -526,7 +528,7 @@ import store from '@/store'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import { EndEvent, RTCSession } from 'jssip/lib/RTCSession'
 import Vue from 'vue'
-import { Route } from 'vue-router'
+import { Location } from 'vue-router/types/router'
 import { mapGetters } from 'vuex'
 
 interface JsSIPSessionEnded {
@@ -539,7 +541,7 @@ interface Tab {
   name: string;
   icon: string;
   visible: boolean;
-  to?: string | Route;
+  to?: string | Location;
 }
 
 interface IStatus {
@@ -560,7 +562,6 @@ interface Data {
   rtcSession?: RTCSession;
   processLoadingContact: boolean;
   contact: Contact;
-  tabs: Tab[];
   [key: string]: any;
 }
 
@@ -569,6 +570,7 @@ interface Methods {
 }
 
 interface Computed {
+  tabs: Tab[];
   [key: string]: any;
 }
 
@@ -627,6 +629,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           created_at: 0
         },
         owner: undefined,
+        last_status: null,
         city: '',
         notes: '',
         tags: [],
@@ -704,7 +707,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       return h
     },
 
-    tabs () {
+    tabs (): Tab[] {
       const params = {
         contact_id: this.contactId
       }
@@ -802,6 +805,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.$data.contact.emails = response.emails || []
           this.$data.contact.phones = response.phones || []
           this.$data.contact.tz = response.tz || 'Europe/Moscow'
+          this.$data.contact.last_status = response.last_status || null
 
           this.$store.commit('project/scenario', response.project?.scenario)
         }).finally(() => (this.processLoadingContact = false))
@@ -853,7 +857,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
 
       new Tasks()
-        .find<any, TaskInterface[]>(contactParams)
+        .find(contactParams)
         .then(response => response.data)
         .then(data => {
           if (data.length) {
@@ -923,7 +927,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     onContactEditClick (contact_id: number) {
       new Contacts()
         .getById(contact_id)
-        .then(async (response: ContactInterface) => {
+        .then(async (response) => {
           const instance = await this.$dialog.show(SContactDialogEditor, {
             on: {
               cancel: () => {
