@@ -46,14 +46,6 @@ export interface TaskGetResponseInterface {
   items: TaskInterface[];
 }
 
-interface TaskGetParamsInterface {
-  q?: string;
-  contact_id?: number;
-  user_id?: number;
-  offset?: number;
-  count?: number;
-}
-
 export default class Tasks {
 
   /**
@@ -86,6 +78,21 @@ export default class Tasks {
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
           return resolve(response.data)
+        }
+        throw new APIError(response.data)
+      }).catch(reject)
+    })
+  }
+
+  /**
+   * Возвращает количество открытых задач текущего пользователя.
+   */
+  public countPending (): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      $axios.get('/tasks/count/pending')
+        .then((response: AxiosResponse) => {
+        if (response.status === 200) {
+          return resolve(+response.data.count)
         }
         throw new APIError(response.data)
       }).catch(reject)

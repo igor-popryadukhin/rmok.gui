@@ -122,6 +122,13 @@
             </v-tooltip>
 
             <v-list-item-action>
+              <template v-if="mainMenuItem.badge">
+                <v-badge
+                  v-show="mainMenuItem.badge.visible"
+                  v-bind="mainMenuItem.badge"
+                  inline
+                />
+              </template>
               <v-list-item-action-text
                 v-if="mainMenuItem.new"
                 style="color: #ffeb3b"
@@ -366,6 +373,7 @@ import { Calls } from '@/api/Calls'
 import { Contacts } from '@/api/Contacts'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import SipErrors from '@/api/SipErrors'
+import Tasks from '@/api/Tasks'
 import VToast from '@/components/VToast/VToast.vue'
 import JSSIPPayloadInterface from '@/interfaces/JSSIPPayloadInterface'
 import { JsSIP } from '@/jsSIP/plugin'
@@ -392,7 +400,6 @@ interface Props {
 }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
-
   data (): Data {
     return {
       accountMenuItems: [
@@ -432,7 +439,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         wheelPropagation: false
       },
       notificationsVisible: false,
-      notifications: [] as Notification[]
+      notifications: [] as Notification[],
+      taskPendingCount: 0
     }
   },
 
@@ -479,6 +487,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             to: {
               name: 'tasks'
             }
+          },
+          badge: {
+            content: this.taskPendingCount > 99 ? '99+' : this.taskPendingCount,
+            visible: this.taskPendingCount > 0,
+            color: '#ff5722'
           },
           visible: this.$isGranted('section.tasks')
         },
@@ -722,21 +735,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     navigation_drawer_mini: {
-      get () { return this.$store.getters['settings/navigation_drawer_mini'] },
-      set (value: boolean) { this.$store.commit('settings/navigation_drawer_mini', value) }
+      get () {
+        return this.$store.getters['settings/navigation_drawer_mini']
+      },
+      set (value: boolean) {
+        this.$store.commit('settings/navigation_drawer_mini', value)
+      }
     }
   },
 
   mounted () {
     this.$store.dispatch('profile/load')
-      .finally(() => {
-        // TODO: SSE Root listener
-        // user-${this.$profile.id}-new-contact
-        // this.$sse.topic('*', (event) => {
-        //   this.$root.$emit('root-sse-contact-create')
-        // })
-
-        this.$sse.subscribe()
+      .then(() => {
+        this.sseInitialize()
 
         this.jsSIPInitialize()
       })
@@ -747,6 +758,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.jsSIPInitialize()
       }
     })
+
+    setTimeout(this.fetchTaskPendingCount, 3000)
   },
 
   methods: {
@@ -1000,55 +1013,88 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       //   this.$jsSIP.start()
       // }
       this.$jsSIP.start()
+    },
+
+    sseInitialize () {
+      if ('VUE_APP_SSE' in process.env) {
+        // URL is a built-in JavaScript class to manipulate URLs
+        const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
+        url.searchParams.append('topic', `${window.origin}/user/${this.$profile.id}/event`)
+
+        const eventSource = new EventSource(url, {
+          withCredentials: true
+        })
+
+        // Новые ивенты
+        eventSource.addEventListener('event', (event: Event) => {
+          if (event instanceof MessageEvent) {
+            // Что-то изменилось в задачах
+            if (event.data === 'tasks-changed') {
+              this.fetchTaskPendingCount()
+            }
+          }
+        })
+
+        eventSource.onmessage = (event) => {
+          this.$appDebug.extend('SSE')('%o', JSON.parse(event.data))
+        }
+      }
+    },
+
+    async fetchTaskPendingCount () {
+      this.taskPendingCount = await new Tasks().countPending()
     }
   }
 })
 </script>
 
 <style lang="scss">
-  #myVideo {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    margin: auto;
-    min-height: 50%;
-    min-width: 50%;
-  }
-  .background--header {
-    background-image: linear-gradient(to right, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
-  }
-  .background--drawer {
-    background-image: linear-gradient(to right, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
-  }
-  .scroll-area {
-    position: relative;
-    margin: auto;
-    width: 600px;
-    height: 400px;
-  }
+#myVideo {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin: auto;
+  min-height: 50%;
+  min-width: 50%;
+}
 
-  .transition-fade {
+.background--header {
+  background-image: linear-gradient(to right, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
+}
+
+.background--drawer {
+  background-image: linear-gradient(to right, #3a70d4, #3a70d4, #3a70d4, #3a70d4, #3a70d4);
+}
+
+.scroll-area {
+  position: relative;
+  margin: auto;
+  width: 600px;
+  height: 400px;
+}
+
+.transition-fade {
+  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-duration: 2s;
+}
+
+@keyframes fadeInOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
     opacity: 1;
-    animation-name: fadeInOpacity;
-    animation-iteration-count: 1;
-    animation-timing-function: ease-in;
-    animation-duration: 2s;
   }
+}
 
-  @keyframes fadeInOpacity {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  .v-application .pth-63 {
-    padding-top: 4px !important;
-    padding-bottom: 3px !important;
-  }
+.v-application .pth-63 {
+  padding-top: 4px !important;
+  padding-bottom: 3px !important;
+}
 
 </style>
