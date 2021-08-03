@@ -46,15 +46,6 @@ const store = new Vuex.Store({
 
   plugins: [
     createPersistedState({
-      key: 'rmok',
-      paths: [],
-      storage: {
-        getItem: (key) => get(key),
-        removeItem: (key) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
       key: 'rmok-profile',
       paths: ['profile'],
       storage: {
@@ -66,15 +57,6 @@ const store = new Vuex.Store({
     createPersistedState({
       key: 'rmok-system',
       paths: ['system'],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
-      key: 'rmok-project',
-      paths: ['project'],
       storage: {
         getItem: (key: string) => get(key),
         removeItem: (key: string) => remove(key),
