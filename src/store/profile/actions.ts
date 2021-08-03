@@ -12,7 +12,7 @@ const actions: ActionTree<ProfileState, RootState> = {
           ctx.commit('fill', response)
 
           // PBX Config
-          ctx.commit('pbx_config/login', response.pbx_config?.display_name || '')
+          ctx.commit('pbx_config/display_name', response.pbx_config?.display_name || '')
           ctx.commit('pbx_config/login', response.pbx_config?.login || '')
           ctx.commit('pbx_config/password', response.pbx_config?.password || '')
           ctx.commit('pbx_config/server', response.pbx_config?.server || '')

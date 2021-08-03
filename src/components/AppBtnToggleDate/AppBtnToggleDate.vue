@@ -7,7 +7,8 @@
     <template v-for="(item, key) in items">
       <slot
         name="item"
-        v-bind="{ item }"
+        :item="item"
+        :disabled="disabled"
       >
         <v-tooltip
           :open-delay="1000"
@@ -19,6 +20,7 @@
               v-bind="attrs"
               :key="key"
               :value="item.value"
+              :disabled="disabled"
               v-on="on"
               @click="onBtnClick(item.value)"
             >
@@ -60,6 +62,12 @@ export default Vue.extend({
       type: String,
       default () {
         return null
+      }
+    },
+    disabled: {
+      type: Boolean,
+      default () {
+        return false
       }
     }
   },

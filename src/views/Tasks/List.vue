@@ -1,13 +1,37 @@
 <template>
-  <v-sheet>
-    <app-btn-toggle-date
-      v-model="filterPlannedFor"
-      :items="dateRangeCollection"
-    >
-      <template #btn="{ item }">
-        {{ $tc(item.title) }}
-      </template>
-    </app-btn-toggle-date>
+  <v-sheet min-width="850">
+    <div class="d-flex align-center my-1">
+      <div>
+        <app-btn-toggle-date
+          v-model="filterPlannedFor"
+          :items="dateRangeCollection"
+        >
+          <template #btn="{ item }">
+            {{ $tc(item.title) }}
+            <template v-if="item.badge">
+              <v-badge
+                v-show="item.badge.visible"
+                v-bind="item.badge"
+                inline
+              />
+            </template>
+          </template>
+        </app-btn-toggle-date>
+      </div>
+
+      <v-divider
+        class="mx-2"
+        vertical
+      />
+      <app-status-select
+        v-model="filterStatusId"
+        style="max-width: 300px;"
+      />
+      <v-spacer />
+      <div />
+    </div>
+
+    <v-divider />
 
     <v-row>
       <v-col>
@@ -46,6 +70,7 @@
                 :key="`v-list-item-${taskIndex}`"
                 link
                 exact
+                @click="onBtnTaskItemClick(taskItem)"
               >
                 <v-list-item-content>
                   <v-list-item-title
@@ -54,44 +79,38 @@
                     {{ `Позвонить ${$moment.unix(taskItem.planned_for).format(`Do MMMM, dddd, ${date_time_format.long_time} a`)}` }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="taskItem.contact">
-                    {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{
-                      taskItem.contact.middle_name
-                    }}
+                    {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{ taskItem.contact.middle_name }}
                   </v-list-item-subtitle>
-                  <!--                    <v-list-item-subtitle>-->
-                  <!--                      <span-->
-                  <!--                        class="label mr-2"-->
-                  <!--                      >-->
-                  <!--                        {{ lastContactStatus(taskItem.contact).name }}-->
-                  <!--                      </span> {{ taskItem.description || '—' }}-->
-                  <!--                    </v-list-item-subtitle>-->
+                  <v-list-item-subtitle
+                    v-if="taskItem.contact"
+                  >
+                    <template v-if="taskItem.contact.last_status">
+                      <v-chip
+                        :color="taskItem.contact.last_status.color"
+                        class="mr-2"
+                        label
+                        outlined
+                        x-small
+                        @click.stop="onBtnTaskItemStatusChipClick(taskItem.contact.last_status.id)"
+                      >
+                        {{ taskItem.contact.last_status.name }}
+                      </v-chip>
+                      <span>
+                        {{ taskItem.description }}
+                      </span>
+                    </template>
+                  </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-menu
-                    bottom
-                    left
+                  <v-btn
+                    :loading="tasksCloseProcessIds.indexOf(taskItem.id) > -1"
+                    text
+                    small
+                    tile
+                    @click.stop="onBtnTaskItemCloseClick(taskItem.id)"
                   >
-                    <template #activator="{ on, attrs }">
-                      <v-btn
-                        icon
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        <v-icon>mdi-dots-vertical</v-icon>
-                      </v-btn>
-                    </template>
-
-                    <v-list dense>
-                      <v-list-item
-                        v-for="(itemAction, i) in itemActions"
-                        :key="i"
-                        v-bind="itemAction.attrs"
-                        @click="itemAction.click(taskItem)"
-                      >
-                        <v-list-item-title>{{ itemAction.title }}</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
+                    {{ $tc('Close') }}
+                  </v-btn>
                 </v-list-item-action>
               </v-list-item>
             </template>
@@ -108,7 +127,8 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import Tasks from '@/api/Tasks'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import moment from 'moment'
+import AppStatusSelect from '@/components/AppStatusSelect/AppStatusSelect.vue'
+import { makeUnixUTCTimestampRangeString } from '@/utils/datetime'
 import Vue from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
@@ -117,12 +137,14 @@ const fetchTasks = debounce((params = {}, callable: any) => {
 }, 350)
 
 export default Vue.extend({
-  components: { AppLoading, AppBtnToggleDate },
+  components: { AppStatusSelect, AppLoading, AppBtnToggleDate },
 
   data () {
     return {
+      tasksCloseProcessIds: [] as number[],
       tasksLoadingProcess: false,
-      tasks: [] as Task[]
+      tasks: [] as Task[],
+      tasksCounts: [] as any[]
     }
   },
 
@@ -130,13 +152,13 @@ export default Vue.extend({
     // Период выборки данных
     filterPlannedFor: {
       get () {
-        return this.$route.query?.period
+        return this.$route.query?.planned_for
       },
 
       set (value: string) {
         if (value) {
           this.$routerQuery.setQuery({
-            period: value
+            planned_for: value
           })
         } else {
           this.$routerQuery.removeQuery(['planned_for'])
@@ -144,23 +166,47 @@ export default Vue.extend({
       }
     },
 
+    filterStatusId: {
+      get () {
+        return +this.$route.query?.status_id || 0
+      },
+
+      set (value: number) {
+        if (value) {
+          this.$routerQuery.setQuery({
+            status_id: value
+          })
+        } else {
+          this.$routerQuery.removeQuery(['status_id'])
+        }
+      }
+    },
+
     dateRangeCollection () {
       return [
         {
+          id: 'for_tomorrow',
           title: 'For tomorrow',
-          value: `${moment('00:00:00', 'hh:mm:ss').unix()},${moment('23:59:59', 'hh:mm:ss').unix()}`
+          value: makeUnixUTCTimestampRangeString('add', 1, 'day'),
+          badge: this.badgeFactory('for_tomorrow')
         },
         {
+          id: 'for_today',
           title: 'For today',
-          value: `${moment('00:00:00', 'hh:mm:ss').subtract(1, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').subtract(1, 'day').unix()}`
+          value: makeUnixUTCTimestampRangeString(),
+          badge: this.badgeFactory('for_today')
         },
         {
+          id: 'yesterdays',
           title: 'Yesterday\'s',
-          value: `${moment('23:59:59', 'hh:mm:ss').subtract(7, 'day').unix()},${moment('00:00:00', 'hh:mm:ss').unix()}`
+          value: makeUnixUTCTimestampRangeString('subtract', 1, 'day'),
+          badge: this.badgeFactory('yesterdays')
         },
         {
+          id: 'the_day_before_yesterday',
           title: 'The day before yesterday',
-          value: `${moment('00:00:00', 'hh:mm:ss').subtract(14, 'day').unix()},${moment('23:59:59', 'hh:mm:ss').subtract(7, 'day').unix()}`
+          value: makeUnixUTCTimestampRangeString('subtract', 2, 'day'),
+          badge: this.badgeFactory('the_day_before_yesterday')
         },
         {
           title: 'All',
@@ -171,6 +217,12 @@ export default Vue.extend({
   },
 
   mounted () {
+    if (this.filterPlannedFor) {
+      this.fetchTasks()
+    }
+
+    this.calculateTaskCount()
+
     this.initializeWatchForFilters()
   },
 
@@ -182,6 +234,10 @@ export default Vue.extend({
         params.planned_for = this.filterPlannedFor
       }
 
+      if (this.filterStatusId) {
+        params.status_id = this.filterStatusId
+      }
+
       this.tasksLoadingProcess = true
       fetchTasks(params, (response: ResponseInterface<{ count: number }, Task[]>) => {
         this.tasks = response.data || []
@@ -191,6 +247,82 @@ export default Vue.extend({
 
     initializeWatchForFilters () {
       this.$watch('filterPlannedFor', () => (this.fetchTasks()))
+      this.$watch('filterStatusId', () => {
+        this.fetchTasks()
+        this.calculateTaskCount()
+      })
+    },
+
+    onBtnTaskItemCloseClick (id: number) {
+      this.tasksCloseProcessIds.push(id)
+      new Tasks()
+        .setState(id, 'done')
+        .then(() => {
+          this.$toast.success('The task is closed')
+          const taskIndex = this.tasks.findIndex((e) => e.id === id)
+          if (taskIndex > -1) {
+            this.tasks.splice(taskIndex, 1)
+          }
+
+          this.calculateTaskCount()
+        }).finally(() => {
+          const taskIndex = this.tasksCloseProcessIds.indexOf(id)
+          if (taskIndex > -1) {
+            this.tasksCloseProcessIds.splice(taskIndex)
+          }
+        })
+    },
+
+    onBtnTaskItemClick (item: Task) {
+      if (item.contact) {
+        this.$router.push({
+          name: 'contacts_view',
+          params: {
+            contact_id: String(item.contact.id)
+          }
+        })
+      }
+    },
+
+    onBtnTaskItemStatusChipClick (statusId: number) {
+      this.filterStatusId = statusId
+    },
+
+    calculateTaskCount () {
+      new Tasks()
+        .calculateCount(this.dateRangeCollection
+          .filter((e) => e.id && e.value)
+          .map((e) => {
+            const params: any = {
+              planned_for: e.value
+            }
+
+            if (this.filterStatusId) {
+              params.status_id = this.filterStatusId
+            }
+
+            return {
+              id: e.id,
+              params
+            }
+          })
+        ).then((response) => {
+          this.tasksCounts = response
+        })
+    },
+
+    badgeFactory (id: string) {
+      const foundIndex = this.tasksCounts.findIndex((e) => e.id === id)
+      if (foundIndex > -1) {
+        const found = this.tasksCounts[foundIndex]
+        return {
+          content: found.count > 99 ? '99+' : found.count,
+          visible: found.count > 0,
+          color: 'red'
+        }
+      }
+
+      return null
     }
   }
 })

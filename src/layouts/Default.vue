@@ -376,6 +376,7 @@ import SipErrors from '@/api/SipErrors'
 import Tasks from '@/api/Tasks'
 import VToast from '@/components/VToast/VToast.vue'
 import JSSIPPayloadInterface from '@/interfaces/JSSIPPayloadInterface'
+import SSEMessage from '@/interfaces/SSEMessage'
 import { JsSIP } from '@/jsSIP/plugin'
 import { ProfileState } from '@/store/profile/state'
 import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
@@ -1019,7 +1020,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       if ('VUE_APP_SSE' in process.env) {
         // URL is a built-in JavaScript class to manipulate URLs
         const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
-        url.searchParams.append('topic', `${window.origin}/user/${this.$profile.id}/event`)
+        url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
 
         const eventSource = new EventSource(url, {
           withCredentials: true
@@ -1028,8 +1029,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         // Новые ивенты
         eventSource.addEventListener('event', (event: Event) => {
           if (event instanceof MessageEvent) {
+            const obj: SSEMessage = JSON.parse(event.data)
+
             // Что-то изменилось в задачах
-            if (event.data === 'tasks-changed') {
+            if (obj.name === 'tasks-changed') {
               this.fetchTaskPendingCount()
             }
           }

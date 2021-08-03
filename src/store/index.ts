@@ -8,6 +8,7 @@ import settings from './settings'
 import filter from './filter'
 import symfony from './symfony'
 import profile from './profile'
+import statuses from './statuses'
 import { database } from './database'
 import debug from 'debug'
 
@@ -33,6 +34,7 @@ const store = new Vuex.Store({
     database,
     profile,
     project,
+    statuses,
     settings,
     filter,
     system,

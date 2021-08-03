@@ -73,6 +73,7 @@
 </template>
 
 <script lang="ts">
+import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import Contact from '@/api/interfaces/Contact'
 import { ProjectInterface } from '@/api/Projects'
@@ -283,6 +284,16 @@ export default Vue.extend<Data, Methods, Computed>({
         .then((response) => {
           this.leadsCount = response?.meta?.count || 0
           this.leads = response?.data || []
+        }).catch((e) => {
+          if (e instanceof APIError) {
+            this.$toast.error(e.message, {
+              onClick: () => {
+                // Todo: implement set project
+              }
+            })
+          } else {
+            this.$toast.error(e.message)
+          }
         }).finally(() => {
           this.leadsLoading = false
         })

@@ -1,4 +1,5 @@
 import APIError from '@/api/classes/APIError'
+import Status from '@/api/interfaces/Status'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
@@ -20,6 +21,19 @@ export interface StatusInterface {
 }
 
 export default class Statuses {
+  public find (params = {}): Promise<Status[]> {
+    return new Promise((resolve, reject) => {
+      $axios.get('/statuses', {
+        params
+      }).then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+        resolve(response.data)
+      }).catch(reject)
+    })
+  }
+
   /**
    * Поиск статусов
    *
@@ -31,7 +45,7 @@ export default class Statuses {
         params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          resolve(response.data)
+          return resolve(response.data)
         }
         throw new APIError(response.data)
       }).catch(reject)

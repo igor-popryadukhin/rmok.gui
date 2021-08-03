@@ -1,3 +1,4 @@
+import moment, { DurationInputArg2 } from 'moment'
 
 function declOfNum (number: number, words: string[] | string): string {
   if (Array.isArray(words)) {
@@ -35,4 +36,22 @@ export function secondsToHmsDigital (seconds: number) {
   const s: number = Math.floor(seconds % 3600 % 60)
 
   return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00')
+}
+
+export function makeUnixUTCTimestampRangeString (
+    method?: 'add' | 'subtract',
+    amount?: number,
+    unit?: DurationInputArg2
+): string {
+  switch (method) {
+    case 'subtract': {
+      return `${moment('00:00:00', 'hh:mm:ss').subtract(amount, unit).utc().unix()},${moment('23:59:59', 'hh:mm:ss').subtract(amount, unit).utc().unix()}`
+    }
+
+    case 'add': {
+      return `${moment('00:00:00', 'hh:mm:ss').add(amount, unit).utc().unix()},${moment('23:59:59', 'hh:mm:ss').add(amount, unit).utc().unix()}`
+    }
+
+    default: return `${moment('00:00:00', 'hh:mm:ss').utc().unix()},${moment('23:59:59', 'hh:mm:ss').utc().unix()}`
+  }
 }

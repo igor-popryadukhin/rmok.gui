@@ -54,7 +54,7 @@ const actions: ActionTree<TasksStateInterface, RootState> = {
       }
 
       new Tasks()
-        .find<any, TaskInterface[]>(newParams)
+        .find(newParams)
         .then((response) => {
           commit('options_count', response.meta?.count)
           commit('options_pages', Math.ceil(response.meta?.count / state.options.per_page))
