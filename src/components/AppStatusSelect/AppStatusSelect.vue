@@ -1,8 +1,9 @@
 <template>
-  <v-select
+  <v-autocomplete
     v-model="selected"
     :items="statuses"
     :multiple="multiple"
+    :search-input.sync="q"
     item-value="id"
     item-text="name"
     item-color="color"
@@ -12,6 +13,7 @@
     clearable
     hide-selected
     @input="(val) => $emit('change', val)"
+    @keyup="onAutocompleteUpdateSearchInput(q, $event)"
   >
     <template
       v-if="multiple"
@@ -40,12 +42,33 @@
         {{ item.name }}
       </v-chip>
     </template>
-  </v-select>
+  </v-autocomplete>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import { debounce } from 'vuetify/src/util/helpers'
 import { mapActions, mapGetters } from 'vuex'
+
+const charCodes: string[] = [
+  'KeyA', 'KeyB', 'KeyC', 'KeyD', 'KeyE', 'KeyF', 'KeyG', 'KeyH', 'KeyI', 'KeyJ', 'KeyK', 'KeyL',
+  'KeyM', 'KeyN', 'KeyO', 'KeyP', 'KeyQ', 'KeyR', 'KeyS', 'KeyT', 'KeyU', 'KeyV', 'KeyW', 'KeyX',
+  'KeyY', 'KeyZ', 'Space', 'Backspace', 'Backquote', 'Period', 'BracketRight', 'BracketLeft', 'NumpadAdd',
+  'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'Delete'
+]
+
+const numberCodes: string[] = []
+for (let i = 0; i < 9; i++) {
+  numberCodes.push('Numpad' + i)
+  numberCodes.push('Digit' + i)
+}
+
+const keyCodes: string[] = numberCodes.concat(charCodes)
+
+const fetchStatusesDebounce = debounce(function handle (ctx: any, params = {}) {
+  ctx.fetchStatuses(params)
+  ctx.$appDebug(params)
+}, 450)
 
 export default Vue.extend({
   name: 'AppStatusSelect',
@@ -68,6 +91,8 @@ export default Vue.extend({
 
   data () {
     return {
+      q: null,
+      qOld: null,
       selected: 0 as number | number[]
     }
   },
@@ -87,6 +112,8 @@ export default Vue.extend({
   mounted () {
     this.selected = this.value
 
+    this.$appDebug(keyCodes)
+
     if (this.statuses.length === 0) {
       this.fetchStatuses()
     }
@@ -95,7 +122,19 @@ export default Vue.extend({
   methods: {
     ...mapActions({
       fetchStatuses: 'statuses/items'
-    })
+    }),
+
+    onAutocompleteUpdateSearchInput (val: string, event: KeyboardEvent) {
+      this.$appDebug(event.code)
+      if (keyCodes.includes(event.code)) {
+        if (this.qOld !== this.q) {
+          this.qOld = this.q
+          fetchStatusesDebounce(this, {
+            q: val
+          })
+        }
+      }
+    }
   }
 })
 </script>
