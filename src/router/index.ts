@@ -10,6 +10,8 @@ Vue.use(VueRouter)
 // Взлом
 const originPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push (location) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return originPush.call(this, location).catch((error) => error)
 }
 
