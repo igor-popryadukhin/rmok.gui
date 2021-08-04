@@ -350,18 +350,7 @@
 
     <!-- Main -->
     <v-main>
-      <v-container
-        v-if="$settings_vue_keep_alive"
-        fluid
-      >
-        <keep-alive max="3">
-          <router-view />
-        </keep-alive>
-      </v-container>
-      <v-container
-        v-else
-        fluid
-      >
+      <v-container fluid>
         <router-view />
       </v-container>
     </v-main>
@@ -1018,15 +1007,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     sseInitialize () {
       if ('VUE_APP_SSE' in process.env) {
-        // URL is a built-in JavaScript class to manipulate URLs
         const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
+
+        // Темы для подписок
         url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
+        // url.searchParams.append('topic', 'my-topic1')
+        // url.searchParams.append('topic', 'my-topic2')
 
         const eventSource = new EventSource(url, {
           withCredentials: true
         })
 
-        // Новые ивенты
         eventSource.addEventListener('event', (event: Event) => {
           if (event instanceof MessageEvent) {
             const obj: SSEMessage = JSON.parse(event.data)
@@ -1038,8 +1029,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           }
         })
 
+        // SSE типа message
         eventSource.onmessage = (event) => {
-          this.$appDebug.extend('SSE')('%o', JSON.parse(event.data))
+          // Emit в корневой экземпляр
+          this.$root.$emit('root-sse-message', event.data)
         }
       }
     },
