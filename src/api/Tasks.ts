@@ -53,15 +53,16 @@ export default class Tasks {
    *
    * @param params
    */
-  public find (params= {}): Promise<ResponseInterface<any, Task[]>> {
-    return new Promise<ResponseInterface<any, Task[]>>((resolve, reject) => {
+  public find (params= {}): Promise<ResponseInterface<{ count: number }, Task[]>> {
+    return new Promise<ResponseInterface<{ [key: string]: any }, Task[]>>((resolve, reject) => {
       $axios.get('/tasks', {
         params
       }).then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+
+          resolve(response.data)
         }).catch(reject)
     })
   }

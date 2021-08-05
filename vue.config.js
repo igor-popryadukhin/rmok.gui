@@ -1,4 +1,3 @@
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
@@ -30,8 +29,9 @@ module.exports = {
 
   devServer: {
     disableHostCheck: true,
-    host: 'develop.rmok.online',
-    public: '0.0.0.0'
+    host: '0.0.0.0',
+    public: 'http://0.0.0.0:3000',
+    port: 3000
   },
 
   filenameHashing: true,

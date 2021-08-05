@@ -16,6 +16,52 @@
               />
             </template>
           </template>
+
+          <template #item-append>
+            <v-menu
+              ref="datePeriodMenu"
+              v-model="datePeriodMenu"
+              :close-on-content-click="false"
+              :return-value="filterPlannedForPeriod"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  text
+                  tile
+                  v-on="on"
+                >
+                  {{ btnTitleCustomize }}
+                </v-btn>
+              </template>
+              <v-date-picker
+                v-model="filterPlannedForPeriod"
+                :locale="$vuetify.lang.current"
+                :first-day-of-week="1"
+                :allowed-dates="filterPlannedForPeriodAllowedDates"
+                no-title
+              >
+                <v-spacer />
+                <v-btn
+                  text
+                  color="primary"
+                  @click="datePeriodMenu = false"
+                >
+                  {{ $tc('Cancel') }}
+                </v-btn>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="$refs.datePeriodMenu.save(filterPlannedForPeriod)"
+                >
+                  {{ $tc('Ok') }}
+                </v-btn>
+              </v-date-picker>
+            </v-menu>
+          </template>
         </app-btn-toggle-date>
       </div>
 
@@ -27,138 +73,100 @@
         v-model="filterStatusId"
         style="max-width: 300px;"
       />
-      <v-spacer />
-      <div />
     </div>
+    <app-divider />
 
-    <v-divider />
+    <small
+      class="d-block grey--text"
+      style="font-size: small"
+    >
+      {{ tasksInfo }}
+    </small>
 
     <v-row>
       <v-col>
-        <template v-if="tasks.length === 0 && tasksLoadingProcess === true">
-          <div class="d-flex justify-center">
-            <div class="pa-16 grey--text">
-              <app-loading />
-            </div>
-          </div>
-        </template>
-        <template v-else-if="tasks.length === 0 && tasksLoadingProcess === false">
-          <div
-            class="d-flex flex-wrap align-center justify-center"
-            style="height: 400px"
-          >
-            <div class="grey--text">
-              {{ $tc('Task list is empty') }}
-            </div>
-          </div>
-        </template>
-        <template v-else>
-          <v-list>
-            <template v-for="(taskItem, taskIndex) in tasks">
-              <v-divider
-                v-if="taskIndex > 0"
-                :key="`v-divider-${taskIndex}`"
-              />
-              <v-skeleton-loader
-                v-if="tasksLoadingProcess"
-                :key="`v-skeleton-loader-${taskIndex}`"
-                type="list-item-three-line"
-                height="79"
-              />
-              <v-list-item
-                v-else
-                :key="`v-list-item-${taskIndex}`"
-                link
-                exact
-                @click="onBtnTaskItemClick(taskItem)"
-              >
-                <v-list-item-content>
-                  <v-list-item-title
-                    :style="{ color: taskItem.expired ? 'red' : '' }"
-                  >
-                    {{ `Позвонить ${$moment.unix(taskItem.planned_for).format(`Do MMMM, dddd, ${date_time_format.long_time} a`)}` }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle v-if="taskItem.contact">
-                    {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{ taskItem.contact.middle_name }}
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle
-                    v-if="taskItem.contact"
-                  >
-                    <template v-if="taskItem.contact.last_status">
-                      <v-chip
-                        :color="taskItem.contact.last_status.color"
-                        class="mr-2"
-                        label
-                        outlined
-                        x-small
-                        @click.stop="onBtnTaskItemStatusChipClick(taskItem.contact.last_status.id)"
-                      >
-                        {{ taskItem.contact.last_status.name }}
-                      </v-chip>
-                      <span>
-                        {{ taskItem.description }}
-                      </span>
-                    </template>
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn
-                    :loading="tasksCloseProcessIds.indexOf(taskItem.id) > -1"
-                    text
-                    small
-                    tile
-                    @click.stop="onBtnTaskItemCloseClick(taskItem.id)"
-                  >
-                    {{ $tc('Close') }}
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
-          </v-list>
-        </template>
+        <keep-alive
+          :max="5"
+          exclude="/tasks"
+        >
+          <list-view
+            :key="$route.fullPath"
+            :params="paramsQuery"
+            @update:task-closed="calculateTaskCount"
+          />
+        </keep-alive>
       </v-col>
     </v-row>
   </v-sheet>
 </template>
 
 <script lang="ts">
-import Task from '@/api/interfaces/Task'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import Tasks from '@/api/Tasks'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppStatusSelect from '@/components/AppStatusSelect/AppStatusSelect.vue'
 import { makeUnixUTCTimestampRangeString } from '@/utils/datetime'
 import Vue from 'vue'
-import { debounce } from 'vuetify/src/util/helpers'
-
-const fetchTasks = debounce((params = {}, callable: any) => {
-  return new Tasks().find(params).then(callable)
-}, 350)
+import { mapGetters } from 'vuex'
+import ListView from './ListView.vue'
+import { DateRangeCollection } from '@/views/Tasks/interfaces'
 
 export default Vue.extend({
-  components: { AppStatusSelect, AppLoading, AppBtnToggleDate },
+  components: {
+    AppStatusSelect,
+    AppBtnToggleDate,
+    ListView
+  },
 
   data () {
     return {
-      tasksCloseProcessIds: [] as number[],
-      tasksLoadingProcess: false,
-      tasks: [] as Task[],
+      datePeriodMenu: false,
       tasksCounts: [] as any[]
     }
   },
 
   computed: {
+    ...mapGetters({
+      settingsDateTimeFormat: 'settings/date_time_format',
+      tasksPendingCount: 'tasks/pending_count'
+    }),
+
     // Период выборки данных
     filterPlannedFor: {
       get () {
-        return this.$route.query?.planned_for
+        return this.$route.query?.planned_for || makeUnixUTCTimestampRangeString() // makeUnixUTCTimestampRangeString Задачи на сегодня
       },
 
       set (value: string) {
         if (value) {
           this.$routerQuery.setQuery({
             planned_for: value
+          })
+        } else {
+          this.$routerQuery.removeQuery(['planned_for'])
+        }
+      }
+    },
+
+    // Настраиваемый период выборки данных (связан с параметром planned_for адресной строки браузера)
+    filterPlannedForPeriod: {
+      get () {
+        const value = String(this.$route.query?.planned_for)
+
+        if (/^(\d+),(\d+)$/s.test(value)) {
+          // tslint:disable-next-line
+          return this.$moment.unix(value.substring(0, value.indexOf(','))).format('YYYY-MM-DD')
+        }
+
+        return null
+      },
+
+      set (value: string) {
+        if (value) {
+          const from = this.$moment(value + ' 00:00:00', 'YYYY-MM-DD hh:mm:ss').unix()
+          const to = this.$moment(value + ' 23:59:59', 'YYYY-MM-DD hh:mm:ss').unix()
+          this.$routerQuery.setQuery({
+            // 2020-08-08 00:00:00 to unix
+            planned_for: `${from},${to}`
           })
         } else {
           this.$routerQuery.removeQuery(['planned_for'])
@@ -182,7 +190,47 @@ export default Vue.extend({
       }
     },
 
-    dateRangeCollection () {
+    paramsQuery () {
+      const params: Record<string, string | number> = {}
+      if (typeof this.filterPlannedFor === 'string') {
+        if (this.filterPlannedFor === 'all') {
+          params.state = 'all'
+        }
+
+        params.planned_for = this.filterPlannedFor
+      }
+
+      if (this.filterStatusId) {
+        params.status_id = String(this.filterStatusId)
+      }
+
+      return params
+    },
+
+    tasksInfo () {
+      const value = this.filterPlannedFor
+      let date = ''
+
+      if (/^(\d+),(\d+)$/s.test(value)) {
+        // tslint:disable-next-line
+        date = this.$moment
+          .unix(value.substring(0, value.indexOf(',')))
+          .format(this.settingsDateTimeFormat.short_date)
+        return this.$t('all_tasks_per_number', { date }).toString()
+      }
+
+      return ''
+    },
+
+    btnTitleCustomize () {
+      if (this.dateRangeCollection.findIndex((e: DateRangeCollection) => e.value === this.filterPlannedFor) > -1) {
+        return this.$tc('Customizable')
+      }
+
+      return this.filterPlannedForPeriod
+    },
+
+    dateRangeCollection (): DateRangeCollection[] {
       return [
         {
           id: 'for_tomorrow',
@@ -209,90 +257,38 @@ export default Vue.extend({
           badge: this.badgeFactory('the_day_before_yesterday')
         },
         {
+          id: 'all',
           title: 'All',
-          value: null
+          value: 'all',
+          badge: {
+            visible: this.tasksPendingCount > 0,
+            color: 'red',
+            dot: true
+          }
         }
       ]
     }
   },
 
   mounted () {
-    if (this.filterPlannedFor) {
-      this.fetchTasks()
-    }
-
     this.calculateTaskCount()
 
     this.initializeWatchForFilters()
   },
 
   methods: {
-    fetchTasks () {
-      const params: any = {}
-
-      if (this.filterPlannedFor) {
-        params.planned_for = this.filterPlannedFor
-      }
-
-      if (this.filterStatusId) {
-        params.status_id = this.filterStatusId
-      }
-
-      this.tasksLoadingProcess = true
-      fetchTasks(params, (response: ResponseInterface<{ count: number }, Task[]>) => {
-        this.tasks = response.data || []
-        this.tasksLoadingProcess = false
-      })
-    },
 
     initializeWatchForFilters () {
-      this.$watch('filterPlannedFor', () => (this.fetchTasks()))
       this.$watch('filterStatusId', () => {
-        this.fetchTasks()
         this.calculateTaskCount()
       })
-    },
-
-    onBtnTaskItemCloseClick (id: number) {
-      this.tasksCloseProcessIds.push(id)
-      new Tasks()
-        .setState(id, 'done')
-        .then(() => {
-          this.$toast.success('The task is closed')
-          const taskIndex = this.tasks.findIndex((e) => e.id === id)
-          if (taskIndex > -1) {
-            this.tasks.splice(taskIndex, 1)
-          }
-
-          this.calculateTaskCount()
-        }).finally(() => {
-          const taskIndex = this.tasksCloseProcessIds.indexOf(id)
-          if (taskIndex > -1) {
-            this.tasksCloseProcessIds.splice(taskIndex)
-          }
-        })
-    },
-
-    onBtnTaskItemClick (item: Task) {
-      if (item.contact) {
-        this.$router.push({
-          name: 'contacts_view',
-          params: {
-            contact_id: String(item.contact.id)
-          }
-        })
-      }
-    },
-
-    onBtnTaskItemStatusChipClick (statusId: number) {
-      this.filterStatusId = statusId
     },
 
     calculateTaskCount () {
       new Tasks()
         .calculateCount(this.dateRangeCollection
-          .filter((e) => e.id && e.value)
-          .map((e) => {
+          .filter((e: DateRangeCollection) => e.id && e.value)
+          .map((e: DateRangeCollection) => {
             const params: any = {
               planned_for: e.value
             }
@@ -309,6 +305,10 @@ export default Vue.extend({
         ).then((response) => {
           this.tasksCounts = response
         })
+    },
+
+    filterPlannedForPeriodAllowedDates (val: string) {
+      return true // TODO: Разрешить все даты
     },
 
     badgeFactory (id: string) {

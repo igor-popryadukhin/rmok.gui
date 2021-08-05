@@ -9,13 +9,23 @@ interface Handler {
   handler: EventHandlerMessage;
 }
 
+interface Topic {
+  iri: string;
+  value: string;
+}
+
+interface EventListener {
+  type: string;
+  handler: () => void;
+}
+
 export class SSE {
   private readonly _url: string
   private readonly _base?: string
   private _urlObject?: URL
   private _eventSource: EventSource | undefined
-  private _handlersCount = 0
-  private _handlers: Handler[] = []
+  private _topics: Topic[] = []
+  private _events: EventListener[] = []
 
   /**
    *
@@ -27,22 +37,26 @@ export class SSE {
     this._base = base
   }
 
-  public topic (name: string, handler: EventHandlerMessage): SSE {
-    if (this._handlers.findIndex((h) => h.name === name) === -1) {
-      sseLog('Регистрация обработчика: %o', handler)
-      this._handlers.push({ name, handler })
+  /**
+   *
+   * @param iri
+   * @param value
+   */
+  public addTopic (iri: string, value: string): SSE {
+    if (this._topics.findIndex((e) => e.iri === iri) > -1) {
+      throw new Error('Еhe topic already exists.')
     }
+
+    this._topics.push({ iri, value })
     return this
+  }
+
+  public addEventListener (type: string, listener: () => void): void {
+    this._events.push({ type, listener })
   }
 
   public subscribe (): void {
     sseLog('Слушаю сообщения')
-
-    if (this._handlersCount === this._handlers.length) {
-      // Повторная инициализация не нужна
-    }
-
-    this._handlersCount = this._handlers.length
 
     if (this._handlers.length === 0) {
       sseLog('Обработчики не зарегистрированы')
@@ -52,9 +66,9 @@ export class SSE {
     this._urlObject = undefined
     this._urlObject = new URL(this._url, this._base)
 
-    this._handlers.forEach((h) => {
+    this._topics.forEach(({ iri, value }) => {
       // eslint-disable-next-line no-unused-expressions
-      this._urlObject?.searchParams.append('topic', h.name)
+      this._urlObject?.searchParams.append(iri, value)
     })
 
     if (this._eventSource instanceof EventSource) {
@@ -84,11 +98,9 @@ export class SSE {
       return this.handler(event)
     }
 
-    this._handlers.forEach((h) => {
-      // eslint-disable-next-line no-unused-expressions,@typescript-eslint/ban-ts-comment
-      // @ts-ignore
+    this._events.forEach((e) => {
       // eslint-disable-next-line no-unused-expressions
-      this._eventSource?.addEventListener(h.name, handler.bind(h))
+      this._eventSource?.addEventListener(e.type, e.handler)
     })
 
     this._eventSource.onerror = (e) => {

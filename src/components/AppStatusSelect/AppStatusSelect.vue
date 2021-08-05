@@ -125,7 +125,6 @@ export default Vue.extend({
     }),
 
     onAutocompleteUpdateSearchInput (val: string, event: KeyboardEvent) {
-      this.$appDebug(event.code)
       if (keyCodes.includes(event.code)) {
         if (this.qOld !== this.q) {
           this.qOld = this.q

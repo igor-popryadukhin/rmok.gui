@@ -512,10 +512,9 @@ import { Contacts } from '@/api/Contacts'
 import Contact from '@/api/interfaces/Contact'
 import {
   ContactEmailInterface,
-  ContactInterface,
   ContactPhoneInterface
 } from '@/api/Schemas/ContactInterface'
-import Tasks, { TaskInterface } from '@/api/Tasks'
+import Tasks from '@/api/Tasks'
 import AppCardCommunicationQualityAssessment
   from '@/components/AppCardCommunicationQualityAssessment/AppCardCommunicationQualityAssessment.vue'
 import AppStatus from '@/components/AppStatus/AppStatus.vue'
@@ -772,6 +771,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
   },
 
+  deactivated () {
+    this.$destroy()
+  },
+
   mounted () {
     // Обновления времени
     setInterval(() => {
@@ -855,7 +858,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         planned_for: 'all',
         state: 'pending'
       }
-
       new Tasks()
         .find(contactParams)
         .then(response => response.data)

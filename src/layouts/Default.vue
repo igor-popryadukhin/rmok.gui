@@ -429,14 +429,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         wheelPropagation: false
       },
       notificationsVisible: false,
-      notifications: [] as Notification[],
-      taskPendingCount: 0
+      notifications: [] as Notification[]
     }
   },
 
   computed: {
     ...mapGetters({
-      pcConfig: 'settings/pc_config'
+      pcConfig: 'settings/pc_config',
+      tasksPendingCount: 'tasks/pending_count'
     }),
 
     profile (): ProfileState {
@@ -459,6 +459,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               name: 'leads'
             }
           },
+          badge: {
+            content: 0,
+            visible: false,
+            color: '#ff5722'
+          },
           visible: this.$isGranted('section.calling')
         },
         {
@@ -479,8 +484,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             }
           },
           badge: {
-            content: this.taskPendingCount > 99 ? '99+' : this.taskPendingCount,
-            visible: this.taskPendingCount > 0,
+            content: this.tasksPendingCount > 99 ? '99+' : this.tasksPendingCount,
+            visible: this.tasksPendingCount > 0,
             color: '#ff5722'
           },
           visible: this.$isGranted('section.tasks')
@@ -749,7 +754,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
     })
 
-    setTimeout(this.fetchTaskPendingCount, 3000)
+    // Через 5 секунд запрашиваю количество открытых задач
+    setTimeout(() => {
+      this.$store.dispatch('tasks/pending_count')
+    }, 5000)
   },
 
   methods: {
@@ -1024,7 +1032,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
             // Что-то изменилось в задачах
             if (obj.name === 'tasks-changed') {
-              this.fetchTaskPendingCount()
+              this.$store.dispatch('tasks/pending_count')
             }
           }
         })
@@ -1035,10 +1043,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.$root.$emit('root-sse-message', event.data)
         }
       }
-    },
-
-    async fetchTaskPendingCount () {
-      this.taskPendingCount = await new Tasks().countPending()
     }
   }
 })

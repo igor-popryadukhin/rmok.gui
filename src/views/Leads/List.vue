@@ -1,5 +1,5 @@
 <template>
-  <v-sheet>
+  <v-sheet class="mb-16">
     <!-- Лиды и задачи -->
     <app-tools>
       <template #left>
@@ -32,28 +32,40 @@
     <v-divider class="mb-2" />
 
     <template v-if="leads.length > 0">
-      <template
-        v-for="(item, itemIndex) in leads"
-      >
-        <v-divider
-          v-if="itemIndex > 0"
-          :key="`divider-${item.id}`"
-        />
-
-        <v-list-item
-          :key="`list-item-${item.id}`"
-          ripple
-          selectable
-          :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
-          style="min-height: 35px"
+      <v-list>
+        <template
+          v-for="(item, itemIndex) in leads"
         >
-          <v-list-item-content class="pa-0">
-            <v-list-item-title>
-              {{ item.contact_name }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </template>
+          <v-divider
+            v-if="itemIndex > 0"
+            :key="`divider-${item.id}`"
+          />
+
+          <v-list-item
+            :key="`list-item-${item.id}`"
+            ripple
+            selectable
+            :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
+            style="min-height: 35px"
+          >
+            <v-list-item-content class="pa-0">
+              <v-list-item-title>
+                {{ item.contact_name }}
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-list>
+      <v-btn
+        v-if="leads.length >= leadsPerPage && loadMoreVisible"
+        :loading="loadMoreProcess"
+        block
+        text
+        tile
+        @click="onBtnLoadMoreClick"
+      >
+        {{ $tc('Load more') }}
+      </v-btn>
     </template>
     <template v-else-if="leadsLoading && leads.length === 0">
       <div class="d-flex justify-center">
@@ -76,11 +88,9 @@
 import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import Contact from '@/api/interfaces/Contact'
-import { ProjectInterface } from '@/api/Projects'
-import { ContactInterface } from '@/api/Schemas/ContactInterface'
-import { UserInterface } from '@/api/Users'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import { arrayObjectsUniqueConcat } from '@/utils/array'
 import Vue from 'vue'
 
 interface Data {
@@ -100,178 +110,21 @@ export default Vue.extend<Data, Methods, Computed>({
 
   data (): Data {
     return {
-      paginator: {
-        pages: 0,
-        perPage: 10,
-        page: 1
-      },
-      vueScrollLeads: {
-        offset: 0
-      },
-      vueScrollTasks: {
-        offset: 0
-      },
-      taskCount: 0,
       leadsLoading: false,
       leads: [] as Contact[],
+      leadsPerPage: 50,
       leadsCount: 0,
-      filter: {
-        project: {
-          disabled: false,
-          selected: undefined,
-          items: [] as ProjectInterface[]
-        },
-
-        city: {
-          disabled: true,
-          selected: undefined,
-          items: []
-        },
-
-        scenario: {
-          disabled: true,
-          selected: undefined,
-          items: []
-        },
-
-        dataRange: {
-          visible: false,
-          disabled: true,
-          dates: []
-        }
-      }
+      loadMoreOffset: 0,
+      loadMoreProcess: false,
+      loadMoreVisible: false
     }
   },
 
-  computed: {
-    taskListParams () {
-      return {
-        state: 'pending'
-      }
-    },
-
-    dateRangeText: {
-      get () {
-        return this.filter.dataRange.dates.join(' ~ ')
-      },
-      set () {
-        this.filter.dataRange.dates = []
-      }
-    }
-  },
-
-  watch: {
-
-    // Filter by projects
-    'filter.project.selected': {
-      handler (value?: ProjectInterface | ProjectInterface[] | null) {
-        this.paginator.page = 1
-        if (Array.isArray(value)) {
-          if (value.length > 0) {
-            this.$routerQuery.setQuery({
-              project_id: value.map((v: ProjectInterface) => v.id).join(',')
-            }).then(this.loadLeads)
-          } else {
-            this.$routerQuery.removeQuery(['project_id']).then(this.loadLeads)
-          }
-        } else if (value) {
-          this.$routerQuery.setQuery({
-            project_id: value.id
-          }).then(this.loadLeads)
-        } else {
-          this.$routerQuery.removeQuery(['project_id']).then(this.loadLeads)
-        }
-      }
-    },
-
-    // Filter by users
-    'filter.user.selected': {
-      handler (value?: UserInterface) {
-        this.paginator.page = 1
-        if (value) {
-          this.$routerQuery.setQuery({
-            user_id: value.id
-          }).then(this.loadLeads)
-        } else {
-          this.$routerQuery.removeQuery(['user_id']).then(this.loadLeads)
-        }
-      }
-    },
-
-    // Filter by date range
-    'filter.dataRange.dates': {
-      handler (value?: string[]) {
-        this.paginator.page = 1
-        if (Array.isArray(value)) {
-          if (value.length === 2) {
-            this.$routerQuery.setQuery({
-              dates: value.map((v: string) => {
-                return Math.round(new Date(v).getTime() / 1000)
-              }).join(',')
-            }).then(this.loadLeads)
-          } else if (value.length === 0) {
-            this.$routerQuery.removeQuery(['dates']).then(this.loadLeads)
-          }
-        }
-      }
-    },
-
-    // Paginator
-    'paginator.page': {
-      handler (value: number) {
-        if (value > 0) {
-          const offset: number = Math.ceil(value * this.paginator.perPage - this.paginator.perPage)
-          const count: number = this.paginator.perPage
-          this.$routerQuery.setQuery({ offset, count }).then(this.loadLeads)
-        }
-      }
-    }
-  },
-
-  activated () {
+  mounted () {
     this.loadLeads()
   },
 
   methods: {
-
-    /**
-     * Происходит, когда полоса прокрутки списка задач завершил прокрутку
-     */
-    onVueScrollLeadsHandleComplete (data: any) {
-      if (data.process === 1) {
-        if (this.vueScrollLeads.offset < this.leadsCount) {
-          this.vueScrollLeads.offset = this.vueScrollLeads.offset + 10
-          this.loadLeads()
-        }
-      }
-    },
-
-    /**
-     * Occurs when a contact list item is clicked
-     * @param contact
-     *
-     */
-    onContactItemClick (contact: ContactInterface) {
-      const id: number = contact.id
-      const leads: Contacts = new Contacts()
-
-      // Load contact history
-      leads.getById(id)
-        .then((contact) => {
-          this.contact = contact as any
-
-          // Changing the response scheme
-          if ('phones' in this.contact) {
-            if (Array.isArray(this.contact.phones)) {
-              this.contact.phones = this.contact.phones.map((e: any) => {
-                e.connecting = false
-                return e
-              })
-            }
-          }
-        })
-    },
-
     /**
      * Загружает список лидов
      */
@@ -280,10 +133,25 @@ export default Vue.extend<Data, Methods, Computed>({
 
       // only_new = 1 Только новые
       new Contacts()
-        .find({ only_new: 1 })
+        .find({ only_new: 1, offset: this.loadMoreOffset, count: this.leadsPerPage })
         .then((response) => {
           this.leadsCount = response?.meta?.count || 0
-          this.leads = response?.data || []
+          const newLeads = (response?.data || [])
+
+          // Скрываю кнопку загрузить ещё, если нет данных.
+          if (newLeads.length === 0) {
+            this.loadMoreVisible = false
+            return
+          }
+
+          this.loadMoreVisible = true
+
+          if (this.loadMoreOffset > 0) {
+            // Объединение двух массивов c проверкой уникальности
+            this.leads = arrayObjectsUniqueConcat<Contact>(this.leads, newLeads, 'id')
+          } else {
+            this.leads = response?.data || []
+          }
         }).catch((e) => {
           if (e instanceof APIError) {
             this.$toast.error(e.message, {
@@ -296,6 +164,7 @@ export default Vue.extend<Data, Methods, Computed>({
           }
         }).finally(() => {
           this.leadsLoading = false
+          this.loadMoreProcess = false
         })
     },
 
@@ -303,7 +172,20 @@ export default Vue.extend<Data, Methods, Computed>({
      * Происходит, когда кликнули на кнопку "Обновить"
      */
     onBtnRefreshClick () {
+      this.loadMoreOffset = 0
       this.loadLeads()
+    },
+
+    /**
+     * Происходит, когда кликнули на кнопку "Загрузить ещё"
+     */
+    onBtnLoadMoreClick () {
+      this.loadMoreOffset = this.loadMoreOffset + this.leadsPerPage
+      this.loadMoreProcess = true
+      this.loadLeads()
+
+      // var container = this.$el.querySelector('#container')
+      // container.scrollTop = container.scrollHeight
     }
   }
 })

@@ -1,12 +1,9 @@
 // 1. Make sure to import 'vue' before declaring augmented types
 import { JsSIP } from '@/jsSIP/plugin'
 import { Activity } from '@/plugins/activity'
-import { AppDebug } from '@/plugins/debug';
-import { SSE } from '@/plugins/sse/SSE';
 import { ProfileState } from '@/store/profile/state'
 import { AxiosInstance } from 'axios'
 import { Debugger } from 'debug'
-import moment, {Moment} from 'moment'
 import { Cookie } from './plugins/cookie'
 import { Lvovich } from '@/plugins/lvovich'
 import { RouterQuery } from '@/plugins/router-query'
@@ -36,7 +33,6 @@ declare module 'vue/types/vue' {
     $activity: Activity
     $jsSIP: JsSIP;
     $axios: AxiosInstance;
-    $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     $htmlAudioElement: HTMLAudioElement;
     $version: string;
     $profile: ProfileState;
@@ -56,7 +52,6 @@ declare module 'vue/types/vue' {
 
   interface VueConstructor {
     $confirm: () => boolean;
-    $moment: (inp?: moment.MomentInput, format?: moment.MomentFormatSpecification, language?: string, strict?: boolean) => Moment;
     $jsSIP: JsSIP;
     $myGlobal: string;
     $htmlAudioElement: HTMLAudioElement;

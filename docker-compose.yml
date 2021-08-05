@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+
+  app:
+    container_name: rmok.ui
+    restart: always
+    build:
+      context: .
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+      - "8888:8888"
+    expose:
+      - 3000
+    environment:
+      TZ: "Europe/Moscow"
+      CHOKIDAR_USEPOLLING: 1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
