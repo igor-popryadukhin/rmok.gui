@@ -2,11 +2,12 @@ import Tasks from '@/api/Tasks'
 import { RootState } from '@/store'
 import { ActionTree } from 'vuex'
 import { TasksState } from './state'
+import { debounce } from 'vuetify/src/util/helpers'
 
 const actions: ActionTree<TasksState, RootState> = {
-  async pending_count ({ commit }) {
+  pending_count: debounce(async ({ commit }: any) => {
     commit('pending_count', await new Tasks().countPending())
-  }
+  }, 1000)
 
 }
 
