@@ -2,6 +2,7 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from '@/api/classes/APIError'
+import { ContactHistoryInterface } from '@/api/Schemas/ContactInterface'
 
 export default class Statistics {
   /**
@@ -43,8 +44,8 @@ export default class Statistics {
     })
   }
 
-  public history<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+  public history (params = {}): Promise<ResponseInterface<{count: number}, ContactHistoryInterface[]>> {
+    return new Promise((resolve, reject) => {
       $axios.get('/statistics/history', {
         params
       }).then((response: AxiosResponse) => {

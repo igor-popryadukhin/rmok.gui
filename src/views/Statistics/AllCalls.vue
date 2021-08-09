@@ -88,24 +88,10 @@
         sm="12"
         xs="12"
       >
-        <v-combobox
+        <SStatisticFilterStatus
           v-model="filter.status.selected"
-          :items="filter.status.items"
-          :label="$tc('Фильтр по результату')"
-          item-text="status_result"
-          item-value="status_id"
-          cache-items
-          return-object
-          clearable
-          dense
-          outlined
-          v-on="filter.status.on"
-        >
-          <template #item="{ item }">
-            <v-list-item-title>{{ item.status_result }}</v-list-item-title>
-            <v-list-item-subtitle>{{ item.project_name }}</v-list-item-subtitle>
-          </template>
-        </v-combobox>
+          @change="setStatusIds"
+        />
       </v-col>
 
       <!-- Фильтр дата создания контакта -->
@@ -431,12 +417,14 @@ import { GroupInterface } from '@/api/Groups'
 import { ProjectInterface } from '@/api/Projects'
 import SGroups from '@/snippets/SGroups/SGroups.vue'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
+import SStatisticFilterStatus from '@/snippets/SStatistic/SStatisticFilterStatus.vue'
 
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: {
+    SStatisticFilterStatus,
     SContactTags,
     AppNumberFormat,
     AppCountUp,
@@ -596,8 +584,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
           params.creator_id = this.$route.query.creator_id
         }
 
-        if (this.assertObjectHasAttribute(this.$route.query, 'status_id')) {
-          params.status_id = this.$route.query.status_id
+        if (this.assertObjectHasAttribute(this.$route.query, 'status_ids')) {
+          params.status_ids = this.$route.query.status_ids
         }
 
         if (Array.isArray(this.filter.contact_created_at)) {
@@ -619,10 +607,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
 
         new Statistics()
-          .history<any, any>(params)
+          .history(params)
           .then((response) => {
-            this.dataTableHistory.totalCount = response.meta.count || 0
-            this.dataTableHistory.pages = Math.ceil(response.meta.count / this.dataTableHistory.itemsPerPage)
+            this.dataTableHistory.totalCount = response.meta?.count || 0
+            this.dataTableHistory.pages = Math.ceil(response.meta?.count || 0 / this.dataTableHistory.itemsPerPage)
             this.dataTableHistory.items = response.data?.map((e: any) => {
               e.isPlaying = false
               return e
@@ -631,12 +619,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
             this.filter.status.items = response.meta.statuses
 
             // Устанавливаю ранее сохранённый фильтр
-            if (this.$routerQuery.hasQuery('status_id')) {
-              const index = this.filter.status.items.findIndex((e: any) => e.status_id === +this.$route.query.status_id)
-              if (index > -1) {
-                this.filter.status.selected = this.filter.status.items[index]
-              }
-            }
+            this.filter.status.selected = this.$routerQuery.hasQuery('status_ids')
+              ? typeof this.$routerQuery.getQuery('status_ids') === 'string'
+                ? [parseInt(this.$routerQuery.getQuery('status_ids'))]
+                : this.$routerQuery.getQuery('status_ids').map(e => parseInt(e))
+              : []
           }).finally(() => (this.historyProcessLoading = false))
       }, 350)
     }
@@ -942,6 +929,15 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     vDataTableItemClass (scope: any) {
       return 'v-dt-item'
+    },
+    setStatusIds (e) {
+      if (Array.isArray(e) && e.length > 0) {
+        this.$routerQuery.setQuery({ status_ids: e })
+      } else {
+        this.$routerQuery.removeQuery(['status_ids'])
+      }
+
+      this.fetchDataHistory()
     }
   }
 })
