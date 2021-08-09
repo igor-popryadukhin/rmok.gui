@@ -9,9 +9,9 @@ import symfony from './symfony'
 import profile from './profile'
 import statuses from './statuses'
 import contacts from './contacts'
+import contacts_new from './contacts_new'
 import { database } from './database'
 import debug from 'debug'
-import { debounce } from 'vuetify/src/util/helpers'
 
 Vue.use(Vuex)
 
@@ -55,7 +55,8 @@ const store = new Vuex.Store({
     filter,
     symfony,
     tasks,
-    contacts
+    contacts,
+    contacts_new
   },
 
   mutations: {},
@@ -80,3 +81,11 @@ store.subscribeAction((ap, rs) => {
 })
 
 export default store
+
+function debounce (fn: CallableFunction, delay: number) {
+  let timeoutId = 0 as any
+  return (...args: any[]) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), delay)
+  }
+}

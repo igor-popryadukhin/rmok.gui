@@ -12,13 +12,14 @@
             style="line-height: 3px;"
           >
             {{ $tc('Quantity') }}:
-            <app-count-up :end-val="leadsCount" />
+            <app-count-up :end-val="contactsTotal" />
           </small>
         </div>
       </template>
       <template #right>
         <div class="align-self-end">
           <v-btn
+            :loading="contactsProcessLoading"
             small
             tile
             text
@@ -31,10 +32,10 @@
     </app-tools>
     <v-divider class="mb-2" />
 
-    <template v-if="leads.length > 0">
+    <template v-if="contactsItems.length > 0">
       <v-list>
         <template
-          v-for="(item, itemIndex) in leads"
+          v-for="(item, itemIndex) in contactsItems"
         >
           <v-divider
             v-if="itemIndex > 0"
@@ -57,8 +58,8 @@
         </template>
       </v-list>
       <v-btn
-        v-if="leads.length >= leadsPerPage && loadMoreVisible"
-        :loading="loadMoreProcess"
+        v-if="contactsMoreAvailable"
+        :loading="contactsProcessLoading"
         block
         text
         tile
@@ -67,7 +68,7 @@
         {{ $tc('Load more') }}
       </v-btn>
     </template>
-    <template v-else-if="leadsLoading && leads.length === 0">
+    <template v-else-if="contactsProcessLoading && contactsItems.length === 0">
       <div class="d-flex justify-center">
         <div class="pa-16 grey--text">
           <app-loading />
@@ -85,13 +86,10 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import { Contacts } from '@/api/Contacts'
-import Contact from '@/api/interfaces/Contact'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import { arrayObjectsUniqueConcat } from '@/utils/array'
 import Vue from 'vue'
+import { mapActions, mapGetters } from 'vuex'
 
 interface Data {
   [key: string]: any
@@ -110,8 +108,6 @@ export default Vue.extend<Data, Methods, Computed>({
 
   data (): Data {
     return {
-      leadsLoading: false,
-      leads: [] as Contact[],
       leadsPerPage: 50,
       leadsCount: 0,
       loadMoreOffset: 0,
@@ -120,72 +116,38 @@ export default Vue.extend<Data, Methods, Computed>({
     }
   },
 
-  mounted () {
-    this.loadLeads()
+  computed: {
+    ...mapGetters({
+      contactsProcessLoading: 'contacts_new/process_loading',
+      contactsOffset: 'contacts_new/offset',
+      contactsMoreAvailable: 'contacts_new/more_available',
+      contactsTotal: 'contacts_new/total',
+      contactsItems: 'contacts_new/items'
+    })
+  },
+
+  async mounted () {
+    if (this.contactsItems.length === 0) {
+      this.loadContacts()
+    }
   },
 
   methods: {
-    /**
-     * Загружает список лидов
-     */
-    loadLeads () {
-      this.leadsLoading = true
+    ...mapActions({
+      fetchContacts: 'contacts_new/items',
+      fetchMore: 'contacts_new/items_more'
+    }),
 
-      // only_new = 1 Только новые
-      new Contacts()
-        .find({ only_new: 1, offset: this.loadMoreOffset, count: this.leadsPerPage })
-        .then((response) => {
-          this.leadsCount = response?.meta?.count || 0
-          const newLeads = (response?.data || [])
-
-          // Скрываю кнопку загрузить ещё, если нет данных.
-          if (newLeads.length === 0) {
-            this.loadMoreVisible = false
-            return
-          }
-
-          this.loadMoreVisible = true
-
-          if (this.loadMoreOffset > 0) {
-            // Объединение двух массивов c проверкой уникальности
-            this.leads = arrayObjectsUniqueConcat<Contact>(this.leads, newLeads, 'id')
-          } else {
-            this.leads = response?.data || []
-          }
-        }).catch((e) => {
-          if (e instanceof APIError) {
-            this.$toast.error(e.message, {
-              onClick: () => {
-                // Todo: implement set project
-              }
-            })
-          } else {
-            this.$toast.error(e.message)
-          }
-        }).finally(() => {
-          this.leadsLoading = false
-          this.loadMoreProcess = false
-        })
+    loadContacts () {
+      this.$store.dispatch('contacts_new/items')
     },
 
-    /**
-     * Происходит, когда кликнули на кнопку "Обновить"
-     */
     onBtnRefreshClick () {
-      this.loadMoreOffset = 0
-      this.loadLeads()
+      this.loadContacts()
     },
 
-    /**
-     * Происходит, когда кликнули на кнопку "Загрузить ещё"
-     */
     onBtnLoadMoreClick () {
-      this.loadMoreOffset = this.loadMoreOffset + this.leadsPerPage
-      this.loadMoreProcess = true
-      this.loadLeads()
-
-      // var container = this.$el.querySelector('#container')
-      // container.scrollTop = container.scrollHeight
+      this.fetchMore()
     }
   }
 })

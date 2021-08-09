@@ -911,6 +911,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       new Contacts()
         .addHistory(this.contact.id, historyData)
         .then((id: number) => {
+          // Удаляю из Vuex
+          this.$store.dispatch('contacts_new/items_remove_from_store', this.contactId)
+
           this.$activity.begin({
             type: 'card_filling'
           })
