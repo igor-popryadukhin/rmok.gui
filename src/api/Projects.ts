@@ -5,6 +5,7 @@ import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from './classes/APIError'
 import { GroupInterface } from '@/api/Groups'
+import Project from '@/api/interfaces/Project'
 
 export interface ProjectOwnerInterface {
   id: number;
@@ -43,24 +44,19 @@ export interface ProjectInterface {
   created_at: number;
 }
 
-export interface ProjectResponseItemsInterface {
-  count: number;
-  items: ProjectInterface[];
-}
-
 export default class Projects {
   /**
    * @param params
    */
-  public find<TM = { count: number }, TD = ProjectInterface[]> (params = {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve: (response: ResponseInterface<TM, TD>) => void, reject) => {
+  public find (params = {}): Promise<ResponseInterface<{ count: number }, Project[]>> {
+    return new Promise((resolve, reject) => {
       $axios.get('/projects', {
         params
       }).then((response: AxiosResponse) => {
-        if (response.status === 200) {
-          return resolve(response.data)
+        if (response.status !== 200) {
+          throw new APIError(response.data)
         }
-        throw new APIError(response.data)
+        return resolve(response.data)
       }).catch(reject)
     })
   }

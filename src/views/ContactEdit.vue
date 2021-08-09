@@ -189,7 +189,7 @@
 </template>
 
 <script lang="ts">
-import List from '@/views/Contacts/List.vue'
+import List from '@/views/Contacts/List.backup.vue'
 import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
 import rules from '@/mixins/rules'

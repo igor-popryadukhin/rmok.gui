@@ -110,7 +110,7 @@ const routes: RouteConfig[] = [
     path: '/contacts',
     children: [
       {
-        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/List.vue'),
+        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/Contacts.vue'),
         meta: {
           anonymous: true,
           layout: 'default',

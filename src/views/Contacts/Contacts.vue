@@ -1,0 +1,549 @@
+<template>
+  <v-sheet>
+    <v-row>
+      <v-col
+        cols="12"
+        md="8"
+        lg="8"
+        order-xl="0"
+        order-lg="0"
+        order-md="0"
+        order-sm="1"
+      >
+        <contacts-list>
+          <template #head>
+            <app-tools>
+              <template #left>
+                <v-btn
+                  v-if="contactsSelected.length === 0"
+                  small
+                  tile
+                  text
+                  @click="onContactAddClick"
+                >
+                  {{ $tc('Add') }}
+                </v-btn>
+                <v-btn
+                  v-if="contactsSelected.length === 0"
+                  :disabled="contactsProcessLoading"
+                  small
+                  tile
+                  text
+                  @click="onBtnRefreshClick"
+                >
+                  {{ $tc('Refresh') }}
+                </v-btn>
+                <v-btn
+                  v-if="contactsSelected.length > 0"
+                  :disabled="contactsProcessLoading"
+                  small
+                  tile
+                  text
+                  @click="onBtnDeleteClick"
+                >
+                  {{ $tc('Delete') }}
+                </v-btn>
+                <v-btn
+                  v-if="contactsSelected.length > 0"
+                  small
+                  tile
+                  text
+                  @click="onBtnTransferContactsClick"
+                >
+                  {{ $tc('Transfer contacts') }}
+                </v-btn>
+                <!-- Установка тегов -->
+                <!-- TODO: Только для администраторов -->
+                <app-menu-tags>
+                  <template #activator="{ attrs, on }">
+                    <v-btn
+                      v-bind="attrs"
+                      text
+                      small
+                      tile
+                      v-on="on"
+                    >
+                      {{ $tc('Set tags') }}
+                    </v-btn>
+                  </template>
+                </app-menu-tags>
+                <!-- Установка тегов -->
+              </template>
+              <template #right>
+                <app-pagination
+                  v-model="offset"
+                  :per-page="100"
+                  :count="contactsTotal"
+                  :t="$tc"
+                  @change="onPaginatorChange"
+                />
+                <app-btn-sorting
+                  v-model="sortOption"
+                  :label="$tc('Sorting')"
+                  :items="sortingOptions"
+                  :t="$tc"
+                  item-text="name"
+                  @change="onBtSortingChange"
+                />
+              </template>
+            </app-tools>
+
+            <v-banner
+              v-if="contactsSelected.length > 0"
+              class="px-0"
+            >
+              <span
+                class="grey--text"
+                style="font-size: 14px"
+              >
+                Выбрано элементов ({{ contactsSelected.length }})
+              </span>
+              <template #actions>
+                <v-btn
+                  text
+                  small
+                  tile
+                  @click="onBtnSelectAllClick"
+                >
+                  {{ $tc('Select all') }}
+                </v-btn>
+                <v-btn
+                  text
+                  small
+                  tile
+                  @click="$store.commit('contacts/selected', [])"
+                >
+                  {{ $tc('Cancel selection') }}
+                </v-btn>
+              </template>
+            </v-banner>
+          </template>
+        </contacts-list>
+      </v-col>
+
+      <!-- Фильтры -->
+      <v-col
+        cols="12"
+        md="4"
+        lg="4"
+        order-xl="1"
+        order-lg="1"
+        order-md="1"
+        order-sm="0"
+      >
+        <v-sheet
+          class="px-2 py-1"
+        >
+          <div class="mb-4">
+            <app-search-input
+              v-model="contactsParamsFilterQ"
+              :label="$tc('Search')"
+              @change="onFilterChange"
+            />
+          </div>
+
+          <div class="mb-4">
+            <app-project-autocomplete
+              v-model="contactsParamsFilterProjectId"
+              :label="$tc('Project')"
+              @change="onFilterChange"
+            />
+          </div>
+
+          <div class="mb-4">
+            <app-status-autocomplete
+              v-model="filterStatusIds"
+              :label="$tc('Status')"
+              multiple
+              @change="onFilterChange"
+            />
+          </div>
+
+          <div class="mb-4">
+            <app-user-group-autocomplete
+              v-model="filterUserGroupId"
+              :label="$tc('Group')"
+              @change="onFilterChange"
+            />
+          </div>
+
+          <div class="mb-4">
+            <app-user-autocomplete
+              v-model="filterUserId"
+              :label="$tc('Responsible')"
+              @change="onFilterChange"
+            />
+          </div>
+
+          <div class="mb-4">
+            <app-contact-tag-autocomplete
+              v-model="filterTagIds"
+              :label="$tc('Tags')"
+              multiple
+              @change="onFilterChange"
+            />
+          </div>
+
+          <div class="mb-4">
+            <app-menu-date-picker
+              v-model="filterContactCreatedAt"
+              :first-day-of-week="1"
+              :t="$tc"
+              :label="$tc('Date the contact was created')"
+              locale="ru"
+              range
+              @change="onFilterChange"
+            />
+          </div>
+        </v-sheet>
+      </v-col>
+      <!-- Фильтры -->
+    </v-row>
+  </v-sheet>
+</template>
+
+<script lang="ts">
+
+import Vue from 'vue'
+import ContactsList from './ContactsList.vue'
+import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
+import AppUserAutocomplete from '@/components/AppUserAutocomplete/AppUserAutocomplete.vue'
+import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
+import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
+import AppContactTagAutocomplete from '@/components/AppContactTagAutocomplete/AppContactTagAutocomplete.vue'
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
+import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
+import moment from 'moment-timezone'
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import { mapActions, mapGetters } from 'vuex'
+import Contact from '@/api/interfaces/Contact'
+import { Contacts } from '@/api/Contacts'
+
+interface Data {
+  [keys: string]: any;
+}
+
+interface Methods {
+  [keys: string]: any;
+}
+
+interface Computed {
+  filterStatusIds: number[];
+  [keys: string]: any;
+}
+
+interface Props {
+  [keys: string]: any;
+}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
+  name: 'List',
+
+  components: {
+    AppMenuTags: () => import(/* webpackChunkName: "contacts-menu-tags" */ '@/components/AppMenuTags/AppMenuTags.vue'),
+    AppPagination,
+    AppBtnSorting,
+    AppSearchInput,
+    AppMenuDatePicker,
+    AppContactTagAutocomplete,
+    AppUserGroupAutocomplete,
+    AppStatusAutocomplete,
+    AppUserAutocomplete,
+    AppProjectAutocomplete,
+    ContactsList
+  },
+
+  data () {
+    return {
+      contacts: []
+    }
+  },
+
+  computed: {
+    ...mapGetters({
+      contactsTotal: 'contacts/total',
+      contactsItems: 'contacts/items',
+      contactsSelected: 'contacts/selected',
+      contactsParamsOrderBy: 'contacts/params/order_by',
+      contactsParamsOrderDirection: 'contacts/params/order_direction',
+      contactsProcessLoading: 'contacts/process_loading'
+    }),
+
+    // Vuex state
+    contactsParamsFilterQ: {
+      get () {
+        return this.$store.getters['contacts/params/filter_q']
+      },
+
+      set (value?: string) {
+        return this.$store.commit('contacts/params/filter_q', value)
+      }
+    },
+
+    // Vuex state
+    filterStatusIds: {
+      get () {
+        return this.$store.getters['contacts/params/filter_status_ids']
+      },
+
+      set (value: number[]) {
+        this.$store.commit('contacts/params/filter_status_ids', value)
+      }
+    },
+
+    // Vuex state
+    contactsParamsFilterProjectId: {
+      get () {
+        return this.$store.getters['contacts/params/filter_project_id']
+      },
+
+      set (value?: number) {
+        return this.$store.commit('contacts/params/filter_project_id', value)
+      }
+    },
+
+    // Vuex state
+    filterUserId: {
+      get () {
+        return this.$store.getters['contacts/params/filter_user_id']
+      },
+
+      set (value: number) {
+        this.$store.commit('contacts/params/filter_user_id', value)
+      }
+    },
+
+    // Vuex state
+    filterUserGroupId: {
+      get () {
+        return this.$store.getters['contacts/params/filter_user_group_id']
+      },
+
+      set (value: number) {
+        this.$store.commit('contacts/params/filter_user_group_id', value)
+      }
+    },
+
+    // Vuex state
+    filterTagIds: {
+      get () {
+        return this.$store.getters['contacts/params/filter_tag_ids']
+      },
+
+      set (value: number[]) {
+        this.$store.commit('contacts/params/filter_tag_ids', value)
+      }
+    },
+
+    // Vuex state
+    filterContactCreatedAt: {
+      get () {
+        return this.$store.getters['contacts/params/filter_contact_created_at']
+      },
+
+      set (value: string) {
+        this.$store.commit('contacts/params/filter_contact_created_at', value)
+      }
+    },
+
+    offset: {
+      get () {
+        return this.$store.getters['contacts/params/filter_offset']
+      },
+
+      set (value: number) {
+        this.$store.commit('contacts/params/filter_offset', value)
+      }
+    },
+
+    sortOption: {
+      get () {
+        return {
+          order_by: this.$store.getters['contacts/params/order_by'],
+          order_direction: this.$store.getters['contacts/params/order_direction']
+        }
+      },
+
+      set (val?: { order_by: string, order_direction: string }) {
+        this.$store.commit('contacts/params/order_by', val?.order_by || '')
+        this.$store.commit('contacts/params/order_direction', val?.order_direction || '')
+      }
+    },
+
+    /**
+     * Параметры активных фильтров
+     */
+    paramsForQuery () {
+      const params: Record<string, string | number> = {}
+
+      if (this.contactsParamsFilterQ) {
+        params.q = this.contactsParamsFilterQ
+      }
+
+      if (this.filterStatusIds.length > 0) {
+        params.status_ids = this.filterStatusIds.join(',')
+      }
+
+      if (this.contactsParamsFilterProjectId) {
+        params.project_id = this.contactsParamsFilterProjectId
+      }
+
+      if (this.filterUserId) {
+        params.owner_id = this.filterUserId
+      }
+
+      if (this.filterUserGroupId) {
+        params.group_id = this.filterUserGroupId
+      }
+
+      if (this.filterTagIds.length > 0) {
+        params.tag_ids = this.filterTagIds.join(',')
+      }
+
+      // Сортировка
+      if (this.contactsParamsOrderBy && this.contactsParamsOrderDirection) {
+        params.order_by = this.contactsParamsOrderBy
+        params.order_direction = this.contactsParamsOrderDirection
+      }
+
+      // Дата и время создания контакта (возможен диапазон разделённый запятой)
+      if (this.filterContactCreatedAt) {
+        if (Array.isArray(this.filterContactCreatedAt)) {
+          params.contact_created_at = this.filterContactCreatedAt.map((e) => moment(e, 'YYYY-MM-DD').utc().unix()).join(',')
+        } else {
+          params.contact_created_at = moment(this.filterContactCreatedAt, 'YYYY-MM-DD').utc().unix()
+        }
+      }
+
+      if (this.offset > 0) {
+        params.offset = this.offset
+      }
+
+      return params
+    },
+
+    sortingOptions () {
+      return [
+        {
+          name: 'По имени',
+          order_by: 'by_name',
+          order_direction: 'asc',
+          visible: true
+        },
+        {
+          name: 'По проекту',
+          order_by: 'by_project',
+          order_direction: 'asc',
+          visible: true
+        },
+        {
+          name: 'По дате создания',
+          order_by: 'by_created_at',
+          order_direction: 'asc',
+          visible: true
+        },
+        {
+          name: 'По дате последнего звонка',
+          order_by: 'by_last_call_at',
+          order_direction: 'asc',
+          visible: true
+        }
+      ]
+    }
+  },
+
+  mounted () {
+    if (this.contactsItems.length === 0) {
+      this.fetchContacts(this.paramsForQuery)
+    }
+  },
+
+  methods: {
+    ...mapActions({
+      fetchContacts: 'contacts/items'
+    }),
+
+    onContactAddClick () {
+      // TODO: Реализуй обработчик
+    },
+
+    onBtnRefreshClick () {
+      this.fetchContacts(this.paramsForQuery)
+    },
+
+    onBtnDeleteClick () {
+      // Delete
+    },
+
+    /**
+     * Событие происходит когда нажали на кнопку "передать контакты".
+     */
+    async onBtnTransferContactsClick () {
+      import(
+        /* webpackChunkName: "contacts-transfer-dialog" */
+        '@/components/AppContactTransferDialog/AppContactTransferDialog.vue')
+        .then(async (component) => {
+          const instance = await this.$dialog.show(component.default, {
+            waitForResult: false
+          })
+          instance.vmd.$on('cancel', () => (instance.close()))
+          instance.vmd.$on('confirm',
+            ({
+              target_project_id,
+              target_contact_ids,
+              target_user_ids,
+              new_date
+            }) => {
+              instance.close()
+              // TODO: Завершить логику передачи на Back end
+              new Contacts()
+                .transfer({
+                  target_project_id,
+                  target_contact_ids,
+                  target_user_ids,
+                  new_date: moment(new_date, 'YYYY-MM-DD').utc().unix()
+                })
+            })
+        })
+    },
+
+    onPaginatorChange () {
+      this.fetchContacts(this.paramsForQuery)
+    },
+
+    onBtSortingChange () {
+      this.fetchContacts(this.paramsForQuery)
+    },
+
+    /**
+     * Событие происходит когда пользователь устанавливает параметры фильтров.
+     */
+    onFilterChange () {
+      this.offset = 0
+      this.fetchContacts(this.paramsForQuery)
+    },
+
+    /**
+     * Событие происходит когда нажали на кнопку "выбрать всё".
+     */
+    onBtnSelectAllClick () {
+      // Копирую ранее выбранные идентификаторы
+      const contactIds: number[] = this.contactsSelected.map((id: number) => id)
+      this.contactsItems.forEach((e: Contact) => {
+        // Добавляю в список если не существует
+        if (!contactIds.includes(e.id)) {
+          contactIds.push(e.id)
+        }
+      })
+      // Фиксирую состояние
+      this.$store.commit('contacts/selected', contactIds)
+    }
+  }
+})
+
+</script>
+
+<style lang="scss" scoped>
+
+</style>

@@ -4,6 +4,7 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface, ContactTagInterface } from './Schemas/ContactInterface'
+import ContactTag from '@/api/interfaces/ContactTag'
 
 export interface ContactResponseInterface {
   count: number;
@@ -161,7 +162,7 @@ export class Contacts {
    * @param params
    */
   public find (params: ContactsParamsFind = {}): Promise<ResponseInterface<{ count: number }, Contact[]>> {
-    return new Promise<ResponseInterface<{ count: number }, Contact[]>>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       $axios.get('/contacts', {
         params
       }).then((response: AxiosResponse) => {
@@ -212,7 +213,13 @@ export class Contacts {
    *
    * @param params
    */
-  public transfer (params: any): Promise<number> {
+  public transfer (params: {
+    /* Идентификатор проекта */
+    target_project_id: number,
+    target_contact_ids: number[],
+    target_user_ids: number[],
+    new_date?: number}
+  ): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       $axios.post('/contacts/transfer', params)
         .then((response: AxiosResponse) => {
@@ -449,10 +456,10 @@ export class Contacts {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/contacts/tags', { params })
         .then((response: AxiosResponse) => {
-          if ([200].includes(response.status)) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response?.data || response.statusText)
           }
-          throw new APIError(response?.data || response.statusText)
+          resolve(response.data)
         }).catch(reject)
     })
   }

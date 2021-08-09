@@ -503,14 +503,8 @@
 
           <!-- Статусы -->
           <v-card-text class="pt-0">
-            <s-statuses-select
-              ref="sStatusesSelect"
-              v-model="filter.status"
-              :params="sStatusesParams"
-              :disabled="!isActiveFilterStatus"
-              clearable
-              outlined
-              dense
+            <app-status-select
+              v-model="filterStatusIds"
               multiple
             />
           </v-card-text>
@@ -659,27 +653,28 @@ import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { DataOptions } from 'vuetify'
 import { debounce } from 'vuetify/src/util/helpers'
-
-interface Refs {
-  sProjectsAutocomplete: any
-  sUsersAutocomplete: any
-
-  [key: string]: any;
-}
+import AppStatusSelect from '@/components/AppStatusSelect/AppStatusSelect.vue'
 
 interface Data {
-  process: null | 'setting-tags'
-  contacts: Contact[]
-  [key: string]: any;
+  [keys: string]: any;
 }
 
-interface VInnerInterface extends VInterface {
-  $refs: Refs
-  $data: Data
+interface Methods {
+  [keys: string]: any;
 }
 
-export default (Vue as VueConstructor<VInnerInterface>).extend({
+interface Computed {
+  filterStatusIds: number[];
+  [keys: string]: any;
+}
+
+interface Props {
+  [keys: string]: any;
+}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
   components: {
+    AppStatusSelect,
     AppLoading,
     AppNumberFormat,
     AppCountUp,
@@ -687,7 +682,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     AppSearchInput,
     SContactTags,
     SProjectsAutocomplete,
-    SStatusesSelect,
     SUsers,
     SGroups
   },
@@ -777,18 +771,18 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           offset = 0
         }
 
-        const params: ContactsParamsFind = {
+        const params: Record<string, string> = {
           count: this.contact_list_per_page,
           fields: 'owner,project',
-          offset
+          offset: String(offset)
         }
 
         if (this.$routerQuery.hasQuery('project_id')) {
           params.project_id = this.$routerQuery.getQuery('project_id')
         }
 
-        if (this.$routerQuery.hasQuery('status_ids')) {
-          params.status_ids = this.$routerQuery.getQuery('status_ids')
+        if (this.filterStatusIds.length > 0) {
+          params.status_ids = this.filterStatusIds.join(',')
         }
 
         if (this.$routerQuery.hasQuery('owner_id')) {
@@ -800,13 +794,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }
 
         if (this.$routerQuery.hasQuery('call_up')) {
-          switch (this.$routerQuery.getQuery<'yes' | 'no'>('call_up')) {
+          switch (this.$routerQuery.getQuery('call_up')) {
             case 'yes': {
-              params.call_up = 1
+              params.call_up = '1'
               break
             }
             case 'no': {
-              params.call_up = 0
+              params.call_up = '0'
               break
             }
           }
@@ -875,9 +869,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         // Фильтрация по тегам
         tags: [] as ContactTagInterface[],
 
-        // Фильтрация по статусам
-        status: [] as unknown & StatusInterface[],
-
         // Фильтрация по задачам
         task: {
           options: [
@@ -912,6 +903,24 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   },
 
   computed: {
+    /// NEW ///
+    filterStatusIds: {
+      get () {
+        return (this.$route.query?.status_ids?.split(',') || []).map((e: string) => +e)
+      },
+
+      set (value: number[]) {
+        if (value) {
+          this.$routerQuery.setQuery({
+            status_ids: value.join(',')
+          })
+        } else {
+          this.$routerQuery.removeQuery(['status_id'])
+        }
+      }
+    },
+    /// NEW ///
+
     contact_list_per_page: {
       get () {
         return this.$store.getters['settings/contact_list'].count_per_page
@@ -1093,11 +1102,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
       }
 
-      if (this.$routerQuery.hasQuery('status_ids')) {
-        const status_ids = this.$routerQuery.getQuery('status_ids').split(',')
-        this.filter.status = status_ids.map(value => +value)
-      }
-
       if (this.$routerQuery.hasQuery('owner_id')) {
         promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
       }
@@ -1196,17 +1200,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       })
 
       // Фильтрация по статусам
-      this.$watch('filter.status', (newVal: unknown & StatusInterface[]) => {
-        this.dataTableContacts.page = 1
-        if (Array.isArray(newVal)) {
-          this.$routerQuery.setQuery({
-            status_ids: newVal.map(val => val.id).join(',')
-          }).then(this.fetchContacts)
-        } else {
-          this.$routerQuery.removeQuery([
-            'status_ids'
-          ]).then(this.fetchContacts)
-        }
+      this.$watch('filterStatusIds', () => {
+        this.fetchContacts()
       })
 
       // Фильтрация по ответственным

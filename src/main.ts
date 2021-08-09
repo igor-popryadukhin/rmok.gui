@@ -1,9 +1,8 @@
 import Vue from 'vue'
-import '@/plugins/axios'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import vuetify from './plugins/vuetify'
+
+import App from '@/App.vue'
+import router from '@/router'
+import store from '@/store'
 import '@/directives'
 
 // Style
@@ -14,6 +13,8 @@ import '@/mixins/global'
 
 // Plugins
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
+import vuetify from '@/plugins/vuetify'
+import '@/plugins/axios'
 import '@/plugins/sse'
 import '@/plugins/debug'
 import '@/plugins/toast'

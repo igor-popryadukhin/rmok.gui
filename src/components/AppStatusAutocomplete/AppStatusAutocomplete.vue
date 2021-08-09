@@ -1,9 +1,10 @@
 <template>
   <v-autocomplete
     v-model="selected"
-    :items="statuses"
+    :items="options"
     :multiple="multiple"
     :search-input.sync="q"
+    :label="label"
     item-value="id"
     item-text="name"
     item-color="color"
@@ -13,7 +14,6 @@
     clearable
     hide-selected
     @input="(val) => $emit('change', val)"
-    @keyup="onAutocompleteUpdateSearchInput(q, $event)"
   >
     <template
       v-if="multiple"
@@ -47,30 +47,11 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapGetters } from 'vuex'
 import { debounce } from 'vuetify/src/util/helpers'
-import { mapActions, mapGetters } from 'vuex'
-
-const charCodes: string[] = [
-  'KeyA', 'KeyB', 'KeyC', 'KeyD', 'KeyE', 'KeyF', 'KeyG', 'KeyH', 'KeyI', 'KeyJ', 'KeyK', 'KeyL',
-  'KeyM', 'KeyN', 'KeyO', 'KeyP', 'KeyQ', 'KeyR', 'KeyS', 'KeyT', 'KeyU', 'KeyV', 'KeyW', 'KeyX',
-  'KeyY', 'KeyZ', 'Space', 'Backspace', 'Backquote', 'Period', 'BracketRight', 'BracketLeft', 'NumpadAdd',
-  'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide', 'Delete'
-]
-
-const numberCodes: string[] = []
-for (let i = 0; i < 9; i++) {
-  numberCodes.push('Numpad' + i)
-  numberCodes.push('Digit' + i)
-}
-
-const keyCodes: string[] = numberCodes.concat(charCodes)
-
-const fetchStatusesDebounce = debounce(function handle (ctx: any, params = {}) {
-  ctx.fetchStatuses(params)
-}, 450)
 
 export default Vue.extend({
-  name: 'AppStatusSelect',
+  name: 'AppStatusAutocomplete',
 
   model: {
     prop: 'value',
@@ -78,6 +59,10 @@ export default Vue.extend({
   },
 
   props: {
+    label: {
+      type: String,
+      default: ''
+    },
     multiple: {
       type: Boolean,
       default: false
@@ -91,47 +76,51 @@ export default Vue.extend({
   data () {
     return {
       q: null,
-      qOld: null,
       selected: 0 as number | number[]
     }
   },
 
   computed: {
     ...mapGetters({
-      statuses: 'statuses/items'
-    })
+      options: 'filter/statuses'
+    }),
+
+    paramsQuery () {
+      const paramsQuery: Record<string, unknown | string> = {}
+
+      if (this.q) {
+        paramsQuery.q = this.q
+      }
+
+      return paramsQuery
+    }
   },
 
   watch: {
     value (val: number | number[]) {
       this.selected = val
+    },
+
+    q () {
+      this.fetchOptions()
     }
+  },
+
+  created () {
+    this.fetchOptions = debounce(this.fetchOptions, 350)
   },
 
   mounted () {
     this.selected = this.value
 
-    this.$appDebug(keyCodes)
-
-    if (this.statuses.length === 0) {
-      this.fetchStatuses()
+    if (this.options.length === 0) {
+      this.fetchOptions()
     }
   },
 
   methods: {
-    ...mapActions({
-      fetchStatuses: 'statuses/items'
-    }),
-
-    onAutocompleteUpdateSearchInput (val: string, event: KeyboardEvent) {
-      if (keyCodes.includes(event.code)) {
-        if (this.qOld !== this.q) {
-          this.qOld = this.q
-          fetchStatusesDebounce(this, {
-            q: val
-          })
-        }
-      }
+    fetchOptions () {
+      this.$store.dispatch('filter/statuses', this.paramsQuery)
     }
   }
 })
