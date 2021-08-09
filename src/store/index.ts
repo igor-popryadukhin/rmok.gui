@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
-import { system } from './system'
 import project from './project'
 import tasks from './tasks'
 import settings from './settings'
@@ -9,14 +8,31 @@ import filter from './filter'
 import symfony from './symfony'
 import profile from './profile'
 import statuses from './statuses'
+import contacts from './contacts'
 import { database } from './database'
 import debug from 'debug'
+import { debounce } from 'vuetify/src/util/helpers'
 
 Vue.use(Vuex)
 
-const get = (key: string) => localStorage.getItem(key)
-const set = (key: string, value: string) => localStorage.setItem(key, value)
-const remove = (key: string) => localStorage.getItem(key)
+const vuexDebug = debug('VUEX')
+const vuexDebugActions = vuexDebug.extend('ACTION')
+const vuexDebugPersistedstate = vuexDebug.extend('PERSISTEDSTATE')
+
+const get = (key: string) => {
+  vuexDebugPersistedstate('GET: %s', key)
+  return localStorage.getItem(key)
+}
+
+const set = debounce((key: string, value: string) => {
+  vuexDebugPersistedstate('SET: %s [%o]', key, value)
+  localStorage.setItem(key, value)
+}, 1000)
+
+const remove = (key: string) => {
+  vuexDebugPersistedstate('REMOVE: %s', key)
+  localStorage.removeItem(key)
+}
 
 export interface RootState {
   root: number;
@@ -37,9 +53,9 @@ const store = new Vuex.Store({
     statuses,
     settings,
     filter,
-    system,
     symfony,
-    tasks
+    tasks,
+    contacts
   },
 
   mutations: {},
@@ -48,62 +64,8 @@ const store = new Vuex.Store({
 
   plugins: [
     createPersistedState({
-      key: 'rmok-profile',
-      paths: ['profile'],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
-      key: 'rmok-system',
-      paths: ['system'],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
-      key: 'rmok-tasks',
-      paths: ['tasks'],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
-      key: 'rmok-database',
-      paths: ['database'],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
-      key: 'rmok-settings',
-      paths: ['settings'],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
-      key: 'rmok-filters',
-      paths: ['filter'],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
-    }),
-    createPersistedState({
-      key: 'rmok-symfony',
-      paths: ['symfony'],
+      key: window.origin,
+      paths: ['profile', 'tasks', 'database', 'settings', 'filters', 'symfony', 'contacts.params'],
       storage: {
         getItem: (key: string) => get(key),
         removeItem: (key: string) => remove(key),
@@ -112,9 +74,6 @@ const store = new Vuex.Store({
     })
   ]
 })
-
-const vuexDebug = debug('VUEX')
-const vuexDebugActions = vuexDebug.extend('ACTION')
 
 store.subscribeAction((ap, rs) => {
   vuexDebugActions('%o %o', ap, rs)
