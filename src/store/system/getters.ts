@@ -1,7 +1,10 @@
 import { RootState } from '@/store'
-import { SystemState } from './state'
+import { State } from './state'
 import { GetterTree } from 'vuex'
 
-const getters: GetterTree<SystemState, RootState> = {}
+const getters: GetterTree<State, RootState> = {
+  notifications (state) { return state.notifications },
+  notifications_count (state) { return state.notifications_count }
+}
 
 export default getters

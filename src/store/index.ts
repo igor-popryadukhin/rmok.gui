@@ -6,6 +6,7 @@ import tasks from './tasks'
 import settings from './settings'
 import filter from './filter'
 import symfony from './symfony'
+import system from './system'
 import profile from './profile'
 import statuses from './statuses'
 import contacts from './contacts'
@@ -54,6 +55,7 @@ const store = new Vuex.Store({
     settings,
     filter,
     symfony,
+    system,
     tasks,
     contacts,
     contacts_new

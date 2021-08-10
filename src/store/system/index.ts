@@ -3,9 +3,9 @@ import { Module } from 'vuex'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import state, { SystemState } from './state'
+import state, { State } from './state'
 
-const module: Module<SystemState, RootState> = {
+const module: Module<State, RootState> = {
   actions,
   getters,
   mutations,

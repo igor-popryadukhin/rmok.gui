@@ -1,5 +1,7 @@
 <template>
-  <v-app id="inspire">
+  <v-app
+    id="inspire"
+  >
     <!-- Nav drawer -->
     <v-navigation-drawer
       v-model="drawer"
@@ -174,106 +176,57 @@
       <!-- Bell -->
 
       <v-menu
-        v-model="notificationsVisible"
         :close-on-content-click="false"
         nudge-left="150"
       >
         <template #activator="{ on, attrs }">
           <v-btn
+            :disabled="systemNotifications.length === 0"
             class="mr-1 ml-1"
             icon
             v-bind="attrs"
             v-on="on"
           >
-            <v-icon>mdi-bell</v-icon>
+            <v-icon :class="notificationShakeProcess ? 'notification-shake' : ''">
+              mdi-bell
+            </v-icon>
             <v-badge
-              v-if="notifications.length > 0"
+              v-if="systemNotificationsCount > 0"
               color="red"
-              :content="notifications.length"
+              :content="systemNotificationsCount > 99 ? '99+' : systemNotificationsCount"
             />
           </v-btn>
         </template>
         <v-card
-          v-if="notifications.length > 0"
+          v-if="systemNotifications.length > 0"
           class="overflow-y-auto"
           max-width="600"
+          min-width="450"
           max-height="500"
           flat
           tile
         >
           <v-card-text>
             <v-list dense>
-              <template v-for="(item, itemIndex) in notifications">
+              <template v-for="(item, itemIndex) in systemNotifications">
                 <v-list-item
                   :key="itemIndex"
-                  :class="item.class || ''"
-                  :style="item.style || {}"
                   link
-                  @click="item.click ? item.click(item, itemIndex): null"
                 >
-                  <v-list-item-avatar>
-                    <v-icon :color="item.color">
-                      {{ item.icon }}
-                    </v-icon>
-                  </v-list-item-avatar>
-
-                  <v-tooltip
-                    color="primary"
-                    max-width="500"
-                    bottom
-                  >
-                    <template #activator="{ on, attrs }">
-                      <v-list-item-content
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        <v-list-item-title v-html="item.title" />
-                        <v-list-item-subtitle v-html="item.message" />
-                        <v-list-item-subtitle
-                          v-if="item.message2"
-                          v-html="item.message2"
-                        />
-                      </v-list-item-content>
-                    </template>
-                    <template v-if="item.message">
-                      <span
-                        class="mb-3"
-                        v-html="item.message"
-                      /><br>
-                    </template>
-                    <template v-if="item.message2">
-                      <span>{{ item.message2 }}</span>
-                    </template>
-                  </v-tooltip>
-
-                  <v-list-item-action v-if="item.actions">
-                    <v-menu offset-y>
-                      <template #activator="{ on, attr }">
-                        <v-btn
-                          icon
-                          v-bind="attr"
-                          v-on.stop="on"
-                        >
-                          <v-icon>mdi-dots-horizontal</v-icon>
-                        </v-btn>
-                      </template>
-                      <v-list
-                        class="pa-0"
-                        min-width="150"
-                      >
-                        <v-list-item
-                          v-for="(action, actionIndex) in item.actions"
-                          :key="actionIndex"
-                          link
-                          @click="action.handle(action.context)"
-                          @mouseup.stop="buttonMenuNotification = false"
-                        >
-                          <v-list-item-content>
-                            <v-list-item-title>{{ action.title }}</v-list-item-title>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-list>
-                    </v-menu>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ item.message }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn
+                      text
+                      small
+                      tile
+                      @click="onBtnCloseNotification(item.id)"
+                    >
+                      {{ $tc('Close') }}
+                    </v-btn>
                   </v-list-item-action>
                 </v-list-item>
                 <v-divider
@@ -372,6 +325,7 @@ import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } f
 import { UnRegisteredEvent } from 'jssip/lib/UA'
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
+import Notifications from '@/api/Notifications'
 
 interface Data {
   [key: string]: any;
@@ -428,15 +382,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         suppressScrollY: false,
         wheelPropagation: false
       },
-      notificationsVisible: false,
-      notifications: [] as Notification[]
+      notificationShakeProcess: false
     }
   },
 
   computed: {
     ...mapGetters({
       pcConfig: 'settings/pc_config',
-      tasksPendingCount: 'tasks/pending_count'
+      tasksPendingCount: 'tasks/pending_count',
+      systemNotifications: 'system/notifications',
+      systemNotificationsCount: 'system/notifications_count'
     }),
 
     profile (): ProfileState {
@@ -757,7 +712,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     // Через 5 секунд запрашиваю количество открытых задач
     setTimeout(() => {
       this.$store.dispatch('tasks/pending_count')
+      this.$store.dispatch('system/notifications')
     }, 5000)
+
+    setTimeout(() => {
+      this.requestAndShowPermission()
+    }, 3000)
   },
 
   methods: {
@@ -1033,6 +993,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             // Что-то изменилось в задачах
             if (obj.name === 'tasks-changed') {
               this.$store.dispatch('tasks/pending_count')
+            } else if (obj.name === 'system-notification') {
+              // Звук уведомления только если в режиме ожидания.
+              this.$store.dispatch('system/notifications').then(() => {
+                if (this.$jsSIP.state === 'idle') {
+                  this.$sound.play('/sounds/notifications/1.mp3')
+                  this.notificationShake()
+                  // TODO: Скоро уведомления в мозг.
+                  // this.showNotification('Новое системное уведомление!')
+                }
+              })
             }
           }
         })
@@ -1043,6 +1013,37 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.$root.$emit('root-sse-message', event.data)
         }
       }
+    },
+
+    showNotification (title: string, body: string) {
+      if (document.visibilityState === 'visible') {
+        return
+      }
+      const icon = 'image-url'
+      const notification = new Notification(title, { body, icon })
+      notification.onclick = () => {
+        notification.close()
+        window.parent.focus()
+      }
+    },
+
+    notificationShake () {
+      this.notificationShakeProcess = true
+      setTimeout(() => {
+        this.notificationShakeProcess = false
+      }, 800)
+    },
+
+    requestAndShowPermission () {
+      Notification.requestPermission((permission) => {
+        if (permission === 'denied') {
+          this.$toast.info('Что бы получать системные уведомления, требуются разрешения!')
+        }
+      })
+    },
+
+    onBtnCloseNotification (id: number) {
+      this.$store.dispatch('system/notifications_close', id)
     }
   }
 })
@@ -1095,6 +1096,27 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 .v-application .pth-63 {
   padding-top: 4px !important;
   padding-bottom: 3px !important;
+}
+
+.notification-shake {
+  /* Start the shake animation and make the animation last for 0.5 seconds */
+  animation: shake 0.2s;
+  /* When the animation is finished, start again */
+  animation-iteration-count: infinite;
+}
+
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  10% { transform:  rotate(4deg); }
+  20% { transform:  rotate(8deg); }
+  30% { transform:  rotate(12deg); }
+  40% { transform:  rotate(16deg); }
+  50% { transform:  rotate(20deg); }
+  60% { transform:  rotate(16deg); }
+  70% { transform:  rotate(12deg); }
+  80% { transform:  rotate(8deg); }
+  90% { transform:  rotate(4deg); }
+  100% { transform:  rotate(0deg); }
 }
 
 </style>

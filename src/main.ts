@@ -27,6 +27,7 @@ import '@/plugins/file-dialog'
 import '@/plugins/lvovich'
 import '@/plugins/vuetify-dialog'
 import '@/plugins/html-audio-element'
+import '@/plugins/sound'
 import '@/jsSIP'
 
 import CleanLayout from '@/layouts/Clean.vue'
