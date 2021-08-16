@@ -15,7 +15,7 @@ export default interface Contact {
   address?: string;
   default_phone?: ContactPhone;
   project?: Project;
-  last_status?: any;
+  status?: any;
   owner?: User;
   emails?: ContactEmail[];
   phones?: ContactPhone[];

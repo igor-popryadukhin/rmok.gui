@@ -14,6 +14,10 @@ const actions: ActionTree<ContactsState, RootState> = {
       }).finally(() => (commit('process_loading', false)))
   },
 
+  unselect: ({ commit }) => {
+    commit('selected', [])
+  },
+
   resetState: ({ commit }) => {
     commit('resetState')
   }

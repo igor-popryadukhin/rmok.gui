@@ -42,16 +42,16 @@
               <v-list-item-subtitle
                 v-if="taskItem.contact"
               >
-                <template v-if="taskItem.contact.last_status">
+                <template v-if="taskItem.contact.status">
                   <v-chip
-                    :color="taskItem.contact.last_status.color"
+                    :color="taskItem.contact.status.color"
                     class="mr-2"
                     label
                     outlined
                     x-small
-                    @click.stop="onBtnTaskItemStatusChipClick(taskItem.contact.last_status.id)"
+                    @click.stop="onBtnTaskItemStatusChipClick(taskItem.contact.status.id)"
                   >
-                    {{ taskItem.contact.last_status.name }}
+                    {{ taskItem.contact.status.name }}
                   </v-chip>
                   <span>
                     {{ taskItem.description }}

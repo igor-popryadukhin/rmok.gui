@@ -3,7 +3,6 @@
     v-model="menuVisible"
     :close-on-click="false"
     :close-on-content-click="false"
-    :disabled="process === 'setting-tags'"
     offset-y
     tile
     @keydown.esc="menuVisible = false"
@@ -35,6 +34,7 @@
         <v-text-field
           v-model="textSearch"
           :label="$tc('Search tags')"
+          :loading="process"
           prepend-inner-icon="mdi-magnify"
           dense
           clearable
@@ -77,17 +77,21 @@
         </template>
         <template v-else>
           <div class="text-center">
-            No data
+            {{ $tc('Empty') }}
           </div>
         </template>
       </v-card-text>
+
       <v-card-text class="px-0 py-0">
         <v-divider />
       </v-card-text>
+
+      <!-- Действия -->
       <v-card-text class="px-0 py-0">
         <v-list dense>
           <template v-if="tagsSelected.length === 0">
             <v-list-item
+              :disabled="process || processOfCreation"
               dense
               link
               @click="onCreateTagClick(textSearch)"
@@ -120,6 +124,7 @@
           </v-list-item>
         </v-list>
       </v-card-text>
+      <!-- Действия -->
     </v-card>
   </v-menu>
 </template>
@@ -128,13 +133,16 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { debounce } from 'vuetify/src/util/helpers'
+import ContactTag from '@/api/interfaces/ContactTag'
 import { Contacts } from '@/api/Contacts'
+import { randomColor } from '@/utils/utils'
 
 export default Vue.extend({
   name: 'AppMenuTags',
 
   data () {
     return {
+      processOfCreation: false,
       process: false,
       menuVisible: false,
       textSearch: null,
@@ -145,16 +153,13 @@ export default Vue.extend({
 
   computed: {
     ...mapGetters({
-      contactsSelected: 'contacts/selected',
       tags: 'filter/contact_tags'
     })
   },
 
   watch: {
     textSearch (val?: string) {
-      if (typeof val === 'string') {
-        this.search(val)
-      }
+      this.search(val || '')
     }
   },
 
@@ -168,23 +173,41 @@ export default Vue.extend({
 
   methods: {
     onCreateTagClick (name: string) {
-      // TODO: Impliments
+      this.processOfCreation = true
+      new Contacts()
+        .addTag({
+          name,
+          color: randomColor()
+        }).finally(() => {
+          this.processOfCreation = false
+          this.searchTags(name)
+        })
     },
 
     onApplyTagClick () {
-      // new Contacts().setTags({
-      //   contact_ids: this.contactsSelected
-      // })
+      this.menuVisible = false
+      this.$emit('update:apply', this.tagsSelected)
     },
 
+    /**
+     * Поиск тегов в удалённом хранилище.
+     */
     searchTags (q: string) {
-      this.$store.dispatch('filter/contact_tags', { q }).then(() => {
-        this.filtered = this.tags
-      })
+      this.process = true
+      this.$store.dispatch('filter/contact_tags', { q })
+        .then(() => {
+          this.filtered = this.tags
+        }).finally(() => (this.process = false))
     },
 
+    /**
+     * Поиск тегов.
+     * Сначала выполняется поиск в локальном хранилище, а после в удалённом.
+     * @param q
+     */
     search (q: string) {
-      const found = this.tags.filter((e) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1)
+      this.$appDebug(q)
+      const found = this.tags.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1)
 
       if (found.length === 0) {
         this.searchTags(q)

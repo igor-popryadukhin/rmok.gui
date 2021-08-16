@@ -6,7 +6,7 @@ import {
   EventHandlerFailed,
   EventHandlerProgress
 } from './types'
-import { debug, UA, Utils as JsSIPUtils } from 'jssip'
+import { debug, Utils as JsSIPUtils, UA } from 'jssip'
 import {
   AnswerOptions,
   ConnectingEvent,
@@ -148,8 +148,14 @@ export class JsSIP {
   }
 
   private _localClonedStream?: MediaStream
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   private _localAudio?: Audio
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   private _remoteAudio?: Audio
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   private _audioElementForSound?: Audio
 
   private _pcConfig?: RTCConfiguration | undefined
@@ -363,9 +369,13 @@ export class JsSIP {
     session.on('connecting', (event: ConnectingEvent) => {
       // Тут мы подключаемся к микрофону и цепляем к нему поток, который пойдёт в астер
       const peerconnection = session.connection
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this._localClonedStream = peerconnection.getLocalStreams()[0]
 
       peerconnection.addEventListener('addstream', (event) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this._remoteAudio.srcObject = event.stream
       })
 

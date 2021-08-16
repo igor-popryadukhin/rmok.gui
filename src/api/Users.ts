@@ -136,7 +136,7 @@ export class Users {
    * Возвращает список пользователей в соответствии с заданным критерием поиска.
    * @param params
    */
-  public find (params: any): Promise<ResponseInterface<{ count: 0 }, User[]>> {
+  public find (params = {}): Promise<ResponseInterface<{ count: 0 }, User[]>> {
     return new Promise((resolve, reject) => {
       $axios.get('/users', {
         params

@@ -10,7 +10,7 @@
         order-md="0"
         order-sm="1"
       >
-        <contacts-list>
+        <contacts-list @click:item:status="onContactListItemStatusClick">
           <template #head>
             <app-tools>
               <template #left>
@@ -54,7 +54,10 @@
                 </v-btn>
                 <!-- Установка тегов -->
                 <!-- TODO: Только для администраторов -->
-                <app-menu-tags>
+                <app-menu-tags
+                  @create:tag="onAppMenuTagsCreateTag"
+                  @update:apply="onAppMenuTagsApply"
+                >
                   <template #activator="{ attrs, on }">
                     <v-btn
                       v-bind="attrs"
@@ -219,6 +222,9 @@ import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import { mapActions, mapGetters } from 'vuex'
 import Contact from '@/api/interfaces/Contact'
 import { Contacts } from '@/api/Contacts'
+import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
+import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
+import Roles from '@/api/Roles'
 
 interface Data {
   [keys: string]: any;
@@ -453,6 +459,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
   },
 
+  watch: {
+    // Следим за каждым изменением все параметров фильтров.
+    paramsForQuery (val: unknown) {
+      this.fetchContacts(val)
+    }
+  },
+
   mounted () {
     if (this.contactsItems.length === 0) {
       this.fetchContacts(this.paramsForQuery)
@@ -464,8 +477,38 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       fetchContacts: 'contacts/items'
     }),
 
-    onContactAddClick () {
-      // TODO: Реализуй обработчик
+    /**
+     * Срабатывает когда нажали на кнопку добавить контакт.
+     **/
+    async onContactAddClick () {
+      const instance = await this.$dialog.show(SContactDialogEditor, {
+        on: {
+          cancel: () => {
+            instance.close()
+          },
+          save: (data: SCEContactInterface) => {
+            new Contacts()
+              .add({
+                address: data.address,
+                city: data.city,
+                emails: data.emails,
+                first_name: data.first_name,
+                last_name: data.last_name,
+                middle_name: data.middle_name,
+                notes: data.notes,
+                phones: data.phones,
+                region: data.region,
+                tags: data.tags
+              }).then(() => {
+                this.$toast.success(this.$tc('Contact created'))
+                this.fetchContacts(this.paramsForQuery)
+              }).finally(() => (instance.close()))
+          }
+        },
+        title: 'Создание контакта',
+        waitForResult: false,
+        width: '60%'
+      })
     },
 
     onBtnRefreshClick () {
@@ -521,7 +564,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      */
     onFilterChange () {
       this.offset = 0
-      this.fetchContacts(this.paramsForQuery)
     },
 
     /**
@@ -538,6 +580,28 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       })
       // Фиксирую состояние
       this.$store.commit('contacts/selected', contactIds)
+    },
+
+    onContactListItemStatusClick (status_id: number) {
+      const items = this.filterStatusIds.map((e: number) => e)
+      if (!items.includes(status_id)) {
+        items.push(status_id)
+        this.filterStatusIds = items
+      }
+    },
+
+    /**
+     *
+     * @param tagIds идентификаторы тегов.
+     */
+    onAppMenuTagsApply (tagIds: number[]) {
+      new Contacts()
+        .setTags({
+          contact_ids: this.contactsSelected,
+          tag_ids: tagIds
+        }).then(() => {
+          this.$store.dispatch('contacts/unselect')
+        })
     }
   }
 })

@@ -47,14 +47,14 @@
                 {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{ taskItem.contact.middle_name }}
               </v-list-item-subtitle>
               <v-list-item-subtitle v-if="taskItem.contact">
-                <template v-if="taskItem.contact.last_status">
+                <template v-if="taskItem.contact.status">
                   <v-chip
-                    :color="taskItem.contact.last_status.color"
+                    :color="taskItem.contact.status.color"
                     label
                     outlined
                     x-small
                   >
-                    {{ taskItem.contact.last_status.name }}
+                    {{ taskItem.contact.status.name }}
                   </v-chip>
                 </template>
               </v-list-item-subtitle>

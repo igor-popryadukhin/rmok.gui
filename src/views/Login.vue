@@ -104,6 +104,11 @@ export default Vue.extend({
     }
   },
 
+  created () {
+    this.$store.dispatch('contacts/resetState')
+    this.$store.dispatch('contacts_new/resetState')
+  },
+
   methods: {
     login (login: string, password: string) {
       this.processAuthorization = true

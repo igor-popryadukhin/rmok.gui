@@ -117,10 +117,12 @@ export default Vue.extend({
 
   methods: {
     onBtnOkClick (value: string | string[]) {
+      debugger
       this.$emit('change', value)
       return this.$refs.menu?.save(value)
     },
     onTextFieldDateRangeClearClick () {
+      debugger
       this.$emit('change', null)
       return this.$refs.menu?.save(null)
     },

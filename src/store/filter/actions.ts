@@ -16,8 +16,22 @@ const actions: ActionTree<FilterState, RootState> = {
       })
   },
 
-  async statuses ({ commit }, payload = {}) {
-    return commit('statuses', await new Statuses().find(payload))
+  async statuses ({ commit }, params = {}) {
+    return new Promise<void>((resolve) => {
+      new Statuses().find(params).then((statuses) => {
+        commit('statuses', statuses)
+      }).finally(resolve)
+    })
+  },
+
+  async statuses_append ({ commit, state }, ids: number[]) {
+    return new Statuses()
+      .find({ ids })
+      .then((statuses) => {
+        if (statuses.length > 0) {
+          commit('statuses', state.statuses.concat(statuses))
+        }
+      })
   },
 
   projects ({ commit }, payload = {}) {

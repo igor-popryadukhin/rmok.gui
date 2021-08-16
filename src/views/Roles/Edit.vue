@@ -2,90 +2,154 @@
   <v-sheet>
     <app-tools>
       <template #left>
-        <h3 class="grey--text">
-          {{ $tc('Editing a role') }}
-        </h3>
+        <h3>{{ $tc('Changing the parameters of a role') }}</h3>
       </template>
       <template #right>
         <v-btn
-          v-bind="buttonDelete"
-          color="red"
-          class="mr-2"
-          disabled
-          outlined
-          small
-          tile
-          @click="onBtnDeleteClick"
-        >
-          {{ $tc('Delete') }}
-        </v-btn>
-        <v-btn
+          :loading="processSaveData"
           color="primary"
-          text
-          tile
           small
-          outlined
-          :loading="buttonSave.loading"
-          :disabled="buttonSave.disabled"
+          tile
+          text
           @click="onBtnSaveClick"
         >
           {{ $tc('Save') }}
         </v-btn>
       </template>
     </app-tools>
-    <v-divider class="mb-2" />
+    <v-divider />
 
-    <template v-if="processLoadingData">
-      <div class="d-flex justify-center">
-        <div class="pa-16 grey--text">
-          <app-loading />
-        </div>
-      </div>
-    </template>
-    <template v-else>
-      <v-row>
-        <v-col
-          cols="12"
-        >
-          <v-text-field
-            v-model="name"
-            :label="$tc('Role name')"
-            :rules="[rules.notBlank]"
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col
-          cols="12"
-        >
-          <v-expansion-panels
-            tile
-            flat
-            focusable
-          >
-            <v-expansion-panel
-              v-for="(permission, index) in permissions"
-              :key="index"
+    <v-row class="my-2">
+      <!-- Проекты -->
+      <v-col
+        class="py-0"
+        cols="12"
+        md="3"
+      >
+        <div>
+          <template v-if="processLoadingData">
+            <div class="d-flex justify-center">
+              <div class="pa-16 grey--text">
+                <app-loading />
+              </div>
+            </div>
+          </template>
+          <template v-else-if="permissions.length > 0">
+            <v-list
+              class="py-0"
+              style="min-height: 450px; max-height: calc(100vh - 185px); overflow-y: auto"
             >
-              <v-expansion-panel-header>
-                <span class="font-weight-bold">{{ permission.title }}</span>
-              </v-expansion-panel-header>
-              <v-divider />
-              <v-expansion-panel-content>
-                <v-switch
-                  v-for="(attribute, attribute_index) in permission.attributes"
-                  :key="`v-switch-${attribute_index}`"
-                  v-model="attribute.granted"
-                  :label="attribute.title"
-                  hide-details
-                  dense
-                />
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-col>
-      </v-row>
-    </template>
+              <v-list-item-group
+                v-model="permissionKey"
+                mandatory
+              >
+                <template v-for="(item, key) in permissions">
+                  <v-list-item
+                    :key="'v-list-item-' + key"
+                    :value="key"
+                    :input-value="key"
+                    link
+                    dense
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ item.title }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider :key="'v-divider-' + key" />
+                </template>
+              </v-list-item-group>
+            </v-list>
+          </template>
+          <template v-else>
+            <div class="d-flex justify-center">
+              <div class="pa-16 grey--text">
+                {{ $tc('Empty') }}
+              </div>
+            </div>
+          </template>
+        </div>
+      </v-col>
+      <!-- Проекты -->
+
+      <v-divider vertical />
+
+      <!-- Разрешения -->
+      <v-col class="py-0">
+        <div>
+          <template v-if="processLoadingData">
+            <div class="d-flex justify-center">
+              <div class="pa-16 grey--text">
+                <app-loading />
+              </div>
+            </div>
+          </template>
+          <template v-else-if="permissionKey > -1">
+            <v-list
+              class="py-0"
+              dense
+            >
+              <v-list-item
+                class="primary accent-4 none-user-select"
+                dark
+              >
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $tc('Action') }}
+                  </v-list-item-title>
+                </v-list-item-content>
+
+                <v-list-item-action
+                  style="margin: 0"
+                  class="d-flex d-inline-flex"
+                >
+                  {{ $tc('Permission') }}
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item-group style="min-height: 450px; max-height: calc(100vh - 185px); overflow-y: auto">
+                <template v-for="(item, key) in permissions[permissionKey].attributes">
+                  <v-list-item
+                    :key="'v-list-item-' + key"
+                    :value="item.id"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ item.title }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        {{ item.name }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+
+                    <v-list-item-action
+                      style="margin: 0"
+                      class="d-flex d-inline-flex"
+                    >
+                      <v-switch
+                        v-model="item.granted"
+                        :ripple="false"
+                        hide-details
+                        dense
+                      />
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-divider :key="'v-divider-' + key" />
+                </template>
+              </v-list-item-group>
+            </v-list>
+          </template>
+          <template v-else>
+            <div class="d-flex justify-center">
+              <div class="pa-16 grey--text">
+                {{ $tc('Empty') }}
+              </div>
+            </div>
+          </template>
+        </div>
+      </v-col>
+      <!-- Разрешения -->
+    </v-row>
   </v-sheet>
 </template>
 
@@ -132,15 +196,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   data (): Data {
     return {
-      buttonDelete: {
-        loading: false
-      },
-      buttonSave: {
-        loading: false
-      },
+      processSaveData: false,
       processLoadingData: false,
       name: '',
-      permissions: []
+      permissions: [],
+      permissionKey: -1,
+      attributes: []
     }
   },
 
@@ -157,7 +218,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       .then((response) => {
         this.$data.name = response.name
         this.$data.permissions = response.permissions
-        this.$data.role_use.selected = response.use
       }).finally(() => (this.processLoadingData = false))
   },
 
@@ -193,10 +253,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     },
 
     onBtnSaveClick () {
-      // if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
-      //   return
-      // }
-
       const request = {
         name: this.name,
         attributes: [] as string[]
@@ -213,7 +269,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         }
       }
 
-      this.buttonSave.loading = true
+      this.processSaveData = true
       new Roles()
         .edit(+this.$route.params.role_id, request)
         .then(() => {
@@ -227,7 +283,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
           this.$toast.error(e.message)
         }).finally(() => {
-          this.buttonSave.loading = false
+          this.processSaveData = false
         })
     }
   }
@@ -237,3 +293,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 <style scoped>
 
 </style>
+
+<i18n>
+{
+  "ru": {
+    "Changing the parameters of a role": "Изменение параметров роли"
+  }
+}
+</i18n>

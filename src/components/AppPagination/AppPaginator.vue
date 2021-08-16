@@ -13,7 +13,7 @@
           class="mr-2"
           style="padding: 4px; font-size: 13px; user-select: none"
         >
-          <app-count-up :end-val="offsetStart" /> — <app-count-up :end-val="offsetEnd" /> {{ t('From').toLowerCase() }} <app-count-up :end-val="count" />
+          <app-count-up :end-val="offsetStart" /> — <app-count-up :end-val="offsetEnd" /> {{ $tc('From').toLowerCase() }} <app-count-up :end-val="count" />
         </div>
       </slot>
     </div>
@@ -135,3 +135,11 @@ export default Vue.extend({
 <style scoped>
 
 </style>
+
+<i18n>
+{
+  "ru": {
+    "From": "Из"
+  }
+}
+</i18n>

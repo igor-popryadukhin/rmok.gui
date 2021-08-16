@@ -12,7 +12,6 @@
     dense
     outlined
     clearable
-    hide-selected
     @input="(val) => $emit('change', val)"
   >
     <template

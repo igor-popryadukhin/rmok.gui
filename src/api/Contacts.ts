@@ -125,22 +125,6 @@ export interface ContactsParamsFind {
   only_new?: 0 | 1
 }
 
-export interface ContactsParamsSetTagsInterface {
-  filters?: ContactsParamsFind;
-  /**
-   * Теги для установки контактам
-   * -----------------------------
-   * Массив идентификаторов тегов
-   */
-  tag_ids: number[];
-  /**
-   * Контакты для которых требуется установить выбранные теги.
-   * -----------------------------
-   * Массив идентификаторов контаков.
-   */
-  contact_ids: number[];
-}
-
 /**
  * Параметры для поиска тегов
  */
@@ -465,17 +449,18 @@ export class Contacts {
   }
 
   /**
-   * Массовая установка тегов для контактов
+   * Назначение тегов контактам.
+   *
    * @param params
    */
-  public setTags (params?: ContactsParamsSetTagsInterface): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
+  public setTags (params: { tag_ids: number[], contact_ids: number[] }): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/tags/set', params)
         .then((response: AxiosResponse) => {
-          if ([200, 204].includes(response.status)) {
-            return resolve(response.data?.count || 0)
+          if ([200, 202].includes(response.status)) {
+            return resolve()
           }
-          throw new APIError(response?.data || response.statusText)
+          throw new APIError(response?.data)
         }).catch(reject)
     })
   }

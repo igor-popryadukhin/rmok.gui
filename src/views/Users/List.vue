@@ -1,254 +1,180 @@
 <template>
-  <v-card
+  <v-sheet
     flat
     tile
   >
     <v-row>
       <v-col
+        class="py-0"
         cols="12"
         md="9"
         lg="9"
       >
-        <v-data-table
-          :headers="dataTableUsers.headers"
-          :items="dataTableUsers.items"
-          :server-items-length="dataTableUsers.totalCount"
-          :page.sync="dataTableUsers.page"
-          :items-per-page="dataTableUsers.itemsPerPage"
-          :loading="dataTableUsers.processLoading"
-          :loading-text="$tc('Loading content...')"
-          :no-data-text="$tc('No data available')"
-          :item-class="vDataTableItemClass"
-          :sort-by.sync="dataTableUsers.sortBy"
-          :sort-desc.sync="dataTableUsers.sortDesc"
-          item-key="id"
-          multi-sort
-          calculate-widths
-          hide-default-footer
+        <v-toolbar
           dense
-          @pagination="onPaginationChange"
+          elevation="0"
+          tile
         >
-          <template #top>
-            <v-toolbar
-              class="v-toolbar-header mb-2"
-              height="48"
-              flat
-            >
-              <template v-if="dataTableUsers.selected.length === 0">
-                <v-btn
-                  class="float-right"
-                  :disabled="dataTableUsers.processLoading"
-                  small
-                  tile
-                  text
-                  @click="onButtonRefreshClick"
-                >
-                  Обновить
-                </v-btn>
-              </template>
-              <v-btn
-                color="ml-5 float-right"
-                :disabled="!$isGranted('role.create')"
-                small
-                tile
-                text
-                @click="onAddClick"
+          <app-pagination
+            v-model="filterOffset"
+            :per-page="50"
+            :count="usersTotal"
+          />
+          <v-spacer />
+          <v-btn
+            :disabled="usersProcessLoading"
+            text
+            tile
+            small
+            @click="onButtonRefreshClick"
+          >
+            {{ $tc('Refresh') }}
+          </v-btn>
+          <v-btn
+            v-if="$isGranted('USER_CREATE')"
+            text
+            tile
+            small
+          >
+            {{ $tc('Create') }}
+          </v-btn>
+        </v-toolbar>
+        <app-divider />
+        <template v-if="usersProcessLoading">
+          <div
+            class="d-flex align-center justify-center"
+            style="height: 500px"
+          >
+            <div class="pa-16 grey--text">
+              <app-loading />
+            </div>
+          </div>
+        </template>
+        <template v-else-if="usersItems.length === 0">
+          <div
+            class="d-flex align-center justify-center"
+            style="min-height: 500px"
+          >
+            <div class="pa-16 grey--text">
+              {{ $tc('Empty') }}
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <v-list class="mb-16">
+            <template v-for="item in usersItems">
+              <v-list-item
+                :key="'v-list-item-' + item.id"
+                dense
+                link
               >
-                {{ $tc('Add') }}
-              </v-btn>
-              <v-spacer />
-              <!-- Paginator -->
-              <app-pagination
-                v-model="dataTableUsers.page"
-                :length="dataTableUsers.pages"
-                :disabled="dataTableUsers.processLoading || dataTableUsers.selectedWhole"
-              >
-                <template #display>
-                  <v-menu offset-y>
-                    <template #activator="{ on, attrs }">
-                      <v-btn
-                        v-bind="attrs"
-                        tile
-                        text
-                        small
-                        v-on="on"
-                      >
-                        {{ dataTableUsers.pageStart }}-{{ dataTableUsers.pageStop }} из {{ dataTableUsers.totalCount }}
-                      </v-btn>
-                    </template>
-                    <v-list
-                      class="py-0"
-                      dense
-                      flat
-                    >
-                      <v-list-item
-                        link
-                      >
-                        <v-list-item-content>
-                          <v-list-item-title>Самые новые</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
-                        link
-                      >
-                        <v-list-item-content>
-                          <v-list-item-title>Самые старые</v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </template>
-              </app-pagination>
-              <!-- Paginator -->
-            </v-toolbar>
-            <!-- Банеры -->
-          </template>
+                <v-list-item-avatar>
+                  <v-avatar
+                    v-if="item.userpic"
+                    class="primary white--text"
+                  >
+                    <v-img :src="item.userpic" />
+                    <v-badge
+                      v-show="item.online"
+                      offset-y="16"
+                      offset-x="13"
+                      color="#38ff00"
+                      dot
+                      bordered
+                    />
+                  </v-avatar>
+                  <v-avatar
+                    v-else
+                    class="primary white--text"
+                  >
+                    {{ item.abbreviation }}
+                  </v-avatar>
+                  <v-badge
+                    v-show="item.online"
+                    offset-y="16"
+                    offset-x="13"
+                    color="#38ff00"
+                    dot
+                    bordered
+                  />
+                </v-list-item-avatar>
+                <v-list-item-content class="py-0">
+                  <v-list-item-title>
+                    {{ item.full_name }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle
+                    v-if="item.last_activity_at"
+                    :key="`v-list-item-action-text-${item.id}-${tick}`"
+                  >
+                    {{ unixToTimeAgo(item.last_activity_at) }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
 
-          <template
-            slot="item.name"
-            slot-scope="{ item }"
-          >
-            {{ item.last_name }} {{ item.first_name }} {{ item.middle_name }}
-          </template>
-
-          <template
-            slot="item.role"
-            slot-scope="{ item }"
-          >
-            <template v-if="item.role">
-              {{ item.role.name }}
-            </template>
-          </template>
-
-          <template
-            slot="item.project"
-            slot-scope="{ item }"
-          >
-            <template v-if="item.project">
-              {{ item.project.name }}
-            </template>
-          </template>
-
-          <template
-            slot="item.group"
-            slot-scope="{ item }"
-          >
-            <template v-if="item.group">
-              {{ item.group.name }}
-            </template>
-          </template>
-
-          <template
-            slot="item.actions"
-            slot-scope="{ item }"
-          >
-            <v-tooltip
-              :color="$vuetify.theme.currentTheme.primary"
-              :open-delay="1000"
-              bottom
-            >
-              <template #activator="{ on, attrs }">
-                <v-btn
-                  v-bind="attrs"
-                  :to="{ name: 'users_schedule', params: { user_id: item.id } }"
-                  :color="item.schedule_available ? 'primary' : 'grey'"
-                  icon
-                  small
-                  v-on="on"
+                <!-- Проект -->
+                <v-list-item-content
+                  v-if="item.project"
+                  class="py-0"
                 >
-                  <v-icon>mdi-calendar</v-icon>
-                </v-btn>
-              </template>
-              <span>
-                {{ $tc('Расписание пользователя') }}
-              </span>
-            </v-tooltip>
+                  <v-list-item-title>
+                    {{ item.project.name }}
+                  </v-list-item-title>
+                </v-list-item-content>
+                <!-- Проект -->
 
-            <v-btn
-              :to="{ name: 'users_edit_main', params: { user_id: item.id } }"
-              icon
-              small
-            >
-              <v-icon>mdi-pencil-box-outline</v-icon>
-            </v-btn>
-            <v-btn
-              color="red"
-              icon
-              small
-              @click="onDelete(item)"
-            >
-              <v-icon>mdi-delete-outline</v-icon>
-            </v-btn>
-          </template>
-        </v-data-table>
+                <v-list-item-action>
+                  <v-btn
+                    v-if="$isGranted('USER_EDIT')"
+                    small
+                    text
+                    tile
+                  >
+                    Edit
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+
+              <v-divider :key="'v-divider-' + item.id" />
+            </template>
+          </v-list>
+        </template>
       </v-col>
 
       <v-col
-        class="pl-md-0 pl-lg-0 pl-xl-0"
+        class="pb-0"
         cols="12"
         md="3"
         lg="3"
       >
-        <v-card
-          class="fill-height"
-          style="min-height: 500px"
-          flat
-          tile
-        >
-          <v-toolbar flat>
-            <v-toolbar-title class="grey--text">
-              {{ $tc('Filter') }}
-            </v-toolbar-title>
-            <v-spacer />
-          </v-toolbar>
-          <v-card-text class="py-0">
-            <app-search-input
-              v-model="filter.q"
-              :label="$tc('Search')"
-            />
-          </v-card-text>
-          <v-card-text class="py-1">
-            <s-projects-autocomplete
-              ref="sProjectsAutocomplete"
-              v-model="filter.project"
-              :label="$tc('Project')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-          <v-card-text
-            v-if="$isGranted('user.view_outside_your_group')"
-            class="py-1"
-          >
-            <s-groups
-              ref="sGroupsAutocomplete"
-              v-model="filter.group"
-              :label="$tc('Группа')"
-              clearable
-              outlined
-              dense
-            />
-          </v-card-text>
-        </v-card>
+        <app-search-input
+          v-model="filterQ"
+          :label="$tc('Search')"
+        />
+        <app-project-autocomplete
+          v-model="filterProjectId"
+          :label="$tc('User\'s current project')"
+        />
+        <app-user-group-autocomplete
+          v-model="filterUserGroupId"
+          :label="$tc('User group')"
+        />
       </v-col>
     </v-row>
-  </v-card>
+  </v-sheet>
 </template>
 
 <script lang="ts">
-import { GroupInterface } from '@/api/Groups'
-import { OrganizationInterface } from '@/api/Organizations'
-import { ProjectInterface } from '@/api/Projects'
 import { UserInterface, Users } from '@/api/Users'
-import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
-import SGroups from '@/snippets/SGroups/SGroups.vue'
-import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import SUserDialogDelete from '@/snippets/SUserDialogDelete/SUserDialogDelete.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
+import { mapActions, mapGetters } from 'vuex'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import moment from 'moment'
+import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
+import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
+import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 
 interface IRef {
   [key: string]: any;
@@ -256,9 +182,6 @@ interface IRef {
 
 interface IData {
   [key: string]: any;
-
-  /** Метод для загрузки списка пользователей */
-  fetchUsers: () => void;
 }
 
 interface IMethods {
@@ -279,271 +202,105 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, IComputed, IProps>({
+
+  metaInfo: {
+    title: 'Foo Bar'
+  },
+
   components: {
     AppPagination,
+    AppUserGroupAutocomplete,
     AppSearchInput,
-    SGroups,
-    SProjectsAutocomplete
+    AppProjectAutocomplete,
+    AppLoading
   },
 
   data (): IData {
     return {
-      dataTableUsers: {
-        headers: [
-          {
-            align: 'start',
-            divider: true,
-            sortable: true,
-            text: 'Пользователь',
-            value: 'name',
-            width: '100%'
-          },
-          {
-            align: 'start',
-            divider: true,
-            sortable: true,
-            text: 'Роль',
-            value: 'role',
-            width: 'auto'
-          },
-          {
-            align: 'start',
-            divider: true,
-            sortable: true,
-            text: 'Текущий проект',
-            value: 'project',
-            width: 'auto'
-          }
-        ],
-        items: [] as UserInterface[],
-        itemsPerPage: 50,
-        page: 1,
-        pageStart: 0,
-        pageStop: 0,
-        pages: 0,
-        processLoading: false,
-        selected: [],
-        selectedWhole: false,
-        sortBy: [],
-        sortDesc: [],
-        totalCount: 0
-      },
-      fetchUsers: debounce(() => {
-        this.dataTableUsers.processLoading = true
-        const offset = (this.dataTableUsers.itemsPerPage * this.dataTableUsers.page) - this.dataTableUsers.itemsPerPage
-
-        const params: any = {
-          count: this.dataTableUsers.itemsPerPage,
-          offset
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
-          params.q = this.$route.query.q.trim()
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
-          params.organization_id = this.$route.query.organization_id
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
-          params.project_id = this.$route.query.project_id
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
-          params.group_id = this.$route.query.group_id
-        }
-
-        // Дополнительные реквизиты
-        params.props = []
-
-        if (this.$isGranted('user.view_outside_your_group')) {
-          params.props.push('group')
-        }
-
-        params.props.push('project')
-
-        // Параметры сортировки
-        this.dataTableUsers.sortBy.forEach((sortBy: string, index: number) => {
-          params[`order_by[${sortBy}]`] = this.dataTableUsers.sortDesc[index] ? 'desc' : 'asc'
-        })
-
-        new Users()
-          .find<{ count: number }, UserInterface[]>(params)
-          .then((response) => {
-            const count: number = response.meta.count || 0
-
-            this.dataTableUsers.totalCount = count
-            this.dataTableUsers.pages = Math.ceil(count / this.dataTableUsers.itemsPerPage)
-            this.dataTableUsers.items = response.data
-          }).finally(() => (this.dataTableUsers.processLoading = false))
-      }, 250),
-
-      filter: {
-        group: null,
-        organization: null,
-        project: null,
-        q: ''
-      }
+      tick: 0
     }
   },
 
   computed: {
-    // Вычисляю высоту таблицы
-    dataTableUsersHeight () {
-      let h: number = this.$screenHeight - 150
-      if (h < 640) {
-        h = 640
-      }
-      return h
-    }
-  },
+    ...mapGetters({
+      usersProcessLoading: 'users/process_loading',
+      usersTotal: 'users/total',
+      usersItems: 'users/items',
+      settingsDateTimeFormat: 'settings/date_time_format'
+    }),
 
-  watch: {
-    'dataTableUsers.page': {
-      handler () {
-        this.fetchUsers()
+    filterQ: {
+      get () {
+        return this.$store.getters['users/params/filter_q']
+      },
+
+      set (val: string) {
+        return this.$store.commit('users/params/filter_q', val)
+      }
+    },
+
+    filterProjectId: {
+      get () {
+        return this.$store.getters['users/params/filter_project_id']
+      },
+
+      set (val: number) {
+        return this.$store.commit('users/params/filter_project_id', val)
+      }
+    },
+
+    filterUserGroupId: {
+      get () {
+        return this.$store.getters['users/params/filter_user_group_id']
+      },
+
+      set (val: number) {
+        return this.$store.commit('users/params/filter_user_group_id', val)
+      }
+    },
+
+    filterOffset: {
+      get () {
+        return this.$store.getters['users/params/filter_offset']
+      },
+
+      set (val: number) {
+        return this.$store.commit('users/params/filter_offset', val)
       }
     }
   },
 
   created () {
-    // Опционально только для супер администраторов
-    if (this.$isGranted('user.view_outside_your_group')) {
-      this.dataTableUsers.headers.push({
-        align: 'start',
-        divider: true,
-        sortable: true,
-        text: 'Группа',
-        value: 'group',
-        width: 'auto'
-      })
-    }
-
-    // Всегда добавляем в конец
-    this.dataTableUsers.headers.push({
-      align: 'end',
-      divider: true,
-      sortable: false,
-      text: '',
-      value: 'actions',
-      width: 'auto'
-    })
+    this.fetchUsers = debounce(this.fetchUsers, 450)
   },
 
   mounted () {
-    // this.$refs.sOrganizationsAutocomplete.fetchData()
-
-    const promises: Promise<any>[] = []
-    // Установка фильтров
-    if (this.assertObjectHasAttribute(this.$route.query, 'q')) {
-      this.$data.filter.q = this.$route.query.q
+    if (this.usersItems.length === 0) {
+      this.fetchUsers()
     }
 
-    if (this.assertObjectHasAttribute(this.$route.query, 'organization_id')) {
-      promises.push(this.$refs.sOrganizationsAutocomplete.setDefault(this.$route.query.organization_id))
-    }
-    if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
-      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$route.query.project_id))
-    }
+    // Обновление время после
+    setInterval(() => (this.tick++), 10000)
 
-    if (this.assertObjectHasAttribute(this.$route.query, 'group_id')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$route.query.group_id))
-    }
-
-    // Нужно подождать, пока будут установлены все фильтры.
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchUsers()
-
-        // Слежу за строкой поиска
-        this.$watch('filter.q', (s: string) => {
-          if (s) {
-            this.$routerQuery.setQuery({
-              q: s
-            }).then(this.fetchUsers)
-          } else {
-            this.$routerQuery.removeQuery([
-              'q'
-            ]).then(this.fetchUsers)
-          }
-        })
-
-        // Слежу за изменениями фильтра "Организации"
-        this.$watch('filter.organization', (org: OrganizationInterface) => {
-          if (org) {
-            this.$routerQuery.setQuery({
-              organization_id: org.id
-            }).then(this.fetchUsers)
-          } else {
-            this.$routerQuery.removeQuery([
-              'organization_id'
-            ]).then(this.fetchUsers)
-          }
-        })
-
-        // Слежу за изменениями фильтра "Проекты"
-        this.$watch('filter.project', (project: ProjectInterface) => {
-          if (project) {
-            this.$routerQuery.setQuery({
-              project_id: project.id
-            }).then(this.fetchUsers)
-          } else {
-            this.$routerQuery.removeQuery([
-              'project_id'
-            ]).then(this.fetchUsers)
-          }
-        })
-
-        // Слежу за изменениями фильтра "Группы"
-        this.$watch('filter.group', (group: GroupInterface) => {
-          if (group) {
-            this.$routerQuery.setQuery({
-              group_id: group.id
-            }).then(this.fetchUsers)
-          } else {
-            this.$routerQuery.removeQuery([
-              'group_id'
-            ]).then(this.fetchUsers)
-          }
-        })
-
-        // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
-
-        /**
-         * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableUsers
-         */
-        const dataTableSortUpdate = debounce(() => {
-          const sort = []
-          for (let i = 0; i < Math.min(this.dataTableUsers.sortBy.length, this.dataTableUsers.sortDesc.length); i++) {
-            const sortDesc: string = this.dataTableUsers.sortDesc[i]
-            const sortBy: boolean = this.dataTableUsers.sortBy[i]
-
-            sort.push({ sort_by: sortBy, sort_desc: sortDesc })
-          }
-
-          if (sort.length > 0) {
-            // Преобразовываю в JSON и сохраняю в строку браузера
-            this.$routerQuery.setQuery({
-              sort: JSON.stringify(sort)
-            }).then(() => {
-              this.fetchUsers()
-            })
-          } else {
-            this.$routerQuery
-              .removeQuery(['sort'])
-              .then(() => {
-                this.fetchUsers()
-              })
-          }
-        }, 100)
-
-        // Слежу за изменениями параметров сортировки
-        this.$watch('dataTableUsers.sortBy', dataTableSortUpdate)
-        this.$watch('dataTableUsers.sortDesc', dataTableSortUpdate)
-      })
+    this.$watch('filterQ', () => {
+      this.filterOffset = 0
+      this.fetchUsers()
+    })
+    this.$watch('filterProjectId', () => {
+      this.filterOffset = 0
+      this.fetchUsers()
+    })
+    this.$watch('filterUserGroupId', () => {
+      this.filterOffset = 0
+      this.fetchUsers()
+    })
+    this.$watch('filterOffset', () => (this.fetchUsers()))
   },
 
   methods: {
+    ...mapActions({
+      fetchUsers: 'users/items'
+    }),
 
     onButtonRefreshClick () {
       this.fetchUsers()
@@ -584,23 +341,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
       })
     },
 
-    onPaginationChange (data: any) {
-      this.dataTableUsers.pageStart = data.pageStart + 1
-      this.dataTableUsers.pageStop = data.pageStop
-    },
-
     /**
-     * Происходит когда пользователь вводит текст в поле поиска.
-     **/
-    onUserSearch (text: string) {
-      console.log(text)
-    },
-
-    vDataTableItemClass (scope: any) {
-      return 'v-dt-item'
-    },
-    onAddClick () {
-      this.$router.push({ name: 'users_new' })
+     * Сколько времени назад.
+     *
+     * @param timestamp
+     */
+    unixToTimeAgo  (timestamp: number) {
+      return moment.unix(timestamp).fromNow()
     }
   }
 })

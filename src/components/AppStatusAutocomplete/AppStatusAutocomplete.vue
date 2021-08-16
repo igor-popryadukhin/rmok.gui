@@ -5,6 +5,7 @@
     :multiple="multiple"
     :search-input.sync="q"
     :label="label"
+    cache-items
     item-value="id"
     item-text="name"
     item-color="color"
@@ -13,7 +14,6 @@
     hide-details
     clearable
     hide-selected
-    @input="(val) => $emit('change', val)"
   >
     <template
       v-if="multiple"
@@ -101,8 +101,20 @@ export default Vue.extend({
       this.selected = val
     },
 
-    q () {
-      this.fetchOptions()
+    options (val: { id: number }[]) {
+      if (Array.isArray(this.selected)) {
+        // TODO: Проверит наличие и если нет загрузить с сервера
+        // Передайте в качестве параметров массив идентификаторов
+        // this.$store.dispatch('filter/statuses_append', [1,2,3,...]) Добавит в хранилище новые элементы если есть
+      } else {
+        if (this.selected > 0 && val.findIndex((e: { id: number }) => e.id === this.selected) === -1) {
+          this.$store.dispatch('filter/statuses_append', [this.selected])
+        }
+      }
+    },
+
+    q (val?: string) {
+      !!val && this.options.findIndex((e: { name: string }) => e.name?.toLowerCase().indexOf(val.toLowerCase()) > -1) === -1 && this.fetchOptions()
     }
   },
 
@@ -111,10 +123,41 @@ export default Vue.extend({
   },
 
   mounted () {
-    this.selected = this.value
-
     if (this.options.length === 0) {
       this.fetchOptions()
+    }
+
+    // TODO: Даже если не передать входящие параметры, всё ровно произойдёт действие
+    // И родитель будет уведомлён об изменении.
+    // Корче,спроси меня почему так.
+    this.$watch('selected', async (val: number | number[]) => {
+      if (Array.isArray(val)) {
+        const stack: number[] = []
+        val.forEach((id) => {
+          if (this.options.findIndex((e1: any) => e1.id === id) === -1) {
+            stack.push(id)
+          }
+        })
+
+        if (stack.length > 0) {
+          // загружаю данные с сервера
+          await this.$store.dispatch('filter/statuses_append', stack)
+          this.$emit('change', val)
+        } else {
+          this.$emit('change', val)
+        }
+      } else if (val > 0 && this.options.findIndex((e: { id: number }) => e.id === val) === -1) {
+        await this.$store.dispatch('filter/statuses_append', [val])
+        this.$emit('change', val)
+      } else {
+        this.$emit('change', val)
+      }
+    })
+
+    if (this.multiple) {
+      this.selected = this.value || []
+    } else {
+      this.selected = this.value
     }
   },
 

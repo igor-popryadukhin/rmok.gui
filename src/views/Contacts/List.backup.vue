@@ -414,14 +414,14 @@
                     <v-list-item-content
                       class="py-0 align-content-end"
                     >
-                      <v-list-item-title v-if="item.last_status">
+                      <v-list-item-title v-if="item.status">
                         <v-chip
-                          :color="item.last_status.color"
+                          :color="item.status.color"
                           x-small
                           label
                           outlined
                         >
-                          {{ item.last_status.name }}
+                          {{ item.status.name }}
                         </v-chip>
                       </v-list-item-title>
                       <v-list-item-title v-else>

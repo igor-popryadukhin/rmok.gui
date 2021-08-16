@@ -59,6 +59,13 @@ export default Vue.extend({
 
   name: 'App',
 
+  metaInfo: {
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'description', content: 'foo' }
+    ]
+  },
+
   components: {
     AppAudioPlayer,
     VApp
@@ -91,6 +98,7 @@ export default Vue.extend({
       toastId: 0 as number | string
     }
   },
+  head: {},
 
   computed: {
     layout () {

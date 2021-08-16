@@ -9,6 +9,7 @@ import symfony from './symfony'
 import system from './system'
 import profile from './profile'
 import statuses from './statuses'
+import users from './users'
 import contacts from './contacts'
 import contacts_new from './contacts_new'
 import { database } from './database'
@@ -57,6 +58,7 @@ const store = new Vuex.Store({
     symfony,
     system,
     tasks,
+    users,
     contacts,
     contacts_new
   },

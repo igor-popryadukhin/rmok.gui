@@ -21,6 +21,7 @@ module.exports = {
   ],
   root: true,
   rules: {
+    "sort-imports": ["warn", { "ignoreCase": true }],
     '@typescript-eslint/naming-convention': [
       'error',
       {

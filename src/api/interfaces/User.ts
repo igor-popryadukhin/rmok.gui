@@ -11,6 +11,10 @@ export default interface User {
   last_name: string;
   middle_name?: string;
   full_name?: string;
+  userpic?: string;
+  online: boolean;
+  last_activity_at?: number;
+  abbreviation?: string;
   login: string;
   email: string;
   phone: string;

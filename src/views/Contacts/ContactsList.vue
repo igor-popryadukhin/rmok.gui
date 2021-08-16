@@ -78,6 +78,7 @@
                         x-small
                         label
                         outlined
+                        @click.stop="$emit('click:item:status', item.last_status.id)"
                       >
                         {{ item.last_status.name }}
                       </v-chip>
@@ -166,7 +167,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   computed: {
     ...mapGetters({
       contactsProcessLoading: 'contacts/process_loading',
-      contactsItems: 'contacts/items'
+      contactsItems: 'contacts/items',
+      contactsItemsParamsFilterStatusIds: 'contacts/params/filter_status_ids'
     }),
 
     contactsSelected: {

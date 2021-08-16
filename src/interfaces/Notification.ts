@@ -1,5 +1,5 @@
 export default interface Notification {
-  id?: string;
+  id: number;
   type: string;
   icon?: string;
   color: string;

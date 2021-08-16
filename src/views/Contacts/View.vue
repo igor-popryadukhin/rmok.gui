@@ -628,7 +628,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           created_at: 0
         },
         owner: undefined,
-        last_status: null,
+        status: null,
         city: '',
         notes: '',
         tags: [],
@@ -808,7 +808,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.$data.contact.emails = response.emails || []
           this.$data.contact.phones = response.phones || []
           this.$data.contact.tz = response.tz || 'Europe/Moscow'
-          this.$data.contact.last_status = response.last_status || null
+          this.$data.contact.last_status = response.status || null
 
           this.$store.commit('project/scenario', response.project?.scenario)
         }).finally(() => (this.processLoadingContact = false))

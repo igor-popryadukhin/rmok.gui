@@ -69,7 +69,7 @@
         class="mx-2"
         vertical
       />
-      <app-status-select
+      <app-status-autocomplete
         v-model="filterStatusId"
         style="max-width: 300px;"
       />
@@ -101,18 +101,18 @@
 </template>
 
 <script lang="ts">
-import Tasks from '@/api/Tasks'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppStatusSelect from '@/components/AppStatusSelect/AppStatusSelect.vue'
-import { makeUnixUTCTimestampRangeString } from '@/utils/datetime'
-import Vue from 'vue'
-import { mapGetters } from 'vuex'
+import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
+import Tasks from '@/api/Tasks'
 import ListView from './ListView.vue'
+import Vue from 'vue'
+import { makeUnixUTCTimestampRangeString } from '@/utils/datetime'
+import { mapGetters } from 'vuex'
 import { DateRangeCollection } from '@/views/Tasks/interfaces'
 
 export default Vue.extend({
   components: {
-    AppStatusSelect,
+    AppStatusAutocomplete,
     AppBtnToggleDate,
     ListView
   },
