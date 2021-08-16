@@ -12,8 +12,11 @@ const actions: ActionTree<ContactsState, RootState> = {
         commit('total', response.meta?.count || 0)
         commit('items', response.data)
       }).finally(() => (commit('process_loading', false)))
-  }
+  },
 
+  resetState: ({ commit }) => {
+    commit('resetState')
+  }
 }
 
 export default actions

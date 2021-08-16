@@ -94,6 +94,10 @@ const actions: ActionTree<State, RootState> = {
       commit('items', oldItems)
       commit('total', state.total - 1)
     }
+  },
+
+  resetState: ({ commit }) => {
+    commit('resetState')
   }
 }
 

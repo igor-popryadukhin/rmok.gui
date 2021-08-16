@@ -7,7 +7,7 @@ export interface ContactsState {
   selected: number[];
 }
 
-function state (): ContactsState {
+export function defaultState (): ContactsState {
   return {
     process_loading: false,
     total: 0,
@@ -15,5 +15,7 @@ function state (): ContactsState {
     selected: []
   }
 }
+
+const state = defaultState()
 
 export default state

@@ -8,7 +8,7 @@ export interface State {
   more_available: boolean;
 }
 
-function state (): State {
+export function defaultState (): State {
   return {
     process_loading: false,
     total: 0,
@@ -16,6 +16,10 @@ function state (): State {
     items: [],
     more_available: true
   }
+}
+
+function state (): State {
+  return defaultState()
 }
 
 export default state
