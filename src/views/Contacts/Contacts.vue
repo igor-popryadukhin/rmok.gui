@@ -44,7 +44,7 @@
                   {{ $tc('Delete') }}
                 </v-btn>
                 <v-btn
-                  v-if="contactsSelected.length > 0"
+                  v-if="contactsSelected.length > 0 && $isGranted('TRANSFER_CONTACTS')"
                   small
                   tile
                   text
@@ -55,7 +55,7 @@
                 <!-- Установка тегов -->
                 <!-- TODO: Только для администраторов -->
                 <app-menu-tags
-                  @create:tag="onAppMenuTagsCreateTag"
+                  v-if="contactsSelected.length > 0"
                   @update:apply="onAppMenuTagsApply"
                 >
                   <template #activator="{ attrs, on }">
@@ -75,10 +75,8 @@
               <template #right>
                 <app-pagination
                   v-model="offset"
-                  :per-page="100"
+                  :per-page="contactsPerPage"
                   :count="contactsTotal"
-                  :t="$tc"
-                  @change="onPaginatorChange"
                 />
                 <app-btn-sorting
                   v-model="sortOption"
@@ -268,6 +266,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   computed: {
     ...mapGetters({
+      contactsPerPage: 'contacts/per_page',
       contactsTotal: 'contacts/total',
       contactsItems: 'contacts/items',
       contactsSelected: 'contacts/selected',
@@ -470,6 +469,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     if (this.contactsItems.length === 0) {
       this.fetchContacts(this.paramsForQuery)
     }
+
+    this.$root.$on('sse-contacts-transferred', this.onSSEContactsTransferred)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('sse-contacts-transferred', this.onSSEContactsTransferred)
   },
 
   methods: {
@@ -521,6 +526,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     /**
      * Событие происходит когда нажали на кнопку "передать контакты".
+     * Диалог передачи контактов.
      */
     async onBtnTransferContactsClick () {
       import(
@@ -530,29 +536,30 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           const instance = await this.$dialog.show(component.default, {
             waitForResult: false
           })
+          // Сработает когда нажали кнопку отменить передачу контактов.
           instance.vmd.$on('cancel', () => (instance.close()))
+
+          // Сработает когда нажали кнопку подтверждения передачи.
           instance.vmd.$on('confirm',
             ({
-              target_project_id,
-              target_contact_ids,
-              target_user_ids,
+              project_id,
+              contact_ids,
+              user_ids,
               new_date
             }) => {
               instance.close()
-              // TODO: Завершить логику передачи на Back end
+              this.$store.commit('contacts/selected', [])
               new Contacts()
                 .transfer({
-                  target_project_id,
-                  target_contact_ids,
-                  target_user_ids,
+                  project_id,
+                  contact_ids,
+                  user_ids,
                   new_date: moment(new_date, 'YYYY-MM-DD').utc().unix()
+                }).then(() => {
+                  this.$toast.success('The operation is queued for execution.')
                 })
             })
         })
-    },
-
-    onPaginatorChange () {
-      this.fetchContacts(this.paramsForQuery)
     },
 
     onBtSortingChange () {
@@ -591,6 +598,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     /**
+     * Назначение тегов.
      *
      * @param tagIds идентификаторы тегов.
      */
@@ -602,6 +610,18 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         }).then(() => {
           this.$store.dispatch('contacts/unselect')
         })
+    },
+
+    /**
+     * Обработчик события "sse-contacts-transferred" корневой шины.
+     * Обработчик сработает при двух условиях.
+     *
+     * 1 - Пользователь находится на текущей странице.
+     * 2 - Пользователь получил SSE сообщение.
+     */
+    onSSEContactsTransferred () {
+      // Обновит список контактов с текущей конфигурацией фильтров.
+      this.fetchContacts(this.paramsForQuery)
     }
   }
 })

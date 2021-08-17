@@ -207,12 +207,17 @@
           tile
         >
           <v-card-text>
-            <v-list dense>
+            <v-list>
               <template v-for="(item, itemIndex) in systemNotifications">
                 <v-list-item
                   :key="itemIndex"
                   link
                 >
+                  <v-list-item-icon v-if="item.priority ==='normal'">
+                    <v-icon color="primary">
+                      mdi-information-outline
+                    </v-icon>
+                  </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
                       {{ item.message }}
@@ -231,11 +236,21 @@
                 </v-list-item>
                 <v-divider
                   :key="`v-divider-${itemIndex}`"
-                  inset
                 />
               </template>
             </v-list>
           </v-card-text>
+          <v-card-actions>
+            <v-btn
+              tile
+              block
+              text
+              small
+              @click="onSystemNotificationCloseAllClick"
+            >
+              {{ $tc('Close all') }}
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-menu>
 
@@ -990,19 +1005,23 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           if (event instanceof MessageEvent) {
             const obj: SSEMessage = JSON.parse(event.data)
 
+            // Кидаем сообщение на корневую шину
+            this.$root.$emit('sse-' + obj.name, obj.data)
+
             // Что-то изменилось в задачах
             if (obj.name === 'tasks-changed') {
               this.$store.dispatch('tasks/pending_count')
             } else if (obj.name === 'system-notification') {
               // Звук уведомления только если в режиме ожидания.
-              this.$store.dispatch('system/notifications').then(() => {
-                if (this.$jsSIP.state === 'idle') {
-                  this.$sound.play('/sounds/notifications/1.mp3')
-                  this.notificationShake()
+              this.$store.dispatch('system/notifications')
+                .then(() => {
+                  if (this.$jsSIP.state === 'idle') {
+                    this.$sound.play('/sounds/notifications/1.mp3')
+                    this.notificationShake()
                   // TODO: Скоро уведомления в мозг.
                   // this.showNotification('Новое системное уведомление!')
-                }
-              })
+                  }
+                })
             }
           }
         })
@@ -1044,6 +1063,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     onBtnCloseNotification (id: number) {
       this.$store.dispatch('system/notifications_close', id)
+    },
+
+    onSystemNotificationCloseAllClick () {
+      this.$store.dispatch('system/notifications_close_all')
     }
   }
 })

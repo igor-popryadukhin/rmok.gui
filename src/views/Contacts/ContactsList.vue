@@ -26,9 +26,10 @@
         </div>
       </template>
       <template v-else>
-        <v-list>
+        <v-list flat>
           <v-list-item-group
             v-model="contactsSelected"
+            active-class=""
             multiple
           >
             <template v-for="item in contactsItems">
@@ -37,7 +38,10 @@
                 :input-value="item.id"
                 :value="item.id"
                 :ripple="false"
+                :title="item.contact_name"
+                active-class=""
                 dense
+                exact
               >
                 <template #default="{ active }">
                   <v-list-item-action class="my-0 mr-1">
@@ -50,9 +54,11 @@
                     />
                   </v-list-item-action>
 
-                  <v-list-item-content class="py-0">
+                  <v-list-item-content>
                     <v-list-item-title>
-                      <router-link :to="{ name: 'contacts_view', params: { contact_id: item.id } }">
+                      <router-link
+                        :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
+                      >
                         {{ item.contact_name }}
                       </router-link>
                     </v-list-item-title>

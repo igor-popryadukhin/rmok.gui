@@ -12,17 +12,7 @@
         name="activator"
         :attrs="attrs"
         :on="on"
-      >
-        <v-btn
-          v-bind="attrs"
-          text
-          small
-          tile
-          v-on="on"
-        >
-          {{ $tc('Set tags') }}
-        </v-btn>
-      </slot>
+      />
     </template>
     <v-card
       min-width="350"
@@ -91,7 +81,7 @@
         <v-list dense>
           <template v-if="tagsSelected.length === 0">
             <v-list-item
-              :disabled="process || processOfCreation"
+              :disabled="process || processOfCreation || !textSearch"
               dense
               link
               @click="onCreateTagClick(textSearch)"
@@ -187,6 +177,7 @@ export default Vue.extend({
     onApplyTagClick () {
       this.menuVisible = false
       this.$emit('update:apply', this.tagsSelected)
+      this.tagsSelected = []
     },
 
     /**

@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import Vue from 'vue'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
@@ -70,11 +70,6 @@ export default Vue.extend({
       default: () => 0,
       required: false,
       type: Number
-    },
-
-    t: {
-      type: Function as PropType<(name: string) => string>,
-      default: (name: string) => name
     }
   },
 

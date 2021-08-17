@@ -26,13 +26,12 @@
           ref="projectId"
           v-model="projectId"
           :label="$tc('В проект')"
-          :rules="[(v) => !!v && v > 0 || $tc('Required field.')]"
         />
       </v-card-text>
       <v-card-text>
         <app-user-autocomplete
           v-model="userIds"
-          :label="$tc('Пользователю')"
+          :label="$tc('Users')"
           :rules="[(v) => !!v && Array.isArray(v) && v.length > 0 || $tc('Required field.')]"
           multiple
         />
@@ -65,8 +64,8 @@
 import Vue from 'vue'
 import AppUserAutocomplete from '@/components/AppUserAutocomplete/AppUserAutocomplete.vue'
 import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
-import { mapGetters } from 'vuex'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   name: 'AppContactTransferDialog',
@@ -90,9 +89,9 @@ export default Vue.extend({
 
       this.$emit('confirm', {
         new_date: this.newDate,
-        target_contact_ids: this.contactsSelected,
-        target_user_ids: this.userIds,
-        target_project_id: this.projectId
+        contact_ids: this.contactsSelected,
+        user_ids: this.userIds,
+        project_id: this.projectId
       })
     }
   }

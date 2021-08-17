@@ -203,14 +203,14 @@ export class Contacts {
     target_contact_ids: number[],
     target_user_ids: number[],
     new_date?: number}
-  ): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/transfer', params)
         .then((response: AxiosResponse) => {
-          if ([200].includes(response.status)) {
-            return resolve(response.data?.count || 0)
+          if (![200, 202].includes(response.status)) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve()
         }).catch(reject)
     })
   }
