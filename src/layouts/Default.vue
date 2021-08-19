@@ -443,7 +443,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             to: {}
           },
           new: true,
-          visible: this.$isGranted('section.queue')
+          visible: true
         },
         {
           title: 'Tasks',
