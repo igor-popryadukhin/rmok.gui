@@ -66,6 +66,7 @@
 
                   <v-spacer />
 
+                  <!-- Владелец -->
                   <v-list-item-content
                     v-if="item.owner && $isGranted('SEE_ALL_CONTACTS')"
                     class="py-0"
@@ -74,7 +75,9 @@
                       {{ item.owner.full_name }}
                     </v-list-item-title>
                   </v-list-item-content>
+                  <!-- Владелец -->
 
+                  <!-- Статус/Результат -->
                   <v-list-item-content
                     class="py-0 align-content-end"
                   >
@@ -93,7 +96,9 @@
                       —
                     </v-list-item-title>
                   </v-list-item-content>
+                  <!-- Статус/Результат -->
 
+                  <!-- Проект -->
                   <v-list-item-content
                     class="py-0"
                   >
@@ -106,6 +111,7 @@
                       </template>
                     </v-list-item-title>
                   </v-list-item-content>
+                  <!-- Проект -->
 
                   <v-list-item-content
                     class="py-0"
