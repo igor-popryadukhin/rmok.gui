@@ -3,8 +3,8 @@
     <v-row>
       <v-col
         cols="12"
-        md="8"
-        lg="8"
+        md="9"
+        lg="9"
         order-xl="0"
         order-lg="0"
         order-md="0"
@@ -125,8 +125,8 @@
       <!-- Фильтры -->
       <v-col
         cols="12"
-        md="4"
-        lg="4"
+        md="3"
+        lg="3"
         order-xl="1"
         order-lg="1"
         order-md="1"
@@ -191,6 +191,18 @@
             />
           </div>
           <!-- Фильтр по пользователям -->
+
+          <!-- Фильтр по наличию задач TODO: Реализовать фильтрацию по наличию задач у контакта -->
+          <div>
+            <v-select
+              :label="$tc('Tasks')"
+              :items="[]"
+              outlined
+              dense
+              @change="onFilterChange"
+            />
+          </div>
+          <!-- Фильтр по наличию задач -->
 
           <!-- Фильтр по тегам -->
           <div>
