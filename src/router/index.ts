@@ -178,6 +178,26 @@ const routes: RouteConfig[] = [
     }
   },
   {
+    path: '/queue_leads',
+    component: () => import(/* webpackChunkName: "queue-leads-layout" */ '../views/QueueLeads/Layout.vue'),
+    children: [
+      {
+        name: 'queue_leads',
+        path: '',
+        component: () => import(/* webpackChunkName: "queue-leads" */ '../views/QueueLeads/List.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        }
+      }
+    ],
+    meta: {
+      anonymous: true,
+      layout: 'default',
+      middleware: []
+    }
+  },
+  {
     name: 'tasks',
     path: '/tasks',
     component: () => import(/* webpackChunkName: "tasks-list" */ '../views/Tasks/List.vue'),

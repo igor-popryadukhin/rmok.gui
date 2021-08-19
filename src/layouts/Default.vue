@@ -438,12 +438,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         },
         {
           title: 'Очередь',
-          icon: '',
+          icon: 'mdi-human-queue',
           list_item: {
-            to: {}
+            to: {
+              name: 'queue_leads'
+            }
           },
           new: true,
-          visible: true
+          visible: [17, 87, 79, 19].includes(this.$profile.id)
         },
         {
           title: 'Tasks',

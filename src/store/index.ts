@@ -12,6 +12,7 @@ import statuses from './statuses'
 import users from './users'
 import contacts from './contacts'
 import contacts_new from './contacts_new'
+import contacts_queue from './contacts_queue'
 import { database } from './database'
 import debug from 'debug'
 
@@ -60,7 +61,8 @@ const store = new Vuex.Store({
     tasks,
     users,
     contacts,
-    contacts_new
+    contacts_new,
+    contacts_queue
   },
 
   mutations: {},
