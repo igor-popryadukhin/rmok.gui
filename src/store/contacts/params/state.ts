@@ -6,6 +6,7 @@ export interface State {
   filter_user_group_id: number;
   filter_tag_ids: number[];
   filter_contact_created_at: string;
+  filter_calling: null | 'yes' | 'no';
   filter_offset: number;
   order_by: string;
   order_direction: string;
@@ -20,6 +21,7 @@ function state (): State {
     filter_user_group_id: 0,
     filter_tag_ids: [],
     filter_contact_created_at: '',
+    filter_calling: null,
     filter_offset: 0,
     order_by: 'by_name',
     order_direction: 'asc'

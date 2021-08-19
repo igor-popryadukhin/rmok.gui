@@ -204,6 +204,27 @@
           </div>
           <!-- Фильтр по наличию задач -->
 
+          <!-- Фильтр по прозвонено/не прозвонено -->
+          <div>
+            <v-select
+              v-model="filterCalling"
+              label="Прозвонено"
+              :items="filterCallingOptions"
+              clearable
+              outlined
+              dense
+              @change="onFilterChange"
+            >
+              <template #selection="{ item }">
+                {{ $tc(item.text) }}
+              </template>
+              <template #item="{ item }">
+                {{ $tc(item.text) }}
+              </template>
+            </v-select>
+          </div>
+          <!-- Фильтр по прозвонено/не прозвонено -->
+
           <!-- Фильтр по тегам -->
           <div>
             <app-contact-tag-autocomplete
@@ -282,7 +303,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   data () {
-    return {}
+    return {
+      filterCallingOptions: [
+        { text: 'Yes', value: 'yes' },
+        { text: 'No', value: 'no' }
+      ]
+    }
   },
 
   computed: {
@@ -373,6 +399,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
     },
 
+    // Vuex state
+    filterCalling: {
+      get () {
+        return this.$store.getters['contacts/params/filter_calling']
+      },
+
+      set (value: string) {
+        this.$store.commit('contacts/params/filter_calling', value)
+      }
+    },
+
     offset: {
       get () {
         return this.$store.getters['contacts/params/filter_offset']
@@ -442,6 +479,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         }
       }
 
+      // ----
+      if (this.filterCalling) {
+        params.calling = this.filterCalling
+      }
+
       if (this.offset > 0) {
         params.offset = this.offset
       }
@@ -480,7 +522,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   watch: {
-    // Следим за каждым изменением все параметров фильтров.
+    // Следим за каждым изменением всех параметров фильтров.
     paramsForQuery (val: unknown) {
       this.fetchContacts(val)
     }
