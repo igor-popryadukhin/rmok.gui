@@ -9,7 +9,6 @@
     item-text="name"
     dense
     outlined
-    hide-details
     clearable
     hide-selected
     @input="(val) => $emit('change', val)"

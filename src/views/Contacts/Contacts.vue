@@ -135,48 +135,65 @@
         <v-sheet
           class="px-2 py-1"
         >
-          <div class="mb-4">
+          <!-- Поиск -->
+          <div>
             <app-search-input
               v-model="contactsParamsFilterQ"
               :label="$tc('Search')"
               @change="onFilterChange"
             />
           </div>
+          <!-- Поиск -->
 
-          <div class="mb-4">
+          <!-- Фильтр по проектам -->
+          <div
+            v-if="$isGranted('SEE_ALL_CONTACTS')"
+          >
             <app-project-autocomplete
               v-model="contactsParamsFilterProjectId"
               :label="$tc('Project')"
               @change="onFilterChange"
             />
           </div>
+          <!-- Фильтр по проектам -->
 
-          <div class="mb-4">
+          <!-- Фильтр по статусам -->
+          <div>
             <app-status-autocomplete
               v-model="filterStatusIds"
-              :label="$tc('Status')"
+              :label="$tc('Result')"
               multiple
               @change="onFilterChange"
             />
           </div>
+          <!-- Фильтр по статусам -->
 
-          <div class="mb-4">
+          <!-- Фильтр группам пользователей -->
+          <div
+            v-if="$isGranted('SEE_ALL_CONTACTS')"
+          >
             <app-user-group-autocomplete
               v-model="filterUserGroupId"
               :label="$tc('Group')"
               @change="onFilterChange"
             />
           </div>
+          <!-- Фильтр группам пользователей -->
 
-          <div class="mb-4">
+          <!-- Фильтр по пользователям -->
+          <div
+            v-if="$isGranted('SEE_ALL_CONTACTS')"
+          >
             <app-user-autocomplete
               v-model="filterUserId"
               :label="$tc('Responsible')"
               @change="onFilterChange"
             />
           </div>
+          <!-- Фильтр по пользователям -->
 
-          <div class="mb-4">
+          <!-- Фильтр по тегам -->
+          <div>
             <app-contact-tag-autocomplete
               v-model="filterTagIds"
               :label="$tc('Tags')"
@@ -184,8 +201,9 @@
               @change="onFilterChange"
             />
           </div>
+          <!-- Фильтр по тегам -->
 
-          <div class="mb-4">
+          <div>
             <app-menu-date-picker
               v-model="filterContactCreatedAt"
               :first-day-of-week="1"
@@ -207,22 +225,17 @@
 
 import Vue from 'vue'
 import ContactsList from './ContactsList.vue'
-import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
-import AppUserAutocomplete from '@/components/AppUserAutocomplete/AppUserAutocomplete.vue'
 import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
-import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
-import AppContactTagAutocomplete from '@/components/AppContactTagAutocomplete/AppContactTagAutocomplete.vue'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import moment from 'moment-timezone'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import { mapActions, mapGetters } from 'vuex'
 import Contact from '@/api/interfaces/Contact'
 import { Contacts } from '@/api/Contacts'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
-import Roles from '@/api/Roles'
+import { mapActions, mapGetters } from 'vuex'
 
 interface Data {
   [keys: string]: any;
@@ -233,7 +246,6 @@ interface Methods {
 }
 
 interface Computed {
-  filterStatusIds: number[];
   [keys: string]: any;
 }
 
@@ -242,7 +254,6 @@ interface Props {
 }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
-  name: 'List',
 
   components: {
     AppMenuTags: () => import(/* webpackChunkName: "contacts-menu-tags" */ '@/components/AppMenuTags/AppMenuTags.vue'),
@@ -250,18 +261,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     AppBtnSorting,
     AppSearchInput,
     AppMenuDatePicker,
-    AppContactTagAutocomplete,
-    AppUserGroupAutocomplete,
     AppStatusAutocomplete,
-    AppUserAutocomplete,
-    AppProjectAutocomplete,
+    AppContactTagAutocomplete: () => import('@/components/AppContactTagAutocomplete/AppContactTagAutocomplete.vue'),
+    AppUserGroupAutocomplete: () => import('@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'),
+    AppUserAutocomplete: () => import('@/components/AppUserAutocomplete/AppUserAutocomplete.vue'),
+    AppProjectAutocomplete: () => import('@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'),
     ContactsList
   },
 
   data () {
-    return {
-      contacts: []
-    }
+    return {}
   },
 
   computed: {
@@ -479,6 +488,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   methods: {
     ...mapActions({
+      // Загружает контакты с сервера.
       fetchContacts: 'contacts/items'
     }),
 

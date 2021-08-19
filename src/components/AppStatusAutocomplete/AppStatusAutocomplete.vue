@@ -11,7 +11,6 @@
     item-color="color"
     dense
     outlined
-    hide-details
     clearable
     hide-selected
   >

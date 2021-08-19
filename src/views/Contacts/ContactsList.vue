@@ -67,7 +67,7 @@
                   <v-spacer />
 
                   <v-list-item-content
-                    v-if="item.owner && $isGranted('contact.view_outside_project')"
+                    v-if="item.owner && $isGranted('SEE_ALL_CONTACTS')"
                     class="py-0"
                   >
                     <v-list-item-title>
@@ -95,7 +95,6 @@
                   </v-list-item-content>
 
                   <v-list-item-content
-                    v-if="$isGranted('contact.view_outside_project')"
                     class="py-0"
                   >
                     <v-list-item-title>

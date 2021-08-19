@@ -11,7 +11,6 @@
     cache-items
     dense
     outlined
-    hide-details
     clearable
     hide-selected
     @input="(val) => $emit('change', val)"
