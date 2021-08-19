@@ -3,8 +3,8 @@
     <v-row>
       <v-col
         cols="12"
-        md="8"
-        lg="8"
+        md="9"
+        lg="9"
         order-xl="0"
         order-lg="0"
         order-md="0"
@@ -125,8 +125,8 @@
       <!-- Фильтры -->
       <v-col
         cols="12"
-        md="4"
-        lg="4"
+        md="3"
+        lg="3"
         order-xl="1"
         order-lg="1"
         order-md="1"
@@ -191,6 +191,39 @@
             />
           </div>
           <!-- Фильтр по пользователям -->
+
+          <!-- Фильтр по наличию задач TODO: Реализовать фильтрацию по наличию задач у контакта -->
+          <div>
+            <v-select
+              :label="$tc('Tasks')"
+              :items="[]"
+              outlined
+              dense
+              @change="onFilterChange"
+            />
+          </div>
+          <!-- Фильтр по наличию задач -->
+
+          <!-- Фильтр по прозвонено/не прозвонено -->
+          <div>
+            <v-select
+              v-model="filterCalling"
+              label="Прозвонено"
+              :items="filterCallingOptions"
+              clearable
+              outlined
+              dense
+              @change="onFilterChange"
+            >
+              <template #selection="{ item }">
+                {{ $tc(item.text) }}
+              </template>
+              <template #item="{ item }">
+                {{ $tc(item.text) }}
+              </template>
+            </v-select>
+          </div>
+          <!-- Фильтр по прозвонено/не прозвонено -->
 
           <!-- Фильтр по тегам -->
           <div>
@@ -270,7 +303,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   data () {
-    return {}
+    return {
+      filterCallingOptions: [
+        { text: 'Yes', value: 'yes' },
+        { text: 'No', value: 'no' }
+      ]
+    }
   },
 
   computed: {
@@ -361,6 +399,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
     },
 
+    // Vuex state
+    filterCalling: {
+      get () {
+        return this.$store.getters['contacts/params/filter_calling']
+      },
+
+      set (value: string) {
+        this.$store.commit('contacts/params/filter_calling', value)
+      }
+    },
+
     offset: {
       get () {
         return this.$store.getters['contacts/params/filter_offset']
@@ -430,6 +479,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         }
       }
 
+      // ----
+      if (this.filterCalling) {
+        params.calling = this.filterCalling
+      }
+
       if (this.offset > 0) {
         params.offset = this.offset
       }
@@ -468,7 +522,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   watch: {
-    // Следим за каждым изменением все параметров фильтров.
+    // Следим за каждым изменением всех параметров фильтров.
     paramsForQuery (val: unknown) {
       this.fetchContacts(val)
     }

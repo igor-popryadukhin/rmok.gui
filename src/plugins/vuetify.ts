@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
 import { Ripple } from 'vuetify/lib/directives'
-import i18n from '@/plugins/i18n'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import ru from 'vuetify/lib/locale/ru'
 
 Vue.use(Vuetify)
 
@@ -16,8 +18,8 @@ export default new Vuetify({
     iconfont: 'mdi'
   },
   lang: {
-    current: 'ru',
-    t: (key: string, ...params: Array<string | number>) => i18n.t(key, params).toString()
+    locales: { ru },
+    current: 'ru'
   },
   theme: {
     dark: false,
