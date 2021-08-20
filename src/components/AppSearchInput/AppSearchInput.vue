@@ -5,6 +5,7 @@
     :dense="dense"
     :outlined="outlined"
     :clearable="clearable"
+    :disabled="disabled"
     prepend-inner-icon="mdi-magnify"
   >
     <template
@@ -73,6 +74,10 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
     },
     outlined: {
       default: true,
+      type: Boolean
+    },
+    disabled: {
+      default: false,
       type: Boolean
     },
     value: {

@@ -5,6 +5,7 @@
     :multiple="multiple"
     :search-input.sync="q"
     :label="label"
+    :disabled="disabled"
     cache-items
     item-value="id"
     item-text="name"
@@ -63,6 +64,10 @@ export default Vue.extend({
       default: ''
     },
     multiple: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     },

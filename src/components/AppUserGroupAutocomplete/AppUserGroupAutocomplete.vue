@@ -5,6 +5,7 @@
     :multiple="multiple"
     :search-input.sync="q"
     :label="label"
+    :disabled="disabled"
     item-value="id"
     item-text="name"
     dense
@@ -62,6 +63,10 @@ export default Vue.extend({
       default: ''
     },
     multiple: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     },

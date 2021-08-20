@@ -152,6 +152,7 @@
             <app-project-autocomplete
               v-model="contactsParamsFilterProjectId"
               :label="$tc('Project')"
+              :disabled="contactsProcessLoading"
               @change="onFilterChange"
             />
           </div>
@@ -162,6 +163,7 @@
             <app-status-autocomplete
               v-model="filterStatusIds"
               :label="$tc('Result')"
+              :disabled="contactsProcessLoading"
               multiple
               @change="onFilterChange"
             />
@@ -175,6 +177,7 @@
             <app-user-group-autocomplete
               v-model="filterUserGroupId"
               :label="$tc('Group')"
+              :disabled="contactsProcessLoading"
               @change="onFilterChange"
             />
           </div>
@@ -187,6 +190,7 @@
             <app-user-autocomplete
               v-model="filterUserId"
               :label="$tc('Responsible')"
+              :disabled="contactsProcessLoading"
               @change="onFilterChange"
             />
           </div>
@@ -210,6 +214,7 @@
               v-model="filterCalling"
               label="Прозвонено"
               :items="filterCallingOptions"
+              :disabled="contactsProcessLoading"
               clearable
               outlined
               dense
@@ -230,6 +235,7 @@
             <app-contact-tag-autocomplete
               v-model="filterTagIds"
               :label="$tc('Tags')"
+              :disabled="contactsProcessLoading"
               multiple
               @change="onFilterChange"
             />
@@ -242,6 +248,7 @@
               :first-day-of-week="1"
               :t="$tc"
               :label="$tc('Date the contact was created')"
+              :disabled="contactsProcessLoading"
               locale="ru"
               range
               @change="onFilterChange"

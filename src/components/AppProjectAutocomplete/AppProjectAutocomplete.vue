@@ -7,6 +7,7 @@
     :label="label"
     :rules="rules"
     :error-messages="errorMessages"
+    :disabled="disabled"
     item-value="id"
     item-text="name"
     dense
@@ -62,6 +63,10 @@ export default Vue.extend({
       default: ''
     },
     multiple: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     },

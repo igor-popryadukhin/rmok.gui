@@ -14,6 +14,7 @@
         :hide-details="!messages"
         :messages="messages"
         :value="dateRangeText"
+        :disabled="disabled"
         multiple
         dense
         outlined
@@ -73,6 +74,10 @@ export default Vue.extend({
     label: {
       type: String,
       default: ''
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     },
     value: {
       type: [Array, String],
