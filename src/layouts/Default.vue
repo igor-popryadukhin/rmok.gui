@@ -200,7 +200,7 @@
         <v-card
           v-if="systemNotifications.length > 0"
           class="overflow-y-auto"
-          max-width="600"
+          max-width="800"
           min-width="450"
           max-height="500"
           flat
@@ -219,9 +219,16 @@
                     </v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
-                    <v-list-item-title>
-                      {{ item.message }}
-                    </v-list-item-title>
+                    <v-tooltip bottom>
+                      <template #activator="{ on }">
+                        <v-list-item-title v-on="on">
+                          {{ item.message }}
+                        </v-list-item-title>
+                      </template>
+                      <span>
+                        {{ item.message }}
+                      </span>
+                    </v-tooltip>
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn
