@@ -42,6 +42,8 @@
                 active-class=""
                 dense
                 exact
+                @mouseenter="onListItemMouseEnter(item.id, $event)"
+                @mouseleave="onListItemMouseLeave(item.id)"
               >
                 <template #default="{ active }">
                   <v-list-item-action class="my-0 mr-1">
@@ -125,6 +127,14 @@
                       </template>
                     </v-list-item-title>
                   </v-list-item-content>
+
+                  <!--                  <v-list-item-action-->
+                  <!--                    class="py-0"-->
+                  <!--                  >-->
+                  <!--                    <v-list-item-action-text>-->
+                  <!--                      {{ $moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}-->
+                  <!--                    </v-list-item-action-text>-->
+                  <!--                  </v-list-item-action>-->
                 </template>
               </v-list-item>
 
@@ -134,6 +144,43 @@
         </v-list>
       </template>
     </div>
+
+    <v-menu
+      v-if="dialogContactInfo"
+      v-model="dialogContactInfoShowing"
+      :position-x="dialogContactInfoX"
+      :position-y="dialogContactInfoY"
+      max-width="450"
+      absolute
+    >
+      <v-card
+        tile
+        flat
+      >
+        <v-card-text>
+          <v-list two-line>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Имя</v-list-item-title>
+                <v-list-item-subtitle>{{ dialogContactInfo.contact_name }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-if="dialogContactInfo.owner">
+              <v-list-item-content>
+                <v-list-item-title>Ответственный</v-list-item-title>
+                <v-list-item-subtitle>{{ dialogContactInfo.owner.full_name }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Дата создания</v-list-item-title>
+                <v-list-item-subtitle>{{ $moment.unix(dialogContactInfo.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+    </v-menu>
   </v-sheet>
 </template>
 
@@ -142,8 +189,11 @@
 import Vue from 'vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { mapGetters } from 'vuex'
+import { Contacts } from '@/api/Contacts'
+import Contact from '@/api/interfaces/Contact'
 
 interface Data {
+  dialogContactInfo?: Contact
   [keys: string]: any;
 }
 
@@ -172,6 +222,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   data (): Data {
     return {
+      timerId: 0,
+      dialogContactInfoX: 0,
+      dialogContactInfoY: 0,
+      dialogContactInfoShowing: false,
+      dialogContactInfo: null
     }
   },
 
@@ -189,12 +244,27 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       set (val: number[]) {
         this.$store.commit('contacts/selected', val)
       }
+    }
+  },
+
+  methods: {
+    onListItemMouseEnter (contact_id: number, event: MouseEvent) {
+      this.timerId = setTimeout(() => {
+        new Contacts()
+          .getById(contact_id)
+          .then((response) => {
+            this.dialogContactInfoX = event.x
+            this.dialogContactInfoY = event.y
+
+            this.dialogContactInfo = response
+            this.dialogContactInfoShowing = true
+          })
+      }, 2000)
     },
 
-    listItemsHeight () {
-      return {
-        height: `${this.height}px`
-      }
+    onListItemMouseLeave (contact_id: number) {
+      clearInterval(this.timerId)
+      this.dialogContactInfoShowing = false
     }
   }
 })
