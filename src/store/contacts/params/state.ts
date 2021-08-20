@@ -9,6 +9,7 @@ export interface State {
   filter_offset: number;
   order_by: string;
   order_direction: string;
+  filter_task: string;
 }
 
 function state (): State {
@@ -22,7 +23,8 @@ function state (): State {
     filter_contact_created_at: '',
     filter_offset: 0,
     order_by: 'by_name',
-    order_direction: 'asc'
+    order_direction: 'asc',
+    filter_task: ''
   }
 }
 
