@@ -189,7 +189,6 @@
 import Vue from 'vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { mapGetters } from 'vuex'
-import { Contacts } from '@/api/Contacts'
 import Contact from '@/api/interfaces/Contact'
 
 interface Data {
@@ -250,15 +249,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   methods: {
     onListItemMouseEnter (contact_id: number, event: MouseEvent) {
       this.timerId = setTimeout(() => {
-        new Contacts()
-          .getById(contact_id)
-          .then((response) => {
-            this.dialogContactInfoX = event.x
-            this.dialogContactInfoY = event.y
+        this.dialogContactInfo = this.contactsItems.find((e) => e.id === contact_id)
 
-            this.dialogContactInfo = response
-            this.dialogContactInfoShowing = true
-          })
+        this.dialogContactInfoX = event.x
+        this.dialogContactInfoY = event.y
+
+        this.dialogContactInfoShowing = true
       }, 2000)
     },
 
