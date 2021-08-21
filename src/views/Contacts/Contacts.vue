@@ -76,6 +76,7 @@
                 <app-pagination
                   v-model="offset"
                   :per-page="contactsPerPage"
+                  :disabled="contactsProcessLoading"
                   :count="contactsTotal"
                 />
                 <app-btn-sorting

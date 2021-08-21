@@ -18,7 +18,7 @@
       </slot>
     </div>
     <v-btn
-      :disabled="isBtnLeftDisabled"
+      :disabled="isBtnLeftDisabled || disabled"
       icon
       small
       @click="page--"
@@ -26,7 +26,7 @@
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
     <v-btn
-      :disabled="isBtnRightDisabled"
+      :disabled="isBtnRightDisabled || disabled"
       icon
       small
       @click="page++"
