@@ -340,14 +340,14 @@ export class Contacts {
    * @param historyId
    * @param data
    */
-  public updateHistory (historyId: number, data: any): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  public updateHistory (historyId: number, data = {}): Promise<number> {
+    return new Promise((resolve, reject) => {
       $axios.patch(`/contacts/history/${historyId}`, data)
         .then((response: AxiosResponse) => {
-          if (![200, 204].includes(response.status)) {
+          if (response.status !== 201) {
             throw new APIError(response.data)
           }
-          resolve(response.data)
+          resolve(response.data?.id)
         }).catch(reject)
     })
   }

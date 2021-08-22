@@ -465,7 +465,7 @@
                     text
                     small
                     v-on="on"
-                    @click="onSaveClick(status)"
+                    @click="onSaveClick"
                   >
                     {{ $t('Save') }}
                   </v-btn>
@@ -876,25 +876,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         })
       })
 
-      // Формируем объект с параметрами, для поиска задача статуса pending
-      const contactParams = {
-        contact_id: String(this.contact.id),
-        planned_for: 'all',
-        state: 'pending'
-      }
-      new Tasks()
-        .find(contactParams)
-        .then(response => response.data)
-        .then(data => {
-          if (data.length) {
-            data.map((t: any) => {
-              new Tasks().setState(t.id, 'done')
-            })
-          } else {
-            this.$toast.success(this.$tc('Is tasks status pending'))
-          }
-        }).catch(e => console.log(e))
-
       window.onbeforeunload = (evt: any) => {
         const message = this.$tc('Finish working with the card!')
         if (typeof evt === 'undefined') {
@@ -945,8 +926,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.status.visible = true
           this.status.contact_history_id = id
           this.status.contact_id = this.contact.id
-
-          this.$root.$emit('root-view-contact-history-update')
         })
     },
 
@@ -1026,15 +1005,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     /**
      * Сохранить статус
      *
-     * @param status
-     **/
-    async onSaveClick (status: IStatus) {
-      await this.save(status)
-
-      // Переход на страницу откуда пришел
-      if (this.$store.getters['system/route_last_full_path']) {
-        this.$router.push(this.$store.getters['system/route_last_full_path'])
-      }
+     */
+    async onSaveClick () {
+      await this.save()
     },
 
     /**
@@ -1064,33 +1037,26 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       })
     },
 
-    async save (status: IStatus) {
+    async save () {
       if (!this.validate()) {
         return
       }
       this.$activity.end() // Завершаю измерение активности
       window.onbeforeunload = null // Отменяю запрос подтверждения ухода
       this.saveAndNextLoading = true
-      return new Promise<void>((resolve) => {
-        new Contacts()
-          .updateHistory(status.contact_history_id, {
-            // Идентификатор статуса для истории
-            comment: status.comment,
-            status_id: status.status_id // Комментарий для истории.
-          }).then(() => {
-            this.$root.$emit('root-view-contact-history-update')
-            this.$root.$emit('root-view-contact-tasks-update')
 
-            // Очистить предыдущий результат выбранного
-            status.contact_id = 0
-            status.contact_history_id = 0
-            status.status_id = 0
-            status.visible = false
-            status.comment = ''
-
-            resolve()
-          }).finally(() => (this.saveAndNextLoading = false))
-      })
+      return new Contacts()
+        .updateHistory(this.status.contact_history_id, {
+          comment: this.status.comment,
+          status_id: this.status.status_id
+        }).then(() => {
+          // Очистить предыдущий результат выбранного статуса
+          this.status.contact_id = 0
+          this.status.contact_history_id = 0
+          this.status.status_id = 0
+          this.status.visible = false
+          this.status.comment = ''
+        }).finally(() => (this.saveAndNextLoading = false))
     },
 
     secondsToHmsDigital (s: number) {

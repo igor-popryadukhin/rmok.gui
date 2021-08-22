@@ -205,6 +205,7 @@ import { Contacts } from '@/api/Contacts'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import VStatusEditDialog, { StatusInterface } from '@/components/VStatusEditDialog/VStatusEditDialog.vue'
 import { mapGetters } from 'vuex'
+import { debounce } from 'vuetify/src/util/helpers'
 
 interface Data {
   [key: string]: any;
@@ -257,10 +258,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
     this.loadHistory()
 
-    // Для обновления данных из дочернего компонента
-    this.$root.$on('root-view-contact-history-update', () => {
-      this.loadHistory()
-    })
+    this.onSSEContactHistoryChanged = debounce(this.onSSEContactHistoryChanged, 1000)
+
+    this.$root.$on('sse-contact-history-changed', this.onSSEContactHistoryChanged)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('sse-contact-history-changed', this.onSSEContactHistoryChanged)
   },
 
   methods: {
@@ -268,25 +272,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     /**
      * Загружает историю контакта
      */
-    loadHistory (contact_id = 0, params = {}) {
+    loadHistory () {
       this.historyLoading = true
 
-      const innerParams: any = Object.assign({}, params)
+      const params: Record<string, string | number> = {}
 
-      if (!this.assertObjectHasAttribute(innerParams, 'type')) {
-        innerParams.type = 'all'
-      }
-
-      if (!this.assertObjectHasAttribute(innerParams, 'offset')) {
-        innerParams.offset = 0
-      }
-
-      if (!this.assertObjectHasAttribute(innerParams, 'count')) {
-        innerParams.count = 100
-      }
+      params.type = 'all'
+      params.offset = 0
+      params.count = 100
 
       new Contacts()
-        .getHistory(contact_id || +this.$route.params.contact_id, innerParams)
+        .getHistory(+this.$route.params.contact_id, params)
         .then((response) => {
           this.history = response.data.map((e: any) => {
             return Object.assign({
@@ -305,6 +301,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         })
     },
 
+    onSSEContactHistoryChanged () {
+      this.loadHistory()
+    },
+
     onShowDialogCallEdit ({ id, comment, actions, status }: any) {
       const contact_id = +this.$route.params.contact_id
       if (this.database_statuses.length > 0) {
@@ -318,7 +318,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
                 comment,
                 status_id: status.id
               }).then(() => {
-                this.loadHistory(contact_id)
+                this.loadHistory()
               }).finally(() => {
                 actions.edit.loading = false
               })
@@ -335,16 +335,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       } else {
         this.$toast.warning(this.$tc('The status cannot be set, because the project is configured incorrectly!'))
       }
-    },
-
-    onShowDialogCommentEdit ({ id, comment, actions }: any) {
-      this.$dialog.show(DTextarea, {
-        showClose: true,
-        text: comment,
-        title: this.$tc('Comment'),
-        value: comment,
-        waitForResult: false
-      })
     },
 
     onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
@@ -369,9 +359,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     /**
      * Метод предназначен для обновления всего компонента
-     **/
+     */
     update () {
-      this.loadHistory(+this.$route.params.contact_id)
+      this.loadHistory()
     }
   }
 })

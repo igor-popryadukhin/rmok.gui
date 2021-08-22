@@ -37,15 +37,6 @@ const routes: RouteConfig[] = [
     path: '/login'
   },
   {
-    component: () => import(/* webpackChunkName: "help" */ '../views/Operator/Help/Index.vue'),
-    meta: {
-      layout: 'default',
-      middleware: []
-    },
-    name: 'help',
-    path: '/help'
-  },
-  {
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
     meta: {
       layout: 'clean',

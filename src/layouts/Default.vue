@@ -531,7 +531,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               },
               icon: '',
               title: 'Last call statistics',
-              visible: this.$isGranted('section.statistics_recent_calls')
+              visible: this.$isGranted('STATISTICS_RECENT_CALLS')
             },
             {
               attrs: {
@@ -541,7 +541,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               },
               icon: '',
               title: 'Statistics for all calls',
-              visible: this.$isGranted('section.statistics_all_calls')
+              visible: this.$isGranted('STATISTICS_ALL_CALLS')
             },
             {
               attrs: {
@@ -551,7 +551,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               },
               icon: '',
               title: 'By the number of calls',
-              visible: this.$isGranted('section.statistics_call_count')
+              visible: this.$isGranted('STATISTICS_CALL_COUNT')
             },
             {
               attrs: {
@@ -561,7 +561,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               },
               icon: '',
               title: 'Employment of employees',
-              visible: this.$isGranted('section.statistics_activity')
+              visible: this.$isGranted('STATISTICS_ACTIVITY')
             },
             {
               attrs: {
@@ -571,12 +571,18 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               },
               icon: '',
               title: 'Unauthorized breaks',
-              visible: this.$isGranted('section.statistics_unauthorized_breaks')
+              visible: this.$isGranted('STATISTICS_UNAUTHORIZED_BREAKS')
             }
           ],
           icon: 'mdi-chart-arc',
           list_item: {},
-          visible: this.$isGranted('section.statistics')
+          visible: this.$isGranted([
+            'STATISTICS_RECENT_CALLS',
+            'STATISTICS_ALL_CALLS',
+            'STATISTICS_CALL_COUNT',
+            'STATISTICS_ACTIVITY',
+            'STATISTICS_UNAUTHORIZED_BREAKS'
+          ])
         },
         {
           title: 'Integrations',
