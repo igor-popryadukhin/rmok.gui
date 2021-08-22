@@ -16,6 +16,7 @@
     "core-js": "^3.6.5",
     "countup.js": "^2.0.7",
     "date-fns": "^2.16.1",
+    "dayjs": "^1.10.6",
     "debug": "^4.3.2",
     "jssip": "^3.7.8",
     "libphonenumber-js": "^1.9.3",
