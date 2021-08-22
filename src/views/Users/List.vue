@@ -15,12 +15,15 @@
           elevation="0"
           tile
         >
-          <app-pagination
-            v-model="filterOffset"
-            :per-page="50"
-            :count="usersTotal"
-          />
-          <v-spacer />
+          <v-btn
+            v-if="$isGranted('USER_CREATE')"
+            to="new"
+            text
+            tile
+            small
+          >
+            {{ $tc('Create') }}
+          </v-btn>
           <v-btn
             :disabled="usersProcessLoading"
             text
@@ -30,14 +33,12 @@
           >
             {{ $tc('Refresh') }}
           </v-btn>
-          <v-btn
-            v-if="$isGranted('USER_CREATE')"
-            text
-            tile
-            small
-          >
-            {{ $tc('Create') }}
-          </v-btn>
+          <v-spacer />
+          <app-pagination
+            v-model="filterOffset"
+            :per-page="50"
+            :count="usersTotal"
+          />
         </v-toolbar>
         <app-divider />
         <template v-if="usersProcessLoading">
@@ -124,11 +125,12 @@
                 <v-list-item-action>
                   <v-btn
                     v-if="$isGranted('USER_EDIT')"
+                    :to="`${item.id}/main`"
                     small
                     text
                     tile
                   >
-                    Edit
+                    {{ $tc('Edit') }}
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
@@ -156,6 +158,8 @@
         <app-user-group-autocomplete
           v-model="filterUserGroupId"
           :label="$tc('User group')"
+          outlined
+          dense
         />
       </v-col>
     </v-row>
@@ -170,7 +174,6 @@ import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 import { mapActions, mapGetters } from 'vuex'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import moment from 'moment'
 import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'

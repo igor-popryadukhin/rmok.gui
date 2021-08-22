@@ -13,18 +13,18 @@ export interface RoleInterface {
 
 export class Roles {
   /**
-   * Возвращает список ролей
+   * Поиск ролей
    *
    * @param params
    */
-  public get (params = {}): Promise<ResponseInterface<unknown, Role[]>> {
-    return new Promise<ResponseInterface<unknown, Role[]>>((resolve, reject) => {
+  public find (params = {}): Promise<ResponseInterface<unknown, Role[]>> {
+    return new Promise((resolve, reject) => {
       $axios.get('/roles', { params })
         .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve(response.data)
         }).catch(reject)
     })
   }

@@ -2,7 +2,7 @@
   <v-sheet>
     <app-tools>
       <template #left>
-        <h3>{{ $tc('Changing the parameters of a role') }}</h3>
+        <h3>{{ name && $t('role_title', { name }) }}</h3>
       </template>
       <template #right>
         <v-btn
@@ -297,7 +297,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 <i18n>
 {
   "ru": {
-    "Changing the parameters of a role": "Изменение параметров роли"
+    "role_title": "Изменение параметров роли \"{name}\""
   }
 }
 </i18n>

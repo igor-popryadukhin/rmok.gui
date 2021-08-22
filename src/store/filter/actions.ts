@@ -1,13 +1,14 @@
 import Statuses from '@/api/Statuses'
 import { RootState } from '@/store'
 import { ActionTree } from 'vuex'
-import { FilterState } from './state'
+import { State } from './state'
 import Projects from '@/api/Projects'
 import Users from '@/api/Users'
 import Groups from '@/api/Groups'
 import ContactTags from '@/api/ContactTags'
+import Roles from '@/api/Roles'
 
-const actions: ActionTree<FilterState, RootState> = {
+const actions: ActionTree<State, RootState> = {
   async contact_tags ({ commit }, payload = {}) {
     return new ContactTags()
       .find(payload)
@@ -54,6 +55,14 @@ const actions: ActionTree<FilterState, RootState> = {
       .find(payload)
       .then((response) => {
         commit('users_groups', response.data)
+      })
+  },
+
+  roles ({ commit }, payload = {}) {
+    return new Roles()
+      .find(payload)
+      .then((response) => {
+        commit('roles', response.data)
       })
   }
 }

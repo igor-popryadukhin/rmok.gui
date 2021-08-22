@@ -177,9 +177,9 @@
           lg="4"
           md="6"
         >
-          <s-users-groups-autocomplete
+          <app-user-group-autocomplete
             v-model="newUser.group_id"
-            :label="$tc('Group')"
+            :label="$tc('User group')"
           />
         </v-col>
       </v-row>
@@ -191,12 +191,10 @@
           lg="4"
           md="6"
         >
-          <v-select
-            v-model="newUser.role"
-            :items="availableRoles"
+          <app-role-autocomplete
+            v-model="newUser.role_id"
             :label="$tc('Role')"
-            item-text="title"
-            item-value="value"
+            :rules="[rules.notBlank]"
           />
         </v-col>
       </v-row>
@@ -265,10 +263,11 @@ import Users from '@/api/Users'
 import rules from '@/mixins/rules'
 import statusActions from '@/mixins/statusActions'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
-import SUsersGroupsAutocomplete from '@/snippets/SUsersGroupsAutocomplete/SUsersGroupsAutocomplete.vue'
 import { generatePassword } from '@/utils/utils'
 import VInterface from '@/VInterface'
 import Clipboard from 'v-clipboard'
+import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
+import AppRoleAutocomplete from '@/components/AppRoleAutocomplete/AppRoleAutocomplete.vue'
 
 Vue.use(Clipboard)
 
@@ -289,7 +288,13 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  components: { SUsersGroupsAutocomplete },
+  components: { AppRoleAutocomplete, AppUserGroupAutocomplete },
+
+  metaInfo () {
+    return {
+      title: this.$tc('Create a new user')
+    }
+  },
 
   mixins: [rules, vueScrollOptions, statusActions],
 
@@ -309,7 +314,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         group_id: 0,
         phone: '',
         email: '',
-        role: 'ROLE_OPERATOR'
+        role_id: 0
       }
     }
   },
@@ -317,36 +322,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   computed: {
     userId (): number {
       return +this.$route.params.user_id
-    },
-
-    // Доступные роли
-    availableRoles () {
-      return [
-        {
-          title: 'Администратор',
-          value: 'ROLE_ADMIN'
-        },
-        {
-          title: 'Руководитель колл-центра',
-          value: 'ROLE_RCC'
-        },
-        {
-          title: 'Руководитель группы',
-          value: 'ROLE_TEAM_LEADER'
-        },
-        {
-          title: 'Руководитель отдела',
-          value: 'ROLE_HEAD_OF_DEPARTMENT'
-        },
-        {
-          title: 'Руководитель группы проектов',
-          value: 'ROLE_PROJECT_TEAM_LEADER'
-        },
-        {
-          title: 'Оператор',
-          value: 'ROLE_OPERATOR'
-        }
-      ]
     }
   },
 
@@ -392,20 +367,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
       this.targetUserSaveProcessLoading = true
 
-      const request: any = {
+      const request: Record<string, string | number> = {
         first_name: this.newUser.first_name,
         last_name: this.newUser.last_name,
         middle_name: this.newUser.middle_name,
         login: this.newUser.login,
         password: this.newUser.password1,
-        role: this.newUser.role
+        role_id: this.newUser.role_id
       }
 
       if (this.newUser.country_id) {
         request.country_id = this.newUser.country_id
       }
 
-      if (this.newUser.country_id) {
+      if (this.newUser.group_id) {
         request.group_id = this.newUser.group_id
       }
 

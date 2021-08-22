@@ -84,14 +84,15 @@ Vue.mixin(Vue.extend<Data, Methods, Computed, Props>({
     $isGranted (value: string | string[], strict = false): boolean {
       const rolesAvailable: string[] = this.$profile.role.permissions
       if (Array.isArray(value)) {
-        let found = false
-        for (const role of value) {
-          if (!found) {
-            found = rolesAvailable.includes(role)
+        let granted = false
+
+        for (const role1 of rolesAvailable) {
+          for (const role2 of value) {
+            if (!granted) { granted = role1 === role2 }
           }
         }
 
-        return found
+        return granted
       }
 
       return rolesAvailable.includes(value)

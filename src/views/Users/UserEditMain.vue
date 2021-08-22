@@ -166,8 +166,8 @@
             lg="4"
             md="6"
           >
-            <v-select
-              v-model="targetUser.role"
+            <app-role-autocomplete
+              v-model="targetUser.role_id"
               :items="availableRoles"
               :label="$tc('Role')"
               item-text="title"
@@ -245,6 +245,7 @@ import vueScrollOptions from '@/mixins/vueScrollOptions'
 import SUsersGroupsAutocomplete from '@/snippets/SUsersGroupsAutocomplete/SUsersGroupsAutocomplete.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
+import AppRoleAutocomplete from '@/components/AppRoleAutocomplete/AppRoleAutocomplete.vue'
 
 interface Refs {
   [key: string]: any;
@@ -264,7 +265,7 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  components: { SUsersGroupsAutocomplete, AppLoading },
+  components: { AppRoleAutocomplete, SUsersGroupsAutocomplete, AppLoading },
 
   mixins: [rules, vueScrollOptions, statusActions],
 
@@ -285,7 +286,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         country_id: undefined,
         phone: '',
         email: '',
-        role: 'ROLE_OPERATOR'
+        role_id: 0
       }
     }
   },
@@ -293,35 +294,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
   computed: {
     userId (): number {
       return +this.$route.params.user_id
-    },
-
-    availableRoles () {
-      return [
-        {
-          title: 'Администратор',
-          value: 'ROLE_ADMIN'
-        },
-        {
-          title: 'Руководитель колл-центра',
-          value: 'ROLE_RCC'
-        },
-        {
-          title: 'Руководитель группы',
-          value: 'ROLE_TEAM_LEADER'
-        },
-        {
-          title: 'Руководитель отдела',
-          value: 'ROLE_HEAD_OF_DEPARTMENT'
-        },
-        {
-          title: 'Руководитель группы проектов',
-          value: 'ROLE_PROJECT_TEAM_LEADER'
-        },
-        {
-          title: 'Оператор',
-          value: 'ROLE_OPERATOR'
-        }
-      ]
     }
   },
 
@@ -340,7 +312,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           this.$data.targetUser.middle_name = response.middle_name
           this.$data.targetUser.login = response.login
           this.$data.targetUser.group_id = response.group?.id || 0
-          this.$data.targetUser.role = response.roles[0] || 'ROLE_OPERATOR'
+          this.$data.targetUser.role_id = response.role?.id || 0
           this.$data.targetUser.country_id = response.country?.id || 0
           if (response.country) {
             this.$data.availableCountries = [response.country]
@@ -366,12 +338,12 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         return
       }
 
-      const request: any = {
+      const request: Record<string, string | number> = {
         first_name: this.targetUser.first_name,
         last_name: this.targetUser.last_name,
         middle_name: this.targetUser.middle_name,
         login: this.targetUser.login,
-        role: this.targetUser.role,
+        role_id: this.targetUser.role_id,
         phone: this.targetUser.phone,
         email: this.targetUser.email
       }

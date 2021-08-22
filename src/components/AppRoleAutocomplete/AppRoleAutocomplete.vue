@@ -8,6 +8,7 @@
     :disabled="disabled"
     :outlined="outlined"
     :dense="dense"
+    :rules="rules"
     item-value="id"
     item-text="name"
     clearable
@@ -48,7 +49,7 @@ import { mapGetters } from 'vuex'
 import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
-  name: 'AppUserGroupAutocomplete',
+  name: 'AppRoleAutocomplete',
 
   mixins: [],
 
@@ -78,6 +79,10 @@ export default Vue.extend({
       type: Boolean,
       default: false
     },
+    rules: {
+      type: Array,
+      default: () => []
+    },
     value: {
       type: [Number, Object, Array],
       default: null
@@ -94,7 +99,7 @@ export default Vue.extend({
 
   computed: {
     ...mapGetters({
-      options: 'filter/users_groups'
+      options: 'filter/roles'
     }),
 
     paramsQuery () {
@@ -128,7 +133,7 @@ export default Vue.extend({
 
   methods: {
     fetchOptions () {
-      this.$store.dispatch('filter/users_groups')
+      this.$store.dispatch('filter/roles')
     }
   }
 })

@@ -179,6 +179,8 @@
               v-model="filterUserGroupId"
               :label="$tc('Group')"
               :disabled="contactsProcessLoading"
+              outlined
+              dense
               @change="onFilterChange"
             />
           </div>

@@ -441,7 +441,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             visible: false,
             color: '#ff5722'
           },
-          visible: this.$isGranted('section.calling')
+          visible: this.$isGranted('SECTION_CONTACTS_NEW')
         },
         {
           title: 'Очередь',
@@ -467,7 +467,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             visible: this.tasksPendingCount > 0,
             color: '#ff5722'
           },
-          visible: this.$isGranted('section.tasks')
+          visible: this.$isGranted('SECTION_TASKS')
         },
         {
           title: 'Contacts',
@@ -477,7 +477,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               name: 'contacts'
             }
           },
-          visible: this.$isGranted('section.contacts')
+          visible: this.$isGranted('SECTION_CONTACTS')
         },
         {
           title: 'Roles',
@@ -487,7 +487,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               name: 'roles'
             }
           },
-          visible: this.$isGranted('section.roles')
+          visible: this.$isGranted('EDIT_ROLE')
         },
         {
           title: 'Groups',
@@ -497,7 +497,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               name: 'groups_list'
             }
           },
-          visible: this.$isGranted('section.groups')
+          visible: this.$isGranted('SECTION_GROUPS')
         },
         {
           title: 'Users',
@@ -507,7 +507,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               name: 'users_list'
             }
           },
-          visible: this.$isGranted('section.users')
+          visible: this.$isGranted(['USER_CREATE', 'USER_EDIT', 'USER_DELETE'])
         },
         {
           title: 'Projects',
@@ -517,7 +517,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               name: 'projects_list'
             }
           },
-          visible: this.$isGranted('section.projects')
+          visible: this.$isGranted('SECTION_PROJECTS')
         },
         {
           title: 'Statistic',
@@ -582,7 +582,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           title: 'Integrations',
           active: false,
           icon: 'mdi-api',
-          visible: this.$isGranted('section.integrations'),
+          visible: this.$isGranted('SECTION_INTEGRATIONS'),
           children: [
             {
               title: 'Integration of contacts',
@@ -718,6 +718,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
   },
 
+  created () {
+    this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
+  },
+
   mounted () {
     this.$store.dispatch('profile/load')
       .then(() => {
@@ -742,6 +746,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     setTimeout(() => {
       this.requestAndShowPermission()
     }, 3000)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
   },
 
   methods: {
@@ -1076,6 +1084,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     onSystemNotificationCloseAllClick () {
       this.$store.dispatch('system/notifications_close_all')
+    },
+
+    onSSEProfileChanged () {
+      this.$store.dispatch('profile/load')
     }
   }
 })

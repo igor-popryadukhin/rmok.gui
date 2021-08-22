@@ -129,7 +129,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
 
       new Roles()
-        .get(params)
+        .find(params)
         .then((response) => {
           this.roles = response.data || []
         }).finally(() => (this.rolesLoadProcess = false))
