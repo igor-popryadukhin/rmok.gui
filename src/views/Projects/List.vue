@@ -126,7 +126,7 @@
                 <div class="d-flex d-inline">
                   <div v-if="projectHoverId !== item.id">
                     <span style="font-size: 12px; padding: 2px; margin-right: 10px">
-                      {{ $moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                      {{ $dayjs().set('seconds', item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
                     </span>
                   </div>
                   <v-btn

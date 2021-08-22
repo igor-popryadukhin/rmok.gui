@@ -44,7 +44,7 @@ function state (): SettingsStateInterface {
     },
     date_time_format: {
       first_day_of_week: 1,
-      long_date: 'LL',
+      long_date: 'DD.MM.YYYY',
       short_date: 'DD.MM.YYYY',
       long_time: 'HH:mm:ss',
       short_time: 'HH:mm'

@@ -20,7 +20,10 @@ const mutations: MutationTree<ProfileState> = {
     state.role = payload.role
     state.login = payload.login
     state.organization = payload.organization
-  }
+    state.tz = payload.tz
+  },
+
+  tz (state: ProfileState, payload: string) { state.tz = payload }
 }
 
 export default mutations

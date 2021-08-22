@@ -26,7 +26,7 @@ export class RouterQuery {
       })
 
       this._vueRouter.push({
-        name: this._vueRouter.currentRoute.name,
+        name: this._vueRouter.currentRoute.name || undefined,
         params: this._vueRouter.currentRoute.params,
         path: this._vueRouter.currentRoute.path,
         query: obj

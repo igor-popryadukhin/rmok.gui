@@ -30,7 +30,7 @@
                 text
                 outlined
                 tile
-                @click="onBtnAddTaskClick"
+                @click="taskDialogVisible = true"
               >
                 {{ $tc('Add task') }}
               </v-btn>
@@ -217,7 +217,7 @@
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title :key="clientTimeTick">
-                  {{ $moment().tz(contact.tz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
+                  {{ $dayjs(new Date()).tz(contact.tz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Client\'s current time') }}
@@ -241,7 +241,7 @@
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title>
-                  {{ $moment.unix(contact.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                  {{ $dayjs(contact.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Date the contact was created') }}
@@ -502,12 +502,18 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <template v-if="taskDialogVisible">
+      <app-task-dialog-edit
+        v-model="taskDialogVisible"
+        @update="onTaskDialogCreate"
+      />
+    </template>
   </v-sheet>
 </template>
 
 <script lang="ts">
 import { Calls } from '@/api/Calls'
-import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import Contact from '@/api/interfaces/Contact'
 import {
@@ -522,7 +528,6 @@ import JSSIPPayloadInterface from '@/interfaces/JSSIPPayloadInterface'
 import lvovich from '@/mixins/lvovich'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
-import STaskDialogEditor from '@/snippets/STaskList/STaskDialogEditor.vue'
 import store from '@/store'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import { EndEvent, RTCSession } from 'jssip/lib/RTCSession'
@@ -579,7 +584,10 @@ interface Props {
 
 export default Vue.extend<Data, Methods, Computed, Props>({
 
-  components: { AppStatus },
+  components: {
+    AppTaskDialogEdit: () => import('@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'),
+    AppStatus
+  },
 
   mixins: [lvovich],
 
@@ -608,6 +616,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   data (): Data {
     return {
+      taskDialogVisible: false,
       rtcSessionAudioRecordId: '',
       rtcSession: undefined,
       processLoadingContact: false,
@@ -809,9 +818,24 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.$data.contact.phones = response.phones || []
           this.$data.contact.tz = response.tz || 'Europe/Moscow'
           this.$data.contact.last_status = response.status || null
+          this.$data.contact.created_at = response.created_at || 0
 
           this.$store.commit('project/scenario', response.project?.scenario)
         }).finally(() => (this.processLoadingContact = false))
+    },
+
+    /**
+     * Создание новой задачи.
+     */
+    onTaskDialogCreate (data: unknown & { date: string; time: string; type: string; description: string }) {
+      this.$appDebug(data)
+      new Tasks()
+        .create({
+          contact_id: this.contactId,
+          type: data.type,
+          planned_for: this.$dayjs(`${data.date} ${data.time}`, 'YYYY-MM-DD HH:mm').utc().unix(),
+          description: data.description
+        })
     },
 
     /**
@@ -1011,39 +1035,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       if (this.$store.getters['system/route_last_full_path']) {
         this.$router.push(this.$store.getters['system/route_last_full_path'])
       }
-    },
-
-    onBtnAddTaskClick () {
-      this.$dialog.show(STaskDialogEditor, {
-        onSave: (data: any) => {
-          const taskData: any = {
-            contact_id: +this.$route.params.contact_id,
-            description: data.description,
-            performer_id: data.performer_id,
-            planned_for: data.planned_for,
-            type: data.type
-          }
-
-          new Tasks()
-            .add<number>(taskData)
-            .then(() => {
-              this.$toast.success(this.$tc('Task successfully created'))
-            }).catch((e: APIError) => {
-              let text = ''
-              if (this.assertObjectHasAttribute(e, 'errors')) {
-                text = e.errors.map(e => e.message).join('\n')
-              }
-              this.$toast.error(`${e.message}\n${text}`)
-            }).finally(() => {
-              this.tabPageUpdate()
-            })
-        },
-        performerId: this.$store.getters['profile/id'],
-        persistent: true,
-        responsibleDisabled: true,
-        waitForResult: true,
-        width: ['xs', 'sm'].includes(this.$vuetify.breakpoint.name) ? '100%' : '45%'
-      })
     },
 
     /**

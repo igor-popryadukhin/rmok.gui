@@ -34,7 +34,7 @@
               <v-list-item-title
                 :style="{ color: taskItem.expired ? 'red' : '' }"
               >
-                {{ `Позвонить ${$moment.unix(taskItem.planned_for).format(`Do MMMM, dddd, ${date_time_format.long_time} a`)}` }}
+                {{ `Позвонить ${$dayjs(taskItem.planned_for * 1000).format(`D MMMM, в dddd, в ${date_time_format.long_time} a`)}` }}
               </v-list-item-title>
               <v-list-item-subtitle v-if="taskItem.contact">
                 {{ taskItem.contact.last_name }} {{ taskItem.contact.first_name }} {{ taskItem.contact.middle_name }}
@@ -103,6 +103,7 @@ import Task from '@/api/interfaces/Task'
 import Tasks from '@/api/Tasks'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Vue from 'vue'
+import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
   components: { AppLoading },
@@ -124,6 +125,18 @@ export default Vue.extend({
       tasksOffset: 0,
       tasksCount: 0
     }
+  },
+
+  activated () {
+    this.$root.$on('sse-tasks-changed', this.onSSETasksChanged)
+  },
+
+  deactivated () {
+    this.$root.$off('sse-tasks-changed', this.onSSETasksChanged)
+  },
+
+  created () {
+    this.onSSETasksChanged = debounce(this.onSSETasksChanged, 1000)
   },
 
   mounted () {
@@ -231,6 +244,10 @@ export default Vue.extend({
       this.$routerQuery.setQuery({
         status_id
       })
+    },
+
+    onSSETasksChanged () {
+      this.fetchTasks(this.params)
     }
   }
 })

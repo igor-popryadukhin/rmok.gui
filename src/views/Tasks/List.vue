@@ -154,7 +154,7 @@ export default Vue.extend({
 
         if (/^(\d+),(\d+)$/s.test(value)) {
           // tslint:disable-next-line
-          return this.$moment.unix(value.substring(0, value.indexOf(','))).format('YYYY-MM-DD')
+          return this.$dayjs(Number(value.substring(0, value.indexOf(','))) * 1000).format('YYYY-MM-DD')
         }
 
         return null
@@ -162,8 +162,8 @@ export default Vue.extend({
 
       set (value: string) {
         if (value) {
-          const from = this.$moment(value + ' 00:00:00', 'YYYY-MM-DD hh:mm:ss').unix()
-          const to = this.$moment(value + ' 23:59:59', 'YYYY-MM-DD hh:mm:ss').unix()
+          const from = this.$dayjs(value + ' 00:00:00', 'YYYY-MM-DD hh:mm:ss').unix()
+          const to = this.$dayjs(value + ' 23:59:59', 'YYYY-MM-DD hh:mm:ss').unix()
           this.$routerQuery.setQuery({
             // 2020-08-08 00:00:00 to unix
             planned_for: `${from},${to}`
@@ -213,9 +213,7 @@ export default Vue.extend({
 
       if (/^(\d+),(\d+)$/s.test(value)) {
         // tslint:disable-next-line
-        date = this.$moment
-          .unix(value.substring(0, value.indexOf(',')))
-          .format(this.settingsDateTimeFormat.short_date)
+        date = this.$dayjs(value.substring(0, value.indexOf(',')) * 1000).format(this.settingsDateTimeFormat.short_date)
         return this.$t('all_tasks_per_number', { date }).toString()
       }
 

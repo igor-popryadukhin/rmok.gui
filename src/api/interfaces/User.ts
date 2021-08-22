@@ -26,4 +26,5 @@ export default interface User {
   projects?: Project[];
   pbx_config?: PBXConfig;
   country?: Country;
+  tz?: string;
 }

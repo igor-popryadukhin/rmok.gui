@@ -347,7 +347,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
      * @param timestamp
      */
     unixToTimeAgo  (timestamp: number) {
-      return moment.unix(timestamp).fromNow()
+      return this.$dayjs(timestamp * 1000).fromNow()
     }
   }
 })

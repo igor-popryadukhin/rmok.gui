@@ -120,7 +120,7 @@
                   >
                     <v-list-item-title>
                       <template v-if="item.last_call_at">
-                        {{ $moment.unix(item.last_call_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                        {{ $dayjs(item.last_call_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
                       </template>
                       <template v-else>
                         —
@@ -174,7 +174,7 @@
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-title>Дата создания</v-list-item-title>
-                <v-list-item-subtitle>{{ $moment.unix(dialogContactInfo.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}</v-list-item-subtitle>
+                <v-list-item-subtitle>{{ $dayjs(dialogContactInfo.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </v-list>

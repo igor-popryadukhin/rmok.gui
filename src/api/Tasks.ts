@@ -54,7 +54,7 @@ export default class Tasks {
    * @param params
    */
   public find (params= {}): Promise<ResponseInterface<{ count: number }, Task[]>> {
-    return new Promise<ResponseInterface<{ [key: string]: any }, Task[]>>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       $axios.get('/tasks', {
         params
       }).then((response: AxiosResponse) => {
@@ -103,7 +103,7 @@ export default class Tasks {
   /**
    *
    */
-  public calculateCount (params: any[]): Promise<{id: any, count: number}[]> {
+  public calculateCount (params: any[]): Promise<Array<{id: any, count: number}>> {
     return new Promise<any>((resolve, reject) => {
       $axios.post('/tasks/count/calculate', params)
         .then((response: AxiosResponse) => {
@@ -116,16 +116,18 @@ export default class Tasks {
   }
 
   /**
+   * Создаёт задачу.
+   *
    * @param data
    */
-  public add<T> (data: T): Promise<number> {
+  public create (data: any): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       $axios.post('/tasks', data)
         .then((response: AxiosResponse) => {
-          if ([201, 200].includes(response.status)) {
-            return resolve(response.data.id)
+          if (response.status !== 201) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve(response.data.id)
         }).catch(reject)
     })
   }
@@ -136,14 +138,14 @@ export default class Tasks {
    * @param id
    * @param data
    */
-  public edit<T = any> (id: number | string, data: T): Promise<void> {
+  public edit (id: number | string, data: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.patch(`/tasks/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([204, 200].includes(response.status)) {
-            return resolve()
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve()
         }).catch(reject)
     })
   }
@@ -170,14 +172,15 @@ export default class Tasks {
    *
    * @param id
    */
-  public getById<T = TaskInterface> (id: number): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+  public getById (id: number): Promise<Task> {
+    return new Promise<Task>((resolve, reject) => {
       $axios.get(`/tasks/${id}`)
         .then((response: AxiosResponse) => {
-          if ([200].includes(response.status)) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+
           }
-          throw new APIError(response.data)
+          resolve(response.data)
         }).catch(reject)
     })
   }

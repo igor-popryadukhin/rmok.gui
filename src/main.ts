@@ -20,7 +20,6 @@ import '@/plugins/debug'
 import '@/plugins/toast'
 import '@/plugins/cookie'
 import '@/plugins/router-query'
-import '@/plugins/moment'
 import '@/plugins/activity'
 import '@/plugins/yandex-metrika'
 import '@/plugins/file-dialog'
@@ -29,9 +28,15 @@ import '@/plugins/vuetify-dialog'
 import '@/plugins/html-audio-element'
 import '@/plugins/sound'
 import '@/plugins/vue-meta'
+import '@/plugins/dayjs'
 import '@/jsSIP'
 
 import CleanLayout from '@/layouts/Clean.vue'
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const vuetifyDialogMovingImport = () => import(/* webpackPreload: true */ './vuetify-dialog-moving.ts')
+vuetifyDialogMovingImport()
 
 // layouts
 Vue.component('Default', () => import(/* webpackPreload: true */ './layouts/Default.vue'))

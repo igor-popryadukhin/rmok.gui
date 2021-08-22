@@ -12,6 +12,7 @@
       </template>
       <template #right>
         <v-btn
+          :loading="processSaving"
           color="primary"
           outlined
           small
@@ -19,7 +20,7 @@
           tile
           @click="onSaveClick"
         >
-          {{ $tc('Save settings') }}
+          {{ $tc('Save') }}
         </v-btn>
       </template>
     </app-tools>
@@ -36,7 +37,7 @@
           :disable-lookup="false"
         >
           <template #item="{ item }">
-            {{ $moment().tz(item).format('UTC(Z)') }} {{ item }}
+            {{ $dayjs().tz(item).format('UTC (Z)') }} {{ item }}
           </template>
         </v-select>
       </v-col>
@@ -57,7 +58,7 @@
         >
           <template #append>
             <div class="mt-1">
-              {{ $moment().format(date_time_format_long_date) }}
+              {{ $dayjs().format(date_time_format_long_date) }}
             </div>
           </template>
         </v-text-field>
@@ -70,7 +71,7 @@
         >
           <template #append>
             <div class="mt-1">
-              {{ $moment().format(date_time_format_short_date) }}
+              {{ $dayjs().format(date_time_format_short_date) }}
             </div>
           </template>
         </v-text-field>
@@ -83,7 +84,7 @@
         >
           <template #append>
             <div class="mt-1">
-              {{ $moment().format(date_time_format_long_time) }}
+              {{ $dayjs().format(date_time_format_long_time) }}
             </div>
           </template>
         </v-text-field>
@@ -96,7 +97,7 @@
         >
           <template #append>
             <div class="mt-1">
-              {{ $moment().format(date_time_format_short_time) }}
+              {{ $dayjs().format(date_time_format_short_time) }}
             </div>
           </template>
         </v-text-field>
@@ -109,13 +110,19 @@
 <script lang="ts">
 import Account from '@/api/Account'
 import Vue from 'vue'
-import momentTZ from 'moment-timezone'
 import { mapGetters } from 'vuex'
+import timeZones from '@/time-zones.json'
 
 export default Vue.extend({
+  data () {
+    return {
+      processSaving: false
+    }
+  },
+
   computed: {
     ...mapGetters({
-      profile_tz: 'profile/tz',
+      profile: 'profile/profile',
       date_time_format: 'settings/date_time_format'
     }),
 
@@ -167,36 +174,32 @@ export default Vue.extend({
     },
 
     tz_messages () {
-      return [`Часовой пояс системы: ${momentTZ.tz.guess()}`]
+      return [`Часовой пояс системы: ${this.$dayjs.tz.guess()}`]
     },
 
     tz_names () {
-      return momentTZ.tz.names()
+      return timeZones
     },
 
     tz_value: {
-      get () { return this.profile_tz || momentTZ.tz.guess() },
-      set (val: string) { this.$data.tz = val }
-    }
-  },
-
-  data () {
-    return {
-      tz: momentTZ.tz.guess() // Default
+      get () { return this.$store.getters['profile/profile_tz'] || this.$dayjs.tz.guess() },
+      set (val: string) { this.$store.commit('profile/tz', val) }
     }
   },
 
   methods: {
 
     onSaveClick () {
-      const data: any = {}
-      data.tz = this.$data.tz
+      const data: Record<string, string> = {}
+      data.tz = this.tz_value as string
+
+      this.processSaving = true
       new Account()
         .updateProfile(data)
         .then(() => {
           this.$toast.success(this.$tc('Changes accepted'))
           this.$store.dispatch('profile/load')
-        })
+        }).finally(() => (this.processSaving = false))
     }
   }
 })
