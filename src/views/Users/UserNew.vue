@@ -391,7 +391,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           this.$router.push({
             name: 'users_edit_main',
             params: {
-              user_id: id
+              owner_id: id
             } as any
           })
         }).catch((e) => {

@@ -7,17 +7,6 @@
       {{ $tc('Working time') }}
     </v-card-title>
     <v-card-text>
-      <s-users
-        ref="sUsers"
-        v-model="user"
-        :label="$tc('Manager')"
-        :params="{ role_use: 'for_calls' }"
-        :disabled="save_process || isChanged"
-        style="width: 752px"
-        clearable
-        outlined
-        dense
-      />
       <app-schedule-week
         v-model="new_schedule"
         :element-color="$vuetify.theme.currentTheme.primary"
@@ -64,12 +53,11 @@
 <script lang="ts">
 import Users, { UserInterface } from '@/api/Users'
 import AppScheduleWeek from '@/components/AppScheduleWeek/AppScheduleWeek.vue'
-import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue from 'vue'
 import { Route } from 'vue-router/types/router'
 
 export default Vue.extend({
-  components: { AppScheduleWeek, SUsers },
+  components: { AppScheduleWeek },
 
   beforeRouteEnter (to: Route, from: Route, next: any) {
     new Users()
@@ -78,7 +66,6 @@ export default Vue.extend({
         next((vm: any) => {
           vm.new_schedule = response
           vm.old_schedule = response
-          vm.$refs.sUsers.setDefault(+to.params.user_id)
         })
       })
   },
@@ -104,7 +91,7 @@ export default Vue.extend({
 
   data: () => ({
     save_process: false,
-    user: null as any,
+    user_id: 0,
     old_schedule: [] as { time:string, day: number }[],
     new_schedule: [] as { time:string, day: number }[]
   }),
@@ -164,8 +151,8 @@ export default Vue.extend({
 
   methods: {
     onSaveClick () {
-      if (this.user?.id) {
-        this.saveSchedule(this.user.id, this.new_schedule)
+      if (this.user_id) {
+        this.saveSchedule(this.user_id, this.new_schedule)
       }
     },
 
