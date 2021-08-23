@@ -32,12 +32,12 @@
       no-title
       show-current
     >
-      <v-switch
-        v-model="range"
-        :ripple="false"
-        :label="t('Range')"
-        @change="onSwitchRangeChange(range)"
-      />
+      <!--      <v-switch-->
+      <!--        v-model="range"-->
+      <!--        :ripple="false"-->
+      <!--        :label="$tc('Range')"-->
+      <!--        @change="onSwitchRangeChange(range)"-->
+      <!--      />-->
       <v-spacer />
       <v-btn
         text
@@ -45,7 +45,7 @@
         small
         @click="menu = false"
       >
-        {{ t('Cancel') }}
+        {{ $tc('Cancel') }}
       </v-btn>
       <v-btn
         text
@@ -53,7 +53,7 @@
         small
         @click="onBtnOkClick(dates)"
       >
-        {{ t('Ok') }}
+        {{ $tc('Ok') }}
       </v-btn>
     </v-date-picker>
   </v-menu>

@@ -3,6 +3,7 @@ import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from '@/api/classes/APIError'
 import { ContactHistoryInterface } from '@/api/Schemas/ContactInterface'
+import StatisticPie from '@/api/interfaces/StatisticPie'
 
 export default class Statistics {
   /**
@@ -27,19 +28,39 @@ export default class Statistics {
   }
 
   /**
-   *
+   * Количество звонков клиенту
    * @param params
    */
-  public pie<T> (params = {}): any {
-    return new Promise<T>((resolve, reject) => {
-      $axios.get('/statistics/pie', {
+  public clientCalls (params = {}): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      $axios.get('/statistics/clients-calls', {
         params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          resolve(response.data)
+          if (typeof response.data?.count !== 'number') {
+            throw new Error('Invalid api response')
+          }
+          resolve(response.data?.count)
         } else {
           throw new APIError(response.data)
         }
+      }).catch(reject)
+    })
+  }
+
+  /**
+   *
+   * @param params
+   */
+  public pie (params = {}): Promise<StatisticPie> {
+    return new Promise((resolve, reject) => {
+      $axios.get('/statistics/pie', {
+        params
+      }).then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+        resolve(response.data)
       }).catch(reject)
     })
   }
