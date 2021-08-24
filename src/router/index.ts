@@ -236,7 +236,7 @@ const routes: RouteConfig[] = [
           },
           {
             component: () => import(/* webpackChunkName: "users-edit-schedule" */ '../views/Users/UserEditSchedule.vue'),
-            meta: { layout: 'default', middleware: [] },
+            meta: { layout: 'default', middleware: [], anonymous: true },
             name: 'users_edit_schedule',
             path: 'schedule'
           }
