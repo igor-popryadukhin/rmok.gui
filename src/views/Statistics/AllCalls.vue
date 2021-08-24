@@ -273,7 +273,7 @@
             slot="item.created_at"
             slot-scope="{ item }"
           >
-            {{ $moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+            {{ $dayjs(item.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
           </template>
           <template
             slot="item.contact"

@@ -32,7 +32,7 @@
               </slot>
             </v-btn>
           </template>
-          <span>{{ tooltip(item.value) }}</span>
+          <span v-if="item.tooltip">{{ item.tooltip }}</span>
         </v-tooltip>
       </slot>
     </template>
@@ -59,7 +59,7 @@ export default Vue.extend({
       }
     },
     value: {
-      type: String,
+      type: [String, Object],
       default () {
         return null
       }
@@ -91,26 +91,6 @@ export default Vue.extend({
   methods: {
     onBtnClick (value: any) {
       this.$emit('change', value)
-    },
-
-    tooltip (value: string) {
-      if ((/\d+,\d+/s.test(value))) {
-        const range = value.split(',')
-        const dates: Date[] = [
-          new Date(+range[0] * 1000),
-          new Date(+range[1] * 1000)
-        ]
-
-        if (dates[0].getDate() === dates[1].getDate()) {
-          return `за ${dates[0].toLocaleDateString()}`
-        } else {
-          return [
-            `период с ${dates[1].toLocaleDateString()}`,
-            `по ${dates[0].toLocaleDateString()}`
-          ].join(' — ')
-        }
-      }
-      return ''
     }
   }
 })

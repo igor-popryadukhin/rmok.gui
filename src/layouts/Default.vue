@@ -744,14 +744,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     })
 
     // Через 5 секунд запрашиваю количество открытых задач
-    setTimeout(() => {
-      this.$store.dispatch('tasks/pending_count')
-      this.$store.dispatch('system/notifications')
-    }, 5000)
+    if (this.$isGranted('SECTION_TASKS')) {
+      setTimeout(() => {
+        this.$store.dispatch('tasks/pending_count')
+        this.$store.dispatch('system/notifications')
+      }, 5000)
+    }
 
-    setTimeout(() => {
-      this.requestAndShowPermission()
-    }, 3000)
+    // setTimeout(() => {
+    //   this.requestAndShowPermission()
+    // }, 3000)
   },
 
   beforeDestroy () {
@@ -1033,7 +1035,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
             // Что-то изменилось в задачах
             if (obj.name === 'tasks-changed') {
-              this.$store.dispatch('tasks/pending_count')
+              if (this.$isGranted('SECTION_TASKS')) {
+                this.$store.dispatch('tasks/pending_count')
+              }
             } else if (obj.name === 'system-notification') {
               // Звук уведомления только если в режиме ожидания.
               this.$store.dispatch('system/notifications')

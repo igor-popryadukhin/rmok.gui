@@ -6,101 +6,129 @@
     <!-- Даты -->
     <v-row>
       <v-col>
-        <div class="d-flex justify-end" />
-        <app-btn-toggle-date
-          v-model="filterPeriod"
-          :items="dateRangeCollection"
-        />
+        <div class="d-flex">
+          <app-btn-toggle-date
+            v-model="filterPeriod"
+            :items="dateRangeCollection"
+          >
+            <template #item-append>
+              <v-divider
+                class="mx-2"
+                vertical
+              />
+              <v-menu
+                ref="customPeriodMenu"
+                v-model="customPeriodMenu"
+                :close-on-content-click="false"
+                :return-value="filterCustomPeriod"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
+              >
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    v-bind="attrs"
+                    :class="Array.isArray(filterCustomPeriod) ? 'v-btn--active' : ''"
+                    text
+                    tile
+                    v-on="on"
+                  >
+                    {{ filterCustomPeriodTitle }}
+                  </v-btn>
+                </template>
+                <v-date-picker
+                  v-model="filterCustomPeriod"
+                  :locale="$vuetify.lang.current"
+                  :first-day-of-week="1"
+                  no-title
+                  range
+                >
+                  <v-spacer />
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="customPeriodMenu = false"
+                  >
+                    {{ $tc('Cancel') }}
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="$refs.customPeriodMenu.save(filterCustomPeriod)"
+                  >
+                    {{ $tc('Ok') }}
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </template>
+          </app-btn-toggle-date>
+          <v-spacer />
+          <v-btn
+            :disabled="processFetchPie || processFetchHistory"
+            text
+            tile
+            @click="onBtnRefreshClick"
+          >
+            {{ $tc('Refresh') }}
+          </v-btn>
+        </div>
       </v-col>
     </v-row>
 
     <!-- Основные фильтры -->
     <v-row>
       <!-- Фильтр по пользователям -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <app-user-autocomplete
-          v-model="filterOwnerId"
-          :label="$tc('Users')"
-          :disabled="filterUserGroupId > 0"
-        />
-      </v-col>
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <app-status-autocomplete
-          v-model="filterStatusIds"
-          multiple
-          :label="$tc('Filter by result')"
-        />
-      </v-col>
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <app-menu-date-picker
-          v-model="filterContactCreatedAt"
-          :first-day-of-week="1"
-          :label="$tc('Date the contact was created')"
-          locale="ru"
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <app-user-group-autocomplete
-          v-model="filterUserGroupId"
-          :label="$tc('Group')"
-          outlined
-          dense
-        />
-      </v-col>
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <app-project-autocomplete
-          v-model="filterProjectId"
-          :label="$tc('Project')"
-          outlined
-          dense
-        />
-      </v-col>
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <app-contact-tag-autocomplete
-          v-model="filterContactTagIds"
-          :label="$tc('Tags')"
-          multiple
-          outlined
-          dense
-        />
+      <v-col class="py-0">
+        <div class="d-flex justify-start flex-wrap margin-right">
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])">
+            <app-user-autocomplete
+              v-model="filterOwnerId"
+              :label="$tc('Users')"
+              :disabled="processLoading"
+            />
+          </template>
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+            <app-user-group-autocomplete
+              v-model="filterUserGroupId"
+              :label="$tc('Group')"
+              :disabled="processLoading"
+              outlined
+              dense
+            />
+          </template>
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+            <app-project-autocomplete
+              v-model="filterProjectId"
+              :label="$tc('Project')"
+              :disabled="processLoading"
+              outlined
+              dense
+            />
+          </template>
+          <app-status-autocomplete
+            v-model="filterStatusIds"
+            multiple
+            :disabled="processLoading"
+            :label="$tc('Filter by result')"
+          />
+          <app-menu-date-picker
+            v-model="filterContactCreatedAt"
+            :first-day-of-week="1"
+            :label="$tc('Date the contact was created')"
+            :disabled="processLoading"
+            locale="ru"
+          />
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+            <app-contact-tag-autocomplete
+              v-model="filterContactTagIds"
+              :label="$tc('Tags')"
+              :disabled="processLoading"
+              multiple
+              outlined
+              dense
+            />
+          </template>
+        </div>
       </v-col>
     </v-row>
 
@@ -152,6 +180,7 @@
         <div
           v-if="processFetchPie"
           class="d-flex align-center justify-center"
+          style="min-height: 473px"
         >
           <app-loading />
         </div>
@@ -182,6 +211,7 @@
           v-model="offset"
           :count="statisticHistoryCount"
           :per-page="50"
+          :disabled="processLoading"
           class="mr-5"
           @change="onAppPaginationChange"
         />
@@ -221,6 +251,7 @@
         </v-btn-toggle>
       </v-col>
     </v-row>
+    <!-- Actions -->
 
     <v-row>
       <v-col style="min-height: 600px">
@@ -244,21 +275,45 @@
             <template #default>
               <thead>
                 <tr>
-                  <th class="text-left">
-                    Name
+                  <th
+                    class="text-left"
+                    style="width: 10px!important; white-space: nowrap!important;"
+                  >
+                    {{ $tc('Date/Time') }}
                   </th>
-                  <th class="text-left">
+                  <th
+                    class="text-left"
+                    style="width: auto;"
+                  >
                     {{ $tc('Client') }}
                   </th>
-                  <th class="text-left">
+                  <th
+                    class="text-left"
+                    style="width: 100px;"
+                  >
                     {{ $tc('Result') }}
                   </th>
-                  <th class="text-left">
+                  <th
+                    class="text-left"
+                  >
                     {{ $tc('Comment') }}
+                  </th>
+                  <th
+                    class="text-left"
+                    style="width: 100px;"
+                  >
+                    {{ $tc('Call duration') }}
+                  </th>
+                  <th
+                    class="text-left"
+                    style="width: 100px;"
+                  >
+                    {{ $tc('Session duration') }}
                   </th>
                   <th class="text-left">
                     {{ $tc('Manager') }}
                   </th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -266,7 +321,9 @@
                   v-for="item in statisticHistory"
                   :key="item.name"
                 >
-                  <td>{{ $dayjs(item.created_at * 1000).format('YYYY.MM-DD HH:mm') }}</td>
+                  <td style="white-space: nowrap">
+                    {{ $dayjs(item.created_at * 1000).format('YYYY.MM.DD HH:mm') }}
+                  </td>
                   <td>
                     <router-link :to="{ name: 'contacts_view', params: { contact_id: item.contact.id } }">
                       {{ item.contact.first_name }} {{ item.contact.last_name }} {{ item.contact.middle_name }}
@@ -282,8 +339,45 @@
                       {{ item.status.name }}
                     </v-chip>
                   </td>
-                  <td>{{ item.comment }}</td>
-                  <td>{{ item.owner.first_name }} {{ item.owner.last_name }} {{ item.owner.middle_name }}</td>
+                  <td style="width: 150px">
+                    <template v-if="item.comment">
+                      <v-tooltip
+                        max-width="400"
+                        open-delay="500"
+                        bottom
+                      >
+                        <template #activator="{ on, attrs }">
+                          <div
+                            v-bind="attrs"
+                            class="box-text"
+                            style="width: 150px"
+                            v-on="on"
+                          >
+                            {{ item.comment }}
+                          </div>
+                        </template>
+                        <span>{{ item.comment }}</span>
+                      </v-tooltip>
+                    </template>
+                  </td>
+                  <td>{{ item.call_duration || '--:--:--' }}</td>
+                  <td>{{ item.session_duration || '--:--:--' }}</td>
+                  <td>
+                    <template v-if="item.owner">
+                      {{ item.owner.first_name }} {{ item.owner.last_name }} {{ item.owner.middle_name }}
+                    </template>
+                  </td>
+                  <td>
+                    <v-btn
+                      :loading="processFetchAudioFile.includes(item.id)"
+                      :disabled="!processFetchAudioFile.includes(item.id) && processFetchAudioFile.length > 0"
+                      icon
+                      small
+                      @click="onBtnAudioRecordPlayClick(item)"
+                    >
+                      <v-icon>mdi-play</v-icon>
+                    </v-btn>
+                  </td>
                 </tr>
               </tbody>
             </template>
@@ -296,23 +390,18 @@
 
 <script lang="ts">
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
-import dateRangeCollection from '@/mixins/dateRangeCollection'
 import Vue, { VueConstructor } from 'vue'
 import VueApexCharts from 'vue-apexcharts'
-import audioPlayer from '@/mixins/audioPlayer'
 import VInterface from '@/VInterface'
-import AppUserAutocomplete from '@/components/AppUserAutocomplete/AppUserAutocomplete.vue'
 import { mapActions, mapGetters } from 'vuex'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import { debounce } from 'vuetify/src/util/helpers'
-import { makeUnixUTCTimestampRangeString } from '@/utils/datetime'
 import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
-import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
-import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
 import AppContactTagAutocomplete from '@/components/AppContactTagAutocomplete/AppContactTagAutocomplete.vue'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import ContactHistory from '@/api/ContactHistory'
 
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)
@@ -324,17 +413,18 @@ export default (Vue as VueConstructor<VInterface>).extend({
     AppLoading,
     AppMenuDatePicker,
     AppContactTagAutocomplete,
-    AppProjectAutocomplete,
-    AppUserGroupAutocomplete,
+    AppProjectAutocomplete: () => import('@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'),
+    AppUserGroupAutocomplete: () => import('@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'),
     AppStatusAutocomplete,
     AppBtnToggleDate,
-    AppUserAutocomplete,
+    AppUserAutocomplete: () => import('@/components/AppUserAutocomplete/AppUserAutocomplete.vue'),
     AppCountUp
   },
-  mixins: [audioPlayer, dateRangeCollection],
 
   data () {
     return {
+      customPeriodMenu: false,
+      processFetchAudioFile: [],
       processFetchPie: false,
       processFetchHistory: false
     }
@@ -384,10 +474,27 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
     filterPeriod: {
       get () {
-        return this.$store.getters['statistic_recent_call/filter/period']
+        if (!Array.isArray(this.$store.getters['statistic_recent_call/filter/period'])) {
+          return this.$store.getters['statistic_recent_call/filter/period']
+        }
+        return true
       },
 
       set (value: string) {
+        this.$store.commit('statistic_recent_call/filter/period', value)
+      }
+    },
+
+    filterCustomPeriod: {
+      get () {
+        if (Array.isArray(this.$store.getters['statistic_recent_call/filter/period'])) {
+          return this.$store.getters['statistic_recent_call/filter/period']
+        }
+
+        return ''
+      },
+
+      set (value: string[]) {
         this.$store.commit('statistic_recent_call/filter/period', value)
       }
     },
@@ -432,11 +539,52 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     },
 
+    processLoading () {
+      return this.processFetchPie || this.processFetchHistory
+    },
+
     paramsFilters () {
       const params: Record<string, any> = {}
 
       if (this.filterPeriod) {
-        params.period = this.filterPeriod
+        const daysJsStart = this.$dayjs().set('h', 0).set('m', 0).set('s', 0)
+        const daysJsEnd = this.$dayjs().set('h', 23).set('m', 59).set('s', 59)
+
+        switch (this.filterPeriod) {
+          case 'today': {
+            // За сегодня
+            params.period = `${daysJsStart.unix()},${daysJsEnd.unix()}`
+            break
+          }
+          case 'yesterday': {
+            // За вчера
+            params.period = `${daysJsStart.subtract(1, 'day').unix()},${daysJsEnd.subtract(1, 'day').unix()}`
+            break
+          }
+          case 'this_week': {
+            // С неделю
+            params.period = `${daysJsStart.startOf('week').unix()},${daysJsEnd.endOf('week').unix()}`
+            break
+          }
+          case 'last_week': {
+            // За прошлую неделю
+            params.period = `${daysJsStart.subtract(1, 'week').startOf('week').unix()},${daysJsEnd.subtract(1, 'week').endOf('week').unix()}`
+            break
+          }
+          case 'month': {
+            // За месяц
+            params.period = `${daysJsStart.startOf('month').unix()},${daysJsEnd.endOf('month').unix()}`
+            break
+          }
+          default: {
+            // Если фильтр настраиваемый.
+            if (Array.isArray(this.filterCustomPeriod)) {
+              if (this.filterCustomPeriod.length === 2) {
+                params.period = `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').set('h', 0).set('m', 0).set('s', 0).unix()},${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').set('h', 23).set('m', 59).set('s', 59).unix()}`
+              }
+            }
+          }
+        }
       }
 
       if (Number(this.filterOwnerId) > 0) {
@@ -495,7 +643,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
           // },
           markers: {
             onClick: (chart: any, seriesIndex: any, opts: any) => {
-              console.log('series- ' + seriesIndex + "'s marker was clicked")
+              console.log('series- ' + seriesIndex + '\'s marker was clicked')
             }
           },
           position: 'right',
@@ -505,37 +653,57 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     dateRangeCollection () {
+      const daysJsStart = this.$dayjs().set('h', 0).set('m', 0).set('s', 0)
+      const daysJsEnd = this.$dayjs().set('h', 23).set('m', 59).set('s', 59)
       return [
         {
           title: this.$tc('Today'),
-          value: `${this.$dayjs().unix()},${this.$dayjs().unix()}`
+          tooltip: `За ${daysJsStart.format('DD.MM.YYYY')}`,
+          value: 'today'
         },
         {
           title: this.$tc('Yesterday'),
-          value: `${this.$dayjs().subtract(1, 'day').unix()},${this.$dayjs().subtract(1, 'day').unix()}`
+          tooltip: `За ${daysJsStart.subtract(1, 'day').format('DD.MM.YYYY')}`,
+          value: 'yesterday'
         },
         {
           title: this.$tc('This week'),
-          value: `${this.$dayjs().subtract(1, 'week').unix()},${this.$dayjs().unix()}`
+          tooltip: `c ${daysJsStart.startOf('week').format('DD.MM.YYYY')} по ${daysJsEnd.endOf('week').format('DD.MM.YYYY')}`,
+          value: 'this_week'
         },
         {
           title: this.$tc('Last week'),
-          value: `${this.$dayjs().subtract(2, 'week').unix()},${this.$dayjs().subtract(1, 'week').unix()}`
+          tooltip: `c ${daysJsStart.subtract(1, 'week').startOf('week').format('DD.MM.YYYY')} по ${daysJsEnd.subtract(1, 'week').endOf('week').format('DD.MM.YYYY')}`,
+          value: 'last_week'
+        },
+        {
+          title: this.$t('per_month', { name: this.$dayjs().format('MMMM') }).toString(),
+          tooltip: `c ${daysJsStart.startOf('month').format('DD.MM.YYYY')} по ${daysJsEnd.endOf('month').format('DD.MM.YYYY')}`,
+          value: 'month'
         }
       ]
+    },
+
+    filterCustomPeriodTitle () {
+      if (Array.isArray(this.filterCustomPeriod)) {
+        if (this.filterCustomPeriod.length === 2) {
+          return `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').format('DD.MM.YYYY')} — ${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').format('DD.MM.YYYY')}`
+        }
+      }
+      return this.$tc('Customizable')
     }
   },
 
   created () {
     // Функция противодействия
-    this.fetchTotalCalls = debounce(this.fetchTotalCalls, 450)
-    this.fetchPie = debounce(this.fetchPie, 450)
-    this.fetchHistory = debounce(this.fetchHistory, 450)
+    this.fetchTotalCalls = debounce(this.fetchTotalCalls, 1000)
+    this.fetchPie = debounce(this.fetchPie, 1000)
+    this.fetchHistory = debounce(this.fetchHistory, 1000)
   },
 
   mounted () {
     if (!this.filterPeriod) {
-      this.filterPeriod = makeUnixUTCTimestampRangeString()
+      this.filterPeriod = 'today'
     }
 
     if (this.statisticPieSeries.length === 0) {
@@ -583,26 +751,51 @@ export default (Vue as VueConstructor<VInterface>).extend({
     async fetchHistory () {
       // TODO: Объединить с параметрами пагинации
       this.processFetchHistory = true
-      await this.statisticHistoryFetch(Object.assign(this.paramsFilters, { offset: this.offset }))
+      await this.statisticHistoryFetch(Object.assign({}, this.paramsFilters, { offset: this.offset }))
       this.processFetchHistory = false
     },
 
     onAppPaginationChange () {
       this.fetchHistory()
+    },
+
+    onBtnRefreshClick () {
+      this.fetchTotalCalls()
+      this.fetchPie()
+      this.fetchHistory()
+    },
+
+    onBtnAudioRecordPlayClick (item: any) {
+      this.processFetchAudioFile.push(item.id)
+      new ContactHistory()
+        .getAudioFile(item.id)
+        .then((url: string) => {
+          this.$root.$emit('on-audio-player-show', {
+            src: url,
+            author: `${item.owner.first_name} ${item.owner.last_name} ${item.owner.middle_name}`
+          })
+        }).finally(() => {
+          this.processFetchAudioFile = []
+        })
     }
   }
 })
 </script>
 
 <style lang="scss">
-  .simple-table th {
-    &:first-child {
-      width: 150px;
-    }
-    &:nth-child(2) {
-      width: 350px;
-      white-space: nowrap;
-    }
-  }
+.margin-right > *:not(:nth-child(0)) {
+  margin-right: 10px;
+}
+
+.simple-table th:first-child {
+  border-right: 3px solid #3b71d5;
+  background: #e8edff!important;
+  color: #669;
+}
+.simple-table td:first-child {
+  border-right: 3px solid #3b71d5;
+  background: #e8edff;
+  color: #669;
+}
 
 </style>

@@ -74,7 +74,16 @@ const store = new Vuex.Store({
   plugins: [
     createPersistedState({
       key: window.origin,
-      paths: ['profile', 'tasks', 'database', 'settings', 'filters', 'symfony', 'contacts.params'],
+      paths: [
+        'profile',
+        'tasks',
+        'database',
+        'settings',
+        'filters',
+        'symfony',
+        'contacts.params',
+        'statistic_recent_call.filter'
+      ],
       storage: {
         getItem: (key: string) => get(key),
         removeItem: (key: string) => remove(key),

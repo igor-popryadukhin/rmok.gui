@@ -4,12 +4,14 @@ import isLeapYear from 'dayjs/plugin/isLeapYear'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import Weekday from 'dayjs/plugin/weekday'
 import 'dayjs/locale/ru'
 
 dayjs.extend(relativeTime)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isLeapYear)
+dayjs.extend(Weekday)
 dayjs.locale('ru')
 
 class Plugin {

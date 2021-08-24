@@ -166,21 +166,12 @@ export default Vue.extend({
     },
 
     onAudioPlayerShow ({ src, author }: unknown & { src: string; author: string }) {
-      if (this.$isDebug) {
-        console.group('handle: onAudioPlayerShow')
-        console.log({ src, author })
-      }
       this.$refs.audioPlayer.setMediaData({
         src,
         author
       })
 
       setTimeout(() => {
-        if (this.$isDebug) {
-          console.log(this.$refs.audioPlayer)
-          console.groupEnd()
-        }
-
         this.$refs.audioPlayer.show()
         this.$refs.audioPlayer.play()
       }, 500)

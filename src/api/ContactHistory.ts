@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import APIError from '@/api/classes/APIError';
 
 export default class ContactHistory {
   /**
@@ -8,14 +9,14 @@ export default class ContactHistory {
    *
    * @param historyId
    */
-  public getAudioFile (historyId: number): Promise<any> {
+  public getAudioFile (historyId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       $axios.get(`/contacts/history/${historyId}/audio`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            reject(response.data)
+            throw new APIError(response.data)
           }
-          resolve(response.data)
+          resolve(response.data?.url)
         }).catch(reject)
     })
   }
