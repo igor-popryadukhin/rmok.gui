@@ -60,6 +60,9 @@
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
+              <v-list-item-action-text v-if="taskItem.author">
+                {{ $t('author_name', { name: taskItem.author.full_name }) }}
+              </v-list-item-action-text>
               <v-btn
                 v-if="taskItem.state === 'pending'"
                 :loading="tasksActionProcessIds.indexOf(taskItem.id) > -1"
