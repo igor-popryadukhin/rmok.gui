@@ -67,6 +67,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               name: 'users_edit_telephony'
             }
           }
+        },
+        {
+          title: 'Schedule',
+          attrs: {
+            to: {
+              name: 'users_edit_schedule'
+            }
+          }
         }
       ]
     }

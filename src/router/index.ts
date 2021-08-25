@@ -233,22 +233,18 @@ const routes: RouteConfig[] = [
             meta: { layout: 'default', middleware: [] },
             name: 'users_edit_telephony',
             path: 'telephony'
+          },
+          {
+            component: () => import(/* webpackChunkName: "users-edit-schedule" */ '../views/Users/UserEditSchedule.vue'),
+            meta: { layout: 'default', middleware: [], anonymous: true },
+            name: 'users_edit_schedule',
+            path: 'schedule'
           }
         ],
         meta: {
           layout: 'default',
           middleware: []
         }
-      },
-      {
-        component: () => import(/* webpackChunkName: "users-schedule" */ '../views/Users/Schedule.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'users_schedule',
-        path: ':user_id/schedule'
       }
     ]
   },

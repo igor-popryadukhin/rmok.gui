@@ -139,7 +139,7 @@ export default Vue.extend({
       if (val) {
         if (val.id !== +this.$route.params.user_id) {
           this.$router.push({
-            name: 'users_schedule',
+            name: 'users_edit_schedule',
             params: {
               user_id: val.id
             }
