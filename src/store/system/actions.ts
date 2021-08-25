@@ -3,7 +3,6 @@ import { ActionContext, ActionTree } from 'vuex'
 import { State } from './state'
 import Notifications from '@/api/Notifications'
 import Notification from '@/api/interfaces/Notification'
-import { debounce } from 'vuetify/src/util/helpers'
 
 const actions: ActionTree<State, RootState> = {
   /**
@@ -23,7 +22,7 @@ const actions: ActionTree<State, RootState> = {
     })
   },
 
-  notifications_close ({ commit, state }, id: number) {
+  notifications_close ({ commit, state, dispatch }, id: number) {
     const notifications = state.notifications.map((e) => e)
     const index = notifications.findIndex((e: Notification) => e.id === id)
     if (index > -1) {
@@ -32,6 +31,14 @@ const actions: ActionTree<State, RootState> = {
 
       notifications.splice(index, 1)
       commit('notifications', notifications)
+
+      if (notifications.length === 0 && state.notifications_count > 0) {
+        // Если закрыли все уведомления, но на сервере ест ещё...
+        // Загружаю системные уведомления
+        setTimeout(() => (dispatch('notifications')), 1000)
+      } else if (notifications.length === 0 && state.notifications_count === 0) {
+        commit('notifications_visible', false)
+      }
 
       return new Notifications().close(id)
     }

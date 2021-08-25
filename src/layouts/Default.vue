@@ -176,6 +176,7 @@
       <!-- Bell -->
 
       <v-menu
+        v-model="systemNotificationsVisible"
         :close-on-content-click="false"
         nudge-left="150"
       >
@@ -198,7 +199,6 @@
           </v-btn>
         </template>
         <v-card
-          v-if="systemNotifications.length > 0"
           class="overflow-y-auto"
           max-width="800"
           min-width="450"
@@ -404,7 +404,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         suppressScrollY: false,
         wheelPropagation: false
       },
-      notificationShakeProcess: false
+      notificationShakeProcess: false,
+      timerId: 0
     }
   },
 
@@ -415,6 +416,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       systemNotifications: 'system/notifications',
       systemNotificationsCount: 'system/notifications_count'
     }),
+
+    // Состояние видимости меню системных уведомлений
+    systemNotificationsVisible: {
+      get () {
+        return this.$store.getters['system/notifications_visible']
+      },
+      set (val: boolean) {
+        return this.$store.commit('system/notifications_visible', val)
+      }
+    },
 
     profile (): ProfileState {
       return this.$store.getters['profile/profile']
@@ -751,6 +762,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }, 5000)
     }
 
+    // Каждую минуту опрашиваем свой профиль
+    this.timerId = setInterval(() => {
+      this.$store.dispatch('profile/load')
+    }, 60000)
+
     // setTimeout(() => {
     //   this.requestAndShowPermission()
     // }, 3000)
@@ -758,6 +774,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   beforeDestroy () {
     this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
+
+    clearInterval(this.timerId)
   },
 
   methods: {
@@ -1019,6 +1037,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         // Темы для подписок
         url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
+        // url.searchParams.append('topic', `${window.origin}/users/event`)
         // url.searchParams.append('topic', 'my-topic1')
         // url.searchParams.append('topic', 'my-topic2')
 
