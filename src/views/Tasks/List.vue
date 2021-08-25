@@ -109,6 +109,8 @@ import Vue from 'vue'
 import { makeUnixUTCTimestampRangeString } from '@/utils/datetime'
 import { mapGetters } from 'vuex'
 import { DateRangeCollection } from '@/views/Tasks/interfaces'
+import SSEMessage from '@/interfaces/SSEMessage'
+import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
   components: {
@@ -269,12 +271,23 @@ export default Vue.extend({
   },
 
   mounted () {
-    this.calculateTaskCount()
+    setTimeout(() => (this.calculateTaskCount()), 2000)
+
+    this.onSSEResultCountOpenTasks = debounce(this.onSSEResultCountOpenTasks, 1000)
+    this.$root.$on('sse-result-count-open-tasks', this.onSSEResultCountOpenTasks)
 
     this.initializeWatchForFilters()
   },
 
+  beforeDestroy () {
+    this.$root.$off('sse-result-count-open-tasks', this.onSSEResultCountOpenTasks)
+  },
+
   methods: {
+
+    onSSEResultCountOpenTasks (message: SSEMessage) {
+      this.tasksCounts = message.payload
+    },
 
     initializeWatchForFilters () {
       this.$watch('filterStatusId', () => {
@@ -282,6 +295,14 @@ export default Vue.extend({
       })
     },
 
+    /**
+     * Отправляет на сервер параметры для подсчёта количества открытых задач.
+     * Сервер отвечает статусом 202.
+     * SSE концентратор вернёт событие "result-count-open-tasks" и полезную нагрузку,
+     * в котрой будет содержаться информация о количестве задач.
+     *
+     * Длинна может быть любая.
+     */
     calculateTaskCount () {
       new Tasks()
         .calculateCount(this.dateRangeCollection
@@ -300,9 +321,7 @@ export default Vue.extend({
               params
             }
           })
-        ).then((response) => {
-          this.tasksCounts = response
-        })
+        )
     },
 
     filterPlannedForPeriodAllowedDates (val: string) {

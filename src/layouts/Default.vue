@@ -1049,8 +1049,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           if (event instanceof MessageEvent) {
             const obj: SSEMessage = JSON.parse(event.data)
 
+            this.$appDebug.extend('SSE').extend('EVENT')('%o', obj)
+
             // Кидаем сообщение на корневую шину
-            this.$root.$emit('sse-' + obj.name, obj.data)
+            this.$root.$emit('sse-' + obj.name, obj)
 
             // Что-то изменилось в задачах
             if (obj.name === 'tasks-changed') {
