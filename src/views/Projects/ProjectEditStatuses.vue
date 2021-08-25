@@ -33,12 +33,12 @@
       <v-treeview
         :items="statuses"
         item-key="id"
-        item-children="statuses"
+        item-children="children"
         open-on-click
       >
         <template #prepend="{ item, open }">
           <v-icon
-            v-if="item.statuses"
+            v-if="item.children"
           >
             {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
           </v-icon>
@@ -48,7 +48,7 @@
         </template>
         <template #append="append">
           <template
-            v-if="append.item.statuses"
+            v-if="append.item.children"
           >
             <v-btn
               :disabled="processLoadingStatusGroupId !== append.item.id && processLoadingStatusGroupId > 0"
