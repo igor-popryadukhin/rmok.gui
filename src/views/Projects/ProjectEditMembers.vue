@@ -41,24 +41,11 @@
       </template>
       <template #right>
         <app-pagination
-          v-model="queryPage"
-          :length="membersPages"
+          v-model="queryOffset"
+          :count="membersTotal"
+          :per-page="membersPerPage"
           :disabled="processLoadingData"
-        >
-          <template #display>
-            <app-count-up
-              :end-val="((queryPage * membersPerPage) - membersPerPage) + 1"
-            />
-            <span class="mx-1">—</span>
-            <app-count-up
-              :end-val="(queryPage * membersPerPage) >= membersTotal ? membersTotal : (queryPage * membersPerPage)"
-            />
-            <span class="mx-1">из</span>
-            <app-number-format
-              :value="membersTotal"
-            />
-          </template>
-        </app-pagination>
+        />
       </template>
     </app-tools>
 
@@ -142,7 +129,7 @@ interface IData {
 
 interface IComputed {
   projectId: number;
-  queryPage: number;
+  queryOffset: number;
   [key: string]: unknown;
 }
 
@@ -155,7 +142,7 @@ interface IMethod {
 export default Vue.extend<IData, IMethod, IComputed, IProps>({
   name: 'ProjectEditMembers',
 
-  components: { AppCountUp, AppNumberFormat, AppPagination, AppLoading, AppTools, SUsers },
+  components: { AppPagination, AppLoading, AppTools, SUsers },
 
   data () {
     return {
@@ -176,7 +163,7 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
       return +this.$route.params.project_id
     },
 
-    queryPage: {
+    queryOffset: {
       get () {
         return +this.$route.query?.page || 1
       },
@@ -188,7 +175,7 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
   },
 
   watch: {
-    queryPage () {
+    queryOffset () {
       this.fetchProjectMembers()
     }
   },
@@ -201,7 +188,7 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
     fetchProjectMembers () {
       this.processLoadingData = true
       new Projects()
-        .getMembers(+this.$route.params.project_id, (this.queryPage * this.membersPerPage) - this.membersPerPage, this.membersPerPage)
+        .getMembers(+this.$route.params.project_id, this.queryOffset)
         .then((response) => {
           this.$data.membersTotal = response.meta?.count
           this.$data.membersPages = Math.ceil((response.meta?.count ?? 0) / this.$data.membersPerPage)
