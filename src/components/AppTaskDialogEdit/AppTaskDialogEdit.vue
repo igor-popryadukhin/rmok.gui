@@ -104,11 +104,17 @@ export default Vue.extend({
   props: {
     date: {
       type: String,
-      default: () => new Date().toISOString().substring(0, 10)
+      default: () => {
+        const dateTime = new Date()
+        const year = String(dateTime.getFullYear())
+        const month = String(dateTime.getMonth() + 1)
+        const date = String(dateTime.getDate())
+        return `${year}-${month.padStart(2, '00')}-${date.padStart(2, '00')}`
+      }
     },
     time: {
       type: String,
-      default: () => new Date().toISOString().substring(11, 16)
+      default: () => new Date().toTimeString().substring(0, 5)
     },
     type: {
       type: String,
@@ -128,8 +134,8 @@ export default Vue.extend({
     return {
       menuDatePickerVisible: false,
       visible: false,
-      dDate: new Date().toISOString().substring(0, 10),
-      dTime: new Date().toISOString().substring(11, 16),
+      dDate: '',
+      dTime: '',
       dType: 'call',
       dDescription: ''
     }

@@ -82,7 +82,8 @@ const store = new Vuex.Store({
         'filters',
         'symfony',
         'contacts.params',
-        'statistic_recent_call.filter'
+        'statistic_recent_call.filter',
+        'system.route'
       ],
       storage: {
         getItem: (key: string) => get(key),

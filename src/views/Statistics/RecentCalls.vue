@@ -608,7 +608,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       if (/^\d\d\d\d-\d\d-\d\d/s.test(String(this.filterContactCreatedAt))) {
-        params.contact_created_at = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD').utc().unix()
+        const daysJsStart = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD').set('h', 0).set('m', 0).set('s', 0)
+        const daysJsEnd = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD').set('h', 23).set('m', 59).set('s', 59)
+
+        params.contact_created_at = `${daysJsStart.unix()},${daysJsEnd.unix()}`
       }
 
       return params

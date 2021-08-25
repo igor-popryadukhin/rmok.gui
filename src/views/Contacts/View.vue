@@ -390,7 +390,7 @@
           <!-- Статусы -->
           <v-fade-transition mode="in-out">
             <v-card-text
-              v-show="status.visible"
+              v-if="status.visible"
               class="pa-0"
               style="border-top: solid rgb(58,112,212);"
             >
@@ -594,7 +594,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   beforeRouteEnter (to, from, next) {
     if (from.fullPath !== '/') {
       // Сохраняю маршрут, откуда пришёл
-      store.commit('system/route_last_full_path', from.fullPath)
+      store.commit('system/route/full_path', from.fullPath)
     }
     next()
   },
@@ -829,12 +829,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      */
     onTaskDialogCreate (data: unknown & { date: string; time: string; type: string; description: string }) {
       this.$appDebug(data)
+
+      const plannedFor = this.$dayjs(`${data.date} ${data.time}`, 'YYYY-MM-DD HH:mm')
       new Tasks()
         .create({
           contact_id: this.contactId,
           type: data.type,
-          planned_for: this.$dayjs(`${data.date} ${data.time}`, 'YYYY-MM-DD HH:mm').utc().unix(),
+          planned_for: plannedFor.unix(),
           description: data.description
+        }).then(() => {
+          this.$toast.success(this.$t('planned_for', { date: plannedFor.format('DD.MM.YYYY HH:mm'), description: data.description }).toString())
         })
     },
 
@@ -1056,6 +1060,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.status.status_id = 0
           this.status.visible = false
           this.status.comment = ''
+
+          // Вернуться откуда пришёл
+          this.$store.dispatch('system/route/navigate')
         }).finally(() => (this.saveAndNextLoading = false))
     },
 
@@ -1089,3 +1096,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   font-size: 1.4rem;
 }
 </style>
+
+<i18n>
+{
+  "ru": {
+    "planned_for": "Запланировано на {date} \n {description}"
+  }
+
+}
+</i18n>
