@@ -12,7 +12,8 @@ const mutations: MutationTree<State> = {
   filter_calling (state: State, payload) { state.filter_calling = payload },
   filter_offset (state: State, payload) { state.filter_offset = payload },
   order_by (state: State, payload) { state.order_by = payload },
-  order_direction (state: State, payload) { state.order_direction = payload }
+  order_direction (state: State, payload) { state.order_direction = payload },
+  filter_task (state, payload) { state.filter_task = payload }
 }
 
 export default mutations

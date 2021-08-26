@@ -77,6 +77,14 @@
   "Contact updated": "Контакт обновлен",
   "Contacts": "Контакты",
   "Contacts not transferred | {n} contact transferred | {n} contact transferred | {n} contacts transferred": "Контакты не переданы | Передан {n} контакт | Передано {n} контакта | Передано {n} контактов",
+  "ContactsFilters": {
+    "Tasks": {
+      "available": "Есть задачи",
+      "unavailable": "Нет задач",
+      "overdue": "Просроченные задачи",
+      "not_overdue": "Непросроченные задачи"
+    }
+  },
   "Copy": "Копировать",
   "Country": "Страна",
   "Create": "Создать",
@@ -289,7 +297,6 @@
   "Status not set": "Статус не установлен",
   "Status removed.": "Статус удален.",
   "Statuses": "Статусы",
-  "Subscriber does not exist": "Абонент не существует",
   "Subscriber does not exist": "Абонент не существует",
   "Subscriber unavailable": "Абонент недоступен",
   "Subscriber's phone number to whom we are calling": "Номер телефона абонента кому звоним",

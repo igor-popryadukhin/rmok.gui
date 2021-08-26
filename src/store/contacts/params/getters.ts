@@ -13,7 +13,8 @@ const getters: GetterTree<State, RootState> = {
   filter_calling (state: State) { return state.filter_calling },
   filter_offset (state: State) { return state.filter_offset },
   order_by (state: State) { return state.order_by },
-  order_direction (state: State) { return state.order_direction }
+  order_direction (state: State) { return state.order_direction },
+  filter_task (state) { return state.filter_task }
 }
 
 export default getters

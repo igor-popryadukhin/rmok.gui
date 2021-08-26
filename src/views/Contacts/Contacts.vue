@@ -298,11 +298,13 @@
           </div>
           <!-- Фильтр по пользователям -->
 
-          <!-- Фильтр по наличию задач TODO: Реализовать фильтрацию по наличию задач у контакта -->
+          <!-- Фильтр по наличию задач -->
           <div>
             <v-select
+              v-model="filterTask"
+              clearable
               :label="$tc('Tasks')"
-              :items="[]"
+              :items="filterTasksItems()"
               outlined
               dense
               @change="onFilterChange"
@@ -413,6 +415,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   data () {
     return {
+      filterTasksItems: () => {
+        return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
+          return {
+            value: e,
+            text: this.$t(`ContactsFilters.Tasks.${e}`)
+          }
+        })
+      },
       filterCallingOptions: [
         { text: 'Yes', value: 'yes' },
         { text: 'No', value: 'no' }
@@ -513,6 +523,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     // Vuex state
+    filterTask: {
+      get () {
+        return this.$store.getters['contacts/params/filter_task']
+      },
+
+      set (value?: number) {
+        return this.$store.commit('contacts/params/filter_task', value)
+      }
+    },
+
+    // Vuex state
     filterCalling: {
       get () {
         return this.$store.getters['contacts/params/filter_calling']
@@ -599,6 +620,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
       if (this.offset > 0) {
         params.offset = this.offset
+      }
+      if (this.filterTask) {
+        params.task = this.filterTask
       }
 
       return params
