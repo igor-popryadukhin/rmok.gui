@@ -17,7 +17,7 @@ const httpRequestLog = debug('APP').extend('HTTP').extend('REQUEST')
 const config = {
   baseURL: process.env.VUE_APP_API,
   timeout: 180000,
-  withCredentials: process.env.NODE_ENV === 'development',
+  withCredentials: true,
   validateStatus (status: number) {
     return status < 500 // Resolve only if the status code is less than 500
   }
