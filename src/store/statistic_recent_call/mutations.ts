@@ -6,7 +6,15 @@ const mutations: MutationTree<State> = {
   total_calls (state: State, payload) { state.total_calls = payload },
   client_calls (state: State, payload) { state.client_calls = payload },
   history_offset (state: State, payload) { state.history_offset = payload },
-  history (state: State, payload) { state.history = payload }
+  history (state: State, payload) { state.history = payload },
+
+  /**
+   * Сбрасывает до состояния по умолчанию.
+   * @param state
+   */
+  resetState (state: State) {
+    Object.assign(state, defaultState())
+  }
 }
 
 export default mutations
