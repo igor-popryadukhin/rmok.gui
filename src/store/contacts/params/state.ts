@@ -8,9 +8,9 @@ export interface State {
   filter_contact_created_at: string;
   filter_calling: null | 'yes' | 'no';
   filter_offset: number;
+  filter_task: string;
   order_by: string;
   order_direction: string;
-  filter_task: string;
 }
 
 function state (): State {
@@ -24,9 +24,9 @@ function state (): State {
     filter_contact_created_at: '',
     filter_calling: null,
     filter_offset: 0,
+    filter_task: '',
     order_by: 'by_name',
-    order_direction: 'asc',
-    filter_task: ''
+    order_direction: 'asc'
   }
 }
 

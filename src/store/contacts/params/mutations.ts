@@ -11,9 +11,9 @@ const mutations: MutationTree<State> = {
   filter_contact_created_at (state: State, payload) { state.filter_contact_created_at = payload },
   filter_calling (state: State, payload) { state.filter_calling = payload },
   filter_offset (state: State, payload) { state.filter_offset = payload },
+  filter_task (state, payload) { state.filter_task = payload },
   order_by (state: State, payload) { state.order_by = payload },
-  order_direction (state: State, payload) { state.order_direction = payload },
-  filter_task (state, payload) { state.filter_task = payload }
+  order_direction (state: State, payload) { state.order_direction = payload }
 }
 
 export default mutations
