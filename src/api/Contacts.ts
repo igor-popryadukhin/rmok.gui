@@ -373,13 +373,13 @@ export class Contacts {
    * @param fs
    * @param onUploadProgress
    */
-  public import<DT = unknown & { count_insert_contacts: number }> (fs: File | FileList, onUploadProgress?: (event: ProgressEvent) => void): Promise<ResponseInterface<unknown, DT>> {
-    return new Promise<ResponseInterface<any, DT>>((resolve, reject) => {
+  public import<DT = unknown & { count_insert_contacts: number }> (fs: File | FileList, onUploadProgress?: (event: ProgressEvent) => void): Promise<ResponseInterface<any>> {
+    return new Promise<ResponseInterface<any>>((resolve, reject) => {
       const upload = (data: any) => {
         $axios.post('/contacts/import', data, {
           onUploadProgress
         }).then((response: AxiosResponse) => {
-          if ([200, 201].includes(response.status)) {
+          if ([200, 202].includes(response.status)) {
             resolve(response.data)
           } else {
             throw new APIError(response.data)
