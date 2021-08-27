@@ -59,17 +59,6 @@ import { Route } from 'vue-router/types/router'
 export default Vue.extend({
   components: { AppScheduleWeek },
 
-  beforeRouteEnter (to: Route, from: Route, next: any) {
-    new Users()
-      .getSchedule(+to.params.user_id)
-      .then((response: any) => {
-        next((vm: any) => {
-          vm.new_schedule = response
-          vm.old_schedule = response
-        })
-      })
-  },
-
   beforeRouteLeave (to: Route, from: Route, next: any) {
     if (this.isChanged) {
       if (this.$confirm()) {
@@ -80,23 +69,17 @@ export default Vue.extend({
     }
   },
 
-  async beforeRouteUpdate (to: Route, from: Route, next: any) {
-    if ('user_id' in to.params) {
-      if (+to.params.user_id !== +from.params.user_id) {
-        this.fetchSchedule(+to.params.user_id)
-      }
-    }
-    next()
-  },
-
   data: () => ({
     save_process: false,
-    user_id: 0,
     old_schedule: [] as { time:string, day: number }[],
     new_schedule: [] as { time:string, day: number }[]
   }),
 
   computed: {
+    userId () {
+      return +this.$route.params.user_d
+    },
+
     isChanged () {
       const old_array: any[] = this.old_schedule
       const new_array: any[] = this.new_schedule
@@ -133,27 +116,21 @@ export default Vue.extend({
       } else {
         window.onbeforeunload = null
       }
-    },
-
-    user (val?: UserInterface) {
-      if (val) {
-        if (val.id !== +this.$route.params.user_id) {
-          this.$router.push({
-            name: 'users_edit_schedule',
-            params: {
-              user_id: val.id
-            }
-          })
-        }
-      }
     }
+  },
+
+  mounted () {
+    new Users()
+      .getSchedule(this.userId)
+      .then((response: any) => {
+        this.new_schedule = response
+        this.old_schedule = response
+      })
   },
 
   methods: {
     onSaveClick () {
-      if (this.user_id) {
-        this.saveSchedule(this.user_id, this.new_schedule)
-      }
+      this.saveSchedule(this.userId, this.new_schedule)
     },
 
     onBtnCancelClick () {
