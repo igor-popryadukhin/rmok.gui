@@ -59,6 +59,17 @@ import { Route } from 'vue-router/types/router'
 export default Vue.extend({
   components: { AppScheduleWeek },
 
+  beforeRouteEnter (to: Route, from: Route, next: any) {
+    new Users()
+      .getSchedule(+to.params.user_id)
+      .then((response: any) => {
+        next((vm: any) => {
+          vm.new_schedule = response
+          vm.old_schedule = response
+        })
+      })
+  },
+
   beforeRouteLeave (to: Route, from: Route, next: any) {
     if (this.isChanged) {
       if (this.$confirm()) {
