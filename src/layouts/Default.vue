@@ -229,6 +229,23 @@
                         {{ item.message }}
                       </span>
                     </v-tooltip>
+                    <v-btn
+                      v-if="item.url && (item.link_type === 'file')"
+                      style="max-width: 112px;"
+                      color="primary"
+                      outlined
+                      x-small
+                      tile
+                      @click="onFileDownload(item.url)"
+                    >
+                      {{ $tc('Download') }}
+                      <v-icon
+                        right
+                        dark
+                      >
+                        mdi-cloud-download
+                      </v-icon>
+                    </v-btn>
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn
@@ -1119,6 +1136,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     onSSEProfileChanged () {
       this.$store.dispatch('profile/load')
+    },
+
+    onFileDownload (name: string) {
+      this.$store.dispatch('contacts_new/file_contact_download', name)
     }
   }
 })

@@ -98,6 +98,12 @@ const actions: ActionTree<State, RootState> = {
 
   resetState: ({ commit }) => {
     commit('resetState')
+  },
+
+  file_contact_download: ({ commit, state }, name: string) => {
+    new Contacts()
+      .contactDownload(name)
+      .then()
   }
 }
 

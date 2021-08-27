@@ -408,31 +408,14 @@ export class Contacts {
    *
    * @param params
    */
-  public export<DT = string> (params: ContactExportParamsInterface): Promise<DT> {
-    return new Promise<DT>((resolve, reject) => {
-      $axios.post('/contacts/export', params, {
-        responseType: 'blob'
-      })
+  public export (params: ContactExportParamsInterface): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      $axios.post('/contacts/export', params)
         .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            const url = window.URL.createObjectURL(new Blob([response.data]))
-            const link = document.createElement('a')
-            link.href = url
-
-            if (params.format === 'excel') {
-              link.setAttribute('download', `${new Date().getTime()}.xlsx`)
-            } else if (params.format === 'csv') {
-              link.setAttribute('download', `${new Date().getTime()}.csv`)
-            }
-
-            document.body.appendChild(link)
-            link.click()
-            setTimeout(() => {
-              link.remove()
-            }, 1000)
-          } else {
-            throw new APIError(response.data)
+          if ([200, 202].includes(response.status)) {
+            return resolve()
           }
+          throw new APIError(response?.data)
         }).catch(reject)
     })
   }
@@ -483,6 +466,39 @@ export class Contacts {
             return resolve(response.data?.id || 0)
           }
           throw new APIError(response?.data || response.statusText)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Скачиваем файл экселя с контактами
+   *
+   * @param name
+   */
+  public contactDownload (name: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/contacts/export/file/${name}`, { responseType: 'blob' })
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href = url
+            const extFile = name.split('.').pop()
+            if (extFile === 'xlsx') {
+              link.setAttribute('download', `${new Date().getTime()}.xlsx`)
+            } else if (extFile === 'csv') {
+              link.setAttribute('download', `${new Date().getTime()}.csv`)
+            }
+
+            document.body.appendChild(link)
+            link.click()
+            setTimeout(() => {
+              link.remove()
+            }, 1000)
+          } else {
+            throw new APIError(response.data)
+          }
+          resolve(response.data?.id)
         }).catch(reject)
     })
   }
