@@ -605,6 +605,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
 
         params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
+      } else if (this.filterContactCreatedAt) {
+        const contactCreatedAtStart = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+        const contactCreatedAtEnd = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+
+        contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+        contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+        params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
       }
 
       // ----
