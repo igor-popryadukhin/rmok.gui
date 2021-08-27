@@ -25,6 +25,14 @@ const actions: ActionTree<State, RootState> = {
           resolve()
         }).catch(reject)
     })
+  },
+
+  /**
+   * Сбрасывает до состояния по умолчанию.
+   * @param commit
+   */
+  resetState: ({ commit }) => {
+    commit('resetState')
   }
 }
 

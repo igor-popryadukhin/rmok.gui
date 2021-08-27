@@ -718,7 +718,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
     this.$watch('paramsFilters', () => {
       this.fetchTotalCalls()
       this.fetchPie()
-      this.fetchHistory()
+
+      if (Number(this.offset) > 0) {
+        this.offset = 0 // Это позволит сбросить смещение и загрузит историю, фактически будет вызвана функция this.fetchHistory()
+      } else {
+        this.fetchHistory()
+      }
     })
   },
 
@@ -744,8 +749,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
      */
     async fetchPie () {
       this.processFetchPie = true
-      await this.statisticPieFetch(this.paramsFilters)
-      this.processFetchPie = false
+      try {
+        await this.statisticPieFetch(this.paramsFilters)
+      } finally {
+        this.processFetchPie = false
+      }
     },
 
     /**
@@ -754,8 +762,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
     async fetchHistory () {
       // TODO: Объединить с параметрами пагинации
       this.processFetchHistory = true
-      await this.statisticHistoryFetch(Object.assign({}, this.paramsFilters, { offset: this.offset }))
-      this.processFetchHistory = false
+      try {
+        await this.statisticHistoryFetch(Object.assign({}, this.paramsFilters, { offset: this.offset }))
+      } finally {
+        this.processFetchHistory = false
+      }
     },
 
     onAppPaginationChange () {
