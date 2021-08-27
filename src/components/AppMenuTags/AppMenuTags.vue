@@ -45,6 +45,8 @@
               <v-list-item
                 v-for="(item, key) in filtered"
                 :key="key"
+                :input-value="item.id"
+                :value="item.id"
                 dense
                 link
                 selectable
