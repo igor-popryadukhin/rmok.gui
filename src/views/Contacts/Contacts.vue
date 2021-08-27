@@ -93,49 +93,6 @@
                   </v-menu>
                 </template>
                 <!-- Экспорт -->
-                <!-- Импорт -->
-                <template v-if="contactsTotal === 0 && $isGranted('IMPORT_EXPORT_CONTACTS')">
-                  <v-menu offset-y>
-                    <template #activator="{ on, attrs }">
-                      <v-btn
-                        v-bind="attrs"
-                        text
-                        tile
-                        small
-                        v-on="on"
-                      >
-                        {{ $tc('Import') }}
-                      </v-btn>
-                    </template>
-                    <v-list
-                      class="py-0"
-                      dense
-                    >
-                      <v-list-item
-                        link
-                        disabled
-                        @click="onImportClick('csv')"
-                      >
-                        <v-list-item-content>
-                          <v-list-item-title>{{ $tc('Import from CSV') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ $tc('Text format') }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
-                        link
-                        @click="onImportClick('excel')"
-                      >
-                        <v-list-item-content>
-                          <v-list-item-title>{{ $tc('Import from Excel') }}</v-list-item-title>
-                          <v-list-item-subtitle>
-                            {{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}
-                          </v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </template>
-                <!-- Импорт -->
                 <!-- Установка тегов -->
                 <!-- TODO: Только для администраторов -->
                 <app-menu-tags
@@ -173,22 +130,6 @@
                 />
               </template>
             </app-tools>
-            <!-- Прогресс импорта -->
-            <v-fade-transition>
-              <v-banner
-                v-if="importExportProgress.visible"
-                class="mb-1"
-                single-line
-                sticky
-              >
-                <v-progress-linear
-                  v-model="importExportProgress.value"
-                  :indeterminate="importExportProgress.value < 0"
-                  height="10"
-                />
-              </v-banner>
-            </v-fade-transition>
-            <!-- Прогресс импорта -->
             <v-banner
               v-if="contactsSelected.length > 0"
               class="px-0"
@@ -847,58 +788,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         target_contacts: this.contactsSelected < 0 ? [] : this.contactsSelected.map((e: number) => e)
       }
 
-      this.importExportProgress.value = true
-      this.importExportProgress.value = -1 // Неопределённый
       new Contacts()
         .export(params)
-        .finally(() => {
-          this.importExportProgress.value = false
-          this.importExportProgress.value = 0
+        .then(() => {
+          this.$toast.success('Идет формирование файла, ожидайте ...')
         })
-    },
-
-    /**
-     * При клике на кнопку "Импортировать"
-     **/
-    onImportClick (format: 'excel' | 'csv') {
-      let accept = ''
-      switch (format) {
-        case 'csv': {
-          accept = '.csv'
-          break
-        }
-        case 'excel': {
-          accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
-          break
-        }
-        default: {
-          return this.$toast.error('Import successfully')
-        }
-      }
-
-      this.$fileDialog.open({
-        accept,
-        multiple: false
-      }).then((file: FileList | File) => {
-        if (file instanceof File) {
-          this.importExportProgress.visible = true
-          new Contacts()
-            .import(file, (event: ProgressEvent) => {
-              this.importExportProgress.value = event.loaded / event.total * 100
-            })
-            .then((response) => {
-              this.$toast.success('Импортировано ' + response.data.count_insert_contacts)
-              this.fetchContacts()
-            }).catch((error: Error) => {
-              this.$toast.error(error.message)
-            }).finally(() => {
-            // Для того, что бы увидит 100%
-              setTimeout(() => {
-                this.importExportProgress.visible = false
-              }, 500)
-            })
-        }
-      })
+        .finally()
     }
   }
 })

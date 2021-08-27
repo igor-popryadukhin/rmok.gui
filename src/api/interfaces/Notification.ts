@@ -6,4 +6,5 @@ export default interface Notification {
   owner: User;
   priority: string;
   created_at: number;
+  link_type: string;
 }
