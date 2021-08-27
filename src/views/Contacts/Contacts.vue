@@ -53,7 +53,7 @@
                   {{ $tc('Transfer contacts') }}
                 </v-btn>
                 <!-- Экспорт -->
-                <template v-if="contactsTotal > 0 && $isGranted('IMPORT_EXPORT_CONTACTS')">
+                <template v-if="contactsSelected.length > 0 && $isGranted('IMPORT_EXPORT_CONTACTS')">
                   <v-menu offset-y>
                     <template #activator="{ on, attrs }">
                       <v-btn
@@ -93,6 +93,49 @@
                   </v-menu>
                 </template>
                 <!-- Экспорт -->
+                <!-- Импорт -->
+                <template v-if="$isGranted('IMPORT_EXPORT_CONTACTS')">
+                  <v-menu offset-y>
+                    <template #activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        text
+                        tile
+                        small
+                        v-on="on"
+                      >
+                        {{ $tc('Import') }}
+                      </v-btn>
+                    </template>
+                    <v-list
+                      class="py-0"
+                      dense
+                    >
+                      <v-list-item
+                        link
+                        disabled
+                        @click="onImportClick('csv')"
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title>{{ $tc('Import from CSV') }}</v-list-item-title>
+                          <v-list-item-subtitle>{{ $tc('Text format') }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                      <v-list-item
+                        link
+                        @click="onImportClick('excel')"
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title>{{ $tc('Import from Excel') }}</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </template>
+                <!-- Импорт -->
                 <!-- Установка тегов -->
                 <!-- TODO: Только для администраторов -->
                 <app-menu-tags
@@ -798,8 +841,46 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.$toast.success('Идет формирование файла, ожидайте ...')
         })
         .finally()
+    },
+
+    /**
+     * При клике на кнопку "Импортировать"
+     **/
+    onImportClick (format: 'excel' | 'csv') {
+      let accept = ''
+      switch (format) {
+        case 'csv': {
+          accept = '.csv'
+          break
+        }
+        case 'excel': {
+          accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
+          break
+        }
+        default: {
+          return this.$toast.error('Import successfully')
+        }
+      }
+
+      this.$fileDialog.open({
+        accept,
+        multiple: false
+      }).then((file: FileList | File) => {
+        if (file instanceof File) {
+          this.importExportProgress.visible = true
+          new Contacts()
+            .import(file)
+            .then((response) => {
+              this.$toast.success('Импортирование контактов, ожидайте ...')
+              this.fetchContacts()
+            }).catch((error: Error) => {
+              this.$toast.error(error.message)
+            })
+        }
+      })
     }
   }
+
 })
 
 </script>
