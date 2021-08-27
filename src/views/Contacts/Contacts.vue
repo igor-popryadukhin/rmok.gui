@@ -881,7 +881,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         multiple: false
       }).then((file: FileList | File) => {
         if (file instanceof File) {
-          this.importExportProgress.visible = true
           new Contacts()
             .import(file)
             .then((response) => {
