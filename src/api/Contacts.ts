@@ -3,8 +3,8 @@ import Contact from './interfaces/Contact'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
-import { ContactInterface, ContactTagInterface } from './Schemas/ContactInterface'
-import ContactTag from '@/api/interfaces/ContactTag'
+import { ContactTagInterface } from './Schemas/ContactInterface'
+import ContactHistory from '@/api/interfaces/ContactHistory'
 
 export interface ContactResponseInterface {
   count: number;
@@ -304,14 +304,15 @@ export class Contacts {
   }
 
   /**
+   * Вернёт историю контакта по идентификатору истории.
    * @param historyId
    */
-  public getHistoryById (historyId: number): Promise<any> {
+  public getHistoryById (historyId: number): Promise<ContactHistory> {
     return new Promise((resolve, reject) => {
       $axios.get(`/contacts/history/${historyId}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            reject(response.data)
+            throw new APIError(response.data)
           }
           resolve(response.data)
         }).catch(reject)
@@ -340,7 +341,7 @@ export class Contacts {
    * @param historyId
    * @param data
    */
-  public updateHistory (historyId: number, data = {}): Promise<number> {
+  public editHistory (historyId: number, data = {}): Promise<number> {
     return new Promise((resolve, reject) => {
       $axios.patch(`/contacts/history/${historyId}`, data)
         .then((response: AxiosResponse) => {

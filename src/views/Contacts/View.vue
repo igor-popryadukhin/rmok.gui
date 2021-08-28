@@ -1050,7 +1050,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       this.saveAndNextLoading = true
 
       return new Contacts()
-        .updateHistory(this.status.contact_history_id, {
+        .editHistory(this.status.contact_history_id, {
           comment: this.status.comment,
           status_id: this.status.status_id
         }).then(() => {
