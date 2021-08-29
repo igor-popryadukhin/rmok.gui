@@ -137,15 +137,17 @@
                     <span class="black--text">{{ secondsToHmsDigital(item.call_duration) }}</span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
-                    <span class="black--text">{{ item.comment || '—' }}</span>
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle>
                     <template v-if="item.owner">
                       <span class="black--text">{{ item.owner.full_name }}</span>
                     </template>
                     <template v-else>
                       —
                     </template>
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle @click="onAppContactHistoryCommentDialogEdit(item.id)">
+                    <span class="black--text">
+                      {{ item.comment || '—' }}
+                    </span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
                     <v-tooltip
@@ -209,7 +211,7 @@
 
     <!-- Диалог изменения статуса -->
     <template v-if="appContactHistoryDialogEdit.visible">
-      <app-contact-history-dialog-edit
+      <app-contact-history-status-dialog-edit
         v-model="appContactHistoryDialogEdit.statusId"
         :visible.sync="appContactHistoryDialogEdit.visible"
         :items="appContactHistoryDialogEdit.items"
@@ -219,6 +221,17 @@
       />
     </template>
     <!-- Диалог изменения статуса -->
+
+    <!-- Диалог изменения комментария -->
+    <template v-if="appContactHistoryCommentEdit.visible">
+      <app-contact-history-comment-dialog-edit
+        v-model="appContactHistoryCommentEdit.comment"
+        :visible.sync="appContactHistoryCommentEdit.visible"
+        @btn:cancel="appContactHistoryCommentEdit.visible = false"
+        @btn:save="onAppContactHistoryCommentDialogEditSave"
+      />
+    </template>
+    <!-- Диалог изменения комментария -->
   </v-sheet>
 </template>
 
@@ -249,7 +262,8 @@ interface Props {
 
 export default Vue.extend<Data, Methods, Computed, Props>({
   components: {
-    AppContactHistoryDialogEdit: () => import('@/components/AppContactHistoryDialogEdit/AppContactHistoryDialogEdit.vue'),
+    AppContactHistoryStatusDialogEdit: () => import('@/components/AppContactHistoryStatusDialogEdit/AppContactHistoryStatusDialogEdit.vue'),
+    AppContactHistoryCommentDialogEdit: () => import('@/components/AppContactHistoryCommentDialogEdit/AppContactHistoryCommentDialogEdit.vue'),
     AppLoading
   },
 
@@ -260,6 +274,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         contactHistoryId: 0,
         statusId: 0,
         items: []
+      },
+
+      appContactHistoryCommentEdit: {
+        visible: false,
+        historyId: 0,
+        comment: ''
       },
 
       processItemsEdit: [] as number[],
@@ -351,6 +371,34 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     /**
+     * @param id идентификатор записи истории истории
+     */
+    onAppContactHistoryCommentDialogEdit (id: number) {
+      new Contacts()
+        .getHistoryById(id)
+        .then((response) => {
+          this.appContactHistoryCommentEdit.historyId = response.id
+          this.appContactHistoryCommentEdit.comment = response.comment
+          this.appContactHistoryCommentEdit.visible = true
+        }).finally(() => {
+          const index = this.processItemsEdit.indexOf(id)
+          if (index > -1) {
+            this.processItemsEdit.splice(index, 1)
+          }
+        })
+    },
+
+    onAppContactHistoryCommentDialogEditSave () {
+      new Contacts()
+        .editHistory(this.appContactHistoryCommentEdit.historyId, {
+          comment: this.appContactHistoryCommentEdit.comment
+        })
+        .then(() => {
+          this.$toast.success('Changes accepted')
+        }).finally(() => (this.appContactHistoryCommentEdit.visible = false))
+    },
+
+    /**
      * Событие происходит, когда нажали на кнопку изменить историю.
      * @param id идентификатор истории.
      */
@@ -359,8 +407,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       new Contacts()
         .getHistoryById(id)
         .then((response) => {
-          this.$appDebug(response)
-
           this.appContactHistoryDialogEdit.contactHistoryId = response.id
           this.appContactHistoryDialogEdit.visible = true
           this.appContactHistoryDialogEdit.statusId = response.status?.id

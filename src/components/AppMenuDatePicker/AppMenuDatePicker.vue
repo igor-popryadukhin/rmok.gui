@@ -79,6 +79,10 @@ export default Vue.extend({
       type: Boolean,
       default: false
     },
+    range: {
+      type: Boolean,
+      default: false
+    },
     value: {
       type: [Array, String],
       default: () => null
@@ -95,7 +99,6 @@ export default Vue.extend({
 
   data () {
     return {
-      range: false,
       dates: null,
       menu: false
     }
@@ -113,7 +116,7 @@ export default Vue.extend({
   mounted () {
     if (this.value) {
       if (Array.isArray(this.value)) {
-        this.$data.range = true
+        this.$emit('update:range', true)
       }
 
       this.$data.dates = this.value

@@ -141,6 +141,20 @@
           </v-list-item>
         </template>
       </v-list>
+
+      <template #append>
+        <div class="pa-2">
+          <v-btn
+            to="/help"
+            text
+            block
+            tile
+            disabled
+          >
+            {{ $tc('Help') }}
+          </v-btn>
+        </div>
+      </template>
     </v-navigation-drawer>
 
     <!-- App bar -->
@@ -775,9 +789,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     if (this.$isGranted('SECTION_TASKS')) {
       setTimeout(() => {
         this.$store.dispatch('tasks/pending_count')
-        this.$store.dispatch('system/notifications')
       }, 5000)
     }
+
+    this.$store.dispatch('system/notifications')
 
     // Каждую минуту опрашиваем свой профиль
     this.timerId = setInterval(() => {

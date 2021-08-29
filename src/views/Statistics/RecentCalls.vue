@@ -117,6 +117,7 @@
             :label="$tc('Date the contact was created')"
             :disabled="processLoading"
             locale="ru"
+            range
           />
           <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
             <app-contact-tag-autocomplete
@@ -607,11 +608,31 @@ export default (Vue as VueConstructor<VInterface>).extend({
         params.tag_ids = this.filterContactTagIds
       }
 
-      if (/^\d\d\d\d-\d\d-\d\d/s.test(String(this.filterContactCreatedAt))) {
-        const daysJsStart = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD').set('h', 0).set('m', 0).set('s', 0)
-        const daysJsEnd = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD').set('h', 23).set('m', 59).set('s', 59)
+      // Дата и время создания контакта
+      if (Array.isArray(this.filterContactCreatedAt)) {
+        let contactCreatedAtStart = this.$dayjs(this.filterContactCreatedAt[0], 'YYYY-MM-DD')
+        let contactCreatedAtEnd = this.$dayjs(this.filterContactCreatedAt[1], 'YYYY-MM-DD')
 
-        params.contact_created_at = `${daysJsStart.unix()},${daysJsEnd.unix()}`
+        contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+        contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+        params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
+      } else if (this.filterContactCreatedAt) {
+        let contactCreatedAtStart = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+        let contactCreatedAtEnd = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+
+        contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+        contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+        params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
+      } else if (this.filterContactCreatedAt) {
+        const contactCreatedAtStart = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+        const contactCreatedAtEnd = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+
+        contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+        contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+        params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
       }
 
       return params

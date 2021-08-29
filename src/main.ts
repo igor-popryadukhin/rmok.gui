@@ -41,6 +41,7 @@ vuetifyDialogMovingImport()
 // layouts
 Vue.component('Default', () => import(/* webpackPreload: true */ './layouts/Default.vue'))
 Vue.component('Clean', CleanLayout)
+Vue.component('Help', () => import(/* webpackPreload: true */ './layouts/Help.vue'))
 
 Vue.component('AppDivider', () => import(/* webpackPreload: true */ './components/AppDivider/AppDivider.vue'))
 Vue.component('AppTools', () => import(/* webpackPreload: true */ './components/AppTools/AppTools.vue'))

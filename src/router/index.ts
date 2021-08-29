@@ -46,6 +46,15 @@ const routes: RouteConfig[] = [
     name: 'about',
     path: '/about'
   },
+  {
+    component: () => import(/* webpackChunkName: "help" */ '../views/Help/Help.vue'),
+    meta: {
+      layout: 'help',
+      middleware: []
+    },
+    name: 'help',
+    path: '/help'
+  },
 
   /** Error Pages */
   {

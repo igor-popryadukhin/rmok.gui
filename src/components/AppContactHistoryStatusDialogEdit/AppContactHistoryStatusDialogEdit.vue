@@ -57,7 +57,7 @@
 import Vue, { PropType } from 'vue'
 
 export default Vue.extend({
-  name: 'AppContactHistoryDialogEdit',
+  name: 'AppContactHistoryStatusDialogEdit',
 
   model: {
     prop: 'value',
