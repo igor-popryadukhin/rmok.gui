@@ -847,6 +847,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * @param contactId Идентификатор контакта.
      */
     onBtnCallClick (target: string, contactId: number) {
+      // Закрыть все открытые задачи контакта если есть таковые.
+      new Contacts().closeAllTasks(contactId)
+
       // Обязательно перейти на вкладку сценария!
       this.$router.push({ name: 'contacts_view_scenario', params: this.$route.params })
 

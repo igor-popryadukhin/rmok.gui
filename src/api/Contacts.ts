@@ -503,4 +503,21 @@ export class Contacts {
         }).catch(reject)
     })
   }
+
+  /**
+   * Закроет все задачи контакта.
+   *
+   * @param contact_id
+   */
+  public closeAllTasks (contact_id: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get(`/contacts/${contact_id}/tasks/close-all`)
+        .then((response: AxiosResponse) => {
+          if (![202, 200].includes(response.status)) {
+            throw new APIError(response.data)
+          }
+          resolve()
+        }).catch(reject)
+    })
+  }
 }
