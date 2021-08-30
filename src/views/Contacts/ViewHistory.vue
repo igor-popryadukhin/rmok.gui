@@ -123,10 +123,10 @@
                     <span class="grey--text">{{ $tc('Duration') }}:</span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
-                    <span class="grey--text">{{ $tc('Comment') }}:</span>
+                    <span class="grey--text">{{ $tc('Manager') }}:</span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
-                    <span class="grey--text">{{ $tc('Manager') }}:</span>
+                    <span class="grey--text">{{ $tc('Comment') }}:</span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
                     <span class="grey--text">{{ $tc('Result') }}:</span>
