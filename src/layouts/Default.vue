@@ -1205,8 +1205,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 }
 
 .v-application .pth-63 {
-  padding-top: 4px !important;
-  padding-bottom: 3px !important;
+  padding-top: 1px !important;
+  padding-bottom: 1px !important;
 }
 
 .notification-shake {
