@@ -173,7 +173,6 @@
                     </v-tooltip>
                     <v-chip
                       v-else
-                      :color="item.status.color"
                       label
                       outlined
                       x-small
