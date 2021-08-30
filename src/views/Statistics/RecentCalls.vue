@@ -108,7 +108,8 @@
           <app-status-autocomplete
             v-model="filterStatusIds"
             multiple
-            :disabled="processLoading"
+            :disabled="processLoading || !filterProjectId"
+            :params="appStatusAutocompleteParams"
             :label="$tc('Filter by result')"
           />
           <app-menu-date-picker
@@ -506,6 +507,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       },
 
       set (value: number) {
+        this.filterStatusIds = []
         this.$store.commit('statistic_recent_call/filter/project_id', value)
       }
     },
@@ -715,6 +717,12 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
       }
       return this.$tc('Customizable')
+    },
+
+    appStatusAutocompleteParams () {
+      return {
+        project_id: this.filterProjectId
+      }
     }
   },
 

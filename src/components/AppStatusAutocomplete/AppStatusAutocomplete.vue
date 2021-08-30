@@ -6,7 +6,6 @@
     :search-input.sync="q"
     :label="label"
     :disabled="disabled"
-    cache-items
     item-value="id"
     item-text="name"
     item-color="color"
@@ -70,6 +69,10 @@ export default Vue.extend({
     disabled: {
       type: Boolean,
       default: false
+    },
+    params: {
+      type: Object,
+      default: () => null
     },
     value: {
       type: [Number, Object, Array],
@@ -158,6 +161,11 @@ export default Vue.extend({
       }
     })
 
+    this.$watch('params', (e: any) => {
+      this.$appDebug('Params changing')
+      this.fetchOptions()
+    })
+
     if (this.multiple) {
       this.selected = this.value || []
     } else {
@@ -167,7 +175,8 @@ export default Vue.extend({
 
   methods: {
     fetchOptions () {
-      this.$store.dispatch('filter/statuses', this.paramsQuery)
+      // Параметры передаваемые в свойстве имеют приоритет
+      this.$store.dispatch('filter/statuses', Object.assign({}, this.paramsQuery, this.params))
     }
   }
 })

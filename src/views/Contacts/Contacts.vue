@@ -247,7 +247,8 @@
             <app-status-autocomplete
               v-model="filterStatusIds"
               :label="$tc('Result')"
-              :disabled="contactsProcessLoading"
+              :disabled="contactsProcessLoading || !contactsParamsFilterProjectId"
+              :params="appStatusAutocompleteParams"
               multiple
               @change="onFilterChange"
             />
@@ -458,7 +459,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       },
 
       set (value?: number) {
-        return this.$store.commit('contacts/params/filter_project_id', value)
+        this.filterStatusIds = []
+        this.$store.commit('contacts/params/filter_project_id', value)
       }
     },
 
@@ -657,6 +659,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           visible: true
         }
       ]
+    },
+
+    appStatusAutocompleteParams () {
+      return {
+        project_id: this.contactsParamsFilterProjectId
+      }
     }
   },
 
