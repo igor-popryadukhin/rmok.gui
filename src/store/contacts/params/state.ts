@@ -13,7 +13,7 @@ export interface State {
   order_direction: string;
 }
 
-function state (): State {
+export function defaultState () {
   return {
     filter_q: '',
     filter_project_id: 0,
@@ -29,5 +29,7 @@ function state (): State {
     order_direction: 'asc'
   }
 }
+
+const state = defaultState()
 
 export default state

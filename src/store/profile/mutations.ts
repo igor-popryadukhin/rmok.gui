@@ -21,6 +21,7 @@ const mutations: MutationTree<ProfileState> = {
     state.login = payload.login
     state.organization = payload.organization
     state.tz = payload.tz
+    state.project = payload.project
   },
 
   tz (state: ProfileState, payload: string) { state.tz = payload }

@@ -247,7 +247,7 @@
             <app-status-autocomplete
               v-model="filterStatusIds"
               :label="$tc('Result')"
-              :disabled="contactsProcessLoading || !contactsParamsFilterProjectId"
+              :disabled="contactsProcessLoading"
               :params="appStatusAutocompleteParams"
               multiple
               @change="onFilterChange"
@@ -662,9 +662,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     appStatusAutocompleteParams () {
-      return {
-        project_id: this.contactsParamsFilterProjectId
+      const params: Record<string, number | unknown> = {}
+
+      if (this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC']) && Number(this.contactsParamsFilterProjectId) > 0) {
+        params.project_id = this.contactsParamsFilterProjectId
       }
+
+      return params
     }
   },
 

@@ -108,7 +108,7 @@
           <app-status-autocomplete
             v-model="filterStatusIds"
             multiple
-            :disabled="processLoading || !filterProjectId"
+            :disabled="processLoading"
             :params="appStatusAutocompleteParams"
             :label="$tc('Filter by result')"
           />
@@ -408,7 +408,24 @@ import ContactHistory from '@/api/ContactHistory'
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)
 
-export default (Vue as VueConstructor<VInterface>).extend({
+interface Data {
+  [keys: string]: any;
+}
+
+interface Methods {
+  [keys: string]: any;
+}
+
+interface Computed {
+  filterProjectId: number;
+  [keys: string]: any;
+}
+
+interface Props {
+  [keys: string]: any;
+}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
     AppPagination,
@@ -719,10 +736,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
       return this.$tc('Customizable')
     },
 
+    /**
+     * Параметры загрузки результатов (статусов)
+     */
     appStatusAutocompleteParams () {
-      return {
-        project_id: this.filterProjectId
+      const params: Record<string, number | unknown> = {}
+
+      if (this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC']) && Number(this.filterProjectId) > 0) {
+        params.project_id = this.filterProjectId
       }
+
+      return params
     }
   },
 

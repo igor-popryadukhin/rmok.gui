@@ -1,4 +1,4 @@
-import { State } from './state'
+import { defaultState, State } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<State> = {
@@ -13,7 +13,11 @@ const mutations: MutationTree<State> = {
   filter_offset (state: State, payload) { state.filter_offset = payload },
   filter_task (state, payload) { state.filter_task = payload },
   order_by (state: State, payload) { state.order_by = payload },
-  order_direction (state: State, payload) { state.order_direction = payload }
+  order_direction (state: State, payload) { state.order_direction = payload },
+
+  resetState (state: State) {
+    Object.assign(state, defaultState())
+  }
 }
 
 export default mutations

@@ -106,6 +106,7 @@ export default Vue.extend({
 
   created () {
     this.$store.dispatch('contacts/resetState')
+    this.$store.dispatch('contacts/params/resetState') // Сброс состояния параметров фильтров контакт листа.
     this.$store.dispatch('contacts_new/resetState')
     this.$store.dispatch('statistic_recent_call/pie/resetState')
     this.$store.dispatch('statistic_recent_call/resetState')

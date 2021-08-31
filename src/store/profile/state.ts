@@ -1,6 +1,7 @@
 import Country from '@/api/interfaces/Country'
 import Organization from '@/api/interfaces/Organization'
 import Role from '@/api/interfaces/Role'
+import Project from '@/api/interfaces/Project'
 
 export interface ProfileState {
   id: number;
@@ -19,6 +20,7 @@ export interface ProfileState {
   organization?: Organization;
   created_at: number;
   country?: Country;
+  project?: Project;
 }
 
 function state (): ProfileState {
@@ -60,7 +62,8 @@ function state (): ProfileState {
     },
     status: '',
     tz: '',
-    userpic: ''
+    userpic: '',
+    project: undefined
   }
 }
 
