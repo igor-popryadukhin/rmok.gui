@@ -1,514 +1,524 @@
 <template>
   <v-sheet>
-    <v-row>
-      <v-col
-        v-bind="colAttributeLeft"
-        cols="12"
-      >
-        <v-sheet
-          :style="leftColumnStyleComputed"
-          class="fill-height"
-          flat
-          tile
+    <template v-if="loading">
+      <div class="d-flex align-center justify-center pa-16">
+        <app-loading />
+      </div>
+    </template>
+    <template v-else-if="contactNotFound">
+      <not-found :message="$tc('Contact not found')" />
+    </template>
+    <v-sheet v-else>
+      <v-row>
+        <v-col
+          v-bind="colAttributeLeft"
+          cols="12"
         >
-          <app-tools>
-            <template #left>
-              <span style="font-weight: 500">
-                {{ contact.contact_name || '+0 000 000-00-00' }}
-              </span>
-            </template>
-          </app-tools>
-          <v-divider class="mb-2" />
-
-          <app-tools>
-            <template #right>
-              <v-btn
-                :x-small="$vuetify.breakpoint.md"
-                :small="!$vuetify.breakpoint.md"
-                color="primary"
-                class="mr-2"
-                text
-                outlined
-                tile
-                @click="taskDialogVisible = true"
-              >
-                {{ $tc('Add task') }}
-              </v-btn>
-              <v-btn
-                v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
-                :x-small="$vuetify.breakpoint.md"
-                :small="!$vuetify.breakpoint.md"
-                class="mr-0"
-                color="error"
-                text
-                outlined
-                tile
-                @click="$jsSIP.cancel()"
-              >
-                {{ $tc('To complete') }}
-              </v-btn>
-              <v-btn
-                v-else
-                :x-small="$vuetify.breakpoint.md"
-                :small="!$vuetify.breakpoint.md"
-                :disabled="callBtnIsDisabled"
-                class="mr-0"
-                color="primary"
-                text
-                outlined
-                tile
-                @click="onBtnCallClick(contact.default_phone.raw, contact.id)"
-              >
-                {{ $tc('Call') }}
-              </v-btn>
-              <v-btn
-                v-if="!$jsSIP.isConnected"
-                :x-small="$vuetify.breakpoint.md"
-                :small="!$vuetify.breakpoint.md"
-                :to="{ name: 'settings_telephony' }"
-                class="ml-1 mr-0"
-                color="error"
-                icon
-                @click="onBtnCallErrorClick"
-              >
-                <v-icon>mdi-alert-circle-outline</v-icon>
-              </v-btn>
-            </template>
-          </app-tools>
-
-          <app-tools>
-            <template #right>
-              <span>
-                {{ $jsSIP.sessionStopwatch }}
-              </span>
-            </template>
-          </app-tools>
-          <v-divider class="mt-4" />
-
-          <v-list
-            :dense="$vuetify.breakpoint.md"
+          <v-sheet
+            :style="leftColumnStyleComputed"
+            class="fill-height"
+            flat
             tile
           >
-            <!-- Номера телефонов -->
-            <v-skeleton-loader
-              v-if="processLoadingContact"
-              type="list-item-avatar-two-line"
-            />
-            <template v-else>
-              <v-list-item
-                v-for="(phone, phoneIndex) in contact.phones"
-                :key="`phone-list-item-${phoneIndex}`"
-                ripple
-                link
-                selectable
-              >
-                <v-list-item-avatar>
-                  <v-icon
-                    v-if="phoneIndex === 0"
-                    color="primary"
-                  >
-                    mdi-phone
-                  </v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ phone.international }}</v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ phone.label || $tc('No label') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn
-                    v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
-                    :key="`phone-cancel-btn-${phoneIndex}`"
-                    small
-                    icon
-                    @click="$jsSIP.cancel()"
-                  >
-                    <v-icon color="red">
-                      mdi-phone-hangup
-                    </v-icon>
-                  </v-btn>
-                  <v-btn
-                    v-else
-                    :key="`phone-call-btn-${phoneIndex}`"
-                    :disabled="callBtnIsDisabled"
-                    icon
-                    small
-                    @click="onBtnCallClick(phone.raw, contact.id)"
-                  >
-                    <v-icon>mdi-phone</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-            </template>
+            <app-tools>
+              <template #left>
+                <span style="font-weight: 500">
+                  {{ contact.contact_name || '+0 000 000-00-00' }}
+                </span>
+              </template>
+            </app-tools>
+            <v-divider class="mb-2" />
 
-            <!-- Адреса электронной почты -->
-            <v-skeleton-loader
-              v-if="processLoadingContact"
-              type="list-item-avatar-two-line"
-            />
-            <template v-else>
+            <app-tools>
+              <template #right>
+                <v-btn
+                  :x-small="$vuetify.breakpoint.md"
+                  :small="!$vuetify.breakpoint.md"
+                  color="primary"
+                  class="mr-2"
+                  text
+                  outlined
+                  tile
+                  @click="taskDialogVisible = true"
+                >
+                  {{ $tc('Add task') }}
+                </v-btn>
+                <v-btn
+                  v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
+                  :x-small="$vuetify.breakpoint.md"
+                  :small="!$vuetify.breakpoint.md"
+                  class="mr-0"
+                  color="error"
+                  text
+                  outlined
+                  tile
+                  @click="$jsSIP.cancel()"
+                >
+                  {{ $tc('To complete') }}
+                </v-btn>
+                <v-btn
+                  v-else
+                  :x-small="$vuetify.breakpoint.md"
+                  :small="!$vuetify.breakpoint.md"
+                  :disabled="callBtnIsDisabled"
+                  class="mr-0"
+                  color="primary"
+                  text
+                  outlined
+                  tile
+                  @click="onBtnCallClick(contact.default_phone.raw, contact.id)"
+                >
+                  {{ $tc('Call') }}
+                </v-btn>
+                <v-btn
+                  v-if="!$jsSIP.isConnected"
+                  :x-small="$vuetify.breakpoint.md"
+                  :small="!$vuetify.breakpoint.md"
+                  :to="{ name: 'settings_telephony' }"
+                  class="ml-1 mr-0"
+                  color="error"
+                  icon
+                  @click="onBtnCallErrorClick"
+                >
+                  <v-icon>mdi-alert-circle-outline</v-icon>
+                </v-btn>
+              </template>
+            </app-tools>
+
+            <app-tools>
+              <template #right>
+                <span>
+                  {{ $jsSIP.sessionStopwatch }}
+                </span>
+              </template>
+            </app-tools>
+            <v-divider class="mt-4" />
+
+            <v-list
+              :dense="$vuetify.breakpoint.md"
+              tile
+            >
+              <!-- Номера телефонов -->
+              <v-skeleton-loader
+                v-if="processLoadingContact"
+                type="list-item-avatar-two-line"
+              />
+              <template v-else>
+                <v-list-item
+                  v-for="(phone, phoneIndex) in contact.phones"
+                  :key="`phone-list-item-${phoneIndex}`"
+                  ripple
+                  link
+                  selectable
+                >
+                  <v-list-item-avatar>
+                    <v-icon
+                      v-if="phoneIndex === 0"
+                      color="primary"
+                    >
+                      mdi-phone
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ phone.international }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ phone.label || $tc('No label') }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn
+                      v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
+                      :key="`phone-cancel-btn-${phoneIndex}`"
+                      small
+                      icon
+                      @click="$jsSIP.cancel()"
+                    >
+                      <v-icon color="red">
+                        mdi-phone-hangup
+                      </v-icon>
+                    </v-btn>
+                    <v-btn
+                      v-else
+                      :key="`phone-call-btn-${phoneIndex}`"
+                      :disabled="callBtnIsDisabled"
+                      icon
+                      small
+                      @click="onBtnCallClick(phone.raw, contact.id)"
+                    >
+                      <v-icon>mdi-phone</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </template>
+
+              <!-- Адреса электронной почты -->
+              <v-skeleton-loader
+                v-if="processLoadingContact"
+                type="list-item-avatar-two-line"
+              />
+              <template v-else>
+                <v-list-item
+                  v-for="(email, emailIndex) in contact.emails"
+                  :key="`email-list-item-${emailIndex}`"
+                  ripple
+                  link
+                  selectable
+                >
+                  <v-list-item-avatar size="30">
+                    <v-icon v-if="emailIndex === 0">
+                      mdi-email
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ email.value }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ email.label || $tc('No label') }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn
+                      :key="`mail-to-btn-${emailIndex}`"
+                      small
+                      icon
+                      disabled
+                    >
+                      <v-icon>mdi-email</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </template>
+
+              <v-divider class="mt-5" />
+
+              <!-- Геолокация -->
+              <v-skeleton-loader
+                v-if="processLoadingContact"
+                type="list-item-avatar-two-line"
+                max-height="61"
+              />
               <v-list-item
-                v-for="(email, emailIndex) in contact.emails"
-                :key="`email-list-item-${emailIndex}`"
-                ripple
-                link
-                selectable
+                v-else
               >
                 <v-list-item-avatar size="30">
-                  <v-icon v-if="emailIndex === 0">
-                    mdi-email
+                  <v-icon color="primary">
+                    mdi-map-marker
                   </v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
-                  <v-list-item-title>{{ email.value }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ email.label || $tc('No label') }}</v-list-item-subtitle>
+                  <v-list-item-title>{{ contact.city }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ contact.region }}
+                  </v-list-item-subtitle>
                 </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn
-                    :key="`mail-to-btn-${emailIndex}`"
-                    small
-                    icon
-                    disabled
-                  >
-                    <v-icon>mdi-email</v-icon>
-                  </v-btn>
-                </v-list-item-action>
               </v-list-item>
+
+              <!-- Текущее время контакта -->
+              <v-skeleton-loader
+                v-if="processLoadingContact"
+                type="list-item-avatar-two-line"
+                max-height="61"
+              />
+              <v-list-item
+                v-else
+              >
+                <v-list-item-avatar size="30">
+                  <v-icon color="primary">
+                    mdi-clock-time-two-outline
+                  </v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title :key="clientTimeTick">
+                    {{ $dayjs(new Date()).tz(contact.tz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $tc('Client\'s current time') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <!-- Дата создания контакта -->
+              <v-skeleton-loader
+                v-if="processLoadingContact"
+                type="list-item-avatar-two-line"
+                max-height="61"
+              />
+              <v-list-item
+                v-else
+              >
+                <v-list-item-avatar size="30">
+                  <v-icon color="primary">
+                    mdi-clock
+                  </v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $dayjs(contact.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $tc('Date the contact was created') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <!-- Владелец -->
+              <v-skeleton-loader
+                v-if="processLoadingContact"
+                type="list-item-avatar-two-line"
+                max-height="61"
+              />
+              <v-list-item
+                v-else
+              >
+                <v-list-item-avatar size="30">
+                  <v-icon color="primary">
+                    mdi-account
+                  </v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ contactOwnerName }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $tc('Responsible') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <!-- Проект -->
+              <v-skeleton-loader
+                v-if="processLoadingContact"
+                type="list-item-avatar-two-line"
+                max-height="61"
+              />
+              <v-list-item
+                v-else-if="contactProject"
+              >
+                <v-list-item-avatar size="30">
+                  <v-icon color="primary">
+                    mdi-projector-screen
+                  </v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ contactProject }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $tc('Project') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+
+            <!-- Теги -->
+            <template v-if="contact.tags.length">
+              <v-card-text class="pa-0 text-right">
+                <v-divider />
+              </v-card-text>
+              <v-card-text class="px-0 text-right">
+                <v-chip-group>
+                  <v-chip
+                    v-for="(item, key) in contact.tags"
+                    :key="key"
+                    :color="item.color"
+                    label
+                    small
+                    outlined
+                  >
+                    {{ item.name }}
+                  </v-chip>
+                </v-chip-group>
+              </v-card-text>
             </template>
+            <!-- Теги -->
 
-            <v-divider class="mt-5" />
+            <!-- Заметки -->
+            <template v-if="contact.notes">
+              <v-card-text class="pa-0">
+                <v-divider />
+              </v-card-text>
+              <v-card-text class="px-0 text-justify">
+                <p v-html="contact.notes" />
+              </v-card-text>
+            </template>
+            <!-- Заметки -->
 
-            <!-- Геолокация -->
-            <v-skeleton-loader
-              v-if="processLoadingContact"
-              type="list-item-avatar-two-line"
-              max-height="61"
-            />
-            <v-list-item
-              v-else
-            >
-              <v-list-item-avatar size="30">
-                <v-icon color="primary">
-                  mdi-map-marker
-                </v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>{{ contact.city }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ contact.region }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <!-- Текущее время контакта -->
-            <v-skeleton-loader
-              v-if="processLoadingContact"
-              type="list-item-avatar-two-line"
-              max-height="61"
-            />
-            <v-list-item
-              v-else
-            >
-              <v-list-item-avatar size="30">
-                <v-icon color="primary">
-                  mdi-clock-time-two-outline
-                </v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title :key="clientTimeTick">
-                  {{ $dayjs(new Date()).tz(contact.tz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ $tc('Client\'s current time') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <!-- Дата создания контакта -->
-            <v-skeleton-loader
-              v-if="processLoadingContact"
-              type="list-item-avatar-two-line"
-              max-height="61"
-            />
-            <v-list-item
-              v-else
-            >
-              <v-list-item-avatar size="30">
-                <v-icon color="primary">
-                  mdi-clock
-                </v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ $dayjs(contact.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ $tc('Date the contact was created') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <!-- Владелец -->
-            <v-skeleton-loader
-              v-if="processLoadingContact"
-              type="list-item-avatar-two-line"
-              max-height="61"
-            />
-            <v-list-item
-              v-else
-            >
-              <v-list-item-avatar size="30">
-                <v-icon color="primary">
-                  mdi-account
-                </v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>{{ contactOwnerName }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ $tc('Responsible') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <!-- Проект -->
-            <v-skeleton-loader
-              v-if="processLoadingContact"
-              type="list-item-avatar-two-line"
-              max-height="61"
-            />
-            <v-list-item
-              v-else-if="contactProject"
-            >
-              <v-list-item-avatar size="30">
-                <v-icon color="primary">
-                  mdi-projector-screen
-                </v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>{{ contactProject }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ $tc('Project') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-
-          <!-- Теги -->
-          <template v-if="contact.tags.length">
             <v-card-text class="pa-0 text-right">
               <v-divider />
             </v-card-text>
             <v-card-text class="px-0 text-right">
-              <v-chip-group>
-                <v-chip
-                  v-for="(item, key) in contact.tags"
-                  :key="key"
-                  :color="item.color"
-                  label
-                  small
-                  outlined
-                >
-                  {{ item.name }}
-                </v-chip>
-              </v-chip-group>
+              <v-btn
+                color="primary"
+                text
+                outlined
+                small
+                tile
+                @click="onContactEditClick($route.params.contact_id)"
+              >
+                {{ $tc('Edit contact') }}
+              </v-btn>
             </v-card-text>
-          </template>
-          <!-- Теги -->
+          </v-sheet>
+        </v-col>
 
-          <!-- Заметки -->
-          <template v-if="contact.notes">
-            <v-card-text class="pa-0">
+        <!-- Tabs -->
+        <v-col
+          v-bind="colAttributeRight"
+          cols="12"
+          class="pl-md-0 pl-lg-0"
+        >
+          <v-card
+            :height="tabsHeight"
+            class="d-flex flex-column"
+            flat
+            tile
+          >
+            <v-card-actions class="px-0">
+              <v-tabs
+                height="35"
+              >
+                <template v-for="(tab, tabIndex) in tabs">
+                  <v-tab
+                    v-if="tab.visible"
+                    :key="`tab-${tabIndex}`"
+                    :to="tab.to"
+                  >
+                    <v-icon left>
+                      {{ tab.icon }}
+                    </v-icon>
+                    {{ $tc(`route.${tab.name}`) }}
+                    <v-spacer />
+                  </v-tab>
+                </template>
+              </v-tabs>
+            </v-card-actions>
+
+            <v-card-text class="pa-0 ">
               <v-divider />
             </v-card-text>
-            <v-card-text class="px-0 text-justify">
-              <p v-html="contact.notes" />
+
+            <v-card-text class="px-0 py-1 flex-grow-1 overflow-y-auto">
+              <keep-alive>
+                <router-view />
+              </keep-alive>
             </v-card-text>
-          </template>
-          <!-- Заметки -->
 
-          <v-card-text class="pa-0 text-right">
-            <v-divider />
-          </v-card-text>
-          <v-card-text class="px-0 text-right">
-            <v-btn
-              color="primary"
-              text
-              outlined
-              small
-              tile
-              @click="onContactEditClick($route.params.contact_id)"
-            >
-              {{ $tc('Edit contact') }}
-            </v-btn>
-          </v-card-text>
-        </v-sheet>
-      </v-col>
+            <!-- Статусы -->
+            <v-fade-transition mode="in-out">
+              <v-card-text
+                v-if="status.visible"
+                class="pa-0"
+                style="border-top: solid rgb(58,112,212);"
+              >
+                <app-status
+                  v-model="status.status_id"
+                  :options="contact.project.statuses"
+                  min-height="300"
+                  @on-close="status.visible = false"
+                />
 
-      <!-- Tabs -->
-      <v-col
-        v-bind="colAttributeRight"
-        cols="12"
-        class="pl-md-0 pl-lg-0"
-      >
-        <v-card
-          :height="tabsHeight"
-          class="d-flex flex-column"
-          flat
-          tile
-        >
-          <v-card-actions class="px-0">
-            <v-tabs
-              height="35"
-            >
-              <template v-for="(tab, tabIndex) in tabs">
-                <v-tab
-                  v-if="tab.visible"
-                  :key="`tab-${tabIndex}`"
-                  :to="tab.to"
-                >
-                  <v-icon left>
-                    {{ tab.icon }}
-                  </v-icon>
-                  {{ $tc(`route.${tab.name}`) }}
-                  <v-spacer />
-                </v-tab>
-              </template>
-            </v-tabs>
-          </v-card-actions>
-
-          <v-card-text class="pa-0 ">
-            <v-divider />
-          </v-card-text>
-
-          <v-card-text class="px-0 py-1 flex-grow-1 overflow-y-auto">
-            <keep-alive>
-              <router-view />
-            </keep-alive>
-          </v-card-text>
-
-          <!-- Статусы -->
-          <v-fade-transition mode="in-out">
-            <v-card-text
-              v-if="status.visible"
-              class="pa-0"
-              style="border-top: solid rgb(58,112,212);"
-            >
-              <app-status
-                v-model="status.status_id"
-                :options="contact.project.statuses"
-                min-height="300"
-                @on-close="status.visible = false"
-              />
-
-              <!-- Комментарий -->
-              <div class="pt-5">
-                <v-textarea
-                  v-model="status.comment"
-                  :placeholder="$t('Comment')"
-                  rows="4"
-                  outlined
-                  hide-details
-                >
-                  <template #prepend-inner>
-                    <v-icon>
-                      mdi-comment
-                    </v-icon>
-                  </template>
-                  <template #append>
-                    <v-btn
-                      icon
-                      text
-                      disabled
-                    >
+                <!-- Комментарий -->
+                <div class="pt-5">
+                  <v-textarea
+                    v-model="status.comment"
+                    :placeholder="$t('Comment')"
+                    rows="4"
+                    outlined
+                    hide-details
+                  >
+                    <template #prepend-inner>
                       <v-icon>
-                        mdi-microphone
+                        mdi-comment
+                      </v-icon>
+                    </template>
+                    <template #append>
+                      <v-btn
+                        icon
+                        text
+                        disabled
+                      >
+                        <v-icon>
+                          mdi-microphone
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                  </v-textarea>
+                </div>
+
+                <!-- Оценить качество связи -->
+                <div class="py-2">
+                  <v-btn
+                    :disabled="!(btnRateQualityAvailable && countryAvailable)"
+                    color="primary"
+                    text
+                    tile
+                    small
+                    @click="onBtnRateQualityClick"
+                  >
+                    {{ $tc('Rate the quality of the connection') }}
+                  </v-btn>
+                </div>
+              </v-card-text>
+            </v-fade-transition>
+
+            <v-card-actions
+              class="pa-4 px-0"
+              style="border-top: #3a70d4 solid"
+            >
+              <v-spacer />
+              <v-btn-toggle
+                color="primary"
+                dense
+                tile
+              >
+                <v-tooltip top>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      :loading="saveAndNextLoading"
+                      :disabled="!status.visible"
+                      color="primary"
+                      text
+                      small
+                      v-on="on"
+                      @click="onSaveClick"
+                    >
+                      {{ $t('Save') }}
+                    </v-btn>
+                  </template>
+                  <span>{{ $t('Save and continue') }}</span>
+                </v-tooltip>
+                <v-menu offset-y>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      color="primary"
+                      v-bind="attrs"
+                      :disabled="!status.visible"
+                      text
+                      icon
+                      small
+                      v-on="on"
+                    >
+                      <v-icon color="primary">
+                        mdi-arrow-down-drop-circle-outline
                       </v-icon>
                     </v-btn>
                   </template>
-                </v-textarea>
-              </div>
+                  <v-list class="pa-0">
+                    <v-list-item
+                      link
+                      @click="onSaveAndStayClick(status)"
+                    >
+                      <v-list-item-title>{{ $tc('Сохранить и остаться') }}</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-btn-toggle>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
 
-              <!-- Оценить качество связи -->
-              <div class="py-2">
-                <v-btn
-                  :disabled="!(btnRateQualityAvailable && countryAvailable)"
-                  color="primary"
-                  text
-                  tile
-                  small
-                  @click="onBtnRateQualityClick"
-                >
-                  {{ $tc('Rate the quality of the connection') }}
-                </v-btn>
-              </div>
-            </v-card-text>
-          </v-fade-transition>
-
-          <v-card-actions
-            class="pa-4 px-0"
-            style="border-top: #3a70d4 solid"
-          >
-            <v-spacer />
-            <v-btn-toggle
-              color="primary"
-              dense
-              tile
-            >
-              <v-tooltip top>
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    v-bind="attrs"
-                    :loading="saveAndNextLoading"
-                    :disabled="!status.visible"
-                    color="primary"
-                    text
-                    small
-                    v-on="on"
-                    @click="onSaveClick"
-                  >
-                    {{ $t('Save') }}
-                  </v-btn>
-                </template>
-                <span>{{ $t('Save and continue') }}</span>
-              </v-tooltip>
-              <v-menu offset-y>
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    color="primary"
-                    v-bind="attrs"
-                    :disabled="!status.visible"
-                    text
-                    icon
-                    small
-                    v-on="on"
-                  >
-                    <v-icon color="primary">
-                      mdi-arrow-down-drop-circle-outline
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <v-list class="pa-0">
-                  <v-list-item
-                    link
-                    @click="onSaveAndStayClick(status)"
-                  >
-                    <v-list-item-title>{{ $tc('Сохранить и остаться') }}</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </v-btn-toggle>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <template v-if="taskDialogVisible">
-      <app-task-dialog-edit
-        v-model="taskDialogVisible"
-        @update="onTaskDialogCreate"
-      />
-    </template>
+      <template v-if="taskDialogVisible">
+        <app-task-dialog-edit
+          v-model="taskDialogVisible"
+          @update="onTaskDialogCreate"
+        />
+      </template>
+    </v-sheet>
   </v-sheet>
 </template>
 
@@ -534,6 +544,7 @@ import { EndEvent, RTCSession } from 'jssip/lib/RTCSession'
 import Vue from 'vue'
 import { Location } from 'vue-router/types/router'
 import { mapGetters } from 'vuex'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 interface JsSIPSessionEnded {
   target: string;
@@ -566,6 +577,7 @@ interface Data {
   rtcSession?: RTCSession;
   processLoadingContact: boolean;
   contact: Contact;
+  contactNotFound: boolean;
   [key: string]: any;
 }
 
@@ -585,7 +597,9 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
+    AppLoading,
     AppTaskDialogEdit: () => import('@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'),
+    NotFound: () => import('@/views/Errors/NotFound.vue'),
     AppStatus
   },
 
@@ -659,7 +673,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         comment: ''
       } as IStatus,
       clientTimeTick: 0,
-      btnRateQualityAvailable: true
+      btnRateQualityAvailable: true,
+      contactNotFound: false,
+      loading: false
     }
   },
 
@@ -800,6 +816,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   methods: {
     fetchContact (contact_id: number) {
       this.processLoadingContact = true
+      this.loading = true
       new Contacts()
         .getById(contact_id)
         .then((response) => {
@@ -821,7 +838,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.$data.contact.created_at = response.created_at || 0
 
           this.$store.commit('project/scenario', response.project?.scenario)
-        }).finally(() => (this.processLoadingContact = false))
+        })
+        .finally(() => {
+          this.processLoadingContact = false
+          this.loading = false
+        })
+        .catch(() => {
+          this.contactNotFound = true
+        })
     },
 
     /**
