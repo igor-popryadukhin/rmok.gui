@@ -270,6 +270,10 @@ export default Vue.extend({
     }
   },
 
+  created () {
+    this.calculateTaskCount = debounce(this.calculateTaskCount, 1000)
+  },
+
   mounted () {
     setTimeout(() => (this.calculateTaskCount()), 2000)
 
