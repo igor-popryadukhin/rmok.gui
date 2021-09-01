@@ -1,8 +1,13 @@
 <template>
-  <div>
-    <div v-if="contactNotFound">
-      <NotFound />
-    </div>
+  <v-sheet>
+    <template v-if="loading">
+      <div class="d-flex align-center justify-center pa-16">
+        <app-loading />
+      </div>
+    </template>
+    <template v-else-if="contactNotFound">
+      <not-found :message="$tc('Contact not found')" />
+    </template>
     <v-sheet v-else>
       <v-row>
         <v-col
@@ -514,7 +519,7 @@
         />
       </template>
     </v-sheet>
-  </div>
+  </v-sheet>
 </template>
 
 <script lang="ts">
@@ -539,7 +544,7 @@ import { EndEvent, RTCSession } from 'jssip/lib/RTCSession'
 import Vue from 'vue'
 import { Location } from 'vue-router/types/router'
 import { mapGetters } from 'vuex'
-import NotFound from '@/views/NotFound.vue'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 interface JsSIPSessionEnded {
   target: string;
@@ -592,8 +597,9 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
-    NotFound,
+    AppLoading,
     AppTaskDialogEdit: () => import('@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'),
+    NotFound: () => import('@/views/Errors/NotFound.vue'),
     AppStatus
   },
 
@@ -668,7 +674,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       } as IStatus,
       clientTimeTick: 0,
       btnRateQualityAvailable: true,
-      contactNotFound: false
+      contactNotFound: false,
+      loading: false
     }
   },
 
@@ -809,6 +816,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   methods: {
     fetchContact (contact_id: number) {
       this.processLoadingContact = true
+      this.loading = true
       new Contacts()
         .getById(contact_id)
         .then((response) => {
@@ -831,7 +839,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
           this.$store.commit('project/scenario', response.project?.scenario)
         })
-        .finally(() => (this.processLoadingContact = false))
+        .finally(() => {
+          this.processLoadingContact = false
+          this.loading = false
+        })
         .catch(() => {
           this.contactNotFound = true
         })
