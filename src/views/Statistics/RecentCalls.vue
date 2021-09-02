@@ -208,6 +208,14 @@
     <!-- Actions -->
     <v-row>
       <v-col class="d-flex">
+        <app-btn-sorting
+          v-model="sortOption"
+          :label="$tc('Sorting')"
+          :items="sortingOptions"
+          :t="$tc"
+          item-text="name"
+          @change="fetchHistory"
+        />
         <v-spacer />
         <app-pagination
           v-model="offset"
@@ -404,6 +412,7 @@ import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import ContactHistory from '@/api/ContactHistory'
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)
@@ -428,6 +437,7 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
+    AppBtnSorting,
     AppPagination,
     AppLoading,
     AppMenuDatePicker,
@@ -654,6 +664,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
       }
 
+      if (this.sortOption) {
+        const { order_by, order_direction } = this.sortOption
+        if (order_by && order_direction) {
+          params.order_by = order_by
+          params.order_direction = order_direction
+        }
+      }
+
       return params
     },
 
@@ -747,6 +765,29 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
 
       return params
+    },
+
+    sortOption: {
+      get () {
+        return {
+          order_by: this.$store.getters['statistic_recent_call/filter/order_by'],
+          order_direction: this.$store.getters['statistic_recent_call/filter/order_direction']
+        }
+      },
+
+      set (val?: { order_by: string, order_direction: string }) {
+        this.$store.commit('statistic_recent_call/filter/order_by', val?.order_by || '')
+        this.$store.commit('statistic_recent_call/filter/order_direction', val?.order_direction || '')
+      }
+    },
+
+    sortingOptions () {
+      return ['createdAt', 'contact', 'result', 'comment', 'callDuration', 'sessionDuration', 'manager'].map((e) => ({
+        name: this.$t(`Statistics.recentCalls.sortingOptions.${e}`),
+        order_by: e,
+        order_direction: 'asc',
+        visible: true
+      }))
     }
   },
 
