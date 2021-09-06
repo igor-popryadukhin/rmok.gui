@@ -295,15 +295,15 @@
   "Start typing to initialize your search.": "Начните вводить текст для инициализации поиска.",
   "Statistic": "Статистика",
   "Statistic filter by statuses": "Фильтр по результату",
-  "Statistics": {
-    "recentCalls": {
-      "sortingOptions": {
-        "createdAt": "По дате создания записи",
+  "statistics": {
+    "recent_calls": {
+      "sorting_options": {
+        "created_at": "По дате совершения звонка",
         "contact": "По клиенту",
         "result": "По результату",
         "comment": "По комментарию",
-        "callDuration": "По длительности звонка",
-        "sessionDuration": "По длительности сессии",
+        "call_duration": "По длительности звонка",
+        "session_duration": "По длительности сессии",
         "manager": "По менеджеру"
       }
     }

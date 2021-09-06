@@ -19,7 +19,7 @@ function state (): State {
     project_id: 0,
     contact_tag_ids: [],
     contact_created_at: undefined,
-    order_by: 'createdAt',
+    order_by: 'created_at',
     order_direction: 'asc'
   }
 }

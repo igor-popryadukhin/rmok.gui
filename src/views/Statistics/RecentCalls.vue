@@ -214,7 +214,7 @@
           :items="sortingOptions"
           :t="$tc"
           item-text="name"
-          @change="fetchHistory"
+          @change="onAppBtnSortingChange"
         />
         <v-spacer />
         <app-pagination
@@ -664,14 +664,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
       }
 
-      if (this.sortOption) {
-        const { order_by, order_direction } = this.sortOption
-        if (order_by && order_direction) {
-          params.order_by = order_by
-          params.order_direction = order_direction
-        }
-      }
-
       return params
     },
 
@@ -767,6 +759,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       return params
     },
 
+    /**
+     * Параметры сортировки.
+     */
     sortOption: {
       get () {
         return {
@@ -782,8 +777,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     sortingOptions () {
-      return ['createdAt', 'contact', 'result', 'comment', 'callDuration', 'sessionDuration', 'manager'].map((e) => ({
-        name: this.$t(`Statistics.recentCalls.sortingOptions.${e}`),
+      return ['created_at', 'contact', 'result', 'comment', 'call_duration', 'session_duration', 'manager'].map((e) => ({
+        name: this.$t(`statistics.recent_calls.sorting_options.${e}`),
         order_by: e,
         order_direction: 'asc',
         visible: true
@@ -854,13 +849,40 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * Загрузит исторические данные
      */
     async fetchHistory () {
+      const sorting: Record<string, number> = {}
+
+      if (this.sortOption) {
+        const { order_by, order_direction } = this.sortOption
+        if (order_by && order_direction) {
+          sorting.order_by = order_by
+          sorting.order_direction = order_direction
+        }
+      }
+
       // TODO: Объединить с параметрами пагинации
       this.processFetchHistory = true
       try {
-        await this.statisticHistoryFetch(Object.assign({}, this.paramsFilters, { offset: this.offset }))
+        await this.statisticHistoryFetch(Object.assign({}, this.paramsFilters, { offset: this.offset }, sorting))
       } finally {
         this.processFetchHistory = false
       }
+    },
+
+    /**
+     * Срабатывает когда изменяется параметры сортировки таблицы истории.
+     */
+    onAppBtnSortingChange () {
+      const params: Record<string, number> = {}
+
+      if (this.sortOption) {
+        const { order_by, order_direction } = this.sortOption
+        if (order_by && order_direction) {
+          params.order_by = order_by
+          params.order_direction = order_direction
+        }
+      }
+
+      this.fetchHistory(params)
     },
 
     onAppPaginationChange () {
