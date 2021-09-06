@@ -248,6 +248,23 @@ export class Users {
         }).catch(reject)
     })
   }
+
+  /**
+   * Проверка на существования имени логина
+   * @param params
+   */
+  public loginFind (params = {}): Promise<any> {
+    return new Promise<ResponseInterface<TD>>((resolve, reject) => {
+      $axios.get('/users/login_verification', {
+        params
+      }).then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+        resolve(response.data)
+      }).catch(reject)
+    })
+  }
 }
 
 export default Users
