@@ -295,6 +295,19 @@
   "Start typing to initialize your search.": "Начните вводить текст для инициализации поиска.",
   "Statistic": "Статистика",
   "Statistic filter by statuses": "Фильтр по результату",
+  "Statistics": {
+    "recentCalls": {
+      "sortingOptions": {
+        "createdAt": "По дате создания записи",
+        "contact": "По клиенту",
+        "result": "По результату",
+        "comment": "По комментарию",
+        "callDuration": "По длительности звонка",
+        "sessionDuration": "По длительности сессии",
+        "manager": "По менеджеру"
+      }
+    }
+  },
   "Statistics for all calls": "По всем вызовам",
   "Status": "Статус",
   "Status name": "Название статуса",

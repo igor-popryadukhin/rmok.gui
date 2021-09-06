@@ -6,6 +6,8 @@ export interface State {
   project_id: number;
   contact_tag_ids: number[];
   contact_created_at?: string;
+  order_by: string;
+  order_direction: string;
 }
 
 function state (): State {
@@ -16,7 +18,9 @@ function state (): State {
     status_ids: [],
     project_id: 0,
     contact_tag_ids: [],
-    contact_created_at: undefined
+    contact_created_at: undefined,
+    order_by: 'createdAt',
+    order_direction: 'asc'
   }
 }
 
