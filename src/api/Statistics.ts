@@ -7,12 +7,14 @@ import StatisticPie from '@/api/interfaces/StatisticPie'
 
 export default class Statistics {
   /**
-   * Количество звонков
+   * Статистика по последним вызовам.
+   * --------------------------------
+   * Вернёт общее количество звонков.
    * @param params
    */
-  public totalCalls (params = {}): Promise<number> {
+  public recentCallsTotalCalls (params = {}): Promise<number> {
     return new Promise<number>((resolve, reject) => {
-      $axios.get('/statistics/total-calls', {
+      $axios.get('/statistics/recent-calls/total-calls', {
         params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
@@ -28,33 +30,14 @@ export default class Statistics {
   }
 
   /**
-   * Количество звонков клиенту
+   * Статистика по последним вызовам.
+   * --------------------------------
+   * Вернёт данные круговой диаграммы.
    * @param params
    */
-  public clientCalls (params = {}): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-      $axios.get('/statistics/clients-calls', {
-        params: { ...params }
-      }).then((response: AxiosResponse) => {
-        if ([200].includes(response.status)) {
-          if (typeof response.data?.count !== 'number') {
-            throw new Error('Invalid api response')
-          }
-          resolve(response.data?.count)
-        } else {
-          throw new APIError(response.data)
-        }
-      }).catch(reject)
-    })
-  }
-
-  /**
-   *
-   * @param params
-   */
-  public pie (params = {}): Promise<StatisticPie> {
+  public recentCallsPie (params = {}): Promise<StatisticPie> {
     return new Promise((resolve, reject) => {
-      $axios.get('/statistics/pie', {
+      $axios.get('/statistics/recent-calls/pie', {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
@@ -65,9 +48,15 @@ export default class Statistics {
     })
   }
 
-  public history (params = {}): Promise<ResponseInterface<{count: number}, ContactHistoryInterface[]>> {
+  /**
+   * Статистика по последним вызовам.
+   * --------------------------------
+   * Вернёт данные истории по последним вызовам.
+   * @param params
+   */
+  public recentCallsHistory (params = {}): Promise<ResponseInterface<{count: number}, ContactHistoryInterface[]>> {
     return new Promise((resolve, reject) => {
-      $axios.get('/statistics/history', {
+      $axios.get('/statistics/recent-calls/history', {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {

@@ -16,14 +16,16 @@
         </div>
       </template>
       <template v-else-if="contactsItems.length === 0">
-        <div
-          class="d-flex align-center justify-center"
-          style="min-height: 500px"
-        >
-          <div class="pa-16 grey--text">
-            {{ $tc('Empty') }}
+        <slot name="no-text">
+          <div
+            class="d-flex align-center justify-center"
+            style="min-height: 500px"
+          >
+            <div class="pa-16 grey--text">
+              {{ $tc('Empty') }}
+            </div>
           </div>
-        </div>
+        </slot>
       </template>
       <template v-else>
         <v-list flat>
@@ -70,7 +72,7 @@
 
                   <!-- Владелец -->
                   <v-list-item-content
-                    v-if="item.owner && $isGranted('SEE_ALL_CONTACTS')"
+                    v-if="item.owner && $isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])"
                     class="py-0"
                   >
                     <v-list-item-title>
@@ -102,6 +104,7 @@
 
                   <!-- Проект -->
                   <v-list-item-content
+                    v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])"
                     class="py-0"
                   >
                     <v-list-item-title>

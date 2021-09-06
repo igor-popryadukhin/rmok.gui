@@ -316,41 +316,94 @@
             </v-avatar>
           </v-btn>
         </template>
-        <v-list
-          class="pl-0 pr-0"
-          tile
-        >
-          <template
-            v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
+        <v-card>
+          <v-card-text
+            v-if="$profile"
+            class="px-0 py-0"
           >
-            <v-divider
-              v-if="accountMenuItem.divider"
-              :key="accountMenuItemIndex"
-            />
-            <v-subheader
-              v-else-if="accountMenuItem.subheader"
-              :key="accountMenuItemIndex"
-              v-bind="accountMenuItem"
+            <v-list>
+              <v-list-item>
+                <v-list-item-avatar class="primary">
+                  <span style="color: white">
+                    {{ avatar }}
+                  </span>
+                </v-list-item-avatar>
+              </v-list-item>
+
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="text-h6">
+                    {{ $profile.full_name }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle v-if="$profile.group">
+                    {{ $profile.login }} ({{ $profile.group.name }})
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>
+                    {{ $profile.login }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+
+              <!-- Проект -->
+              <v-list-item
+                v-if="$profile.project"
+                link
+              >
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $tc('Current project') }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>{{ $profile.project.name }}</v-list-item-subtitle>
+                </v-list-item-content>
+
+                <!-- Смена проекта TODO: Реализовать обработчик/механизм смены проекта-->
+                <v-list-item-action>
+                  <v-icon>mdi-menu-down</v-icon>
+                </v-list-item-action>
+                <!-- Смена проекта -->
+              </v-list-item>
+              <!-- Проект -->
+            </v-list>
+          </v-card-text>
+          <v-divider v-if="$profile" />
+          <v-card-text class="px-0 py-0">
+            <v-list
+              class="pl-0 pr-0"
+              tile
             >
-              {{ accountMenuItem.title }}
-            </v-subheader>
-            <v-list-item
-              v-else
-              :key="accountMenuItemIndex"
-              v-bind="accountMenuItem.attrs"
-              v-on="accountMenuItem.on"
-            >
-              <v-list-item-icon>
-                <v-icon v-bind="accountMenuItem.icon.attrs">
-                  {{ accountMenuItem.icon.name }}
-                </v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $tc(accountMenuItem.title) }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-        </v-list>
+              <template
+                v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
+              >
+                <v-divider
+                  v-if="accountMenuItem.divider"
+                  :key="accountMenuItemIndex"
+                />
+                <v-subheader
+                  v-else-if="accountMenuItem.subheader"
+                  :key="accountMenuItemIndex"
+                  v-bind="accountMenuItem"
+                >
+                  {{ accountMenuItem.title }}
+                </v-subheader>
+                <v-list-item
+                  v-else
+                  :key="accountMenuItemIndex"
+                  v-bind="accountMenuItem.attrs"
+                  v-on="accountMenuItem.on"
+                >
+                  <v-list-item-icon>
+                    <v-icon v-bind="accountMenuItem.icon.attrs">
+                      {{ accountMenuItem.icon.name }}
+                    </v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ $tc(accountMenuItem.title) }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </v-list>
+          </v-card-text>
+        </v-card>
       </v-menu>
     </v-app-bar>
 

@@ -2,12 +2,14 @@ import Country from '@/api/interfaces/Country'
 import Organization from '@/api/interfaces/Organization'
 import Role from '@/api/interfaces/Role'
 import Project from '@/api/interfaces/Project'
+import UserGroup from '@/api/interfaces/UserGroup'
 
 export interface ProfileState {
   id: number;
   first_name: string;
   last_name: string;
   middle_name?: string;
+  full_name?: string;
   userpic?: string;
   login: string;
   email?: string;
@@ -21,6 +23,7 @@ export interface ProfileState {
   created_at: number;
   country?: Country;
   project?: Project;
+  group?: UserGroup;
 }
 
 function state (): ProfileState {
@@ -40,6 +43,7 @@ function state (): ProfileState {
     last_name: '',
     login: '',
     middle_name: '',
+    full_name: '',
     phone: '',
     role: {
       id: 0,
@@ -63,7 +67,8 @@ function state (): ProfileState {
     status: '',
     tz: '',
     userpic: '',
-    project: undefined
+    project: undefined,
+    group: undefined
   }
 }
 

@@ -7,7 +7,7 @@ const actions: ActionTree<State, RootState> = {
   fetch: ({ commit }: ActionContext<State, RootState>, params = {}) => {
     return new Promise<void>((resolve, reject) => {
       new Statistics()
-        .pie(params)
+        .recentCallsPie(params)
         .then((response) => {
           commit('labels', response.labels)
           commit('series', response.series)
