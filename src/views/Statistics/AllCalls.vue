@@ -607,7 +607,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         }
 
         new Statistics()
-          .history(params)
+          .recentCallsHistory(params)
           .then((response) => {
             this.dataTableHistory.totalCount = response.meta?.count || 0
             this.dataTableHistory.pages = Math.ceil(response.meta?.count || 0 / this.dataTableHistory.itemsPerPage)

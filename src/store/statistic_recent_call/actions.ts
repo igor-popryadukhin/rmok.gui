@@ -7,7 +7,7 @@ const actions: ActionTree<State, RootState> = {
   fetch: ({ commit }: ActionContext<State, RootState>, params = {}) => {
     return new Promise<void>((resolve, reject) => {
       new Statistics()
-        .history(params)
+        .recentCallsHistory(params)
         .then((response) => {
           commit('history', response.data)
           commit('client_calls', response.meta?.count || 0)
@@ -19,7 +19,7 @@ const actions: ActionTree<State, RootState> = {
   fetchTotalCalls: ({ commit }: ActionContext<State, RootState>, params = {}) => {
     return new Promise<void>((resolve, reject) => {
       new Statistics()
-        .totalCalls(params)
+        .recentCallsTotalCalls(params)
         .then((count) => {
           commit('total_calls', count)
           resolve()

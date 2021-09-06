@@ -54,10 +54,15 @@
         <template v-else-if="usersItems.length === 0">
           <div
             class="d-flex align-center justify-center"
-            style="min-height: 500px"
+            style="height: 500px"
           >
             <div class="pa-16 grey--text">
-              {{ $tc('Empty') }}
+              <template v-if="usersItemsMessageError">
+                {{ usersItemsMessageError }}
+              </template>
+              <template v-else>
+                {{ $tc('Empty') }}
+              </template>
             </div>
           </div>
         </template>
@@ -155,12 +160,14 @@
           v-model="filterProjectId"
           :label="$tc('User\'s current project')"
         />
-        <app-user-group-autocomplete
-          v-model="filterUserGroupId"
-          :label="$tc('User group')"
-          outlined
-          dense
-        />
+        <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+          <app-user-group-autocomplete
+            v-model="filterUserGroupId"
+            :label="$tc('User group')"
+            outlined
+            dense
+          />
+        </template>
       </v-col>
     </v-row>
   </v-sheet>
@@ -220,7 +227,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
 
   data (): IData {
     return {
-      tick: 0
+      tick: 0,
+      usersItemsMessageError: ''
     }
   },
 
@@ -301,9 +309,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
   },
 
   methods: {
-    ...mapActions({
-      fetchUsers: 'users/items'
-    }),
+    fetchUsers () {
+      this.$store
+        .dispatch('users/items')
+        .catch((e: Error) => {
+          this.usersItemsMessageError = e.message
+        })
+    },
 
     onButtonRefreshClick () {
       this.fetchUsers()

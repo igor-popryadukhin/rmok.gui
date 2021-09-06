@@ -203,6 +203,21 @@
               </template>
             </v-banner>
           </template>
+          <template #no-text>
+            <div
+              class="d-flex align-center justify-center"
+              style="min-height: 500px"
+            >
+              <div class="pa-16 grey--text">
+                <template v-if="contactListMessageError">
+                  {{ contactListMessageError }}
+                </template>
+                <template v-else>
+                  {{ $tc('Empty') }}
+                </template>
+              </div>
+            </div>
+          </template>
         </contacts-list>
       </v-col>
 
@@ -231,7 +246,7 @@
 
           <!-- Фильтр по проектам -->
           <div
-            v-if="$isGranted('SEE_ALL_CONTACTS')"
+            v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])"
           >
             <app-project-autocomplete
               v-model="contactsParamsFilterProjectId"
@@ -257,7 +272,7 @@
 
           <!-- Фильтр группам пользователей -->
           <div
-            v-if="$isGranted('SEE_ALL_CONTACTS')"
+            v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])"
           >
             <app-user-group-autocomplete
               v-model="filterUserGroupId"
@@ -272,7 +287,7 @@
 
           <!-- Фильтр по пользователям -->
           <div
-            v-if="$isGranted('SEE_ALL_CONTACTS')"
+            v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])"
           >
             <app-user-autocomplete
               v-model="filterUserId"
@@ -364,7 +379,7 @@ import Contact from '@/api/interfaces/Contact'
 import { ContactExportParamsInterface, Contacts } from '@/api/Contacts'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
-import { mapActions, mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 
 interface Data {
   [keys: string]: any;
@@ -415,7 +430,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       importExportProgress: {
         value: 0,
         visible: false
-      }
+      },
+      contactListMessageError: null
     }
   },
 
@@ -692,10 +708,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   methods: {
-    ...mapActions({
-      // Загружает контакты с сервера.
-      fetchContacts: 'contacts/items'
-    }),
+    /**
+     * Загружает контакты с сервера.
+     */
+    fetchContacts (params: Record<string, string | number> = {}) {
+      this.contactListMessageError = ''
+      this.$store
+        .dispatch('contacts/items', params)
+        .catch((e: Error) => {
+          this.$store.commit('contacts/total', 0)
+          this.$store.commit('contacts/items', [])
+          this.contactListMessageError = e.message
+        })
+    },
 
     /**
      * Срабатывает когда нажали на кнопку добавить контакт.
@@ -895,9 +920,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         if (file instanceof File) {
           new Contacts()
             .import(file)
-            .then((response) => {
+            .then(() => {
               this.$toast.success('Импортирование контактов, ожидайте ...')
-              this.fetchContacts()
             }).catch((error: Error) => {
               this.$toast.error(error.message)
             })
