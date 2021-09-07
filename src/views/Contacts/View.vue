@@ -1,12 +1,17 @@
 <template>
-  <v-sheet>
+  <v-sheet style="height: calc(100vh - 88px);">
     <template v-if="loading">
-      <div class="d-flex align-center justify-center pa-16">
-        <app-loading />
+      <div class="d-flex align-center justify-center fill-height">
+        <div>
+          <app-loading />
+        </div>
       </div>
     </template>
     <template v-else-if="contactNotFound">
-      <not-found :message="$tc('Contact not found')" />
+      <app-error
+        :title="$tc('Contact not found.')"
+        :sub-title="$tc('If the error persists, contact your service representative.')"
+      />
     </template>
     <v-sheet v-else>
       <v-row>
@@ -597,9 +602,9 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
+    AppError: () => import('@/components/AppError/AppError.vue'),
     AppLoading,
     AppTaskDialogEdit: () => import('@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'),
-    NotFound: () => import('@/views/Errors/NotFound.vue'),
     AppStatus
   },
 

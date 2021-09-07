@@ -1,10 +1,12 @@
 {
+  "Access denied.": "В доступе отказано.",
   "Access token": "Токен доступа",
   "Access token generated successfully!": "Токен доступа успешно создан!",
   "Across": "Через",
   "Action": "Действие",
   "Actions": "Действия",
   "Active": "Активный",
+  "Family Name": "Фамилия",
   "Activity": "Активность",
   "Add": "Добавить",
   "Add a new \"{name}\" tag?": "Добавить новый тег \"{name}\"?",
@@ -73,7 +75,7 @@
   "Comments": "Комментарии",
   "Confirmation request": "Запрос подтверждения",
   "Contact created": "Контакт создан",
-  "Contact not found": "Контакт не найден",
+  "Contact not found.": "Контакт не найден.",
   "Contact updated": "Контакт обновлен",
   "Contacts": "Контакты",
   "Contacts not transferred | {n} contact transferred | {n} contact transferred | {n} contacts transferred": "Контакты не переданы | Передан {n} контакт | Передано {n} контакта | Передано {n} контактов",
@@ -150,6 +152,8 @@
   "From": "Из",
   "Getting available members": "Получение доступных участников...",
   "Go back": "Вернуться назад",
+  "Go to Home Page": "На главную",
+  "Go to back": "Вернуться назад",
   "Group": "Группа",
   "Group name": "Название группы",
   "Group updated successfully.": "Группа успешно обновлена.",
@@ -162,6 +166,7 @@
   "ICE options": "ICE параметры",
   "IEC": "КПП",
   "ITN/TIN": "ИНН",
+  "If the error persists, contact your service representative.": "Если ошибка повторяется, обратитесь к представителю сервисной службы.",
   "Import": "Импортировать",
   "Import from CSV": "Импорт из CSV",
   "Import from Excel": "Импорт из Excel",
@@ -296,19 +301,6 @@
   "Start typing to initialize your search.": "Начните вводить текст для инициализации поиска.",
   "Statistic": "Статистика",
   "Statistic filter by statuses": "Фильтр по результату",
-  "statistics": {
-    "recent_calls": {
-      "sorting_options": {
-        "created_at": "По дате совершения звонка",
-        "contact": "По клиенту",
-        "result": "По результату",
-        "comment": "По комментарию",
-        "call_duration": "По длительности звонка",
-        "session_duration": "По длительности сессии",
-        "manager": "По менеджеру"
-      }
-    }
-  },
   "Statistics for all calls": "По всем вызовам",
   "Status": "Статус",
   "Status name": "Название статуса",
@@ -595,6 +587,19 @@
   "settings": "Настройки",
   "sign_in": "Войти",
   "sign_out": "Выйти",
+  "statistics": {
+    "recent_calls": {
+      "sorting_options": {
+        "created_at": "По дате совершения звонка",
+        "contact": "По клиенту",
+        "result": "По результату",
+        "comment": "По комментарию",
+        "call_duration": "По длительности звонка",
+        "session_duration": "По длительности сессии",
+        "manager": "По менеджеру"
+      }
+    }
+  },
   "the_password_is_very_simple": "Пароль очень простой!",
   "titles": {
     "dashboard": "Основная панель",
