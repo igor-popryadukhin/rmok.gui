@@ -110,6 +110,7 @@ export default Vue.extend({
     this.$store.dispatch('contacts_new/resetState')
     this.$store.dispatch('statistic_recent_call/pie/resetState')
     this.$store.dispatch('statistic_recent_call/resetState')
+    this.$store.dispatch('statistic_recent_call/filter/resetState')
   },
 
   methods: {
