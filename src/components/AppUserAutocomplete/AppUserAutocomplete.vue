@@ -59,6 +59,7 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { debounce } from 'vuetify/src/util/helpers'
+import User from '@/api/interfaces/User'
 
 export default Vue.extend({
   name: 'AppUserAutocomplete',
@@ -119,7 +120,7 @@ export default Vue.extend({
 
   watch: {
     q (val: string) {
-      val && this.options.findIndex((e) => e.full_name?.indexOf(val) > -1) === -1 && this.fetchOptions()
+      val && this.options.findIndex((e: User) => (e.full_name || '').indexOf(val) > -1) === -1 && this.fetchOptions()
     }
   },
 
