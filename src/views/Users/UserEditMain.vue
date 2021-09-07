@@ -30,7 +30,10 @@
       </div>
     </template>
     <template v-else>
-      <v-form ref="userEditForm">
+      <v-form
+        ref="userEditForm"
+        lazy-validation
+      >
         <v-row>
           <v-col
             cols="12"
@@ -76,7 +79,7 @@
             <v-text-field
               v-model="targetUser.login"
               :label="$tc('Login')"
-              readonly
+              :rules="[isLoginUnique]"
               autofocus
             />
           </v-col>
@@ -246,6 +249,7 @@ import SUsersGroupsAutocomplete from '@/snippets/SUsersGroupsAutocomplete/SUsers
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import AppRoleAutocomplete from '@/components/AppRoleAutocomplete/AppRoleAutocomplete.vue'
+import { debounce } from 'vuetify/src/util/helpers'
 
 interface Refs {
   [key: string]: any;
@@ -287,13 +291,26 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         phone: '',
         email: '',
         role_id: 0
-      }
+      },
+      isLoginUnique: true,
+      oldLoginName: ''
     }
   },
 
   computed: {
     userId (): number {
       return +this.$route.params.user_id
+    }
+  },
+
+  watch: {
+    'targetUser.login': {
+      handler (login: number) {
+        // Если старый логин не равен текущему
+        if (this.oldLoginName !== this.targetUser.login) {
+          debounce(this.loginCheck(login), 1000)
+        }
+      }
     }
   },
 
@@ -319,6 +336,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
           }
           this.$data.targetUser.phone = response.phone
           this.$data.targetUser.email = response.email
+          this.$data.oldLoginName = response.login
         }).finally(() => (this.$data.targetUserProcessLoading = false))
     },
 
@@ -374,6 +392,20 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       if (this.$data.availableCountries.length < 2) {
         this.fetchCountries()
       }
+    },
+
+    loginCheck (val) {
+      new Users()
+        .loginFind({
+          q: val
+        })
+        .then(({ data }) => {
+          if (data) {
+            this.isLoginUnique = this.$t('К сожалению, логин занят')
+          } else {
+            this.isLoginUnique = true
+          }
+        })
     }
   }
 })
