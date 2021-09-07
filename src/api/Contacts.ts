@@ -59,7 +59,7 @@ export interface ContactsParamsFind {
    * -----------------------------
    * Положительное число.
    */
-  group_id?: number;
+  user_group_id?: number;
   /**
    * Дата создания контакта в формате **unixtime.**
    *

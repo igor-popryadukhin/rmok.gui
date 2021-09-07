@@ -789,8 +789,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           params.owner_id = this.$routerQuery.getQuery('owner_id')
         }
 
-        if (this.$routerQuery.hasQuery('group_id')) {
-          params.group_id = this.$routerQuery.getQuery('group_id')
+        if (this.$routerQuery.hasQuery('user_group_id')) {
+          params.user_group_id = this.$routerQuery.getQuery('user_group_id')
         }
 
         if (this.$routerQuery.hasQuery('call_up')) {
@@ -964,7 +964,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
       // Группа
       if (this.$data.filter.group) {
-        params.group_id = this.$data.filter.group.id
+        params.user_group_id = this.$data.filter.group.id
       }
 
       // Статусы
@@ -1106,8 +1106,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('owner_id')))
       }
 
-      if (this.$routerQuery.hasQuery('group_id')) {
-        promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_id')))
+      if (this.$routerQuery.hasQuery('user_group_id')) {
+        promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('user_group_id')))
       }
 
       this.filter.call_up.selected = this.$routerQuery.getQuery('call_up', '')
@@ -1223,11 +1223,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.dataTableContacts.page = 1
         if (newVal) {
           this.$routerQuery.setQuery({
-            group_id: newVal.id
+            user_group_id: newVal.id
           }).then(this.fetchContacts)
         } else {
           this.$routerQuery.removeQuery([
-            'group_id'
+            'user_group_id'
           ]).then(this.fetchContacts)
         }
       })

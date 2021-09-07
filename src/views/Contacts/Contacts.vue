@@ -593,7 +593,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
 
       if (this.filterUserGroupId) {
-        params.group_id = this.filterUserGroupId
+        params.user_group_id = this.filterUserGroupId
       }
 
       if (this.filterTagIds.length > 0) {
