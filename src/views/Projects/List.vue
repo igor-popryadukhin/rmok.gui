@@ -109,9 +109,7 @@
           <template v-for="item in projects.items">
             <v-list-item
               :key="`v-list-item-` + item.id"
-              link
-              @mouseenter="projectHoverId = item.id | 0"
-              @mouseleave="projectHoverId = 0"
+              :to="{ name: 'projects_edit', params: { project_id: item.id } }"
             >
               <v-list-item-content>
                 <v-list-item-title>
@@ -123,23 +121,9 @@
               <v-list-item-action
                 style="margin: 0"
               >
-                <div class="d-flex d-inline">
-                  <div v-if="projectHoverId !== item.id">
-                    <span style="font-size: 12px; padding: 2px; margin-right: 10px">
-                      {{ $dayjs().set('seconds', item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
-                    </span>
-                  </div>
-                  <v-btn
-                    v-if="projectHoverId === item.id"
-                    :to="{ name: 'projects_edit', params: { project_id: item.id } }"
-                    small
-                    icon
-                  >
-                    <v-icon>
-                      mdi-pencil-box-outline
-                    </v-icon>
-                  </v-btn>
-                </div>
+                <v-list-item-action-text>
+                  {{ $dayjs(item.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                </v-list-item-action-text>
               </v-list-item-action>
             </v-list-item>
 
@@ -215,7 +199,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       new Projects()
-        .find<{ count: number }, ProjectInterface[]>(params)
+        .find(params)
         .then((response) => {
           this.projects.totalCount = response?.meta?.count || 0
           this.projects.pages = Math.ceil(response?.meta?.count || 0 / this.projects.itemsPerPage)

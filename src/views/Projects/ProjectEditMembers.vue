@@ -68,14 +68,49 @@
               @mouseenter="memberHoverId = item.id | 0"
               @mouseleave="memberHoverId = 0"
             >
-              <v-list-item-content>
+              <v-list-item-avatar>
+                <v-avatar
+                  v-if="item.userpic"
+                  class="primary white--text"
+                >
+                  <v-img :src="item.userpic" />
+                  <v-badge
+                    v-show="item.online"
+                    offset-y="16"
+                    offset-x="13"
+                    color="#38ff00"
+                    dot
+                    bordered
+                  />
+                </v-avatar>
+                <v-avatar
+                  v-else
+                  class="primary white--text"
+                >
+                  {{ item.abbreviation }}
+                </v-avatar>
+                <v-badge
+                  v-show="item.online"
+                  offset-y="16"
+                  offset-x="13"
+                  color="#38ff00"
+                  dot
+                  bordered
+                />
+              </v-list-item-avatar>
+              <v-list-item-content class="py-0">
                 <v-list-item-title>
-                  {{ item.first_name }} {{ item.last_name }}
+                  {{ item.full_name }}
                 </v-list-item-title>
+                <v-list-item-subtitle
+                  v-if="item.last_activity_at"
+                  :key="`v-list-item-action-text-${item.id}-${tick}`"
+                >
+                  {{ $dayjs(item.last_activity_at * 1000).fromNow() }}
+                </v-list-item-subtitle>
               </v-list-item-content>
 
               <v-list-item-action
-                v-if="memberHoverId === item.id"
                 style="margin: 0"
                 class="d-flex d-inline-flex"
               >
@@ -107,9 +142,7 @@
 <script lang="ts">
 import Projects from '@/api/Projects'
 import { UserInterface } from '@/api/Users'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import AppTools from '@/components/AppTools/AppTools.vue'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
@@ -146,6 +179,7 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
 
   data () {
     return {
+      tick: 0,
       memberHoverId: 0,
       membersTotal: 0,
       membersPerPage: 50,
@@ -165,11 +199,11 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
 
     queryOffset: {
       get () {
-        return +this.$route.query?.page || 1
+        return +this.$route.query?.offset || 0
       },
 
       set (val: number) {
-        this.$routerQuery.setQuery({ page: val })
+        this.$routerQuery.setQuery({ offset: val })
       }
     }
   },
@@ -182,16 +216,17 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
 
   mounted () {
     this.fetchProjectMembers()
+
+    setInterval(() => (this.$data.tick++), 10000)
   },
 
   methods: {
     fetchProjectMembers () {
       this.processLoadingData = true
       new Projects()
-        .getMembers(+this.$route.params.project_id, this.queryOffset)
+        .getMembers(+this.$route.params.project_id, this.queryOffset, this.membersPerPage)
         .then((response) => {
           this.$data.membersTotal = response.meta?.count
-          this.$data.membersPages = Math.ceil((response.meta?.count ?? 0) / this.$data.membersPerPage)
           this.$data.members = response.data
         }).finally(() => (this.processLoadingData = false))
     },

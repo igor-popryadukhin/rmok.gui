@@ -155,7 +155,7 @@
             lg="4"
             md="6"
           >
-            <s-users-groups-autocomplete
+            <app-user-group-autocomplete
               v-model="targetUser.group_id"
               :label="$tc('Group')"
             />
@@ -245,11 +245,11 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import rules from '@/mixins/rules'
 import statusActions from '@/mixins/statusActions'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
-import SUsersGroupsAutocomplete from '@/snippets/SUsersGroupsAutocomplete/SUsersGroupsAutocomplete.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import AppRoleAutocomplete from '@/components/AppRoleAutocomplete/AppRoleAutocomplete.vue'
 import { debounce } from 'vuetify/src/util/helpers'
+import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
 
 interface Refs {
   [key: string]: any;
@@ -269,7 +269,7 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  components: { AppRoleAutocomplete, SUsersGroupsAutocomplete, AppLoading },
+  components: { AppUserGroupAutocomplete, AppRoleAutocomplete, AppLoading },
 
   mixins: [rules, vueScrollOptions, statusActions],
 
@@ -308,10 +308,14 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       handler (login: number) {
         // Если старый логин не равен текущему
         if (this.oldLoginName !== this.targetUser.login) {
-          debounce(this.loginCheck(login), 1000)
+          this.loginCheck(login)
         }
       }
     }
+  },
+
+  created () {
+    this.loginCheck = debounce(this.loginCheck, 500)
   },
 
   mounted () {
@@ -394,7 +398,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       }
     },
 
-    loginCheck (val) {
+    loginCheck (val: string) {
       new Users()
         .loginFind({
           q: val
