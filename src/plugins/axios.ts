@@ -3,6 +3,10 @@ import { Cookie } from '@/plugins/cookie'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Vue from 'vue'
 import { sleep } from '@/Utils'
+import debug from 'debug'
+
+const httpResponseLog = debug('APP').extend('HTTP').extend('RESPONSE')
+const httpRequestLog = debug('APP').extend('HTTP').extend('REQUEST')
 
 // Full config:  https://github.com/axios/axios#request-config
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
@@ -12,8 +16,8 @@ import { sleep } from '@/Utils'
 /* eslint-disable */
 const config = {
   baseURL: process.env.VUE_APP_API,
-  timeout: 30000,
-  withCredentials: process.env.NODE_ENV === 'development',
+  timeout: 180000,
+  withCredentials: true,
   validateStatus (status: number) {
     return status < 500 // Resolve only if the status code is less than 500
   }
@@ -33,6 +37,7 @@ if (process.env.NODE_ENV === 'development') {
 /* eslint-disable */
 // @ts-ignore
 _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
+  httpRequestLog('%o', config)
 
   // todo: set locale optional
   config.headers.Language = 'ru'
@@ -73,6 +78,7 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
       return Promise.resolve(config)
     }
   },
+
   function (error) {
     // Do something with request error
     return Promise.reject(error)
@@ -86,6 +92,7 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
 // Add a response interceptor
 _axios.interceptors.response.use(
   (response): Promise<AxiosResponse> | any => {
+    httpResponseLog('%o', response)
 
     if ('x-debug-token-link' in response.headers) {
       app.$store.commit('symfony/call_collection', {

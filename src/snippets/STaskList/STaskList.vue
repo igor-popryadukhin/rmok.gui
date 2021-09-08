@@ -796,7 +796,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
         // Сохранить $route.fullPath что бы потом вернуться.
         this.$store.commit('system/route_last_full_path', this.$route.fullPath)
         this.$router.push({
-          name: 'operator_contacts_view',
+          name: 'contacts_view',
           params: { contact_id: item.contact.id } as any
         })
       }

@@ -1,21 +1,27 @@
-import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
+import Status from '@/api/interfaces/Status'
+import Project from '@/api/interfaces/Project'
+import User from '@/api/interfaces/User'
+import UserGroup from '@/api/interfaces/UserGroup'
+import ContactTag from '@/api/interfaces/ContactTag'
+import Role from '@/api/interfaces/Role'
 
-export interface StatusInterface {
-  id: number;
-  name: string;
-  color: string;
-  project_name?: string;
+export interface State {
+  contact_tags: ContactTag[];
+  statuses: Status[];
+  projects: Project[];
+  users: User[];
+  users_groups: UserGroup[];
+  roles: Role[];
 }
 
-export interface FilterStateInterface {
-  contact_tags: ContactTagInterface[],
-  statuses: ContactTagInterface[]
-}
-
-function state (): FilterStateInterface {
+function state (): State {
   return {
     contact_tags: [],
-    statuses: []
+    statuses: [],
+    projects: [],
+    users: [],
+    users_groups: [],
+    roles: []
   }
 }
 

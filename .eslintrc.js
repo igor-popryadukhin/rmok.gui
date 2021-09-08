@@ -5,7 +5,7 @@ module.exports = {
     node: true
   },
   extends: [
-    'plugin:vue/essential',
+    'plugin:vue/recommended',
     '@vue/standard',
     '@vue/typescript/recommended'
   ],
@@ -21,6 +21,7 @@ module.exports = {
   ],
   root: true,
   rules: {
+    "sort-imports": ["warn", { "ignoreCase": true }],
     '@typescript-eslint/naming-convention': [
       'error',
       {

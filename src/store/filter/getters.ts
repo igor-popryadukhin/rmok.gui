@@ -1,10 +1,14 @@
-import { RootStateInterface } from '@/store'
-import { FilterStateInterface } from './state'
+import { RootState } from '@/store'
+import { State } from './state'
 import { GetterTree } from 'vuex'
 
-const getters: GetterTree<FilterStateInterface, RootStateInterface> = {
-  contact_tags (state: FilterStateInterface) { return state.contact_tags },
-  statuses (state: FilterStateInterface) { return state.statuses }
+const getters: GetterTree<State, RootState> = {
+  contact_tags (state: State) { return state.contact_tags },
+  statuses (state: State) { return state.statuses },
+  projects (state: State) { return state.projects },
+  users (state: State) { return state.users },
+  users_groups (state: State) { return state.users_groups },
+  roles (state: State) { return state.roles }
 }
 
 export default getters

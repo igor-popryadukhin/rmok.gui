@@ -2,15 +2,19 @@ import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from '@/api/classes/APIError'
+import { ContactHistoryInterface } from '@/api/Schemas/ContactInterface'
+import StatisticPie from '@/api/interfaces/StatisticPie'
 
 export default class Statistics {
   /**
-   * Количество звонков
+   * Статистика по последним вызовам.
+   * --------------------------------
+   * Вернёт общее количество звонков.
    * @param params
    */
-  public totalCalls (params = {}): Promise<number> {
+  public recentCallsTotalCalls (params = {}): Promise<number> {
     return new Promise<number>((resolve, reject) => {
-      $axios.get('/statistics/total-calls', {
+      $axios.get('/statistics/recent-calls/total-calls', {
         params: { ...params }
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
@@ -26,26 +30,33 @@ export default class Statistics {
   }
 
   /**
-   *
+   * Статистика по последним вызовам.
+   * --------------------------------
+   * Вернёт данные круговой диаграммы.
    * @param params
    */
-  public pie<T> (params = {}): any {
-    return new Promise<T>((resolve, reject) => {
-      $axios.get('/statistics/pie', {
-        params: { ...params }
+  public recentCallsPie (params = {}): Promise<StatisticPie> {
+    return new Promise((resolve, reject) => {
+      $axios.get('/statistics/recent-calls/pie', {
+        params
       }).then((response: AxiosResponse) => {
-        if ([200].includes(response.status)) {
-          resolve(response.data)
-        } else {
+        if (response.status !== 200) {
           throw new APIError(response.data)
         }
+        resolve(response.data)
       }).catch(reject)
     })
   }
 
-  public history<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
-      $axios.get('/statistics/history', {
+  /**
+   * Статистика по последним вызовам.
+   * --------------------------------
+   * Вернёт данные истории по последним вызовам.
+   * @param params
+   */
+  public recentCallsHistory (params = {}): Promise<ResponseInterface<{count: number}, ContactHistoryInterface[]>> {
+    return new Promise((resolve, reject) => {
+      $axios.get('/statistics/recent-calls/history', {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {

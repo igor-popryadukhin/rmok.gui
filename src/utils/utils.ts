@@ -12,7 +12,7 @@ export function makeAudioElement (id?: string): HTMLAudioElement {
  * Remove audio element
  * @param id
  */
-export function removeAudioElement (id: string) {
+export function removeAudioElement (id: string): void {
   const element: HTMLElement | null = document.getElementById(id)
   if (element) {
     element.remove()
@@ -44,14 +44,6 @@ export function compareObjects (obj1: unknown, obj2: unknown): boolean {
       return false
     }
   }
-  for (let i = 0; i < obj1Keys.length; i++) {
-    if (typeof obj1[obj1Keys[i]] === 'object') {
-      return deepEqual(obj1[obj1Keys[i]], obj2[obj1Keys[i]])
-    }
-    if (obj1[obj1Keys[i]] !== obj2[obj2Keys[i]]) {
-      return false
-    }
-  }
   return true
 }
 
@@ -62,4 +54,13 @@ export function randomColor (): string {
     color += letters[Math.floor(Math.random() * 16)]
   }
   return color
+}
+
+export function generatePassword (length = 6): string {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789%@_^'
+  let retVal = ''
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n))
+  }
+  return retVal
 }

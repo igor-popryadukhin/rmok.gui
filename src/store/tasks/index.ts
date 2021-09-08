@@ -1,11 +1,11 @@
-import { RootStateInterface } from '@/store'
+import { RootState } from '@/store'
 import { Module } from 'vuex'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import state, { TasksStateInterface } from './state'
+import state, { TasksState } from './state'
 
-const tasks: Module<TasksStateInterface, RootStateInterface> = {
+const module: Module<TasksState, RootState> = {
   actions,
   getters,
   mutations,
@@ -13,4 +13,4 @@ const tasks: Module<TasksStateInterface, RootStateInterface> = {
   state
 }
 
-export default tasks
+export default module

@@ -10,7 +10,7 @@ export interface PermissionInterface {
 
 export interface PermissionGroupInterface {
   title: string;
-  permissions: PermissionInterface[];
+  attributes: PermissionInterface[];
 }
 
 export default class Permissions {

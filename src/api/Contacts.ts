@@ -1,12 +1,10 @@
-import APIError from '@/api/classes/APIError'
+import APIError from './classes/APIError'
+import Contact from './interfaces/Contact'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { CheckedInterface } from '@/api/Schemas/СheckedInteface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
-import { ContactInterface, ContactTagInterface } from './Schemas/ContactInterface'
-
-interface Contact extends ContactInterface, CheckedInterface {
-}
+import { ContactTagInterface } from './Schemas/ContactInterface'
+import ContactHistory from '@/api/interfaces/ContactHistory'
 
 export interface ContactResponseInterface {
   count: number;
@@ -61,10 +59,10 @@ export interface ContactsParamsFind {
    * -----------------------------
    * Положительное число.
    */
-  group_id?: number;
+  user_group_id?: number;
   /**
    * Дата создания контакта в формате **unixtime.**
-   * ----------------------------------------------
+   *
    * ```js
    * const unixtime = new Date().getTime() / 1000
    * ```
@@ -72,7 +70,7 @@ export interface ContactsParamsFind {
   contact_created_at?: number;
   /**
    * Дата последнего звонка в формате **unixtime.**
-   * ----------------------------------------------
+   *
    * ```js
    * const unixtime = new Date().getTime() / 1000
    * ```
@@ -80,13 +78,13 @@ export interface ContactsParamsFind {
   last_call_at?: number;
   /**
    * Перечисленные через запятую идентификаторы тегов.
-   * -------------------------------------------------
+   *
    * Количество элементов должно составлять не более 1000
    */
   tag_ids?: string;
   /**
    * Факт наличия или отсутствия задач
-   * ------------------------------------------------------------
+   *
    * - available — Вернёт контакты с наличием задач.
    * - unavailable — Вернёт контакты без задач.
    * - overdue — Вернёт контакты с просроченными задачами.
@@ -103,7 +101,7 @@ export interface ContactsParamsFind {
   call_up?: 0 | 1;
   /**
    * Количество возвращаемых контактов.
-   * ----------------------------------
+   *
    * Обратите внимание — даже при использовании параметра offset для получения информации доступны
    * только первые 1000 результатов.
    *
@@ -112,32 +110,25 @@ export interface ContactsParamsFind {
   count?: number;
   /**
    * Смещение относительно первого найденного контакта для выборки определенного подмножества.
-   * -----------------------------------------------------------------------------------------
-   *
    * Положительное число, по умолчанию 50, максимальное значение 1000
    */
   offset?: number;
   /**
    * Перечисленные через запятую идентификаторы статусов.
-   * -------------------------------------------------
    */
   status_ids?: string;
-}
 
-export interface ContactsParamsSetTagsInterface {
-  filters?: ContactsParamsFind;
   /**
-   * Теги для установки контактам
-   * -----------------------------
-   * Массив идентификаторов тегов
+   * - 0 - Не используется (по умолчанию).
+   * - 1 - Вернёт только новые контакты.
    */
-  tag_ids: number[];
+  only_new?: 0 | 1
+
   /**
-   * Контакты для которых требуется установить выбранные теги.
-   * -----------------------------
-   * Массив идентификаторов контаков.
+   * - 0 - Не используется (по умолчанию).
+   * - 1 - Очередь лидов (контакты).
    */
-  contact_ids: number[];
+  queue_leads?: 0 | 1
 }
 
 /**
@@ -160,16 +151,16 @@ export class Contacts {
    *
    * @param params
    */
-  public find<TM, TD> (params: ContactsParamsFind = {}): Promise<ResponseInterface<TM, TD> | any> {
-    return new Promise<ResponseInterface<TM, TD> | any>((resolve, reject) => {
+  public find (params: ContactsParamsFind = {}): Promise<ResponseInterface<{ count: number }, Contact[]>> {
+    return new Promise((resolve, reject) => {
       $axios.get('/contacts', {
         params
       }).then((response: AxiosResponse) => {
-        if ([200].includes(response.status)) {
-          resolve(response.data)
-        } else {
-          reject(response.data)
+        if (response.status === 200) {
+          return resolve(response.data)
         }
+
+        throw new APIError(response.data)
       }).catch(reject)
     })
   }
@@ -212,14 +203,20 @@ export class Contacts {
    *
    * @param params
    */
-  public transfer (params: any): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
+  public transfer (params: {
+    /* Идентификатор проекта */
+    target_project_id: number,
+    target_contact_ids: number[],
+    target_user_ids: number[],
+    new_date?: number}
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/transfer', params)
         .then((response: AxiosResponse) => {
-          if ([200].includes(response.status)) {
-            return resolve(response.data?.count || 0)
+          if (![200, 202].includes(response.status)) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve()
         }).catch(reject)
     })
   }
@@ -228,13 +225,12 @@ export class Contacts {
    *
    * @param id
    */
-  public getById (id: number): Promise<ContactInterface> {
-    return new Promise((resolve, reject) => {
+  public getById (id: number): Promise<Contact> {
+    return new Promise<Contact>((resolve, reject) => {
       $axios.get(`/contacts/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            resolve(response.data)
-            return
+            return resolve(response.data)
           }
           throw new APIError(response.data)
         }).catch(reject)
@@ -308,14 +304,15 @@ export class Contacts {
   }
 
   /**
+   * Вернёт историю контакта по идентификатору истории.
    * @param historyId
    */
-  public getHistoryById (historyId: number): Promise<any> {
+  public getHistoryById (historyId: number): Promise<ContactHistory> {
     return new Promise((resolve, reject) => {
       $axios.get(`/contacts/history/${historyId}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            reject(response.data)
+            throw new APIError(response.data)
           }
           resolve(response.data)
         }).catch(reject)
@@ -327,12 +324,12 @@ export class Contacts {
    * @param contactId
    * @param data
    */
-  public addHistory<DT> (contactId: number, data: DT): Promise<number | any> {
-    return new Promise((resolve, reject): Promise<number | any> | any => {
+  public addHistory (contactId: number, data: any): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
       $axios.post(`/contacts/${contactId}/history`, data)
         .then((response: AxiosResponse) => {
           if (![200, 201].includes(response.status)) {
-            reject(response.data)
+            throw new APIError(response.data)
           }
           resolve(response.data.id)
         }).catch(reject)
@@ -344,14 +341,14 @@ export class Contacts {
    * @param historyId
    * @param data
    */
-  public updateHistory<DT> (historyId: number, data: DT): Promise<any> {
+  public editHistory (historyId: number, data = {}): Promise<number> {
     return new Promise((resolve, reject) => {
       $axios.patch(`/contacts/history/${historyId}`, data)
         .then((response: AxiosResponse) => {
-          if (![200, 204].includes(response.status)) {
-            reject(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
           }
-          resolve(response.data)
+          resolve(response.data?.id)
         }).catch(reject)
     })
   }
@@ -377,13 +374,13 @@ export class Contacts {
    * @param fs
    * @param onUploadProgress
    */
-  public import<DT = unknown & { count_insert_contacts: number }> (fs: File | FileList, onUploadProgress?: (event: ProgressEvent) => void): Promise<ResponseInterface<unknown, DT>> {
-    return new Promise<ResponseInterface<any, DT>>((resolve, reject) => {
+  public import<DT = unknown & { count_insert_contacts: number }> (fs: File | FileList, onUploadProgress?: (event: ProgressEvent) => void): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
       const upload = (data: any) => {
         $axios.post('/contacts/import', data, {
           onUploadProgress
         }).then((response: AxiosResponse) => {
-          if ([200, 201].includes(response.status)) {
+          if ([200, 202].includes(response.status)) {
             resolve(response.data)
           } else {
             throw new APIError(response.data)
@@ -412,31 +409,14 @@ export class Contacts {
    *
    * @param params
    */
-  public export<DT = string> (params: ContactExportParamsInterface): Promise<DT> {
-    return new Promise<DT>((resolve, reject) => {
-      $axios.post('/contacts/export', params, {
-        responseType: 'blob'
-      })
+  public export (params: ContactExportParamsInterface): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      $axios.post('/contacts/export', params)
         .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            const url = window.URL.createObjectURL(new Blob([response.data]))
-            const link = document.createElement('a')
-            link.href = url
-
-            if (params.format === 'excel') {
-              link.setAttribute('download', `${new Date().getTime()}.xlsx`)
-            } else if (params.format === 'csv') {
-              link.setAttribute('download', `${new Date().getTime()}.csv`)
-            }
-
-            document.body.appendChild(link)
-            link.click()
-            setTimeout(() => {
-              link.remove()
-            }, 1000)
-          } else {
-            throw new APIError(response.data)
+          if ([200, 202].includes(response.status)) {
+            resolve(response.data)
           }
+          throw new APIError(response?.data)
         }).catch(reject)
     })
   }
@@ -450,26 +430,27 @@ export class Contacts {
     return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
       $axios.get('/contacts/tags', { params })
         .then((response: AxiosResponse) => {
-          if ([200].includes(response.status)) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response?.data || response.statusText)
           }
-          throw new APIError(response?.data || response.statusText)
+          resolve(response.data)
         }).catch(reject)
     })
   }
 
   /**
-   * Массовая установка тегов для контактов
+   * Назначение тегов контактам.
+   *
    * @param params
    */
-  public setTags (params?: ContactsParamsSetTagsInterface): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
+  public setTags (params: { tag_ids: number[], contact_ids: number[] }): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/tags/set', params)
         .then((response: AxiosResponse) => {
-          if ([200, 204].includes(response.status)) {
-            return resolve(response.data?.count || 0)
+          if ([200, 202].includes(response.status)) {
+            return resolve()
           }
-          throw new APIError(response?.data || response.statusText)
+          throw new APIError(response?.data)
         }).catch(reject)
     })
   }
@@ -486,6 +467,56 @@ export class Contacts {
             return resolve(response.data?.id || 0)
           }
           throw new APIError(response?.data || response.statusText)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Скачиваем файл экселя с контактами
+   *
+   * @param name
+   */
+  public contactDownload (name: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/contacts/export/file/${name}`, { responseType: 'blob' })
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href = url
+            const extFile = name.split('.').pop()
+            if (extFile === 'xlsx') {
+              link.setAttribute('download', `${new Date().getTime()}.xlsx`)
+            } else if (extFile === 'csv') {
+              link.setAttribute('download', `${new Date().getTime()}.csv`)
+            }
+
+            document.body.appendChild(link)
+            link.click()
+            setTimeout(() => {
+              link.remove()
+            }, 1000)
+          } else {
+            throw new APIError(response.data)
+          }
+          resolve(response.data?.id)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Закроет все задачи контакта.
+   *
+   * @param contact_id
+   */
+  public closeAllTasks (contact_id: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get(`/contacts/${contact_id}/tasks/close-all`)
+        .then((response: AxiosResponse) => {
+          if (![202, 200].includes(response.status)) {
+            throw new APIError(response.data)
+          }
+          resolve()
         }).catch(reject)
     })
   }

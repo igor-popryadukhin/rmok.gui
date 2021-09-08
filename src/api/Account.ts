@@ -1,4 +1,5 @@
 import APIError from '@/api/classes/APIError'
+import User from '@/api/interfaces/User'
 import Country from '@/api/Schemas/Country'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
@@ -22,6 +23,7 @@ export interface ProfileInterface {
   userpic: null;
   status: string;
   created_at: number;
+  roles: string[];
   role: Role;
   is_super_admin?: boolean;
   tz?: boolean;
@@ -38,14 +40,17 @@ export interface Role {
 }
 
 export class Account {
-  public getProfile (): Promise<ProfileInterface> {
-    return new Promise((resolve, reject): Promise<ProfileInterface> | any => {
+  /**
+   * Возвращает информацию о текущем аккаунте.
+   */
+  public getProfile (): Promise<User> {
+    return new Promise<User>((resolve, reject) => {
       $axios.get('/account/profile')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data as ProfileInterface)
+            return resolve(response.data)
           }
-          reject(response.data)
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

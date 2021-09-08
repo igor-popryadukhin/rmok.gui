@@ -5,11 +5,17 @@
     :dense="dense"
     :outlined="outlined"
     :clearable="clearable"
+    :disabled="disabled"
     prepend-inner-icon="mdi-magnify"
-    hide-details
   >
-    <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
-      <slot :name="slot" v-bind="scope"/>
+    <template
+      v-for="(_, slot) of $scopedSlots"
+      #[slot]="scope"
+    >
+      <slot
+        :name="slot"
+        v-bind="scope"
+      />
     </template>
   </v-text-field>
 </template>
@@ -44,6 +50,11 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
 
   inheritAttrs: false,
 
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
   props: {
     clearable: {
       default: true,
@@ -65,15 +76,14 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
       default: true,
       type: Boolean
     },
+    disabled: {
+      default: false,
+      type: Boolean
+    },
     value: {
       default: '',
       type: String
     }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
   },
 
   data (): IData {

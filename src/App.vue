@@ -1,12 +1,16 @@
 <template>
   <div>
     <div class="text-center">
-      <v-overlay v-if="overlay" z-index="150" :value="overlay">
+      <v-overlay
+        v-if="overlay"
+        z-index="150"
+        :value="overlay"
+      >
         <div class="d-flex align-center">
           <v-progress-circular
             indeterminate
             size="64"
-          ></v-progress-circular>
+          />
           <div style="margin-top: 16px">
             {{ $tc('Loading...') }}
           </div>
@@ -36,8 +40,7 @@
     >
       <div
         class="for-dev-info"
-      >
-      </div>
+      />
     </div>
     <!-- FOR DEVELOPMENT -->
   </div>
@@ -45,14 +48,23 @@
 
 <script lang="ts">
 import AppAudioPlayer from '@/components/AppAudioPlayer/AppAudioPlayer.vue'
+import { ProfileState } from '@/store/profile/state'
 import Vue from 'vue'
 import { VApp } from 'vuetify/lib'
 import { POSITION } from 'vue-toastification'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
-import { mapGetters } from 'vuex'
 
 export default Vue.extend({
+
+  name: 'App',
+
+  metaInfo: {
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'description', content: 'foo' }
+    ]
+  },
 
   components: {
     AppAudioPlayer,
@@ -86,6 +98,7 @@ export default Vue.extend({
       toastId: 0 as number | string
     }
   },
+  head: {},
 
   computed: {
     layout () {
@@ -102,53 +115,35 @@ export default Vue.extend({
       }
     },
 
-    ...mapGetters({
-      profile_role_use: 'profile/role_use',
-      profile_tz: 'profile/tz' // Текущая временная зона.
-    })
+    // ...mapGetters({
+    //   profile: 'profile/profile',
+    //   profile_tz: 'profile/tz' // Текущая временная зона.
+    // })
+
+    profile (): ProfileState {
+      return this.$store.getters['profile/profile']
+    }
   },
 
-  beforeCreate () {
-    this.$store.dispatch('profile/loadProfile')
-      .finally(() => {
-        this.$root.$emit('root-jssip-initialize')
-      })
+  mounted () {
+    this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
+    this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
+    this.$root.$on('on-audio-player-show', this.onAudioPlayerShow)
+
+    window.addEventListener('keydown', this.onKeyDown)
+    window.addEventListener('keyup', this.onKeyUp)
   },
 
-  created () {
-    // Отложенная проверка корректности временной зоны пользователя.
-    setTimeout(() => {
-      if (this.$route.name !== 'login') {
-        this.checkTimeZoneSet()
-      }
-    }, 10000)
+  beforeDestroy () {
+    this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
+    this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
+    this.$root.$off('on-audio-player-show', this.onAudioPlayerShow)
+
+    window.removeEventListener('keydown', this.onKeyDown)
+    window.removeEventListener('keyup', this.onKeyUp)
   },
 
   methods: {
-
-    /**
-     * Выполнить проверку корректности временной зоны пользователя.
-     */
-    checkTimeZoneSet () {
-      let route_name = ''
-      switch (this.profile_role_use) {
-        case 'for_administration': {
-          route_name = 'administrator_settings_regional'
-          break
-        }
-        case 'for_calls': {
-          route_name = 'operator_settings_regional'
-        }
-      }
-      if (!this.profile_tz) {
-        this.$toast.warning('Часовой пояс настроен неверно, нажмите на данное сообщение, чтобы настроить часовой пояс.', {
-          onClick: () => {
-            this.$router.push({ name: route_name })
-          },
-          timeout: 10000
-        })
-      }
-    },
 
     onKeyDown (e: KeyboardEvent) {
       if (e.code === 'ControlLeft') {
@@ -171,46 +166,17 @@ export default Vue.extend({
     },
 
     onAudioPlayerShow ({ src, author }: unknown & { src: string; author: string }) {
-      if (this.$isDebug) {
-        console.group('handle: onAudioPlayerShow')
-        console.log({ src, author })
-      }
       this.$refs.audioPlayer.setMediaData({
         src,
         author
       })
 
       setTimeout(() => {
-        if (this.$isDebug) {
-          console.log(this.$refs.audioPlayer)
-          console.groupEnd()
-        }
-
         this.$refs.audioPlayer.show()
         this.$refs.audioPlayer.play()
       }, 500)
     }
-  },
-
-  mounted () {
-    this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
-    this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$on('on-audio-player-show', this.onAudioPlayerShow)
-
-    window.addEventListener('keydown', this.onKeyDown)
-    window.addEventListener('keyup', this.onKeyUp)
-  },
-
-  beforeDestroy () {
-    this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
-    this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
-    this.$root.$off('on-audio-player-show', this.onAudioPlayerShow)
-
-    window.removeEventListener('keydown', this.onKeyDown)
-    window.removeEventListener('keyup', this.onKeyUp)
-  },
-
-  name: 'App'
+  }
 })
 </script>
 

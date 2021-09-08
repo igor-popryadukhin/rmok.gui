@@ -1,5 +1,5 @@
 <template>
-  <hr class="app-divider"/>
+  <hr class="app-divider">
 </template>
 
 <script>
@@ -16,7 +16,8 @@ export default {
   height: 0px;
   max-height: 0px;
   border: solid;
-  border-width: thin 0 0 0;
+  border-width: thin 0px 2px 0px;
   transition: inherit;
+  color: #3a70d4;
 }
 </style>

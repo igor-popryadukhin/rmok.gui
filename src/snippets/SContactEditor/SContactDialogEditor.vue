@@ -8,7 +8,10 @@
       </div>
       <div class="pa-4 px-10">
         <template v-if="value.created_at">
-          <span class="grey--text" style="font-size: small">{{ $t('Date of creation {date}', { date: $moment.unix(value.created_at).format('DD.MM.YYYY HH:mm') }) }}</span>
+          <span
+            class="grey--text"
+            style="font-size: small"
+          >{{ $t('Date of creation {date}', { date: $dayjs().set('seconds', value.created_at).format('DD.MM.YYYY HH:mm') }) }}</span>
         </template>
       </div>
     </div>
@@ -21,7 +24,10 @@
         <v-divider />
       </v-card-text>
 
-      <v-card-text class="py-0" style="overflow-y: auto; max-height: 600px">
+      <v-card-text
+        class="py-0"
+        style="overflow-y: auto; max-height: 600px"
+      >
         <v-card-text class="d-flex">
           <div class="v-card-text--left d-flex align-start justify-center mt-2">
             <v-avatar
@@ -46,8 +52,7 @@
                 :rules="[rules.notBlank, rules.lengthMax(255)]"
                 label="Имя"
                 dense
-              >
-              </v-text-field>
+              />
             </v-col>
             <v-col>
               <v-text-field
@@ -55,7 +60,7 @@
                 :rules="[rules.notBlank, rules.lengthMax(255)]"
                 label="Фамилия"
                 dense
-              ></v-text-field>
+              />
             </v-col>
             <v-col>
               <v-text-field
@@ -63,7 +68,7 @@
                 :rules="[rules.lengthMax(255)]"
                 label="Отчество"
                 dense
-              ></v-text-field>
+              />
             </v-col>
           </v-row>
         </v-card-text>
@@ -81,8 +86,7 @@
                   :rules="[rules.notBlank, rules.phoneNumber]"
                   label="Номер"
                   dense
-                >
-                </v-text-field>
+                />
               </v-col>
               <v-col>
                 <v-text-field
@@ -92,7 +96,7 @@
                   label="Ярлык"
                   dense
                 >
-                  <template v-slot:append-outer>
+                  <template #append-outer>
                     <v-btn
                       icon
                       x-small
@@ -115,8 +119,7 @@
                   :rules="[rules.notBlank, rules.phoneNumber, rules.lengthMax(255)]"
                   label="Номер"
                   dense
-                >
-                </v-text-field>
+                />
               </v-col>
               <v-col class="py-0">
                 <v-text-field
@@ -125,7 +128,7 @@
                   label="Ярлык"
                   dense
                 >
-                  <template v-slot:append-outer>
+                  <template #append-outer>
                     <v-btn
                       color="red"
                       icon
@@ -155,8 +158,7 @@
                   :rules="[rules.email]"
                   label="Адрес электронной почты"
                   dense
-                >
-                </v-text-field>
+                />
               </v-col>
               <v-col>
                 <v-text-field
@@ -166,7 +168,7 @@
                   label="Ярлык"
                   dense
                 >
-                  <template v-slot:append-outer>
+                  <template #append-outer>
                     <v-btn
                       icon
                       x-small
@@ -188,8 +190,7 @@
                   v-model="item.value"
                   label="Адрес электронной почты"
                   dense
-                >
-                </v-text-field>
+                />
               </v-col>
               <v-col class="py-0">
                 <v-text-field
@@ -197,7 +198,7 @@
                   label="Ярлык"
                   dense
                 >
-                  <template v-slot:append-outer>
+                  <template #append-outer>
                     <v-btn
                       color="red"
                       icon
@@ -227,7 +228,7 @@
                   :rules="[rules.lengthMax(255)]"
                   label="Регион"
                   dense
-                ></v-text-field>
+                />
               </v-col>
             </v-row>
             <v-row v-show="location.expanded">
@@ -237,7 +238,7 @@
                   :rules="[rules.lengthMax(255)]"
                   label="Город"
                   dense
-                ></v-text-field>
+                />
               </v-col>
             </v-row>
             <v-row v-show="location.expanded">
@@ -247,7 +248,7 @@
                   :rules="[rules.lengthMax(255)]"
                   label="Адрес"
                   dense
-                ></v-text-field>
+                />
               </v-col>
             </v-row>
 
@@ -282,7 +283,7 @@
               :rules="[rules.lengthMax(3000)]"
               label="Заметки"
               rows="2"
-            ></v-textarea>
+            />
           </div>
         </v-card-text>
 
@@ -307,7 +308,7 @@
               @update:search-input="tags.onTagsSearchInput"
               @keydown.enter="onAddTagClick(tags.q)"
             >
-              <template v-slot:selection="{ item, attrs, selected }">
+              <template #selection="{ item, attrs, selected }">
                 <v-chip
                   v-bind="attrs"
                   :color="item.color"
@@ -323,7 +324,7 @@
                 </v-chip>
               </template>
 
-              <template v-slot:no-data>
+              <template #no-data>
                 <div class="px-2">
                   <template v-if="tags.q">
                     <v-btn
@@ -381,25 +382,14 @@ import { ContactInterface, EmailInterface, EventInterface, PhoneInterface, TagIn
 import Vue, { PropType } from 'vue'
 
 export default Vue.extend({
-  computed: {
-    locationAddress () {
-      const stack = []
-      if (this.location.data.region) {
-        stack.push(this.location.data.region)
-      }
-      if (this.location.data.city) {
-        stack.push(this.location.data.city)
-      }
-      if (this.location.data.address) {
-        stack.push(this.location.data.address)
-      }
 
-      if (stack.length === 0) {
-        stack.push('Местоположение не определено')
-      }
+  name: 'SContactDialogEditor',
 
-      return stack.join(', ')
-    }
+  mixins: [rules],
+
+  model: {
+    event: 'change',
+    prop: 'value'
   },
 
   data () {
@@ -460,6 +450,67 @@ export default Vue.extend({
         selected: [] as TagInterface[]
       }
     }
+  },
+  computed: {
+    locationAddress () {
+      const stack = []
+      if (this.location.data.region) {
+        stack.push(this.location.data.region)
+      }
+      if (this.location.data.city) {
+        stack.push(this.location.data.city)
+      }
+      if (this.location.data.address) {
+        stack.push(this.location.data.address)
+      }
+
+      if (stack.length === 0) {
+        stack.push('Местоположение не определено')
+      }
+
+      return stack.join(', ')
+    }
+  },
+
+  mounted () {
+    this.first_name = this.value?.first_name
+    this.last_name = this.value?.last_name
+    this.middle_name = this.value?.middle_name
+
+    // Телефоны
+    const phones = this.value.phones?.map(value => value) || []
+    const phone = phones.length > 0 ? phones.shift() : { label: '', value: '' }
+    this.phone.value = phone.value
+    this.phone.label = phone.label
+    this.phone.additional = phones.map((value: PhoneInterface) => {
+      return {
+        label: value.label,
+        value: value.value
+      }
+    }) // Дополнительные номера телефонов
+
+    // Адреса электронной почты
+    const emails = this.value.emails?.map(value => value) || []
+    const email = emails.length > 0 ? emails.shift() : { label: '', value: '' }
+    this.email.value = email.value
+    this.email.label = email.label
+    this.email.additional = emails.map((value: EmailInterface) => {
+      return {
+        label: value.label,
+        value: value.value
+      }
+    }) // Дополнительные адреса электронной почты
+
+    // Местоположение
+    this.location.data.region = this.value?.region
+    this.location.data.city = this.value?.city
+    this.location.data.address = this.value?.address
+
+    // Заметки
+    this.notes = this.value?.notes
+
+    // Теги
+    this.tags.selected = this.value?.tags
   },
 
   methods: {
@@ -588,56 +639,6 @@ export default Vue.extend({
       }
     }
   },
-
-  mixins: [rules],
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  mounted () {
-    this.first_name = this.value?.first_name
-    this.last_name = this.value?.last_name
-    this.middle_name = this.value?.middle_name
-
-    // Телефоны
-    const phones = this.value.phones?.map(value => value) || []
-    const phone = phones.length > 0 ? phones.shift() : { label: '', value: '' }
-    this.phone.value = phone.value
-    this.phone.label = phone.label
-    this.phone.additional = phones.map((value: PhoneInterface) => {
-      return {
-        label: value.label,
-        value: value.value
-      }
-    }) // Дополнительные номера телефонов
-
-    // Адреса электронной почты
-    const emails = this.value.emails?.map(value => value) || []
-    const email = emails.length > 0 ? emails.shift() : { label: '', value: '' }
-    this.email.value = email.value
-    this.email.label = email.label
-    this.email.additional = emails.map((value: EmailInterface) => {
-      return {
-        label: value.label,
-        value: value.value
-      }
-    }) // Дополнительные адреса электронной почты
-
-    // Местоположение
-    this.location.data.region = this.value?.region
-    this.location.data.city = this.value?.city
-    this.location.data.address = this.value?.address
-
-    // Заметки
-    this.notes = this.value?.notes
-
-    // Теги
-    this.tags.selected = this.value?.tags
-  },
-
-  name: 'SContactDialogEditor',
 
   props: {
     on: {

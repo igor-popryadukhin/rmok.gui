@@ -1,5 +1,5 @@
 <template>
-  <v-card
+  <v-sheet
     width="100%"
     tile
     flat
@@ -37,23 +37,29 @@
               </v-list-item-content>
             </v-list-item>
 
-            <v-divider :key="`v-divider-${key + counter}`" />
+            <v-divider :key="`v-divider-${key}`" />
           </template>
         </v-list>
       </v-col>
     </v-row>
-  </v-card>
+  </v-sheet>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapGetters } from 'vuex'
 
 export default Vue.extend({
+  data () {
+    return {
+      tick: 0
+    }
+  },
+
   computed: {
-    ...mapGetters({
-      symfony_call_collection: 'symfony/call_collection'
-    })
+    symfony_call_collection () {
+      const collection = this.$store.state.symfony.call_collection.map((e: any) => e)
+      return collection.reverse()
+    }
   }
 })
 </script>

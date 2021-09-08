@@ -1,4 +1,5 @@
 /* eslint-disable */
+import Task from './interfaces/Task';
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
@@ -45,14 +46,6 @@ export interface TaskGetResponseInterface {
   items: TaskInterface[];
 }
 
-interface TaskGetParamsInterface {
-  q?: string;
-  contact_id?: number;
-  user_id?: number;
-  offset?: number;
-  count?: number;
-}
-
 export default class Tasks {
 
   /**
@@ -60,15 +53,16 @@ export default class Tasks {
    *
    * @param params
    */
-  public find<TM = any, TD = any> (params= {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+  public find (params= {}): Promise<ResponseInterface<{ count: number }, Task[]>> {
+    return new Promise((resolve, reject) => {
       $axios.get('/tasks', {
         params
       }).then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+
+          resolve(response.data)
         }).catch(reject)
     })
   }
@@ -92,16 +86,48 @@ export default class Tasks {
   }
 
   /**
+   * Возвращает количество открытых задач текущего пользователя.
+   */
+  public countPending (): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      $axios.get('/tasks/count/pending')
+        .then((response: AxiosResponse) => {
+        if (response.status === 200) {
+          return resolve(+response.data.count)
+        }
+        throw new APIError(response.data)
+      }).catch(reject)
+    })
+  }
+
+  /**
+   *
+   */
+  public calculateCount (params: any[]): Promise<Array<{id: any, count: number}>> {
+    return new Promise<any>((resolve, reject) => {
+      $axios.post('/tasks/count/calculate', params)
+        .then((response: AxiosResponse) => {
+          if (response.status === 200) {
+            return resolve(response.data)
+          }
+          throw new APIError(response.data)
+        }).catch(reject)
+    })
+  }
+
+  /**
+   * Создаёт задачу.
+   *
    * @param data
    */
-  public add<T> (data: T): Promise<number> {
+  public create (data: any): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       $axios.post('/tasks', data)
         .then((response: AxiosResponse) => {
-          if ([201, 200].includes(response.status)) {
-            return resolve(response.data.id)
+          if (response.status !== 201) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve(response.data.id)
         }).catch(reject)
     })
   }
@@ -112,14 +138,14 @@ export default class Tasks {
    * @param id
    * @param data
    */
-  public edit<T = any> (id: number | string, data: T): Promise<void> {
+  public edit (id: number | string, data: any): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.patch(`/tasks/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([204, 200].includes(response.status)) {
-            return resolve()
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve()
         }).catch(reject)
     })
   }
@@ -146,14 +172,15 @@ export default class Tasks {
    *
    * @param id
    */
-  public getById<T = TaskInterface> (id: number): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+  public getById (id: number): Promise<Task> {
+    return new Promise<Task>((resolve, reject) => {
       $axios.get(`/tasks/${id}`)
         .then((response: AxiosResponse) => {
-          if ([200].includes(response.status)) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+
           }
-          throw new APIError(response.data)
+          resolve(response.data)
         }).catch(reject)
     })
   }

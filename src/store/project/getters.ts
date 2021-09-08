@@ -1,10 +1,9 @@
-import { RootStateInterface } from '@/store'
-import { ProjectStateInterface } from '@/store/project/state'
+import { RootState } from '@/store'
+import { ProjectState } from '@/store/project/state'
 import { GetterTree } from 'vuex'
 
-const getters: GetterTree<ProjectStateInterface, RootStateInterface> = {
-  current (state: ProjectStateInterface) { return state.current },
-  available (state: ProjectStateInterface) { return state.available }
+const getters: GetterTree<ProjectState, RootState> = {
+  scenario (state: ProjectState) { return state.scenario }
 }
 
 export default getters

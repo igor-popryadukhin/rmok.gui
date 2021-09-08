@@ -1,21 +1,13 @@
-import { FilterStateInterface } from './state'
+import { State } from './state'
 import { MutationTree } from 'vuex'
 
-const mutations: MutationTree<FilterStateInterface> = {
-  /**
-   * Теги контактов
-   *
-   * @param state
-   * @param payload
-   */
+const mutations: MutationTree<State> = {
   contact_tags (state, payload) { state.contact_tags = payload },
-
-  /**
-   * Статусы
-   * @param state
-   * @param payload
-   */
-  statuses (state, payload) { state.statuses = payload }
+  statuses (state, payload) { state.statuses = payload },
+  projects (state, payload) { state.projects = payload },
+  users (state, payload) { state.users = payload },
+  users_groups (state, payload) { state.users_groups = payload },
+  roles (state, payload) { state.roles = payload }
 }
 
 export default mutations

@@ -1,3 +1,4 @@
+import UserGroup from '@/api/interfaces/UserGroup'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
@@ -32,18 +33,19 @@ export interface GroupFindQueryInterface {
 
 export class Groups {
   /**
-   * Поиск групп
+   * Возвращает список групп пользователей.
+   *
    * @param params
+   *  - group_ids = 1,2,3,4
    */
-  public find (params: GroupFindQueryInterface = {}): Promise<ResponseInterface<any, any> | any> {
-    return new Promise<ResponseInterface<any, any>>((resolve, reject): Promise<GroupInterface[] | any> | any => {
+  public find (params: {q?: string; offset?: number; count?: number; group_ids: string}): Promise<ResponseInterface<any, UserGroup>> {
+    return new Promise<ResponseInterface<any, UserGroup>>((resolve, reject) => {
       $axios.get('/groups', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
             return resolve(response.data)
-          } else {
-            reject(response.data)
           }
+          throw new APIError(response.data)
         }).catch(reject)
     })
   }

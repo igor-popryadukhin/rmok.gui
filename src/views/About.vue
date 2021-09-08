@@ -1,5 +1,8 @@
 <template>
-  <div class="d-flex align-center justify-center" style="width: 100%">
+  <div
+    class="d-flex align-center justify-center"
+    style="width: 100%"
+  >
     <div>
       {{ $version }}
     </div>

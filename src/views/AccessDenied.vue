@@ -7,9 +7,19 @@
       cols="12"
       class="text-center"
     >
-      <div class="oops">Доступ закрыт</div>
-      <div class="not-found">403</div>
-      <router-link :to="{ name: 'login' }" class="to-login" replace>Авторизоваться</router-link>
+      <div class="oops">
+        Доступ закрыт
+      </div>
+      <div class="not-found">
+        403
+      </div>
+      <router-link
+        :to="{ name: 'login' }"
+        class="to-login"
+        replace
+      >
+        Авторизоваться
+      </router-link>
     </v-col>
   </v-row>
 </template>

@@ -26,7 +26,6 @@
         </v-btn>
       </v-card-title>
       <v-card-text>
-
         <!-- Statuses -->
         <v-row>
           <v-col>
@@ -48,11 +47,11 @@
               column
             >
               <v-tabs-items
-              v-model="tabStatus"
-            >
-              <v-tab-item>
-                <v-container fluid>
-                  <v-row
+                v-model="tabStatus"
+              >
+                <v-tab-item>
+                  <v-container fluid>
+                    <v-row
                       v-for="(status, statusIndex) in $store.getters['project/statuses']"
                       :key="`v-row-status-${statusIndex}`"
                       justify="start"
@@ -68,36 +67,36 @@
                           :color="status.color"
                           @change="onRadioChange(item)"
                         >
-                          <template v-slot:label>
+                          <template #label>
                             <span :style="{ color: status.color }">{{ item.name }}</span>
                           </template>
                         </v-radio>
                       </v-col>
                     </v-row>
-                </v-container>
-              </v-tab-item>
-              <v-tab-item
-                v-for="(tabItem, tabIndex) in $store.getters['project/statuses']"
-                :key="`tab-item-status-${tabIndex}`"
-              >
-                <v-container fluid>
-                  <v-row justify="start">
-                    <v-col
-                      v-for="(status, statusIndex) in tabItem.items"
-                      :key="`status-${statusIndex}`"
-                      cols="auto"
-                      class="mr-10"
-                    >
-                      <v-radio
-                        :label="status.name"
-                        :color="tabItem.color"
-                        @change="onRadioChange(status)"
-                      ></v-radio>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-tab-item>
-            </v-tabs-items>
+                  </v-container>
+                </v-tab-item>
+                <v-tab-item
+                  v-for="(tabItem, tabIndex) in $store.getters['project/statuses']"
+                  :key="`tab-item-status-${tabIndex}`"
+                >
+                  <v-container fluid>
+                    <v-row justify="start">
+                      <v-col
+                        v-for="(status, statusIndex) in tabItem.items"
+                        :key="`status-${statusIndex}`"
+                        cols="auto"
+                        class="mr-10"
+                      >
+                        <v-radio
+                          :label="status.name"
+                          :color="tabItem.color"
+                          @change="onRadioChange(status)"
+                        />
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-tab-item>
+              </v-tabs-items>
             </v-radio-group>
           </v-col>
         </v-row>
@@ -113,12 +112,12 @@
               :placeholder="$t('Comment')"
               value=""
             >
-              <template v-slot:prepend-inner>
+              <template #prepend-inner>
                 <v-icon>
                   mdi-comment
                 </v-icon>
               </template>
-              <template v-slot:append>
+              <template #append>
                 <v-btn
                   icon
                   text
@@ -132,7 +131,6 @@
             </v-textarea>
           </v-col>
         </v-row>
-
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -144,9 +142,28 @@ import { Contacts } from '@/api/Contacts'
 
 export default Vue.extend({
 
-  created () {
-    // Default value
-    this.dialogVisible = this.value
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    btnCancelVisible: {
+      default: false,
+      type: Boolean
+    },
+    historyId: {
+      default: -1,
+      type: Number
+    },
+    title: {
+      default: '',
+      type: String
+    },
+    value: {
+      default: false,
+      type: Boolean
+    }
   },
 
   data () {
@@ -162,6 +179,27 @@ export default Vue.extend({
       dialogVisible: false,
       tabStatus: 0
     }
+  },
+
+  watch: {
+    dialogVisible (value: boolean) {
+      if (value && this.historyId > 0) {
+        this.onLoadHistory(this.historyId)
+      }
+    },
+
+    value (value: boolean) {
+      this.dialogVisible = value
+    }
+  },
+
+  created () {
+    // Default value
+    this.dialogVisible = this.value
+  },
+
+  mounted () {
+    this.$on('change', this.onChange)
   },
 
   methods: {
@@ -194,7 +232,7 @@ export default Vue.extend({
       }
 
       new Contacts()
-        .updateHistory(this.historyId, {
+        .editHistory(this.historyId, {
           status_id: this.currentStatus.id,
           comment: this.comment.text
         }).then(() => {
@@ -203,46 +241,6 @@ export default Vue.extend({
 
       this.$emit('change', false)
       /* eslint-enable */
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  mounted () {
-    this.$on('change', this.onChange)
-  },
-
-  props: {
-    btnCancelVisible: {
-      default: false,
-      type: Boolean
-    },
-    historyId: {
-      default: -1,
-      type: Number
-    },
-    title: {
-      default: '',
-      type: String
-    },
-    value: {
-      default: false,
-      type: Boolean
-    }
-  },
-
-  watch: {
-    dialogVisible (value: boolean) {
-      if (value && this.historyId > 0) {
-        this.onLoadHistory(this.historyId)
-      }
-    },
-
-    value (value: boolean) {
-      this.dialogVisible = value
     }
   }
 })

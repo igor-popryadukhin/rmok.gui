@@ -29,7 +29,11 @@ const mutations: MutationTree<SettingsStateInterface> = {
   pc_config_ice_transport_policy (state, payload) { state.pc_config.iceTransportPolicy = payload },
   pc_config_bundle_policy (state, payload) { state.pc_config.bundlePolicy = payload },
   pc_config_rtcp_mux_policy (state, payload) { state.pc_config.rtcpMuxPolicy = payload },
-  pc_config_certificates (state, payload) { state.pc_config.certificates = payload }
+  pc_config_certificates (state, payload) { state.pc_config.certificates = payload },
+
+  pbx_config (state, payload) { state.pbx_config = payload },
+
+  vue_keep_alive (state, payload) { state.vue_keep_alive = payload }
 }
 
 export default mutations

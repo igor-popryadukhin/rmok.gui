@@ -1,25 +1,21 @@
 <template>
   <v-sheet>
     <app-tools>
-      <template v-slot:left>
-        <h2 class="grey--text">{{ $tc('Telephony') }}</h2>
+      <template #left>
+        <h2 class="grey--text">
+          {{ $tc('Telephony') }}
+        </h2>
       </template>
-    </app-tools>
-
-    <app-tools>
-      <template v-slot:left>
-        <h3 class="grey--text">
-          {{ $tc('Connection parameters' )}}
-        </h3>
-      </template>
-      <template v-slot:right>
+      <template #right>
         <v-btn
-          :color="$vuetify.theme.currentTheme.primary"
+          :disabled="!profilePbxConfigValid"
+          :loading="processSave"
+          color="primary"
           outlined
           text
           tile
           small
-          @click="onSaveClick"
+          @click="onBtnSavePBXConfigClick"
         >
           {{ $tc('Save') }}
         </v-btn>
@@ -27,111 +23,117 @@
     </app-tools>
     <v-divider />
 
-    <v-row>
-      <v-col
-        cols="12"
-        lg="6"
-        md="12"
-      >
-        <v-text-field
-          v-model="config.display_name"
-          :label="$tc('sip_display_name')"
-          :hint="$tc('sip_display_name_hint')"
-          persistent-hint
-          :rules="[assertLength({ max: 20 })]"
-          counter
-          autofocus
-        ></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="10"
-      >
-        <v-text-field
-          v-model="config.server"
-          :label="$tc('server_address')"
-          :hint="$tc('server_address_hint')"
-          persistent-hint
-          :rules="[rules.notBlank, rules.ipOrDomain]"
-          required
-        ></v-text-field>
-      </v-col>
-      <v-col
-        cols="2"
-      >
-        <v-text-field
-          v-model="config.port"
-          :label="$tc('server_port')"
-          type="number"
-          persistent-hint
-          :rules="[rules.positive]"
-          required
-        ></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col
-        cols="12"
-        lg="6"
-        md="12"
-      >
-        <v-text-field
-          v-model="config.login"
-          :label="$tc('Login')"
-          :hint="$tc('login_hint')"
-          persistent-hint
-          :rules="[rules.notBlank, rules.noSpace]"
-          required
-        ></v-text-field>
-      </v-col>
-    </v-row>
-    <v-row class="mb-5">
-      <v-col
-        cols="12"
-        lg="6"
-        md="12"
-      >
-        <v-text-field
-          v-model="config.password"
-          :label="$tc('password')"
-          :hint="$tc('password_hint')"
-          :type="password.visible ? '' : 'password'"
-          persistent-hint
-          required
-          :rules="[rules.notBlank, rules.noSpace]"
-          autocomplete="new-password"
+    <!-- Номер SIP телефона -->
+    <v-form
+      v-model="profilePbxConfigValid"
+      lazy-validation
+    >
+      <v-row>
+        <v-col
+          cols="12"
+          lg="6"
+          md="12"
         >
-          <template v-slot:append>
-            <v-btn
-              v-if="password.visible"
-              icon
-              @click="password.visible = false"
-            >
-              <v-icon>mdi-eye</v-icon>
-            </v-btn>
-            <v-btn
-              v-else
-              icon
-              @click="password.visible = true"
-            >
-              <v-icon>mdi-eye-off</v-icon>
-            </v-btn>
-          </template>
-        </v-text-field>
-      </v-col>
-    </v-row>
+          <v-text-field
+            v-model="profilePbxConfigDisplayName"
+            :label="$tc('SIP phone number')"
+            :hint="$tc('The phone number that is displayed when calling from your PBX')"
+            persistent-hint
+            :rules="[assertLength({ max: 20 })]"
+            counter
+            autofocus
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="10"
+        >
+          <v-text-field
+            v-model="profilePbxConfigServer"
+            :label="$tc('Server address')"
+            :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru:4445')"
+            persistent-hint
+            :rules="[rules.notBlank, rules.ipOrDomain]"
+            required
+          />
+        </v-col>
+        <v-col
+          cols="2"
+        >
+          <v-text-field
+            v-model="profilePbxConfigPort"
+            :label="$tc('server_port')"
+            type="number"
+            persistent-hint
+            :rules="[rules.positive]"
+            required
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col
+          cols="12"
+          lg="6"
+          md="12"
+        >
+          <v-text-field
+            v-model="profilePbxConfigLogin"
+            :label="$tc('Login')"
+            :hint="$tc('Login to access your PBX. For example: 003452')"
+            persistent-hint
+            :rules="[rules.notBlank, rules.noSpace]"
+            required
+          />
+        </v-col>
+      </v-row>
+      <v-row class="mb-5">
+        <v-col
+          cols="12"
+          lg="6"
+          md="12"
+        >
+          <v-text-field
+            v-model="profilePbxConfigPassword"
+            :label="$tc('Password')"
+            :hint="$tc('PBX access password')"
+            :type="password.visible ? '' : 'password'"
+            persistent-hint
+            required
+            :rules="[rules.notBlank, rules.noSpace]"
+            autocomplete="new-password"
+          >
+            <template #append>
+              <v-btn
+                v-if="password.visible"
+                icon
+                @click="password.visible = false"
+              >
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+              <v-btn
+                v-else
+                icon
+                @click="password.visible = true"
+              >
+                <v-icon>mdi-eye-off</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+    </v-form>
 
     <v-row>
       <!-- ICE servers -->
       <v-col>
         <app-tools>
-          <template v-slot:left>
+          <template #left>
             <h3 class="grey--text">
               {{ $tc('ice_server', 2) }}
             </h3>
           </template>
-          <template v-slot:right>
+          <template #right>
             <v-btn
               :color="$vuetify.theme.currentTheme.primary"
               outlined
@@ -170,7 +172,9 @@
                     small
                     @click="onBtnEditStunTurnServerClick(item, index)"
                   >
-                    <v-icon small>mdi-square-edit-outline</v-icon>
+                    <v-icon small>
+                      mdi-square-edit-outline
+                    </v-icon>
                   </v-btn>
                 </v-list-item-action>
                 <v-list-item-action class="mx-0 ml-1">
@@ -180,12 +184,17 @@
                     small
                     @click="onBtnDeleteStunTurnServerClick(item.urls, index)"
                   >
-                    <v-icon small>mdi-trash-can-outline</v-icon>
+                    <v-icon small>
+                      mdi-trash-can-outline
+                    </v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
 
-              <v-divider v-show="settingsPcConfigIceServers.length > 1" :key="'v-divider-' + index"/>
+              <v-divider
+                v-show="settingsPcConfigIceServers.length > 1"
+                :key="'v-divider-' + index"
+              />
             </template>
           </v-list>
         </template>
@@ -204,7 +213,7 @@
       <!-- ICE options -->
       <v-col>
         <app-tools>
-          <template v-slot:left>
+          <template #left>
             <h3 class="grey--text">
               {{ $tc('ICE options') }}
             </h3>
@@ -221,11 +230,11 @@
               <v-radio
                 label="All"
                 value="all"
-              ></v-radio>
+              />
               <v-radio
                 label="Relay"
                 value="relay"
-              ></v-radio>
+              />
             </v-radio-group>
           </div>
           <div>
@@ -235,13 +244,13 @@
               max="10"
               ticks
               persistent-hint
-            ></v-slider>
+            />
           </div>
           <div>
             <v-checkbox
               v-model="settingsPcConfigRtcpMuxPolicy"
               label="Мультиплексирование"
-            ></v-checkbox>
+            />
           </div>
         </div>
       </v-col>
@@ -251,42 +260,20 @@
 </template>
 
 <script lang="ts">
+import PBXConfig from '@/api/interfaces/PBXConfig'
 import AppICEServerEditor from '@/components/AppICEServerEditor/AppICEServerEditor.vue'
 import Vue from 'vue'
 import rules from '@/mixins/rules'
 import { Configurations } from '@/api/Configurations'
-import PBXInterface from '@/api/Schemas/PBXInterface'
 import { mapGetters } from 'vuex'
 
 export default Vue.extend({
 
   mixins: [rules],
 
-  beforeRouteEnter (to, from, next) {
-    new Configurations()
-      .getATEConfigurations()
-      .then((config: PBXInterface) => {
-        next(vm => {
-          vm.$data.config.display_name = config.display_name || ''
-          vm.$data.config.server = config.server || ''
-          vm.$data.config.password = config.password || ''
-          vm.$data.config.login = config.login || ''
-          vm.$data.config.port = config.port || 8089
-        })
-      })
-  },
-
   data () {
     return {
-      config: {
-        /* eslint-disable */
-        display_name: '',
-        login: '',
-        password: '',
-        server: '',
-        port: 0
-        /* eslint-enable */
-      } as PBXInterface,
+      profilePbxConfigValid: false,
       password: {
         visible: false
       },
@@ -298,6 +285,51 @@ export default Vue.extend({
     ...mapGetters({
       settingsPcConfigIceServers: 'settings/pc_config_ice_servers'
     }),
+
+    profilePbxConfigDisplayName: {
+      get () {
+        return this.$store.getters['profile/pbx_config/display_name']
+      },
+      set (value: string) {
+        return this.$store.commit('profile/pbx_config/display_name', value)
+      }
+    },
+
+    profilePbxConfigServer: {
+      get () {
+        return this.$store.getters['profile/pbx_config/server']
+      },
+      set (value: string) {
+        return this.$store.commit('profile/pbx_config/server', value)
+      }
+    },
+
+    profilePbxConfigPort: {
+      get () {
+        return this.$store.getters['profile/pbx_config/port']
+      },
+      set (value: number) {
+        return this.$store.commit('profile/pbx_config/port', +value)
+      }
+    },
+
+    profilePbxConfigLogin: {
+      get () {
+        return this.$store.getters['profile/pbx_config/login']
+      },
+      set (value: string) {
+        return this.$store.commit('profile/pbx_config/login', value)
+      }
+    },
+
+    profilePbxConfigPassword: {
+      get () {
+        return this.$store.getters['profile/pbx_config/password']
+      },
+      set (value: string) {
+        return this.$store.commit('profile/pbx_config/password', value)
+      }
+    },
 
     settingsPcConfigIceTransportPolicy: {
       get () {
@@ -330,7 +362,6 @@ export default Vue.extend({
   },
 
   methods: {
-
     onBtnDeleteStunTurnServerClick (urls: string | string[], index: number) {
       this.$dialog.confirm({
         title: this.$tc('Confirmation request'),
@@ -410,13 +441,12 @@ export default Vue.extend({
       })
     },
 
-    onSaveClick () {
+    onBtnSavePBXConfigClick () {
       this.$data.processSave = true
-      new Configurations()
-        .setATEConfigurations(this.$data.config)
-        .then(() => {
-          this.$root.$emit('root-jssip-initialize')
-          this.$toast.success(this.$tc('configuration_saved_successfully'))
+      this.$store.dispatch('profile/pbx_config/save')
+        .then(() => (this.$toast.success('Changes accepted')))
+        .catch(() => {
+          this.$toast.error('An error occurred while saving')
         })
         .finally(() => (this.$data.processSave = false))
     }

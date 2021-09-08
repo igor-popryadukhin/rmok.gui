@@ -11,7 +11,7 @@
             v-model="filter.date_period"
             :items="dateRangeCollection"
           >
-            <template v-slot:item-append>
+            <template #item-append>
               <v-menu
                 ref="menuDateRange"
                 v-model="menuDateRange"
@@ -21,7 +21,7 @@
                 offset-y
                 min-width="290px"
               >
-                <template v-slot:activator="{ on }">
+                <template #activator="{ on }">
                   <v-btn
                     v-on="on"
                   >
@@ -36,7 +36,7 @@
                   no-title
                   locale="ru"
                 >
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
                     text
                     color="primary"
@@ -96,7 +96,7 @@
           dense
           clearable
           :label="$tc('Действия')"
-        ></v-autocomplete>
+        />
       </v-col>
       <!-- Фильтр дата создания лога -->
       <v-col
@@ -129,10 +129,10 @@
           outlined
           dense
         >
-          <template v-slot:selection="{ item }">
+          <template #selection="{ item }">
             {{ $tc(item) }}
           </template>
-          <template v-slot:item="{ item }">
+          <template #item="{ item }">
             {{ $tc(item) }}
           </template>
         </v-select>
@@ -140,21 +140,21 @@
     </v-row>
     <v-row>
       <v-col class="d-flex">
-      <v-spacer/>
+        <v-spacer />
         <!-- Paginator -->
         <app-pagination
           v-model="page"
           :length="dataTableLogs.pages"
         >
-          <template v-slot:display>
+          <template #display>
             <v-menu offset-y>
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-btn
                   v-bind="attrs"
-                  v-on="on"
                   tile
                   text
                   small
+                  v-on="on"
                 >
                   {{ dataTableLogs.pageStart }}-{{ dataTableLogs.pageStop }} из {{ dataTableLogs.totalCount }}
                 </v-btn>
@@ -187,14 +187,18 @@
     </v-row>
     <!-- Split Screen -->
 
-      <v-row no-gutters>
-        <v-col cols="7">
-          <v-list dense style="max-height: calc(100vh - 100px)" class="overflow-y-auto">
-            <v-list-item-group
-              v-model="dataTableLogs.firstItemsSelected"
-              color="primary"
-              mandatory
-            >
+    <v-row no-gutters>
+      <v-col cols="7">
+        <v-list
+          dense
+          style="max-height: calc(100vh - 100px)"
+          class="overflow-y-auto"
+        >
+          <v-list-item-group
+            v-model="dataTableLogs.firstItemsSelected"
+            color="primary"
+            mandatory
+          >
             <template v-for="item in dataTableLogs.items">
               <v-list-item
                 :key="`v-list-item-` + item.id"
@@ -212,12 +216,12 @@
                 </v-list-item-content>
                 <v-list-item-content>
                   <v-list-item-title>
-                  {{ $moment(item.start_action_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                    {{ $moment(item.start_action_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
                   </v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content>
                   <v-list-item-title>
-                  {{ item.user_agent }}
+                    {{ item.user_agent }}
                   </v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-content>
@@ -226,115 +230,121 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider :key="`v-divider-` + item.id"/>
+              <v-divider :key="`v-divider-` + item.id" />
             </template>
-            </v-list-item-group>
-          </v-list>
-        </v-col>
-        <v-col cols="5">
-          <!-- Detail view -->
-          <v-list style="max-height: calc(100vh - 100px)" class="overflow-y-auto">
-            <template v-if="log">
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('Действие:') }}
-                  </v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="text-right">
-                    {{ log.action }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('Время:') }}
-                  </v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="text-right">
-                    {{ $moment(log.start_action_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('Пользователь:') }}
-                  </v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="text-right" v-if="log.user">
-                    {{ log.user.last_name }} {{ log.user.first_name }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('IP адрес:') }}
-                  </v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="text-right">
-                    {{ log.ip }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('Браузер пользователя:') }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="text-wrap">
-                    {{ log.user_agent }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('Метод HTTP запроса:') }}
-                  </v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="text-right">
-                    <v-chip
-                      color="red"
-                      :class="setColorMethod(log.http_method)"
-                      text-color="white"
-                    >
-                      {{ log.http_method }}
-                    </v-chip>
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider/>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('URL:') }}
-                  </v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-subtitle class="text-right">
-                      {{ log.url }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider/>
-              <template v-if="log.query_string">
+          </v-list-item-group>
+        </v-list>
+      </v-col>
+      <v-col cols="5">
+        <!-- Detail view -->
+        <v-list
+          style="max-height: calc(100vh - 100px)"
+          class="overflow-y-auto"
+        >
+          <template v-if="log">
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('Действие:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-subtitle class="text-right">
+                  {{ log.action }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('Время:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-subtitle class="text-right">
+                  {{ $moment(log.start_action_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('Пользователь:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-subtitle
+                  v-if="log.user"
+                  class="text-right"
+                >
+                  {{ log.user.last_name }} {{ log.user.first_name }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('IP адрес:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-subtitle class="text-right">
+                  {{ log.ip }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('Браузер пользователя:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-subtitle class="text-wrap">
+                  {{ log.user_agent }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('Метод HTTP запроса:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-subtitle class="text-right">
+                  <v-chip
+                    color="red"
+                    :class="setColorMethod(log.http_method)"
+                    text-color="white"
+                  >
+                    {{ log.http_method }}
+                  </v-chip>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('URL:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-subtitle class="text-right">
+                  {{ log.url }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <template v-if="log.query_string">
               <v-list-item>
                 <v-list-item-content>
                   <v-list-item-title>
@@ -349,58 +359,58 @@
                   </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider/>
-              </template>
+              <v-divider />
+            </template>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $tc('Контроллер:') }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-content>
+                <v-list-item-subtitle class="text-right text-wrap">
+                  {{ log.controller }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <template v-if="!Array.isArray(log.request)">
               <v-list-item>
                 <v-list-item-content>
                   <v-list-item-title>
-                    {{ $tc('Контроллер:') }}
+                    {{ $tc('Запрос:') }}
                   </v-list-item-title>
                 </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
                 <v-list-item-content>
-                  <v-list-item-subtitle class="text-right text-wrap">
-                    {{ log.controller }}
+                  <v-list-item-subtitle class="text-wrap">
+                    <pre>{{ log.request }}</pre>
                   </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
-              <template v-if="!Array.isArray(log.request)">
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ $tc('Запрос:') }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-subtitle class="text-wrap">
-                      <pre>{{ log.request }}</pre>
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider/>
-              </template>
-              <template v-if="log.context">
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ $tc('Контекст:') }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-subtitle class="text-wrap">
-                      <pre>{{ log.context }}</pre>
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider/>
-              </template>
+              <v-divider />
             </template>
-          </v-list>
-        </v-col>
-      </v-row>
+            <template v-if="log.context">
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $tc('Контекст:') }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-subtitle class="text-wrap">
+                    <pre>{{ log.context }}</pre>
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider />
+            </template>
+          </template>
+        </v-list>
+      </v-col>
+    </v-row>
   </v-card>
 </template>
 
@@ -413,7 +423,7 @@ import { UserInterface } from '@/api/Users'
 import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Logs, { LogInterface } from '@/api/Logs'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import VDTPaginationEvent from '@/interface/VDTPaginationEvent'
+import VDTPaginationEvent from '@/interfaces/VDTPaginationEvent'
 import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
 import { format } from 'date-fns'
 
@@ -455,6 +465,80 @@ export default (Vue as VueConstructor<VInterface>).extend({
       menuDateRange: null,
       selectedItem: 0
     }
+  },
+
+  computed: {
+    page: {
+      get () {
+        return +this.$route.query?.page || 1
+      },
+      set (value? :number) {
+        this.$routerQuery.setQuery({ page: value })
+      }
+    }
+  },
+
+  watch: {
+    page: {
+      handler () {
+        this.fetchLogs()
+        this.onPaginationChange()
+      }
+    },
+    'dataTableLogs.firstItemsSelected': {
+      handler () {
+        this.fetchLogById(this.dataTableLogs.firstItemsSelected)
+      }
+    },
+    'dataTableLogs.pages': {
+      handler () {
+        this.dataTableLogs.pageStop = this.dataTableLogs.pages
+      }
+    }
+  },
+
+  mounted () {
+    const promises: Promise<any>[] = []
+
+    if (this.$routerQuery.hasQuery('creator_id')) {
+      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
+    }
+
+    if (this.$routerQuery.hasQuery('action')) {
+      this.filter.actions = this.$routerQuery.getQuery('action')
+    }
+
+    if (this.$routerQuery.hasQuery('http_method')) {
+      this.filter.http_method.selected = this.$routerQuery.getQuery('http_method')
+    }
+
+    if (this.$routerQuery.hasQuery('log_created_at')) {
+      const dateRange = this.$routerQuery.getQuery('log_created_at')
+      this.filter.log_created_at = dateRange
+        .split(',', 2)
+        .map((e: string) => +e)
+        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
+    }
+
+    if (this.$routerQuery.hasQuery('date_period')) {
+      this.filter.date_period = this.$routerQuery.getQuery('date_period')
+
+      if (/^\d+,\d+/s.test(String(this.filterDate))) {
+        const dateRangeStr = String(this.filterDate)
+        const dates = dateRangeStr.split(',', 2)
+        this.dateRange = [
+          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
+          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
+        ]
+      }
+    }
+
+    Promise.all(promises)
+      .finally(() => {
+        this.fetchLogs()
+        this.fetchActionsLogs()
+        this.initializeWatchForFilters()
+      })
   },
 
   methods: {
@@ -645,80 +729,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
 
       return params
-    }
-  },
-
-  mounted () {
-    const promises: Promise<any>[] = []
-
-    if (this.$routerQuery.hasQuery('creator_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('action')) {
-      this.filter.actions = this.$routerQuery.getQuery('action')
-    }
-
-    if (this.$routerQuery.hasQuery('http_method')) {
-      this.filter.http_method.selected = this.$routerQuery.getQuery('http_method')
-    }
-
-    if (this.$routerQuery.hasQuery('log_created_at')) {
-      const dateRange = this.$routerQuery.getQuery('log_created_at')
-      this.filter.log_created_at = dateRange
-        .split(',', 2)
-        .map((e: string) => +e)
-        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
-    }
-
-    if (this.$routerQuery.hasQuery('date_period')) {
-      this.filter.date_period = this.$routerQuery.getQuery('date_period')
-
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
-      }
-    }
-
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchLogs()
-        this.fetchActionsLogs()
-        this.initializeWatchForFilters()
-      })
-  },
-
-  watch: {
-    page: {
-      handler () {
-        this.fetchLogs()
-        this.onPaginationChange()
-      }
-    },
-    'dataTableLogs.firstItemsSelected': {
-      handler () {
-        this.fetchLogById(this.dataTableLogs.firstItemsSelected)
-      }
-    },
-    'dataTableLogs.pages': {
-      handler () {
-        this.dataTableLogs.pageStop = this.dataTableLogs.pages
-      }
-    }
-  },
-
-  computed: {
-    page: {
-      get () {
-        return +this.$route.query?.page || 1
-      },
-      set (value? :number) {
-        this.$routerQuery.setQuery({ page: value })
-      }
     }
   }
 })

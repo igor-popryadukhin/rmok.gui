@@ -1,3 +1,4 @@
+import PBXConfig from '@/api/interfaces/PBXConfig'
 
 interface NavigationDrawerInterface {
   mini: boolean;
@@ -32,6 +33,8 @@ export interface SettingsStateInterface {
   date_time_format: DateTimeFormatInterface;
   tooltip: TooltipInterface;
   pc_config: RTCConfiguration;
+  pbx_config: PBXConfig;
+  vue_keep_alive: boolean;
 }
 
 function state (): SettingsStateInterface {
@@ -41,7 +44,7 @@ function state (): SettingsStateInterface {
     },
     date_time_format: {
       first_day_of_week: 1,
-      long_date: 'LL',
+      long_date: 'DD.MM.YYYY',
       short_date: 'DD.MM.YYYY',
       long_time: 'HH:mm:ss',
       short_time: 'HH:mm'
@@ -63,7 +66,15 @@ function state (): SettingsStateInterface {
       iceServers: [],
       iceTransportPolicy: 'all',
       rtcpMuxPolicy: undefined
-    }
+    },
+    pbx_config: {
+      display_name: '',
+      login: '',
+      password: '',
+      server: '',
+      port: 443
+    },
+    vue_keep_alive: true
   }
 }
 

@@ -23,7 +23,10 @@
               </v-list-item-content>
             </v-list-item>
 
-            <v-divider v-if="key !== (projects.length -1)" :key="`v-divider-${key}`"/>
+            <v-divider
+              v-if="key !== (projects.length -1)"
+              :key="`v-divider-${key}`"
+            />
           </template>
         </v-list>
       </v-col>

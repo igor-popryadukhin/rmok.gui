@@ -1,11 +1,11 @@
 <template>
   <div
     class="d-flex app-tools"
-    style="margin-bottom: 16px"
+    style="margin-bottom: 10px"
   >
-    <slot name="left"></slot>
+    <slot name="left" />
     <v-spacer />
-    <slot name="right"></slot>
+    <slot name="right" />
   </div>
 </template>
 
@@ -17,7 +17,7 @@ export default {
 
 <style lang="scss" scoped>
   .app-tools {}
-  .app-tools > * {
+  .app-tools > *:not(:last-child) {
     margin-right: 5px;
   }
 </style>

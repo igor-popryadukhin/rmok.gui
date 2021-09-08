@@ -1,9 +1,8 @@
 import Vue from 'vue'
-import '@/plugins/axios'
-import App from './App.vue'
-import router from './router'
-import store from './store'
-import vuetify from './plugins/vuetify'
+
+import App from '@/App.vue'
+import router from '@/router'
+import store from '@/store'
 import '@/directives'
 
 // Style
@@ -14,31 +13,38 @@ import '@/mixins/global'
 
 // Plugins
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
+import vuetify from '@/plugins/vuetify'
+import '@/plugins/axios'
+import '@/plugins/sse'
+import '@/plugins/debug'
 import '@/plugins/toast'
-import '@/plugins/permission'
 import '@/plugins/cookie'
 import '@/plugins/router-query'
-import '@/plugins/moment'
 import '@/plugins/activity'
 import '@/plugins/yandex-metrika'
 import '@/plugins/file-dialog'
 import '@/plugins/lvovich'
 import '@/plugins/vuetify-dialog'
-import '@/plugins/libphonenumber-js'
 import '@/plugins/html-audio-element'
+import '@/plugins/sound'
+import '@/plugins/vue-meta'
+import '@/plugins/dayjs'
 import '@/jsSIP'
 
 import CleanLayout from '@/layouts/Clean.vue'
 
-// layouts
-Vue.component('administrator', () => import(/* webpackPreload: true */ './layouts/Administrator.vue'))
-// Vue.component('call-center-manager', () => import(/* webpackPreload: true */ './layouts/CallCenterManager.vue'))
-// Vue.component('team-leader', () => import(/* webpackPreload: true */ './layouts/TeamLeader.vue'))
-Vue.component('operator-layout', () => import(/* webpackPreload: true */ './layouts/Operator.vue'))
-Vue.component('clean', CleanLayout)
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const vuetifyDialogMovingImport = () => import(/* webpackPreload: true */ './vuetify-dialog-moving.ts')
+vuetifyDialogMovingImport()
 
-Vue.component('app-divider', () => import(/* webpackPreload: true */ './components/AppDivider/AppDivider.vue'))
-Vue.component('app-tools', () => import(/* webpackPreload: true */ './components/AppTools/AppTools.vue'))
+// layouts
+Vue.component('Default', () => import(/* webpackPreload: true */ './layouts/Default.vue'))
+Vue.component('Clean', CleanLayout)
+Vue.component('Help', () => import(/* webpackPreload: true */ './layouts/Help.vue'))
+
+Vue.component('AppDivider', () => import(/* webpackPreload: true */ './components/AppDivider/AppDivider.vue'))
+Vue.component('AppTools', () => import(/* webpackPreload: true */ './components/AppTools/AppTools.vue'))
 
 Vue.config.productionTip = false
 
