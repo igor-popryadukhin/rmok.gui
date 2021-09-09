@@ -793,8 +793,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
                 .transfer({
                   project_id,
                   contact_ids,
-                  user_ids,
-                  new_date: moment(new_date, 'YYYY-MM-DD').utc().unix()
+                  user_ids
                 }).then(() => {
                   this.$toast.success('The operation is queued for execution.')
                 })

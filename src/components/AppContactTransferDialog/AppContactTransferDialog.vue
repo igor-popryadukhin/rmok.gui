@@ -15,13 +15,6 @@
       lazy-validation
     >
       <v-card-text>
-        <app-menu-date-picker
-          v-model="newDate"
-          :label="$tc('Date the contact was created')"
-          :messages="$tc('Оставьте поле пустым, если вы не хотите изменять предыдущее значение.')"
-        />
-      </v-card-text>
-      <v-card-text>
         <app-project-autocomplete
           ref="projectId"
           v-model="projectId"
@@ -69,7 +62,7 @@ import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   name: 'AppContactTransferDialog',
-  components: { AppMenuDatePicker, AppProjectAutocomplete, AppUserAutocomplete },
+  components: { AppProjectAutocomplete, AppUserAutocomplete },
   data () {
     return {
       newDate: '',
