@@ -4,6 +4,7 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import APIError from '@/api/classes/APIError'
 import { ContactHistoryInterface } from '@/api/Schemas/ContactInterface'
 import StatisticPie from '@/api/interfaces/StatisticPie'
+import ContactHistory from '@/api/interfaces/ContactHistory'
 
 export default class Statistics {
   /**
@@ -64,6 +65,25 @@ export default class Statistics {
         } else {
           throw new APIError(response.data)
         }
+      }).catch(reject)
+    })
+  }
+
+  /**
+   * Статистика по всем вызовам
+   * --------------------------------
+   * @param params
+   */
+  public allCallsHistory (params = {}): Promise<ResponseInterface<{count: number}, ContactHistory[]>> {
+    return new Promise((resolve, reject) => {
+      $axios.get('/statistics/all-calls', {
+        params
+      }).then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+
+        resolve(response.data)
       }).catch(reject)
     })
   }
