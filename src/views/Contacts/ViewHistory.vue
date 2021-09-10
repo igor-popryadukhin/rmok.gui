@@ -426,20 +426,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         })
     },
 
-    onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
-      item.actions.playing.loading = true
-      new ContactHistory()
-        .getAudioFile(item.id)
-        .then((response: any) => {
-          this.$root.$emit('on-audio-player-show', {
-            src: response.url,
-            author: `${item.creator.first_name} ${item.creator.last_name} - ${item.contact.last_name} ${item.contact.first_name}`
-          })
-        }).catch((e) => {
-          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
-        }).finally(() => {
-          item.actions.playing.loading = false
-        })
+    onPlayClick (item: any) {
+      this.$root.$emit('on-audio-player-show', {
+        src: `${process.env.VUE_APP_API}/contacts/history/${item.id}/audio`,
+        author: `${item.owner.full_name} / ${item.contact.full_name}`
+      })
     },
 
     secondsToHmsDigital (s: number) {

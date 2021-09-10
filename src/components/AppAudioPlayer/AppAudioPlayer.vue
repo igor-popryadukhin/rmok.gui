@@ -15,13 +15,18 @@
           style="cursor: pointer"
           tabindex="0"
           @click.native="onProgressClick(progress)"
-        ></v-progress-linear>
+        />
 
         <v-list>
           <v-list-item>
             <v-list-item-content style="overflow: initial!important;">
               <v-list-item-title>{{ author }}</v-list-item-title>
-              <v-list-item-subtitle>{{ durationHms }}</v-list-item-subtitle>
+              <v-list-item-subtitle v-if="processDownloading">
+                {{ $tc('Loading media...') }}
+              </v-list-item-subtitle>
+              <v-list-item-subtitle v-else>
+                {{ durationHms(duration) }} / {{ durationHms(progress || 0) }}
+              </v-list-item-subtitle>
             </v-list-item-content>
 
             <v-spacer />
@@ -33,14 +38,14 @@
                 open-delay="500"
                 top
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-btn
                     v-bind="attrs"
-                    v-on="on"
                     :disabled="!src"
                     :href="src"
-                    target="_blank"
+                    target="_top"
                     icon
+                    v-on="on"
                   >
                     <v-icon>mdi-download</v-icon>
                   </v-btn>
@@ -55,18 +60,18 @@
                 open-delay="500"
                 top
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <template>
                     <v-slider
                       v-model="audioPlayerVolume"
                       v-bind="attrs"
-                      v-on="on"
                       :max="1"
                       :min="0"
                       :step="0.01"
                       style="min-width: 150px"
                       prepend-icon="mdi-volume-high"
-                    ></v-slider>
+                      v-on="on"
+                    />
                   </template>
                 </template>
                 <span>{{ tc('Audio file playback speed') }}</span>
@@ -78,11 +83,11 @@
                 open-delay="500"
                 top
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-btn
                     v-bind="attrs"
-                    v-on="on"
                     icon
+                    v-on="on"
                     @click="onSpeedClick"
                   >
                     <v-icon>{{ stateSpeedIcon }}</v-icon>
@@ -127,7 +132,6 @@
               </v-btn>
             </v-list-item-icon>
             <!-- Actions -->
-
           </v-list-item>
         </v-list>
       </v-card>
@@ -138,7 +142,6 @@
 <script lang="ts">
 
 import { debounce } from 'vuetify/src/util/helpers'
-import secondsToHmsDigital from './secondsToHmsDigital'
 import { makeAudioElement } from './utils'
 import Vue from 'vue'
 
@@ -154,7 +157,8 @@ interface IData {
   duration: number;
   paused: boolean;
   playbackRate: number;
-  volumeChange: (value: number) => void
+  volumeChange: (value: number) => void;
+  processDownloading: boolean;
 }
 
 interface IMethods {
@@ -210,27 +214,12 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       playbackRate: 1.0,
       volumeChange: debounce((value: number) => {
         this.$emit('update:volume', value)
-      }, 250)
-    }
-  },
-
-  watch: {
-    // Внешнее изменение громкости
-    volume (value: number) {
-      this.audioPlayerVolume = value
-    },
-
-    // Внутреннее изменение громкости
-    audioPlayerVolume (value: number) {
-      this.audioPlayer.volume = value
-      this.volumeChange(value)
+      }, 250),
+      processDownloading: false
     }
   },
 
   computed: {
-    durationHms () {
-      return secondsToHmsDigital(this.duration)
-    },
 
     breakpointWidth () {
       switch (this.$vuetify.breakpoint.name) {
@@ -251,6 +240,19 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
     isShowing () {
       return this.showing
+    }
+  },
+
+  watch: {
+    // Внешнее изменение громкости
+    volume (value: number) {
+      this.audioPlayerVolume = value
+    },
+
+    // Внутреннее изменение громкости
+    audioPlayerVolume (value: number) {
+      this.audioPlayer.volume = value
+      this.volumeChange(value)
     }
   },
 
@@ -365,13 +367,21 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.audioPlayer.loop = false
       this.audioPlayer.volume = this.audioPlayerVolume
 
+      this.audioPlayer.onloadstart = (e: Event) => {
+        this.processDownloading = true
+      }
+
+      this.audioPlayer.onloadeddata = (e: Event) => {
+        this.processDownloading = false
+      }
+
       // Прогресс
       this.audioPlayer.ontimeupdate = () => {
         this.progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100
       }
 
-      // Начало
-      this.audioPlayer.onplay = () => {
+      // Начали играть
+      this.audioPlayer.onplaying = () => {
         this.duration = this.audioPlayer.duration
       }
 
@@ -387,7 +397,16 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           }, 1500)
         }
       }
+    },
+
+    durationHms (seconds: number) {
+      const h: number = Math.floor(seconds / 3600)
+      const m: number = Math.floor(seconds % 3600 / 60)
+      const s: number = Math.floor(seconds % 3600 % 60)
+
+      return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00')
     }
+
   }
 })
 </script>
@@ -395,3 +414,11 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 <style scoped>
 
 </style>
+
+<i18n>
+{
+  "ru" :{
+    "Loading media...": "Загрузка медиа..."
+  }
+}
+</i18n>
