@@ -379,8 +379,6 @@
                   </td>
                   <td>
                     <v-btn
-                      :loading="processFetchAudioFile.includes(item.id)"
-                      :disabled="!processFetchAudioFile.includes(item.id) && processFetchAudioFile.length > 0"
                       icon
                       small
                       @click="onBtnAudioRecordPlayClick(item)"
@@ -453,7 +451,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data () {
     return {
       customPeriodMenu: false,
-      processFetchAudioFile: [],
       processFetchPie: false,
       processFetchHistory: false
     }
@@ -896,17 +893,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     onBtnAudioRecordPlayClick (item: any) {
-      this.processFetchAudioFile.push(item.id)
-      new ContactHistory()
-        .getAudioFile(item.id)
-        .then((url: string) => {
-          this.$root.$emit('on-audio-player-show', {
-            src: url,
-            author: `${item.owner.first_name} ${item.owner.last_name} ${item.owner.middle_name}`
-          })
-        }).finally(() => {
-          this.processFetchAudioFile = []
-        })
+      this.$root.$emit('on-audio-player-show', {
+        src: `${process.env.VUE_APP_API}/contacts/history/${item.id}/audio`,
+        author: `${item.owner.full_name} / ${item.contact.full_name}`
+      })
     }
   }
 })
