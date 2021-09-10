@@ -21,11 +21,8 @@
           <v-list-item>
             <v-list-item-content style="overflow: initial!important;">
               <v-list-item-title>{{ author }}</v-list-item-title>
-              <v-list-item-subtitle v-if="processDownloading">
-                {{ $tc('Loading media...') }}
-              </v-list-item-subtitle>
-              <v-list-item-subtitle v-else>
-                {{ durationHms(duration) }} / {{ durationHms(progress || 0) }}
+              <v-list-item-subtitle>
+                {{ displayString }}
               </v-list-item-subtitle>
             </v-list-item-content>
 
@@ -159,6 +156,7 @@ interface IData {
   playbackRate: number;
   volumeChange: (value: number) => void;
   processDownloading: boolean;
+  displayString: string;
 }
 
 interface IMethods {
@@ -215,7 +213,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       volumeChange: debounce((value: number) => {
         this.$emit('update:volume', value)
       }, 250),
-      processDownloading: false
+      processDownloading: false,
+      displayString: ''
     }
   },
 
@@ -368,16 +367,19 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.audioPlayer.volume = this.audioPlayerVolume
 
       this.audioPlayer.onloadstart = (e: Event) => {
+        this.displayString = this.$tc('Loading media...')
         this.processDownloading = true
       }
 
       this.audioPlayer.onloadeddata = (e: Event) => {
+        this.displayString = '00:00:00 / 00:00:00'
         this.processDownloading = false
       }
 
       // Прогресс
       this.audioPlayer.ontimeupdate = () => {
         this.progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100
+        this.displayString = `${this.durationHms(this.duration)} / ${this.durationHms(this.progress)}`
       }
 
       // Начали играть
@@ -396,6 +398,10 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
             this.showing = false
           }, 1500)
         }
+      }
+
+      this.audioPlayer.onerror = () => {
+        this.displayString = this.$tc('Media loading error')
       }
     },
 
@@ -418,7 +424,8 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 <i18n>
 {
   "ru" :{
-    "Loading media...": "Загрузка медиа..."
+    "Loading media...": "Загрузка медиа...",
+    "Media loading error": "Ошибка загрузки медиа"
   }
 }
 </i18n>
