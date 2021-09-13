@@ -1034,16 +1034,20 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      *
      * @param status
      **/
-    async onSaveAndStayClick (status: IStatus) {
-      await this.save(status)
+    onSaveAndStayClick (status: IStatus) {
+      this.save(status)
     },
 
     /**
      * Сохранить статус
      *
      */
-    async onSaveClick () {
-      await this.save()
+    onSaveClick () {
+      this.save()
+        .then(() => {
+        // Вернуться откуда пришёл
+          this.$store.dispatch('system/route/navigate')
+        })
     },
 
     /**
@@ -1075,27 +1079,27 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     async save () {
       if (!this.validate()) {
-        return
+        return new Promise<void>(resolve => resolve())
       }
       this.$activity.end() // Завершаю измерение активности
       window.onbeforeunload = null // Отменяю запрос подтверждения ухода
       this.saveAndNextLoading = true
 
-      return new Contacts()
-        .editHistory(this.status.contact_history_id, {
-          comment: this.status.comment,
-          status_id: this.status.status_id
-        }).then(() => {
-          // Очистить предыдущий результат выбранного статуса
-          this.status.contact_id = 0
-          this.status.contact_history_id = 0
-          this.status.status_id = 0
-          this.status.visible = false
-          this.status.comment = ''
-
-          // Вернуться откуда пришёл
-          this.$store.dispatch('system/route/navigate')
-        }).finally(() => (this.saveAndNextLoading = false))
+      return new Promise<void>(resolve => {
+        new Contacts()
+          .editHistory(this.status.contact_history_id, {
+            comment: this.status.comment,
+            status_id: this.status.status_id
+          }).then(() => {
+            // Очистить предыдущий результат выбранного статуса
+            this.status.contact_id = 0
+            this.status.contact_history_id = 0
+            this.status.status_id = 0
+            this.status.visible = false
+            this.status.comment = ''
+            resolve()
+          }).finally(() => (this.saveAndNextLoading = false))
+      })
     },
 
     secondsToHmsDigital (s: number) {
