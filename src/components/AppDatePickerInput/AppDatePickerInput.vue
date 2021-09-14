@@ -8,27 +8,27 @@
     min-width="290px"
     offset-y
   >
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <v-text-field
         v-bind="attrs"
-        v-on="on"
         :label="label"
         :value="dateDecoration"
         prepend-inner-icon="mdi-calendar"
         readonly
         outlined
         dense
-      ></v-text-field>
+        v-on="on"
+      />
     </template>
     <v-date-picker
       v-model="datePickerValue"
       :range="dateRange"
       locale="ru"
-      first-day-of-week="1"
+      :first-day-of-week="1"
       scrollable
       no-title
     >
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn
         text
         color="red"
@@ -68,6 +68,43 @@ interface IProps{
 }
 
 export default Vue.extend<IData, IMethods, IComputed, IProps>({
+
+  name: 'AppDatePickerInput',
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    dateRange: {
+      default: () => false,
+      type: Boolean
+    },
+
+    label: {
+      default: '',
+      type: String
+    },
+
+    returnDateType: {
+      default: 'unix',
+      type: String
+    },
+
+    value: {
+      default: null,
+      type: [Array, String, Date]
+    }
+  },
+
+  data () {
+    return {
+      date: null,
+      datePickerValue: null,
+      menuShow: false
+    }
+  },
   computed: {
     dateDecoration () {
       if (Array.isArray(this.datePickerValue)) {
@@ -83,16 +120,14 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
 
-  created () {
-    this.initialize(this.value)
+  watch: {
+    value (val: string | string[] | number | number[] | Date | Date[]) {
+      this.initialize(val)
+    }
   },
 
-  data () {
-    return {
-      date: null,
-      datePickerValue: null,
-      menuShow: false
-    }
+  created () {
+    this.initialize(this.value)
   },
 
   methods: {
@@ -189,41 +224,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
           break
         }
       }
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  name: 'AppDatePickerInput',
-
-  props: {
-    dateRange: {
-      default: () => false,
-      type: Boolean
-    },
-
-    label: {
-      default: '',
-      type: String
-    },
-
-    returnDateType: {
-      default: 'unix',
-      type: String
-    },
-
-    value: {
-      default: null,
-      type: [Array, String, Date]
-    }
-  },
-
-  watch: {
-    value (val: string | string[] | number | number[] | Date | Date[]) {
-      this.initialize(val)
     }
   }
 })

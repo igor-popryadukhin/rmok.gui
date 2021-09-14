@@ -1,7 +1,9 @@
 <template>
   <v-card>
     <v-card-title>{{ $tc('Передать контакты в другой проект') }}</v-card-title>
-    <v-card-subtitle v-if="subtitle">{{ subtitle }}</v-card-subtitle>
+    <v-card-subtitle v-if="subtitle">
+      {{ subtitle }}
+    </v-card-subtitle>
     <v-card-text>
       <span class="mr-2">{{ $tc('The date of creation of contacts will be kept old.') }}</span>
       <v-menu
@@ -13,7 +15,7 @@
         offset-y
         min-width="auto"
       >
-        <template v-slot:activator="{ on, attrs }">
+        <template #activator="{ on, attrs }">
           <v-btn
             color="primary"
             tile
@@ -21,14 +23,18 @@
             x-small
             outlined
             v-bind="attrs"
-            v-on="on">Изменить</v-btn>
+            v-on="on"
+          >
+            Изменить
+          </v-btn>
         </template>
         <v-date-picker
           v-model="new_date"
           no-title
           scrollable
+          :first-day-of-week="1"
         >
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             text
             color="primary"
@@ -54,9 +60,9 @@
         :label="$tc('The project to which the contacts will be transferred')"
         :error-messages="errors.project"
         :disabled="project_id > 0"
-        @change="errors.project = []"
         dense
         outlined
+        @change="errors.project = []"
       />
     </v-card-text>
     <v-card-text>
@@ -65,10 +71,10 @@
         :label="$tc('Users to receive contacts')"
         :error-messages="errors.users"
         :params="{ role_use: 'for_calls' }"
-        @change="errors.users = []"
         dense
         outlined
         multiple
+        @change="errors.users = []"
       />
     </v-card-text>
     <v-card-actions class="pa-4">
@@ -78,13 +84,17 @@
         tile
         outlined
         @click="cancel"
-      >{{ $tc('Cancel') }}</v-btn>
+      >
+        {{ $tc('Cancel') }}
+      </v-btn>
       <v-btn
         color="primary"
         tile
         outlined
         @click="exportClick"
-      >{{ $tc('Transfer to') }}</v-btn>
+      >
+        {{ $tc('Transfer to') }}
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -172,10 +182,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
   components: { SProjectsAutocomplete, SUsers },
 
-  computed: {
-    notBlank: (value: any) => !!value || this.$t('This field should not be blank.')
-  },
-
   data (): IData {
     return {
       errors: {
@@ -186,6 +192,16 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       new_date: '',
       target_project: null,
       target_users: []
+    }
+  },
+
+  computed: {
+    notBlank: (value: any) => !!value || this.$t('This field should not be blank.')
+  },
+
+  mounted () {
+    if (this.$props.project_id > 0) {
+      this.$refs.sProjectAutocomplete.setDefault(this.$props.project_id)
     }
   },
 
@@ -223,12 +239,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
         this.onTransfer(scope)
       }
-    }
-  },
-
-  mounted () {
-    if (this.$props.project_id > 0) {
-      this.$refs.sProjectAutocomplete.setDefault(this.$props.project_id)
     }
   }
 })

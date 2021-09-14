@@ -53,6 +53,7 @@
             v-model="dDate"
             no-title
             show-current
+            :first-day-of-week="1"
             @change="$refs.menuDatePicker.save(dDate)"
           />
         </v-menu>
