@@ -8,13 +8,12 @@
   <DialogCard
     :actions="actions"
   >
-    <template v-slot:title>
+    <template #title>
       <v-card-title>{{ $t('Create a new task') }}</v-card-title>
     </template>
 
     <!-- Form -->
     <v-form ref="form">
-
       <!-- Date and Time -->
       <v-row>
         <!-- Date -->
@@ -28,19 +27,20 @@
             offset-y
             min-width="290px"
           >
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <v-text-field
                 v-model="dataDate"
                 v-bind="date"
                 v-on="on"
-              ></v-text-field>
+              />
             </template>
             <v-date-picker
               v-model="dataDate"
+              :first-day-of-week="1"
+              :locale="$i18n.locale"
               @input="menuDatePicker = false"
               @click="$refs.menuDatePicker.save(dataDate)"
-              :locale="$i18n.locale"
-            ></v-date-picker>
+            />
           </v-menu>
         </v-col>
 
@@ -57,13 +57,13 @@
             max-width="290px"
             min-width="290px"
           >
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <v-text-field
                 v-model="dataTime"
                 readonly
                 v-bind="time"
                 v-on="on"
-              ></v-text-field>
+              />
             </template>
             <v-time-picker
               v-if="menuTimePicker"
@@ -71,7 +71,7 @@
               format="24hr"
               :locale="$i18n.locale"
               @click:minute="$refs.menuTimePicker.save(dataTime)"
-            ></v-time-picker>
+            />
           </v-menu>
         </v-col>
       </v-row>
@@ -83,7 +83,7 @@
             v-model="dataType"
             v-bind="types"
           >
-            <template v-slot:item="scope">
+            <template #item="scope">
               <v-list-item-title :disabled="scope.item.disabled">
                 {{ scope.item.title }}
               </v-list-item-title>
@@ -98,8 +98,7 @@
           <v-combobox
             v-model="dataPerformer"
             v-bind="performers"
-          >
-          </v-combobox>
+          />
         </v-col>
       </v-row>
 
@@ -111,7 +110,7 @@
             rows="4"
             v-bind="description"
           >
-            <template v-slot:append>
+            <template #append>
               <v-btn
                 icon
                 text
@@ -176,60 +175,6 @@ interface MethodsInterface {
   onConfirm: (value: string) => void
 }
 export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, PropsInterface>({
-  computed: {
-
-    actions () {
-      return {
-        cancel: {
-          color: 'red',
-          flat: true,
-          handle: () => {
-            if (typeof (this as any).onCancel === 'function') {
-              (this as any).onCancel()
-            }
-          },
-          text: this.$tc('Cancel')
-        },
-
-        save: {
-          flat: true,
-          handle: () => {
-            if (typeof this.onSave === 'function') {
-              if (!this.$refs.form.validate()) {
-                return false
-              }
-
-              this.$emit('sex', this)
-
-              return false
-
-              // (this as any).onSave({
-              //   date: this.dataDate,
-              //   time: this.dataTime,
-              //   type: this.dataType,
-              //   performer: this.dataPerformer,
-              //   description: this.dataDescription
-              // })
-            }
-          },
-          text: this.$tc('Save')
-        }
-      }
-    }
-  },
-
-  data () {
-    return {
-      dataAutomaticExecution: false,
-      dataDate: undefined,
-      dataDescription: undefined,
-      dataPerformer: undefined,
-      dataTime: undefined,
-      dataType: undefined,
-      menuDatePicker: false,
-      menuTimePicker: false
-    }
-  },
 
   props: {
 
@@ -289,6 +234,60 @@ export default Vue.extend<DataInterface, MethodsInterface, ComputedInterface, Pr
         return {}
       },
       type: Object
+    }
+  },
+
+  data () {
+    return {
+      dataAutomaticExecution: false,
+      dataDate: undefined,
+      dataDescription: undefined,
+      dataPerformer: undefined,
+      dataTime: undefined,
+      dataType: undefined,
+      menuDatePicker: false,
+      menuTimePicker: false
+    }
+  },
+  computed: {
+
+    actions () {
+      return {
+        cancel: {
+          color: 'red',
+          flat: true,
+          handle: () => {
+            if (typeof (this as any).onCancel === 'function') {
+              (this as any).onCancel()
+            }
+          },
+          text: this.$tc('Cancel')
+        },
+
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof this.onSave === 'function') {
+              if (!this.$refs.form.validate()) {
+                return false
+              }
+
+              this.$emit('sex', this)
+
+              return false
+
+              // (this as any).onSave({
+              //   date: this.dataDate,
+              //   time: this.dataTime,
+              //   type: this.dataType,
+              //   performer: this.dataPerformer,
+              //   description: this.dataDescription
+              // })
+            }
+          },
+          text: this.$tc('Save')
+        }
+      }
     }
   }
 

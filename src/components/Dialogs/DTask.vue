@@ -2,12 +2,15 @@
   <DialogCard
     :actions="actions"
   >
-    <template v-slot:title>
-      <v-card-title v-if="title">{{ title }}</v-card-title>
-      <v-card-subtitle v-if="subTitle">{{ subTitle }}</v-card-subtitle>
+    <template #title>
+      <v-card-title v-if="title">
+        {{ title }}
+      </v-card-title>
+      <v-card-subtitle v-if="subTitle">
+        {{ subTitle }}
+      </v-card-subtitle>
     </template>
     <v-form ref="form">
-
       <!-- Date and Time -->
       <v-row>
         <!-- Date -->
@@ -21,18 +24,19 @@
             offset-y
             min-width="290px"
           >
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <v-text-field
                 v-model="dataDate"
                 v-bind="date"
                 v-on="on"
-              ></v-text-field>
+              />
             </template>
             <v-date-picker
               v-model="dataDate"
+              :first-day-of-week="1"
               @input="menuDatePicker = false"
               @click="$refs.menuDatePicker.save(dataDate)"
-            ></v-date-picker>
+            />
           </v-menu>
         </v-col>
 
@@ -49,20 +53,20 @@
             max-width="290px"
             min-width="290px"
           >
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <v-text-field
                 v-model="dataTime"
                 readonly
                 v-bind="time"
                 v-on="on"
-              ></v-text-field>
+              />
             </template>
             <v-time-picker
               v-if="menuTimePicker"
               v-model="dataTime"
               format="24hr"
               @click:minute="$refs.menuTimePicker.save(dataTime)"
-            ></v-time-picker>
+            />
           </v-menu>
         </v-col>
       </v-row>
@@ -73,8 +77,7 @@
           <v-combobox
             v-model="dataType"
             v-bind="types"
-          >
-          </v-combobox>
+          />
         </v-col>
       </v-row>
 
@@ -84,8 +87,7 @@
           <v-combobox
             v-model="dataPerformer"
             v-bind="performers"
-          >
-          </v-combobox>
+          />
         </v-col>
       </v-row>
 
@@ -97,7 +99,7 @@
             rows="4"
             v-bind="description"
           >
-            <template v-slot:append>
+            <template #append>
               <v-btn
                 icon
                 text
@@ -134,58 +136,6 @@ export interface DTaskInterface {
 }
 
 export default Vue.extend({
-  computed: {
-
-    actions () {
-      return {
-        cancel: {
-          flat: true,
-          handle: () => {
-            if (typeof (this as any).onCancel === 'function') {
-              (this as any).onCancel()
-            }
-          },
-          text: (this as any).cancelTitle
-        },
-
-        save: {
-          flat: true,
-          handle: () => {
-            if (typeof this.onSave === 'function') {
-              if (!this.$refs.form.validate()) {
-                return false
-              }
-              (this as any).onSave({
-                automaticExecution: this.dataAutomaticExecution,
-                date: this.dataDate,
-                description: this.dataDescription,
-                performer: this.dataPerformer,
-                time: this.dataTime,
-                type: this.dataType
-              })
-            }
-          },
-          text: (this as any).saveTitle
-        }
-      }
-    }
-  },
-
-  data () {
-    return {
-      dataAutomaticExecution: false,
-      dataDate: undefined,
-      dataDescription: undefined,
-      dataPerformer: undefined,
-      dataTime: undefined,
-      dataType: undefined,
-      menuDatePicker: false,
-      menuTimePicker: false
-    }
-  },
-
-  methods: {
-  },
 
   props: {
     date: {
@@ -263,6 +213,58 @@ export default Vue.extend({
         }
       }
     }
+  },
+
+  data () {
+    return {
+      dataAutomaticExecution: false,
+      dataDate: undefined,
+      dataDescription: undefined,
+      dataPerformer: undefined,
+      dataTime: undefined,
+      dataType: undefined,
+      menuDatePicker: false,
+      menuTimePicker: false
+    }
+  },
+  computed: {
+
+    actions () {
+      return {
+        cancel: {
+          flat: true,
+          handle: () => {
+            if (typeof (this as any).onCancel === 'function') {
+              (this as any).onCancel()
+            }
+          },
+          text: (this as any).cancelTitle
+        },
+
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof this.onSave === 'function') {
+              if (!this.$refs.form.validate()) {
+                return false
+              }
+              (this as any).onSave({
+                automaticExecution: this.dataAutomaticExecution,
+                date: this.dataDate,
+                description: this.dataDescription,
+                performer: this.dataPerformer,
+                time: this.dataTime,
+                type: this.dataType
+              })
+            }
+          },
+          text: (this as any).saveTitle
+        }
+      }
+    }
+  },
+
+  methods: {
   }
 
 })

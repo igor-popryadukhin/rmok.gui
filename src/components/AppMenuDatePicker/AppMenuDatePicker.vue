@@ -29,6 +29,7 @@
     <v-date-picker
       v-model="dates"
       :range="range"
+      :first-day-of-week="1"
       no-title
       show-current
     >
