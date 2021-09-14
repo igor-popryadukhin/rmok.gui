@@ -214,6 +214,7 @@
   "No data": "Нет данных",
   "No data available": "Данные недоступны",
   "No data for the selected period": "Нет данных за выбранный период",
+  "No result": "Без результата",
   "No tasks": "Нет задач",
   "Not active": "Не активный",
   "Not found | Found {n} contact | Found {n} contacts | Found {n} contacts": "Не найдено | Найден {n} контакт | Найдено {n} контакта | Найдено {n} контактов",
@@ -400,6 +401,7 @@
   "confirm_password": "Подтвердите пароль",
   "confirm_profile_deletion": "Подтверждение удаления",
   "confirmation_request": "Запрос подтверждения.",
+  "contact_not_found": "Контакт не найден.",
   "contacts_are_tagged": "No contacts selected | {count} контакту назначены теги: {tags} | {count} контактам назначены теги: {tags} | {count} контактам назначены теги: {tags}",
   "country_code": "Код страны",
   "cross": "Кросс проект",
@@ -416,6 +418,7 @@
   "exit": "Выход",
   "external_project_id": "Идентификатор стороннего проекта",
   "first_name": "Имя",
+  "forbidden": "Доступ запрещен.",
   "half": "Проект для полулидов",
   "half_cross": "Полукросс проект",
   "half_cross_tag": "тег для полукроссов",
@@ -616,7 +619,5 @@
   },
   "unknown_number": "Неизвестный номер",
   "video": "Видео",
-  "yes": "Да",
-  "forbidden": "Доступ запрещен.",
-  "contact_not_found": "Контакт не найден."
+  "yes": "Да"
 }

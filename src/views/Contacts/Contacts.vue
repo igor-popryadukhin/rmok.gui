@@ -236,6 +236,7 @@
               :disabled="contactsProcessLoading"
               :params="appStatusAutocompleteParams"
               multiple
+              no-result-item
               @change="onFilterChange"
             />
           </div>
