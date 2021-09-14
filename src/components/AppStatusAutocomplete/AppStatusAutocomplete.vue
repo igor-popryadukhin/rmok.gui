@@ -46,7 +46,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapGetters } from 'vuex'
 import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
@@ -74,6 +73,11 @@ export default Vue.extend({
       type: Object,
       default: () => null
     },
+    // Включает элемент нулевого значения и помещает его в начало списка
+    noResultItem: {
+      type: Boolean,
+      default: false
+    },
     value: {
       type: [Number, Object, Array],
       default: null
@@ -88,9 +92,20 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapGetters({
-      options: 'filter/statuses'
-    }),
+
+    options () {
+      const statuses: unknown[] = this.$store.getters['filter/statuses'].map((e: unknown) => e)
+
+      if (this.noResultItem) {
+        statuses.unshift({
+          id: 0,
+          name: this.$tc('No result'),
+          color: 'grey'
+        })
+      }
+
+      return statuses
+    },
 
     paramsQuery () {
       const paramsQuery: Record<string, unknown | string> = {}
