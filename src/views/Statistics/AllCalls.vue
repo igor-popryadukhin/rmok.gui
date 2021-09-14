@@ -1,60 +1,76 @@
 <template>
-  <v-card
+  <v-sheet
     flat
     tile
   >
     <!-- Даты -->
     <v-row>
       <v-col>
-        <div class="d-flex justify-end">
+        <div class="d-flex">
           <app-btn-toggle-date
-            v-model="filter.date_period"
+            v-model="filterPeriod"
             :items="dateRangeCollection"
           >
             <template #item-append>
+              <v-divider
+                class="mx-2"
+                vertical
+              />
               <v-menu
-                ref="menuDateRange"
-                v-model="menuDateRange"
+                ref="customPeriodMenu"
+                v-model="customPeriodMenu"
                 :close-on-content-click="false"
-                :return-value.sync="dateRange"
+                :return-value="filterCustomPeriod"
                 transition="scale-transition"
                 offset-y
                 min-width="290px"
               >
-                <template #activator="{ on }">
+                <template #activator="{ on, attrs }">
                   <v-btn
+                    v-bind="attrs"
+                    :class="Array.isArray(filterCustomPeriod) ? 'v-btn--active' : ''"
+                    text
+                    tile
                     v-on="on"
                   >
-                    {{ $tc('Range') }}
+                    {{ filterCustomPeriodTitle }}
                   </v-btn>
                 </template>
                 <v-date-picker
-                  v-model="dateRange"
+                  v-model="filterCustomPeriod"
+                  :locale="$vuetify.lang.current"
                   :first-day-of-week="1"
-                  scrollable
-                  range
                   no-title
-                  locale="ru"
+                  range
                 >
                   <v-spacer />
                   <v-btn
                     text
                     color="primary"
-                    @click="menuDateRange = false"
+                    @click="customPeriodMenu = false"
                   >
                     {{ $tc('Cancel') }}
                   </v-btn>
                   <v-btn
                     text
                     color="primary"
-                    @click="onSaveDateRangeClick(dateRange)"
+                    @click="$refs.customPeriodMenu.save(filterCustomPeriod)"
                   >
-                    OK
+                    {{ $tc('Ok') }}
                   </v-btn>
                 </v-date-picker>
               </v-menu>
             </template>
           </app-btn-toggle-date>
+          <v-spacer />
+          <v-btn
+            :disabled="processFetchPie || processFetchHistory"
+            text
+            tile
+            @click="onBtnRefreshClick"
+          >
+            {{ $tc('Refresh') }}
+          </v-btn>
         </div>
       </v-col>
     </v-row>
@@ -62,891 +78,751 @@
     <!-- Основные фильтры -->
     <v-row>
       <!-- Фильтр по пользователям -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <s-users
-          ref="sUsersAutocomplete"
-          v-model="filter.user"
-          :label="$tc('Users')"
-          :params="{ role_use: 'for_calls' }"
-          outlined
-          dense
-          clearable
-        />
-      </v-col>
-
-      <!-- Фильтр по результату звонка -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <SStatisticFilterStatus
-          v-model="filter.status.selected"
-          @change="setStatusIds"
-        />
-      </v-col>
-
-      <!-- Фильтр дата создания контакта -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <app-date-picker-input
-          v-model="filter.contact_created_at"
-          :label="$tc('Date the contact was created')"
-          :value="new Date()"
-          return-date-type="unix"
-          date-range
-        />
-      </v-col>
-
-      <!-- Фильтр по группам -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <s-groups
-          ref="sGroupsAutocomplete"
-          v-model="filter.groups"
-          :label="$tc('Groups')"
-          clearable
-          dense
-          outlined
-          multiple
-        />
-      </v-col>
-
-      <!-- Фильтр по проектам -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <s-projects-autocomplete
-          ref="sProjectsAutocomplete"
-          v-model="filter.project"
-          :label="$tc('Projects')"
-          clearable
-          dense
-          outlined
-          multiple
-        />
-      </v-col>
-
-      <!-- Фильтр по тегам -->
-      <v-col
-        class="py-0"
-        md="4"
-        lg="4"
-        sm="12"
-        xs="12"
-      >
-        <s-contact-tags
-          v-model="filter.tags"
-          :label="$tc('Tags')"
-          multiple
-          clearable
-          outlined
-          dense
-        />
+      <v-col class="py-0">
+        <div class="d-flex justify-start flex-wrap margin-right">
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])">
+            <app-user-autocomplete
+              v-model="filterOwnerId"
+              :label="$tc('Users')"
+              :disabled="processLoading"
+            />
+          </template>
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+            <app-user-group-autocomplete
+              v-model="filterUserGroupId"
+              :label="$tc('Group')"
+              :disabled="processLoading"
+              outlined
+              dense
+            />
+          </template>
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])">
+            <app-project-autocomplete
+              v-model="filterProjectId"
+              :label="$tc('Project')"
+              :disabled="processLoading"
+              outlined
+              dense
+            />
+          </template>
+          <app-status-autocomplete
+            v-model="filterStatusIds"
+            multiple
+            :disabled="processLoading"
+            :params="appStatusAutocompleteParams"
+            :label="$tc('Filter by result')"
+          />
+          <app-menu-date-picker
+            v-model="filterContactCreatedAt"
+            :first-day-of-week="1"
+            :label="$tc('Date the contact was created')"
+            :disabled="processLoading"
+            locale="ru"
+            range
+          />
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+            <app-contact-tag-autocomplete
+              v-model="filterContactTagIds"
+              :label="$tc('Tags')"
+              :disabled="processLoading"
+              multiple
+              outlined
+              dense
+            />
+          </template>
+        </div>
       </v-col>
     </v-row>
 
+    <!-- Actions -->
     <v-row>
       <v-col class="d-flex">
-        <app-pagination
-          v-model="dataTableHistory.page"
-          :length="dataTableHistory.pages"
-          :disabled="dataTableHistory.processLoading || dataTableHistory.selectedWhole"
-        >
-          <template #display>
-            <v-menu offset-y>
-              <template #activator="{ on, attrs }">
-                <v-btn
-                  v-bind="attrs"
-                  tile
-                  text
-                  small
-                  v-on="on"
-                >
-                  <app-count-up
-                    :end-val="dataTableHistory.pageStart"
-                  />
-                  <span class="mx-1">—</span>
-                  <app-count-up
-                    :end-val="dataTableHistory.pageStop"
-                  />
-                  <span class="mx-1">из</span>
-                  <app-number-format
-                    :value="dataTableHistory.totalCount"
-                  />
-                </v-btn>
-              </template>
-              <v-list
-                class="py-0"
-                dense
-                flat
-              >
-                <v-list-item
-                  link
-                  @click="dataTableHistory.page = 1"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>Самые новые</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item
-                  link
-                  @click="dataTableHistory.page = dataTableHistory.pages -1"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>Самые старые</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
-        </app-pagination>
+        <app-btn-sorting
+          v-model="sortOption"
+          :label="$tc('Sorting')"
+          :items="sortingOptions"
+          :t="$tc"
+          item-text="name"
+          @change="onAppBtnSortingChange"
+        />
         <v-spacer />
-        <v-btn-toggle background-color="green">
+        <app-pagination
+          v-model="offset"
+          :count="statisticHistoryTotal"
+          :per-page="50"
+          :disabled="processLoading"
+          class="mr-5"
+          @change="onAppPaginationChange"
+        />
+        <v-btn-toggle
+          color="primary"
+        >
           <v-btn
+            color="primary"
+            disabled
             outlined
-            tile
-            color="white"
+            small
           >
-            <v-icon color="white">
-              mdi-cog
-            </v-icon>
+            <v-icon>mdi-cog</v-icon>
           </v-btn>
           <v-btn
+            color="primary"
+            disabled
             outlined
-            color="white"
+            small
           >
             Выгрузить в Excel
           </v-btn>
         </v-btn-toggle>
       </v-col>
     </v-row>
+    <!-- Actions -->
 
     <v-row>
-      <v-col>
-        <!-- История -->
-        <v-data-table
-          :headers="dataTableHistory.headers"
-          :items="dataTableHistory.items"
-          :server-items-length="dataTableHistory.totalCount"
-          :page.sync="dataTableHistory.page"
-          :items-per-page="dataTableHistory.itemsPerPage"
-          :options.sync="dataTableHistory.options"
-          :loading="historyProcessLoading"
-          :item-class="vDataTableItemClass"
-          :no-data-text="$tc('No data for the selected period')"
-          locale="ru"
-          item-key="id"
-          dense
-          fixed-header
-          hide-default-footer
-          show-select
-          multi-sort
-          :sort-by.sync="dataTableHistory.sortBy"
-          :sort-desc.sync="dataTableHistory.sortDesc"
-          @pagination="onPaginationChange"
-        >
-          <!-- slots item -->
-          <template
-            slot="item.created_at"
-            slot-scope="{ item }"
+      <v-col style="min-height: 600px">
+        <app-divider />
+        <template v-if="processFetchHistory">
+          <div
+            class="d-flex align-center justify-center fill-height"
           >
-            {{ $dayjs(item.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
-          </template>
-          <template
-            slot="item.contact"
-            slot-scope="{ item }"
-          >
-            <template v-if="item.contact">
-              {{ item.contact.last_name }} {{ item.contact.first_name }} {{ item.contact.middle_name }}
-            </template>
-            <template v-else>
-              —
-            </template>
-          </template>
-          <template
-            slot="item.status"
-            slot-scope="{ item }"
-          >
-            <span
-              class="label"
-              :style="{'background-color': item.status_color}"
-            >
-              {{ item.status_result }}
-            </span>
-          </template>
-          <template
-            slot="item.comment"
-            slot-scope="{ item }"
-          >
-            <v-tooltip
-              color="primary"
-              max-width="300"
-              bottom
-            >
-              <template #activator="{ on }">
-                <div
-                  style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;width: 200px"
-                  v-on="on"
-                >
-                  {{ item.comment || '-' }}
-                </div>
-              </template>
-              <span>{{ item.comment || '-' }}</span>
-            </v-tooltip>
-          </template>
-          <template
-            slot="item.call_duration"
-            slot-scope="{ item }"
-          >
-            {{ secondsToHmsDigital(item.call_duration) }}
-          </template>
-          <template
-            slot="item.session_duration"
-            slot-scope="{ item }"
-          >
-            {{ secondsToHmsDigital(item.session_duration) }}
-          </template>
-          <template
-            slot="item.creator"
-            slot-scope="{ item }"
-          >
-            <template v-if="item.creator">
-              <template v-if="item.creator.is_deleted">
-                <span style="text-decoration: line-through">
-                  {{ item.creator.first_name }} {{ item.creator.last_name }}
-                </span>
-              </template>
-              <template v-else>
-                {{ item.creator.first_name }} {{ item.creator.last_name }}
-              </template>
-            </template>
-            <template v-else>
-              —
-            </template>
-          </template>
-          <template
-            slot="item.record"
-            slot-scope="{ item }"
-          >
-            <v-btn
-              v-if="!item.isPlaying"
-              :disabled="item.audio_recording_id === null"
-              icon
-              small
-              @click="onPlayClick(item)"
-            >
-              <v-icon>mdi-play</v-icon>
-            </v-btn>
-            <v-progress-circular
-              v-else
-              :value="item.playingProgress || 0"
-              width="2"
-              size="28"
-              color="blue-grey"
-            >
-              <v-btn
-                :value="item"
-                color="red"
-                icon
-                small
-                @click="() => { stopSound(); dataTableHistory.items.forEach((e => (e.isPlaying = false))) }"
-              >
-                <v-icon>mdi-stop</v-icon>
-              </v-btn>
-            </v-progress-circular>
-          </template>
-          <!-- slots item -->
-
-          <template slot="loading">
-            <div class="d-flex align-center justify-center">
-              <span>
-                {{ $tc('Loading content...') }}
-              </span>
+            <div class="grey--text">
+              <app-loading />
             </div>
-          </template>
-        </v-data-table>
+          </div>
+        </template>
+        <template v-else-if="statisticHistory.length === 0">
+          <div
+            class="d-flex align-center justify-center fill-height"
+          >
+            <div class="grey--text">
+              <span>{{ $tc('No data for the selected period') }}</span>
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <v-simple-table
+            class="simple-table"
+            fixed-header
+            dense
+          >
+            <template #default>
+              <thead>
+                <tr>
+                  <th
+                    class="text-left"
+                    style="width: 10px!important; white-space: nowrap!important;"
+                  >
+                    {{ $tc('Date/Time') }}
+                  </th>
+                  <th
+                    class="text-left"
+                    style="width: auto;"
+                  >
+                    {{ $tc('Client') }}
+                  </th>
+                  <th
+                    class="text-left"
+                    style="width: 100px;"
+                  >
+                    {{ $tc('Result') }}
+                  </th>
+                  <th
+                    class="text-left"
+                  >
+                    {{ $tc('Comment') }}
+                  </th>
+                  <th
+                    class="text-left"
+                    style="width: 100px;"
+                  >
+                    {{ $tc('Call duration') }}
+                  </th>
+                  <th
+                    class="text-left"
+                    style="width: 100px;"
+                  >
+                    {{ $tc('Session duration') }}
+                  </th>
+                  <th
+                    v-if="isTableColumnManagerVisible"
+                    class="text-left"
+                  >
+                    {{ $tc('Manager') }}
+                  </th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in statisticHistory"
+                  :key="item.name"
+                >
+                  <td style="white-space: nowrap">
+                    {{ $dayjs(item.created_at * 1000).format('YYYY.MM.DD HH:mm') }}
+                  </td>
+                  <td>
+                    <router-link :to="{ name: 'contacts_view', params: { contact_id: item.contact.id } }">
+                      {{ item.contact.full_name }}
+                    </router-link>
+                  </td>
+                  <td>
+                    <template v-if="item.status">
+                      <v-chip
+                        :color="item.status.color"
+                        label
+                        outlined
+                        x-small
+                      >
+                        {{ item.status.name }}
+                      </v-chip>
+                    </template>
+                    <template v-else>
+                      —
+                    </template>
+                  </td>
+                  <td style="width: 150px">
+                    <template v-if="item.comment">
+                      <v-tooltip
+                        max-width="400"
+                        open-delay="500"
+                        bottom
+                      >
+                        <template #activator="{ on, attrs }">
+                          <div
+                            v-bind="attrs"
+                            class="box-text"
+                            style="width: 150px"
+                            v-on="on"
+                          >
+                            {{ item.comment }}
+                          </div>
+                        </template>
+                        <span>{{ item.comment }}</span>
+                      </v-tooltip>
+                    </template>
+                  </td>
+                  <td>{{ item.call_duration || '--:--:--' }}</td>
+                  <td>{{ item.session_duration || '--:--:--' }}</td>
+                  <td v-if="isTableColumnManagerVisible">
+                    <template v-if="item.owner">
+                      {{ item.owner.full_name }}
+                    </template>
+                  </td>
+                  <td>
+                    <v-btn
+                      :loading="processFetchAudioFile.includes(item.id)"
+                      :disabled="!processFetchAudioFile.includes(item.id) && processFetchAudioFile.length > 0"
+                      icon
+                      small
+                      @click="onBtnAudioRecordPlayClick(item)"
+                    >
+                      <v-icon>mdi-play</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </template>
       </v-col>
     </v-row>
-  </v-card>
+  </v-sheet>
 </template>
 
 <script lang="ts">
-import ContactHistory from '@/api/ContactHistory'
-import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
-import Statistics from '@/api/Statistics'
-import { UserInterface } from '@/api/Users'
-import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
-import AppDatePickerInput from '@/components/AppDatePickerInput/AppDatePickerInput.vue'
-import AppNumberFormat from '@/components/AppNumberFormat/AppNumberFormat.vue'
-import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import audioPlayer from '@/mixins/audioPlayer'
-import dateRangeCollection from '@/mixins/dateRangeCollection'
-import SContactTags from '@/snippets/SContactTags/SContactTags.vue'
-import SUsers from '@/snippets/SUsers/SUsers.vue'
-import { secondsToHmsDigital } from '@/utils/datetime'
-import VInterface from '@/VInterface'
-import { format } from 'date-fns'
-import Vue, { VueConstructor } from 'vue'
+import Vue from 'vue'
 import VueApexCharts from 'vue-apexcharts'
+import { mapActions, mapGetters } from 'vuex'
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import { debounce } from 'vuetify/src/util/helpers'
-import { GroupInterface } from '@/api/Groups'
-import { ProjectInterface } from '@/api/Projects'
-import SGroups from '@/snippets/SGroups/SGroups.vue'
-import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
-import SStatisticFilterStatus from '@/snippets/SStatistic/SStatisticFilterStatus.vue'
+import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
+import AppContactTagAutocomplete from '@/components/AppContactTagAutocomplete/AppContactTagAutocomplete.vue'
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import ContactHistory from '@/api/ContactHistory'
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)
 
-export default (Vue as VueConstructor<VInterface>).extend({
-  components: {
-    SStatisticFilterStatus,
-    SContactTags,
-    AppNumberFormat,
-    AppCountUp,
-    AppBtnToggleDate,
-    AppDatePickerInput,
-    AppPagination,
-    SUsers,
-    SGroups,
-    SProjectsAutocomplete
-  },
+interface Data {
+  [keys: string]: any;
+}
 
-  mixins: [audioPlayer, dateRangeCollection],
+interface Methods {
+  [keys: string]: any;
+}
+
+interface Computed {
+  filterProjectId: number;
+  [keys: string]: any;
+}
+
+interface Props {
+  [keys: string]: any;
+}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
+
+  components: {
+    AppBtnSorting,
+    AppPagination,
+    AppLoading,
+    AppMenuDatePicker,
+    AppContactTagAutocomplete,
+    AppProjectAutocomplete: () => import('@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'),
+    AppUserGroupAutocomplete: () => import('@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'),
+    AppStatusAutocomplete,
+    AppBtnToggleDate,
+    AppUserAutocomplete: () => import('@/components/AppUserAutocomplete/AppUserAutocomplete.vue')
+  },
 
   data () {
     return {
-      contactDateCreated: null,
-      // Data table
-      dataTableHistory: {
-        headers: [
-          {
-            align: 'start',
-            divider: true,
-            sortable: true,
-            text: 'Дата и время',
-            value: 'created_at',
-            width: 'auto'
-          },
-          {
-            sortable: true,
-            text: 'Клиент',
-            value: 'contact',
-            width: 'auto'
-          },
-          {
-            sortable: true,
-            text: 'Результат',
-            value: 'status',
-            width: 'auto'
-          },
-          {
-            align: 'start',
-            sortable: true,
-            text: 'Комментарий',
-            value: 'comment',
-            width: '100%'
-          },
-          {
-            align: 'end',
-            sortable: true,
-            text: 'Длительность разговора',
-            value: 'call_duration',
-            width: 'auto'
-          },
-          {
-            align: 'end',
-            sortable: true,
-            text: 'Общее время сессии',
-            value: 'session_duration',
-            width: 'auto'
-          },
-          {
-            sortable: true,
-            text: 'Менеджер',
-            value: 'creator',
-            width: 'auto'
-          },
-          {
-            align: 'end',
-            sortable: false,
-            text: 'Запись',
-            value: 'record',
-            width: 'auto'
-          }
-        ],
-        items: [],
-        itemsPerPage: 50,
-        options: {},
-        page: 1,
-        pageStart: 0,
-        pageStop: 0,
-        pages: 1,
-        totalCount: 0,
-        sortBy: [],
-        sortDesc: []
-      },
-      dateRange: null as string[] | null,
-      filter: {
-        contact_created_at: [] as string[] | number[],
-        date_period: null as unknown & string | null,
-        status: {
-          items: [],
-          on: {
-            input: (scope: any) => {
-              if (this.assertObjectHasAttribute(scope, 'status_id')) {
-                this.$routerQuery.setQuery({ status_id: scope.status_id })
-                this.fetchDataHistory()
-              } else {
-                this.dataTableHistory.page = 1
-                this.$routerQuery.removeQuery(['status_id'])
-                  .finally(() => {
-                    this.fetchDataHistory()
-                  })
-              }
-            }
-          },
-          selected: null
-        },
-        // Дата или диапазон дат
-        user: [] as unknown & UserInterface[],
-        groups: [] as unknown & GroupInterface[],
-        tags: [] as unknown & ContactTagInterface[],
-        project_id: null as unknown & ProjectInterface | null
-      },
-      filterDate: undefined,
-      historyProcessLoading: false,
-      history_count: 0,
-      itemsPerPage: 10,
-      loading: true,
-      menuContactDateCreated: null as boolean | null,
-      menuDateRange: null,
-      options: {
-        labels: []
-      },
-      page: 1,
-      pageCount: 0,
-      pieColors: [] as string[],
-      pieLabels: [] as string[],
-      pieSeries: [] as number[],
-      processPieLoading: false,
-      // Процесс загрузки изображений
-      // Report
-      total_calls: 0,
-      total_clients: 0,
-      users: [] as UserInterface[],
-      usersSelected: null as UserInterface | null,
-
-      fetchDataHistory: debounce(() => {
-        this.historyProcessLoading = true
-        const offset = (this.dataTableHistory.itemsPerPage * this.dataTableHistory.page) - this.dataTableHistory.itemsPerPage
-
-        const params: any = {
-          count: this.dataTableHistory.itemsPerPage,
-          offset,
-          type: 'all' // Показать всю историю
-        }
-
-        // Формирую параметры сортировки
-        this.dataTableHistory.sortBy.forEach((name: string, index: number) => {
-          params[`sort_by[${name}]`] = this.dataTableHistory.sortDesc[index] ? 'desc' : 'asc'
-        })
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'date_period')) {
-          params.date_period = this.$route.query.date_period
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'creator_id')) {
-          params.creator_id = this.$route.query.creator_id
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'status_ids')) {
-          params.status_ids = this.$route.query.status_ids
-        }
-
-        if (Array.isArray(this.filter.contact_created_at)) {
-          if (this.filter.contact_created_at.length === 2) {
-            params.contact_created_at = this.filter.contact_created_at.join(',')
-          }
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
-          params.project_id = this.$route.query.project_id
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'group_ids')) {
-          params.group_ids = this.$route.query.group_ids
-        }
-
-        if (this.assertObjectHasAttribute(this.$route.query, 'tag_ids')) {
-          params.tag_ids = this.$route.query.tag_ids
-        }
-
-        new Statistics()
-          .recentCallsHistory(params)
-          .then((response) => {
-            this.dataTableHistory.totalCount = response.meta?.count || 0
-            this.dataTableHistory.pages = Math.ceil(response.meta?.count || 0 / this.dataTableHistory.itemsPerPage)
-            this.dataTableHistory.items = response.data?.map((e: any) => {
-              e.isPlaying = false
-              return e
-            }) || []
-
-            this.filter.status.items = response.meta.statuses
-
-            // Устанавливаю ранее сохранённый фильтр
-            this.filter.status.selected = this.$routerQuery.hasQuery('status_ids')
-              ? typeof this.$routerQuery.getQuery('status_ids') === 'string'
-                ? [parseInt(this.$routerQuery.getQuery('status_ids'))]
-                : this.$routerQuery.getQuery('status_ids').map(e => parseInt(e))
-              : []
-          }).finally(() => (this.historyProcessLoading = false))
-      }, 350)
+      customPeriodMenu: false,
+      processFetchAudioFile: [],
+      processFetchPie: false,
+      processFetchHistory: false
     }
   },
 
   computed: {
+    ...mapGetters({
+      statisticHistoryTotal: 'statistic_all_call/total',
+      statisticHistory: 'statistic_all_call/history'
+    }),
+
+    filterOwnerId: {
+      get () {
+        return +this.$store.getters['statistic_all_call/filter/owner_id']
+      },
+
+      set (value: number) {
+        this.$store.commit('statistic_all_call/filter/owner_id', value)
+      }
+    },
+
+    filterUserGroupId: {
+      get () {
+        return +this.$store.getters['statistic_all_call/filter/user_group_id']
+      },
+
+      set (value: number) {
+        this.$store.commit('statistic_all_call/filter/user_group_id', value)
+      }
+    },
+
+    filterStatusIds: {
+      get () {
+        return this.$store.getters['statistic_all_call/filter/status_ids']
+      },
+
+      set (value: number[]) {
+        this.$store.commit('statistic_all_call/filter/status_ids', value)
+      }
+    },
+
+    filterPeriod: {
+      get () {
+        if (!Array.isArray(this.$store.getters['statistic_all_call/filter/period'])) {
+          return this.$store.getters['statistic_all_call/filter/period']
+        }
+        return true
+      },
+
+      set (value: string) {
+        this.$store.commit('statistic_all_call/filter/period', value)
+      }
+    },
+
+    filterCustomPeriod: {
+      get () {
+        if (Array.isArray(this.$store.getters['statistic_all_call/filter/period'])) {
+          return this.$store.getters['statistic_all_call/filter/period']
+        }
+
+        return ''
+      },
+
+      set (value: string[]) {
+        this.$store.commit('statistic_all_call/filter/period', value)
+      }
+    },
+
+    filterProjectId: {
+      get () {
+        return +this.$store.getters['statistic_all_call/filter/project_id']
+      },
+
+      set (value: number) {
+        this.filterStatusIds = []
+        this.$store.commit('statistic_all_call/filter/project_id', value)
+      }
+    },
+
+    filterContactTagIds: {
+      get () {
+        return this.$store.getters['statistic_all_call/filter/contact_tag_ids']
+      },
+
+      set (value: number[]) {
+        this.$store.commit('statistic_all_call/filter/contact_tag_ids', value)
+      }
+    },
+
+    filterContactCreatedAt: {
+      get () {
+        return this.$store.getters['statistic_all_call/filter/contact_created_at']
+      },
+
+      set (value: number[]) {
+        this.$store.commit('statistic_all_call/filter/contact_created_at', value)
+      }
+    },
+
+    offset: {
+      get () {
+        return this.$store.getters['statistic_all_call/history_offset']
+      },
+
+      set (value: number) {
+        this.$store.commit('statistic_all_call/history_offset', value)
+      }
+    },
+
+    processLoading () {
+      return this.processFetchPie || this.processFetchHistory
+    },
+
+    paramsFilters () {
+      const params: Record<string, any> = {}
+
+      if (this.filterPeriod) {
+        const daysJsStart = this.$dayjs().set('h', 0).set('m', 0).set('s', 0)
+        const daysJsEnd = this.$dayjs().set('h', 23).set('m', 59).set('s', 59)
+
+        switch (this.filterPeriod) {
+          case 'today': {
+            // За сегодня
+            params.period = `${daysJsStart.unix()},${daysJsEnd.unix()}`
+            break
+          }
+          case 'yesterday': {
+            // За вчера
+            params.period = `${daysJsStart.subtract(1, 'day').unix()},${daysJsEnd.subtract(1, 'day').unix()}`
+            break
+          }
+          case 'this_week': {
+            // С неделю
+            params.period = `${daysJsStart.startOf('week').unix()},${daysJsEnd.endOf('week').unix()}`
+            break
+          }
+          case 'last_week': {
+            // За прошлую неделю
+            params.period = `${daysJsStart.subtract(1, 'week').startOf('week').unix()},${daysJsEnd.subtract(1, 'week').endOf('week').unix()}`
+            break
+          }
+          case 'month': {
+            // За месяц
+            params.period = `${daysJsStart.startOf('month').unix()},${daysJsEnd.endOf('month').unix()}`
+            break
+          }
+          default: {
+            // Если фильтр настраиваемый.
+            if (Array.isArray(this.filterCustomPeriod)) {
+              if (this.filterCustomPeriod.length === 2) {
+                params.period = `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').set('h', 0).set('m', 0).set('s', 0).unix()},${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').set('h', 23).set('m', 59).set('s', 59).unix()}`
+              }
+            }
+          }
+        }
+      }
+
+      if (Number(this.filterOwnerId) > 0) {
+        params.owner_id = this.filterOwnerId
+      }
+
+      if (Number(this.filterUserGroupId) > 0) {
+        params.user_group_id = this.filterUserGroupId
+      }
+
+      if (Array(this.filterStatusIds).length > 0) {
+        params.status_ids = this.filterStatusIds
+      }
+
+      if (Number(this.filterProjectId) > 0) {
+        params.project_id = this.filterProjectId
+      }
+
+      if (Array(this.filterContactTagIds).length > 0) {
+        params.tag_ids = this.filterContactTagIds
+      }
+
+      // Дата и время создания контакта
+      if (Array.isArray(this.filterContactCreatedAt)) {
+        let contactCreatedAtStart = this.$dayjs(this.filterContactCreatedAt[0], 'YYYY-MM-DD')
+        let contactCreatedAtEnd = this.$dayjs(this.filterContactCreatedAt[1], 'YYYY-MM-DD')
+
+        contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+        contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+        params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
+      } else if (this.filterContactCreatedAt) {
+        let contactCreatedAtStart = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+        let contactCreatedAtEnd = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+
+        contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+        contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+        params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
+      } else if (this.filterContactCreatedAt) {
+        const contactCreatedAtStart = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+        const contactCreatedAtEnd = this.$dayjs(this.filterContactCreatedAt, 'YYYY-MM-DD')
+
+        contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+        contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+        params.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
+      }
+
+      return params
+    },
+
     apexchartOptions (): any {
       return {
-        colors: this.pieColors,
-        labels: this.pieLabels,
+        chart: {
+          animations: {
+            enabled: false // Off animations
+          },
+          events: {
+            // Происходит при клике по легенде диаграммы
+            legendClick: (chartContext: any, seriesIndex: any) => {
+              const scope: unknown & { status_id: number } = this.pieData[seriesIndex]
+              if (this.assertObjectHasAttribute(scope, 'status_id')) {
+                const index = this.filter_statuses.findIndex((e: unknown & { id: number }) => e.id === +scope.status_id)
+                if (index > -1) {
+                  this.filter.status = this.filter_statuses[index]
+                }
+              } else {
+                throw new Error('В объекте scope отсутствует свойство status_id')
+              }
+            }
+          }
+        },
+        colors: this.statisticPieColors,
+        labels: this.statisticPieLabels,
         legend: {
+          // formatter: function (seriesName: string, opts: any) {
+          //   return [opts.w.globals.series[opts.seriesIndex], ' - ', seriesName]
+          // },
+          markers: {
+            onClick: (chart: any, seriesIndex: any, opts: any) => {
+              console.log('series- ' + seriesIndex + '\'s marker was clicked')
+            }
+          },
           position: 'right',
           show: true
         }
       }
     },
 
-    dataTableHistoryHeight () {
-      if (this.$screenHeight < 900) {
-        return 500
-      }
-      return this.$screenHeight - 150
+    dateRangeCollection () {
+      const daysJsStart = this.$dayjs().set('h', 0).set('m', 0).set('s', 0)
+      const daysJsEnd = this.$dayjs().set('h', 23).set('m', 59).set('s', 59)
+      return [
+        {
+          title: this.$tc('Today'),
+          tooltip: `За ${daysJsStart.format('DD.MM.YYYY')}`,
+          value: 'today'
+        },
+        {
+          title: this.$tc('Yesterday'),
+          tooltip: `За ${daysJsStart.subtract(1, 'day').format('DD.MM.YYYY')}`,
+          value: 'yesterday'
+        },
+        {
+          title: this.$tc('This week'),
+          tooltip: `c ${daysJsStart.startOf('week').format('DD.MM.YYYY')} по ${daysJsEnd.endOf('week').format('DD.MM.YYYY')}`,
+          value: 'this_week'
+        },
+        {
+          title: this.$tc('Last week'),
+          tooltip: `c ${daysJsStart.subtract(1, 'week').startOf('week').format('DD.MM.YYYY')} по ${daysJsEnd.subtract(1, 'week').endOf('week').format('DD.MM.YYYY')}`,
+          value: 'last_week'
+        },
+        {
+          title: this.$t('per_month', { name: this.$dayjs().format('MMMM') }).toString(),
+          tooltip: `c ${daysJsStart.startOf('month').format('DD.MM.YYYY')} по ${daysJsEnd.endOf('month').format('DD.MM.YYYY')}`,
+          value: 'month'
+        }
+      ]
     },
 
-    paramsSort (): unknown[] & { sort_by: string, sort_desc: boolean }[] {
-      const json: string = this.$routerQuery.getQuery('sort', '[]')
-      return JSON.parse(json)
-    }
-  },
-
-  watch: {
-
-    'dataTableHistory.options': {
-      deep: true,
-      handler ({ sortBy, sortDesc }) {
-        const sort = []
-        for (let i = 0; i < Math.min(sortBy.length, sortDesc.length); i++) {
-          sort.push({ sort_by: sortBy[i], sort_desc: sortDesc[i] })
+    filterCustomPeriodTitle () {
+      if (Array.isArray(this.filterCustomPeriod)) {
+        if (this.filterCustomPeriod.length === 2) {
+          return `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').format('DD.MM.YYYY')} — ${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').format('DD.MM.YYYY')}`
         }
-        if (sort.length > 0) {
-          // Преобразовываю в JSON и сохраняю в строку браузера
-          this.$routerQuery.setQuery({
-            sort: JSON.stringify(sort)
-          }).then(() => {
-            this.fetchDataHistory()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['sort'])
-            .then(() => {
-              this.fetchDataHistory()
-            })
+      }
+      return this.$tc('Customizable')
+    },
+
+    /**
+     * Параметры загрузки результатов (статусов)
+     */
+    appStatusAutocompleteParams () {
+      const params: Record<string, number | unknown> = {}
+
+      if (this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC']) && Number(this.filterProjectId) > 0) {
+        params.project_id = this.filterProjectId
+      }
+
+      return params
+    },
+
+    /**
+     * Параметры сортировки.
+     */
+    sortOption: {
+      get () {
+        return {
+          order_by: this.$store.getters['statistic_all_call/filter/order_by'],
+          order_direction: this.$store.getters['statistic_all_call/filter/order_direction']
         }
+      },
+
+      set (val?: { order_by: string, order_direction: string }) {
+        this.$store.commit('statistic_all_call/filter/order_by', val?.order_by || '')
+        this.$store.commit('statistic_all_call/filter/order_direction', val?.order_direction || '')
       }
     },
 
-    'dataTableHistory.page': {
-      handler (page: number) {
-        this.$routerQuery.setQuery({ history_page: page })
-      }
+    sortingOptions () {
+      return ['created_at', 'contact', 'result', 'comment', 'call_duration', 'session_duration', 'manager'].map((e) => ({
+        name: this.$t(`statistics.recent_calls.sorting_options.${e}`),
+        order_by: e,
+        order_direction: 'asc',
+        visible: true
+      }))
+    },
+
+    /**
+     * Для администратора, руководителя КЦ и руководителя группы вернёт true
+     */
+    isTableColumnManagerVisible () {
+      return this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])
     }
   },
 
   created () {
-    this.dataTableHistory.page = +this.$routerQuery.getQuery('history_page', 1)
+    this.fetchHistory = debounce(this.fetchHistory, 1000)
   },
 
   mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
+    // Период по умолчанию сегодня (с 00:00:00 по 23:59:59)
+    if (!this.filterPeriod) {
+      this.filterPeriod = 'today'
+    }
 
-    if (this.$routerQuery.hasQuery('date_period')) {
-      this.filter.date_period = this.$routerQuery.getQuery('date_period')
+    // Если данные ещё не загружены, загружаем.
+    if (this.statisticHistory.length === 0) {
+      this.fetchHistory()
+    }
 
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
+    // Отслеживаю состояние параметров фильтров.
+    this.$watch('paramsFilters', () => {
+      if (Number(this.offset) > 0) {
+        this.offset = 0
+      } else {
+        this.fetchHistory()
       }
-    }
-
-    if (this.$routerQuery.hasQuery('creator_id')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('creator_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('status_id')) {
-      this.$routerQuery.getQuery('status_id')
-    }
-
-    if (this.$routerQuery.hasQuery('project_id')) {
-      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('group_ids')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids')))
-    }
-
-    if (this.$routerQuery.hasQuery('tag_ids')) {
-      const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
-      this.filter.tags = tag_ids.map(value => +value)
-    }
-
-    if (this.$routerQuery.hasQuery('contact_created_at')) {
-      const dateRange = this.$routerQuery.getQuery('contact_created_at')
-      this.filter.contact_created_at = dateRange
-        .split(',', 2)
-        .map((e: string) => +e)
-        .sort((a: number, b: number) => a - b) // Сортируем на всякий случай.
-    }
-
-    // Восстановление параметров сортировки после перезагрузки страницы
-    if (this.$routerQuery.hasQuery('sort')) {
-      this.paramsSort.forEach((e: unknown & { sort_by: string, sort_desc: boolean }) => {
-        this.$data.dataTableHistory.options.sortBy.push(e.sort_by)
-        this.$data.dataTableHistory.options.sortDesc.push(e.sort_desc)
-      })
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchDataHistory() // Сначала загружаем данные для диаграммы
-        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
-      })
+    })
   },
 
   methods: {
+    ...mapActions({
+      // Загрузит историю.
+      statisticHistoryFetch: 'statistic_all_call/fetch'
+    }),
 
     /**
-     * Инициализировать слежение за изменением фильтров
+     * Загрузит исторические данные
      */
-    initializeWatchForFilters () {
-      const debounceDelay = 350 // Задержка, избавит от дребезга
-      // Фильтрация по пользователям
-      this.$watch('filter.user', (newVal: unknown & UserInterface) => {
-        this.dataTableHistory.page = 1
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            creator_id: newVal.id
-          }).then(() => {
-            this.fetchDataHistory()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['creator_id'])
-            .then(() => {
-              this.fetchDataHistory()
-            })
+    async fetchHistory () {
+      const sorting: Record<string, number> = {}
+
+      if (this.sortOption) {
+        const { order_by, order_direction } = this.sortOption
+        if (order_by && order_direction) {
+          sorting.order_by = order_by
+          sorting.order_direction = order_direction
         }
-      })
+      }
 
-      // Фильтрация по датам
-      this.$watch('filter.date_period', (newVal: unknown & string) => {
-        this.dataTableHistory.page = 1
-        this.$routerQuery.setQuery({ date_period: newVal }).then(this.fetchDataHistory)
-      })
-
-      // Фильтрация по дате создания контактов
-      this.$watch('filter.contact_created_at', (val: number[]) => {
-        this.dataTableHistory.page = 1
-        this.$routerQuery.setQuery({
-          contact_created_at: val.join(',')
-        }).then(() => {
-          this.fetchDataHistory()
-        })
-      })
-
-      // Фильтрация по проектам
-      this.$watch('filter.project', (newVal: unknown & ProjectInterface) => {
-        this.dataTableHistory.page = 1
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            project_id: newVal.id
-          }).then(this.fetchDataHistory)
-        } else {
-          this.$routerQuery.removeQuery([
-            'project_id'
-          ]).then(this.fetchDataHistory)
-        }
-      })
-
-      // Фильтрация по группам
-      this.$watch('filter.groups', (newVal: unknown & GroupInterface[]) => {
-        this.dataTableHistory.page = 1
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            group_ids: newVal.map((e: GroupInterface) => e.id).join(',')
-          }).then(this.fetchDataHistory)
-        } else {
-          this.$routerQuery.removeQuery([
-            'group_ids'
-          ]).then(this.fetchDataHistory)
-        }
-      })
-
-      // АТОМАРНОЕ ОБНОВЛЕНИЕ СОРТИРОВКИ
-
-      /**
-       * Функция, реагирующая на изменение свойств sortDesc, sortDesc объекта dataTableContacts
-       */
-      const dataTableSortUpdate = debounce(() => {
-        const sort = []
-        for (let i = 0; i < Math.min(this.dataTableHistory.sortBy.length, this.dataTableHistory.sortDesc.length); i++) {
-          const sortDesc: string = this.dataTableHistory.sortDesc[i]
-          const sortBy: boolean = this.dataTableHistory.sortBy[i]
-
-          sort.push({ sort_by: sortBy, sort_desc: sortDesc })
-        }
-
-        if (sort.length > 0) {
-          // Преобразовываю в JSON и сохраняю в строку браузера
-          this.$routerQuery.setQuery({
-            sort: JSON.stringify(sort)
-          }).then(() => {
-            this.fetchContacts()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['sort'])
-            .then(() => {
-              this.fetchContacts()
-            })
-        }
-      }, debounceDelay)
-
-      // Поля, по которым буду осуществлять сортировку
-      this.$watch('dataTableContacts.sortBy', dataTableSortUpdate)
-      // Направление сортировки
-      this.$watch('dataTableContacts.sortDesc', dataTableSortUpdate)
-    },
-
-    onPlayClick (item: unknown & { id: number; creator: unknown & { first_name: string; last_name: string }, contact: unknown & { first_name: string; last_name: string } }) {
-      new ContactHistory()
-        .getAudioFile(item.id)
-        .then((response: any) => {
-          this.$root.$emit('on-audio-player-show', {
-            src: response.url,
-            author: `${item.creator.first_name} ${item.creator.last_name} - ${item.contact.last_name} ${item.contact.first_name}`
-          })
-        }).catch((e) => {
-          this.$toast.error(e.statusText || e.error_message || e || 'undefined')
-        })
-    },
-
-    onPaginationChange (data: any) {
-      this.dataTableHistory.pageStart = data.pageStart + 1
-      this.dataTableHistory.pageStop = data.pageStop
+      // TODO: Объединить с параметрами пагинации
+      this.processFetchHistory = true
+      try {
+        await this.statisticHistoryFetch(Object.assign(
+          {},
+          this.paramsFilters, // Параметры основных фильтров
+          { offset: this.offset }, // смещение
+          sorting // параметры сортировки
+        ))
+      } finally {
+        this.processFetchHistory = false
+      }
     },
 
     /**
-     * Происходит когда выбрали дату создания контакта и нажали кнопку сохранить
-     * @param dateStr
+     * Срабатывает когда изменяется параметры сортировки таблицы истории.
      */
-    onSaveContactDateCreatedClick (dateStr: string | null) {
-      if (!dateStr) {
-        this.$routerQuery
-          .removeQuery(['contact_created_at'])
-          .finally(() => {
-            this.fetchDataHistory()
-          })
-        this.$refs.menuContactDateCreated.save(null)
-        return
+    onAppBtnSortingChange () {
+      const params: Record<string, number> = {}
+
+      if (this.sortOption) {
+        const { order_by, order_direction } = this.sortOption
+        if (order_by && order_direction) {
+          params.order_by = order_by
+          params.order_direction = order_direction
+        }
       }
 
-      this.$refs.menuContactDateCreated.save(dateStr)
-      this.$routerQuery
-        .setQuery({ contact_created_at: new Date(dateStr).getTime() / 1000 })
-        .finally(() => {
-          this.fetchDataHistory()
-        })
+      this.fetchHistory(params)
     },
 
-    /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.$routerQuery
-        .setQuery({ date_period: dr })
-        .then(() => {
-          this.fetchDataHistory()
-        })
+    onAppPaginationChange () {
+      this.fetchHistory()
     },
 
-    secondsToHmsDigital (d: number) {
-      return secondsToHmsDigital(d)
+    onBtnRefreshClick () {
+      this.fetchHistory()
     },
 
-    vDataTableItemClass (scope: any) {
-      return 'v-dt-item'
-    },
-    setStatusIds (e) {
-      if (Array.isArray(e) && e.length > 0) {
-        this.$routerQuery.setQuery({ status_ids: e })
-      } else {
-        this.$routerQuery.removeQuery(['status_ids'])
-      }
-
-      this.fetchDataHistory()
+    onBtnAudioRecordPlayClick (item: any) {
+      this.$root.$emit('on-audio-player-show', {
+        src: `${process.env.VUE_APP_API}/contacts/history/${item.id}/audio`,
+        author: `${item.owner.full_name} / ${item.contact.full_name}`
+      })
     }
   }
 })
 </script>
 
 <style lang="scss">
-.v-dt-item {
-  & > td {
-    white-space: nowrap;
-  }
+.margin-right > *:not(:nth-child(0)) {
+  margin-right: 10px;
 }
+
+.simple-table th:first-child {
+  border-right: 3px solid #3b71d5;
+  background: #e8edff!important;
+  color: #669;
+}
+.simple-table td:first-child {
+  border-right: 3px solid #3b71d5;
+  background: #e8edff;
+  color: #669;
+}
+
 </style>

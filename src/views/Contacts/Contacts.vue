@@ -173,35 +173,6 @@
                 />
               </template>
             </app-tools>
-            <v-banner
-              v-if="contactsSelected.length > 0"
-              class="px-0"
-            >
-              <span
-                class="grey--text"
-                style="font-size: 14px"
-              >
-                Выбрано элементов ({{ contactsSelected.length }})
-              </span>
-              <template #actions>
-                <v-btn
-                  text
-                  small
-                  tile
-                  @click="onBtnSelectAllClick"
-                >
-                  {{ $tc('Select all') }}
-                </v-btn>
-                <v-btn
-                  text
-                  small
-                  tile
-                  @click="$store.commit('contacts/selected', [])"
-                >
-                  {{ $tc('Cancel selection') }}
-                </v-btn>
-              </template>
-            </v-banner>
           </template>
           <template #no-text>
             <div
@@ -362,6 +333,54 @@
       </v-col>
       <!-- Фильтры -->
     </v-row>
+
+    <!-- Информационный Снэк-бар -->
+    <v-snackbar
+      v-if="contactsSelected.length > 0"
+      :timeout="-1"
+      :value="true"
+      class="mt-12"
+      color="primary"
+      elevation="10"
+      min-width="600"
+      top
+      centered
+      :style="snackbarStyle"
+    >
+      <div
+        class="d-flex align-center justify-lg-space-between"
+        @mouseenter="snackbarStyle = { opacity: 1 }"
+        @mouseleave="snackbarStyle = { opacity: 0.6 }"
+      >
+        <div>
+          <span
+            style="font-size: 14px"
+          >
+            Выбрано элементов ({{ contactsSelected.length }})
+          </span>
+        </div>
+        <div>
+          <v-btn
+            text
+            small
+            tile
+            @click="onBtnSelectAllClick"
+          >
+            {{ $tc('Select all') }}
+          </v-btn>
+          <v-btn
+            text
+            small
+            tile
+            @click="$store.commit('contacts/selected', [])"
+            @mouseup="snackbarStyle = { opacity: 0.6 }"
+          >
+            {{ $tc('Cancel selection') }}
+          </v-btn>
+        </div>
+      </div>
+    </v-snackbar>
+    <!-- Информационный Снэк-бар -->
   </v-sheet>
 </template>
 
@@ -372,7 +391,6 @@ import ContactsList from './ContactsList.vue'
 import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
-import moment from 'moment-timezone'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import Contact from '@/api/interfaces/Contact'
@@ -415,6 +433,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   data () {
     return {
+      snackbarStyle: { opacity: 0.6 },
       filterTasksItems: () => {
         return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
           return {
@@ -793,8 +812,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
                 .transfer({
                   project_id,
                   contact_ids,
-                  user_ids,
-                  new_date: moment(new_date, 'YYYY-MM-DD').utc().unix()
+                  user_ids
                 }).then(() => {
                   this.$toast.success('The operation is queued for execution.')
                 })

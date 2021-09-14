@@ -111,6 +111,7 @@ export default Vue.extend({
     this.$store.dispatch('statistic_recent_call/pie/resetState')
     this.$store.dispatch('statistic_recent_call/resetState')
     this.$store.dispatch('statistic_recent_call/filter/resetState')
+    this.$store.dispatch('statistic_all_call/filter/resetState')
   },
 
   methods: {

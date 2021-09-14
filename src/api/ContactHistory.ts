@@ -9,14 +9,15 @@ export default class ContactHistory {
    *
    * @param historyId
    */
-  public getAudioFile (historyId: number): Promise<string> {
+  public getAudioFile (historyId: number): Promise<Blob> {
     return new Promise((resolve, reject) => {
       $axios.get(`/contacts/history/${historyId}/audio`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
           }
-          resolve(response.data?.url)
+          const type = response.headers['content-type']
+          resolve(new Blob([response.data], { type }))
         }).catch(reject)
     })
   }

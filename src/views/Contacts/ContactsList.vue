@@ -28,162 +28,129 @@
         </slot>
       </template>
       <template v-else>
-        <v-list flat>
-          <v-list-item-group
-            v-model="contactsSelected"
-            active-class=""
-            multiple
-          >
-            <template v-for="item in contactsItems">
-              <v-list-item
-                :key="'v-list-item-' + item.id"
-                :input-value="item.id"
-                :value="item.id"
-                :ripple="false"
-                :title="item.contact_name"
-                active-class=""
-                dense
-                exact
-                @mouseenter="onListItemMouseEnter(item.id, $event)"
-                @mouseleave="onListItemMouseLeave(item.id)"
+        <v-simple-table
+          class="table-contact-list"
+          dense
+        >
+          <template #default>
+            <thead>
+              <tr>
+                <th class="px-0">
+                  <v-checkbox
+                    v-model="tableSelectedAll"
+                    :indeterminate="tableIndeterminateSelected"
+                    :ripple="false"
+                    dense
+                    hide-details
+                    @change="onTableCheckBoxChange"
+                  />
+                </th>
+                <th class="text-left">
+                  {{ $tc('Name') }}
+                </th>
+                <th
+                  v-if="tableColumnOwnerVisible"
+                  class="text-left"
+                >
+                  {{ $tc('Responsible') }}
+                </th>
+                <th class="text-left">
+                  {{ $tc('Result') }}
+                </th>
+                <th
+                  v-if="tableColumnProjectVisible"
+                  class="text-left"
+                >
+                  {{ $tc('Project') }}
+                </th>
+                <th class="text-left">
+                  {{ $tc('Date/Time') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="item in contactsItems"
+                :key="'tr-' + item.id"
               >
-                <template #default="{ active }">
-                  <v-list-item-action class="my-0 mr-1">
-                    <v-checkbox
-                      :input-value="active"
-                      :ripple="false"
-                      color="primary"
-                      dense
-                      hide-details
-                    />
-                  </v-list-item-action>
+                <td
+                  class="px-0"
+                  style="width: 25px"
+                >
+                  <v-checkbox
+                    v-model="contactsSelected"
+                    class="ma-0"
+                    :value="item.id"
+                    :ripple="false"
+                    multiple
+                    dense
+                    hide-details
+                  />
+                </td>
 
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      <router-link
-                        :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
-                      >
-                        {{ item.contact_name }}
-                      </router-link>
-                    </v-list-item-title>
-                  </v-list-item-content>
+                <!-- Имя контакта -->
+                <td>
+                  <router-link :to="{ name: 'contacts_view', params: { contact_id: item.id } }">
+                    {{ item.full_name }}
+                  </router-link>
+                </td>
+                <!-- Имя контакта -->
 
-                  <v-spacer />
+                <!-- Владелец -->
+                <td
+                  v-if="item.owner && tableColumnOwnerVisible"
+                >
+                  {{ item.owner.full_name }}
+                </td>
+                <!-- Владелец -->
 
-                  <!-- Владелец -->
-                  <v-list-item-content
-                    v-if="item.owner && $isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])"
-                    class="py-0"
-                  >
-                    <v-list-item-title>
-                      {{ item.owner.full_name }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <!-- Владелец -->
+                <!-- Статус/Результат -->
+                <td>
+                  <template v-if="item.last_status">
+                    <v-chip
+                      :color="item.last_status.color"
+                      x-small
+                      label
+                      outlined
+                      @click.stop="$emit('click:item:status', item.last_status.id)"
+                    >
+                      {{ item.last_status.name }}
+                    </v-chip>
+                  </template>
+                  <template v-else>
+                    —
+                  </template>
+                </td>
+                <!-- Статус/Результат -->
 
-                  <!-- Статус/Результат -->
-                  <v-list-item-content
-                    class="py-0 align-content-end"
-                  >
-                    <v-list-item-title v-if="item.last_status">
-                      <v-chip
-                        :color="item.last_status.color"
-                        x-small
-                        label
-                        outlined
-                        @click.stop="$emit('click:item:status', item.last_status.id)"
-                      >
-                        {{ item.last_status.name }}
-                      </v-chip>
-                    </v-list-item-title>
-                    <v-list-item-title v-else>
-                      —
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <!-- Статус/Результат -->
+                <!-- Проект -->
+                <td
+                  v-if="tableColumnProjectVisible"
+                  class="py-0"
+                >
+                  <template v-if="item.project">
+                    {{ item.project.name }}
+                  </template>
+                  <template v-else>
+                    —
+                  </template>
+                </td>
+                <!-- Проект -->
 
-                  <!-- Проект -->
-                  <v-list-item-content
-                    v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])"
-                    class="py-0"
-                  >
-                    <v-list-item-title>
-                      <template v-if="item.project">
-                        {{ item.project.name }}
-                      </template>
-                      <template v-else>
-                        —
-                      </template>
-                    </v-list-item-title>
-                  </v-list-item-content>
-                  <!-- Проект -->
-
-                  <v-list-item-content
-                    class="py-0"
-                  >
-                    <v-list-item-title>
-                      <template v-if="item.last_call_at">
-                        {{ $dayjs(item.last_call_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
-                      </template>
-                      <template v-else>
-                        —
-                      </template>
-                    </v-list-item-title>
-                  </v-list-item-content>
-
-                  <!--                  <v-list-item-action-->
-                  <!--                    class="py-0"-->
-                  <!--                  >-->
-                  <!--                    <v-list-item-action-text>-->
-                  <!--                      {{ $moment.unix(item.created_at).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}-->
-                  <!--                    </v-list-item-action-text>-->
-                  <!--                  </v-list-item-action>-->
-                </template>
-              </v-list-item>
-
-              <v-divider :key="'v-divider-' + item.id" />
-            </template>
-          </v-list-item-group>
-        </v-list>
+                <td>
+                  <template v-if="item.last_call_at">
+                    {{ $dayjs(item.last_call_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                  </template>
+                  <template v-else>
+                    —
+                  </template>
+                </td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
       </template>
     </div>
-
-    <v-menu
-      v-if="dialogContactInfo"
-      v-model="dialogContactInfoShowing"
-      :position-x="dialogContactInfoX"
-      :position-y="dialogContactInfoY"
-      max-width="450"
-      absolute
-    >
-      <v-card
-        tile
-        flat
-      >
-        <v-card-text>
-          <v-list two-line>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Имя</v-list-item-title>
-                <v-list-item-subtitle>{{ dialogContactInfo.contact_name }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item v-if="dialogContactInfo.owner">
-              <v-list-item-content>
-                <v-list-item-title>Ответственный</v-list-item-title>
-                <v-list-item-subtitle>{{ dialogContactInfo.owner.full_name }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Дата создания</v-list-item-title>
-                <v-list-item-subtitle>{{ $dayjs(dialogContactInfo.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-card-text>
-      </v-card>
-    </v-menu>
   </v-sheet>
 </template>
 
@@ -195,7 +162,6 @@ import { mapGetters } from 'vuex'
 import Contact from '@/api/interfaces/Contact'
 
 interface Data {
-  dialogContactInfo?: Contact
   [keys: string]: any;
 }
 
@@ -224,11 +190,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   data (): Data {
     return {
+      tableSelectedAll: false,
       timerId: 0,
       dialogContactInfoX: 0,
       dialogContactInfoY: 0,
-      dialogContactInfoShowing: false,
-      dialogContactInfo: null
+      dialogContactInfoShowing: false
     }
   },
 
@@ -239,6 +205,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       contactsItemsParamsFilterStatusIds: 'contacts/params/filter_status_ids'
     }),
 
+    // Массив идентификаторов контактов.
     contactsSelected: {
       get () {
         return this.$store.getters['contacts/selected']
@@ -246,29 +213,109 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       set (val: number[]) {
         this.$store.commit('contacts/selected', val)
       }
+    },
+
+    /**
+     * Состояние неопределённости выделенных элементов таблицы.
+     * Это когда выбраны не все элементы таблицы.
+     */
+    tableIndeterminateSelected () {
+      if (this.contactsSelected.length === 0) {
+        return false
+      }
+
+      let indeterminate = false
+      this.contactsItems.forEach((e: Contact) => {
+        if (!this.contactsSelected.includes(e.id)) {
+          indeterminate = true
+        }
+      })
+
+      return indeterminate
+    },
+
+    tableColumnProjectVisible () {
+      return this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])
+    },
+
+    tableColumnOwnerVisible () {
+      return this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])
+    }
+  },
+
+  watch: {
+    /**
+     * Выбранные элементы
+     * @param items идентификаторы выбранных элементов.
+     */
+    contactsSelected (items: string[]) {
+      const itemsA: number[] = this.contactsItems.map((e: Contact) => e.id)
+      const itemsB: number[] = items.map((id: string) => +id)
+
+      let found = true
+
+      for (const a of itemsA) {
+        if (itemsB.indexOf(a) === -1) {
+          found = false
+          break
+        }
+      }
+
+      this.tableSelectedAll = found
     }
   },
 
   methods: {
-    onListItemMouseEnter (contact_id: number, event: MouseEvent) {
-      this.timerId = setTimeout(() => {
-        this.dialogContactInfo = this.contactsItems.find((e) => e.id === contact_id)
+    onTableCheckBoxChange (val: boolean) {
+      const selected: number[] = this.contactsSelected.map((e: number) => e)
 
-        this.dialogContactInfoX = event.x
-        this.dialogContactInfoY = event.y
+      if (val) {
+        this.contactsItems.forEach((e: Contact) => {
+          if (!selected.includes(e.id)) {
+            selected.push(e.id)
+          }
+        })
+      } else {
+        this.contactsItems.forEach((e: Contact) => {
+          const index = selected.indexOf(e.id)
+          if (index > -1) {
+            selected.splice(index, 1)
+          }
+        })
+      }
 
-        this.dialogContactInfoShowing = true
-      }, 2000)
-    },
-
-    onListItemMouseLeave (contact_id: number) {
-      clearInterval(this.timerId)
-      this.dialogContactInfoShowing = false
+      this.contactsSelected = selected
     }
   }
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+
+.table-contact-list {
+  thead {
+    th:not(:first-child) {
+      white-space: nowrap;
+      padding: 0 10px 0 10px!important;
+    }
+  }
+  tbody {
+    tr {
+      white-space: nowrap;
+      td:not(:first-child) {
+        padding: 0 10px 0 10px!important;
+      }
+
+      td:nth-child(2) {
+        width: 100%;
+      }
+
+      td:last-child {
+        width: 100px;
+      }
+    }
+
+  }
+}
 
 </style>

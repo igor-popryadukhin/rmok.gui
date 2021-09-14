@@ -7,10 +7,10 @@
         </div>
       </div>
     </template>
-    <template v-else-if="contactNotFound">
+    <template v-else-if="contactError">
       <app-error
-        :title="$tc('Contact not found.')"
-        :sub-title="$tc('If the error persists, contact your service representative.')"
+        :title="$tc(contactErrorCode)"
+        :sub-title="$tc(contactErrorMessages)"
       />
     </template>
     <v-sheet v-else>
@@ -529,6 +529,7 @@
 
 <script lang="ts">
 import { Calls } from '@/api/Calls'
+import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
 import Contact from '@/api/interfaces/Contact'
 import {
@@ -582,7 +583,7 @@ interface Data {
   rtcSession?: RTCSession;
   processLoadingContact: boolean;
   contact: Contact;
-  contactNotFound: boolean;
+  contactError: boolean;
   [key: string]: any;
 }
 
@@ -679,7 +680,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       } as IStatus,
       clientTimeTick: 0,
       btnRateQualityAvailable: true,
-      contactNotFound: false,
+      contactError: false,
+      contactErrorCode: '',
+      contactErrorMessages: '',
       loading: false
     }
   },
@@ -848,8 +851,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           this.processLoadingContact = false
           this.loading = false
         })
-        .catch(() => {
-          this.contactNotFound = true
+        .catch((e: APIError) => {
+          this.contactErrorCode = e.error_code
+          this.contactErrorMessages = e.error_message
+          this.contactError = true
         })
     },
 
@@ -1034,16 +1039,20 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      *
      * @param status
      **/
-    async onSaveAndStayClick (status: IStatus) {
-      await this.save(status)
+    onSaveAndStayClick (status: IStatus) {
+      this.save(status)
     },
 
     /**
      * Сохранить статус
      *
      */
-    async onSaveClick () {
-      await this.save()
+    onSaveClick () {
+      this.save()
+        .then(() => {
+        // Вернуться откуда пришёл
+          this.$store.dispatch('system/route/navigate')
+        })
     },
 
     /**
@@ -1075,27 +1084,27 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     async save () {
       if (!this.validate()) {
-        return
+        return new Promise<void>(resolve => resolve())
       }
       this.$activity.end() // Завершаю измерение активности
       window.onbeforeunload = null // Отменяю запрос подтверждения ухода
       this.saveAndNextLoading = true
 
-      return new Contacts()
-        .editHistory(this.status.contact_history_id, {
-          comment: this.status.comment,
-          status_id: this.status.status_id
-        }).then(() => {
-          // Очистить предыдущий результат выбранного статуса
-          this.status.contact_id = 0
-          this.status.contact_history_id = 0
-          this.status.status_id = 0
-          this.status.visible = false
-          this.status.comment = ''
-
-          // Вернуться откуда пришёл
-          this.$store.dispatch('system/route/navigate')
-        }).finally(() => (this.saveAndNextLoading = false))
+      return new Promise<void>(resolve => {
+        new Contacts()
+          .editHistory(this.status.contact_history_id, {
+            comment: this.status.comment,
+            status_id: this.status.status_id
+          }).then(() => {
+            // Очистить предыдущий результат выбранного статуса
+            this.status.contact_id = 0
+            this.status.contact_history_id = 0
+            this.status.status_id = 0
+            this.status.visible = false
+            this.status.comment = ''
+            resolve()
+          }).finally(() => (this.saveAndNextLoading = false))
+      })
     },
 
     secondsToHmsDigital (s: number) {
