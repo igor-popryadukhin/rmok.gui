@@ -312,6 +312,8 @@
               v-model="filterTagIds"
               :label="$tc('Tags')"
               :disabled="contactsProcessLoading"
+              :no-result-item-title="$tc('No tags')"
+              no-result-item
               multiple
               @change="onFilterChange"
             />

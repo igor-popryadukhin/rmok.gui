@@ -68,6 +68,15 @@ export default Vue.extend({
       type: Boolean,
       default: false
     },
+    // Включает элемент с нулевым значением и помещает его в начало списка.
+    noResultItem: {
+      type: Boolean,
+      default: false
+    },
+    noResultItemTitle: {
+      type: String,
+      default: () => 'No tags'
+    },
     disabled: {
       type: Boolean,
       default: false
@@ -87,9 +96,19 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapGetters({
-      options: 'filter/contact_tags'
-    }),
+    options () {
+      const statuses: unknown[] = this.$store.getters['filter/contact_tags'].map((e: unknown) => e)
+
+      if (this.noResultItem) {
+        statuses.unshift({
+          id: 0,
+          name: this.noResultItemTitle,
+          color: 'grey'
+        })
+      }
+
+      return statuses
+    },
 
     paramsQuery () {
       const paramsQuery: Record<string, unknown | string> = {}
@@ -115,7 +134,7 @@ export default Vue.extend({
   mounted () {
     this.selected = this.value
 
-    if (this.options.length === 0) {
+    if (this.options.length === 0 || (this.options.length === 1 && this.noResultItem)) {
       this.fetchOptions()
     }
   },
