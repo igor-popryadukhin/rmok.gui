@@ -1,3 +1,4 @@
+import { Database } from '@/api/Database'
 import Statuses from '@/api/Statuses'
 import { RootState } from '@/store'
 import { ActionTree } from 'vuex'
@@ -85,6 +86,13 @@ const actions: ActionTree<State, RootState> = {
       .find(payload)
       .then((response) => {
         commit('roles', response.data)
+      })
+  },
+
+  timezone ({ commit }, payload = {}) {
+    return new Database().getTimeZone(payload)
+      .then((response) => {
+        commit('timezone', response)
       })
   }
 }

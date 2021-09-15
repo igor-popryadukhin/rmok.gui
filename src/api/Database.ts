@@ -1,4 +1,5 @@
 import APIError from '@/api/classes/APIError'
+import TimeZone from '@/api/interfaces/TimeZone'
 import Country from '@/api/Schemas/Country'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
@@ -74,6 +75,18 @@ export class Database {
         }
         throw new APIError(response.data)
       }).catch(reject)
+    })
+  }
+
+  public getTimeZone (): Promise<TimeZone[] | any> {
+    return new Promise((resolve, reject): Promise<TimeZone[] | any> | any => {
+      $axios.get('/database/timezones')
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            reject(response.data)
+          }
+          resolve(response.data as TimeZone[])
+        }).catch(reject)
     })
   }
 }
