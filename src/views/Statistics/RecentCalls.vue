@@ -225,40 +225,94 @@
           class="mr-5"
           @change="onAppPaginationChange"
         />
-        <v-btn-toggle color="primary">
-          <v-menu offset-y>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                v-bind="attrs"
-                small
-                v-on="on"
-              >
-                <v-icon>mdi-export</v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item
-                link
-              >
-                <v-list-item-title>{{ $tc('Transfer contacts to another project') }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+        <v-btn-toggle
+          color="primary"
+          tile
+        >
           <v-btn
+            :loading="reportGenerationProcess"
             color="primary"
             outlined
             small
-          >
-            <v-icon>mdi-cog</v-icon>
-          </v-btn>
-          <v-btn
-            color="primary"
-            outlined
-            small
+            @click="onBtnExportClick"
           >
             Выгрузить в Excel
           </v-btn>
         </v-btn-toggle>
+
+        <!-- Отчёты -->
+        <v-menu
+          close-on-click
+          offset-y
+        >
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              :disabled="reports.length === 0"
+              class="ml-2"
+              small
+              tile
+              text
+              outlined
+              v-on="on"
+            >
+              Выгрузки
+              <v-badge
+                v-if="number_new_reports > 0"
+                color="red"
+                offset-y="-9"
+                dot
+              />
+            </v-btn>
+          </template>
+          <v-list>
+            <template v-for="item in reports">
+              <v-list-item
+                :key="item.id"
+                link
+                dense
+              >
+                <v-list-item-content>
+                  <v-list-item-title
+                    v-if="item.is_new"
+                  >
+                    {{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH:mm:s') }}
+                  </v-list-item-title>
+                  <v-list-item-title
+                    v-else
+                    style="color: lightgrey"
+                  >
+                    {{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH:mm:s') }}
+                  </v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <div class="d-flex d-inline-flex">
+                    <v-btn
+                      class="mr-3"
+                      x-small
+                      icon
+                      @click="onReportListItemDownloadClick(item.id)"
+                    >
+                      <v-icon>
+                        mdi-download
+                      </v-icon>
+                    </v-btn>
+                    <v-btn
+                      x-small
+                      icon
+                      @click="onReportListItemDeleteClick(item.id)"
+                    >
+                      <v-icon>
+                        mdi-close
+                      </v-icon>
+                    </v-btn>
+                  </div>
+                </v-list-item-action>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-menu>
+        <!-- Отчёты -->
       </v-col>
     </v-row>
     <!-- Actions -->
@@ -398,9 +452,8 @@
 
 <script lang="ts">
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
-import Vue, { VueConstructor } from 'vue'
+import Vue from 'vue'
 import VueApexCharts from 'vue-apexcharts'
-import VInterface from '@/VInterface'
 import { mapActions, mapGetters } from 'vuex'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import { debounce } from 'vuetify/src/util/helpers'
@@ -409,8 +462,9 @@ import AppContactTagAutocomplete from '@/components/AppContactTagAutocomplete/Ap
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import ContactHistory from '@/api/ContactHistory'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
+import Reports from '@/api/Reports'
+import { Report } from '@/api/interfaces/Report'
 
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)
@@ -450,9 +504,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   data () {
     return {
+      reportGenerationProcess: false,
       customPeriodMenu: false,
       processFetchPie: false,
-      processFetchHistory: false
+      processFetchHistory: false,
+      reports: [] as Report[],
+      number_new_reports: 0
     }
   },
 
@@ -811,6 +868,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.fetchHistory()
       }
     })
+
+    this.fetchReports()
+
+    this.$root.$on('sse-report-created', this.onSSEReportCreated)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('sse-report-created', this.onSSEReportCreated)
   },
 
   methods: {
@@ -822,6 +887,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       // Загрузит историю.
       statisticHistoryFetch: 'statistic_recent_call/fetch'
     }),
+
+    /**
+     * Загружает ранее сформированные отчёты.
+     * Последние 10 новых отчётов.
+     */
+    fetchReports () {
+      new Reports()
+        .get('recent_calls', { count: 10 })
+        .then((response) => {
+          this.number_new_reports = response.meta?.number_new_reports
+          this.reports = response.data
+        })
+    },
 
     /**
      * Загрузит общее количество звонков
@@ -897,6 +975,40 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         src: `${process.env.VUE_APP_API}/contacts/history/${item.id}/audio`,
         author: `${item.owner.full_name} / ${item.contact.full_name}`
       })
+    },
+
+    onBtnExportClick () {
+      this.reportGenerationProcess = true
+      new Reports()
+        .make('recent_calls', Object.assign({ format: 'xlsx' }, this.paramsFilters))
+        .then(() => {
+          this.$toast.success('The document is being prepared...')
+        }).finally(() => {
+          this.reportGenerationProcess = false
+        })
+    },
+
+    /**
+     * @param id
+     */
+    onReportListItemDownloadClick (id: number) {
+      new Reports().download(id)
+    },
+
+    /**
+     * @param id
+     */
+    onReportListItemDeleteClick (id: number) {
+      new Reports()
+        .delete(id)
+        .then(() => {
+          this.fetchReports()
+          this.$toast.success('Document deleted.')
+        })
+    },
+
+    onSSEReportCreated () {
+      this.fetchReports()
     }
   }
 })
