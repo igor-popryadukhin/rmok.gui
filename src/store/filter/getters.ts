@@ -8,7 +8,8 @@ const getters: GetterTree<State, RootState> = {
   projects (state: State) { return state.projects },
   users (state: State) { return state.users },
   users_groups (state: State) { return state.users_groups },
-  roles (state: State) { return state.roles }
+  roles (state: State) { return state.roles },
+  timezone (state: State) { return state.timezone }
 }
 
 export default getters

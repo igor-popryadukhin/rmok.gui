@@ -321,6 +321,15 @@
           <!-- Фильтр по тегам -->
 
           <div>
+            <app-time-zone-autocomplete
+              v-model="filterTimeZone"
+              :label="$tc('Временная зона')"
+              :disabled="contactsProcessLoading"
+              @change="onFilterChange"
+            />
+          </div>
+
+          <div>
             <app-menu-date-picker
               v-model="filterContactCreatedAt"
               :first-day-of-week="1"
@@ -389,6 +398,7 @@
 
 <script lang="ts">
 
+import AppTimeZoneAutocomplete from '@/components/AppTimeZoneAutocomplete/AppTimeZoneAutocomplete.vue'
 import Vue from 'vue'
 import ContactsList from './ContactsList.vue'
 import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
@@ -421,6 +431,7 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
+    AppTimeZoneAutocomplete,
     AppMenuTags: () => import(/* webpackChunkName: "contacts-menu-tags" */ '@/components/AppMenuTags/AppMenuTags.vue'),
     AppPagination,
     AppBtnSorting,
@@ -568,6 +579,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
     },
 
+    filterTimeZone: {
+      get () {
+        return this.$store.getters['contacts/params/filter_timezone']
+      },
+
+      set (value?: string) {
+        return this.$store.commit('contacts/params/filter_timezone', value)
+      }
+    },
+
     offset: {
       get () {
         return this.$store.getters['contacts/params/filter_offset']
@@ -620,6 +641,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
       if (this.filterTagIds.length > 0) {
         params.tag_ids = this.filterTagIds.join(',')
+      }
+
+      if (this.filterTimeZone) {
+        params.timezone = this.filterTimeZone
       }
 
       // Сортировка
@@ -950,7 +975,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       })
     }
   }
-
 })
 
 </script>

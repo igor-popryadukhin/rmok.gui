@@ -1,5 +1,6 @@
 import Status from '@/api/interfaces/Status'
 import Project from '@/api/interfaces/Project'
+import TimeZone from '@/api/interfaces/TimeZone'
 import User from '@/api/interfaces/User'
 import UserGroup from '@/api/interfaces/UserGroup'
 import ContactTag from '@/api/interfaces/ContactTag'
@@ -12,6 +13,7 @@ export interface State {
   users: User[];
   users_groups: UserGroup[];
   roles: Role[];
+  timezone: TimeZone[];
 }
 
 function state (): State {
@@ -21,7 +23,8 @@ function state (): State {
     projects: [],
     users: [],
     users_groups: [],
-    roles: []
+    roles: [],
+    timezone: []
   }
 }
 

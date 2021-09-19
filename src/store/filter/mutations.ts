@@ -7,7 +7,8 @@ const mutations: MutationTree<State> = {
   projects (state, payload) { state.projects = payload },
   users (state, payload) { state.users = payload },
   users_groups (state, payload) { state.users_groups = payload },
-  roles (state, payload) { state.roles = payload }
+  roles (state, payload) { state.roles = payload },
+  timezone (state, payload) { state.timezone = payload }
 }
 
 export default mutations

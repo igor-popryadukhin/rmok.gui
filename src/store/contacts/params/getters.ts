@@ -13,6 +13,7 @@ const getters: GetterTree<State, RootState> = {
   filter_calling (state: State) { return state.filter_calling },
   filter_offset (state: State) { return state.filter_offset },
   filter_task (state) { return state.filter_task },
+  filter_timezone (state: State) { return state.filter_timezone },
   order_by (state: State) { return state.order_by },
   order_direction (state: State) { return state.order_direction }
 }
