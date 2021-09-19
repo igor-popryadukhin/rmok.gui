@@ -24,29 +24,15 @@ build_review:
     - cat $VUE_ENV_REVIEW >> ./.env
     - npm install --progress=false
     - npm run build
-  only:
-    - develop
-  artifacts:
-    expire_in: 30 days
-    paths:
-      - dist
-  tags:
-    - vue
-
-# todo: Test stage
-
-deploy_review:
-  stage: deploy-review
-  script:
     - rsync -rq --delete ./dist/* ~/rmok.ui
+  only:
+    - develop
   artifacts:
     expire_in: 30 days
     paths:
       - dist
   tags:
     - vue
-  only:
-    - develop
 
 
 # Production
@@ -57,29 +43,12 @@ build_production:
     - cat $VUE_ENV_PRODUCTION > ./.env
     - npm install --progress=false
     - npm run build
-  artifacts:
-    expire_in: 30 days
-    paths:
-      - dist
-  when: manual
-  tags:
-    - production
-  only:
-    - develop
-
-# todo: Test stage
-
-deploy_production:
-  stage: deploy-production
-  script:
     - rsync -rq --delete ./dist/* /var/www/ui.rmok
   artifacts:
     expire_in: 30 days
     paths:
       - dist
-  needs:
-    - job: build_production
-      artifacts: true
+  when: manual
   tags:
     - production
   only:
