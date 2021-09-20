@@ -390,7 +390,7 @@
                   </td>
                   <td>
                     <router-link :to="{ name: 'contacts_view', params: { contact_id: item.contact.id } }">
-                      {{ item.contact.first_name }} {{ item.contact.last_name }} {{ item.contact.middle_name }}
+                      {{ item.contact.full_name }}
                     </router-link>
                   </td>
                   <td>
@@ -978,9 +978,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     onBtnExportClick () {
+      const sorting: Record<string, number> = {}
+
+      if (this.sortOption) {
+        const { order_by, order_direction } = this.sortOption
+        if (order_by && order_direction) {
+          sorting.order_by = order_by
+          sorting.order_direction = order_direction
+        }
+      }
+
       this.reportGenerationProcess = true
       new Reports()
-        .make('recent_calls', Object.assign({ format: 'xlsx' }, this.paramsFilters))
+        .make('recent_calls', Object.assign({ format: 'xlsx' }, sorting, this.paramsFilters))
         .then(() => {
           this.$toast.success('The document is being prepared...')
         }).finally(() => {

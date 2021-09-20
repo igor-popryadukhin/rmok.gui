@@ -901,9 +901,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     onBtnExportClick () {
+      const sorting: Record<string, number> = {}
+
+      if (this.sortOption) {
+        const { order_by, order_direction } = this.sortOption
+        if (order_by && order_direction) {
+          sorting.order_by = order_by
+          sorting.order_direction = order_direction
+        }
+      }
+
       this.reportGenerationProcess = true
       new Reports()
-        .make('all_calls', Object.assign({ format: 'xlsx' }, this.paramsFilters))
+        .make('all_calls', Object.assign({ format: 'xlsx' }, sorting, this.paramsFilters))
         .then(() => {
           this.$toast.success('The document is being prepared...')
         }).finally(() => {
