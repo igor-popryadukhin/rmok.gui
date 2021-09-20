@@ -331,9 +331,7 @@
         </template>
         <template v-else>
           <v-simple-table
-            :height="600"
             class="simple-table"
-            fixed-header
             dense
           >
             <template #default>
