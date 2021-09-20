@@ -24,11 +24,12 @@ build_review:
     - cat $VUE_ENV_REVIEW >> ./.env
     - npm install --progress=false
     - npm run build
-    - rsync -rq --delete ./dist/* ~/rmok.ui
+    - cd ./dist
+    - rsync -rq --delete . ~/rmok.ui
   only:
     - develop
   artifacts:
-    expire_in: 30 days
+    expire_in: 90 days
     paths:
       - dist
   tags:
@@ -43,9 +44,10 @@ build_production:
     - cat $VUE_ENV_PRODUCTION > ./.env
     - npm install --progress=false
     - npm run build
-    - rsync -rq --delete ./dist/* /var/www/ui.rmok
+    - cd ./dist
+    - rsync -rq --delete . /var/www/ui.rmok
   artifacts:
-    expire_in: 30 days
+    expire_in: 90 days
     paths:
       - dist
   when: manual
