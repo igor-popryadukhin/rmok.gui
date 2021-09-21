@@ -33,10 +33,13 @@
       #selection="{ item }"
     >
       <v-chip
+        class="extra-small-chip"
         :color="item.color"
         outlined
         label
+        close
         x-small
+        @click:close="removeChip(item.id)"
       >
         {{ item.name }}
       </v-chip>
@@ -192,11 +195,24 @@ export default Vue.extend({
     fetchOptions () {
       // Параметры передаваемые в свойстве имеют приоритет
       this.$store.dispatch('filter/statuses', Object.assign({}, this.paramsQuery, this.params))
+    },
+
+    /**
+     * Удаляем элемент из мультиселекта
+     * @param id
+     */
+    removeChip (id: number) {
+      if (Array.isArray(this.selected)) {
+        const index = this.selected.findIndex((e: number) => e === id)
+        if (index >= 0) this.selected.splice(index, 1)
+      }
     }
   }
 })
 </script>
 
 <style scoped>
-
+.extra-small-chip >>> span > button {
+  font-size: 13px !important;
+}
 </style>
