@@ -90,7 +90,8 @@ const actions: ActionTree<State, RootState> = {
   },
 
   timezone ({ commit }, payload = {}) {
-    return new Database().getTimeZone(payload)
+    return new Database()
+      .getTimeZone()
       .then((response) => {
         commit('timezone', response)
       })
