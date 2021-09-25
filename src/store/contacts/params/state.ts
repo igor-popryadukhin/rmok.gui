@@ -27,7 +27,7 @@ export function defaultState () {
     filter_offset: 0,
     filter_task: '',
     filter_timezone: '',
-    order_by: 'by_name',
+    order_by: '',
     order_direction: 'asc'
   }
 }

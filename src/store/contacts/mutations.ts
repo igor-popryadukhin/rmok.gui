@@ -6,6 +6,7 @@ const mutations: MutationTree<ContactsState> = {
   total (state: ContactsState, payload) { state.total = payload },
   items (state: ContactsState, payload) { state.items = payload },
   selected (state: ContactsState, payload) { state.selected = payload },
+  selected_all (state: ContactsState, payload) { state.selected_all = payload },
 
   /** Сброс состояния */
   resetState (state: ContactsState) {

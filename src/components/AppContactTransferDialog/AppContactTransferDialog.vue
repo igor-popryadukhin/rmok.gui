@@ -8,7 +8,7 @@
       {{ $tc('Transferring contacts') }}
     </v-card-title>
     <v-card-subtitle>
-      {{ $tc('contact_selected', contactsSelected.length) }}
+      {{ $tc('contact_selected', contactsSelectedCount) }}
     </v-card-subtitle>
     <v-form
       ref="form"
@@ -57,7 +57,6 @@
 import Vue from 'vue'
 import AppUserAutocomplete from '@/components/AppUserAutocomplete/AppUserAutocomplete.vue'
 import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
-import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import { mapGetters } from 'vuex'
 
 export default Vue.extend({
@@ -72,7 +71,8 @@ export default Vue.extend({
   },
   computed: {
     ...mapGetters({
-      contactsSelected: 'contacts/selected'
+      contactsSelected: 'contacts/selected',
+      contactsSelectedCount: 'contacts/selected_count'
     })
   },
 
@@ -81,8 +81,6 @@ export default Vue.extend({
       if (!this.$refs.form.validate(true)) { return }
 
       this.$emit('confirm', {
-        new_date: this.newDate,
-        contact_ids: this.contactsSelected,
         user_ids: this.userIds,
         project_id: this.projectId
       })

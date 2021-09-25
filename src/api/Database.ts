@@ -36,13 +36,13 @@ export class Database {
    * Возвращает список стран.
    */
   public getCountries (): Promise<Country[]> {
-    return new Promise<Promise<Country[]>>((resolve, reject): Promise<Country[]> => {
+    return new Promise((resolve, reject) => {
       $axios.get('/database/countries')
         .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve(response.data)
         }).catch(reject)
     })
   }

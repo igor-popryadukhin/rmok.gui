@@ -85,13 +85,14 @@
                     multiple
                     dense
                     hide-details
+                    @change="onTableItemCheckBoxChange"
                   />
                 </td>
 
                 <!-- Имя контакта -->
                 <td>
                   <router-link :to="{ name: 'contacts_view', params: { contact_id: item.id } }">
-                    {{ item.full_name }}
+                    {{ item.name }}
                   </router-link>
                 </td>
                 <!-- Имя контакта -->
@@ -200,6 +201,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   computed: {
     ...mapGetters({
+      contactsTotal: 'contacts/total',
+      contactsSelectedAll: 'contacts/selected_all',
       contactsProcessLoading: 'contacts/process_loading',
       contactsItems: 'contacts/items',
       contactsItemsParamsFilterStatusIds: 'contacts/params/filter_status_ids'
@@ -266,6 +269,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   methods: {
+    onTableItemCheckBoxChange (ids: number[]) {
+      if (this.contactsSelectedAll) {
+        this.$store.commit('contacts/selected_all', false)
+        this.$store.commit('contacts/selected', ids)
+      }
+    },
+
     onTableCheckBoxChange (val: boolean) {
       const selected: number[] = this.contactsSelected.map((e: number) => e)
 

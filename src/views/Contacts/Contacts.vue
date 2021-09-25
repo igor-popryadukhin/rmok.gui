@@ -82,7 +82,7 @@
                       </v-list-item>
                       <v-list-item
                         link
-                        @click="onExportClick('excel')"
+                        @click="onExportClick('xlsx')"
                       >
                         <v-list-item-content>
                           <v-list-item-title>{{ $tc('Export to Excel') }}</v-list-item-title>
@@ -365,11 +365,11 @@
         @mouseleave="snackbarStyle = { opacity: 0.6 }"
       >
         <div>
-          <span
+          <div
             style="font-size: 14px"
           >
-            Выбрано элементов ({{ contactsSelected.length }})
-          </span>
+            Выбрано элементов (<app-count-up :end-val="contactsSelectedCount" />)
+          </div>
         </div>
         <div>
           <v-btn
@@ -384,7 +384,7 @@
             text
             small
             tile
-            @click="$store.commit('contacts/selected', [])"
+            @click="onBtnCancelSelectionClick"
             @mouseup="snackbarStyle = { opacity: 0.6 }"
           >
             {{ $tc('Cancel selection') }}
@@ -393,6 +393,38 @@
       </div>
     </v-snackbar>
     <!-- Информационный Снэк-бар -->
+
+    <!-- <editor-fold desc="Диалог процесса выполнения"> -->
+    <v-dialog
+      v-model="progressDialog.visible"
+      overlay-opacity="0.3"
+      persistent
+      width="300"
+    >
+      <v-card
+        color="primary"
+        dark
+      >
+        <v-card-text>
+          <div style="height: 20px">
+            {{ progressDialog.message }}
+          </div>
+          <v-progress-linear
+            v-model="progressDialog.progress"
+            :indeterminate="progressDialog.progress === 0"
+            height="16"
+            color="white"
+            class="mb-0"
+          >
+            <strong
+              v-if="progressDialog.progress > 0"
+              class="black--text"
+            >{{ Math.ceil(progressDialog.progress) }}%</strong>
+          </v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <!-- </editor-fold> -->
   </v-sheet>
 </template>
 
@@ -411,6 +443,11 @@ import { ContactExportParamsInterface, Contacts } from '@/api/Contacts'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
 import { mapGetters } from 'vuex'
+import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import SSEMessage from '@/interfaces/SSEMessage'
+import { $axios } from '@/plugins/axios'
+import { AxiosResponse } from 'axios'
+import APIError from '@/api/classes/APIError'
 
 interface Data {
   [keys: string]: any;
@@ -431,6 +468,7 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
+    AppCountUp,
     AppTimeZoneAutocomplete,
     AppMenuTags: () => import(/* webpackChunkName: "contacts-menu-tags" */ '@/components/AppMenuTags/AppMenuTags.vue'),
     AppPagination,
@@ -460,6 +498,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         { text: 'Yes', value: 'yes' },
         { text: 'No', value: 'no' }
       ],
+      progressDialog: {
+        visible: false,
+        message: '',
+        progress: 0
+      },
       importExportProgress: {
         value: 0,
         visible: false
@@ -474,6 +517,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       contactsTotal: 'contacts/total',
       contactsItems: 'contacts/items',
       contactsSelected: 'contacts/selected',
+      contactsSelectedCount: 'contacts/selected_count',
+      contactsSelectedAll: 'contacts/selected_all',
       contactsParamsOrderBy: 'contacts/params/order_by',
       contactsParamsOrderDirection: 'contacts/params/order_direction',
       contactsProcessLoading: 'contacts/process_loading'
@@ -699,25 +744,25 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       return [
         {
           name: 'По имени',
-          order_by: 'by_name',
+          order_by: 'contact_name',
           order_direction: 'asc',
           visible: true
         },
         {
           name: 'По проекту',
-          order_by: 'by_project',
+          order_by: 'project',
           order_direction: 'asc',
           visible: true
         },
         {
           name: 'По дате создания',
-          order_by: 'by_created_at',
+          order_by: 'created_at',
           order_direction: 'asc',
           visible: true
         },
         {
           name: 'По дате последнего звонка',
-          order_by: 'by_last_call_at',
+          order_by: 'last_call_at',
           order_direction: 'asc',
           visible: true
         }
@@ -747,11 +792,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       this.fetchContacts(this.paramsForQuery)
     }
 
-    this.$root.$on('sse-contacts-transferred', this.onSSEContactsTransferred)
+    this.$root.$on('sse-contacts-export-process', this.onSSEContactsExportProcess)
+    this.$root.$on('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
   },
 
   beforeDestroy () {
-    this.$root.$off('sse-contacts-transferred', this.onSSEContactsTransferred)
+    this.$root.$off('sse-contacts-export-process', this.onSSEContactsExportProcess)
+    this.$root.$off('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
   },
 
   methods: {
@@ -826,30 +873,48 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           // Сработает когда нажали кнопку отменить передачу контактов.
           instance.vmd.$on('cancel', () => (instance.close()))
 
+          interface Cs {
+            project_id: number;
+            user_ids: number[];
+          }
+
           // Сработает когда нажали кнопку подтверждения передачи.
           instance.vmd.$on('confirm',
-            ({
-              project_id,
-              contact_ids,
-              user_ids,
-              new_date
-            }) => {
+            (data: Cs) => {
               instance.close()
-              this.$store.commit('contacts/selected', [])
+
+              const params: Record<string, any> = Object.assign({}, this.paramsForQuery)
+
+              if ('count' in params) {
+                delete params.count
+              }
+
+              if ('offset' in params) {
+                delete params.offset
+              }
+
+              if ('order_direction' in params) {
+                delete params.order_direction
+              }
+
+              if ('order_by' in params) {
+                delete params.order_by
+              }
+
               new Contacts()
                 .transfer({
-                  project_id,
-                  contact_ids,
-                  user_ids
-                }).then(() => {
-                  this.$toast.success('The operation is queued for execution.')
+                  project_id: data.project_id, // Проект в который передаём.
+                  user_ids: data.user_ids, // Идентификаторы пользователей, кому передаём.
+                  params // параметры для извлечения списка контактов
+                }).finally(() => {
+                  this.$store.dispatch('contacts/unselect')
                 })
             })
         })
     },
 
     onBtSortingChange () {
-      this.fetchContacts(this.paramsForQuery)
+      // this.fetchContacts(this.paramsForQuery)
     },
 
     /**
@@ -863,16 +928,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * Событие происходит когда нажали на кнопку "выбрать всё".
      */
     onBtnSelectAllClick () {
-      // Копирую ранее выбранные идентификаторы
-      const contactIds: number[] = this.contactsSelected.map((id: number) => id)
-      this.contactsItems.forEach((e: Contact) => {
-        // Добавляю в список если не существует
-        if (!contactIds.includes(e.id)) {
-          contactIds.push(e.id)
-        }
-      })
-      // Фиксирую состояние
-      this.$store.commit('contacts/selected', contactIds)
+      this.$store.dispatch('contacts/selected_all')
+    },
+
+    onBtnCancelSelectionClick () {
+      this.$store.dispatch('contacts/unselect')
     },
 
     onContactListItemStatusClick (status_id: number) {
@@ -899,45 +959,36 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     /**
-     * Обработчик события "sse-contacts-transferred" корневой шины.
-     * Обработчик сработает при двух условиях.
-     *
-     * 1 - Пользователь находится на текущей странице.
-     * 2 - Пользователь получил SSE сообщение.
-     */
-    onSSEContactsTransferred () {
-      // Обновит список контактов с текущей конфигурацией фильтров.
-      this.fetchContacts(this.paramsForQuery)
-    },
-
-    /**
      * При клике на кнопку "Экспортировать"
      **/
-    onExportClick (format: 'excel' | 'csv') {
-      switch (format) {
-        case 'csv': {
-          break
-        }
-        case 'excel': {
-          break
-        }
-        default: {
+    onExportClick (format: 'xlsx' | 'csv') {
+      const params: Record<string, any> = Object.assign({ format }, this.paramsForQuery)
 
-        }
+      if ('count' in params) {
+        delete params.count
       }
 
-      const params: ContactExportParamsInterface = {
-        filters: this.paramsForQuery,
-        format,
-        target_contacts: this.contactsSelected < 0 ? [] : this.contactsSelected.map((e: number) => e)
+      if ('offset' in params) {
+        delete params.offset
       }
 
-      new Contacts()
-        .export(params)
-        .then(() => {
-          this.$toast.success('Идет формирование файла, ожидайте ...')
-        })
-        .finally()
+      this.progressDialog.progress = 0
+      this.progressDialog.message = this.$tc('Please stand by...')
+      this.progressDialog.visible = true
+
+      if (this.contactsSelectedAll) {
+        new Contacts()
+          .export(params)
+          .then(() => {
+            this.$toast.success('Идет формирование файла, ожидайте ...')
+          })
+      } else {
+        new Contacts()
+          .export(params)
+          .then(() => {
+            this.$toast.success('Идет формирование файла, ожидайте ...')
+          })
+      }
     },
 
     /**
@@ -973,6 +1024,75 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             })
         }
       })
+    },
+
+    /**
+     * Событие процесса экспорта контактов.
+     * @param message
+     */
+    onSSEContactsExportProcess (message: SSEMessage) {
+      if (message.payload.status === 'progress') {
+        // Процесс формирования файла.
+        this.progressDialog.progress = +message.payload.percent
+        this.progressDialog.message = this.$tc('Please stand by...')
+        this.progressDialog.visible = true
+      } else if (message.payload.status === 'writing') {
+        // Процесс подготовки файла
+        this.progressDialog.progress = 0
+        this.progressDialog.message = this.$tc('File preparation...')
+        this.progressDialog.visible = true
+      } else if (message.payload.status === 'success') {
+        this.progressDialog.message = this.$tc('Downloading file...')
+
+        // Скачивание файла
+        this.$axios.get(message.payload.url, {
+          responseType: 'blob',
+          onDownloadProgress: (progressEvent: any) => {
+            this.progressDialog.progress = Math.floor((progressEvent.loaded * 100) / progressEvent.total)
+          }
+        })
+          .then((response: AxiosResponse) => {
+            const type = response.headers['content-type']
+
+            const a = document.createElement('a')
+            a.setAttribute('style', 'display: none')
+
+            const fileName = message.payload.url.split('/').pop()
+            a.setAttribute('download', fileName)
+            document.body.appendChild(a)
+            const url = window.URL.createObjectURL(new Blob([response.data], { type }))
+            a.href = url
+            a.click()
+            setTimeout(() => {
+              a.remove()
+            }, 1000)
+
+            window.URL.revokeObjectURL(url)
+          }).finally(() => {
+            this.progressDialog.visible = false
+            this.progressDialog.message = ''
+          })
+      } else if (message.payload.status === 'failure') {
+        this.$toast.error('An error occurred during the export operation.')
+      }
+    },
+
+    /**
+     * Событие процесса передачи контактов.
+     * @param message
+     */
+    onSSEContactsTransferProcess (message: SSEMessage) {
+      if (message.payload.status === 'progress') {
+        this.progressDialog.progress = +message.payload.percent
+        this.progressDialog.message = this.$tc('Please stand by...')
+        this.progressDialog.visible = true
+      } else if (message.payload.status === 'success') {
+        this.progressDialog.visible = false
+        this.progressDialog.message = ''
+        this.progressDialog.progress = 0
+
+        this.fetchContacts(this.paramsForQuery)
+      }
     }
   }
 })

@@ -203,13 +203,7 @@ export class Contacts {
    *
    * @param params
    */
-  public transfer (params: {
-    /* Идентификатор проекта */
-    target_project_id: number,
-    target_contact_ids: number[],
-    target_user_ids: number[],
-    new_date?: number}
-  ): Promise<void> {
+  public transfer (params = {}): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/transfer', params)
         .then((response: AxiosResponse) => {
@@ -405,18 +399,18 @@ export class Contacts {
   }
 
   /**
-   * Экспорт
+   * Экспорт контактов
    *
    * @param params
    */
-  public export (params: ContactExportParamsInterface): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+  public export (params: Record<string, any>): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/export', params)
         .then((response: AxiosResponse) => {
-          if ([200, 202].includes(response.status)) {
-            resolve(response.data)
+          if (response.status !== 202) {
+            throw new APIError(response?.data)
           }
-          throw new APIError(response?.data)
+          resolve(response.data)
         }).catch(reject)
     })
   }

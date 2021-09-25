@@ -28,7 +28,8 @@ export default Vue.extend({
           separator: ' ',
           decimal: '.',
           prefix: '',
-          suffix: ''
+          suffix: '',
+          duration: 1
         }
       }
     }
@@ -48,6 +49,14 @@ export default Vue.extend({
       },
       deep: false
     }
+  },
+
+  mounted () {
+    this.create()
+  },
+
+  beforeDestroy () {
+    this.destroy()
   },
 
   methods: {
@@ -100,14 +109,6 @@ export default Vue.extend({
         return this.instance.update(newEndVal)
       }
     }
-  },
-
-  mounted () {
-    this.create()
-  },
-
-  beforeDestroy () {
-    this.destroy()
   }
 })
 </script>

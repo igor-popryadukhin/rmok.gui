@@ -67,7 +67,7 @@ export default class Reports {
    *
    * @param id
    */
-  public download (id: number): Promise<Blob> {
+  public download (id: number): Promise<void> {
     return new Promise((resolve, reject) => {
       $axios.get(`/reports/${id}/download`, { responseType: 'blob' })
         .then((response: AxiosResponse) => {
@@ -88,6 +88,7 @@ export default class Reports {
           }, 1000)
 
           window.URL.revokeObjectURL(url)
+          resolve()
         }).catch(reject)
     })
   }

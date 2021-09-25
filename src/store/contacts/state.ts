@@ -6,6 +6,7 @@ export interface ContactsState {
   total: number;
   items: Contact[];
   selected: number[];
+  selected_all: boolean;
 }
 
 export function defaultState (): ContactsState {
@@ -14,7 +15,8 @@ export function defaultState (): ContactsState {
     per_page: 50,
     total: 0,
     items: [],
-    selected: []
+    selected: [],
+    selected_all: false
   }
 }
 
