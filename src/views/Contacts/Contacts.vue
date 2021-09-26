@@ -398,12 +398,12 @@
     <v-dialog
       v-model="progressDialog.visible"
       overlay-opacity="0.3"
-      persistent
       width="300"
     >
       <v-card
         color="primary"
         dark
+        tile
       >
         <v-card-text>
           <div style="height: 20px">
@@ -438,8 +438,7 @@ import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import Contact from '@/api/interfaces/Contact'
-import { ContactExportParamsInterface, Contacts } from '@/api/Contacts'
+import { Contacts } from '@/api/Contacts'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
 import { mapGetters } from 'vuex'
@@ -447,7 +446,6 @@ import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import SSEMessage from '@/interfaces/SSEMessage'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
-import APIError from '@/api/classes/APIError'
 
 interface Data {
   [keys: string]: any;
@@ -792,11 +790,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       this.fetchContacts(this.paramsForQuery)
     }
 
+    this.$root.$on('sse-contacts-import-process', this.onSSEContactsImportProcess)
     this.$root.$on('sse-contacts-export-process', this.onSSEContactsExportProcess)
     this.$root.$on('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
   },
 
   beforeDestroy () {
+    this.$root.$off('sse-contacts-import-process', this.onSSEContactsImportProcess)
     this.$root.$off('sse-contacts-export-process', this.onSSEContactsExportProcess)
     this.$root.$off('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
   },
@@ -873,43 +873,43 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           // Сработает когда нажали кнопку отменить передачу контактов.
           instance.vmd.$on('cancel', () => (instance.close()))
 
-          interface Cs {
-            project_id: number;
-            user_ids: number[];
-          }
+            interface Cs {
+              project_id: number;
+              user_ids: number[];
+            }
 
-          // Сработает когда нажали кнопку подтверждения передачи.
-          instance.vmd.$on('confirm',
-            (data: Cs) => {
-              instance.close()
+            // Сработает когда нажали кнопку подтверждения передачи.
+            instance.vmd.$on('confirm',
+              (data: Cs) => {
+                instance.close()
 
-              const params: Record<string, any> = Object.assign({}, this.paramsForQuery)
+                const params: Record<string, any> = Object.assign({}, this.paramsForQuery)
 
-              if ('count' in params) {
-                delete params.count
-              }
+                if ('count' in params) {
+                  delete params.count
+                }
 
-              if ('offset' in params) {
-                delete params.offset
-              }
+                if ('offset' in params) {
+                  delete params.offset
+                }
 
-              if ('order_direction' in params) {
-                delete params.order_direction
-              }
+                if ('order_direction' in params) {
+                  delete params.order_direction
+                }
 
-              if ('order_by' in params) {
-                delete params.order_by
-              }
+                if ('order_by' in params) {
+                  delete params.order_by
+                }
 
-              new Contacts()
-                .transfer({
-                  project_id: data.project_id, // Проект в который передаём.
-                  user_ids: data.user_ids, // Идентификаторы пользователей, кому передаём.
-                  params // параметры для извлечения списка контактов
-                }).finally(() => {
-                  this.$store.dispatch('contacts/unselect')
-                })
-            })
+                new Contacts()
+                  .transfer({
+                    project_id: data.project_id, // Проект в который передаём.
+                    user_ids: data.user_ids, // Идентификаторы пользователей, кому передаём.
+                    params // параметры для извлечения списка контактов
+                  }).finally(() => {
+                    this.$store.dispatch('contacts/unselect')
+                  })
+              })
         })
     },
 
@@ -993,7 +993,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     /**
      * При клике на кнопку "Импортировать"
-     **/
+     */
     onImportClick (format: 'excel' | 'csv') {
       let accept = ''
       switch (format) {
@@ -1005,25 +1005,54 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
           break
         }
-        default: {
-          return this.$toast.error('Import successfully')
-        }
       }
 
-      this.$fileDialog.open({
-        accept,
-        multiple: false
-      }).then((file: FileList | File) => {
-        if (file instanceof File) {
-          new Contacts()
-            .import(file)
-            .then(() => {
-              this.$toast.success('Импортирование контактов, ожидайте ...')
-            }).catch((error: Error) => {
-              this.$toast.error(error.message)
+      this.$fileDialog
+        .open({
+          accept,
+          multiple: false
+        }).then((file) => {
+          if (file instanceof File) {
+            const formData = new FormData()
+            formData.append('file', new Blob([file], { type: file.type }))
+
+            this.progressDialog.message = this.$tc('Uploading a file to the server...')
+            $axios.post('/contacts/import', formData, {
+              onUploadProgress: (progressEvent: any) => {
+                this.progressDialog.progress = Math.floor((progressEvent.loaded * 100) / progressEvent.total)
+              }
+            }).then((response: AxiosResponse) => {
+              if (response.status === 202) {
+                this.progressDialog.progress = 0
+                this.progressDialog.message = this.$tc('Please stand by...')
+                this.progressDialog.visible = true
+              }
+            }).catch((e: Error) => {
+              this.$toast.error(e.message)
             })
-        }
-      })
+          }
+        })
+    },
+
+    /**
+     * Событие процесса экспорта контактов.
+     * @param message
+     */
+    onSSEContactsImportProcess (message: SSEMessage) {
+      if (message.payload.status === 'progress') {
+        // Процесс импортирования файла.
+        this.progressDialog.progress = +message.payload.percent
+        this.progressDialog.message = this.$tc('Please stand by...')
+        this.progressDialog.visible = true
+      } else if (message.payload.status === 'success') {
+        // Процесс импортирования файла завершён успешно.
+        this.progressDialog.visible = false
+        this.progressDialog.message = ''
+        this.fetchContacts(this.paramsForQuery)
+      } else if (message.payload.status === 'failure') {
+        // В процессе импортирования произошла ошибка.
+        this.$toast.error(message.payload.message)
+      }
     },
 
     /**

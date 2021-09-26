@@ -11,8 +11,8 @@ const defaultOptions: FileDialogOptions = {
 }
 
 export class FileDialog {
-  public open (options: FileDialogOptions = defaultOptions): Promise<FileList | File> {
-    return new Promise<FileList | File>((resolve: (files: FileList | File) => void) => {
+  public open (options: FileDialogOptions = defaultOptions): Promise<File | FileList> {
+    return new Promise((resolve) => {
       const input: HTMLInputElement = document.createElement('input')
       input.type = 'file'
       input.multiple = options.multiple || false
