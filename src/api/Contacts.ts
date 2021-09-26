@@ -265,17 +265,19 @@ export class Contacts {
   }
 
   /**
-   * @param id
+   * Удаляет контакты.
+   * @param params
    */
-  public delete (id: number): Promise<unknown> {
+  public delete (params = {}): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      $axios.delete(`/contacts/${id}`)
-        .then((response: AxiosResponse) => {
-          if ([200, 204].includes(response.status)) {
-            return resolve()
-          }
-          return reject(response)
-        }).catch(reject)
+      $axios.delete('/contacts', {
+        params
+      }).then((response: AxiosResponse) => {
+        if (response.status !== 202) {
+          throw new APIError(response.data)
+        }
+        return resolve()
+      }).catch(reject)
     })
   }
 

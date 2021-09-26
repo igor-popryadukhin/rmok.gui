@@ -34,7 +34,7 @@
                   {{ $tc('Refresh') }}
                 </v-btn>
                 <v-btn
-                  v-if="contactsSelected.length > 0"
+                  v-if="contactsSelected.length > 0 && $isGranted('ROLE_ADMIN')"
                   :disabled="contactsProcessLoading"
                   small
                   tile
@@ -357,6 +357,7 @@
       min-width="600"
       top
       centered
+      style="z-index: 1"
       :style="snackbarStyle"
     >
       <div
@@ -446,6 +447,8 @@ import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import SSEMessage from '@/interfaces/SSEMessage'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import Roles from '@/api/Roles'
+import APIError from '@/api/classes/APIError'
 
 interface Data {
   [keys: string]: any;
@@ -793,12 +796,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     this.$root.$on('sse-contacts-import-process', this.onSSEContactsImportProcess)
     this.$root.$on('sse-contacts-export-process', this.onSSEContactsExportProcess)
     this.$root.$on('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
+    this.$root.$on('sse-contacts-delete-process', this.onSSEContactsDeleteProcess)
   },
 
   beforeDestroy () {
     this.$root.$off('sse-contacts-import-process', this.onSSEContactsImportProcess)
     this.$root.$off('sse-contacts-export-process', this.onSSEContactsExportProcess)
     this.$root.$off('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
+    this.$root.$off('sse-contacts-delete-process', this.onSSEContactsDeleteProcess)
   },
 
   methods: {
@@ -855,7 +860,50 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     onBtnDeleteClick () {
-      // Delete
+      this.$dialog
+        .confirm({
+          title: this.$tc('Deleting contacts'),
+          text: this.$tc('delete_confirmation', this.contactsSelectedCount),
+          actions: {
+            false: {
+              color: 'black',
+              text: this.$tc('No')
+            },
+            true: {
+              color: 'red',
+              handler: () => {
+                let params: Record<string, any>
+
+                if (this.contactsSelectedAll) {
+                  params = Object.assign({}, this.paramsForQuery)
+                  if ('count' in params) {
+                    delete params.count
+                  }
+
+                  if ('offset' in params) {
+                    delete params.offset
+                  }
+
+                  if ('order_direction' in params) {
+                    delete params.order_direction
+                  }
+
+                  if ('order_by' in params) {
+                    delete params.order_by
+                  }
+                } else {
+                  params = { ids: this.contactsSelected }
+                }
+
+                new Contacts()
+                  .delete(params).catch((e: Error) => {
+                    this.$toast.error(e.message)
+                  })
+              },
+              text: this.$tc('Yes')
+            }
+          }
+        })
     },
 
     /**
@@ -1122,6 +1170,27 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.fetchContacts(this.paramsForQuery)
       }
+    },
+
+    /**
+     * Событие процесса передачи контактов.
+     * @param message
+     */
+    onSSEContactsDeleteProcess (message: SSEMessage) {
+      if (message.payload.status === 'progress') {
+        this.progressDialog.progress = +message.payload.percent
+        this.progressDialog.message = this.$tc('Please stand by...')
+        this.progressDialog.visible = true
+      } else if (message.payload.status === 'success') {
+        this.progressDialog.visible = false
+        this.progressDialog.message = ''
+        this.progressDialog.progress = 0
+
+        this.$store.dispatch('contacts/unselect')
+        this.fetchContacts(this.paramsForQuery)
+      } else if (message.payload.status === 'failure') {
+        this.$toast.error(message.payload.message)
+      }
     }
   }
 })
@@ -1131,3 +1200,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 <style lang="scss" scoped>
 
 </style>
+
+<i18n>
+{
+  "ru": {
+    "delete_confirmation_1": "<b>Удалить {n} контакт?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
+    "delete_confirmation_2": "<b>Удалить {n} контакта?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
+    "delete_confirmation_3": "<b>Удалить {n} контактов?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
+    "delete_confirmation": "NaN | @:delete_confirmation_1 | @:delete_confirmation_2 | @:delete_confirmation_3"
+  }
+}
+</i18n>

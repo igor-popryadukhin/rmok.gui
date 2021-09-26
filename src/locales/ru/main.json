@@ -351,6 +351,7 @@
   "The status cannot be set, because the project is configured incorrectly!": "Статус установить не получится, так как проект настроен неверно!",
   "The structure of the incoming data is broken!": "Структура входящих данных нарушена!",
   "The subscriber is busy": "Абонент занят",
+  "Deleting contacts": "Удаление контактов",
   "The task does not own the contact.": "У задачи нет контакта.",
   "There are no calls for this contact": "По этому контакту нет ни одного звонка",
   "There are tasks": "Есть задачи",
