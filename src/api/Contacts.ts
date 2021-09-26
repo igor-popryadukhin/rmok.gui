@@ -439,14 +439,14 @@ export class Contacts {
    *
    * @param params
    */
-  public setTags (params: { tag_ids: number[], contact_ids: number[] }): Promise<void> {
+  public setTags (params: Record<string, any> = {}): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/tags/set', params)
         .then((response: AxiosResponse) => {
-          if ([200, 202].includes(response.status)) {
-            return resolve()
+          if (![200, 202].includes(response.status)) {
+            throw new APIError(response?.data)
           }
-          throw new APIError(response?.data)
+          resolve()
         }).catch(reject)
     })
   }

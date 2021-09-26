@@ -34,7 +34,7 @@
                   {{ $tc('Refresh') }}
                 </v-btn>
                 <v-btn
-                  v-if="contactsSelected.length > 0 && $isGranted('ROLE_ADMIN')"
+                  v-if="contactsSelected.length > 0 && isAdmin"
                   :disabled="contactsProcessLoading"
                   small
                   tile
@@ -144,6 +144,7 @@
                 >
                   <template #activator="{ attrs, on }">
                     <v-btn
+                      v-if="isAdmin"
                       v-bind="attrs"
                       text
                       small
@@ -778,6 +779,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
 
       return params
+    },
+
+    isAdmin () {
+      return this.$isGranted('ROLE_ADMIN')
     }
   },
 
@@ -797,6 +802,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     this.$root.$on('sse-contacts-export-process', this.onSSEContactsExportProcess)
     this.$root.$on('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
     this.$root.$on('sse-contacts-delete-process', this.onSSEContactsDeleteProcess)
+    this.$root.$on('sse-contacts-assign-tags-process', this.onSSEContactsAssignTagsProcess)
   },
 
   beforeDestroy () {
@@ -804,6 +810,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     this.$root.$off('sse-contacts-export-process', this.onSSEContactsExportProcess)
     this.$root.$off('sse-contacts-transfer-process', this.onSSEContactsTransferProcess)
     this.$root.$off('sse-contacts-delete-process', this.onSSEContactsDeleteProcess)
+    this.$root.$off('sse-contacts-assign-tags-process', this.onSSEContactsAssignTagsProcess)
   },
 
   methods: {
@@ -997,12 +1004,37 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * @param tagIds идентификаторы тегов.
      */
     onAppMenuTagsApply (tagIds: number[]) {
+      let params: Record<string, any>
+
+      if (this.contactsSelectedAll) {
+        params = Object.assign({}, this.paramsForQuery)
+        if ('count' in params) {
+          delete params.count
+        }
+
+        if ('offset' in params) {
+          delete params.offset
+        }
+
+        if ('order_direction' in params) {
+          delete params.order_direction
+        }
+
+        if ('order_by' in params) {
+          delete params.order_by
+        }
+      } else {
+        params = { ids: this.contactsSelected }
+      }
+
       new Contacts()
         .setTags({
-          contact_ids: this.contactsSelected,
+          params,
           tag_ids: tagIds
         }).then(() => {
           this.$store.dispatch('contacts/unselect')
+        }).catch((e: Error) => {
+          this.$toast.error(e.message)
         })
     },
 
@@ -1173,7 +1205,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     /**
-     * Событие процесса передачи контактов.
+     * Событие процесса удаления контактов.
      * @param message
      */
     onSSEContactsDeleteProcess (message: SSEMessage) {
@@ -1188,6 +1220,26 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.$store.dispatch('contacts/unselect')
         this.fetchContacts(this.paramsForQuery)
+      } else if (message.payload.status === 'failure') {
+        this.$toast.error(message.payload.message)
+      }
+    },
+
+    /**
+     * Событие процесса назначения тегов контактам.
+     * @param message
+     */
+    onSSEContactsAssignTagsProcess (message: SSEMessage) {
+      if (message.payload.status === 'progress') {
+        this.progressDialog.progress = +message.payload.percent
+        this.progressDialog.message = this.$tc('Please stand by...')
+        this.progressDialog.visible = true
+      } else if (message.payload.status === 'success') {
+        this.progressDialog.visible = false
+        this.progressDialog.message = ''
+        this.progressDialog.progress = 0
+
+        this.$store.dispatch('contacts/unselect')
       } else if (message.payload.status === 'failure') {
         this.$toast.error(message.payload.message)
       }

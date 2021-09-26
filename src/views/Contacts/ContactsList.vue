@@ -35,7 +35,10 @@
           <template #default>
             <thead>
               <tr>
-                <th class="px-0">
+                <th
+                  v-if="tableCheckBoxVisible"
+                  class="px-0"
+                >
                   <v-checkbox
                     v-model="tableSelectedAll"
                     :indeterminate="tableIndeterminateSelected"
@@ -74,6 +77,7 @@
                 :key="'tr-' + item.id"
               >
                 <td
+                  v-if="tableCheckBoxVisible"
                   class="px-0"
                   style="width: 25px"
                 >
@@ -235,6 +239,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       })
 
       return indeterminate
+    },
+
+    tableCheckBoxVisible () {
+      return this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])
     },
 
     tableColumnProjectVisible () {
