@@ -12,7 +12,6 @@ import statuses from './statuses'
 import users from './users'
 import contacts from './contacts'
 import contacts_new from './contacts_new'
-import contacts_queue from './contacts_queue'
 import statistic_recent_call from './statistic_recent_call'
 import statistic_all_call from './statistic_all_call'
 import { database } from './database'
@@ -64,7 +63,6 @@ const store = new Vuex.Store({
     users,
     contacts,
     contacts_new,
-    contacts_queue,
     statistic_recent_call,
     statistic_all_call
   },

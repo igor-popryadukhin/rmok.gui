@@ -543,7 +543,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           icon: 'mdi-human-queue',
           list_item: {
             to: {
-              name: 'queue_leads'
+              name: 'queue'
             }
           },
           new: true,

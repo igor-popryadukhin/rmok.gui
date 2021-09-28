@@ -128,7 +128,7 @@ export interface ContactsParamsFind {
    * - 0 - Не используется (по умолчанию).
    * - 1 - Очередь лидов (контакты).
    */
-  queue_leads?: 0 | 1
+  queue?: 0 | 1
 }
 
 /**
