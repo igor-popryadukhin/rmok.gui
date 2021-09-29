@@ -938,22 +938,27 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               (data: Cs) => {
                 instance.close()
 
-                const params: Record<string, any> = Object.assign({}, this.paramsForQuery)
+                let params: Record<string, any>
 
-                if ('count' in params) {
-                  delete params.count
-                }
+                if (this.contactsSelectedAll) {
+                  params = Object.assign({}, this.paramsForQuery)
+                  if ('count' in params) {
+                    delete params.count
+                  }
 
-                if ('offset' in params) {
-                  delete params.offset
-                }
+                  if ('offset' in params) {
+                    delete params.offset
+                  }
 
-                if ('order_direction' in params) {
-                  delete params.order_direction
-                }
+                  if ('order_direction' in params) {
+                    delete params.order_direction
+                  }
 
-                if ('order_by' in params) {
-                  delete params.order_by
+                  if ('order_by' in params) {
+                    delete params.order_by
+                  }
+                } else {
+                  params = { ids: this.contactsSelected }
                 }
 
                 new Contacts()
@@ -1042,15 +1047,22 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * При клике на кнопку "Экспортировать"
      **/
     onExportClick (format: 'xlsx' | 'csv') {
-      const params: Record<string, any> = Object.assign({ format }, this.paramsForQuery)
+      let params: Record<string, any>
 
-      if ('count' in params) {
-        delete params.count
+      if (this.contactsSelectedAll) {
+        params = Object.assign({}, this.paramsForQuery)
+        if ('count' in params) {
+          delete params.count
+        }
+
+        if ('offset' in params) {
+          delete params.offset
+        }
+      } else {
+        params = { ids: this.contactsSelected }
       }
 
-      if ('offset' in params) {
-        delete params.offset
-      }
+      params.format = format
 
       this.progressDialog.progress = 0
       this.progressDialog.message = this.$tc('Please stand by...')

@@ -307,14 +307,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   created () {
-    if (this.$route.query.filter) {
-      this.historyFilter.selected = this.historyFilter.items.find((e) => e.value === this.$route.query.filter)?.value
-    }
-    this.loadHistory()
-
     this.onSSEContactHistoryChanged = debounce(this.onSSEContactHistoryChanged, 1000)
 
     this.$root.$on('sse-contact-history-changed', this.onSSEContactHistoryChanged)
+  },
+
+  mounted () {
+    this.loadHistory()
   },
 
   beforeDestroy () {
@@ -435,13 +434,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     secondsToHmsDigital (s: number) {
       return secondsToHmsDigital(s)
-    },
-
-    /**
-     * Метод предназначен для обновления всего компонента
-     */
-    update () {
-      this.loadHistory()
     }
   }
 })
