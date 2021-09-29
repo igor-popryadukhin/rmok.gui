@@ -45,6 +45,7 @@
                 </v-btn>
                 <v-btn
                   v-if="contactsSelected.length > 0 && $isGranted('TRANSFER_CONTACTS')"
+                  :disabled="contactsSelectedAll"
                   small
                   tile
                   text
@@ -82,8 +83,27 @@
                       </v-list-item>
                       <v-list-item
                         link
+                        @click="onExportClick('html')"
+                      >
+                        <v-list-item-icon>
+                          <v-icon color="primary">
+                            mdi-file-document-outline
+                          </v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-content>
+                          <v-list-item-title>{{ $tc('Export to HTML') }}</v-list-item-title>
+                          <v-list-item-subtitle>{{ $tc('HyperText Markup Language (HTML) ') }}</v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                      <v-list-item
+                        link
                         @click="onExportClick('xlsx')"
                       >
+                        <v-list-item-icon>
+                          <v-icon color="green">
+                            mdi-file-table-box-outline
+                          </v-icon>
+                        </v-list-item-icon>
                         <v-list-item-content>
                           <v-list-item-title>{{ $tc('Export to Excel') }}</v-list-item-title>
                           <v-list-item-subtitle>{{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}</v-list-item-subtitle>
@@ -146,6 +166,7 @@
                     <v-btn
                       v-if="isAdmin"
                       v-bind="attrs"
+                      :disabled="contactsSelectedAll"
                       text
                       small
                       tile
@@ -163,6 +184,7 @@
                   :per-page="contactsPerPage"
                   :disabled="contactsProcessLoading"
                   :count="contactsTotal"
+                  @change="onAppPaginationChange"
                 />
                 <app-btn-sorting
                   v-model="sortOption"
@@ -349,15 +371,18 @@
 
     <!-- Информационный Снэк-бар -->
     <v-snackbar
-      v-if="contactsSelected.length > 0"
+      v-if="contactsSelected.length > 1"
       :timeout="-1"
       :value="true"
       class="mt-12"
       color="primary"
       elevation="10"
-      min-width="600"
+      min-width="450"
       top
       centered
+      absolute
+      tile
+      transition="fab-transition"
       style="z-index: 1"
       :style="snackbarStyle"
     >
@@ -366,17 +391,17 @@
         @mouseenter="snackbarStyle = { opacity: 1 }"
         @mouseleave="snackbarStyle = { opacity: 0.6 }"
       >
-        <div>
-          <div
-            style="font-size: 14px"
+        <div class="mr-5">
+          <span
+            style="font-size: 10px; text-transform: uppercase; font-weight: 500; letter-spacing: 0.0892857143em"
           >
-            Выбрано элементов (<app-count-up :end-val="contactsSelectedCount" />)
-          </div>
+            {{ $tc('selected_elements', contactsSelectedCount ) }}
+          </span>
         </div>
         <div>
           <v-btn
             text
-            small
+            x-small
             tile
             @click="onBtnSelectAllClick"
           >
@@ -384,10 +409,10 @@
           </v-btn>
           <v-btn
             text
-            small
+            x-small
             tile
             @click="onBtnCancelSelectionClick"
-            @mouseup="snackbarStyle = { opacity: 0.6 }"
+            @mouseup="snackbarStyle = { opacity: 0.8 }"
           >
             {{ $tc('Cancel selection') }}
           </v-btn>
@@ -444,12 +469,10 @@ import { Contacts } from '@/api/Contacts'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
 import { mapGetters } from 'vuex'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import SSEMessage from '@/interfaces/SSEMessage'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
-import Roles from '@/api/Roles'
-import APIError from '@/api/classes/APIError'
+import { debounce } from 'vuetify/src/util/helpers'
 
 interface Data {
   [keys: string]: any;
@@ -470,7 +493,6 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
-    AppCountUp,
     AppTimeZoneAutocomplete,
     AppMenuTags: () => import(/* webpackChunkName: "contacts-menu-tags" */ '@/components/AppMenuTags/AppMenuTags.vue'),
     AppPagination,
@@ -487,7 +509,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   data () {
     return {
-      snackbarStyle: { opacity: 0.6 },
+      snackbarStyle: { opacity: 0.8 },
       filterTasksItems: () => {
         return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
           return {
@@ -638,10 +660,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     offset: {
       get () {
-        return this.$store.getters['contacts/params/filter_offset']
+        return +this.$store.getters['contacts/params/filter_offset']
       },
 
       set (value: number) {
+        console.log(value)
         this.$store.commit('contacts/params/filter_offset', value)
       }
     },
@@ -666,12 +689,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     paramsForQuery () {
       const params: Record<string, string | number> = {}
 
+      // Строка поискового запроса
       if (this.contactsParamsFilterQ) {
         params.q = this.contactsParamsFilterQ
       }
 
+      // Массив идентификаторов статусов
       if (this.filterStatusIds.length > 0) {
-        params.status_ids = this.filterStatusIds.join(',')
+        params.status_ids = this.filterStatusIds
       }
 
       if (this.contactsParamsFilterProjectId) {
@@ -687,7 +712,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
 
       if (this.filterTagIds.length > 0) {
-        params.tag_ids = this.filterTagIds.join(',')
+        params.tag_ids = this.filterTagIds
       }
 
       if (this.filterTimeZone) {
@@ -732,9 +757,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         params.calling = this.filterCalling
       }
 
-      if (this.offset > 0) {
-        params.offset = this.offset
-      }
       if (this.filterTask) {
         params.task = this.filterTask
       }
@@ -787,15 +809,22 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   watch: {
-    // Следим за каждым изменением всех параметров фильтров.
     paramsForQuery (val: unknown) {
+      // Отменить выделение если параметры фильтров изменились
+      this.$store.dispatch('contacts/unselect')
       this.fetchContacts(val)
     }
   },
 
+  created () {
+    this.fetchContacts = debounce(this.fetchContacts, 350)
+  },
+
   mounted () {
     if (this.contactsItems.length === 0) {
-      this.fetchContacts(this.paramsForQuery)
+      setTimeout(() => {
+        this.fetchContacts(this.paramsForQuery)
+      }, 500)
     }
 
     this.$root.$on('sse-contacts-import-process', this.onSSEContactsImportProcess)
@@ -817,10 +846,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     /**
      * Загружает контакты с сервера.
      */
-    fetchContacts (params: Record<string, string | number> = {}) {
+    fetchContacts (params: Record<string, any> = {}) {
       this.contactListMessageError = ''
+
+      const innerParams: Record<string, any> = Object.assign({}, params)
+
+      if (this.offset > 0) {
+        innerParams.offset = this.offset
+      }
+
       this.$store
-        .dispatch('contacts/items', params)
+        .dispatch('contacts/items', innerParams)
         .catch((e: Error) => {
           this.$store.commit('contacts/total', 0)
           this.$store.commit('contacts/items', [])
@@ -902,8 +938,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
                   params = { ids: this.contactsSelected }
                 }
 
+                this.progressDialog.progress = 0
+                this.progressDialog.visible = true
+                this.progressDialog.message = this.$tc('Please stand by...')
+
                 new Contacts()
-                  .delete(params).catch((e: Error) => {
+                  .delete(params)
+                  .catch((e: Error) => {
                     this.$toast.error(e.message)
                   })
               },
@@ -961,10 +1002,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
                   params = { ids: this.contactsSelected }
                 }
 
+                this.progressDialog.progress = 0
+                this.progressDialog.visible = true
+                this.progressDialog.message = this.$tc('Please stand by...')
+
                 new Contacts()
                   .transfer({
-                    project_id: data.project_id, // Проект в который передаём.
-                    user_ids: data.user_ids, // Идентификаторы пользователей, кому передаём.
+                    destination_project_id: data.project_id, // Проект в который передаём.
+                    destination_user_ids: data.user_ids, // Идентификаторы пользователей, кому передаём.
                     params // параметры для извлечения списка контактов
                   }).finally(() => {
                     this.$store.dispatch('contacts/unselect')
@@ -982,6 +1027,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      */
     onFilterChange () {
       this.offset = 0
+    },
+
+    onAppPaginationChange () {
+      setTimeout(() => (this.fetchContacts(this.paramsForQuery)), 0)
     },
 
     /**
@@ -1046,11 +1095,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     /**
      * При клике на кнопку "Экспортировать"
      **/
-    onExportClick (format: 'xlsx' | 'csv') {
+    onExportClick (format: 'xlsx' | 'csv' | 'html') {
       let params: Record<string, any>
 
       if (this.contactsSelectedAll) {
+        // Экспортируем все цепочки контактов.
         params = Object.assign({}, this.paramsForQuery)
+
+        // Удаляю ограничения, они теперь не нужны.
         if ('count' in params) {
           delete params.count
         }
@@ -1059,6 +1111,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           delete params.offset
         }
       } else {
+        // Экспортируем только выбранные контакты.
         params = { ids: this.contactsSelected }
       }
 
@@ -1068,19 +1121,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       this.progressDialog.message = this.$tc('Please stand by...')
       this.progressDialog.visible = true
 
-      if (this.contactsSelectedAll) {
-        new Contacts()
-          .export(params)
-          .then(() => {
-            this.$toast.success('Идет формирование файла, ожидайте ...')
-          })
-      } else {
-        new Contacts()
-          .export(params)
-          .then(() => {
-            this.$toast.success('Идет формирование файла, ожидайте ...')
-          })
-      }
+      new Contacts().export(params)
     },
 
     /**
@@ -1140,6 +1181,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         // Процесс импортирования файла завершён успешно.
         this.progressDialog.visible = false
         this.progressDialog.message = ''
+        this.offset = 0
         this.fetchContacts(this.paramsForQuery)
       } else if (message.payload.status === 'failure') {
         // В процессе импортирования произошла ошибка.
@@ -1212,6 +1254,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.progressDialog.message = ''
         this.progressDialog.progress = 0
 
+        this.offset = 0
         this.fetchContacts(this.paramsForQuery)
       }
     },
@@ -1231,6 +1274,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.progressDialog.progress = 0
 
         this.$store.dispatch('contacts/unselect')
+
+        this.offset = 0
         this.fetchContacts(this.paramsForQuery)
       } else if (message.payload.status === 'failure') {
         this.$toast.error(message.payload.message)
@@ -1271,7 +1316,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     "delete_confirmation_1": "<b>Удалить {n} контакт?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
     "delete_confirmation_2": "<b>Удалить {n} контакта?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
     "delete_confirmation_3": "<b>Удалить {n} контактов?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
-    "delete_confirmation": "NaN | @:delete_confirmation_1 | @:delete_confirmation_2 | @:delete_confirmation_3"
+    "delete_confirmation": "NaN | @:delete_confirmation_1 | @:delete_confirmation_2 | @:delete_confirmation_3",
+    "selected_elements": " | Выбран {n} контакт |  Выбрано {n} контакта | Выбрано {n} контактов"
   }
 }
 </i18n>

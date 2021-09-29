@@ -5,13 +5,24 @@ import { Contacts } from '@/api/Contacts'
 import Contact from '@/api/interfaces/Contact'
 
 const actions: ActionTree<ContactsState, RootState> = {
-  items: ({ commit, state }: ActionContext<ContactsState, RootState>, params = {}) => {
+  items: ({ commit, state, getters }: ActionContext<ContactsState, RootState>, params = {}) => {
     return new Promise<void>((resolve, reject) => {
       commit('process_loading', true)
       new Contacts()
         .find(Object.assign(params, { count: state.per_page }))
         .then((response) => {
           commit('total', response.meta?.count || 0)
+
+          if (getters.selected.length > 0) {
+            const selected: number[] = getters.selected.map((e) => e)
+            response.data.forEach((e) => {
+              if (!selected.includes(e.id)) {
+                selected.push(e.id)
+              }
+            })
+            commit('selected', selected)
+          }
+
           commit('items', response.data)
           resolve()
         }).catch(reject)

@@ -41,7 +41,7 @@
                 >
                   <v-checkbox
                     v-model="tableSelectedAll"
-                    :indeterminate="tableIndeterminateSelected"
+                    :indeterminate="contactsSelectedIndeterminate"
                     :ripple="false"
                     dense
                     hide-details
@@ -207,6 +207,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     ...mapGetters({
       contactsTotal: 'contacts/total',
       contactsSelectedAll: 'contacts/selected_all',
+      contactsSelectedIndeterminate: 'contacts/selected_indeterminate',
       contactsProcessLoading: 'contacts/process_loading',
       contactsItems: 'contacts/items',
       contactsItemsParamsFilterStatusIds: 'contacts/params/filter_status_ids'
@@ -220,25 +221,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       set (val: number[]) {
         this.$store.commit('contacts/selected', val)
       }
-    },
-
-    /**
-     * Состояние неопределённости выделенных элементов таблицы.
-     * Это когда выбраны не все элементы таблицы.
-     */
-    tableIndeterminateSelected () {
-      if (this.contactsSelected.length === 0) {
-        return false
-      }
-
-      let indeterminate = false
-      this.contactsItems.forEach((e: Contact) => {
-        if (!this.contactsSelected.includes(e.id)) {
-          indeterminate = true
-        }
-      })
-
-      return indeterminate
     },
 
     tableCheckBoxVisible () {
@@ -277,6 +259,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   methods: {
+    /**
+     * Срабатывает когда изменилось состояние CheckBox в одном их элементов списка.
+     *
+     * @param ids
+     */
     onTableItemCheckBoxChange (ids: number[]) {
       if (this.contactsSelectedAll) {
         this.$store.commit('contacts/selected_all', false)
@@ -285,6 +272,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     onTableCheckBoxChange (val: boolean) {
+      this.$store.commit('contacts/selected_all', false)
       const selected: number[] = this.contactsSelected.map((e: number) => e)
 
       if (val) {
