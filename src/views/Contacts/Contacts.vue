@@ -345,7 +345,7 @@
 
           <div>
             <app-time-zone-autocomplete
-              v-model="filterTimeZone"
+              v-model="filterUTCOffset"
               :label="$tc('Временная зона')"
               :disabled="contactsProcessLoading"
               @change="onFilterChange"
@@ -648,12 +648,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
     },
 
-    filterTimeZone: {
+    filterUTCOffset: {
       get () {
         return this.$store.getters['contacts/params/filter_timezone']
       },
 
-      set (value?: string) {
+      set (value?: number) {
         return this.$store.commit('contacts/params/filter_timezone', value)
       }
     },
@@ -664,7 +664,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       },
 
       set (value: number) {
-        console.log(value)
         this.$store.commit('contacts/params/filter_offset', value)
       }
     },
@@ -715,8 +714,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         params.tag_ids = this.filterTagIds
       }
 
-      if (this.filterTimeZone) {
-        params.timezone = this.filterTimeZone
+      if (this.filterUTCOffset) {
+        params.utc_offset = this.filterUTCOffset
       }
 
       // Сортировка
