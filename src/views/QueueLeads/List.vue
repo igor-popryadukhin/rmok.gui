@@ -59,10 +59,17 @@
               :key="'tr-' + item.id"
             >
               <!-- Имя контакта -->
-              <td :style="{ 'border-left': `6px solid ${item.weight_color || null}` }">
+              <td :style="{ 'border-left': `6px solid ${item.color || null}` }">
                 <router-link :to="{ name: 'contacts_view', params: { contact_id: item.id } }">
                   {{ item.name }}
                 </router-link>
+                <v-icon
+                  v-if="item.icon"
+                  :color="item.color"
+                  small
+                >
+                  {{ item.icon }}
+                </v-icon>
               </td>
               <!-- Имя контакта -->
 
@@ -155,7 +162,7 @@ export default Vue.extend<Data, Methods, Computed>({
     loadContacts () {
       this.contactsProcessLoading = true
       new Contacts()
-        .find({ queue: 1, count: 50 })
+        .find({ queue: 1, count: 500 })
         .then((response) => {
           this.contactsTotal = response.meta?.count || 0
           this.contactsItems = response.data || []
