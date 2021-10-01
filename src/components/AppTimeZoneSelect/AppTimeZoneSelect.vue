@@ -1,12 +1,9 @@
 <template>
-  <v-autocomplete
+  <v-select
     v-model="selected"
     :items="utcOffsetOptions"
-    :multiple="multiple"
-    :search-input.sync="q"
     :label="label"
     :rules="rules"
-    :error-messages="errorMessages"
     :disabled="disabled"
     item-value="value"
     item-text="name"
@@ -14,40 +11,14 @@
     outlined
     clearable
     @input="(val) => $emit('change', val)"
-  >
-    <template
-      v-if="multiple"
-      #item="{ item, on, attrs }"
-    >
-      <v-list-item
-        v-bind="attrs"
-        :input-value="item.value"
-        v-on="on"
-      >
-        {{ item.name }}
-      </v-list-item>
-    </template>
-
-    <template
-      v-if="multiple"
-      #selection="{ item }"
-    >
-      <v-chip
-        outlined
-        label
-        x-small
-      >
-        {{ item.name }}
-      </v-chip>
-    </template>
-  </v-autocomplete>
+  />
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'AppTimeZoneAutocomplete',
+  name: 'AppTimeZoneSelect',
 
   model: {
     prop: 'value',
@@ -59,10 +30,6 @@ export default Vue.extend({
       type: String,
       default: ''
     },
-    multiple: {
-      type: Boolean,
-      default: false
-    },
     disabled: {
       type: Boolean,
       default: false
@@ -71,12 +38,8 @@ export default Vue.extend({
       type: [Array],
       default: () => []
     },
-    errorMessages: {
-      type: [Array],
-      default: () => []
-    },
     value: {
-      type: [Number, Object, Array, String],
+      type: Number,
       default: null
     }
   },
@@ -85,7 +48,7 @@ export default Vue.extend({
     return {
       q: null,
       qOld: null,
-      selected: 0 as number | number[],
+      selected: null as unknown | number | null,
       utcOffsetOptions: [
         {
           name: '+2 Калининград',
@@ -130,35 +93,19 @@ export default Vue.extend({
         {
           name: '+12 Камчатка',
           value: 12
-        },
-        {
-          name: '+0 UTC',
-          value: 0
         }
       ]
     }
   },
 
-  computed: {
-    paramsQuery () {
-      const paramsQuery: Record<number, unknown | number> = {}
-
-      if (this.q) {
-        paramsQuery.q = this.q
-      }
-
-      return paramsQuery
-    }
-  },
-
   watch: {
-    value (val: number | number[]) {
-      this.selected = val
+    value (val?: number) {
+      this.selected = val || null
     }
   },
 
   mounted () {
-    this.selected = this.value
+    this.selected = this.value || null
   }
 })
 </script>

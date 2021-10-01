@@ -9,7 +9,7 @@ export interface State {
   filter_calling: null | 'yes' | 'no';
   filter_offset: number;
   filter_task: string;
-  filter_timezone: string;
+  filter_timezone: number;
   order_by: string;
   order_direction: string;
 }

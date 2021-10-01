@@ -344,9 +344,9 @@
           <!-- Фильтр по тегам -->
 
           <div>
-            <app-time-zone-autocomplete
+            <app-time-zone-select
               v-model="filterUTCOffset"
-              :label="$tc('Временная зона')"
+              :label="$tc('Time zone')"
               :disabled="contactsProcessLoading"
               @change="onFilterChange"
             />
@@ -457,7 +457,7 @@
 
 <script lang="ts">
 
-import AppTimeZoneAutocomplete from '@/components/AppTimeZoneAutocomplete/AppTimeZoneAutocomplete.vue'
+import AppTimeZoneSelect from '@/components/AppTimeZoneSelect/AppTimeZoneSelect.vue'
 import Vue from 'vue'
 import ContactsList from './ContactsList.vue'
 import AppStatusAutocomplete from '@/components/AppStatusAutocomplete/AppStatusAutocomplete.vue'
@@ -493,7 +493,7 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
 
   components: {
-    AppTimeZoneAutocomplete,
+    AppTimeZoneSelect,
     AppMenuTags: () => import(/* webpackChunkName: "contacts-menu-tags" */ '@/components/AppMenuTags/AppMenuTags.vue'),
     AppPagination,
     AppBtnSorting,
