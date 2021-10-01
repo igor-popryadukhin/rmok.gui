@@ -1,7 +1,7 @@
 <template>
   <v-autocomplete
     v-model="selected"
-    :items="options"
+    :items="utcOffsetOptions"
     :multiple="multiple"
     :search-input.sync="q"
     :label="label"
@@ -45,7 +45,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   name: 'AppTimeZoneAutocomplete',
@@ -86,17 +85,63 @@ export default Vue.extend({
     return {
       q: null,
       qOld: null,
-      selected: '' as string | string[]
+      selected: 0 as number | number[],
+      utcOffsetOptions: [
+        {
+          name: '+2 Калининград',
+          value: 2
+        },
+        {
+          name: '+3 Москва',
+          value: 3
+        },
+        {
+          name: '+4 Самара',
+          value: 4
+        },
+        {
+          name: '+5 Екатеринбург',
+          value: 5
+        },
+        {
+          name: '+6 Омск',
+          value: 6
+        },
+        {
+          name: '+7 Красноярск',
+          value: 7
+        },
+        {
+          name: '+8 Иркутск',
+          value: 8
+        },
+        {
+          name: '+9 Якутск',
+          value: 9
+        },
+        {
+          name: '+10 Владивосток',
+          value: 10
+        },
+        {
+          name: '+11 Магадан',
+          value: 11
+        },
+        {
+          name: '+12 Камчатка',
+          value: 12
+        },
+        {
+          name: '+0 UTC',
+          value: 0
+        }
+      ]
     }
   },
 
   computed: {
-    ...mapGetters({
-      options: 'filter/timezone'
-    }),
-
     paramsQuery () {
-      const paramsQuery: Record<string, unknown | string> = {}
+      const paramsQuery: Record<number, unknown | number> = {}
 
       if (this.q) {
         paramsQuery.q = this.q
@@ -107,23 +152,13 @@ export default Vue.extend({
   },
 
   watch: {
-    value (val: string | string[]) {
+    value (val: number | number[]) {
       this.selected = val
     }
   },
 
   mounted () {
     this.selected = this.value
-
-    if (this.options.length === 0) {
-      this.fetchOptions()
-    }
-  },
-
-  methods: {
-    fetchOptions () {
-      this.$store.dispatch('filter/timezone', this.paramsQuery)
-    }
   }
 })
 </script>
