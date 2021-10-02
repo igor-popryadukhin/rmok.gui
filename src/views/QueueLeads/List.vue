@@ -153,6 +153,11 @@ export default Vue.extend<Data, Methods, Computed>({
   async mounted () {
     // Всегда загружаем самый свежий список
     this.loadContacts()
+    this.$root.$on('sse-contacts-queue-computed', this.SSEContactsQueueComputed)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('sse-contacts-queue-computed', this.SSEContactsQueueComputed)
   },
 
   methods: {
@@ -166,19 +171,14 @@ export default Vue.extend<Data, Methods, Computed>({
         .then((response) => {
           this.contactsTotal = response.meta?.count || 0
           this.contactsItems = response.data || []
-
-          // commit('total', count) // Количество доступных элементов
-          // commit('items', response.data)
-          //
-          // if (state.offset > 0) { commit('offset', 0) } // Сбрасывает смещение, связан с методом items_more
-          //
-          // if (!state.more_available && count > 0) {
-          //   commit('more_available', true) // Говорим, что ещё есть доступные элементы.
-          // }
         }).finally(() => (this.contactsProcessLoading = false))
     },
 
     onBtnRefreshClick () {
+      this.loadContacts()
+    },
+
+    SSEContactsQueueComputed () {
       this.loadContacts()
     }
   }
