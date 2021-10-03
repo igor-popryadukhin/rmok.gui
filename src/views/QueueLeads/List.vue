@@ -5,7 +5,7 @@
       <template #left>
         <div class="d-flex flex-column">
           <h3 class="grey--text">
-            {{ $tc('Queue Leads') }}
+            {{ $tc('Queue') }}
           </h3>
           <small
             class="grey--text"
