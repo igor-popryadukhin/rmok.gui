@@ -19,13 +19,23 @@
       <template #right>
         <div class="align-self-end">
           <v-btn
-            :loading="contactsProcessLoading"
+            :disabled="contactsProcessQueueCompute"
             small
             tile
             text
+            outlined
+            min-width="100"
             @click="onBtnRefreshClick"
           >
-            {{ $tc('Refresh') }}
+            <template v-if="contactsProcessQueueCompute">
+              <v-progress-linear
+
+                indeterminate
+              />
+            </template>
+            <template v-else>
+              {{ $tc('Refresh') }}
+            </template>
           </v-btn>
         </div>
       </template>
@@ -126,6 +136,8 @@ import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
+import { $axios } from '@/plugins/axios'
+import { debounce } from 'vuetify/src/util/helpers'
 
 interface Data {
   [key: string]: any
@@ -144,6 +156,7 @@ export default Vue.extend<Data, Methods, Computed>({
 
   data (): Data {
     return {
+      contactsProcessQueueCompute: false,
       contactsProcessLoading: false,
       contactsTotal: 0,
       contactsItems: []
@@ -153,6 +166,8 @@ export default Vue.extend<Data, Methods, Computed>({
   async mounted () {
     // Всегда загружаем самый свежий список
     this.loadContacts()
+    this.SSEContactsQueueComputed = debounce(this.SSEContactsQueueComputed, 1000)
+
     this.$root.$on('sse-contacts-queue-computed', this.SSEContactsQueueComputed)
   },
 
@@ -161,6 +176,17 @@ export default Vue.extend<Data, Methods, Computed>({
   },
 
   methods: {
+    /**
+     * Запускает на сервере процесс вычисления параметров очереди.
+     */
+    computeQueue () {
+      this.contactsProcessQueueCompute = true
+      $axios.get('/contacts/queue/compute')
+        .finally(() => {
+          setTimeout(() => (this.contactsProcessQueueCompute = false), 2000)
+        })
+    },
+
     /**
      * Загрузит контакты с сервера.
      */
@@ -174,10 +200,18 @@ export default Vue.extend<Data, Methods, Computed>({
         }).finally(() => (this.contactsProcessLoading = false))
     },
 
+    /**
+     * Происходит при нажатии на кнопку "Обновить".
+     */
     onBtnRefreshClick () {
-      this.loadContacts()
+      this.computeQueue()
     },
 
+    /**
+     * SSE уведомление с сервера о завершении процесса вычисления.
+     *
+     * @constructor
+     */
     SSEContactsQueueComputed () {
       this.loadContacts()
     }
