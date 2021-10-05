@@ -1235,7 +1235,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             this.progressDialog.message = ''
           })
       } else if (message.payload.status === 'failure') {
-        this.$toast.error('An error occurred during the export operation.')
+        this.$toast.error(message.payload.message)
+        this.progressDialog.progress = 0
+        this.progressDialog.message = ''
+        this.progressDialog.visible = false
       }
     },
 
