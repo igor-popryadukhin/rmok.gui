@@ -1,6 +1,5 @@
 // 1. Make sure to import 'vue' before declaring augmented types
 import { JsSIP } from '@/jsSIP/plugin'
-import { Activity } from '@/plugins/activity'
 import { ProfileState } from '@/store/profile/state'
 import { AxiosInstance } from 'axios'
 import { Debugger } from 'debug'
@@ -8,6 +7,8 @@ import { Cookie } from './plugins/cookie'
 import { Lvovich } from '@/plugins/lvovich'
 import { RouterQuery } from '@/plugins/router-query'
 import { Permission } from '@/plugins/permission'
+import AccountMonitoring from '@/plugins/account-monitoring/AccountMonitoring'
+import IfVisible from '@/plugins/ifvisible/IfVisible'
 
 // 2. Specify a file with the types you want to augment
 //    Vue has the constructor type in types/vue.d.ts
@@ -30,7 +31,8 @@ declare module 'vue/types/vue' {
     $routerQuery: RouterQuery;
     $isDebug: boolean;
     $permission: Permission;
-    $activity: Activity
+    $ifvisible: IfVisible;
+    $accountMonitoring: AccountMonitoring;
     $jsSIP: JsSIP;
     $axios: AxiosInstance;
     $htmlAudioElement: HTMLAudioElement;
@@ -57,7 +59,9 @@ declare module 'vue/types/vue' {
     $htmlAudioElement: HTMLAudioElement;
     $version: string;
     $profile: ProfileState;
-    $appDebug: Debugger
+    $appDebug: Debugger;
+    $ifvisible: IfVisible;
+    $accountMonitoring: AccountMonitoring;
     // Методы
     $isGranted: (roles: string | string[], strategy: 'affirmative' | 'unanimous' = 'affirmative') => boolean;
     $settings_vue_keep_alive: boolean;

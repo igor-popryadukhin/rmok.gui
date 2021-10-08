@@ -125,6 +125,15 @@ export default Vue.extend({
     }
   },
 
+  created () {
+    // Событие сработает когда пользователь не будет активен в течении 300 секунд
+    this.$ifvisible.setIdleDuration(300)
+    this.$ifvisible.on('idle', () => {
+      // Завершить учёт активного действия
+      this.$accountMonitoring.end()
+    })
+  },
+
   mounted () {
     this.$root.$on('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$on('root-loading-data-hide', this.rootLoadingDataHide)
@@ -134,7 +143,7 @@ export default Vue.extend({
     window.addEventListener('keyup', this.onKeyUp)
   },
 
-  beforeDestroy () {
+  destroyed () {
     this.$root.$off('root-loading-data-show', this.rootLoadingDataShow)
     this.$root.$off('root-loading-data-hide', this.rootLoadingDataHide)
     this.$root.$off('on-audio-player-show', this.onAudioPlayerShow)
@@ -155,6 +164,10 @@ export default Vue.extend({
       if (e.code === 'ControlLeft') {
         this.screenDevVisible = false
       }
+    },
+
+    onMousemove (e: MouseEvent) {
+      this.$appDebug(e)
     },
 
     rootLoadingDataHide () {

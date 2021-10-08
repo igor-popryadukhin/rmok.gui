@@ -627,7 +627,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
 
     if (answer) {
-      this.$activity.end()
+      this.$accountMonitoring.end()
       next()
     } else {
       next(false)
@@ -804,10 +804,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
   },
 
-  deactivated () {
-    this.$destroy()
-  },
-
   mounted () {
     // Обновления времени
     setInterval(() => {
@@ -818,7 +814,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   destroyed () {
-    this.$activity.end()
+    this.$accountMonitoring.end()
   },
 
   methods: {
@@ -937,6 +933,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * Данное событие срабатывает когда завершилась сессия звонка
      */
     onJsSIPSessionEnded (data: JsSIPSessionEnded) {
+      // Заполняет карточку после завершения разговора.
+      this.$accountMonitoring.begin('card_filling')
+
       const historyData = {
         audio_record_id: this.rtcSessionAudioRecordId,
         cause: data.event.cause,
@@ -959,10 +958,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         .then((id: number) => {
           // Удаляю из Vuex
           this.$store.dispatch('contacts_new/items_remove_from_store', this.contactId)
-
-          this.$activity.begin({
-            type: 'card_filling'
-          })
 
           this.status.visible = true
           this.status.contact_history_id = id
@@ -1086,7 +1081,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       if (!this.validate()) {
         return new Promise<void>(resolve => resolve())
       }
-      this.$activity.end() // Завершаю измерение активности
+      this.$accountMonitoring.end() // Завершаю измерение активности
       window.onbeforeunload = null // Отменяю запрос подтверждения ухода
       this.saveAndNextLoading = true
 
