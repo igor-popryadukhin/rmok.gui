@@ -145,7 +145,7 @@
                   :label="$tc('Actions')"
                   :items="filter.actions.items"
                   :disabled="isDisabledFilterActions"
-                  item-value="type"
+                  item-value="name"
                   item-text="title"
                   cache-items
                   clearable
@@ -296,9 +296,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
           /**
            * Удалить чип
            */
-          chipRemove: (item: unknown & {title: string; type: string;}) => {
+          chipRemove: (item: unknown & {title: string; name: string;}) => {
             if (Array.isArray(this.filter.actions.selected) && item) {
-              const index = this.filter.actions.selected.findIndex((e: string) => e === item.type)
+              const index = this.filter.actions.selected.findIndex((e: string) => e === item.name)
               if (index >= 0) this.filter.actions.selected.splice(index, 1)
             } else {
               this.filter.actions.selected = []
@@ -323,7 +323,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
 
       processLoading: false,
 
-      reportActions: [] as unknown[] & { type: string, title: string }[],
+      reportActions: [] as unknown[] & { name: string, title: string }[],
 
       // Типы действий отчёта
       reportItems: [] as any[]
@@ -342,7 +342,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       const dataLabelsFormatter = (val: string) => {
         let name = val
         for (let i = 0; i < this.reportActions.length; i++) {
-          if (val === this.reportActions[i].type) {
+          if (val === this.reportActions[i].name) {
             name = this.reportActions[i].title
           }
         }
@@ -439,14 +439,14 @@ export default (Vue as VueConstructor<VInterface>).extend({
     apexSeries () {
       const series: any[] = [] // Сюда буду складывать серии
       this.reportItems.forEach((value: unknown & {activity: any[]; }) => {
-        value.activity.forEach((value1: unknown & {type: string; title: string; seconds: number}) => {
-          const index = series.findIndex(v => v.name === value1.type)
+        value.activity.forEach((value1: unknown & {name: string; title: string; seconds: number}) => {
+          const index = series.findIndex(v => v.name === value1.name)
           if (index > -1) {
             series[index].data.push(value1.seconds)
           } else {
             series.push({
               data: [value1.seconds],
-              name: value1.type
+              name: value1.name
             })
           }
         })
@@ -461,7 +461,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
       const formatter = (seriesName: string) => {
         let name = seriesName
         for (let i = 0; i < this.reportActions.length; i++) {
-          if (seriesName === this.reportActions[i].type) {
+          if (seriesName === this.reportActions[i].name) {
             name = this.reportActions[i].title
           }
         }

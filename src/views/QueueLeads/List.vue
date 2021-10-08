@@ -19,7 +19,7 @@
       <template #right>
         <div class="align-self-end">
           <v-btn
-            :disabled="contactsProcessQueueCompute"
+            :disabled="queueProcess.visible"
             small
             tile
             text
@@ -27,10 +27,10 @@
             min-width="100"
             @click="onBtnRefreshClick"
           >
-            <template v-if="contactsProcessQueueCompute">
+            <template v-if="queueProcess.visible">
               <v-progress-linear
-
-                indeterminate
+                v-model="queueProcess.progress"
+                :indeterminate="queueProcess.progress === 0"
               />
             </template>
             <template v-else>
@@ -98,6 +98,7 @@
                 <template v-else>
                   —
                 </template>
+                {{ item.weight }}
               </td>
               <!-- Статус/Результат -->
 
@@ -138,6 +139,7 @@ import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
 import { $axios } from '@/plugins/axios'
 import { debounce } from 'vuetify/src/util/helpers'
+import SSEMessage from '@/interfaces/SSEMessage'
 
 interface Data {
   [key: string]: any
@@ -156,23 +158,29 @@ export default Vue.extend<Data, Methods, Computed>({
 
   data (): Data {
     return {
-      contactsProcessQueueCompute: false,
       contactsProcessLoading: false,
       contactsTotal: 0,
-      contactsItems: []
+      contactsItems: [],
+
+      queueProcess: {
+        visible: false,
+        total: 0,
+        progress: 0,
+        text: ''
+      }
     }
   },
 
   async mounted () {
     // Всегда загружаем самый свежий список
     this.loadContacts()
-    this.SSEContactsQueueComputed = debounce(this.SSEContactsQueueComputed, 1000)
+    this.SSEContactsQueueComputeProcess = debounce(this.SSEContactsQueueComputeProcess, 1000)
 
-    this.$root.$on('sse-contacts-queue-computed', this.SSEContactsQueueComputed)
+    this.$root.$on('sse-queue-compute-process', this.SSEContactsQueueComputeProcess)
   },
 
   beforeDestroy () {
-    this.$root.$off('sse-contacts-queue-computed', this.SSEContactsQueueComputed)
+    this.$root.$off('sse-queue-compute-process', this.SSEContactsQueueComputeProcess)
   },
 
   methods: {
@@ -180,24 +188,22 @@ export default Vue.extend<Data, Methods, Computed>({
      * Запускает на сервере процесс вычисления параметров очереди.
      */
     computeQueue () {
-      this.contactsProcessQueueCompute = true
+      this.queueProcess.visible = true
       $axios.get('/contacts/queue/compute')
-        .finally(() => {
-          setTimeout(() => (this.contactsProcessQueueCompute = false), 2000)
-        })
     },
 
     /**
      * Загрузит контакты с сервера.
      */
     loadContacts () {
-      this.contactsProcessLoading = true
+      this.queueProcess.visible = true
+      this.queueProcess.progress = 0
       new Contacts()
         .find({ queue: 1, count: 500 })
         .then((response) => {
           this.contactsTotal = response.meta?.count || 0
           this.contactsItems = response.data || []
-        }).finally(() => (this.contactsProcessLoading = false))
+        }).finally(() => (this.queueProcess.visible = false))
     },
 
     /**
@@ -212,8 +218,13 @@ export default Vue.extend<Data, Methods, Computed>({
      *
      * @constructor
      */
-    SSEContactsQueueComputed () {
-      this.loadContacts()
+    SSEContactsQueueComputeProcess (message: SSEMessage) {
+      if (message.payload.status === 'progress') {
+        this.queueProcess.progress = +message.payload.percent
+        this.queueProcess.visible = true
+      } else if (message.payload.status === 'success') {
+        this.loadContacts()
+      }
     }
   }
 })
