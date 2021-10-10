@@ -214,7 +214,7 @@ export default Vue.extend<Data, Methods, Computed>({
     },
 
     /**
-     * SSE уведомление с сервера о завершении процесса вычисления.
+     * SSE уведомление с сервера процесса вычисления.
      *
      * @constructor
      */
@@ -224,6 +224,11 @@ export default Vue.extend<Data, Methods, Computed>({
         this.queueProcess.visible = true
       } else if (message.payload.status === 'success') {
         this.loadContacts()
+      } else if (message.payload.status === 'failure') {
+        this.queueProcess.visible = false
+        this.queueProcess.progress = 0
+
+        this.$toast.error(message.payload.message)
       }
     }
   }
