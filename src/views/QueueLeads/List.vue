@@ -98,7 +98,6 @@
                 <template v-else>
                   —
                 </template>
-                {{ item.weight }}
               </td>
               <!-- Статус/Результат -->
 
@@ -196,14 +195,13 @@ export default Vue.extend<Data, Methods, Computed>({
      * Загрузит контакты с сервера.
      */
     loadContacts () {
-      this.queueProcess.visible = true
-      this.queueProcess.progress = 0
+      this.contactsProcessLoading = true
       new Contacts()
         .find({ queue: 1, count: 500 })
         .then((response) => {
           this.contactsTotal = response.meta?.count || 0
           this.contactsItems = response.data || []
-        }).finally(() => (this.queueProcess.visible = false))
+        }).finally(() => (this.contactsProcessLoading = false))
     },
 
     /**
@@ -220,11 +218,16 @@ export default Vue.extend<Data, Methods, Computed>({
      */
     SSEContactsQueueComputeProcess (message: SSEMessage) {
       if (message.payload.status === 'progress') {
+        // В процессе вычисления
         this.queueProcess.progress = +message.payload.percent
         this.queueProcess.visible = true
       } else if (message.payload.status === 'success') {
+        // Процесс вычисления успешно завершён.
+        this.queueProcess.progress = 0
+        this.queueProcess.visible = false
         this.loadContacts()
       } else if (message.payload.status === 'failure') {
+        // Процесс вычисления завершился с ошибкой
         this.queueProcess.visible = false
         this.queueProcess.progress = 0
 
