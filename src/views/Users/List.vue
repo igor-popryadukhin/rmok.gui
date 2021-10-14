@@ -5,42 +5,50 @@
   >
     <v-row>
       <v-col
-        class="py-0"
         cols="12"
         md="9"
         lg="9"
       >
-        <v-toolbar
+        <app-tools
           dense
           elevation="0"
           tile
         >
-          <v-btn
-            v-if="$isGranted('USER_CREATE')"
-            to="new"
-            text
-            tile
-            small
-          >
-            {{ $tc('Create') }}
-          </v-btn>
-          <v-btn
-            :disabled="usersProcessLoading"
-            text
-            tile
-            small
-            @click="onButtonRefreshClick"
-          >
-            {{ $tc('Refresh') }}
-          </v-btn>
-          <v-spacer />
-          <app-pagination
-            v-model="filterOffset"
-            :per-page="50"
-            :count="usersTotal"
-          />
-        </v-toolbar>
-        <app-divider />
+          <template #left>
+            <v-btn
+              v-if="$isGranted('USER_CREATE')"
+              to="new"
+              text
+              tile
+              small
+            >
+              {{ $tc('Create') }}
+            </v-btn>
+            <v-btn
+              :disabled="usersProcessLoading"
+              text
+              tile
+              small
+              @click="onButtonRefreshClick"
+            >
+              {{ $tc('Refresh') }}
+            </v-btn>
+          </template>
+          <template #right>
+            <app-pagination
+              v-model="filterOffset"
+              :per-page="50"
+              :count="usersTotal"
+            />
+          </template>
+        </app-tools>
+        <v-divider />
+        <small
+          class="d-block grey--text"
+          style="font-size: small"
+        >
+          {{ $tc('users_total_online', usersTotalOnline) }}
+        </small>
         <template v-if="usersProcessLoading">
           <div
             class="d-flex align-center justify-center"
@@ -179,7 +187,7 @@ import SUserDialogDelete from '@/snippets/SUserDialogDelete/SUserDialogDelete.vu
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
-import { mapActions, mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppProjectAutocomplete from '@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
@@ -236,6 +244,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
     ...mapGetters({
       usersProcessLoading: 'users/process_loading',
       usersTotal: 'users/total',
+      usersTotalOnline: 'users/total_online',
       usersItems: 'users/items',
       settingsDateTimeFormat: 'settings/date_time_format'
     }),
@@ -368,7 +377,13 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+
+.v-toolbar .v-toolbar__content {
+  padding: 0 !important;
+  background-color: #3a70d4 !important;
+}
+
 .v-dt-item {
   & > td {
     white-space: nowrap;
@@ -383,3 +398,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
   margin-right: 10px;
 }
 </style>
+
+<i18n>
+{
+  "ru": {
+    "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети"
+  }
+}
+</i18n>

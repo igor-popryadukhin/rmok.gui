@@ -29,7 +29,8 @@ const actions: ActionTree<State, RootState> = {
       new Users()
         .find(Object.assign({ count: 50 }, params, payload))
         .then((response) => {
-          commit('total', response.meta?.count || 0)
+          commit('total', +response.meta?.count || 0)
+          commit('total_online', +response.meta?.users_online || 0)
           commit('items', response.data)
           resolve()
         }).catch(reject)
