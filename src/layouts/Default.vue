@@ -421,7 +421,6 @@ import { Calls } from '@/api/Calls'
 import { Contacts } from '@/api/Contacts'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
 import SipErrors from '@/api/SipErrors'
-import Tasks from '@/api/Tasks'
 import VToast from '@/components/VToast/VToast.vue'
 import JSSIPPayloadInterface from '@/interfaces/JSSIPPayloadInterface'
 import SSEMessage from '@/interfaces/SSEMessage'
@@ -431,7 +430,6 @@ import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } f
 import { UnRegisteredEvent } from 'jssip/lib/UA'
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import Notifications from '@/api/Notifications'
 
 interface Data {
   [key: string]: any;
