@@ -14,6 +14,7 @@ import contacts from './contacts'
 import contacts_new from './contacts_new'
 import statistic_recent_call from './statistic_recent_call'
 import statistic_all_call from './statistic_all_call'
+import statistic_activity from './statistic_activity'
 import { database } from './database'
 import debug from 'debug'
 
@@ -64,7 +65,8 @@ const store = new Vuex.Store({
     contacts,
     contacts_new,
     statistic_recent_call,
-    statistic_all_call
+    statistic_all_call,
+    statistic_activity
   },
 
   mutations: {},
