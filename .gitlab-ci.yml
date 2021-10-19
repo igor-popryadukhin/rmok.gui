@@ -44,8 +44,6 @@ build_production:
     - npm install --progress=false
     - npm run build || exit_code=$?
     - if [ $exit_code -ne 0 ]; then echo "Сборка звершилась с ошибкой"; fi;
-    - cd ./dist
-    - rsync -rq --delete . /var/www/ui.rmok
   artifacts:
     expire_in: 90 days
     paths:
@@ -67,6 +65,7 @@ deploy_production:
     expire_in: 90 days
     paths:
       - dist
+  when: manual
   tags:
     - production
   only:
