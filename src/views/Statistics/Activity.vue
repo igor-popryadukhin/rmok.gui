@@ -278,7 +278,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         if (!Array.isArray(this.$store.getters['statistic_activity/filter/period'])) {
           return this.$store.getters['statistic_activity/filter/period']
         }
-        return true
+        return null
       },
 
       set (value: string) {
@@ -292,7 +292,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           return this.$store.getters['statistic_activity/filter/period']
         }
 
-        return ''
+        return null
       },
 
       set (value: string[]) {
@@ -349,12 +349,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           }
           default: {
             // Если фильтр настраиваемый.
-            if (Array.isArray(this.filterCustomPeriod)) {
-              if (this.filterCustomPeriod.length === 2) {
-                params.period = `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').set('h', 0).set('m', 0).set('s', 0).unix()},${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').set('h', 23).set('m', 59).set('s', 59).unix()}`
-              }
-            }
+
           }
+        }
+      } else if (Array.isArray(this.filterCustomPeriod) && this.filterCustomPeriod.length === 2) {
+        if (this.filterCustomPeriod.length === 2) {
+          params.period = `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').set('h', 0).set('m', 0).set('s', 0).unix()},${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').set('h', 23).set('m', 59).set('s', 59).unix()}`
         }
       }
 
@@ -568,7 +568,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   created () {
-    this.fetchHistory = debounce(this.fetchHistory, 1000)
+    this.fetchActivity = debounce(this.fetchActivity, 1000)
   },
 
   mounted () {

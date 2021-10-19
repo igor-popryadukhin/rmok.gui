@@ -59,7 +59,7 @@ export default Vue.extend({
       }
     },
     value: {
-      type: [String, Object],
+      type: [String, Object, Array],
       default () {
         return null
       }
