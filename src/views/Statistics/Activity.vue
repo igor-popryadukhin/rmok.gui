@@ -427,13 +427,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       return params
     },
 
-    /**
-     * Для администратора, руководителя КЦ и руководителя группы вернёт true
-     */
-    isTableColumnManagerVisible () {
-      return this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])
-    },
-
     isDisabledFilterActions () {
       return !(this.filterOwnerId.length > 0 || this.filterUserGroupId.length > 0)
     },
@@ -606,7 +599,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }),
 
     /**
-     * Загрузит исторические данные
+     * Загрузит данные по активности
      */
     async fetchActivity () {
       this.processFetchActivity = true
@@ -618,10 +611,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       } finally {
         this.processFetchActivity = false
       }
-    },
-
-    onAppPaginationChange () {
-      this.fetchActivity()
     },
 
     onBtnRefreshClick () {
