@@ -1,15 +1,13 @@
 stages:
-  - merge-request
   - build-review
-  - deploy-review
   - build-production
   - deploy-production
 
 
-.only-default: &only-default
-  only:
-    - develop
-    - merge_requests
+#.only-default: &only-default
+#  only:
+#    - develop
+#    - merge_requests
 
 cache:
   policy: pull-push
@@ -51,6 +49,22 @@ build_production:
     paths:
       - dist
   when: manual
+  tags:
+    - production
+  only:
+    - develop
+
+deploy_production:
+  image: node:14.16.0-alpine3.12
+  stage: deploy-production
+  script:
+    - ls -l
+    - cd ./dist
+    - rsync -rq --delete . /var/www/ui.rmok
+  artifacts:
+    expire_in: 90 days
+    paths:
+      - dist
   tags:
     - production
   only:
