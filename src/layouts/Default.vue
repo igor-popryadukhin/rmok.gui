@@ -545,7 +545,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             }
           },
           new: true,
-          visible: [17, 87, 79, 19].includes(this.$profile.id)
+          visible: [17, 82].includes(this.$profile.id)
         },
         {
           title: 'Tasks',
