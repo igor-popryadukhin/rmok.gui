@@ -146,20 +146,40 @@
       <v-col
         class="py-0 mb-10"
       >
-        <v-card
-          tile
-          flat
-          outlined
-        >
-          <v-card-text>
-            <apexchart
-              height="1000"
-              type="bar"
-              :options="apexchartOptions"
-              :series="apexSeries"
-            />
-          </v-card-text>
-        </v-card>
+        <template v-if="processFetchActivity">
+          <div
+            class="d-flex align-center justify-center fill-height"
+          >
+            <div class="grey--text">
+              <app-loading />
+            </div>
+          </div>
+        </template>
+        <template v-else-if="statisticActivity.length === 0">
+          <div
+            class="d-flex align-center justify-center fill-height"
+          >
+            <div class="grey--text">
+              <span>{{ $tc('No data for the selected period') }}</span>
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <v-card
+            tile
+            flat
+            outlined
+          >
+            <v-card-text>
+              <apexchart
+                height="1000"
+                type="bar"
+                :options="apexchartOptions"
+                :series="apexSeries"
+              />
+            </v-card-text>
+          </v-card>
+        </template>
       </v-col>
     </v-row>
   </v-sheet>
@@ -200,6 +220,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     AppProjectAutocomplete: () => import('@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'),
     AppUserGroupAutocomplete: () => import('@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'),
     AppBtnToggleDate,
+    AppLoading,
     AppUserAutocomplete: () => import('@/components/AppUserAutocomplete/AppUserAutocomplete.vue')
   },
 
