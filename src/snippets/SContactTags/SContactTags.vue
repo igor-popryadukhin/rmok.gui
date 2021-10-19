@@ -1,7 +1,8 @@
 <template>
   <v-autocomplete
-    v-model="selected"
     v-bind="$props"
+    ref="ref"
+    v-model="selected"
     :items="options"
     :search-input.sync="q"
     :cache-items="false"
@@ -9,7 +10,6 @@
     :error-messages="errorMessages"
     :no-data-text="$tc('No data available')"
     :label="label"
-    ref="ref"
     item-text="name"
     item-value="id"
     item-color="color"
@@ -25,17 +25,20 @@
       slot-scope="{ item, on, attrs }"
     >
       <v-list-item
-        v-on="on"
         v-bind="attrs"
         :disabled="item.id > 0 && itemDisabled === 0 || item.id === 0 && itemDisabled === -1"
+        v-on="on"
       >
         {{ item.name }}
       </v-list-item>
     </template>
 
-    <template v-slot:append-item>
-      <v-divider class="mb-2"></v-divider>
-      <v-list-item disabled dense>
+    <template #append-item>
+      <v-divider class="mb-2" />
+      <v-list-item
+        disabled
+        dense
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ $tc('Start typing to initialize your search.') }}
@@ -71,7 +74,7 @@
     </template>
 
     <template
-      v-slot:prepend-inner
+      #prepend-inner
     >
       <v-icon>mdi-tag</v-icon>
     </template>
@@ -183,16 +186,6 @@ export default Vue.extend({
     }
   },
 
-  watch: {
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (value: number | number[]) {
-      this.selected = value
-    }
-  },
-
   computed: {
     /**
      * Список тегов контактов
@@ -229,6 +222,16 @@ export default Vue.extend({
         }
       }
       return false
+    }
+  },
+
+  watch: {
+    selected (value) {
+      this.$emit('change', value)
+    },
+
+    value (value: number | number[]) {
+      this.selected = value
     }
   },
 

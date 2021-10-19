@@ -1,12 +1,32 @@
 <template>
-    <div v-bind:style="styles" class="spinner spinner--double-bounce">
-      <div class="double-bounce1" v-bind:style="bounceStyle"></div>
-      <div class="double-bounce2" v-bind:style="bounceStyle"></div>
-    </div>
+  <div
+    :style="styles"
+    class="spinner spinner--double-bounce"
+  >
+    <div
+      class="double-bounce1"
+      :style="bounceStyle"
+    />
+    <div
+      class="double-bounce2"
+      :style="bounceStyle"
+    />
+  </div>
 </template>
 
 <script>
 export default {
+  props: {
+    background: {
+      default: '#41b883'
+    },
+    duration: {
+      default: '2.0s'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     bounceStyle () {
       return {
@@ -19,17 +39,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    background: {
-      default: '#41b883'
-    },
-    duration: {
-      default: '2.0s'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

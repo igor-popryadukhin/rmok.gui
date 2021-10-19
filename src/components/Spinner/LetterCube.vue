@@ -1,13 +1,31 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--socker">
-    <div v-bind:style="innerStyles" class="spinner-inner">
+  <div
+    :style="styles"
+    class="spinner spinner--socker"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
       <div class="cube panelLoad">
-        <div class='cube-face cube-face-front'>L</div>
-        <div class='cube-face cube-face-back'>O</div>
-        <div class='cube-face cube-face-left'>A</div>
-        <div class='cube-face cube-face-right'>D</div>
-        <div class='cube-face cube-face-bottom'>I</div>
-        <div class='cube-face cube-face-top'>N'</div>
+        <div class="cube-face cube-face-front">
+          L
+        </div>
+        <div class="cube-face cube-face-back">
+          O
+        </div>
+        <div class="cube-face cube-face-left">
+          A
+        </div>
+        <div class="cube-face cube-face-right">
+          D
+        </div>
+        <div class="cube-face cube-face-bottom">
+          I
+        </div>
+        <div class="cube-face cube-face-top">
+          N'
+        </div>
       </div>
     </div>
   </div>
@@ -15,6 +33,11 @@
 
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size) / 2
@@ -27,11 +50,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

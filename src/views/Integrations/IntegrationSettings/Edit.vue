@@ -216,8 +216,8 @@
 
 <script lang="ts">
 import ProjectIntegrationSettings, {
-  ProfileInterface,
-  OrganizationInterface, ProjectInterface
+  OrganizationInterface,
+  ProfileInterface, ProjectInterface
 } from '@/api/ProjectIntegrationSettings'
 import rules from '@/mixins/rules'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
@@ -226,17 +226,17 @@ import Vue, { VueConstructor } from 'vue'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import APIError from '@/api/classes/APIError'
 
-interface IRef {
+interface Ref {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   [key: string]: any
 }
 
 interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
+  $data: Data;
+  $refs: Ref;
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({

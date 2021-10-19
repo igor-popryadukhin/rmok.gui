@@ -1,12 +1,32 @@
 <template>
-    <div v-bind:style="styles" class="spinner spinner--two-cube">
-      <div v-bind:style='cubeStyles' class="cube1"></div>
-      <div v-bind:style='cubeStyles' class="cube2"></div>
-    </div>
+  <div
+    :style="styles"
+    class="spinner spinner--two-cube"
+  >
+    <div
+      :style="cubeStyles"
+      class="cube1"
+    />
+    <div
+      :style="cubeStyles"
+      class="cube2"
+    />
+  </div>
 </template>
 
 <script>
 export default {
+  props: {
+    background: {
+      default: '#41b883'
+    },
+    duration: {
+      default: '1.8s'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     cubeStyles () {
       return {
@@ -20,17 +40,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    background: {
-      default: '#41b883'
-    },
-    duration: {
-      default: '1.8s'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

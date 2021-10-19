@@ -15,10 +15,18 @@
         >
           <template
             v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-            v-slot:prepend
+            #prepend
           >
-            <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-email</v-icon>
-            <v-spacer v-else class="pl-10 pr-10"></v-spacer>
+            <v-icon
+              v-if="key === 0"
+              class="pl-5 pr-9"
+            >
+              mdi-email
+            </v-icon>
+            <v-spacer
+              v-else
+              class="pl-10 pr-10"
+            />
           </template>
         </v-text-field>
       </v-col>
@@ -31,7 +39,7 @@
           :rules="rulesLabel"
           counter
         >
-          <template v-slot:append-outer>
+          <template #append-outer>
             <v-btn
               v-if="(emails.length - 1) === key"
               icon
@@ -58,49 +66,13 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  beforeDestroy () {
-    this.$off('change', this.onChange)
-  },
-  created () {
-    this.emails = this.value
-  },
-  data () {
-    return {
-      emails: [] as any[]
-    }
-  },
 
-  methods: {
-    doAddEmail (label = '', value = '') {
-      this.emails.push({
-        label,
-        value
-      })
-    },
-
-    onAddClick () {
-      this.doAddEmail()
-    },
-
-    onChange (value: any) {
-      this.emails = value
-    },
-
-    onDeleteClick (index: number) {
-      this.emails.splice(index, 1)
-    }
-  },
+  name: 'SEmails',
 
   model: {
     event: 'change',
     prop: 'value'
   },
-
-  mounted () {
-    this.$on('change', this.onChange)
-  },
-
-  name: 'SEmails',
 
   props: {
     rulesEmail: {
@@ -124,10 +96,46 @@ export default Vue.extend({
       type: [Array]
     }
   },
+  data () {
+    return {
+      emails: [] as any[]
+    }
+  },
 
   watch: {
     value (value) {
       this.emails = value
+    }
+  },
+  beforeDestroy () {
+    this.$off('change', this.onChange)
+  },
+  created () {
+    this.emails = this.value
+  },
+
+  mounted () {
+    this.$on('change', this.onChange)
+  },
+
+  methods: {
+    doAddEmail (label = '', value = '') {
+      this.emails.push({
+        label,
+        value
+      })
+    },
+
+    onAddClick () {
+      this.doAddEmail()
+    },
+
+    onChange (value: any) {
+      this.emails = value
+    },
+
+    onDeleteClick (index: number) {
+      this.emails.splice(index, 1)
     }
   }
 })

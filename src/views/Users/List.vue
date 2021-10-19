@@ -183,7 +183,6 @@
 
 <script lang="ts">
 import { UserInterface, Users } from '@/api/Users'
-import SUserDialogDelete from '@/snippets/SUserDialogDelete/SUserDialogDelete.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
@@ -194,32 +193,32 @@ import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
 import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 
-interface IRef {
+interface Ref {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   [key: string]: any;
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-interface IProps {
+interface Props {
   [key: string]: any;
 }
 
 interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
+  $data: Data;
+  $refs: Ref;
 }
 
-export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, IComputed, IProps>({
+export default (Vue as VueConstructor<VInnerInterface>).extend<Data, Methods, Computed, Props>({
 
   metaInfo: {
     title: 'Foo Bar'
@@ -233,7 +232,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
     AppLoading
   },
 
-  data (): IData {
+  data (): Data {
     return {
       tick: 0,
       usersItemsMessageError: ''
@@ -335,34 +334,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethods, 
      * @param item Элемент массива UserInterface[]
      */
     onDelete (item: UserInterface) {
-      this.$dialog.showAndWait(SUserDialogDelete, {
-        onDelete: (data: unknown & { user_id: number; option: string }) => {
-          // Процедура удаления пользователя
-          // В полезной нагрузке мы передаём дополнительную информацию
-          // receiver_user_id - идентификатор пользователя, которому будет передан контакт
-          // Если не передать receiver_user_id то в качестве приёмщика, выступает удаляющий
-
-          const payload: any = {}
-
-          if (data.option === 'transfer_contacts_to_an_employee') {
-            payload.receiver_user_id = data.user_id
-          }
-
-          new Users()
-            .delete(item.id, payload)
-            .then(() => {
-              this.$toast.success('User deleted successfully')
-              this.fetchUsers()
-            }).catch((e) => {
-              this.$toast.error(e.message)
-            })
-        },
-        responsibleDisabled: true,
-        text: this.$tc('The employee will be deleted, in order to save the contacts of this employee, you can transfer them to another owner.'),
-        title: this.$tc('Removing an employee'),
-        userDefaultId: this.$store.getters['profile/id'],
-        width: '700px'
-      })
+      // TODO: Реализовать обработчик
     },
 
     /**

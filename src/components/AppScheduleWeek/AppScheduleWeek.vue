@@ -1,50 +1,47 @@
 <template>
   <div class="schedule-wrapper">
-<!--    <div :style="verticalLineCss" ref="lineVertical"></div>-->
+    <!--    <div :style="verticalLineCss" ref="lineVertical"></div>-->
     <table
       cellpadding="0"
       cellspacing="0"
     >
       <thead>
-      <tr>
-        <td/>
-        <td
-          v-for="(itemHour, itemHourIndex) in hours"
-          :key="itemHourIndex"
-        >
-          <div class="schedule-hour-title">
-            {{ itemHour.title }}
-          </div>
-        </td>
-      </tr>
+        <tr>
+          <td />
+          <td
+            v-for="(itemHour, itemHourIndex) in hours"
+            :key="itemHourIndex"
+          >
+            <div class="schedule-hour-title">
+              {{ itemHour.title }}
+            </div>
+          </td>
+        </tr>
       </thead>
       <tbody>
-
-      <tr
-        v-for="(itemDay, itemDayIndex) in days"
-        :key="itemDayIndex"
-      >
-        <td>
-          <div class="schedule-day-title">
-            {{ itemDay.title }}
-          </div>
-        </td>
-
-        <td
-          v-for="(itemHour, itemHourIndex) in hours"
-          :key="itemHourIndex"
+        <tr
+          v-for="(itemDay, itemDayIndex) in days"
+          :key="itemDayIndex"
         >
-          <div
-            :style="{'background-color': getMatrixState(itemDay.x, itemHour.y) ? elementColor: ''}"
-            @mouseup.left="onMatrixClick({ itemHour, itemDay })"
-            @contextmenu="onMouseUpCtrl(itemDay, $event)"
-          ></div>
-        </td>
-      </tr>
+          <td>
+            <div class="schedule-day-title">
+              {{ itemDay.title }}
+            </div>
+          </td>
 
+          <td
+            v-for="(itemHour, itemHourIndex) in hours"
+            :key="itemHourIndex"
+          >
+            <div
+              :style="{'background-color': getMatrixState(itemDay.x, itemHour.y) ? elementColor: ''}"
+              @mouseup.left="onMatrixClick({ itemHour, itemDay })"
+              @contextmenu="onMouseUpCtrl(itemDay, $event)"
+            />
+          </td>
+        </tr>
       </tbody>
-      <tfoot>
-      </tfoot>
+      <tfoot />
     </table>
   </div>
 </template>
@@ -66,6 +63,11 @@ interface ScheduleMatrixInterface {
 
 export default Vue.extend({
   name: 'AppScheduleWeek',
+
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
   props: {
     elementColor: {
       type: String,
@@ -92,11 +94,6 @@ export default Vue.extend({
         return []
       }
     }
-  },
-
-  model: {
-    prop: 'value',
-    event: 'change'
   },
 
   data () {

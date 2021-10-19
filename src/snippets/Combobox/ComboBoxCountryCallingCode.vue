@@ -9,7 +9,7 @@
     :prefix="selected ? selected.country_code : ''"
   >
     <template
-      v-slot:item="{ item }"
+      #item="{ item }"
     >
       <v-list-item-content>
         <v-list-item-title>{{ item.name }} ({{ item.name2 }})</v-list-item-title>
@@ -17,7 +17,7 @@
       </v-list-item-content>
     </template>
     <template
-      v-slot:prepend
+      #prepend
     >
       <slot name="prepend" />
     </template>
@@ -30,29 +30,12 @@ import { RoleInterface } from '@/api/Roles'
 import { CountryCodeInterface } from '@/api/Database'
 
 export default Vue.extend({
-  created () {
-    const countryCodes: CountryCodeInterface[] = this.$store.getters['system/country_codes']
-    if (countryCodes) {
-      for (const item of countryCodes) {
-        if (item.country_code === this.countryCodeSelected) {
-          this.selected = item
-          break
-        }
-      }
-    }
-  },
-  data () {
-    return {
-      roles: [] as RoleInterface[],
-      selected: {} as CountryCodeInterface
-    }
-  },
+
+  name: 'ComboBoxCountryCallingCode',
   model: {
     event: 'change',
     prop: 'value'
   },
-
-  name: 'ComboBoxCountryCallingCode',
 
   props: {
     countryCodeSelected: {
@@ -81,6 +64,12 @@ export default Vue.extend({
       type: Boolean
     }
   },
+  data () {
+    return {
+      roles: [] as RoleInterface[],
+      selected: {} as CountryCodeInterface
+    }
+  },
 
   watch: {
 
@@ -102,6 +91,17 @@ export default Vue.extend({
       this.$emit('change', value.country_code)
       if (typeof this.onSelected === 'function') {
         this.onSelected(value)
+      }
+    }
+  },
+  created () {
+    const countryCodes: CountryCodeInterface[] = this.$store.getters['system/country_codes']
+    if (countryCodes) {
+      for (const item of countryCodes) {
+        if (item.country_code === this.countryCodeSelected) {
+          this.selected = item
+          break
+        }
       }
     }
   }

@@ -1,4 +1,4 @@
-import { incline, getGender } from 'lvovich'
+import { getGender, incline } from 'lvovich'
 import { LvovichPersonT } from 'lvovich/lib/incline'
 import { DeclentionStrT } from 'lvovich/lib/inclineRules'
 import Vue from 'vue'

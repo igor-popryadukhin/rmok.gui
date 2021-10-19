@@ -11,18 +11,24 @@
     dense
     single-line
   >
-    <template v-slot:item="scope">
-      <slot name="item" v-bind="scope">
+    <template #item="scope">
+      <slot
+        name="item"
+        v-bind="scope"
+      >
         <v-list-item
-          v-on="scope.on"
           :to="scope.item"
+          v-on="scope.on"
         >
           {{ scope.item.name }}
         </v-list-item>
       </slot>
     </template>
-    <template v-slot:selection="scope">
-      <slot name="selection" v-bind="scope">
+    <template #selection="scope">
+      <slot
+        name="selection"
+        v-bind="scope"
+      >
         {{ scope.item.name }}
       </slot>
     </template>
@@ -35,6 +41,22 @@ import { Route } from 'vue-router'
 import router from '@/router'
 
 export default Vue.extend({
+
+  name: 'VRouterComboBox',
+
+  props: {
+    patternRouteName: {
+      required: true,
+      type: [String, RegExp]
+    }
+  },
+
+  data () {
+    return {
+      routes: [],
+      select: null as any
+    }
+  },
 
   created () {
     const tree = (node: Route, handler: (a: Route) => void) => {
@@ -62,22 +84,6 @@ export default Vue.extend({
         }
       })
     })
-  },
-
-  data () {
-    return {
-      routes: [],
-      select: null as any
-    }
-  },
-
-  name: 'VRouterComboBox',
-
-  props: {
-    patternRouteName: {
-      required: true,
-      type: [String, RegExp]
-    }
   }
 })
 </script>

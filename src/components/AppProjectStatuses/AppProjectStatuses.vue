@@ -10,7 +10,7 @@
       open-on-click
       class="border-solid mb-2"
     >
-      <template v-slot:prepend="{ item, open }">
+      <template #prepend="{ item, open }">
         <v-icon
           v-if="item.statuses"
         >
@@ -20,7 +20,7 @@
           mdi-checkbox-blank-circle
         </v-icon>
       </template>
-      <template v-slot:append="append">
+      <template #append="append">
         <template
           v-if="append.item.statuses"
         >
@@ -29,8 +29,7 @@
             :color="append.item.color"
             @click.stop="onGroupEditClick(append.item)"
           >
-            <v-icon
-            >
+            <v-icon>
               mdi-pencil-box-outline
             </v-icon>
           </v-btn>
@@ -38,8 +37,7 @@
             icon
             @click.stop="onGroupRemoveClick(append.item)"
           >
-            <v-icon
-            >
+            <v-icon>
               mdi-minus
             </v-icon>
           </v-btn>
@@ -48,8 +46,7 @@
             color="green"
             @click.stop="onStatusAddClick(append.item)"
           >
-            <v-icon
-            >
+            <v-icon>
               mdi-plus
             </v-icon>
           </v-btn>
@@ -61,8 +58,7 @@
             icon
             @click.stop="onStatusEditClick(append.item)"
           >
-            <v-icon
-            >
+            <v-icon>
               mdi-pencil-box-outline
             </v-icon>
           </v-btn>
@@ -70,8 +66,7 @@
             icon
             @click.stop="onStatusRemoveClick(append.item)"
           >
-            <v-icon
-            >
+            <v-icon>
               mdi-minus
             </v-icon>
           </v-btn>

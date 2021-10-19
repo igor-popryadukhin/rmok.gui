@@ -1,10 +1,21 @@
 <template>
-  <div :style="styles" class="spinner spinner--gauge">
-    <div :style="innerStyles" class="spinner-inner"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--gauge"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size)
@@ -18,11 +29,6 @@ export default {
         height: size / 2 + 'px',
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

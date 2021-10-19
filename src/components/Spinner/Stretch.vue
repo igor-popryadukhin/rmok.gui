@@ -1,15 +1,44 @@
 <template>
-    <div v-bind:style="styles" class="spinner spinner--stretch">
-      <div v-bind:style="rectStyles" class="rect rect-1"></div>
-      <div v-bind:style="rectStyles" class="rect rect-2"></div>
-      <div v-bind:style="rectStyles" class="rect rect-3"></div>
-      <div v-bind:style="rectStyles" class="rect rect-4"></div>
-      <div v-bind:style="rectStyles" class="rect rect-5"></div>
-    </div>
+  <div
+    :style="styles"
+    class="spinner spinner--stretch"
+  >
+    <div
+      :style="rectStyles"
+      class="rect rect-1"
+    />
+    <div
+      :style="rectStyles"
+      class="rect rect-2"
+    />
+    <div
+      :style="rectStyles"
+      class="rect rect-3"
+    />
+    <div
+      :style="rectStyles"
+      class="rect rect-4"
+    />
+    <div
+      :style="rectStyles"
+      class="rect rect-5"
+    />
+  </div>
 </template>
 
 <script>
 export default {
+  props: {
+    background: {
+      default: '#41b883'
+    },
+    duration: {
+      default: '1.2s'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     rectStyles () {
       return {
@@ -22,17 +51,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    background: {
-      default: '#41b883'
-    },
-    duration: {
-      default: '1.2s'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

@@ -10,8 +10,7 @@
         v-model="email"
         :label="$tc('E-mail address')"
         style="max-width: 450px"
-      >
-      </v-text-field>
+      />
     </v-card-text>
     <v-card-text>
       <v-textarea
@@ -25,13 +24,6 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  data () {
-    return {
-      email: null
-    }
-  },
-
-  methods: {},
 
   name: 'ASendEmail',
 
@@ -41,7 +33,14 @@ export default Vue.extend({
       type: Object
     }
   },
+  data () {
+    return {
+      email: null
+    }
+  },
 
-  watch: {}
+  watch: {},
+
+  methods: {}
 })
 </script>

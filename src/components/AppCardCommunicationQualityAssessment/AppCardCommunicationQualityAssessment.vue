@@ -10,7 +10,7 @@
         length="5"
         size="35"
         hover
-      ></v-rating>
+      />
     </v-card-text>
     <v-card-text>
       <v-textarea
@@ -19,8 +19,7 @@
         rows="3"
         outlined
         hide-details
-      >
-      </v-textarea>
+      />
     </v-card-text>
     <v-card-actions class="px-4 pb-4">
       <v-spacer />

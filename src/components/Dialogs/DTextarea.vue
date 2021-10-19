@@ -1,11 +1,11 @@
 <template>
   <div>
     <DialogCard
+      ref="card"
       :title="title"
       :actions="actions"
       :handler="handlerClick"
       :title-class="titleClass"
-      ref="card"
     >
       <v-textarea
         ref="input"
@@ -25,12 +25,31 @@
 import Vue from 'vue'
 
 export default Vue.extend({
+  layout: 'default',
+  props: {
+    actions: [Object],
+    autofocus: {
+      default: true,
+      type: Boolean
+    },
+    rules: Array,
+    textField: Object,
+    title: String,
+    titleClass: [String, Object],
+    value: String
+  },
   data () {
     return {
       editedValue: this.value
     }
   },
-  layout: 'default',
+  mounted () {
+    if (this.autofocus) {
+      setTimeout(() => {
+        this.$refs.input.focus()
+      }, 100)
+    }
+  },
   methods: {
     handlerClick (res, action) {
       if (!action.key) {
@@ -46,25 +65,6 @@ export default Vue.extend({
     onEnter () {
       this.$refs.card.$refs.actions.trigger(true)
     }
-  },
-  mounted () {
-    if (this.autofocus) {
-      setTimeout(() => {
-        this.$refs.input.focus()
-      }, 100)
-    }
-  },
-  props: {
-    actions: [Object],
-    autofocus: {
-      default: true,
-      type: Boolean
-    },
-    rules: Array,
-    textField: Object,
-    title: String,
-    titleClass: [String, Object],
-    value: String
   }
 })
 </script>

@@ -1,18 +1,11 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--circle-2"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--circle-2"
+  />
 </template>
 <script>
 export default {
-  computed: {
-    styles () {
-      return {
-        border: this.stroke + ' solid ' + this.background,
-        borderTopColor: this.color,
-        height: this.size,
-        width: this.size
-      }
-    }
-  },
   props: {
     background: {
       default: '#3a70d4'
@@ -25,6 +18,16 @@ export default {
     },
     stroke: {
       default: '5px'
+    }
+  },
+  computed: {
+    styles () {
+      return {
+        border: this.stroke + ' solid ' + this.background,
+        borderTopColor: this.color,
+        height: this.size,
+        width: this.size
+      }
     }
   }
 }

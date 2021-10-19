@@ -176,7 +176,6 @@
 
 <script lang="ts">
 
-import { Contacts } from '@/api/Contacts'
 import { GroupInterface } from '@/api/Groups'
 import Statistics from '@/api/Statistics'
 import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
@@ -377,17 +376,17 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('user_ids')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('user_ids')))
+      promises.push((this.$refs.sUsersAutocomplete as any).setDefault(this.$routerQuery.getQuery('user_ids')))
     }
 
     if (this.$routerQuery.hasQuery('group_ids')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('group_ids')))
+      promises.push((this.$refs.sGroupsAutocomplete as any).setDefault(this.$routerQuery.getQuery('group_ids')))
     }
 
     // Восстановление фильтра тегов после перезагрузки
     if (this.$routerQuery.hasQuery('tag_ids')) {
       const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
-      this.filter.tags = tag_ids.map(value => +value)
+      this.$data.filter.tags = tag_ids.map(value => +value)
     }
 
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
@@ -475,7 +474,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * @param dateRange
      */
     onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
+      (this.$refs.menuDateRange as any).save(dateRange)
       const date1 = new Date(dateRange[0])
       const date2 = new Date(dateRange[1])
 

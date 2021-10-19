@@ -12,7 +12,6 @@
       tile
     >
       <div class="d-flex flex-wrap">
-
         <v-btn-toggle
           v-model="filter.planned_for"
           class="d-flex flex-wrap justify-start"
@@ -44,14 +43,14 @@
             offset-y
             min-width="290px"
           >
-            <template v-slot:activator="{ on, attrs }">
+            <template #activator="{ on, attrs }">
               <v-btn
                 v-bind="attrs"
-                v-on="on"
                 :x-small="['xs', 'sm'].includes($vuetify.breakpoint.name)"
                 :small="['md'].includes($vuetify.breakpoint.name)"
                 :color="filterSelectedStatus ? filterSelectedStatus.color : ''"
                 outlined
+                v-on="on"
               >
                 <template v-if="filterSelectedStatus">
                   {{ filterSelectedStatus.name }}
@@ -88,13 +87,13 @@
             offset-y
             min-width="290px"
           >
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <v-btn
-                v-on="on"
                 :class="/^\d+,\d+/s.test(String($route.query[prefix('planned_for')])) ? 'v-btn--active' : ''"
                 :value="null"
                 :x-small="['xs', 'sm'].includes($vuetify.breakpoint.name)"
                 :small="['md'].includes($vuetify.breakpoint.name)"
+                v-on="on"
               >
                 <v-icon>mdi-calendar-month-outline</v-icon>
                 {{ $tc('Select date') }}
@@ -108,7 +107,7 @@
               no-title
               locale="ru"
             >
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn
                 text
                 color="primary"
@@ -127,18 +126,23 @@
           </v-menu>
         </v-btn-toggle>
       </div>
-      <v-spacer/>
+      <v-spacer />
     </v-app-bar>
 
-    <v-card-text class="py-0" :class="outlined ? '' : 'px-0'">
-      <template v-if="task_items.length === 0 && tasksLoading  === true">
+    <v-card-text
+      class="py-0"
+      :class="outlined ? '' : 'px-0'"
+    >
+      <template v-if="task_items.length === 0 && tasksLoading === true">
         <div
           class="d-flex align-center justify-center"
         >
-          <div class="grey--text">{{ $tc('Loading content...') }}</div>
+          <div class="grey--text">
+            {{ $tc('Loading content...') }}
+          </div>
         </div>
       </template>
-      <template v-if="task_items.length === 0 && tasksLoading  === false">
+      <template v-if="task_items.length === 0 && tasksLoading === false">
         <div
           class="d-flex flex-wrap align-center justify-center"
           style="height: 400px"
@@ -157,8 +161,8 @@
             />
             <v-skeleton-loader
               v-if="tasksLoading"
-              type="list-item-three-line"
               :key="`v-skeleton-loader-${taskIndex}`"
+              type="list-item-three-line"
               height="79"
             />
             <v-list-item
@@ -185,13 +189,13 @@
                     }}
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
-                          <span
-                            class="label mr-2"
-                            :style="{'background-color': lastContactStatus(taskItem.contact).color }"
-                            :class="lastContactStatus(taskItem.contact).class"
-                          >
-                            {{ lastContactStatus(taskItem.contact).name }}
-                          </span> {{ taskItem.description || '—' }}
+                    <span
+                      class="label mr-2"
+                      :style="{'background-color': lastContactStatus(taskItem.contact).color }"
+                      :class="lastContactStatus(taskItem.contact).class"
+                    >
+                      {{ lastContactStatus(taskItem.contact).name }}
+                    </span> {{ taskItem.description || '—' }}
                   </v-list-item-subtitle>
                 </slot>
               </v-list-item-content>
@@ -200,7 +204,7 @@
                   bottom
                   left
                 >
-                  <template v-slot:activator="{ on, attrs }">
+                  <template #activator="{ on, attrs }">
                     <v-btn
                       icon
                       v-bind="attrs"
@@ -234,7 +238,7 @@
           v-model="task_paginator.page"
           :length="task_paginator.pages"
           total-visible="10"
-        ></v-pagination>
+        />
       </div>
     </v-card-actions>
   </v-card>
@@ -252,86 +256,84 @@ import moment from 'moment'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
-interface IProps {
+interface Props {
   [key: string]: any;
 }
 
-interface IRef {
+interface Ref {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-interface IMethod {
+interface Method {
   [key: string]: any;
 }
 
 interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
+  $data: Data;
+  $refs: Ref;
 }
 
-export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, IComputed, IProps>({
+export default (Vue as VueConstructor<VInnerInterface>).extend<Data, Method, Computed, Props>({
 
-  computed: {
+  props: {
 
-    filterSelectedStatus () {
-      return this.statuses.find((e: StatusInterface) => e.id === this.filter.status_id)
+    /**
+     * Включить фильтр
+     **/
+    filtersEnabled: {
+      default () {
+        return false
+      },
+      type: Boolean
     },
 
-    filtersStyleComputed () {
-      return {
-        'min-width': '200px'
-      }
+    outlined: {
+      default: false,
+      type: Boolean
     },
 
-    isVisibleDivider () {
-      return this.task_items.length > 1
+    paramPrefix: {
+      default () {
+        return 't_'
+      },
+      type: String
     },
 
-    itemActions () {
-      return [
-        {
-          attrs: {},
-          click: (item: TaskInterface) => {
-            item.state = 'done'
-            new Tasks()
-              .setState(item.id, 'done')
-              .then(() => {
-                this.$store.dispatch('tasks/pending_count')
-              })
-          },
-          title: this.$tc('Close')
-        },
-        {
-          attrs: {},
-          click: this.onTaskItemEditClick,
-          title: this.$tc('Edit')
-        }
-      ]
+    /**
+     * Дополнительные параметры передаваемые конечной точке (имеет наивысший приоритет)
+     **/
+    params: {
+      default () {
+        return {}
+      },
+      type: Object
     },
 
-    statuses () {
-      let statuses: any[] = []
-      statuses = statuses.concat(
-        [{
-          id: 0,
-          name: this.$tc('All statuses')
-        }],
-        this.$store.getters['database/statuses_not_grouped'] as StatusInterface[]
-      )
-      return statuses
+    /**
+     * Количество задач на страницу
+     **/
+    perPage: {
+      default: 10,
+      type: Number
+    },
+
+    /**
+     * Включить инструменты
+     **/
+    toolsEnabled: {
+      default () {
+        return false
+      },
+      type: Boolean
     }
-  },
-
-  created () {
-    this.update()
   },
 
   data () {
@@ -554,6 +556,67 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
           })
       })
     }
+  },
+
+  computed: {
+
+    filterSelectedStatus () {
+      return this.statuses.find((e: StatusInterface) => e.id === this.filter.status_id)
+    },
+
+    filtersStyleComputed () {
+      return {
+        'min-width': '200px'
+      }
+    },
+
+    isVisibleDivider () {
+      return this.task_items.length > 1
+    },
+
+    itemActions () {
+      return [
+        {
+          attrs: {},
+          click: (item: TaskInterface) => {
+            item.state = 'done'
+            new Tasks()
+              .setState(item.id, 'done')
+              .then(() => {
+                this.$store.dispatch('tasks/pending_count')
+              })
+          },
+          title: this.$tc('Close')
+        },
+        {
+          attrs: {},
+          click: this.onTaskItemEditClick,
+          title: this.$tc('Edit')
+        }
+      ]
+    },
+
+    statuses () {
+      let statuses: any[] = []
+      statuses = statuses.concat(
+        [{
+          id: 0,
+          name: this.$tc('All statuses')
+        }],
+        this.$store.getters['database/statuses_not_grouped'] as StatusInterface[]
+      )
+      return statuses
+    }
+  },
+
+  created () {
+    this.update()
+  },
+
+  mounted () {
+    this.initializeFiltersFromQuery()
+    this.initializeWatchFilters()
+    this.fetchCount()
   },
 
   methods: {
@@ -898,65 +961,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<IData, IMethod, I
       }
 
       return style
-    }
-  },
-
-  mounted () {
-    this.initializeFiltersFromQuery()
-    this.initializeWatchFilters()
-    this.fetchCount()
-  },
-
-  props: {
-
-    /**
-     * Включить фильтр
-     **/
-    filtersEnabled: {
-      default () {
-        return false
-      },
-      type: Boolean
-    },
-
-    outlined: {
-      default: false,
-      type: Boolean
-    },
-
-    paramPrefix: {
-      default () {
-        return 't_'
-      },
-      type: String
-    },
-
-    /**
-     * Дополнительные параметры передаваемые конечной точке (имеет наивысший приоритет)
-     **/
-    params: {
-      default () {
-        return {}
-      },
-      type: Object
-    },
-
-    /**
-     * Количество задач на страницу
-     **/
-    perPage: {
-      default: 10,
-      type: Number
-    },
-
-    /**
-     * Включить инструменты
-     **/
-    toolsEnabled: {
-      default () {
-        return false
-      },
-      type: Boolean
     }
   }
 })

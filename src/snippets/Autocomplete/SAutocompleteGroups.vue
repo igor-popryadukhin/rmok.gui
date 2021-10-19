@@ -13,12 +13,14 @@
   >
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
-      v-slot:prepend
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account-group</v-icon>
+      <v-icon class="pl-5 pr-9">
+        mdi-account-group
+      </v-icon>
     </template>
     <template
-      v-slot:no-data
+      #no-data
     >
       <slot name="no-data">
         <div class="pt-2 pb-2 pl-2 pr-2">
@@ -72,68 +74,13 @@ import { debounce } from 'vuetify/src/util/helpers'
 import { GroupFindQueryInterface, GroupInterface, Groups } from '@/api/Groups'
 
 export default Vue.extend({
-  created () {
-    if (this.autoLoad && this.disabled === false) {
-      this.loadGroups()
-    }
-  },
-  data () {
-    return {
-      groups: [],
-      groupsSearchDebounce: debounce((context: any) => {
-        if (context.disabled) { return }
-        context.loading = true
 
-        const query = {}
-
-        if (context.organizationId > 0) {
-          query.organization_id = context.organizationId
-        }
-
-        new Groups()
-          .find(query)
-          .then((items: GroupInterface[]) => {
-            context.groups = items
-            context.selected = context.groups.find((e: GroupInterface) => e.id === context.selectedId)
-          }).finally(() => {
-            context.loading = false
-          })
-      }, 400),
-      groupsSearchQuery: null as null | string,
-      loading: false,
-      selectOnce: false,
-      selected: null as any
-    }
-  },
-  methods: {
-    loadGroups () {
-      this.loading = true
-      const query: GroupFindQueryInterface = {
-        count: 100,
-        offset: 0
-      }
-
-      if (this.organizationId) {
-        query.organization_id = this.organizationId
-      }
-
-      new Groups()
-        .find(query)
-        .then((items: GroupInterface[]) => {
-          this.groups = items
-          this.selected = this.groups.find((e: GroupInterface) => e.id === this.selectedId)
-        }).finally(() => {
-          this.loading = false
-        })
-    }
-  },
+  name: 'SAutocompleteGroups',
 
   model: {
     event: 'change',
     prop: 'selected'
   },
-
-  name: 'SAutocompleteGroups',
 
   props: {
     autoLoad: {
@@ -173,6 +120,34 @@ export default Vue.extend({
       type: Boolean
     }
   },
+  data () {
+    return {
+      groups: [],
+      groupsSearchDebounce: debounce((context: any) => {
+        if (context.disabled) { return }
+        context.loading = true
+
+        const query = {}
+
+        if (context.organizationId > 0) {
+          query.organization_id = context.organizationId
+        }
+
+        new Groups()
+          .find(query)
+          .then((items: GroupInterface[]) => {
+            context.groups = items
+            context.selected = context.groups.find((e: GroupInterface) => e.id === context.selectedId)
+          }).finally(() => {
+            context.loading = false
+          })
+      }, 400),
+      groupsSearchQuery: null as null | string,
+      loading: false,
+      selectOnce: false,
+      selected: null as any
+    }
+  },
 
   watch: {
     groupsSearchQuery () {
@@ -195,6 +170,33 @@ export default Vue.extend({
 
     async selectedId () {
       this.groupsSearchDebounce(this)
+    }
+  },
+  created () {
+    if (this.autoLoad && this.disabled === false) {
+      this.loadGroups()
+    }
+  },
+  methods: {
+    loadGroups () {
+      this.loading = true
+      const query: GroupFindQueryInterface = {
+        count: 100,
+        offset: 0
+      }
+
+      if (this.organizationId) {
+        query.organization_id = this.organizationId
+      }
+
+      new Groups()
+        .find(query)
+        .then((items: GroupInterface[]) => {
+          this.groups = items
+          this.selected = this.groups.find((e: GroupInterface) => e.id === this.selectedId)
+        }).finally(() => {
+          this.loading = false
+        })
     }
   }
 })

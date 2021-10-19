@@ -11,9 +11,11 @@
   >
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
-      v-slot:prepend
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account-tie</v-icon>
+      <v-icon class="pl-5 pr-9">
+        mdi-account-tie
+      </v-icon>
     </template>
   </v-combobox>
 </template>
@@ -23,17 +25,11 @@ import Vue from 'vue'
 import { RoleInterface } from '@/api/Roles'
 
 export default Vue.extend({
-  data () {
-    return {
-      roles: [] as RoleInterface[],
-      selected: null
-    }
-  },
+  name: 'SRoleComboBox',
   model: {
     event: 'change',
     prop: 'selected'
   },
-  name: 'SRoleComboBox',
 
   props: {
     label: {
@@ -51,6 +47,12 @@ export default Vue.extend({
     visibleIcon: {
       default: false,
       type: Boolean
+    }
+  },
+  data () {
+    return {
+      roles: [] as RoleInterface[],
+      selected: null
     }
   },
 

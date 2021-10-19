@@ -2,13 +2,12 @@
   <DialogCard
     :actions="actions"
   >
-    <template v-slot:title>
+    <template #title>
       <v-card-title>{{ $t('Редактор задач') }}</v-card-title>
     </template>
 
     <!-- Form -->
     <v-form ref="form">
-
       <!-- Date and Time -->
       <v-row>
         <!-- Date -->
@@ -22,21 +21,21 @@
             offset-y
             min-width="290px"
           >
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <v-text-field
                 v-model="dDate"
-                v-on="on"
                 :label="$tc('Date')"
                 :rules="[rules.notBlank]"
-              ></v-text-field>
+                v-on="on"
+              />
             </template>
             <v-date-picker
               v-model="dDate"
-              @input="menuDatePicker = false"
-              @click="$refs.menuDatePicker.save(dDate)"
               :locale="$i18n.locale"
               :first-day-of-week="1"
-            ></v-date-picker>
+              @input="menuDatePicker = false"
+              @click="$refs.menuDatePicker.save(dDate)"
+            />
           </v-menu>
         </v-col>
 
@@ -47,7 +46,7 @@
             type="time"
             :label="$tc('Time')"
             :rules="[rules.notBlank]"
-          ></v-text-field>
+          />
         </v-col>
       </v-row>
 
@@ -63,12 +62,12 @@
             :rules="[rules.notBlank]"
             return-object
           >
-            <template v-slot:selection="{ item }">
+            <template #selection="{ item }">
               <v-list-item-title>
                 {{ $tc(item.title) }}
               </v-list-item-title>
             </template>
-            <template v-slot:item="{ item }">
+            <template #item="{ item }">
               <v-list-item-title>
                 {{ $tc(item.title) }}
               </v-list-item-title>
@@ -98,7 +97,7 @@
             rows="4"
             autofocus
           >
-            <template v-slot:append>
+            <template #append>
               <v-btn
                 icon
                 text
@@ -147,7 +146,7 @@ export interface DTaskInterface {
   description: string;
 }
 
-interface IProps {
+interface Props {
   performerId: string | number;
   performers: any;
   types: any;
@@ -159,7 +158,7 @@ interface IProps {
   onCancel: <T>(scope: T) => void;
 }
 
-interface IData {
+interface Data {
   menuDatePicker: boolean;
   menuTimePicker: boolean;
   dDate: string;
@@ -169,11 +168,11 @@ interface IData {
   dDescription: undefined;
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
@@ -183,8 +182,20 @@ interface IPropTypeType {
   disabled: boolean
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default Vue.extend<Data, Methods, Computed, Props>({
   components: { SUsers },
+
+  data (): Data {
+    return {
+      dDate: '',
+      dDescription: undefined,
+      dPerformer: null,
+      dTime: '',
+      dType: '',
+      menuDatePicker: false,
+      menuTimePicker: false
+    }
+  },
 
   computed: {
     actions () {
@@ -226,18 +237,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       return {
         notBlank: (value: string) => !!value || this.$t('This field should not be blank.')
       }
-    }
-  },
-
-  data (): IData {
-    return {
-      dDate: '',
-      dDescription: undefined,
-      dPerformer: null,
-      dTime: '',
-      dType: '',
-      menuDatePicker: false,
-      menuTimePicker: false
     }
   },
 

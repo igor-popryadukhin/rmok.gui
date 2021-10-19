@@ -12,7 +12,10 @@
           <v-icon>mdi-phone</v-icon>
         </v-btn>
       </div>
-      <div class="d-inline-block display" style="text-align: center;">
+      <div
+        class="d-inline-block display"
+        style="text-align: center;"
+      >
         <div style="font-size: 20px; margin-bottom: 5px">
           {{ displayName }}
         </div>

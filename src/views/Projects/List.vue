@@ -201,9 +201,9 @@ export default (Vue as VueConstructor<VInterface>).extend({
       new Projects()
         .find(params)
         .then((response) => {
-          this.projects.totalCount = response?.meta?.count || 0
-          this.projects.pages = Math.ceil(response?.meta?.count || 0 / this.projects.itemsPerPage)
-          this.projects.items = response.data
+          this.$data.projects.totalCount = response?.meta?.count || 0
+          this.$data.projects.pages = Math.ceil(response?.meta?.count || 0 / this.projects.itemsPerPage)
+          this.$data.projects.items = response.data
         }).finally(() => {
           this.projects.processLoading = false
         })
@@ -230,7 +230,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
               this.$router.push({
                 name: 'projects_edit',
                 params: {
-                  project_id: id
+                  project_id: String(id)
                 }
               })
             })
@@ -243,8 +243,8 @@ export default (Vue as VueConstructor<VInterface>).extend({
     },
 
     onPaginationChange (data: VDTPaginationEvent) {
-      this.projects.pageStart = data.pageStart + 1
-      this.projects.pageStop = data.pageStop
+      this.$data.projects.pageStart = data.pageStart + 1
+      this.$data.projects.pageStop = data.pageStop
     }
   }
 })

@@ -50,24 +50,24 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 
-interface IData {
+interface Data {
   datePickerValue?: string | string[] | null
   [key: string]: any;
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-interface IProps{
+interface Props{
   [key: string]: any;
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default Vue.extend<Data, Methods, Computed, Props>({
 
   name: 'AppDatePickerInput',
 

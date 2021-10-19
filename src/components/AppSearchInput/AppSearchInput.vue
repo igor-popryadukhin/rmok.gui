@@ -24,7 +24,7 @@
 import Vue from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
-interface IProps {
+interface Props {
   label: string;
   dense: boolean;
   outlined: boolean;
@@ -33,19 +33,19 @@ interface IProps {
   value: string;
 }
 
-interface IData {
+interface Data {
   text: string;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: unknown;
 }
 
-interface IMethod {
+interface Method {
   [key: string]: unknown;
 }
 
-export default Vue.extend<IData, IMethod, IComputed, IProps>({
+export default Vue.extend<Data, Method, Computed, Props>({
   name: 'AppSearchInput',
 
   inheritAttrs: false,
@@ -86,7 +86,7 @@ export default Vue.extend<IData, IMethod, IComputed, IProps>({
     }
   },
 
-  data (): IData {
+  data (): Data {
     return {
       text: ''
     }

@@ -447,19 +447,19 @@ export default (Vue as VueConstructor<VInterface>).extend({
     }
 
     if (this.$routerQuery.hasQuery('target_actions')) {
-      this.filter.actions.selected = this.$routerQuery.getQuery('target_actions')
+      this.$data.filter.actions.selected = this.$routerQuery.getQuery('target_actions')
     }
 
     if (this.$routerQuery.hasQuery('target_users')) {
-      promises.push(this.$refs.sUsersAutocomplete.setDefault(this.$routerQuery.getQuery('target_users')))
+      promises.push((this.$refs.sUsersAutocomplete as any).setDefault(this.$routerQuery.getQuery('target_users')))
     }
 
     if (this.$routerQuery.hasQuery('project_id')) {
-      promises.push(this.$refs.sProjectsAutocomplete.setDefault(this.$routerQuery.getQuery('project_id')))
+      promises.push((this.$refs.sProjectsAutocomplete as any).setDefault(this.$routerQuery.getQuery('project_id')))
     }
 
     if (this.$routerQuery.hasQuery('target_groups')) {
-      promises.push(this.$refs.sGroupsAutocomplete.setDefault(this.$routerQuery.getQuery('target_groups')))
+      promises.push((this.$refs.sGroupsAutocomplete as any).setDefault(this.$routerQuery.getQuery('target_groups')))
     }
 
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
@@ -505,7 +505,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         .then((response) => {
           this.reportActions = response.meta.types
           this.filter.actions.items = response.meta.types
-          this.reportItems = response.data
+          this.$data.reportItems = response.data
         }).finally(() => (this.processLoading = false))
     },
 
@@ -603,7 +603,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * @param dateRange
      */
     onSaveDateRangeClick (dateRange: string[]) {
-      this.$refs.menuDateRange.save(dateRange)
+      (this.$refs.menuDateRange as any).save(dateRange)
       const date1 = new Date(dateRange[0])
       const date2 = new Date(dateRange[1])
 

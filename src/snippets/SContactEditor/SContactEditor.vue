@@ -20,7 +20,7 @@
           :rules="[rules.notBlank, rules.lengthMax(255), rules.lengthMin(1)]"
           counter
         >
-          <template v-slot:prepend>
+          <template #prepend>
             <v-avatar
               size="60"
               class="mr-4 primary white--text"
@@ -49,7 +49,7 @@
           persistent-hint
           required
           :rules="[rules.notBlank, rules.lengthMax(255), rules.lengthMin(1)]"
-        ></v-text-field>
+        />
       </v-col>
       <v-col
         cols="12"
@@ -61,7 +61,7 @@
           :label="$tc('middle_name')"
           persistent-hint
           :rules="[rules.lengthMax(256)]"
-        ></v-text-field>
+        />
       </v-col>
     </v-row>
 
@@ -101,9 +101,11 @@
         >
           <template
             v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-            v-slot:prepend
+            #prepend
           >
-            <v-icon class="pl-5 pr-9">mdi-city</v-icon>
+            <v-icon class="pl-5 pr-9">
+              mdi-city
+            </v-icon>
           </template>
         </v-text-field>
       </v-col>
@@ -119,8 +121,7 @@
           :label="$tc('Region')"
           :rules="[]"
           counter
-        >
-        </v-text-field>
+        />
       </v-col>
       <v-col
         cols="12"
@@ -133,9 +134,11 @@
         >
           <template
             v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-            v-slot:prepend
+            #prepend
           >
-            <v-icon class="pl-10 pr-10">mdi-blank</v-icon>
+            <v-icon class="pl-10 pr-10">
+              mdi-blank
+            </v-icon>
           </template>
         </v-text-field>
       </v-col>
@@ -151,8 +154,10 @@
           :rules="[rules.lengthMax(100)]"
           counter
         >
-          <template v-slot:prepend>
-            <v-icon class="pl-5 pr-9">mdi-comment-text-outline</v-icon>
+          <template #prepend>
+            <v-icon class="pl-5 pr-9">
+              mdi-comment-text-outline
+            </v-icon>
           </template>
         </v-textarea>
       </v-col>
@@ -188,6 +193,8 @@ import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
 import SEmails from '@/snippets/SEmails/SEmails.vue'
 
 export default Vue.extend({
+
+  name: 'SContactEditor',
   // beforeRouteEnter (to, from, next) {
   //   if (to.params.contact_id) {
   //     new Contacts()
@@ -213,6 +220,15 @@ export default Vue.extend({
   components: {
     SContactEditorPhones,
     SEmails
+  },
+
+  mixins: [rules],
+
+  props: {
+    title: {
+      default: '',
+      type: String
+    }
   },
 
   data () {
@@ -345,17 +361,6 @@ export default Vue.extend({
         }).finally(() => {
           this.buttonSave.loading = false
         })
-    }
-  },
-
-  mixins: [rules],
-
-  name: 'SContactEditor',
-
-  props: {
-    title: {
-      default: '',
-      type: String
     }
   }
 })

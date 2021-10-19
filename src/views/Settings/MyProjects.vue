@@ -61,7 +61,7 @@ export default Vue.extend({
       new Projects()
         .find()
         .then(response => {
-          this.projects = response.data
+          this.$data.projects = response.data
         })
     },
 

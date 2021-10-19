@@ -21,7 +21,8 @@ build_review:
   script:
     - cat $VUE_ENV_REVIEW >> ./.env
     - npm install --progress=false
-    - npm run build
+    - npm run build || exit_code=$?
+    - if [ $exit_code -ne 0 ]; then echo "Сборка звершилась с ошибкой"; fi;
     - cd ./dist
     - rsync -rq --delete . ~/rmok.ui
   only:
@@ -41,7 +42,8 @@ build_production:
   script:
     - cat $VUE_ENV_PRODUCTION > ./.env
     - npm install --progress=false
-    - npm run build
+    - npm run build || exit_code=$?
+    - if [ $exit_code -ne 0 ]; then echo "Сборка звершилась с ошибкой"; fi;
     - cd ./dist
     - rsync -rq --delete . /var/www/ui.rmok
   artifacts:

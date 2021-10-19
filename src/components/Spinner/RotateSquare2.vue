@@ -1,23 +1,26 @@
 <template>
-    <div v-bind:style="styles" class="spinner spinner--rotate-square-2"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--rotate-square-2"
+  />
 </template>
 
 <script>
 export default {
-  computed: {
-    styles () {
-      return {
-        height: this.size,
-        width: this.size
-      }
-    }
-  },
   props: {
     background: {
       default: '#41b883'
     },
     size: {
       default: '40px'
+    }
+  },
+  computed: {
+    styles () {
+      return {
+        height: this.size,
+        width: this.size
+      }
     }
   }
 }

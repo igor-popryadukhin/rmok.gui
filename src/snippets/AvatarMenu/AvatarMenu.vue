@@ -1,6 +1,6 @@
 <template>
   <v-menu offset-y>
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <v-btn
         icon
         large
@@ -38,13 +38,8 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  computed: {
-    avatar () {
-      const first: string = this.$store.getters['profile/first_name'] || ''
-      const last: string = this.$store.getters['profile/last_name'] || ''
-      return first.charAt(0) + last.charAt(0)
-    }
-  },
+
+  props: {},
 
   data () {
     return {
@@ -73,7 +68,12 @@ export default Vue.extend({
       ]
     }
   },
-
-  props: {}
+  computed: {
+    avatar () {
+      const first: string = this.$store.getters['profile/first_name'] || ''
+      const last: string = this.$store.getters['profile/last_name'] || ''
+      return first.charAt(0) + last.charAt(0)
+    }
+  }
 })
 </script>

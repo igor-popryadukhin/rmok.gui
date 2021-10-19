@@ -29,9 +29,9 @@
     >
       <v-list-item
         class="v-divider"
-        v-on="on"
         :attrs="attrs"
         link
+        v-on="on"
         @click="onselect"
       >
         <v-list-item-content>
@@ -42,9 +42,12 @@
       </v-list-item>
     </template>
 
-    <template v-slot:append-item>
-      <v-divider class="mb-2"></v-divider>
-      <v-list-item disabled dense>
+    <template #append-item>
+      <v-divider class="mb-2" />
+      <v-list-item
+        disabled
+        dense
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ $tc('Start typing to initialize your search.') }}
@@ -81,15 +84,17 @@
 
     <template
       v-if="visibleIcon && innerIcon"
-      v-slot:prepend-inner
+      #prepend-inner
     >
       <v-icon>{{ iconName }}</v-icon>
     </template>
     <template
       v-else-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
-      v-slot:prepend
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">{{ iconName }}</v-icon>
+      <v-icon class="pl-5 pr-9">
+        {{ iconName }}
+      </v-icon>
     </template>
   </v-autocomplete>
 </template>
@@ -102,6 +107,11 @@ import Groups, { GroupInterface } from '@/api/Groups'
 
 export default Vue.extend({
   name: 'SGroups',
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
 
   props: {
     clearable: {
@@ -154,11 +164,6 @@ export default Vue.extend({
       default: false,
       type: Boolean
     }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
   },
 
   data () {

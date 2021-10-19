@@ -1,5 +1,8 @@
 <template>
-  <v-card tile flat>
+  <v-card
+    tile
+    flat
+  >
     <v-card-text class="pt-5">
       <v-list>
         <template v-for="(item, key) in options">
@@ -14,7 +17,7 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-divider :key="`v-divider-${key}`"/>
+          <v-divider :key="`v-divider-${key}`" />
         </template>
       </v-list>
     </v-card-text>

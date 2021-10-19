@@ -164,7 +164,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         offset
       }
       new ProjectIntegrationSettings()
-        .find<{count: number}, ProfileFindQueryInterface[]>(params)
+        .find(params)
         .then((response: ResponseInterface<{ count: number }, ProfileInterface[]>) => {
           this.dataTableGroups.totalCount = response.meta.count
           this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
@@ -200,9 +200,11 @@ export default (Vue as VueConstructor<VInterface>).extend({
       this.$dialog.confirm({
         text: this.$tc('confirm_profile_deletion'),
         title: this.$tc('confirmation_request'),
-        actions: {
-          false: this.$tc('No'),
-          true: {
+        actions: [
+          {
+            text: this.$tc('No')
+          },
+          {
             color: 'red',
             text: this.$tc('Yes'),
             handler: () => {
@@ -217,7 +219,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
                 })
             }
           }
-        }
+        ]
       })
     }
   }

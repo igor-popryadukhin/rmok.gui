@@ -153,7 +153,7 @@
 
 <script lang="ts">
 import Vue, { VueConstructor } from 'vue'
-import { GroupInterface, Groups, GroupFindQueryInterface } from '@/api/Groups'
+import { GroupFindQueryInterface, GroupInterface, Groups } from '@/api/Groups'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { ProjectInterface } from '@/api/Projects'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'

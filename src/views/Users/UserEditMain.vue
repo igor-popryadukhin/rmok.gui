@@ -303,17 +303,6 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     }
   },
 
-  watch: {
-    'targetUser.login': {
-      handler (login: number) {
-        // Если старый логин не равен текущему
-        if (this.oldLoginName !== this.targetUser.login) {
-          this.loginCheck(login)
-        }
-      }
-    }
-  },
-
   created () {
     this.loginCheck = debounce(this.loginCheck, 500)
   },

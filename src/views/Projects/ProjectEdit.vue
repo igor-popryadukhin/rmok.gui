@@ -36,11 +36,11 @@ import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
 
-interface IRefs {
+interface Refs {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   organizationSelected: any;
   projectName: string;
   availableQ: string;
@@ -53,11 +53,12 @@ interface IData {
   scenario: string;
   buttonSave: any;
   buttonDelete: any;
+  [key: string]: any;
 }
 
 interface VInnerInterface extends VInterface {
-  $refs: IRefs;
-  $data: IData;
+  $refs: Refs;
+  $data: Data;
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
@@ -69,7 +70,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
   mixins: [rules, vueScrollOptions, statusActions],
 
-  data (): IData {
+  data (): Data {
     return {
       tab: null,
       availableMembers: [] as UserInterface[],
@@ -182,9 +183,11 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 
     onBtnDeleteClick () {
       this.$dialog.confirm({
-        actions: {
-          false: this.$tc('no'),
-          true: {
+        actions: [
+          {
+            text: this.$tc('no')
+          },
+          {
             color: 'red',
             handler: () => {
               return new Promise<void>((resolve) => {
@@ -201,7 +204,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
             },
             text: this.$tc('yes')
           }
-        },
+        ],
         text: this.$tc('All information about the project, history of interaction, will be deleted permanently.'),
         title: this.$tc('Deleting a project')
       })
@@ -278,7 +281,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
 const findAvailableUsers = debounce((params = {}, ctx: VInterface) => {
   ctx.$data.availableMembersLoading = true
   new Users()
-    .find<{ count: number }, UserInterface[]>(params)
+    .find(params)
     .then((response) => {
       ctx.availableMembersCount = response.meta.count
       ctx.availableMembers = response.data

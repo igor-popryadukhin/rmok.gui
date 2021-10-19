@@ -28,7 +28,7 @@
         hide-canvas
         hide-inputs
         hide-sliders
-      ></v-color-picker>
+      />
     </v-card-text>
 
     <v-card-text class="py-0">

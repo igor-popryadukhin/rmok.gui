@@ -84,17 +84,17 @@ import { UserInterface } from '@/api/Users'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import APIError from '@/api/classes/APIError'
 
-interface IRef {
+interface Ref {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   [key: string]: any
 }
 
 interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
+  $data: Data;
+  $refs: Ref;
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({

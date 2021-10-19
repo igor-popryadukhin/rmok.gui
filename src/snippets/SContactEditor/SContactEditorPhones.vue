@@ -18,7 +18,7 @@
     </v-list-item>
 
     <v-list-item>
-      <v-list-item-action></v-list-item-action>
+      <v-list-item-action />
 
       <v-list-item-content>
         <v-list-item-title>(323) 555-6789</v-list-item-title>
@@ -30,7 +30,7 @@
       </v-list-item-icon>
     </v-list-item>
 
-    <v-divider inset></v-divider>
+    <v-divider inset />
 
     <v-list-item>
       <v-list-item-icon>
@@ -46,7 +46,7 @@
     </v-list-item>
 
     <v-list-item>
-      <v-list-item-action></v-list-item-action>
+      <v-list-item-action />
 
       <v-list-item-content>
         <v-list-item-title>ali_connors@example.com</v-list-item-title>
@@ -54,7 +54,7 @@
       </v-list-item-content>
     </v-list-item>
 
-    <v-divider inset></v-divider>
+    <v-divider inset />
 
     <v-list-item>
       <v-list-item-icon>
@@ -76,17 +76,19 @@ import { PhoneInterface } from './interfaces'
 import Vue from 'vue'
 
 export default Vue.extend({
-  created () {
-    this.phones.push({
-      label: 'Персональный',
-      value: '+79256041055'
-    })
-  },
+
+  name: 'SContactEditorPhones',
 
   data () {
     return {
       phones: [] as PhoneInterface[]
     }
+  },
+  created () {
+    this.phones.push({
+      label: 'Персональный',
+      value: '+79256041055'
+    })
   },
 
   methods: {
@@ -96,9 +98,7 @@ export default Vue.extend({
         value: ''
       })
     }
-  },
-
-  name: 'SContactEditorPhones'
+  }
 })
 </script>
 

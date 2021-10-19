@@ -26,7 +26,12 @@
       slot="item"
       slot-scope="{ item, on, attrs }"
     >
-      <v-list-item class="v-divider" link v-on="on" :attrs="attrs">
+      <v-list-item
+        class="v-divider"
+        link
+        :attrs="attrs"
+        v-on="on"
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ item.name }}
@@ -35,9 +40,12 @@
       </v-list-item>
     </template>
 
-    <template v-slot:append-item>
-      <v-divider class="mb-2"></v-divider>
-      <v-list-item disabled dense>
+    <template #append-item>
+      <v-divider class="mb-2" />
+      <v-list-item
+        disabled
+        dense
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ $tc('Start typing to initialize your search.') }}
@@ -55,9 +63,11 @@
 
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
-      v-slot:prepend
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-city-variant</v-icon>
+      <v-icon class="pl-5 pr-9">
+        mdi-city-variant
+      </v-icon>
     </template>
   </v-autocomplete>
 </template>
@@ -69,67 +79,6 @@ import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import Organizations, { OrganizationInterface } from '@/api/Organizations'
 
 export default Vue.extend({
-  data () {
-    return {
-      dParams: {},
-      hintMessage: '',
-      lockSearch: false,
-      options: [] as OrganizationInterface[],
-      process: false,
-      q: null,
-      selected: null
-    }
-  },
-
-  methods: {
-    fetchData (params = {}) {
-      return search(this, Object.assign({}, this.params, params))
-    },
-
-    focus () {
-      this.$refs.ref.focus()
-    },
-
-    onFocus () {
-      if (this.options.length === 0) {
-        this.fetchData()
-      }
-    },
-
-    pushData (data: OrganizationInterface) {
-      if (this.options.findIndex((e: OrganizationInterface) => e.id === data.id) === -1) {
-        this.options.push(data)
-      }
-    },
-
-    setData (data: OrganizationInterface[]) {
-      this.options = data
-    },
-
-    /**
-     * Загрузить с сервера для установки текущего значения
-     * @param id
-     */
-    setDefault (id: number) {
-      return new Promise<void>((resolve, reject) => {
-        new Organizations()
-          .getById(id)
-          .then((response: OrganizationInterface) => {
-            this.pushData(response)
-            this.selected = response
-            resolve()
-          }).catch(reject)
-      })
-    },
-
-    setParams (params: any) {
-      this.dParams = Object.assign({}, params)
-    },
-
-    setSelected (data: OrganizationInterface) {
-      this.selected = data
-    }
-  },
 
   model: {
     event: 'change',
@@ -180,6 +129,17 @@ export default Vue.extend({
       type: Boolean
     }
   },
+  data () {
+    return {
+      dParams: {},
+      hintMessage: '',
+      lockSearch: false,
+      options: [] as OrganizationInterface[],
+      process: false,
+      q: null,
+      selected: null
+    }
+  },
 
   watch: {
     q (q: string) {
@@ -192,6 +152,56 @@ export default Vue.extend({
 
     value (val: any) {
       this.selected = val
+    }
+  },
+
+  methods: {
+    fetchData (params = {}) {
+      return search(this, Object.assign({}, this.params, params))
+    },
+
+    focus () {
+      this.$refs.ref.focus()
+    },
+
+    onFocus () {
+      if (this.options.length === 0) {
+        this.fetchData()
+      }
+    },
+
+    pushData (data: OrganizationInterface) {
+      if (this.options.findIndex((e: OrganizationInterface) => e.id === data.id) === -1) {
+        this.options.push(data)
+      }
+    },
+
+    setData (data: OrganizationInterface[]) {
+      this.options = data
+    },
+
+    /**
+     * Загрузить с сервера для установки текущего значения
+     * @param id
+     */
+    setDefault (id: number) {
+      return new Promise<void>((resolve, reject) => {
+        new Organizations()
+          .getById(id)
+          .then((response: OrganizationInterface) => {
+            this.pushData(response)
+            this.selected = response
+            resolve()
+          }).catch(reject)
+      })
+    },
+
+    setParams (params: any) {
+      this.dParams = Object.assign({}, params)
+    },
+
+    setSelected (data: OrganizationInterface) {
+      this.selected = data
     }
   }
 })

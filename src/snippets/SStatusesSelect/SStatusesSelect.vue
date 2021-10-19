@@ -10,10 +10,10 @@
     item-text="name"
     item-value="id"
     return-object
-    @focus="onFocus"
     :multiple="multiple"
+    @focus="onFocus"
   >
-    <template v-slot:selection="{ attrs, item, select, selected }">
+    <template #selection="{ attrs, item, select, selected }">
       <template v-if="multiple">
         <v-chip
           v-bind="attrs"
@@ -33,11 +33,11 @@
         {{ item.name }}
       </template>
     </template>
-    <template v-slot:item="{ item, on, attrs }">
+    <template #item="{ item, on, attrs }">
       <v-list-item
         v-bind="attrs"
-        v-on="on"
         :color="item.color"
+        v-on="on"
       >
         <span :style="{ color: item.color }">{{ item.name }}</span>
       </v-list-item>
@@ -125,15 +125,15 @@ export default Vue.extend({
     }
   },
 
-  created () {
-    if (this.autoload) {
-      this.fetchData()
-    }
-  },
-
   data () {
     return {
       selected: null as unknown as StatusInterface | StatusInterface[]
+    }
+  },
+
+  created () {
+    if (this.autoload) {
+      this.fetchData()
     }
   },
 

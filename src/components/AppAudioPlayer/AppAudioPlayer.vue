@@ -142,7 +142,7 @@ import { debounce } from 'vuetify/src/util/helpers'
 import { makeAudioElement } from './utils'
 import Vue from 'vue'
 
-interface IData {
+interface Data {
   src: string;
   stateSpeed: 'x1' | 'x2' | 'x3',
   stateSpeedIcon: string;
@@ -159,22 +159,22 @@ interface IData {
   displayString: string;
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   breakpointWidth: string;
   [key: string]: any;
 }
 
-interface IProps{
+interface Props{
   autoCloseAfterEndPlay: boolean;
   audioElementInstance?: HTMLAudioElement;
   [key: string]: any;
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default Vue.extend<Data, Methods, Computed, Props>({
   name: 'AppAudioPlayer',
 
   props: {
@@ -197,7 +197,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     }
   },
 
-  data (): IData {
+  data (): Data {
     return {
       src: '',
       stateSpeed: 'x1',

@@ -16,13 +16,12 @@
   //-->
 
   <div>
-
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-icon
           v-bind="attrs"
-          v-on="on"
           :color="callStackIcons.directionColor"
+          v-on="on"
         >
           {{ callStackIcons.directionIcon }}
         </v-icon>
@@ -30,11 +29,11 @@
       <span>{{ callStackIcons.directionText }}</span>
     </v-tooltip>
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-icon
           v-bind="attrs"
-          v-on="on"
           :color="callStackIcons.originatorColor"
+          v-on="on"
         >
           {{ callStackIcons.originatorIcon }}
         </v-icon>
@@ -42,11 +41,11 @@
       <span>{{ callStackIcons.originatorText }}</span>
     </v-tooltip>
     <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-icon
           v-bind="attrs"
-          v-on="on"
           :color="callStackIcons.caseColor"
+          v-on="on"
         >
           {{ callStackIcons.caseIcon }}
         </v-icon>

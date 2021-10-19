@@ -2,7 +2,7 @@
   <Vueditor
     ref="editor"
     class="vueditor"
-  ></Vueditor>
+  />
 </template>
 
 <script lang="ts">
@@ -96,16 +96,16 @@ Vue.use(Vueditor, {
 export default Vue.extend({
   name: 'AppWysiwyg',
 
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
   props: {
     value: {
       type: String,
       default: () => ''
     }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
   },
 
   watch: {

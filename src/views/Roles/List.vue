@@ -141,16 +141,8 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         title: this.$tc('Creating a new role'),
         text: this.$tc('Name'),
         actions: {
-          false: {
-            text: this.$tc('Cancel'),
-            small: true,
-            flat: true
-          },
-          true: {
-            text: this.$tc('Create'),
-            small: true,
-            flat: true
-          }
+          false: this.$tc('Cancel'),
+          true: this.$tc('Cancel')
         }
       }).then((value?: string) => {
         if (value) {

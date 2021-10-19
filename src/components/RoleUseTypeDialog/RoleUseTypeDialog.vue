@@ -23,13 +23,17 @@
         tile
         outlined
         @click="cancel"
-      >{{ $tc('Cancel') }}</v-btn>
+      >
+        {{ $tc('Cancel') }}
+      </v-btn>
       <v-btn
         color="primary"
         tile
         outlined
         @click="create"
-      >{{ $tc('Create') }}</v-btn>
+      >
+        {{ $tc('Create') }}
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -51,7 +55,7 @@ export interface SContactExportScopeInterface {
 
 type Transfer = (scope: SContactExportScopeInterface) => void
 
-interface IProps {
+interface Props {
   onCancel: () => void;
 }
 
@@ -60,24 +64,38 @@ interface Errors {
   users: string[]
 }
 
-interface IData {
+interface Data {
   [key: string]: any;
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
-  computed: {
-    notBlank: (value: any) => !!value || this.$t('This field should not be blank.')
+export default Vue.extend<Data, Methods, Computed, Props>({
+
+  name: 'RoleUseTypeDialog',
+
+  props: {
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    onCreate: {
+      default: null,
+      type: Function
+    },
+    width: {
+      default: () => '100%',
+      type: String
+    }
   },
 
-  data (): IData {
+  data (): Data {
     return {
       role_name: null,
       role_use: {
@@ -94,6 +112,9 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         selected: null
       }
     }
+  },
+  computed: {
+    notBlank: (value: any) => !!value || this.$t('This field should not be blank.')
   },
 
   methods: {
@@ -113,23 +134,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
         }
         this.onCreate(context)
       }
-    }
-  },
-
-  name: 'RoleUseTypeDialog',
-
-  props: {
-    onCancel: {
-      default: null,
-      type: Function
-    },
-    onCreate: {
-      default: null,
-      type: Function
-    },
-    width: {
-      default: () => '100%',
-      type: String
     }
   }
 

@@ -368,14 +368,8 @@ export default Vue.extend({
         text: this.$t('Delete "{value}"?', { value: Array.isArray(urls) ? urls.join(', ') : urls }).toString(),
         showClose: false,
         actions: {
-          false: {
-            small: true,
-            text: this.$tc('Cancel')
-          },
-          true: {
-            small: true,
-            text: this.$tc('Yes')
-          }
+          false: this.$tc('Cancel'),
+          true: this.$tc('Yes')
         }
       }).then((result: boolean) => {
         if (result) {

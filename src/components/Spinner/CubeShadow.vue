@@ -1,19 +1,12 @@
 <template>
-    <div v-bind:style="styles" class="spinner spinner--cube-shadow"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--cube-shadow"
+  />
 </template>
 
 <script>
 export default {
-  computed: {
-    styles () {
-      return {
-        animationDuration: this.duration,
-        backgroundColor: this.background,
-        height: this.size,
-        width: this.size
-      }
-    }
-  },
   props: {
     background: {
       default: '#41b883'
@@ -23,6 +16,16 @@ export default {
     },
     size: {
       default: '40px'
+    }
+  },
+  computed: {
+    styles () {
+      return {
+        animationDuration: this.duration,
+        backgroundColor: this.background,
+        height: this.size,
+        width: this.size
+      }
     }
   }
 }

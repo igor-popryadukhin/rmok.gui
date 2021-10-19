@@ -16,11 +16,11 @@
   //-->
 
   <v-tooltip bottom>
-    <template v-slot:activator="{ on, attrs }">
+    <template #activator="{ on, attrs }">
       <v-icon
         v-bind="attrs"
-        v-on="on"
         :color="callDirection.color"
+        v-on="on"
       >
         {{ callDirection.icon }}
       </v-icon>
@@ -75,17 +75,21 @@ interface IStack {
 }
 
 export default Vue.extend({
-  computed: {
-    callDirection () {
-      const obj: IStack | undefined = this.$data.stack.find((e: IStack) => {
-        return e.originator === this.originator && e.cause === this.cause && e.direction === this.direction
-      })
 
-      return obj || {
-        color: 'red',
-        icon: 'mdi-bug',
-        text: 'Неизвестно: ' + `${this.direction} / ${this.originator} / ${this.cause}`
-      }
+  name: 'VCallDirection',
+
+  props: {
+    cause: {
+      required: true,
+      type: String
+    },
+    direction: {
+      required: true,
+      type: String
+    },
+    originator: {
+      required: true,
+      type: String
     }
   },
 
@@ -119,21 +123,17 @@ export default Vue.extend({
       ] as IStack[]
     }
   },
+  computed: {
+    callDirection () {
+      const obj: IStack | undefined = this.$data.stack.find((e: IStack) => {
+        return e.originator === this.originator && e.cause === this.cause && e.direction === this.direction
+      })
 
-  name: 'VCallDirection',
-
-  props: {
-    cause: {
-      required: true,
-      type: String
-    },
-    direction: {
-      required: true,
-      type: String
-    },
-    originator: {
-      required: true,
-      type: String
+      return obj || {
+        color: 'red',
+        icon: 'mdi-bug',
+        text: 'Неизвестно: ' + `${this.direction} / ${this.originator} / ${this.cause}`
+      }
     }
   }
 })

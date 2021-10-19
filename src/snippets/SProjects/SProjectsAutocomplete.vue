@@ -30,9 +30,9 @@
     >
       <v-list-item
         class="v-divider"
-        v-on="on"
         :attrs="attrs"
         link
+        v-on="on"
         @click="$emit('select', item)"
       >
         <v-list-item-content>
@@ -43,9 +43,12 @@
       </v-list-item>
     </template>
 
-    <template v-slot:append-item>
-      <v-divider class="mb-2"></v-divider>
-      <v-list-item disabled dense>
+    <template #append-item>
+      <v-divider class="mb-2" />
+      <v-list-item
+        disabled
+        dense
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ $tc('Start typing to initialize your search.') }}
@@ -62,9 +65,11 @@
     </template>
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
-      v-slot:prepend
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-projector-screen</v-icon>
+      <v-icon class="pl-5 pr-9">
+        mdi-projector-screen
+      </v-icon>
     </template>
   </v-autocomplete>
 </template>
@@ -76,6 +81,11 @@ import Projects, { ProjectInterface } from '@/api/Projects'
 
 export default Vue.extend({
   name: 'SProjectsAutocomplete',
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
 
   props: {
     clearable: {
@@ -122,10 +132,6 @@ export default Vue.extend({
     }
   },
 
-  created () {
-    this.dParams = Object.assign({}, this.params)
-  },
-
   data () {
     return {
       dParams: {},
@@ -136,6 +142,27 @@ export default Vue.extend({
       q: null,
       selected: {} as unknown as ProjectInterface
     }
+  },
+
+  watch: {
+    q (q: string) {
+      this.fetchData(Object.assign({}, this.dParams, { q }))
+    },
+
+    selected (value) {
+      this.$emit('change', value)
+    },
+
+    value (val: any) {
+      if (val === null) {
+        this.$emit('clear')
+      }
+      this.selected = val
+    }
+  },
+
+  created () {
+    this.dParams = Object.assign({}, this.params)
   },
 
   methods: {
@@ -191,28 +218,6 @@ export default Vue.extend({
 
     setSelected (data: ProjectInterface) {
       this.selected = data
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  watch: {
-    q (q: string) {
-      this.fetchData(Object.assign({}, this.dParams, { q }))
-    },
-
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (val: any) {
-      if (val === null) {
-        this.$emit('clear')
-      }
-      this.selected = val
     }
   }
 })

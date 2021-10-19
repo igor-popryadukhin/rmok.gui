@@ -174,7 +174,7 @@ export default Vue.extend({
     },
 
     tz_messages () {
-      return [`Часовой пояс системы: ${this.$dayjs.tz.guess()}`]
+      return [`Часовой пояс системы: ${(this.$dayjs as any).tz.guess()}`]
     },
 
     tz_names () {
@@ -182,7 +182,8 @@ export default Vue.extend({
     },
 
     tz_value: {
-      get () { return this.$store.getters['profile/profile_tz'] || this.$dayjs.tz.guess() },
+      // tslint:disable-next-line
+      get () { return this.$store.getters['profile/profile_tz'] || (this.$dayjs as any).tz.guess() },
       set (val: string) { this.$store.commit('profile/tz', val) }
     }
   },
@@ -193,13 +194,13 @@ export default Vue.extend({
       const data: Record<string, string> = {}
       data.tz = this.tz_value as string
 
-      this.processSaving = true
+      this.$data.processSaving = true
       new Account()
         .updateProfile(data)
         .then(() => {
           this.$toast.success(this.$tc('Changes accepted'))
           this.$store.dispatch('profile/load')
-        }).finally(() => (this.processSaving = false))
+        }).finally(() => (this.$data.processSaving = false))
     }
   }
 })

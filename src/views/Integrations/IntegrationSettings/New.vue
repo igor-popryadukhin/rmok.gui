@@ -202,25 +202,25 @@
 
 <script lang="ts">
 import ProjectIntegrationSettings, {
-  ProfileInterface,
+  OrganizationInterface,
   ProfileFindQueryInterface,
-  OrganizationInterface, ProjectInterface
+  ProfileInterface, ProjectInterface
 } from '@/api/ProjectIntegrationSettings'
 import rules from '@/mixins/rules'
 import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
-interface IRef {
+interface Ref {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   [key: string]: any
 }
 
 interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
+  $data: Data;
+  $refs: Ref;
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
@@ -293,7 +293,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         .then((id: number) => {
           this.$router.replace({
             name: 'itegrationset_edit',
-            params: { id }
+            params: { id: String(id) }
           })
           this.$toast.success(this.$tc('Profile added successfully'))
         }).catch((e) => {

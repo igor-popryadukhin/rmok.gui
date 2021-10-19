@@ -9,8 +9,8 @@
         lg="3"
       >
         <phone-numbers-country-calling-code
-          v-model="item.country_code"
           :key="`item-${item.country_code}`"
+          v-model="item.country_code"
           :label="$tc('country_code')"
           :country-code-selected="item.country_code"
           :on-selected="(e) => { item.country_code = e.country_code; item.country_calling_code = e.country_calling_code; }"
@@ -18,10 +18,18 @@
         >
           <template
             v-if="['lg', 'md'].includes($vuetify.breakpoint.name)"
-            v-slot:prepend
+            #prepend
           >
-            <v-icon v-if="key === 0" class="pl-5 pr-9">mdi-phone</v-icon>
-            <v-spacer v-else class="pl-10 pr-10"></v-spacer>
+            <v-icon
+              v-if="key === 0"
+              class="pl-5 pr-9"
+            >
+              mdi-phone
+            </v-icon>
+            <v-spacer
+              v-else
+              class="pl-10 pr-10"
+            />
           </template>
         </phone-numbers-country-calling-code>
       </v-col>
@@ -33,8 +41,7 @@
           v-model="item.raw"
           :label="$tc('Phone number')"
           :rules="rulesNumber ? rulesNumber.concat([() => validate(item.raw, item.country_code)]) : [() => validate(item.value, item.country_code)]"
-        >
-        </v-text-field>
+        />
       </v-col>
       <v-col
         cols="6"
@@ -45,7 +52,7 @@
           :rules="rulesLabel"
           counter
         >
-          <template v-slot:append-outer>
+          <template #append-outer>
             <v-btn
               v-if="(phones.length - 1) === key"
               icon
@@ -75,19 +82,59 @@ import parsePhoneNumber from 'libphonenumber-js'
 import { CountryCode } from 'libphonenumber-js/types'
 
 export default Vue.extend({
-  beforeDestroy () {
-    this.$off('change', this.onChange)
-  },
+
+  name: 'SPhoneNumbers',
   components: {
     PhoneNumbersCountryCallingCode
   },
-  created () {
-    this.phones = this.value
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+
+  props: {
+    messageError: {
+      default: 'Invalid number format',
+      type: String
+    },
+    rulesCountryCode: {
+      default: undefined,
+      type: Array
+    },
+    rulesLabel: {
+      default: undefined,
+      type: Array
+    },
+    rulesNumber: {
+      default: undefined,
+      type: Array
+    },
+    value: {
+      default: undefined,
+      type: [Array]
+    }
   },
   data () {
     return {
       phones: [] as any[]
     }
+  },
+
+  watch: {
+    value (value) {
+      this.phones = value
+    }
+  },
+  beforeDestroy () {
+    this.$off('change', this.onChange)
+  },
+  created () {
+    this.phones = this.value
+  },
+
+  mounted () {
+    this.$on('change', this.onChange)
   },
 
   methods: {
@@ -121,46 +168,6 @@ export default Vue.extend({
       } catch (e) {
         return false
       }
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  mounted () {
-    this.$on('change', this.onChange)
-  },
-
-  name: 'SPhoneNumbers',
-
-  props: {
-    messageError: {
-      default: 'Invalid number format',
-      type: String
-    },
-    rulesCountryCode: {
-      default: undefined,
-      type: Array
-    },
-    rulesLabel: {
-      default: undefined,
-      type: Array
-    },
-    rulesNumber: {
-      default: undefined,
-      type: Array
-    },
-    value: {
-      default: undefined,
-      type: [Array]
-    }
-  },
-
-  watch: {
-    value (value) {
-      this.phones = value
     }
   }
 })

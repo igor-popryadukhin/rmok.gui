@@ -1,20 +1,11 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--circle-3"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--circle-3"
+  />
 </template>
 <script>
 export default {
-  computed: {
-    styles () {
-      const size = parseInt(this.size)
-      const halfSize = size / 3
-      return {
-        border: '0px solid ' + this.background,
-        boxShadow: '0 -' + halfSize + 'px 0 ' + this.dotSize + 'px ' + this.background + ' inset',
-        height: this.size,
-        width: this.size
-      }
-    }
-  },
   props: {
     background: {
       default: '#41b883'
@@ -27,6 +18,18 @@ export default {
     },
     size: {
       default: '40px'
+    }
+  },
+  computed: {
+    styles () {
+      const size = parseInt(this.size)
+      const halfSize = size / 3
+      return {
+        border: '0px solid ' + this.background,
+        boxShadow: '0 -' + halfSize + 'px 0 ' + this.dotSize + 'px ' + this.background + ' inset',
+        height: this.size,
+        width: this.size
+      }
     }
   }
 }

@@ -37,12 +37,12 @@
                     class="mr-10 pa-0 mb-1"
                   >
                     <v-radio
+                      :id="`v-radio-${item.id}`"
                       :key="`v-radio-${statusIndex}`"
                       :color="status.color"
-                      :id="`v-radio-${item.id}`"
                       @change="onRadioChange(item)"
                     >
-                      <template v-slot:label>
+                      <template #label>
                         <span :style="{ color: status.color }">{{ item.name }}</span>
                       </template>
                     </v-radio>
@@ -67,11 +67,11 @@
                   class="mr-10"
                 >
                   <v-radio
+                    :id="`v-radio-${status.id}`"
                     :label="status.name"
                     :color="tabItem.color"
-                    :id="`v-radio-${status.id}`"
                     @change="onRadioChange(status)"
-                  ></v-radio>
+                  />
                 </v-col>
               </v-row>
             </v-radio-group>
@@ -85,7 +85,9 @@
       />
     </v-card-text>
     <v-card-actions>
-      <v-btn @click="onSave">Save</v-btn>
+      <v-btn @click="onSave">
+        Save
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -94,29 +96,6 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  created () {
-    console.log(this);
-    (this as any).dComment = (this as any).comment
-  },
-  data () {
-    return {
-      dComment: '',
-      selected: undefined,
-      tab: null,
-      tabStatus: 0
-    }
-  },
-
-  methods: {
-    onRadioChange (status: any) {
-      (this as any).selected = status
-    },
-
-    onSave () {
-      console.log('on save')
-      this.$emit('on-save')
-    }
-  },
 
   name: 'VContactStatusDialog',
 
@@ -151,6 +130,29 @@ export default Vue.extend({
     width: {
       default: () => '100%',
       type: String
+    }
+  },
+  data () {
+    return {
+      dComment: '',
+      selected: undefined,
+      tab: null,
+      tabStatus: 0
+    }
+  },
+  created () {
+    console.log(this);
+    (this as any).dComment = (this as any).comment
+  },
+
+  methods: {
+    onRadioChange (status: any) {
+      (this as any).selected = status
+    },
+
+    onSave () {
+      console.log('on save')
+      this.$emit('on-save')
     }
   }
 

@@ -72,7 +72,7 @@ export default Vue.extend({
 
   beforeRouteLeave (to: Route, from: Route, next: any) {
     if (this.isChanged) {
-      if (this.$confirm()) {
+      if (window.confirm(this.$tc('Do you really want to leave? you have unsaved changes!'))) {
         next()
       }
     } else {

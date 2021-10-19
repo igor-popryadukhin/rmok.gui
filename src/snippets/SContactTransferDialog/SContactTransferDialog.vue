@@ -121,7 +121,7 @@ export interface SContactTransferScopeInterface {
 
 type Transfer = (scope: SContactTransferScopeInterface) => void
 
-interface IProps {
+interface Props {
   subtitle: string;
   width: string | number;
   project_id?: number;
@@ -134,7 +134,7 @@ interface Errors {
   users: string[]
 }
 
-interface IData {
+interface Data {
   menu_date_picker: false,
   errors: Errors,
   target_project: unknown & ProjectInterface | null,
@@ -142,15 +142,15 @@ interface IData {
   new_date: string
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default Vue.extend<Data, Methods, Computed, Props>({
   name: 'SContactTransferDialog',
 
   props: {
@@ -182,7 +182,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
   components: { SProjectsAutocomplete, SUsers },
 
-  data (): IData {
+  data (): Data {
     return {
       errors: {
         project: [],

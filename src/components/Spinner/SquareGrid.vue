@@ -1,19 +1,60 @@
 <template>
-    <div v-bind:style="styles" class="spinner spinner--square-grid">
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube1"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube2"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube3"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube4"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube5"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube6"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube7"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube8"></div>
-      <div v-bind:style='cubeStyles' class="sk-cube sk-cube9"></div>
-    </div>
+  <div
+    :style="styles"
+    class="spinner spinner--square-grid"
+  >
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube1"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube2"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube3"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube4"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube5"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube6"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube7"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube8"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube9"
+    />
+  </div>
 </template>
 
 <script>
 export default {
+  props: {
+    background: {
+      default: '#41b883'
+    },
+    duration: {
+      default: '1.3s'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     cubeStyles () {
       return {
@@ -26,17 +67,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    background: {
-      default: '#41b883'
-    },
-    duration: {
-      default: '1.3s'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

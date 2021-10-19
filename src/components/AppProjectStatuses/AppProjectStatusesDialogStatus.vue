@@ -18,7 +18,7 @@
               autofocus
               :label="$tc('Status name')"
               @keyup.enter="save(status)"
-            ></v-text-field>
+            />
           </v-col>
         </v-row>
         <v-row>
@@ -29,13 +29,13 @@
             xl="4"
           >
             <v-menu offset-y>
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-btn
                   color="primary"
                   v-bind="attrs"
-                  v-on="on"
                   text
                   outlined
+                  v-on="on"
                 >
                   {{ $tc('Available actions') }}
                 </v-btn>
@@ -88,16 +88,16 @@
             reverse-transition="fade-transition"
           >
             <component
-              v-model="item.data"
               :is="item.component"
               :key="`component-${index}`"
+              v-model="item.data"
             />
           </v-tab-item>
         </v-tabs-items>
       </v-card-text>
 
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer />
 
         <v-btn
           color="red darken-1"
@@ -123,28 +123,33 @@
 import Vue, { PropType } from 'vue'
 import { ActionInterface, StatusInterface } from './Interfaces'
 
-interface IProps {
+interface Props {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   actionTab: number;
   availableActions: ActionInterface[];
   currentActions: ActionInterface[];
   status: StatusInterface;
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default Vue.extend<Data, Methods, Computed, Props>({
   name: 'AppProjectStatusesDialogStatus',
-  data (): IData {
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
+  data (): Data {
     return {
 
       actionTab: 0,
@@ -205,11 +210,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       this.dialogVisible = false
       this.formReset()
     }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
   },
 
   props: {

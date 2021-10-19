@@ -1,10 +1,15 @@
 <template>
   <div class="v-toast-container">
-    <h4 class="v-toast-title">{{ title }}</h4>
+    <h4 class="v-toast-title">
+      {{ title }}
+    </h4>
     <div v-if="text">
       {{ text }}
     </div>
-    <div v-if="actions.length > 0" style="margin-top: 10px">
+    <div
+      v-if="actions.length > 0"
+      style="margin-top: 10px"
+    >
       <v-btn
         v-for="(item, key) in actions"
         :key="key"
@@ -13,7 +18,9 @@
         v-bind="item.attrs"
         v-on="item.on"
         @click="$emit('click')"
-      >{{ item.attrs.label }}</v-btn>
+      >
+        {{ item.attrs.label }}
+      </v-btn>
     </div>
   </div>
 </template>

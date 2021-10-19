@@ -1,12 +1,18 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--circle-7">
-    <div class="spinner-inner">
-
-    </div>
+  <div
+    :style="styles"
+    class="spinner spinner--circle-7"
+  >
+    <div class="spinner-inner" />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     styles () {
       const size = parseInt(this.size)
@@ -15,11 +21,6 @@ export default {
         transform: 'scale(' + (size / 75) + ')',
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

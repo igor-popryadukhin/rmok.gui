@@ -4,7 +4,6 @@
     <v-card-subtitle>{{ subTitle }}</v-card-subtitle>
     <v-card-text>
       <div class="d-flex justify-space-between">
-
         <!-- Hangup -->
         <div class="text-center">
           <v-btn
@@ -49,36 +48,6 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  computed: {},
-
-  created () {
-    this.$title = this.title
-    if (this.onShowing) {
-      this.onShowing(this)
-    }
-  },
-
-  data () {
-    return {
-      $title: ''
-    }
-  },
-
-  methods: {
-    _onAnswer () {
-      this.onAnswer()
-    },
-
-    _onHangup () {
-      this.onHangup()
-    }
-  },
-
-  mounted () {
-    this.$on('update-title', (text: string) => {
-      this.$title = text
-    })
-  },
 
   props: {
     attrs: Object,
@@ -106,6 +75,36 @@ export default Vue.extend({
     title: {
       default: 'Title',
       type: String
+    }
+  },
+
+  data () {
+    return {
+      $title: ''
+    }
+  },
+  computed: {},
+
+  created () {
+    this.$title = this.title
+    if (this.onShowing) {
+      this.onShowing(this)
+    }
+  },
+
+  mounted () {
+    this.$on('update-title', (text: string) => {
+      this.$title = text
+    })
+  },
+
+  methods: {
+    _onAnswer () {
+      this.onAnswer()
+    },
+
+    _onHangup () {
+      this.onHangup()
     }
   }
 

@@ -20,10 +20,10 @@
             :items="dTaskTypeOptions"
             :label="$tc('Task type')"
           >
-            <template v-slot:selection="{ item }">
+            <template #selection="{ item }">
               {{ $tc(item.charAt(0).toUpperCase() + item.slice(1)) }}
             </template>
-            <template v-slot:item="{ item }">
+            <template #item="{ item }">
               {{ $tc(item.charAt(0).toUpperCase() + item.slice(1)) }}
             </template>
           </v-combobox>
@@ -39,8 +39,11 @@
             type="number"
             value="1"
           >
-            <template v-slot:prepend-inner>
-              <span class="grey--text" style="margin-top: 3px; margin-right: 10px">{{ $tc('Across') }}</span>
+            <template #prepend-inner>
+              <span
+                class="grey--text"
+                style="margin-top: 3px; margin-right: 10px"
+              >{{ $tc('Across') }}</span>
             </template>
           </v-text-field>
         </v-col>
@@ -54,10 +57,10 @@
             v-model="dUnit"
             :items="dUnitOptions"
           >
-            <template v-slot:selection="{ item }">
+            <template #selection="{ item }">
               {{ $tc(item, dValue) }}
             </template>
-            <template v-slot:item="{ item }">
+            <template #item="{ item }">
               {{ $tc(item, dValue) }}
             </template>
           </v-select>
@@ -78,11 +81,11 @@
 <script lang="ts">
 import Vue from 'vue'
 
-interface IProps {
+interface Props {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   dTaskTypeSelection: string;
   dTaskTypeOptions: string[];
   dValue: number;
@@ -91,27 +94,31 @@ interface IData {
   dDescription?: string;
 }
 
-interface IMethods {
+interface Methods {
   onChange: () => void;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
-  created () {
-    this.update = false // Не даём испускать события изменения
-    if (this.value) {
-      this.dTaskTypeSelection = this.value.type
-      this.dValue = this.value.value
-      this.dUnit = this.value.unit
-      this.dDescription = this.value.description
-    }
-    this.update = true //
+export default Vue.extend<Data, Methods, Computed, Props>({
+
+  name: 'ATask',
+
+  model: {
+    event: 'change',
+    prop: 'value'
   },
 
-  data (): IData {
+  props: {
+    value: {
+      default: () => null,
+      type: Object
+    }
+  },
+
+  data (): Data {
     return {
       dTaskTypeOptions: ['call', 'task', 'meeting', 'letter', 'other'],
       dDescription: null,
@@ -120,33 +127,6 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
       dUnitOptions: ['day', 'hour', 'minute', 'second'],
       dValue: 1,
       update: true
-    }
-  },
-
-  methods: {
-    onChange () {
-      if (this.update) {
-        this.$emit('change', {
-          description: this.dDescription,
-          type: this.dTaskTypeSelection,
-          unit: this.dUnit,
-          value: this.dValue
-        })
-      }
-    }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  name: 'ATask',
-
-  props: {
-    value: {
-      default: () => null,
-      type: Object
     }
   },
 
@@ -169,6 +149,29 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
 
     value (val: any) {
       console.log('Change in ATask.vue', val)
+    }
+  },
+  created () {
+    this.update = false // Не даём испускать события изменения
+    if (this.value) {
+      this.dTaskTypeSelection = this.value.type
+      this.dValue = this.value.value
+      this.dUnit = this.value.unit
+      this.dDescription = this.value.description
+    }
+    this.update = true //
+  },
+
+  methods: {
+    onChange () {
+      if (this.update) {
+        this.$emit('change', {
+          description: this.dDescription,
+          type: this.dTaskTypeSelection,
+          unit: this.dUnit,
+          value: this.dValue
+        })
+      }
     }
   }
 })

@@ -44,9 +44,12 @@
       </v-list-item-content>
     </template>
 
-    <template v-slot:append-item>
-      <v-divider class="mb-2"></v-divider>
-      <v-list-item disabled dense>
+    <template #append-item>
+      <v-divider class="mb-2" />
+      <v-list-item
+        disabled
+        dense
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ $tc('Start typing to initialize your search.') }}
@@ -71,8 +74,11 @@
           @click="select"
           @click:close="chipRemove(item)"
         >
-          <v-avatar v-if="item.userpic" left>
-            <v-img :lazy-src="item.userpic"></v-img>
+          <v-avatar
+            v-if="item.userpic"
+            left
+          >
+            <v-img :lazy-src="item.userpic" />
           </v-avatar>
           {{ item.first_name }} {{ item.last_name }}
         </v-chip>
@@ -86,9 +92,11 @@
 
     <template
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
-      v-slot:prepend
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account</v-icon>
+      <v-icon class="pl-5 pr-9">
+        mdi-account
+      </v-icon>
     </template>
   </v-autocomplete>
 </template>
@@ -167,12 +175,6 @@ export default Vue.extend({
     }
   },
 
-  created () {
-    if (this.autoload) {
-      this.fetchData()
-    }
-  },
-
   data () {
     return {
       oldParams: {},
@@ -183,6 +185,38 @@ export default Vue.extend({
       process: false,
       q: null,
       selected: null as unknown & UserInterface | null
+    }
+  },
+
+  watch: {
+    q (q: string) {
+      this.fetchData({ q })
+    },
+
+    selected (value) {
+      this.$emit('change', value)
+    },
+
+    value (val: any) {
+      if (val === null) {
+        (this as any).$refs.ref.blur()
+      }
+      this.selected = val
+    },
+
+    params (val: any) {
+      if (typeof val === 'object') {
+        if (!compareObjects(this.oldParams, val)) {
+          this.oldParams = val
+          this.fetchData()
+        }
+      }
+    }
+  },
+
+  created () {
+    if (this.autoload) {
+      this.fetchData()
     }
   },
 
@@ -266,32 +300,6 @@ export default Vue.extend({
   model: {
     event: 'change',
     prop: 'value'
-  },
-
-  watch: {
-    q (q: string) {
-      this.fetchData({ q })
-    },
-
-    selected (value) {
-      this.$emit('change', value)
-    },
-
-    value (val: any) {
-      if (val === null) {
-        (this as any).$refs.ref.blur()
-      }
-      this.selected = val
-    },
-
-    params (val: any) {
-      if (typeof val === 'object') {
-        if (!compareObjects(this.oldParams, val)) {
-          this.oldParams = val
-          this.fetchData()
-        }
-      }
-    }
   }
 })
 

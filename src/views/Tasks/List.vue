@@ -112,7 +112,23 @@ import { DateRangeCollection } from '@/views/Tasks/interfaces'
 import SSEMessage from '@/interfaces/SSEMessage'
 import { debounce } from 'vuetify/src/util/helpers'
 
-export default Vue.extend({
+interface Data {
+  [key: string]: any;
+}
+
+interface Methods {
+  [key: string]: any;
+}
+
+interface Computed {
+  [key: string]: any;
+}
+
+interface Props {
+  [key: string]: any;
+}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
   components: {
     AppStatusAutocomplete,
     AppBtnToggleDate,
@@ -210,12 +226,12 @@ export default Vue.extend({
     },
 
     tasksInfo () {
-      const value = this.filterPlannedFor
+      const value: string = (this.filterPlannedFor as string) || ''
       let date = ''
 
       if (/^(\d+),(\d+)$/s.test(value)) {
         // tslint:disable-next-line
-        date = this.$dayjs(value.substring(0, value.indexOf(',')) * 1000).format(this.settingsDateTimeFormat.short_date)
+        date = this.$dayjs(+value.substring(0, value.indexOf(',')) * 1000).format(this.settingsDateTimeFormat.short_date)
         return this.$t('all_tasks_per_number', { date }).toString()
       }
 
@@ -290,7 +306,7 @@ export default Vue.extend({
   methods: {
 
     onSSEResultCountOpenTasks (message: SSEMessage) {
-      this.tasksCounts = message.payload
+      this.$data.tasksCounts = message.payload
     },
 
     initializeWatchForFilters () {
@@ -333,9 +349,9 @@ export default Vue.extend({
     },
 
     badgeFactory (id: string) {
-      const foundIndex = this.tasksCounts.findIndex((e) => e.id === id)
+      const foundIndex = this.$data.tasksCounts.findIndex((e) => e.id === id)
       if (foundIndex > -1) {
-        const found = this.tasksCounts[foundIndex]
+        const found = this.$data.tasksCounts[foundIndex]
         return {
           content: found.count > 99 ? '99+' : found.count,
           visible: found.count > 0,

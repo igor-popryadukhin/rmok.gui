@@ -34,11 +34,6 @@ import '@/jsSIP'
 
 import CleanLayout from '@/layouts/Clean.vue'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const vuetifyDialogMovingImport = () => import(/* webpackPreload: true */ './vuetify-dialog-moving.ts')
-vuetifyDialogMovingImport()
-
 // layouts
 Vue.component('Default', () => import(/* webpackPreload: true */ './layouts/Default.vue'))
 Vue.component('Clean', CleanLayout)

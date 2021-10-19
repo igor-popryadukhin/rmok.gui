@@ -87,17 +87,17 @@ import SUsers from '@/snippets/SUsers/SUsers.vue'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 
-interface IRef {
+interface Ref {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   [key: string]: any
 }
 
 interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
+  $data: Data;
+  $refs: Ref;
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({

@@ -149,30 +149,31 @@ import SUsers from '@/snippets/SUsers/SUsers.vue'
 import Vue from 'vue'
 import petrovich from 'petrovich'
 
-interface IProps {
+interface Props {
   [key: string]: unknown;
 }
 
-interface IData {
+interface Data {
   membersPerPage: number;
   membersTotal: number;
   membersForJoin: UserInterface[];
   [key: string]: unknown;
 }
 
-interface IComputed {
+interface Computed {
   projectId: number;
   queryOffset: number;
   [key: string]: unknown;
 }
 
-interface IMethod {
+interface Method {
   fetchProjectMembers: () => void;
-  onSave: () => void;
+  onAddClick: () => void;
+  onDeleteMemberClick: (item: UserInterface) => void;
   [key: string]: unknown;
 }
 
-export default Vue.extend<IData, IMethod, IComputed, IProps>({
+export default Vue.extend<Data, Method, Computed, Props>({
   name: 'ProjectEditMembers',
 
   components: { AppPagination, AppLoading, AppTools, SUsers },

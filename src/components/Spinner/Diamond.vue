@@ -1,13 +1,33 @@
 <template>
-  <span v-bind:style="styles" class="spinner spinner--rotate-diamond">
-    <div v-bind:style="diamondStyle" class='diamond'></div>
-    <div v-bind:style="diamondStyle" class='diamond'></div>
-    <div v-bind:style="diamondStyle" class='diamond'></div>
+  <span
+    :style="styles"
+    class="spinner spinner--rotate-diamond"
+  >
+    <div
+      :style="diamondStyle"
+      class="diamond"
+    />
+    <div
+      :style="diamondStyle"
+      class="diamond"
+    />
+    <div
+      :style="diamondStyle"
+      class="diamond"
+    />
   </span>
 </template>
 
 <script>
 export default {
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     diamondStyle () {
       const size = parseInt(this.size)
@@ -22,14 +42,6 @@ export default {
         height: size / 4 + 'px',
         width: this.size
       }
-    }
-  },
-  props: {
-    color: {
-      default: '#41b883'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

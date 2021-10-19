@@ -23,7 +23,10 @@
         v-model="tabStatus"
       >
         <v-tab-item>
-          <v-container class="px-5" fluid>
+          <v-container
+            class="px-5"
+            fluid
+          >
             <v-radio-group
               column
             >
@@ -40,12 +43,12 @@
                   class="pa-0 mb-1"
                 >
                   <v-radio
+                    :id="`v-radio-${item.id}`"
                     :key="`v-radio-${statusIndex}`"
                     :color="status.color"
-                    :id="`v-radio-${item.id}`"
                     @change="onRadioChange(item)"
                   >
-                    <template v-slot:label>
+                    <template #label>
                       <span :style="{ color: status.color }">{{ item.name }}</span>
                     </template>
                   </v-radio>
@@ -58,7 +61,10 @@
           v-for="(tabItem, tabIndex) in statuses"
           :key="`tab-item-status-${tabIndex}`"
         >
-          <v-container class="px-5" fluid>
+          <v-container
+            class="px-5"
+            fluid
+          >
             <v-radio-group
               :key="`v-radio-group-${tabIndex}`"
               column
@@ -70,11 +76,11 @@
                   cols="4"
                 >
                   <v-radio
+                    :id="`v-radio-${status.id}`"
                     :label="status.name"
                     :color="tabItem.color"
-                    :id="`v-radio-${status.id}`"
                     @change="onRadioChange(status)"
-                  ></v-radio>
+                  />
                 </v-col>
               </v-row>
             </v-radio-group>
@@ -104,6 +110,41 @@ export interface StatusInterface {
 }
 
 export default Vue.extend({
+
+  props: {
+    comment: {
+      default: '',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    // Обратные вызовы
+    onSave: {
+      default: null,
+      type: Function
+    },
+
+    statusId: {
+      default: 0,
+      type: Number
+    },
+
+    statuses: {
+      type: Array
+    }
+  },
+
+  data () {
+    return {
+      dComment: '',
+      dStatusId: 0,
+      selected: undefined,
+      tab: null,
+      tabStatus: 0
+    }
+  },
   computed: {
     actions () {
       return {
@@ -135,48 +176,13 @@ export default Vue.extend({
     }
   },
 
-  data () {
-    return {
-      dComment: '',
-      dStatusId: 0,
-      selected: undefined,
-      tab: null,
-      tabStatus: 0
-    }
+  mounted () {
+    this.dComment = this.comment
   },
 
   methods: {
     onRadioChange (status: any) {
       (this as any).selected = status
-    }
-  },
-
-  mounted () {
-    this.dComment = this.comment
-  },
-
-  props: {
-    comment: {
-      default: '',
-      type: String
-    },
-    onCancel: {
-      default: null,
-      type: Function
-    },
-    // Обратные вызовы
-    onSave: {
-      default: null,
-      type: Function
-    },
-
-    statusId: {
-      default: 0,
-      type: Number
-    },
-
-    statuses: {
-      type: Array
     }
   }
 

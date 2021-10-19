@@ -21,7 +21,7 @@ module.exports = {
   ],
   root: true,
   rules: {
-    "sort-imports": ["warn", { "ignoreCase": true }],
+    'sort-imports': ['warn', { ignoreCase: true }],
     '@typescript-eslint/naming-convention': [
       'error',
       {
@@ -56,7 +56,7 @@ module.exports = {
     }],
     'no-console': 'off',
     'no-control-regex': 'off',
-    'no-debugger': 'off',
+    'no-debugger': 'off'
     // 'sort-keys-fix/sort-keys-fix': 'warn'
   }
 }

@@ -10,7 +10,7 @@
         hide-inputs
         hide-sliders
         @input="onOkClick"
-      ></v-color-picker>
+      />
     </v-card-text>
     <v-card-actions class="d-flex justify-end px-4 py-4">
       <v-btn
@@ -42,6 +42,14 @@ interface EventInterface {
 }
 
 export default Vue.extend({
+
+  name: 'SContactDialogColorPicker',
+
+  data () {
+    return {
+      color: '#FF00FF'
+    }
+  },
   computed: {
     locationAddress () {
       const stack = []
@@ -63,12 +71,6 @@ export default Vue.extend({
     }
   },
 
-  data () {
-    return {
-      color: '#FF00FF'
-    }
-  },
-
   methods: {
     onCancelClick () {
       if (typeof this.on.cancel !== 'function') {
@@ -85,8 +87,6 @@ export default Vue.extend({
       this.on.ok(this.color)
     }
   },
-
-  name: 'SContactDialogColorPicker',
 
   props: {
     on: {

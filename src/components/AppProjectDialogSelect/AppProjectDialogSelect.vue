@@ -2,7 +2,7 @@
   <DialogCard
     :actions="actions"
   >
-    <template v-slot:title>
+    <template #title>
       <v-card-title>{{ $t('Установить текущий проект') }}</v-card-title>
     </template>
 
@@ -55,14 +55,14 @@ export default Vue.extend({
     }
   },
 
-  mounted () {
-    this.option = this.value
-  },
-
   watch: {
     value (value: any) {
       this.option = value
     }
+  },
+
+  mounted () {
+    this.option = this.value
   },
 
   methods: {}

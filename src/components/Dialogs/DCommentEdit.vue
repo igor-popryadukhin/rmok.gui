@@ -6,8 +6,7 @@
     <v-textarea
       v-model="dataText"
       outlined
-    >
-    </v-textarea>
+    />
   </DialogCard>
 </template>
 
@@ -15,6 +14,39 @@
 import Vue from 'vue'
 
 export default Vue.extend({
+
+  props: {
+    cancelTitle: {
+      default: 'Cancel',
+      type: String
+    },
+    onCancel: {
+      default: null,
+      type: Function
+    },
+    onSave: {
+      default: null,
+      type: Function
+    },
+    saveTitle: {
+      default: 'Save',
+      type: String
+    },
+    text: {
+      default: '',
+      type: String
+    },
+    title: {
+      default: 'Title',
+      type: String
+    }
+  },
+
+  data () {
+    return {
+      dataText: ''
+    }
+  },
   computed: {
     actions () {
       return {
@@ -43,39 +75,6 @@ export default Vue.extend({
 
   created () {
     this.dataText = this.text
-  },
-
-  data () {
-    return {
-      dataText: ''
-    }
-  },
-
-  props: {
-    cancelTitle: {
-      default: 'Cancel',
-      type: String
-    },
-    onCancel: {
-      default: null,
-      type: Function
-    },
-    onSave: {
-      default: null,
-      type: Function
-    },
-    saveTitle: {
-      default: 'Save',
-      type: String
-    },
-    text: {
-      default: '',
-      type: String
-    },
-    title: {
-      default: 'Title',
-      type: String
-    }
   }
 
 })

@@ -38,12 +38,12 @@
                   class="mr-10 pa-0 mb-1"
                 >
                   <v-radio
+                    :id="`v-radio-${item.id}`"
                     :key="`v-radio-${statusIndex}`"
                     :color="status.color"
-                    :id="`v-radio-${item.id}`"
                     @change="onRadioChange(item)"
                   >
-                    <template v-slot:label>
+                    <template #label>
                       <span :style="{ color: status.color }">{{ item.name }}</span>
                     </template>
                   </v-radio>
@@ -68,11 +68,11 @@
                 class="mr-10"
               >
                 <v-radio
+                  :id="`v-radio-${status.id}`"
                   :label="status.name"
                   :color="tabItem.color"
-                  :id="`v-radio-${status.id}`"
                   @change="onRadioChange(status)"
-                ></v-radio>
+                />
               </v-col>
             </v-row>
           </v-radio-group>
@@ -91,50 +91,6 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  computed: {
-    actions () {
-      return {
-        cancel: {
-          flat: true,
-          handle: () => {
-            if (typeof (this as any).onCancel === 'function') {
-              ((this as any).onCancel)()
-            }
-          },
-          text: (this as any).cancelTitle
-        },
-
-        save: {
-          flat: true,
-          handle: () => {
-            if (typeof (this as any).onSave === 'function') {
-              (this as any).onSave((this as any).selected)
-            }
-          },
-          text: (this as any).saveTitle
-        }
-      }
-    }
-  },
-
-  created () {
-    (this as any).dComment = (this as any).comment
-  },
-
-  data () {
-    return {
-      dComment: '',
-      selected: undefined,
-      tab: null,
-      tabStatus: 0
-    }
-  },
-
-  methods: {
-    onRadioChange (status: any) {
-      (this as any).selected = status
-    }
-  },
 
   props: {
     cancelTitle: {
@@ -167,6 +123,50 @@ export default Vue.extend({
     text: {
       default: '',
       type: String
+    }
+  },
+
+  data () {
+    return {
+      dComment: '',
+      selected: undefined,
+      tab: null,
+      tabStatus: 0
+    }
+  },
+  computed: {
+    actions () {
+      return {
+        cancel: {
+          flat: true,
+          handle: () => {
+            if (typeof (this as any).onCancel === 'function') {
+              ((this as any).onCancel)()
+            }
+          },
+          text: (this as any).cancelTitle
+        },
+
+        save: {
+          flat: true,
+          handle: () => {
+            if (typeof (this as any).onSave === 'function') {
+              (this as any).onSave((this as any).selected)
+            }
+          },
+          text: (this as any).saveTitle
+        }
+      }
+    }
+  },
+
+  created () {
+    (this as any).dComment = (this as any).comment
+  },
+
+  methods: {
+    onRadioChange (status: any) {
+      (this as any).selected = status
     }
   }
 

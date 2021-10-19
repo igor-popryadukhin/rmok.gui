@@ -33,18 +33,13 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  data () {
-    return {
-      sheetDisplay: false
-    }
-  },
+
+  name: 'SIncomingRTC',
 
   model: {
     event: 'change',
     prop: 'value'
   },
-
-  name: 'SIncomingRTC',
 
   props: {
 
@@ -61,6 +56,11 @@ export default Vue.extend({
     value: {
       default: false,
       type: Boolean
+    }
+  },
+  data () {
+    return {
+      sheetDisplay: false
     }
   },
 

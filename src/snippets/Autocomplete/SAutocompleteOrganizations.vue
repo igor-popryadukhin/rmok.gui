@@ -10,15 +10,17 @@
     :loading="loading"
   >
     <template
-      v-slot:prepend
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-office-building</v-icon>
+      <v-icon class="pl-5 pr-9">
+        mdi-office-building
+      </v-icon>
     </template>
-    <template v-slot:selection="{ item }">
+    <template #selection="{ item }">
       <span>{{ item.name }}</span>
     </template>
-    <template v-slot:item="{ item, on }">
+    <template #item="{ item, on }">
       <v-list-item
         link
         v-on="on"
@@ -34,7 +36,7 @@
           <v-list-item-subtitle
             v-if="item.sphere_activity"
             v-text="item.sphere_activity"
-          ></v-list-item-subtitle>
+          />
         </v-list-item-content>
       </v-list-item>
     </template>
@@ -48,34 +50,6 @@ import { OrganizationInterface, Organizations } from '@/api/Organizations'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 
 export default Vue.extend({
-  created () {
-    this.organizationsSearchQuery = this.search
-  },
-  data () {
-    return {
-      loading: false,
-      organizations: [] as OrganizationInterface[],
-      organizationsSearchDebounce: debounce((q: string, context: any) => {
-        context.loading = true
-        new Organizations().find({
-          q
-        })
-          .then((response: ResponseInterface<any, OrganizationInterface[]>) => {
-            context.organizations = response.data
-
-            if (!context.selectOnce) {
-              context.selectOnce = true
-              context.selected = context.organizations.find((e: OrganizationInterface) => e.id === context.selectedId)
-            }
-          }).finally(() => {
-            context.loading = false
-          })
-      }, 400),
-      organizationsSearchQuery: null as null | string,
-      selectOnce: false,
-      selected: null
-    }
-  },
 
   model: {
     event: 'change',
@@ -104,6 +78,31 @@ export default Vue.extend({
       type: Boolean
     }
   },
+  data () {
+    return {
+      loading: false,
+      organizations: [] as OrganizationInterface[],
+      organizationsSearchDebounce: debounce((q: string, context: any) => {
+        context.loading = true
+        new Organizations().find({
+          q
+        })
+          .then((response: ResponseInterface<any, OrganizationInterface[]>) => {
+            context.organizations = response.data
+
+            if (!context.selectOnce) {
+              context.selectOnce = true
+              context.selected = context.organizations.find((e: OrganizationInterface) => e.id === context.selectedId)
+            }
+          }).finally(() => {
+            context.loading = false
+          })
+      }, 400),
+      organizationsSearchQuery: null as null | string,
+      selectOnce: false,
+      selected: null
+    }
+  },
 
   watch: {
     organizationsSearchQuery (val: string) {
@@ -117,6 +116,9 @@ export default Vue.extend({
     selectedId (id: number) {
       this.organizations.find((e: OrganizationInterface) => e.id === id)
     }
+  },
+  created () {
+    this.organizationsSearchQuery = this.search
   }
 })
 </script>

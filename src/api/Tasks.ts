@@ -103,7 +103,7 @@ export default class Tasks {
   /**
    *
    */
-  public calculateCount (params: any[]): Promise<Array<{id: any, count: number}>> {
+  public calculateCount (params: any[]): Promise<Array<unknown & {id: any, count: number}>> {
     return new Promise<any>((resolve, reject) => {
       $axios.post('/tasks/count/calculate', params)
         .then((response: AxiosResponse) => {

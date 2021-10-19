@@ -13,7 +13,7 @@
             :tabindex="0"
             :label="$tc('Status name')"
             autofocus
-          ></v-text-field>
+          />
         </v-col>
       </v-row>
       <v-row>
@@ -24,15 +24,15 @@
           xl="4"
         >
           <v-menu offset-y>
-            <template v-slot:activator="{ on, attrs }">
+            <template #activator="{ on, attrs }">
               <v-btn
                 :color="$vuetify.theme.currentTheme.primary"
                 v-bind="attrs"
-                v-on="on"
                 tile
                 text
                 small
                 outlined
+                v-on="on"
               >
                 {{ $tc('Available actions') }}
               </v-btn>
@@ -83,9 +83,9 @@
         >
           <keep-alive>
             <component
-              v-model="item.data"
               :is="item.component"
               :key="`component-${index}`"
+              v-model="item.data"
             />
           </keep-alive>
         </v-tab-item>
@@ -93,7 +93,7 @@
     </v-card-text>
 
     <v-card-actions>
-      <v-spacer></v-spacer>
+      <v-spacer />
 
       <v-btn
         :color="$vuetify.theme.currentTheme.error"
@@ -122,11 +122,11 @@
 import Vue, { PropType } from 'vue'
 import { ActionInterface } from './Interfaces'
 
-interface IProps {
+interface Props {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   actionTab: number;
   availableActions: ActionInterface[];
   currentActions: ActionInterface[];
@@ -134,15 +134,15 @@ interface IData {
   statusActions: ActionInterface[];
 }
 
-interface IMethods {
+interface Methods {
   [key: string]: any;
 }
 
-interface IComputed {
+interface Computed {
   [key: string]: any;
 }
 
-export default Vue.extend<IData, IMethods, IComputed, IProps>({
+export default Vue.extend<Data, Methods, Computed, Props>({
   name: 'AppStatusDialogEditor',
   model: {
     event: 'change',
@@ -163,7 +163,7 @@ export default Vue.extend<IData, IMethods, IComputed, IProps>({
     handler: Function
   },
 
-  data (): IData {
+  data (): Data {
     return {
 
       actionTab: 0,

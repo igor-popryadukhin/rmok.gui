@@ -10,17 +10,17 @@
           v-model="dName"
           label="Название группы"
           :rules="[ruleNotBlank]"
-        ></v-text-field>
+        />
         <v-color-picker
           v-model="dColor"
           mode="rgba"
           class="ma-2"
           hide-inputs
-        ></v-color-picker>
+        />
       </v-card-text>
 
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer />
 
         <v-btn
           color="red darken-1"
@@ -73,6 +73,12 @@ export default Vue.extend({
     }
   },
 
+  computed: {
+    ruleNotBlank () {
+      return (value: string) => !!value || this.$tc('This field should not be blank.')
+    }
+  },
+
   watch: {
     color (val: string) {
       this.dColor = val
@@ -88,12 +94,6 @@ export default Vue.extend({
 
     value (val: boolean) {
       this.dialogVisible = val
-    }
-  },
-
-  computed: {
-    ruleNotBlank () {
-      return (value: string) => !!value || this.$tc('This field should not be blank.')
     }
   },
 

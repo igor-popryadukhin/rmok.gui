@@ -1,14 +1,20 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--hexagon">
-    <div v-bind:style="innerStyles" class="spinner-inner">
+  <div
+    :style="styles"
+    class="spinner spinner--hexagon"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
       <ul class="hexagon-container">
-        <li class="hexagon hex_1"></li>
-        <li class="hexagon hex_2"></li>
-        <li class="hexagon hex_3"></li>
-        <li class="hexagon hex_4"></li>
-        <li class="hexagon hex_5"></li>
-        <li class="hexagon hex_6"></li>
-        <li class="hexagon hex_7"></li>
+        <li class="hexagon hex_1" />
+        <li class="hexagon hex_2" />
+        <li class="hexagon hex_3" />
+        <li class="hexagon hex_4" />
+        <li class="hexagon hex_5" />
+        <li class="hexagon hex_6" />
+        <li class="hexagon hex_7" />
       </ul>
     </div>
   </div>
@@ -16,6 +22,11 @@
 
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size)
@@ -28,11 +39,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

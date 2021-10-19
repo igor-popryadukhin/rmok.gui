@@ -2,6 +2,13 @@ import Vue from 'vue'
 import { CountryCodeInterface, Database } from '@/api/Database'
 
 export default Vue.extend({
+
+  data () {
+    return {
+      countryCodeSelected: null,
+      countryCodes: [] as CountryCodeInterface[]
+    }
+  },
   created () {
     new Database()
       .getCountryCodes()
@@ -11,12 +18,5 @@ export default Vue.extend({
         this.countryCodes = response
         /* eslint-enable */
       })
-  },
-
-  data () {
-    return {
-      countryCodeSelected: null,
-      countryCodes: [] as CountryCodeInterface[]
-    }
   }
 })

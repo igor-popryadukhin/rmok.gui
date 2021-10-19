@@ -6,25 +6,25 @@
         v-model="dName"
         label="Название группы"
         :rules="[ruleNotBlank, ruleMaxLength]"
-      ></v-text-field>
+      />
       <v-color-picker
         v-model="dColor"
         mode="rgba"
         class="ma-2"
         hide-inputs
-      ></v-color-picker>
+      />
     </v-card-text>
 
     <v-card-actions>
-      <v-spacer></v-spacer>
+      <v-spacer />
 
       <v-btn
         v-for="({ attrs, on }, key) in actions"
         v-bind="attrs"
-        v-on="on"
         :key="key"
         text
         tile
+        v-on="on"
         @click="onBtnClick(attrs.value || attrs, $event)"
       >
         {{ attrs.text || `Button-${key+1}` }}
@@ -62,6 +62,15 @@ export default Vue.extend({
     }
   },
 
+  computed: {
+    ruleNotBlank () {
+      return (value: string) => !!value || this.$tc('This field should not be blank.')
+    },
+    ruleMaxLength () {
+      return (value: string) => (value?.length || 0) < 255 || this.$tc('rule_max_dynamic_length', value.length)
+    }
+  },
+
   watch: {
     color (val: string) {
       this.dColor = val
@@ -69,15 +78,6 @@ export default Vue.extend({
 
     name (val: string) {
       this.dName = val
-    }
-  },
-
-  computed: {
-    ruleNotBlank () {
-      return (value: string) => !!value || this.$tc('This field should not be blank.')
-    },
-    ruleMaxLength () {
-      return (value: string) => (value?.length || 0) < 255 || this.$tc('rule_max_dynamic_length', value.length)
     }
   },
 

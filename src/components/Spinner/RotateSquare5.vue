@@ -1,14 +1,28 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--rotate-square-5">
-    <div v-bind:style="innerStyles" class="spinner-inner">
-      <span class="load3 one"></span>
-      <span class="load3 two"></span>
-      <span class="load3-center"></span>
+  <div
+    :style="styles"
+    class="spinner spinner--rotate-square-5"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
+      <span class="load3 one" />
+      <span class="load3 two" />
+      <span class="load3-center" />
     </div>
   </div>
 </template>
 <script>
 export default {
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size)
@@ -21,14 +35,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    color: {
-      default: '#41b883'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

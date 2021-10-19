@@ -28,9 +28,9 @@
     >
       <v-list-item
         class="v-divider"
-        v-on="on"
         :attrs="attrs"
         link
+        v-on="on"
         @click="onselect"
       >
         <v-list-item-content>
@@ -41,9 +41,12 @@
       </v-list-item>
     </template>
 
-    <template v-slot:append-item>
-      <v-divider class="mb-2"></v-divider>
-      <v-list-item disabled dense>
+    <template #append-item>
+      <v-divider class="mb-2" />
+      <v-list-item
+        disabled
+        dense
+      >
         <v-list-item-content>
           <v-list-item-title>
             {{ $tc('Start typing to initialize your search.') }}
@@ -85,7 +88,12 @@ import { debounce } from 'vuetify/src/util/helpers'
 import Groups from '@/api/Groups'
 
 export default Vue.extend({
-  name: 's-users-groups-autocomplete',
+  name: 'SUsersGroupsAutocomplete',
+
+  model: {
+    event: 'change',
+    prop: 'value'
+  },
 
   props: {
     clearable: {
@@ -126,11 +134,6 @@ export default Vue.extend({
       default: () => 0,
       type: Number
     }
-  },
-
-  model: {
-    event: 'change',
-    prop: 'value'
   },
 
   data () {

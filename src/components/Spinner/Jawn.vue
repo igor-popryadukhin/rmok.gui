@@ -1,13 +1,27 @@
 <template>
   <div class="spinner spinner--jawn">
-    <div :style="styles" class="spinner-inner">
-      <div :style="innerStyles" class="jawn"></div>
+    <div
+      :style="styles"
+      class="spinner-inner"
+    >
+      <div
+        :style="innerStyles"
+        class="jawn"
+      />
     </div>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size)
@@ -20,14 +34,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    color: {
-      default: '#41b883'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

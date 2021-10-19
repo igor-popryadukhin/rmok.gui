@@ -1,11 +1,28 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--rotate-square-6">
-    <div v-bind:style="outerStyles" class="inner-square inner-square-1"></div>
-    <div v-bind:style="innerStyles" class="inner-square inner-square-2"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--rotate-square-6"
+  >
+    <div
+      :style="outerStyles"
+      class="inner-square inner-square-1"
+    />
+    <div
+      :style="innerStyles"
+      class="inner-square inner-square-2"
+    />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '90px'
+    }
+  },
   computed: {
     innerStyles () {
       const size = this.calcWidth(this.outerWidth) + 'px'
@@ -40,14 +57,6 @@ export default {
       const s = Math.abs(Math.cos(r))
       const c = Math.abs(Math.sin(r))
       return (outerWidth * c - outerWidth * s) / (Math.pow(c, 2) - Math.pow(s, 2))
-    }
-  },
-  props: {
-    color: {
-      default: '#41b883'
-    },
-    size: {
-      default: '90px'
     }
   }
 }

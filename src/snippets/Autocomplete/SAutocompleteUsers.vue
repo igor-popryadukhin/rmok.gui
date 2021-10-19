@@ -19,18 +19,20 @@
     :dense="dense"
     :clearable="clearable"
   >
-    <template v-slot:no-data>
+    <template #no-data>
       <slot name="no-data">
         No data
       </slot>
     </template>
     <template
-      v-slot:prepend
       v-if="visibleIcon && ['lg', 'md'].includes($vuetify.breakpoint.name)"
+      #prepend
     >
-      <v-icon class="pl-5 pr-9">mdi-account-tie</v-icon>
+      <v-icon class="pl-5 pr-9">
+        mdi-account-tie
+      </v-icon>
     </template>
-    <template v-slot:selection="{ selected, item }">
+    <template #selection="{ selected, item }">
       <template v-if="multiple">
         <v-chip
           :input-value="selected"
@@ -54,7 +56,7 @@
         <span>{{ item.first_name }} {{ item.last_name }}</span>
       </template>
     </template>
-    <template v-slot:item="{item }">
+    <template #item="{item }">
       <v-list-item-avatar
         color="indigo"
         class="headline font-weight-light white--text"
@@ -63,8 +65,12 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title>{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-        <v-list-item-subtitle v-if="item.role">Роль: {{ item.role.name }}</v-list-item-subtitle>
-        <v-list-item-subtitle v-if="displayOrganization && item.organization">Организация: {{ item.organization.name }}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="item.role">
+          Роль: {{ item.role.name }}
+        </v-list-item-subtitle>
+        <v-list-item-subtitle v-if="displayOrganization && item.organization">
+          Организация: {{ item.organization.name }}
+        </v-list-item-subtitle>
       </v-list-item-content>
     </template>
   </v-autocomplete>
@@ -76,74 +82,13 @@ import { debounce } from 'vuetify/src/util/helpers'
 import { UserInterface, Users } from '@/api/Users'
 
 export default Vue.extend({
-  beforeDestroy () {
-    this.$off('change', this.onSelected)
-  },
-  created () {
-    if (!this.disabled) {
-      this.dataSearch = this.search
-    }
-  },
-  data () {
-    return {
-      attributes: null,
-      dataSearch: null as string | null,
-      loading: false,
-      selectOnce: false,
-      selected: null as any[] | any,
-      users: [],
-      usersProcessLoading: false,
-      usersSearchDebounce: debounce((context: any) => {
-        if (!context.disabled) {
-          context.loading = true
-          context.users = []
-          new Users()
-            .find({
-              count: 50,
-              offset: 0,
-              organization_id: context.organizationId,
-              project_id: context.projectId,
-              q: context.dataSearch,
-              roles: context.roles
-            })
-            .then(({ data }) => {
-              context.users = data
 
-              if (!context.selectOnce) {
-                context.selectOnce = true
-                context.selected = context.users.find((e: UserInterface) => e.id === context.selectedId)
-              }
-            }).finally(() => {
-              context.loading = false
-            })
-        }
-      }, 400)
-    }
-  },
-
-  methods: {
-    onChipRemove (id: number) {
-      if (Array.isArray(this.selected)) {
-        const index = this.selected.findIndex((e) => e.id === id)
-        if (index >= 0) this.selected.splice(index, 1)
-      }
-    },
-
-    onSelected (data: any) {
-      this.selected = data
-    }
-  },
+  name: 'SAutocompleteUsers',
 
   model: {
     event: 'change',
     prop: 'value'
   },
-
-  mounted () {
-    this.$on('change', this.onSelected)
-  },
-
-  name: 'SAutocompleteUsers',
 
   props: {
     clearable: {
@@ -211,6 +156,42 @@ export default Vue.extend({
       type: Boolean
     }
   },
+  data () {
+    return {
+      attributes: null,
+      dataSearch: null as string | null,
+      loading: false,
+      selectOnce: false,
+      selected: null as any[] | any,
+      users: [],
+      usersProcessLoading: false,
+      usersSearchDebounce: debounce((context: any) => {
+        if (!context.disabled) {
+          context.loading = true
+          context.users = []
+          new Users()
+            .find({
+              count: 50,
+              offset: 0,
+              organization_id: context.organizationId,
+              project_id: context.projectId,
+              q: context.dataSearch,
+              roles: context.roles
+            })
+            .then(({ data }) => {
+              context.users = data
+
+              if (!context.selectOnce) {
+                context.selectOnce = true
+                context.selected = context.users.find((e: UserInterface) => e.id === context.selectedId)
+              }
+            }).finally(() => {
+              context.loading = false
+            })
+        }
+      }, 400)
+    }
+  },
 
   watch: {
     dataSearch () {
@@ -227,6 +208,31 @@ export default Vue.extend({
 
     selected (value) {
       this.$emit('change', value)
+    }
+  },
+  beforeDestroy () {
+    this.$off('change', this.onSelected)
+  },
+  created () {
+    if (!this.disabled) {
+      this.dataSearch = this.search
+    }
+  },
+
+  mounted () {
+    this.$on('change', this.onSelected)
+  },
+
+  methods: {
+    onChipRemove (id: number) {
+      if (Array.isArray(this.selected)) {
+        const index = this.selected.findIndex((e) => e.id === id)
+        if (index >= 0) this.selected.splice(index, 1)
+      }
+    },
+
+    onSelected (data: any) {
+      this.selected = data
     }
   }
 })

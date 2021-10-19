@@ -1,46 +1,100 @@
 <template>
   <div class="table">
-    <div class="table-caption">Заголовок таблицы</div>
+    <div class="table-caption">
+      Заголовок таблицы
+    </div>
     <div class="table-colgroup">
-      <div class="table-col" width="10%"></div>
-      <div class="table-col" width="30%"></div>
-      <div class="table-col" width="30%"></div>
-      <div class="table-col" width="30%"></div>
+      <div
+        class="table-col"
+        width="10%"
+      />
+      <div
+        class="table-col"
+        width="30%"
+      />
+      <div
+        class="table-col"
+        width="30%"
+      />
+      <div
+        class="table-col"
+        width="30%"
+      />
     </div>
     <div class="table-thead">
       <div class="table-tr">
-        <div class="table-th">#</div>
-        <div class="table-th">Имя</div>
-        <div class="table-th">Фамилия</div>
-        <div class="table-th">Ник</div>
+        <div class="table-th">
+          #
+        </div>
+        <div class="table-th">
+          Имя
+        </div>
+        <div class="table-th">
+          Фамилия
+        </div>
+        <div class="table-th">
+          Ник
+        </div>
       </div>
     </div>
     <div class="table-tbody">
       <div class="table-tr">
-        <div class="table-th">1</div>
-        <div class="table-td">Mark</div>
-        <div class="table-td">Otto</div>
-        <div class="table-td">@mdo</div>
+        <div class="table-th">
+          1
+        </div>
+        <div class="table-td">
+          Mark
+        </div>
+        <div class="table-td">
+          Otto
+        </div>
+        <div class="table-td">
+          @mdo
+        </div>
       </div>
       <div class="table-tr">
-        <div class="table-th">2</div>
-        <div class="table-td">Jacob</div>
-        <div class="table-td">Thornton</div>
-        <div class="table-td">@fat</div>
+        <div class="table-th">
+          2
+        </div>
+        <div class="table-td">
+          Jacob
+        </div>
+        <div class="table-td">
+          Thornton
+        </div>
+        <div class="table-td">
+          @fat
+        </div>
       </div>
       <div class="table-tr">
-        <div class="table-th">3</div>
-        <div class="table-td">Larry</div>
-        <div class="table-td">Bird</div>
-        <div class="table-td">@twitter</div>
+        <div class="table-th">
+          3
+        </div>
+        <div class="table-td">
+          Larry
+        </div>
+        <div class="table-td">
+          Bird
+        </div>
+        <div class="table-td">
+          @twitter
+        </div>
       </div>
     </div>
     <div class="table-tfoot">
       <div class="table-tr">
-        <div class="table-th">#</div>
-        <div class="table-th">Имя</div>
-        <div class="table-th">Фамилия</div>
-        <div class="table-th">Ник</div>
+        <div class="table-th">
+          #
+        </div>
+        <div class="table-th">
+          Имя
+        </div>
+        <div class="table-th">
+          Фамилия
+        </div>
+        <div class="table-th">
+          Ник
+        </div>
       </div>
     </div>
   </div>

@@ -280,16 +280,8 @@ export default Vue.extend({
         text: this.$tc('Are you sure you want to delete a group of statuses?'),
         showClose: false,
         actions: {
-          false: {
-            text: this.$tc('Cancel'),
-            tile: true,
-            small: true
-          },
-          true: {
-            text: this.$tc('Yes'),
-            tile: true,
-            small: true
-          }
+          false: this.$tc('Cancel'),
+          true: this.$tc('Yes')
         }
       })
         .then((result: boolean) => {
@@ -393,16 +385,8 @@ export default Vue.extend({
         text: this.$tc('Are you sure you want to delete the status?'),
         showClose: false,
         actions: {
-          false: {
-            text: this.$tc('Cancel'),
-            tile: true,
-            small: true
-          },
-          true: {
-            text: this.$tc('Yes'),
-            tile: true,
-            small: true
-          }
+          false: this.$tc('Cancel'),
+          true: this.$tc('Yes')
         }
       })
         .then((result: boolean) => {

@@ -16,7 +16,7 @@
         indeterminate
         rounded
         height="6"
-      ></v-progress-linear>
+      />
     </v-col>
   </v-row>
 </template>

@@ -201,7 +201,7 @@ export default (Vue as VueConstructor<VueInner>).extend({
      *
      */
     onBtnSaveClick () {
-      if (!this.$refs.pbxConfigForm.validate()) { return }
+      if (!(this.$refs.pbxConfigForm as any).validate()) { return }
 
       this.pbxSaveConfigLoading = true
       new Users()
@@ -225,16 +225,8 @@ export default (Vue as VueConstructor<VueInner>).extend({
         text: this.$tc('Are you sure you want to delete the connection parameters?'),
         showClose: false,
         actions: {
-          false: {
-            text: this.$tc('No'),
-            tile: true,
-            small: true
-          },
-          true: {
-            text: this.$tc('Yes'),
-            tile: true,
-            small: true
-          }
+          false: this.$tc('No'),
+          true: this.$tc('Yes')
         }
       }).then((result: boolean) => {
         if (result) {

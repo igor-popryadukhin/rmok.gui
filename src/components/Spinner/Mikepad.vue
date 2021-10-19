@@ -1,17 +1,28 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--mikepad">
-    <div v-bind:style="innerStyles" class="spinner-inner">
-      <div class="binding"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--mikepad"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
+      <div class="binding" />
       <div class="pad">
-        <div class="line line1"></div>
-        <div class="line line2"></div>
-        <div class="line line3"></div>
+        <div class="line line1" />
+        <div class="line line2" />
+        <div class="line line3" />
       </div>
     </div>
   </div>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
       const size = parseInt(this.size)
@@ -24,11 +35,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }
