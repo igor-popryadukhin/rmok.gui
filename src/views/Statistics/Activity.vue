@@ -106,36 +106,37 @@
             />
           </template>
           <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])">
-            <v-select
-              v-model="actions.selected"
-              :label="$tc('Actions')"
-              :items="actions.items"
-              :disabled="isDisabledFilterActions"
-              item-value="name"
-              item-text="title"
-              cache-items
-              clearable
-              multiple
-              outlined
-              dense
-              chips
-            >
-              <template #selection="{ item, attrs, select }">
-                <v-chip
-                  v-bind="attrs"
-                  :input-value="select"
-                  class="ma-1"
-                  color="primary"
-                  label
-                  close
-                  small
-                  @click="select"
-                  @click:close="actions.chipRemove(item)"
-                >
-                  {{ item.title }}
-                </v-chip>
-              </template>
-            </v-select>
+            <div class="select-actions-activity">
+              <v-select
+                v-model="actions.selected"
+                :label="$tc('Actions')"
+                :items="statisticActions"
+                item-value="type"
+                item-text="title"
+                cache-items
+                clearable
+                multiple
+                outlined
+                dense
+                chips
+              >
+                <template #selection="{ item, attrs, select }">
+                  <v-chip
+                    v-bind="attrs"
+                    :input-value="select"
+                    class="ma-1"
+                    color="primary"
+                    label
+                    close
+                    small
+                    @click="select"
+                    @click:close="actions.chipRemove(item)"
+                  >
+                    {{ item.title }}
+                  </v-chip>
+                </template>
+              </v-select>
+            </div>
           </template>
         </div>
       </v-col>
@@ -232,16 +233,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         /**
          * Удалить чип
          */
-        chipRemove: (item: unknown & {title: string; name: string;}) => {
+        chipRemove: (item: unknown & {title: string; type: string;}) => {
           if (Array.isArray(this.actions.selected) && item) {
-            const index = this.actions.selected.findIndex((e: string) => e === item.name)
+            const index = this.actions.selected.findIndex((e: string) => e === item.type)
             if (index >= 0) this.actions.selected.splice(index, 1)
           } else {
             this.actions.selected = []
           }
         },
-
-        items: [] as unknown & { title: string; value: string; }[],
 
         selected: []
       }
@@ -250,7 +249,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   computed: {
     ...mapGetters({
-      statisticActivity: 'statistic_activity/activity'
+      statisticActivity: 'statistic_activity/activity',
+      statisticActions: 'statistic_activity/types'
     }),
 
     filterOwnerId: {
@@ -370,6 +370,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         params.project_id = this.filterProjectId
       }
 
+      if (this.actions.selected.length > 0) {
+        params.actions = this.actions.selected
+      }
+
       return params
     },
 
@@ -427,10 +431,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       return params
     },
 
-    isDisabledFilterActions () {
-      return !(this.filterOwnerId.length > 0 || this.filterUserGroupId.length > 0)
-    },
-
     /**
      * Горизонтальные бары
      */
@@ -444,7 +444,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           height: '100%',
           stackType: '100%',
           stacked: true,
-          type: 'bar'
+          type: 'bar',
+          animations: {
+            enabled: true
+          }
         },
         dataLabels: {
           dropShadow: {
@@ -623,5 +626,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 <style lang="scss">
 .margin-right > *:not(:nth-child(0)) {
   margin-right: 10px;
+}
+.select-actions-activity {
+  width: 398px;
+  max-width: 398px;
 }
 </style>

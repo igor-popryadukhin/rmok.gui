@@ -9,6 +9,9 @@ const actions: ActionTree<State, RootState> = {
       new Statistics()
         .activity(params)
         .then((response) => {
+          const types = response.meta?.types || 0
+          commit('types', types) // Варианты действий пользователя
+
           commit('activity', response.data)
           resolve()
         }).catch(reject)

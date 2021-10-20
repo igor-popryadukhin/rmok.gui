@@ -1,11 +1,13 @@
 
 export interface State {
   activity: any[];
+  types: any[];
 }
 
 export function defaultState (): State {
   return {
-    activity: []
+    activity: [],
+    types: []
   }
 }
 
