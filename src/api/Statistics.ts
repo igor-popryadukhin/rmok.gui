@@ -107,8 +107,8 @@ export default class Statistics {
    *
    * @param params
    */
-  public activity<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+  public activity<TM, TD> (params = {}): Promise<ResponseInterface<{ types: [] }, TD>> {
+    return new Promise<ResponseInterface<{ types: [] }, TD>>((resolve, reject) => {
       $axios.get('/statistics/stats-activity', {
         params
       }).then((response: AxiosResponse) => {

@@ -1,457 +1,434 @@
 <template>
-  <v-container
-    class="pa-0 pt-5"
-    fluid
+  <v-sheet
+    flat
+    tile
   >
+    <!-- Даты -->
     <v-row>
-      <v-col class="pt-0 pb-0">
+      <v-col>
         <div class="d-flex">
-          <v-spacer />
-          <v-btn-toggle
-            v-model="filter.date"
-            group
-            dense
+          <app-btn-toggle-date
+            v-model="filterPeriod"
+            :items="dateRangeCollection"
           >
-            <v-btn value="today">
-              {{ $tc('Today') }}
-            </v-btn>
-
-            <v-btn value="yesterday">
-              {{ $tc('Yesterday') }}
-            </v-btn>
-
-            <v-btn value="this_week">
-              {{ $tc('This week') }}
-            </v-btn>
-
-            <v-btn value="last_week">
-              {{ $tc('Last week') }}
-            </v-btn>
-
-            <v-btn value="month">
-              {{
-                $tc('January | February | March | April | May | June | July | August | September | October | December', new Date().getMonth())
-              }}
-            </v-btn>
-
-            <v-menu
-              ref="menuDateRange"
-              v-model="menuDateRange"
-              :close-on-content-click="false"
-              :return-value.sync="dateRange"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template #activator="{ on }">
-                <v-btn
-                  :class="/^\d+,\d+/s.test($routerQuery.getQuery('date')) ? 'v-btn--active' : ''"
-                  v-on="on"
-                >
-                  {{ $tc('Range') }}
-                </v-btn>
-              </template>
-              <v-date-picker
-                v-model="dateRange"
-                :first-day-of-week="1"
-                scrollable
-                range
-                no-title
-                locale="ru"
+            <template #item-append>
+              <v-divider
+                class="mx-2"
+                vertical
+              />
+              <v-menu
+                ref="customPeriodMenu"
+                v-model="customPeriodMenu"
+                :close-on-content-click="false"
+                :return-value="filterCustomPeriod"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
               >
-                <v-spacer />
-                <v-btn
-                  text
-                  color="primary"
-                  @click="menuDateRange = false"
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    v-bind="attrs"
+                    :class="Array.isArray(filterCustomPeriod) ? 'v-btn--active' : ''"
+                    text
+                    tile
+                    v-on="on"
+                  >
+                    {{ filterCustomPeriodTitle }}
+                  </v-btn>
+                </template>
+                <v-date-picker
+                  v-model="filterCustomPeriod"
+                  :locale="$vuetify.lang.current"
+                  :first-day-of-week="1"
+                  no-title
+                  range
                 >
-                  {{ $tc('Cancel') }}
-                </v-btn>
-                <v-btn
-                  text
-                  color="primary"
-                  @click="onSaveDateRangeClick(dateRange)"
-                >
-                  OK
-                </v-btn>
-              </v-date-picker>
-            </v-menu>
-          </v-btn-toggle>
+                  <v-spacer />
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="customPeriodMenu = false"
+                  >
+                    {{ $tc('Cancel') }}
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="$refs.customPeriodMenu.save(filterCustomPeriod)"
+                  >
+                    {{ $tc('Ok') }}
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </template>
+          </app-btn-toggle-date>
+          <v-spacer />
+          <v-btn
+            :disabled="processFetchActivity"
+            text
+            tile
+            @click="onBtnRefreshClick"
+          >
+            {{ $tc('Refresh') }}
+          </v-btn>
         </div>
       </v-col>
     </v-row>
 
-    <!-- Фильтры -->
+    <!-- Основные фильтры -->
     <v-row>
-      <v-col
-        class="pt-0"
-      >
-        <v-card
-          tile
-          flat
-          outlined
-        >
-          <v-card-text>
-            <v-row>
-              <v-col
-                class="py-0"
-                cols="12"
+      <!-- Фильтр по пользователям -->
+      <v-col class="py-0">
+        <div class="d-flex justify-start flex-wrap margin-right">
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])">
+            <app-user-autocomplete
+              v-model="filterOwnerId"
+              :label="$tc('Users')"
+              :disabled="processLoading"
+            />
+          </template>
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+            <app-user-group-autocomplete
+              v-model="filterUserGroupId"
+              :label="$tc('Group')"
+              :disabled="processLoading"
+              outlined
+              dense
+            />
+          </template>
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])">
+            <app-project-autocomplete
+              v-model="filterProjectId"
+              :label="$tc('Project')"
+              :disabled="processLoading"
+              outlined
+              dense
+            />
+          </template>
+          <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC', 'ROLE_TEAM_LEADER'])">
+            <div class="select-actions-activity">
+              <v-select
+                v-model="actions.selected"
+                :label="$tc('Actions')"
+                :items="statisticActions"
+                item-value="type"
+                item-text="title"
+                cache-items
+                clearable
+                multiple
+                outlined
+                dense
+                chips
               >
-                <s-groups
-                  ref="sGroupsAutocomplete"
-                  v-model="filter.groups"
-                  :label="$tc('Groups')"
-                  clearable
-                  dense
-                  outlined
-                  multiple
-                />
-              </v-col>
-              <v-col
-                class="py-0"
-                cols="12"
-              >
-                <s-projects-autocomplete
-                  ref="sProjectsAutocomplete"
-                  v-model="filter.project"
-                  :label="$tc('Projects')"
-                  clearable
-                  dense
-                  outlined
-                  multiple
-                />
-              </v-col>
-              <v-col
-                class="py-0"
-                cols="12"
-              >
-                <s-users
-                  ref="sUsersAutocomplete"
-                  v-model="filter.users"
-                  :label="$tc('Employees')"
-                  :params="{ role_use: 'for_calls' }"
-                  multiple
-                  outlined
-                  dense
-                  clearable
-                />
-              </v-col>
-              <v-col
-                class="py-0"
-                cols="12"
-              >
-                <v-select
-                  v-model="filter.actions.selected"
-                  :label="$tc('Actions')"
-                  :items="filter.actions.items"
-                  :disabled="isDisabledFilterActions"
-                  item-value="name"
-                  item-text="title"
-                  cache-items
-                  clearable
-                  multiple
-                  outlined
-                  dense
-                  chips
-                >
-                  <template #selection="{ item, attrs, select }">
-                    <v-chip
-                      v-bind="attrs"
-                      :input-value="select"
-                      class="ma-1"
-                      color="primary"
-                      label
-                      close
-                      small
-                      @click="select"
-                      @click:close="filter.actions.chipRemove(item)"
-                    >
-                      {{ item.title }}
-                    </v-chip>
-                  </template>
-                </v-select>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Общее время -->
-    <v-row>
-      <v-col
-        class="pt-0"
-      >
-        <v-card
-          tile
-          flat
-          outlined
-        >
-          <v-card-title class="grey--text">
-            {{ $tc('Общее время') }}
-          </v-card-title>
-          <v-card-text
-            v-if="apexRadialBarSeries.length === 0"
-          >
-            <div
-              class="d-flex align-center justify-center"
-              style="height: 250px"
-            >
-              <div>
-                {{ $tc('No data') }}
-              </div>
-            </div>
-          </v-card-text>
-          <v-card-text
-            v-else
-            style="min-height: 250px"
-          >
-            <div class="d-flex justify-space-around">
-              <template
-                v-for="(item, key) in apexRadialBarSeries"
-              >
-                <div
-                  :key="key"
-                >
-                  <apexchart
-                    type="radialBar"
-                    height="240"
-                    :options="item.options"
-                    :series="item.series"
-                  />
-                  <div
-                    class="text-center"
-                    style="font-size: 16px"
+                <template #selection="{ item, attrs, select }">
+                  <v-chip
+                    v-bind="attrs"
+                    :input-value="select"
+                    class="ma-1"
+                    color="primary"
+                    label
+                    close
+                    small
+                    @click="select"
+                    @click:close="actions.chipRemove(item)"
                   >
-                    {{ item.percent.toFixed(2) }}%
-                  </div>
-                </div>
-              </template>
+                    {{ item.title }}
+                  </v-chip>
+                </template>
+              </v-select>
             </div>
-          </v-card-text>
-        </v-card>
+          </template>
+        </div>
       </v-col>
     </v-row>
 
-    <!-- По сотрудникам -->
+    <!-- Diagram Zone -->
     <v-row>
       <v-col
         class="py-0 mb-10"
       >
-        <v-card
-          tile
-          flat
-          outlined
-        >
-          <v-card-title class="grey--text">
-            {{ $tc('По сотрудникам') }}
-          </v-card-title>
-          <v-card-text>
-            <apexchart
-              height="1000"
-              type="bar"
-              :options="apexchartOptions"
-              :series="apexSeries"
-            />
-          </v-card-text>
-        </v-card>
+        <template v-if="processFetchActivity">
+          <div
+            class="d-flex align-center justify-center fill-height"
+          >
+            <div class="grey--text">
+              <app-loading />
+            </div>
+          </div>
+        </template>
+        <template v-else-if="statisticActivity.length === 0">
+          <div
+            class="d-flex align-center justify-center fill-height"
+          >
+            <div class="grey--text">
+              <span>{{ $tc('No data for the selected period') }}</span>
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <v-card
+            tile
+            flat
+            outlined
+          >
+            <v-card-text>
+              <apexchart
+                height="1000"
+                type="bar"
+                :options="apexchartOptions"
+                :series="apexSeries"
+              />
+            </v-card-text>
+          </v-card>
+        </template>
       </v-col>
     </v-row>
-  </v-container>
+  </v-sheet>
 </template>
 
 <script lang="ts">
-
-import { GroupInterface } from '@/api/Groups'
-import Statistics from '@/api/Statistics'
-import { UserInterface } from '@/api/Users'
-import SGroups from '@/snippets/SGroups/SGroups.vue'
-import SUsers from '@/snippets/SUsers/SUsers.vue'
-import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
-import { secondsToHms, secondsToHmsDigital } from '@/utils/datetime'
-import VInterface from '@/VInterface'
-import { format } from 'date-fns'
-import Vue, { VueConstructor } from 'vue'
-
+import { secondsToHms } from '@/utils/datetime'
+import Vue from 'vue'
 import VueApexCharts from 'vue-apexcharts'
+import { mapActions, mapGetters } from 'vuex'
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import { debounce } from 'vuetify/src/util/helpers'
-import { ProjectInterface } from '@/api/Projects'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)
 
-export default (Vue as VueConstructor<VInterface>).extend({
+interface Data {
+  [keys: string]: any;
+}
+
+interface Methods {
+  [keys: string]: any;
+}
+
+interface Computed {
+  filterProjectId: number;
+  [keys: string]: any;
+}
+
+interface Props {
+  [keys: string]: any;
+}
+
+export default Vue.extend<Data, Methods, Computed, Props>({
+
   components: {
-    SGroups,
-    SUsers,
-    SProjectsAutocomplete
+    AppProjectAutocomplete: () => import('@/components/AppProjectAutocomplete/AppProjectAutocomplete.vue'),
+    AppUserGroupAutocomplete: () => import('@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'),
+    AppBtnToggleDate,
+    AppLoading,
+    AppUserAutocomplete: () => import('@/components/AppUserAutocomplete/AppUserAutocomplete.vue')
   },
 
   data () {
     return {
-      dateRange: null as string[] | null,
-      // Элементы отчёта
-      filter: {
-        actions: {
-          /**
-           * Удалить чип
-           */
-          chipRemove: (item: unknown & {title: string; name: string;}) => {
-            if (Array.isArray(this.filter.actions.selected) && item) {
-              const index = this.filter.actions.selected.findIndex((e: string) => e === item.name)
-              if (index >= 0) this.filter.actions.selected.splice(index, 1)
-            } else {
-              this.filter.actions.selected = []
-            }
-          },
-
-          items: [] as unknown & { title: string; value: string; }[],
-
-          selected: []
+      customPeriodMenu: false,
+      processFetchActivity: false,
+      actions: {
+        /**
+         * Удалить чип
+         */
+        chipRemove: (item: unknown & {title: string; type: string;}) => {
+          if (Array.isArray(this.actions.selected) && item) {
+            const index = this.actions.selected.findIndex((e: string) => e === item.type)
+            if (index >= 0) this.actions.selected.splice(index, 1)
+          } else {
+            this.actions.selected = []
+          }
         },
-        date: null as unknown & string | null,
-        groups: [] as unknown & GroupInterface[],
-        project_id: null as unknown & ProjectInterface | null,
-        users: [] as unknown & UserInterface[]
-      },
 
-      filterDate: undefined,
-
-      menuDateRange: null,
-
-      pieLabels: [] as string[],
-
-      processLoading: false,
-
-      reportActions: [] as unknown[] & { name: string, title: string }[],
-
-      // Типы действий отчёта
-      reportItems: [] as any[]
+        selected: []
+      }
     }
   },
 
   computed: {
+    ...mapGetters({
+      statisticActivity: 'statistic_activity/activity',
+      statisticActions: 'statistic_activity/types'
+    }),
 
-    /**
-     * Круговые диаграммы
-     */
-    apexRadialBarSeries () {
-      const reducer = (accumulator: number, currentValue: number) => accumulator + currentValue
+    filterOwnerId: {
+      get () {
+        return +this.$store.getters['statistic_activity/filter/owner_id']
+      },
 
-      // Для преобразование константы в читаемый вариант
-      const dataLabelsFormatter = (val: string) => {
-        let name = val
-        for (let i = 0; i < this.reportActions.length; i++) {
-          if (val === this.reportActions[i].name) {
-            name = this.reportActions[i].title
-          }
-        }
-        return name
+      set (value: number) {
+        this.$store.commit('statistic_activity/filter/owner_id', value)
       }
-
-      let total = 0
-      this.apexSeries.forEach((value: unknown & { name: string; data: number[] }) => {
-        total = total + value.data.reduce(reducer)
-      })
-
-      return this.apexSeries.map((value: unknown & { name: string; data: number[] }) => {
-        const percent = (value.data.reduce(reducer) / total) * 100
-
-        return {
-          chart: {
-            height: 280,
-            type: 'radialBar'
-          },
-          options: {
-            colors: ['#28bd76'],
-            fill: {
-              gradient: {
-                gradientToColors: ['#63ADD0'],
-                shade: 'dark',
-                stops: [0, 100],
-                type: 'vertical'
-              },
-              type: 'gradient'
-            },
-            labels: [value.name],
-            plotOptions: {
-              radialBar: {
-                dataLabels: {
-                  name: {
-                    color: '#fff',
-                    fontSize: '13px',
-                    formatter: dataLabelsFormatter,
-                    offsetY: -10,
-                    show: true
-                  },
-                  total: {
-                    color: '#e52121',
-                    fontFamily: undefined,
-                    fontSize: '16px',
-                    label: 'Total',
-                    offsetY: 100,
-                    show: false
-                  },
-                  value: {
-                    color: '#fff',
-                    fontSize: '25px',
-                    formatter: function (val: number) {
-                      return secondsToHmsDigital(val)
-                    },
-                    show: true
-                  }
-                },
-                endAngle: 360 * (Math.round(percent) / 100),
-                hollow: {
-                  background: '#133D8A',
-                  margin: 0,
-                  size: '70%'
-                },
-                startAngle: 0,
-                track: {
-                  background: '#dedede',
-                  dropShadow: {
-                    blur: 3,
-                    enabled: false,
-                    left: 0,
-                    opacity: 0.5,
-                    top: 0
-                  },
-                  endAngle: 360,
-                  margin: 5,
-                  opacity: 1,
-                  show: true,
-                  startAngle: 0,
-                  strokeWidth: '97%'
-                }
-              }
-            },
-            stroke: {
-              lineCap: 'round'
-            }
-          },
-          percent,
-          series: [value.data.reduce(reducer)]
-        }
-      })
     },
 
-    apexSeries () {
-      const series: any[] = [] // Сюда буду складывать серии
-      this.reportItems.forEach((value: unknown & {activity: any[]; }) => {
-        value.activity.forEach((value1: unknown & {name: string; title: string; seconds: number}) => {
-          const index = series.findIndex(v => v.name === value1.name)
-          if (index > -1) {
-            series[index].data.push(value1.seconds)
-          } else {
-            series.push({
-              data: [value1.seconds],
-              name: value1.name
-            })
+    filterUserGroupId: {
+      get () {
+        return +this.$store.getters['statistic_activity/filter/user_group_id']
+      },
+
+      set (value: number) {
+        this.$store.commit('statistic_activity/filter/user_group_id', value)
+      }
+    },
+
+    filterPeriod: {
+      get () {
+        if (!Array.isArray(this.$store.getters['statistic_activity/filter/period'])) {
+          return this.$store.getters['statistic_activity/filter/period']
+        }
+        return null
+      },
+
+      set (value: string) {
+        this.$store.commit('statistic_activity/filter/period', value)
+      }
+    },
+
+    filterCustomPeriod: {
+      get () {
+        if (Array.isArray(this.$store.getters['statistic_activity/filter/period'])) {
+          return this.$store.getters['statistic_activity/filter/period']
+        }
+
+        return null
+      },
+
+      set (value: string[]) {
+        this.$store.commit('statistic_activity/filter/period', value)
+      }
+    },
+
+    filterProjectId: {
+      get () {
+        return +this.$store.getters['statistic_activity/filter/project_id']
+      },
+
+      set (value: number) {
+        this.$store.commit('statistic_activity/filter/project_id', value)
+      }
+    },
+
+    processLoading () {
+      return this.processFetchActivity
+    },
+
+    paramsFilters () {
+      const params: Record<string, any> = {}
+
+      if (this.filterPeriod) {
+        const daysJsStart = this.$dayjs().set('h', 0).set('m', 0).set('s', 0)
+        const daysJsEnd = this.$dayjs().set('h', 23).set('m', 59).set('s', 59)
+
+        switch (this.filterPeriod) {
+          case 'today': {
+            // За сегодня
+            params.period = `${daysJsStart.unix()},${daysJsEnd.unix()}`
+            break
           }
-        })
-      })
-      return series
+          case 'yesterday': {
+            // За вчера
+            params.period = `${daysJsStart.subtract(1, 'day').unix()},${daysJsEnd.subtract(1, 'day').unix()}`
+            break
+          }
+          case 'this_week': {
+            // С неделю
+            params.period = `${daysJsStart.startOf('week').unix()},${daysJsEnd.endOf('week').unix()}`
+            break
+          }
+          case 'last_week': {
+            // За прошлую неделю
+            params.period = `${daysJsStart.subtract(1, 'week').startOf('week').unix()},${daysJsEnd.subtract(1, 'week').endOf('week').unix()}`
+            break
+          }
+          case 'month': {
+            // За месяц
+            params.period = `${daysJsStart.startOf('month').unix()},${daysJsEnd.endOf('month').unix()}`
+            break
+          }
+          default: {
+            // Если фильтр настраиваемый.
+
+          }
+        }
+      } else if (Array.isArray(this.filterCustomPeriod) && this.filterCustomPeriod.length === 2) {
+        if (this.filterCustomPeriod.length === 2) {
+          params.period = `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').set('h', 0).set('m', 0).set('s', 0).unix()},${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').set('h', 23).set('m', 59).set('s', 59).unix()}`
+        }
+      }
+
+      if (Number(this.filterOwnerId) > 0) {
+        params.owner_id = this.filterOwnerId
+      }
+
+      if (Number(this.filterUserGroupId) > 0) {
+        params.user_group_id = this.filterUserGroupId
+      }
+
+      if (Number(this.filterProjectId) > 0) {
+        params.project_id = this.filterProjectId
+      }
+
+      if (this.actions.selected.length > 0) {
+        params.actions = this.actions.selected
+      }
+
+      return params
+    },
+
+    dateRangeCollection () {
+      const daysJsStart = this.$dayjs().set('h', 0).set('m', 0).set('s', 0)
+      const daysJsEnd = this.$dayjs().set('h', 23).set('m', 59).set('s', 59)
+      return [
+        {
+          title: this.$tc('Today'),
+          tooltip: `За ${daysJsStart.format('DD.MM.YYYY')}`,
+          value: 'today'
+        },
+        {
+          title: this.$tc('Yesterday'),
+          tooltip: `За ${daysJsStart.subtract(1, 'day').format('DD.MM.YYYY')}`,
+          value: 'yesterday'
+        },
+        {
+          title: this.$tc('This week'),
+          tooltip: `c ${daysJsStart.startOf('week').format('DD.MM.YYYY')} по ${daysJsEnd.endOf('week').format('DD.MM.YYYY')}`,
+          value: 'this_week'
+        },
+        {
+          title: this.$tc('Last week'),
+          tooltip: `c ${daysJsStart.subtract(1, 'week').startOf('week').format('DD.MM.YYYY')} по ${daysJsEnd.subtract(1, 'week').endOf('week').format('DD.MM.YYYY')}`,
+          value: 'last_week'
+        },
+        {
+          title: this.$t('per_month', { name: this.$dayjs().format('MMMM') }).toString(),
+          tooltip: `c ${daysJsStart.startOf('month').format('DD.MM.YYYY')} по ${daysJsEnd.endOf('month').format('DD.MM.YYYY')}`,
+          value: 'month'
+        }
+      ]
+    },
+
+    filterCustomPeriodTitle () {
+      if (Array.isArray(this.filterCustomPeriod)) {
+        if (this.filterCustomPeriod.length === 2) {
+          return `${this.$dayjs(this.filterCustomPeriod[0], 'YYYY-MM-DD').format('DD.MM.YYYY')} — ${this.$dayjs(this.filterCustomPeriod[1], 'YYYY-MM-DD').format('DD.MM.YYYY')}`
+        }
+      }
+      return this.$tc('Customizable')
+    },
+
+    /**
+     * Параметры загрузки результатов (статусов)
+     */
+    appStatusAutocompleteParams () {
+      const params: Record<string, number | unknown> = {}
+
+      if (this.$isGranted(['ROLE_ADMIN', 'ROLE_RCC']) && Number(this.filterProjectId) > 0) {
+        params.project_id = this.filterProjectId
+      }
+
+      return params
     },
 
     /**
@@ -459,13 +436,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
      */
     apexchartOptions (): any {
       const formatter = (seriesName: string) => {
-        let name = seriesName
-        for (let i = 0; i < this.reportActions.length; i++) {
-          if (seriesName === this.reportActions[i].name) {
-            name = this.reportActions[i].title
-          }
-        }
-        return name
+        return seriesName
       }
 
       return {
@@ -473,7 +444,10 @@ export default (Vue as VueConstructor<VInterface>).extend({
           height: '100%',
           stackType: '100%',
           stacked: true,
-          type: 'bar'
+          type: 'bar',
+          animations: {
+            enabled: true
+          }
         },
         dataLabels: {
           dropShadow: {
@@ -495,7 +469,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
         },
         legend: {
           formatter,
-          horizontalAlign: 'left',
+          horizontalAlign: 'center',
           offsetX: 40,
           position: 'top'
         },
@@ -516,8 +490,6 @@ export default (Vue as VueConstructor<VInterface>).extend({
             fillTo: 'origin'
           },
           bar: {
-            barHeight: '70%',
-            columnWidth: '70%',
             horizontal: true
           }
         },
@@ -573,221 +545,90 @@ export default (Vue as VueConstructor<VInterface>).extend({
       }
     },
 
-    isDisabledFilterActions () {
-      return !(this.filter.users.length > 0 || this.filter.groups.length > 0)
-    },
-
     xSeries () {
-      return this.reportItems.map((value: any) => {
+      return this.statisticActivity.map((value: any) => {
         return value.first_name + ' ' + value.last_name
       })
+    },
+
+    apexSeries () {
+      const series: any[] = [] // Сюда буду складывать серии
+      this.statisticActivity.forEach((value: unknown & {activity: any[]; }) => {
+        value.activity.forEach((value1: unknown & {name: string; title: string; seconds: number}) => {
+          const index = series.findIndex(v => v.name === value1.name)
+          if (index > -1) {
+            series[index].data.push(value1.seconds)
+          } else {
+            series.push({
+              data: [value1.seconds],
+              name: value1.name
+            })
+          }
+        })
+      })
+      return series
     }
+  },
+
+  created () {
+    this.fetchActivity = debounce(this.fetchActivity, 1000)
   },
 
   mounted () {
-    // поместите любое обещание, для того что бы подождать, прежде чем начнётся загрузка данных для графика
-    const promises: Promise<any>[] = []
+    // Период по умолчанию сегодня (с 00:00:00 по 23:59:59)
+    if (!this.filterPeriod) {
+      this.filterPeriod = 'today'
+    }
 
-    if (this.$routerQuery.hasQuery('date')) {
-      this.filter.date = this.$routerQuery.getQuery('date')
+    // Если данные ещё не загружены, загружаем.
+    if (this.statisticActivity.length === 0) {
+      this.fetchActivity()
+    }
 
-      if (/^\d+,\d+/s.test(String(this.filterDate))) {
-        const dateRangeStr = String(this.filterDate)
-        const dates = dateRangeStr.split(',', 2)
-        this.dateRange = [
-          format(new Date(+dates[0] * 1000), 'yyyy-MM-dd'),
-          format(new Date(+dates[1] * 1000), 'yyyy-MM-dd')
-        ]
+    // Отслеживаю состояние параметров фильтров.
+    this.$watch('paramsFilters', () => {
+      if (Number(this.offset) > 0) {
+        this.offset = 0
+      } else {
+        this.fetchActivity()
       }
-    }
-
-    if (this.$routerQuery.hasQuery('target_actions')) {
-      this.$data.filter.actions.selected = this.$routerQuery.getQuery('target_actions')
-    }
-
-    if (this.$routerQuery.hasQuery('target_users')) {
-      promises.push((this.$refs.sUsersAutocomplete as any).setDefault(this.$routerQuery.getQuery('target_users')))
-    }
-
-    if (this.$routerQuery.hasQuery('project_id')) {
-      promises.push((this.$refs.sProjectsAutocomplete as any).setDefault(this.$routerQuery.getQuery('project_id')))
-    }
-
-    if (this.$routerQuery.hasQuery('target_groups')) {
-      promises.push((this.$refs.sGroupsAutocomplete as any).setDefault(this.$routerQuery.getQuery('target_groups')))
-    }
-
-    // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры
-    // Загружаю данные после инициализации фильтров
-    Promise.all(promises)
-      .finally(() => {
-        this.fetchDiagramData() // Сначала загружаем данные для диаграммы
-        this.initializeWatchForFilters() // Потом начинаем следить за изменением фильтров
-      })
+    })
   },
 
   methods: {
+    ...mapActions({
+      // Загрузит историю.
+      statisticActivityFetch: 'statistic_activity/fetch'
+    }),
+
     /**
-     * Загрузить данные для построения диаграммы
+     * Загрузит данные по активности
      */
-    fetchDiagramData () {
-      this.processLoading = true
-
-      const params: any = {}
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'date')) {
-        params.date = this.$route.query.date
+    async fetchActivity () {
+      this.processFetchActivity = true
+      try {
+        await this.statisticActivityFetch(Object.assign(
+          {},
+          this.paramsFilters // Параметры основных фильтров
+        ))
+      } finally {
+        this.processFetchActivity = false
       }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'target_users')) {
-        params.target_users = this.$route.query.target_users
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'target_groups')) {
-        params.target_groups = this.$route.query.target_groups
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'project_id')) {
-        params.project_id = this.$route.query.project_id
-      }
-
-      if (this.assertObjectHasAttribute(this.$route.query, 'target_actions')) {
-        params.target_actions = this.$route.query.target_actions
-      }
-
-      new Statistics()
-        .activity<any, any>(params)
-        .then((response) => {
-          this.reportActions = response.meta.types
-          this.filter.actions.items = response.meta.types
-          this.$data.reportItems = response.data
-        }).finally(() => (this.processLoading = false))
     },
 
-    /**
-     * Инициализировать слежение за изменением фильтров
-     */
-    initializeWatchForFilters () {
-      const debounceDelay = 500 // Задержка выполнения загрузки данных (избавит от дребезга)
-
-      // Фильтрация по пользователям
-      this.$watch('filter.users', debounce((newVal: unknown & UserInterface[]) => {
-        if (Array.isArray(newVal)) {
-          this.$routerQuery.setQuery({
-            target_users: newVal.map((e: UserInterface) => e.id)
-          }).then(() => {
-            this.fetchDiagramData()
-          })
-        } else {
-          this.$routerQuery
-            .removeQuery(['target_users'])
-            .then(() => {
-              this.fetchDiagramData()
-            })
-        }
-        // Чистим селект действий если не выбран сотрудник
-        if (Array.isArray(this.filter.users) && this.filter.users.length === 0) {
-          this.filter.actions.selected = []
-        }
-      }, debounceDelay))
-
-      // Фильтрация по проектам
-      this.$watch('filter.project', debounce((newVal: unknown & ProjectInterface) => {
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            project_id: newVal.id
-          }).then(this.fetchDiagramData)
-        } else {
-          this.$routerQuery.removeQuery([
-            'project_id'
-          ]).then(this.fetchDiagramData)
-        }
-      }, debounceDelay))
-
-      // Фильтрация по группам
-      this.$watch('filter.groups', debounce((newVal: unknown & GroupInterface[]) => {
-        if (newVal) {
-          this.$routerQuery.setQuery({
-            target_groups: newVal.map((e: GroupInterface) => e.id)
-          }).then(this.fetchDiagramData)
-        } else {
-          this.$routerQuery.removeQuery([
-            'target_groups'
-          ]).then(this.fetchDiagramData)
-        }
-      }, debounceDelay))
-
-      // Фильтрация по группам
-      this.$watch('filter.actions.selected', debounce((newVal: string[]) => {
-        if (Array.isArray(newVal)) {
-          this.$routerQuery.setQuery({
-            target_actions: newVal
-          }).then(this.fetchDiagramData)
-        } else {
-          this.$routerQuery.removeQuery([
-            'target_actions'
-          ]).then(this.fetchDiagramData)
-        }
-      }, debounceDelay))
-
-      // Фильтрация по датам
-      this.$watch('filter.date', debounce((newVal: unknown & string) => {
-        switch (newVal) {
-          case 'today': {
-            this.$routerQuery.setQuery({ date: 'today' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'yesterday': {
-            this.$routerQuery.setQuery({ date: 'yesterday' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'this_week': {
-            this.$routerQuery.setQuery({ date: 'this_week' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'last_week': {
-            this.$routerQuery.setQuery({ date: 'last_week' }).then(this.fetchDiagramData)
-            break
-          }
-          case 'month': {
-            this.$routerQuery.setQuery({ date: 'month' }).then(this.fetchDiagramData)
-            break
-          }
-        }
-      }, debounceDelay))
-    },
-
-    /**
-     * Происходит когда выбрали временной диапазон и нажали кнопку сохранить
-     * @param dateRange
-     */
-    onSaveDateRangeClick (dateRange: string[]) {
-      (this.$refs.menuDateRange as any).save(dateRange)
-      const date1 = new Date(dateRange[0])
-      const date2 = new Date(dateRange[1])
-
-      let dr = ''
-      if (date1.getTime() < date2.getTime()) {
-        dr = `${date1.getTime() / 1000},${date2.getTime() / 1000}`
-      } else {
-        dr = `${date2.getTime() / 1000},${date1.getTime() / 1000}`
-      }
-
-      this.$routerQuery.setQuery({ date: dr }).finally(() => (this.fetchDiagramData()))
+    onBtnRefreshClick () {
+      this.fetchActivity()
     }
   }
 })
 </script>
 
 <style lang="scss">
-table > tbody > tr > td:nth-child(4) {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: 200px;
+.margin-right > *:not(:nth-child(0)) {
+  margin-right: 10px;
 }
-
-table > tbody > tr > td:nth-child(5) {
-  width: auto;
+.select-actions-activity {
+  width: 398px;
+  max-width: 398px;
 }
 </style>
