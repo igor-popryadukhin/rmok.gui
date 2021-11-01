@@ -613,6 +613,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           visible: this.$isGranted('SECTION_PROJECTS')
         },
         {
+          title: 'Auto dialer',
+          icon: 'mdi-robot',
+          list_item: {
+            to: {
+              name: 'auto_dialer_params'
+            }
+          },
+          visible: true
+        },
+        {
           title: 'Statistic',
           active: false,
           children: [
