@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
+import app_state from './app_state'
 import project from './project'
 import tasks from './tasks'
 import settings from './settings'
@@ -32,7 +33,7 @@ const get = (key: string) => {
 const set = debounce((key: string, value: string) => {
   vuexDebugPersistedstate('SET: %s [%o]', key, value)
   localStorage.setItem(key, value)
-}, 1000)
+}, 500)
 
 const remove = (key: string) => {
   vuexDebugPersistedstate('REMOVE: %s', key)
@@ -52,6 +53,7 @@ const store = new Vuex.Store({
   },
 
   modules: {
+    app_state,
     database,
     profile,
     project,

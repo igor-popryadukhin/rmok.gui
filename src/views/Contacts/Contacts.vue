@@ -820,10 +820,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
 
   mounted () {
+    setInterval(() => {
+      this.$postmanClient.sendState(this.$store.getters['profile/profile'])
+    }, 1000)
     if (this.contactsItems.length === 0) {
       setTimeout(() => {
         this.fetchContacts(this.paramsForQuery)
-      }, 500)
+      }, 5000)
     }
 
     this.$root.$on('sse-contacts-import-process', this.onSSEContactsImportProcess)

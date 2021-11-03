@@ -413,6 +413,10 @@
         <router-view />
       </v-container>
     </v-main>
+    <div
+      v-if="appBlock && $jsSIP.state === 'idle'"
+      id="blur"
+    />
   </v-app>
 </template>
 
@@ -487,7 +491,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         wheelPropagation: false
       },
       notificationShakeProcess: false,
-      timerId: 0
+      timerId: 0,
+      appBlock: false
     }
   },
 
@@ -827,8 +832,22 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
   },
 
+  watch: {
+    '$jsSIP.state': {
+      handler (val: string) {
+        this.$ifvisible.wakeup()
+        this.$store.commit('app_state/dialer_state', val)
+      }
+    }
+  },
+
   created () {
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
+
+    // Событие сработает когда пользователь не будет активен в течении 60 секунд
+    this.$ifvisible.setIdleDuration(60)
+    this.$ifvisible.on('idle', this.ifvisibleIdleHandler)
+    this.$ifvisible.on('wakeup', this.ifvisibleWakeupHandler)
   },
 
   mounted () {
@@ -867,6 +886,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   beforeDestroy () {
     this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
+    this.$ifvisible.off('idle', this.ifvisibleIdleHandler)
+    this.$ifvisible.off('wakeup', this.ifvisibleWakeupHandler)
 
     clearInterval(this.timerId)
   },
@@ -1216,12 +1237,31 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     onFileDownload (name: string) {
       this.$store.dispatch('contacts_new/file_contact_download', name)
+    },
+
+    ifvisibleIdleHandler () {
+      this.appBlock = true
+      this.$accountMonitoring.end()
+    },
+
+    ifvisibleWakeupHandler () {
+      this.appBlock = false
     }
   }
 })
 </script>
 
 <style lang="scss">
+
+#blur {
+  position: absolute;
+  display: block;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(3px);
+}
+
 #myVideo {
   position: absolute;
   top: 0;

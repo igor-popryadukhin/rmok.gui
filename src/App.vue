@@ -98,7 +98,6 @@ export default Vue.extend({
       toastId: 0 as number | string
     }
   },
-  head: {},
 
   computed: {
     layout () {
@@ -123,15 +122,6 @@ export default Vue.extend({
     profile (): ProfileState {
       return this.$store.getters['profile/profile']
     }
-  },
-
-  created () {
-    // Событие сработает когда пользователь не будет активен в течении 300 секунд
-    this.$ifvisible.setIdleDuration(300)
-    this.$ifvisible.on('idle', () => {
-      // Завершить учёт активного действия
-      this.$accountMonitoring.end()
-    })
   },
 
   mounted () {

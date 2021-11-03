@@ -267,19 +267,6 @@ export class JsSIP {
   public setConfiguration (url: string, config: JsSPConfiguration) {
     this.unInitializeListeners()
 
-    if (!config.pcConfig) {
-      this._pcConfig = {
-        rtcpMuxPolicy: undefined,
-        iceServers: [
-          {
-            username: '',
-            credential: '',
-            credentialType: 'password',
-            urls: ''
-          }
-        ]
-      }
-    }
     this._pcConfig = config.pcConfig
 
     // @ts-ignore
