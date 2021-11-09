@@ -173,7 +173,7 @@ export default Vue.extend<Data, Methods, Computed>({
   async mounted () {
     // Всегда загружаем самый свежий список
     this.loadContacts()
-    this.SSEContactsQueueComputeProcess = debounce(this.SSEContactsQueueComputeProcess, 1000)
+    this.SSEContactsQueueComputeProcess = debounce(this.SSEContactsQueueComputeProcess, 450)
 
     this.$root.$on('sse-queue-compute-process', this.SSEContactsQueueComputeProcess)
   },
@@ -197,7 +197,7 @@ export default Vue.extend<Data, Methods, Computed>({
     loadContacts () {
       this.contactsProcessLoading = true
       new Contacts()
-        .find({ queue: 1, count: 500 })
+        .find({ queue: 1, count: 50 })
         .then((response) => {
           this.contactsTotal = response.meta?.count || 0
           this.contactsItems = response.data || []
