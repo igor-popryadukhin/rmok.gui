@@ -562,12 +562,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   mixins: [lvovich],
 
   beforeRouteEnter (to, from, next) {
-    if (from.fullPath !== '/') {
-      // Сохраняю маршрут, откуда пришёл
-      store.commit('system/route/full_path', from.fullPath)
-    }
-    console.log(to)
-    next()
+    next(vm => {
+      vm.$store.commit('system/route/full_path', from.fullPath)
+    })
   },
 
   beforeRouteUpdate (to, from, next) {

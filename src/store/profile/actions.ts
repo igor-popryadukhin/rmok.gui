@@ -38,12 +38,12 @@ const actions: ActionTree<ProfileState, RootState> = {
       .updateProfile({
         pbx_configuration: {
           credentials: {
-            login: state.login,
-            password: state.password,
-            schema: state.schema,
-            server: state.server,
-            port: state.port,
-            display_name: state.display_name
+            login: state.pbx_configuration.credentials.login,
+            password: state.pbx_configuration.credentials.password,
+            schema: state.pbx_configuration.credentials.schema,
+            server: state.pbx_configuration.credentials.server,
+            port: state.pbx_configuration.credentials.port,
+            display_name: state.pbx_configuration.credentials.display_name
           }
         }
       })
@@ -54,12 +54,12 @@ const actions: ActionTree<ProfileState, RootState> = {
       .updateProfile({
         pbx_configuration: {
           rtc_configuration: {
-            bundle_policy: state.rtc_configuration.bundlePolicy,
-            rtcp_mux_policy: state.rtc_configuration.rtcpMuxPolicy,
-            ice_servers: state.rtc_configuration.iceServers,
-            ice_transport_policy: state.rtc_configuration.iceTransportPolicy,
-            ice_candidate_pool_size: state.rtc_configuration.iceCandidatePoolSize,
-            certificates: state.rtc_configuration.certificates || []
+            bundle_policy: state.pbx_configuration.rtc_configuration.bundle_policy,
+            rtcp_mux_policy: state.pbx_configuration.rtc_configuration.rtcp_mux_policy,
+            ice_servers: state.pbx_configuration.rtc_configuration.ice_servers,
+            ice_transport_policy: state.pbx_configuration.rtc_configuration.ice_transport_policy,
+            ice_candidate_pool_size: state.pbx_configuration.rtc_configuration.ice_candidate_pool_size,
+            certificates: state.pbx_configuration.rtc_configuration.certificates || []
           }
         }
       })
@@ -70,29 +70,27 @@ const actions: ActionTree<ProfileState, RootState> = {
       .updateProfile({
         pbx_configuration: {
           credentials: {
-            login: state.credentials.login,
-            password: state.credentials.password,
-            scheme: state.credentials.scheme,
-            server: state.credentials.server,
-            port: state.credentials.port,
-            display_name: state.credentials.display_name
+            login: state.pbx_configuration.credentials.login,
+            password: state.pbx_configuration.credentials.password,
+            scheme: state.pbx_configuration.credentials.scheme,
+            server: state.pbx_configuration.credentials.server,
+            port: state.pbx_configuration.credentials.port,
+            display_name: state.pbx_configuration.credentials.display_name
           },
           rtc_configuration: {
-            bundle_policy: state.rtc_configuration.bundlePolicy,
-            rtcp_mux_policy: state.rtc_configuration.rtcpMuxPolicy,
-            ice_servers: state.rtc_configuration.iceServers,
-            ice_transport_policy: state.rtc_configuration.iceTransportPolicy,
-            ice_candidate_pool_size: state.rtc_configuration.iceCandidatePoolSize,
-            certificates: state.rtc_configuration.certificates || []
+            bundle_policy: state.pbx_configuration.rtc_configuration.bundle_policy,
+            rtcp_mux_policy: state.pbx_configuration.rtc_configuration.rtcp_mux_policy,
+            ice_servers: state.pbx_configuration.rtc_configuration.ice_servers,
+            ice_transport_policy: state.pbx_configuration.rtc_configuration.ice_transport_policy,
+            ice_candidate_pool_size: state.pbx_configuration.rtc_configuration.ice_candidate_pool_size,
+            certificates: state.pbx_configuration.rtc_configuration.certificates || []
           }
         }
       })
   },
 
   set_status (ctx: ActionContext<ProfileState, RootState>, payload): Promise<void> {
-    return new Promise((resolve) => {
-      new Account().setStatus(payload).finally(resolve)
-    })
+    return new Account().setStatus(payload)
   }
 }
 

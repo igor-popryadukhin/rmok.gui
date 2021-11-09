@@ -442,7 +442,7 @@ export default Vue.extend({
         return this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']
       },
       set (value: boolean) {
-        return this.$store.commit('profile/pbx_configuration/rtc_configuration/rtcp_mux_policy', value ? 'require' : undefined)
+        return this.$store.commit('profile/pbx_configuration/rtc_configuration/rtcp_mux_policy', value ? 'require' : null)
       }
     },
 
