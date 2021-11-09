@@ -21,8 +21,8 @@ module.exports = {
   devServer: {
     disableHostCheck: true,
     host: '0.0.0.0',
-    public: 'http://0.0.0.0:3000',
-    port: 3000
+    public: 'https://dev.rmok.tech',
+    port: 443
   },
 
   filenameHashing: true,

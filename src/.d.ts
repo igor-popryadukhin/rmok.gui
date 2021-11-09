@@ -9,6 +9,7 @@ import { RouterQuery } from '@/plugins/router-query'
 import { Permission } from '@/plugins/permission'
 import AccountMonitoring from '@/plugins/account-monitoring/AccountMonitoring'
 import IfVisible from '@/plugins/ifvisible/IfVisible'
+import Dialer from '@/plugins/dialer/Dialer';
 
 // 2. Specify a file with the types you want to augment
 //    Vue has the constructor type in types/vue.d.ts
@@ -33,7 +34,7 @@ declare module 'vue/types/vue' {
     $permission: Permission;
     $ifvisible: IfVisible;
     $accountMonitoring: AccountMonitoring;
-    $jsSIP: JsSIP;
+    $dialer: Dialer;
     $axios: AxiosInstance;
     $htmlAudioElement: HTMLAudioElement;
     $version: string;
@@ -54,7 +55,7 @@ declare module 'vue/types/vue' {
 
   interface VueConstructor {
     $confirm: () => boolean;
-    $jsSIP: JsSIP;
+    $dialer: Dialer;
     $myGlobal: string;
     $htmlAudioElement: HTMLAudioElement;
     $version: string;

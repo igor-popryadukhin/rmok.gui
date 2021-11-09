@@ -11,11 +11,15 @@ import system from './system'
 import profile from './profile'
 import statuses from './statuses'
 import users from './users'
+import users_edit from './users_edit'
 import contacts from './contacts'
 import contacts_new from './contacts_new'
 import statistic_recent_call from './statistic_recent_call'
 import statistic_all_call from './statistic_all_call'
 import auto_dialer from './auto_dialer'
+import unsaved_call from './unsaved_call'
+import contact from './contact'
+import incoming_dialog from './incoming_dialog'
 import { database } from './database'
 import debug from 'debug'
 
@@ -64,6 +68,12 @@ const store = new Vuex.Store({
     system,
     tasks,
     users,
+    users_edit,
+    unsaved_call,
+    incoming_dialog,
+    contact_view: contact,
+    contact_incoming: contact,
+    contact_outgoing: contact,
     contacts,
     contacts_new,
     statistic_recent_call,
@@ -79,6 +89,7 @@ const store = new Vuex.Store({
     createPersistedState({
       key: window.origin,
       paths: [
+        'unsaved_call',
         'profile',
         'tasks',
         'database',

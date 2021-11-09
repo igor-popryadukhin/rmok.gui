@@ -254,7 +254,7 @@ export class Users {
    * @param params
    */
   public loginFind (params = {}): Promise<any> {
-    return new Promise<ResponseInterface<TD>>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       $axios.get('/users/login_verification', {
         params
       }).then((response: AxiosResponse) => {

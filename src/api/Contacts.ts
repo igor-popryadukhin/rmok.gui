@@ -249,17 +249,18 @@ export class Contacts {
   }
 
   /**
-   * Get contact by phone number
+   * Получить информацию о контакте по номеру телефона.
+   *
    * @param number
    */
-  public getByPhoneNumber<T> (number: string): Promise<T> {
-    return new Promise<T | any>((resolve, reject) => {
-      $axios.get(`/contacts/${number}`)
+  public getByPhoneNumber (number: string): Promise<Contact> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/contacts/by-number/${number}`)
         .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            return resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data)
           }
-          reject(response.data)
+          resolve(response.data)
         }).catch(reject)
     })
   }

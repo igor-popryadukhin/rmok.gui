@@ -1,9 +1,9 @@
-import Organization from '@/api/interfaces/Organization'
-import Project from '@/api/interfaces/Project'
-import Role from '@/api/interfaces/Role'
-import PBXConfig from './PBXConfig'
+import Organization from './Organization'
+import Project from './Project'
+import Role from './Role'
 import UserGroup from './UserGroup'
 import Country from './Country'
+import PBXConfiguration from './PBXConfiguration'
 
 export default interface User {
   id: number;
@@ -24,7 +24,8 @@ export default interface User {
   organization?: Organization;
   project?: Project;
   projects?: Project[];
-  pbx_config?: PBXConfig;
+  pbx_configuration?: PBXConfiguration;
   country?: Country;
   tz?: string;
+  status?: string;
 }

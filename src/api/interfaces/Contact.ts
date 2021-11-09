@@ -6,7 +6,10 @@ import ContactPhone from './ContactPhone'
 
 export default interface Contact {
   id: number;
-  name: string;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  contact_name: string;
   city?: string;
   region?: string;
   address?: string;

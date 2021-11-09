@@ -1,6 +1,6 @@
 <template>
   <div
-    class="d-flex app-tools"
+    class="d-flex align-center app-tools"
     style="margin-bottom: 10px"
   >
     <slot name="left" />

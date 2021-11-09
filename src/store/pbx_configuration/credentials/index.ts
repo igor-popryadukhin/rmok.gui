@@ -3,9 +3,9 @@ import { Module } from 'vuex'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import state, { PBXConfigState } from './state'
+import state, { State } from './state'
 
-const pbx_config: Module<PBXConfigState, RootState> = {
+const module: Module<State, RootState> = {
   actions,
   getters,
   mutations,
@@ -13,4 +13,4 @@ const pbx_config: Module<PBXConfigState, RootState> = {
   state
 }
 
-export default pbx_config
+export default module

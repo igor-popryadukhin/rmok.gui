@@ -1,10 +1,10 @@
 import { RootState } from '@/store'
-import pbx_config from './pbxConfig'
 import { Module } from 'vuex'
+import state, { ProfileState } from './state'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import state, { ProfileState } from './state'
+import pbx_configuration from '../pbx_configuration'
 
 const profile: Module<ProfileState, RootState> = {
   namespaced: true,
@@ -13,7 +13,7 @@ const profile: Module<ProfileState, RootState> = {
   getters,
   mutations,
   modules: {
-    pbx_config
+    pbx_configuration
   }
 }
 

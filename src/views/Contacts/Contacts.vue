@@ -196,6 +196,44 @@
                 />
               </template>
             </app-tools>
+
+            <v-card
+              v-if="unsavedCallUnsaved"
+              class="mb-1"
+              tile
+              outlined
+            >
+              <v-card-text>
+                <v-row>
+                  <v-col class="d-flex align-center">
+                    <div class="pr-4">
+                      <v-icon v-if="unsavedCallDirection === 'incoming'">
+                        mdi-phone-incoming
+                      </v-icon>
+                      <v-icon v-else-if="unsavedCallDirection === 'outgoing'">
+                        mdi-phone-outgoing
+                      </v-icon>
+                    </div>
+                    <div class="d-flex flex-column">
+                      <span>{{ unsavedCallContactName }}</span>
+                      <small>{{ $tc('Есть незавершённые действия с контактом') }}</small>
+                    </div>
+                  </v-col>
+                  <v-col class="d-flex align-center justify-end">
+                    <v-btn
+                      color="primary"
+                      :to="{name: 'contacts_view', params: {contact_id: unsavedCallContactId}}"
+                      x-small
+                      tile
+                      text
+                      outlined
+                    >
+                      {{ $tc('To complete') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
           </template>
           <template #no-text>
             <div
@@ -545,7 +583,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       contactsSelectedAll: 'contacts/selected_all',
       contactsParamsOrderBy: 'contacts/params/order_by',
       contactsParamsOrderDirection: 'contacts/params/order_direction',
-      contactsProcessLoading: 'contacts/process_loading'
+      contactsProcessLoading: 'contacts/process_loading',
+
+      // Незавершенные действия с контактом
+      unsavedCallUnsaved: 'unsaved_call/unsaved',
+      unsavedCallContactId: 'unsaved_call/data/contact_id',
+      unsavedCallContactName: 'unsaved_call/data/contact_name',
+      unsavedCallDirection: 'unsaved_call/data/direction'
     }),
 
     // Vuex state
