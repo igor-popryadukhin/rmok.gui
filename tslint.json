@@ -50,9 +50,7 @@
     "semicolon": false,
     "no-shadowed-variable": false,
     "only-arrow-functions": false,
-    "ordered-imports": [
-      false
-    ],
+    "ordered-imports": false,
     "typedef-whitespace": [
       false
     ]

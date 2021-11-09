@@ -19,7 +19,7 @@
           v-bind="colAttributeLeft"
           cols="12"
         >
-          <v-sheet
+          <v-card
             :style="leftColumnStyleComputed"
             class="fill-height"
             flat
@@ -28,76 +28,61 @@
             <app-tools>
               <template #left>
                 <span style="font-weight: 500">
-                  {{ contact.contact_name || '+0 000 000-00-00' }}
+                  {{ contactViewContactName || '+0 000 000-00-00' }}
                 </span>
               </template>
             </app-tools>
             <v-divider class="mb-2" />
 
-            <app-tools>
-              <template #right>
-                <v-btn
-                  :x-small="$vuetify.breakpoint.md"
-                  :small="!$vuetify.breakpoint.md"
-                  color="primary"
-                  class="mr-2"
-                  text
-                  outlined
-                  tile
-                  @click="taskDialogVisible = true"
-                >
-                  {{ $tc('Add task') }}
-                </v-btn>
-                <v-btn
-                  v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state)"
-                  :x-small="$vuetify.breakpoint.md"
-                  :small="!$vuetify.breakpoint.md"
-                  class="mr-0"
-                  color="error"
-                  text
-                  outlined
-                  tile
-                  @click="$jsSIP.cancel()"
-                >
-                  {{ $tc('To complete') }}
-                </v-btn>
-                <v-btn
-                  v-else
-                  :x-small="$vuetify.breakpoint.md"
-                  :small="!$vuetify.breakpoint.md"
-                  :disabled="callBtnIsDisabled"
-                  class="mr-0"
-                  color="primary"
-                  text
-                  outlined
-                  tile
-                  @click="onBtnCallClick(contact.default_phone.raw, contact.id)"
-                >
-                  {{ $tc('Call') }}
-                </v-btn>
-                <v-btn
-                  v-if="!$jsSIP.isConnected"
-                  :x-small="$vuetify.breakpoint.md"
-                  :small="!$vuetify.breakpoint.md"
-                  :to="{ name: 'settings_telephony' }"
-                  class="ml-1 mr-0"
-                  color="error"
-                  icon
-                  @click="onBtnCallErrorClick"
-                >
-                  <v-icon>mdi-alert-circle-outline</v-icon>
-                </v-btn>
-              </template>
-            </app-tools>
+            <v-card-text class="d-flex align-center pa-0 mb-4">
+              <v-btn
+                :x-small="$vuetify.breakpoint.md"
+                :small="!$vuetify.breakpoint.md"
+                color="primary"
+                class="mr-2"
+                text
+                outlined
+                tile
+                @click="taskDialogVisible = true"
+              >
+                {{ $tc('Add task') }}
+              </v-btn>
+              <v-spacer />
+              <v-btn
+                v-if="btnHangUpVisible && incomingDialogVisible === false"
+                :x-small="$vuetify.breakpoint.md"
+                :small="!$vuetify.breakpoint.md"
+                class="mr-0"
+                color="error"
+                text
+                outlined
+                tile
+                @click="$dialer.hangUp()"
+              >
+                {{ $tc('Hang up') }}
+              </v-btn>
+              <v-btn
+                v-else
+                :x-small="$vuetify.breakpoint.md"
+                :small="!$vuetify.breakpoint.md"
+                :disabled="btnCallDisable || incomingDialogVisible"
+                class="mr-0"
+                color="primary"
+                text
+                outlined
+                tile
+                @click="onBtnCallClick(contactViewDefaultPhone.raw)"
+              >
+                {{ $tc('Call') }}
+              </v-btn>
+            </v-card-text>
 
-            <app-tools>
-              <template #right>
-                <span>
-                  {{ $jsSIP.sessionStopwatch }}
-                </span>
-              </template>
-            </app-tools>
-            <v-divider class="mt-4" />
+            <v-card-text class="pa-0">
+              <span>
+                {{ $dialer.sessionStopwatch }}
+              </span>
+            </v-card-text>
+            <v-divider />
 
             <v-list
               :dense="$vuetify.breakpoint.md"
@@ -110,7 +95,7 @@
               />
               <template v-else>
                 <v-list-item
-                  v-for="(phone, phoneIndex) in contact.phones"
+                  v-for="(phone, phoneIndex) in contactViewPhones"
                   :key="`phone-list-item-${phoneIndex}`"
                   ripple
                   link
@@ -132,23 +117,11 @@
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn
-                      v-if="['accepted', 'call', 'connecting', 'progress'].includes($jsSIP.state) && $jsSIP.target === phone.raw"
-                      :key="`phone-cancel-btn-${phoneIndex}`"
-                      small
-                      icon
-                      @click="$jsSIP.cancel()"
-                    >
-                      <v-icon color="red">
-                        mdi-phone-hangup
-                      </v-icon>
-                    </v-btn>
-                    <v-btn
-                      v-else
                       :key="`phone-call-btn-${phoneIndex}`"
-                      :disabled="callBtnIsDisabled"
+                      :disabled="btnCallDisable"
                       icon
                       small
-                      @click="onBtnCallClick(phone.raw, contact.id)"
+                      @click="onBtnCallClick(phone.raw)"
                     >
                       <v-icon>mdi-phone</v-icon>
                     </v-btn>
@@ -163,7 +136,7 @@
               />
               <template v-else>
                 <v-list-item
-                  v-for="(email, emailIndex) in contact.emails"
+                  v-for="(email, emailIndex) in contactViewEmails"
                   :key="`email-list-item-${emailIndex}`"
                   ripple
                   link
@@ -208,9 +181,11 @@
                   </v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
-                  <v-list-item-title>{{ contact.city }}</v-list-item-title>
+                  <v-list-item-title>
+                    {{ contactViewCity }}
+                  </v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ contact.region }}
+                    {{ contactViewRegion }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -231,7 +206,7 @@
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title :key="clientTimeTick">
-                    {{ $dayjs(new Date()).tz(contact.tz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
+                    {{ $dayjs().tz(contactViewTz).format(`${date_time_format.short_date} ${date_time_format.long_time} (Z)`) }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ $tc('Client\'s current time') }}
@@ -255,7 +230,7 @@
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title>
-                    {{ $dayjs(contact.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                    {{ $dayjs(contactViewCreatedAt * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ $tc('Date the contact was created') }}
@@ -263,27 +238,29 @@
                 </v-list-item-content>
               </v-list-item>
 
-              <!-- Владелец -->
-              <v-skeleton-loader
-                v-if="processLoadingContact"
-                type="list-item-avatar-two-line"
-                max-height="61"
-              />
-              <v-list-item
-                v-else
-              >
-                <v-list-item-avatar size="30">
-                  <v-icon color="primary">
-                    mdi-account
-                  </v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ contactOwnerName }}</v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ $tc('Responsible') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
+              <!-- Владелец контакта -->
+              <template v-if="contactViewOwner">
+                <v-skeleton-loader
+                  v-if="processLoadingContact"
+                  type="list-item-avatar-two-line"
+                  max-height="61"
+                />
+                <v-list-item
+                  v-else
+                >
+                  <v-list-item-avatar size="30">
+                    <v-icon color="primary">
+                      mdi-account
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ contactViewOwner.full_name }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ $tc('Responsible') }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
 
               <!-- Проект -->
               <v-skeleton-loader
@@ -292,7 +269,7 @@
                 max-height="61"
               />
               <v-list-item
-                v-else-if="contactProject"
+                v-else-if="contactViewProject"
               >
                 <v-list-item-avatar size="30">
                   <v-icon color="primary">
@@ -300,7 +277,7 @@
                   </v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
-                  <v-list-item-title>{{ contactProject }}</v-list-item-title>
+                  <v-list-item-title>{{ contactViewProject.name }}</v-list-item-title>
                   <v-list-item-subtitle>
                     {{ $tc('Project') }}
                   </v-list-item-subtitle>
@@ -309,14 +286,14 @@
             </v-list>
 
             <!-- Теги -->
-            <template v-if="contact.tags.length">
+            <template v-if="contactViewTags.length">
               <v-card-text class="pa-0 text-right">
                 <v-divider />
               </v-card-text>
               <v-card-text class="px-0 text-right">
                 <v-chip-group>
                   <v-chip
-                    v-for="(item, key) in contact.tags"
+                    v-for="(item, key) in contactViewTags"
                     :key="key"
                     :color="item.color"
                     label
@@ -331,12 +308,12 @@
             <!-- Теги -->
 
             <!-- Заметки -->
-            <template v-if="contact.notes">
+            <template v-if="contactViewNotes">
               <v-card-text class="pa-0">
                 <v-divider />
               </v-card-text>
               <v-card-text class="px-0 text-justify">
-                <p v-html="contact.notes" />
+                <p v-html="contactViewNotes" />
               </v-card-text>
             </template>
             <!-- Заметки -->
@@ -356,7 +333,7 @@
                 {{ $tc('Edit contact') }}
               </v-btn>
             </v-card-text>
-          </v-sheet>
+          </v-card>
         </v-col>
 
         <!-- Tabs -->
@@ -404,21 +381,20 @@
             <!-- Статусы -->
             <v-fade-transition mode="in-out">
               <v-card-text
-                v-if="status.visible"
+                v-if="unsavedCallUnsaved"
                 class="pa-0"
                 style="border-top: solid rgb(58,112,212);"
               >
                 <app-status
-                  v-model="status.status_id"
-                  :options="contact.project.statuses"
+                  v-model="unsavedCallUnsavedDataStatusId"
+                  :options="contactViewStatuses"
                   min-height="300"
-                  @on-close="status.visible = false"
                 />
 
                 <!-- Комментарий -->
                 <div class="pt-5">
                   <v-textarea
-                    v-model="status.comment"
+                    v-model="unsavedCallUnsavedDataContactComment"
                     :placeholder="$t('Comment')"
                     rows="4"
                     outlined
@@ -474,7 +450,7 @@
                     <v-btn
                       v-bind="attrs"
                       :loading="saveAndNextLoading"
-                      :disabled="!status.visible"
+                      :disabled="!unsavedCallUnsaved"
                       color="primary"
                       text
                       small
@@ -491,7 +467,7 @@
                     <v-btn
                       color="primary"
                       v-bind="attrs"
-                      :disabled="!status.visible"
+                      :disabled="!unsavedCallUnsaved"
                       text
                       icon
                       small
@@ -505,7 +481,7 @@
                   <v-list class="pa-0">
                     <v-list-item
                       link
-                      @click="onSaveAndStayClick(status)"
+                      @click="onSaveAndStayClick()"
                     >
                       <v-list-item-title>{{ $tc('Сохранить и остаться') }}</v-list-item-title>
                     </v-list-item>
@@ -531,7 +507,6 @@
 import { Calls } from '@/api/Calls'
 import APIError from '@/api/classes/APIError'
 import { Contacts } from '@/api/Contacts'
-import Contact from '@/api/interfaces/Contact'
 import {
   ContactEmailInterface,
   ContactPhoneInterface
@@ -540,23 +515,16 @@ import Tasks from '@/api/Tasks'
 import AppCardCommunicationQualityAssessment
   from '@/components/AppCardCommunicationQualityAssessment/AppCardCommunicationQualityAssessment.vue'
 import AppStatus from '@/components/AppStatus/AppStatus.vue'
-import JSSIPPayloadInterface from '@/interfaces/JSSIPPayloadInterface'
 import lvovich from '@/mixins/lvovich'
 import { ContactInterface as SCEContactInterface } from '@/snippets/SContactEditor/interfaces'
 import SContactDialogEditor from '@/snippets/SContactEditor/SContactDialogEditor.vue'
 import store from '@/store'
 import { secondsToHmsDigital } from '@/utils/datetime'
-import { EndEvent, RTCSession } from 'jssip/lib/RTCSession'
+import { RTCSession, IncomingEvent, OutgoingEvent } from 'jssip/lib/RTCSession'
 import Vue from 'vue'
 import { Location } from 'vue-router/types/router'
 import { mapGetters } from 'vuex'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-
-interface JsSIPSessionEnded {
-  target: string;
-  session: RTCSession;
-  event: EndEvent;
-}
 
 interface Tab {
   name: string;
@@ -565,25 +533,7 @@ interface Tab {
   to?: string | Location;
 }
 
-interface IStatus {
-  /** Положительный идентификатор статуса. */
-  status_id: number;
-  /** Положительный идентификатор контакта. */
-  contact_id: number;
-  /** Положительный идентификатор исторической записи. */
-  contact_history_id: number;
-  /** Видимость компонента выбора статуса. */
-  visible: boolean;
-  /** Комментарий */
-  comment: string;
-}
-
 interface Data {
-  rtcSessionAudioRecordId: string;
-  rtcSession?: RTCSession;
-  processLoadingContact: boolean;
-  contact: Contact;
-  contactError: boolean;
   [key: string]: any;
 }
 
@@ -616,13 +566,31 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       // Сохраняю маршрут, откуда пришёл
       store.commit('system/route/full_path', from.fullPath)
     }
+    console.log(to)
+    next()
+  },
+
+  beforeRouteUpdate (to, from, next) {
+    if (from.params.contact_id !== to.params.contact_id) {
+      this.processLoadingContact = true
+      this.$store
+        .dispatch('contact_view/get_by_id', +to.params.contact_id)
+        .catch((e: APIError) => {
+          this.contactErrorCode = e.error_code
+          this.contactErrorMessages = e.error_message
+          this.contactError = true
+        }).finally(() => {
+          this.processLoadingContact = false
+        })
+    }
+
     next()
   },
 
   beforeRouteLeave (to, from, next) {
     let answer = true
 
-    if (this.status.visible) {
+    if (this.unsavedCallUnsaved) {
       answer = this.$confirm()
     }
 
@@ -640,44 +608,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       rtcSessionAudioRecordId: '',
       rtcSession: undefined,
       processLoadingContact: false,
-      contact: {
-        id: 0,
-        first_name: '',
-        last_name: '',
-        middle_name: '',
-        contact_name: '',
-        default_phone: undefined,
-        project: {
-          id: 0,
-          name: '',
-          description: '',
-          owner: undefined,
-          scenario: '',
-          statuses: [],
-          created_at: 0
-        },
-        owner: undefined,
-        status: null,
-        city: '',
-        notes: '',
-        tags: [],
-        emails: [],
-        phones: [],
-        created_at: 0,
-        tz: 'Europe/Moscow'
-      },
-      statuses: {
-        historyId: 0,
-        visible: false
-      },
       saveAndNextLoading: false,
-      status: {
-        status_id: 0,
-        contact_id: 0,
-        contact_history_id: 0,
-        visible: false,
-        comment: ''
-      } as IStatus,
       clientTimeTick: 0,
       btnRateQualityAvailable: true,
       contactError: false,
@@ -689,8 +620,66 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
   computed: {
     ...mapGetters({
-      settingsNavigationDrawerMini: 'settings/navigation_drawer_mini'
+      settingsNavigationDrawerMini: 'settings/navigation_drawer_mini',
+
+      settingsPcConfig: 'settings/pc_config',
+
+      // Информация о контакте входящего вызова
+      contactIncomingContactId: 'contact_incoming/id',
+
+      // Текущий контакт, соответствует текущему маршруту
+      contactViewContactId: 'contact_view/id',
+      contactViewContactName: 'contact_view/contact_name',
+      contactViewTags: 'contact_view/tags',
+      contactViewPhones: 'contact_view/phones',
+      contactViewEmails: 'contact_view/emails',
+      contactViewCity: 'contact_view/city',
+      contactViewRegion: 'contact_view/region',
+      contactViewTz: 'contact_view/tz',
+      contactViewCreatedAt: 'contact_view/created_at',
+      contactViewOwner: 'contact_view/owner',
+      contactViewProject: 'contact_view/project',
+      contactViewNotes: 'contact_view/notes',
+      contactViewDefaultPhone: 'contact_view/default_phone',
+
+      incomingDialogVisible: 'incoming_dialog/visible',
+
+      // Незавершенные действия с контактом
+      unsavedCallUnsaved: 'unsaved_call/unsaved',
+      unsavedCallUnsavedDataContactId: 'unsaved_call/data/contact_id',
+      unsavedCallUnsavedDataContactHistoryId: 'unsaved_call/data/contact_history_id'
     }),
+
+    /**
+     * Текущие статусы контакта
+     */
+    contactViewStatuses () {
+      return this.contactViewProject?.statuses || []
+    },
+
+    /**
+     * Не сохранённый статус
+     */
+    unsavedCallUnsavedDataStatusId: {
+      get () {
+        return this.$store.getters['unsaved_call/data/status_id']
+      },
+      set (val: number) {
+        return this.$store.commit('unsaved_call/data/status_id', val)
+      }
+    },
+
+    /**
+     * Не сохранённый комментарий
+     */
+    unsavedCallUnsavedDataContactComment: {
+      get () {
+        return this.$store.getters['unsaved_call/data/comment']
+      },
+      set (val: string) {
+        return this.$store.commit('unsaved_call/data/comment', val)
+      }
+    },
 
     colAttributeLeft () {
       return {
@@ -714,10 +703,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     /**
+     * Вернёт True если звонилка в процессе.
+     */
+    btnHangUpVisible () {
+      return ['accepted', 'call', 'connecting', 'progress'].includes(this.$dialer.state)
+    },
+
+    /**
      * Делает кнопку позвонить недоступной, если не выполнены условия
      */
-    callBtnIsDisabled () {
-      return !this.$jsSIP.isConnected || this.status.visible
+    btnCallDisable () {
+      return !(this.$dialer.isConnected() && this.$dialer.isRegistered()) || this.unsavedCallUnsaved
     },
 
     leftColumnStyleComputed () {
@@ -728,7 +724,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     sessionStopwatch () {
-      return this.$jsSIP.sessionStopwatch
+      return this.$dialer.sessionStopwatch
     },
 
     tabsHeight () {
@@ -741,7 +737,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     tabs (): Tab[] {
       const params = {
-        contact_id: this.contactId
+        contact_id: this.contactViewContactId
       }
       return [
         {
@@ -774,34 +770,18 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       ]
     },
 
-    contactOwnerName () {
-      const collection: string[] = []
-
-      if (this.contact?.owner?.first_name) {
-        collection.push(this.contact?.owner?.first_name)
-      }
-
-      if (this.contact?.owner?.last_name) {
-        collection.push(this.contact?.owner?.last_name)
-      }
-      return collection.join(' ')
-    },
-
-    contactProject () {
-      return this.contact?.project?.name || false
-    },
-
     countryAvailable (): boolean {
       return Boolean(this.$store.getters['profile/country'])
     }
   },
 
-  watch: {
-    'status.visible' (value: boolean) {
-      if (!value) {
-        window.onbeforeunload = null
-      }
-    }
+  created () {
+    this.$root.$on('dialer-session-connection', this.onSessionConnecting)
+    this.$root.$on('dialer-session-progress', this.onSessionProgress)
+    this.$root.$on('dialer-session-accepted', this.onSessionAccepted)
+    this.$root.$on('dialer-session-ended', this.onSessionEnded)
+    this.$root.$on('dialer-session-failed', this.onSessionFailed)
+    this.$root.$on('dialer-session-finality', this.onSessionFinality)
   },
 
   mounted () {
@@ -810,7 +790,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       this.clientTimeTick++
     }, 1000)
 
-    this.fetchContact(this.contactId)
+    this.fetchContact(+this.$route.params.contact_id)
+  },
+
+  beforeDestroy () {
+    this.$root.$off('dialer-session-connection', this.onSessionConnecting)
+    this.$root.$off('dialer-session-progress', this.onSessionProgress)
+    this.$root.$off('dialer-session-accepted', this.onSessionAccepted)
+    this.$root.$off('dialer-session-ended', this.onSessionEnded)
+    this.$root.$off('dialer-session-failed', this.onSessionFailed)
+    this.$root.$off('dialer-session-finality', this.onSessionFinality)
   },
 
   destroyed () {
@@ -821,36 +810,15 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     fetchContact (contact_id: number) {
       this.processLoadingContact = true
       this.loading = true
-      new Contacts()
-        .getById(contact_id)
-        .then((response) => {
-          this.$data.contact.id = response.id
-          this.$data.contact.first_name = response.first_name
-          this.$data.contact.last_name = response.last_name
-          this.$data.contact.middle_name = response.middle_name
-          this.$data.contact.contact_name = response.contact_name
-          this.$data.contact.default_phone = response.default_phone
-          this.$data.contact.project = response.project
-          this.$data.contact.owner = response.owner
-          this.$data.contact.notes = response.notes
-          this.$data.contact.city = response.city || this.$tc('No data')
-          this.$data.contact.tags = response.tags || []
-          this.$data.contact.emails = response.emails || []
-          this.$data.contact.phones = response.phones || []
-          this.$data.contact.tz = response.tz || 'Europe/Moscow'
-          this.$data.contact.last_status = response.status || null
-          this.$data.contact.created_at = response.created_at || 0
-
-          this.$store.commit('project/scenario', response.project?.scenario)
-        })
-        .finally(() => {
-          this.processLoadingContact = false
-          this.loading = false
-        })
+      this.$store
+        .dispatch('contact_view/get_by_id', contact_id)
         .catch((e: APIError) => {
           this.contactErrorCode = e.error_code
           this.contactErrorMessages = e.error_message
           this.contactError = true
+        }).finally(() => {
+          this.processLoadingContact = false
+          this.loading = false
         })
     },
 
@@ -863,7 +831,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       const plannedFor = this.$dayjs(`${data.date} ${data.time}`, 'YYYY-MM-DD HH:mm')
       new Tasks()
         .create({
-          contact_id: this.contactId,
+          contact_id: this.contactViewContactId,
           type: data.type,
           planned_for: plannedFor.unix(),
           description: data.description
@@ -874,44 +842,59 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     /**
      * @param target Номер телефона.
-     * @param contactId Идентификатор контакта.
      */
-    onBtnCallClick (target: string, contactId: number) {
+    onBtnCallClick (target: string) {
       // Закрыть все открытые задачи контакта если есть таковые.
-      new Contacts().closeAllTasks(contactId)
-
+      new Contacts().closeAllTasks(+this.$route.params.contact_id)
       // Обязательно перейти на вкладку сценария!
       this.$router.push({ name: 'contacts_view_scenario', params: this.$route.params })
+      const session = this.$dialer.call(target)
 
-      this.$appDebug('Звоним: %s', target)
-      this.rtcSession = this.$jsSIP.call<JSSIPPayloadInterface>(target, {
-        contact_id: contactId,
-        target
-      })
+      session.data.contact_id = this.contactViewContactId
+      session.data.contact_name = this.contactViewContactName
+      session.data.target = target
+    },
 
-      this.rtcSession.on('connecting', (event) => {
-        if (event.request.hasHeader('Call-ID')) {
-          this.rtcSessionAudioRecordId = event.request.getHeader('Call-ID')
-        }
-      })
+    onSessionConnecting (session: RTCSession, event) {
+      // TODO: Handler
+    },
 
-      // Легитимное завершение сессии
-      this.rtcSession.on('ended', (event: EndEvent) => {
-        this.onJsSIPSessionEnded({
-          target,
-          event,
-          session: this.rtcSession
-        })
-      })
+    onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+      // TODO: Handler
+    },
 
-      // Завершение с ошибкой
-      this.rtcSession.on('failed', (event) => {
-        this.onJsSIPSessionEnded({
-          target,
-          event,
-          session: this.rtcSession
-        })
-      })
+    /**
+     * Срабатывает, когда звонок принят (2XX received/sent).
+     *
+     * @param session
+     * @param event
+     */
+    onSessionAccepted (session: RTCSession, event) {
+      // TODO: Handler
+    },
+
+    onSessionEnded (session: RTCSession, event) {
+      // TODO: Handler
+    },
+
+    /**
+     * Срабатывает, когда сеанс не может быть установлен.
+     *
+     * @param session
+     * @param event
+     */
+    onSessionFailed (session: RTCSession, event) {
+      // TODO: Handler
+    },
+
+    /**
+     * Срабатывает в любом случае, не зависимо от исхода.
+     * @param session
+     * @param event
+     */
+    onSessionFinality (session: RTCSession, event) {
+      // Заполняет карточку после завершения разговора.
+      this.$accountMonitoring.begin('card_filling')
 
       window.onbeforeunload = (evt: any) => {
         const message = this.$tc('Finish working with the card!')
@@ -923,46 +906,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         }
         return message
       }
-    },
-
-    onBtnCallErrorClick () {
-      // TODO
-    },
-
-    /**
-     * Данное событие срабатывает когда завершилась сессия звонка
-     */
-    onJsSIPSessionEnded (data: JsSIPSessionEnded) {
-      // Заполняет карточку после завершения разговора.
-      this.$accountMonitoring.begin('card_filling')
-
-      const historyData = {
-        audio_record_id: this.rtcSessionAudioRecordId,
-        cause: data.event.cause,
-        direction: data.session.direction,
-        originator: data.event.originator,
-        session_end_time: this.$jsSIP.sessionEndTime.getTime() / 1000,
-        session_start_time: this.$jsSIP.sessionStartTime.getTime() / 1000,
-        type: 'call',
-        target: data.target
-      } as any
-
-      // Если есть время разговора
-      if ((data.session.start_time) && (data.session.end_time)) {
-        historyData.start_timestamp = data.session.start_time.getTime() / 1000
-        historyData.end_timestamp = data.session.end_time.getTime() / 1000
-      }
-
-      new Contacts()
-        .addHistory(this.contact.id, historyData)
-        .then((id: number) => {
-          // Удаляю из Vuex
-          this.$store.dispatch('contacts_new/items_remove_from_store', this.contactId)
-
-          this.status.visible = true
-          this.status.contact_history_id = id
-          this.status.contact_id = this.contact.id
-        })
     },
 
     /**
@@ -1032,10 +975,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     /**
      * Сохранить статус и остаться на странице
      *
-     * @param status
-     **/
-    onSaveAndStayClick (status: IStatus) {
-      this.save(status)
+     */
+    onSaveAndStayClick () {
+      this.save()
     },
 
     /**
@@ -1062,7 +1004,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           if (btn === 'ok' && data?.rating) {
             new Calls()
               .communicationQualityAssessment({
-                contact_id: this.contactId,
+                contact_id: this.contactViewContactId,
                 comment: data.comment,
                 rating: data.rating
               })
@@ -1078,27 +1020,21 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     async save () {
-      if (!this.validate()) {
-        return new Promise<void>(resolve => resolve())
-      }
-      this.$accountMonitoring.end() // Завершаю измерение активности
-      window.onbeforeunload = null // Отменяю запрос подтверждения ухода
-      this.saveAndNextLoading = true
+      return new Promise<void>((resolve) => {
+        if (!this.validate()) {
+          throw new Error('Choose a status!')
+        }
 
-      return new Promise<void>(resolve => {
-        new Contacts()
-          .editHistory(this.status.contact_history_id, {
-            comment: this.status.comment,
-            status_id: this.status.status_id
-          }).then(() => {
-            // Очистить предыдущий результат выбранного статуса
-            this.status.contact_id = 0
-            this.status.contact_history_id = 0
-            this.status.status_id = 0
-            this.status.visible = false
-            this.status.comment = ''
+        this.$accountMonitoring.end() // Завершаю измерение активности
+        window.onbeforeunload = null // Отменяю запрос подтверждения ухода
+        this.saveAndNextLoading = true
+
+        this.$store
+          .dispatch('unsaved_call/save')
+          .finally(() => {
             resolve()
-          }).finally(() => (this.saveAndNextLoading = false))
+            this.saveAndNextLoading = false
+          })
       })
     },
 
@@ -1107,8 +1043,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     validate (): boolean {
-      if (this.status.status_id <= 0) {
-        this.$toast.warning('Выберите статус!')
+      if (!this.unsavedCallUnsavedDataStatusId) {
+        this.$toast.warning('Choose a status!')
         return false
       }
 

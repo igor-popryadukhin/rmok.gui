@@ -7,8 +7,9 @@
       <v-text-field
         v-model="dUrls"
         :label="$tc('URLS')"
-        placeholder="stun:stun.l.google.com:19302"
         :rules="[ruleNotBlank, ruleMaxLength]"
+        :messages="$tc('Possible options, separated by commas: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302')"
+        placeholder="stun:stun.l.google.com:19302"
         prepend-inner-icon="mdi-server"
       />
 
@@ -16,6 +17,7 @@
         v-model="dUsername"
         :label="$tc('User name')"
         prepend-inner-icon="mdi-account"
+        autocomplete="off"
       />
 
       <v-text-field
@@ -23,6 +25,7 @@
         :label="$tc('Password')"
         prepend-inner-icon="mdi-form-textbox-password"
         type="password"
+        autocomplete="new-password"
       />
     </v-card-text>
 
@@ -132,3 +135,11 @@ export default Vue.extend({
 <style lang="scss" scoped>
 
 </style>
+
+<i18n>
+{
+  "ru" : {
+    "Possible options, separated by commas: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302": "Возможные варианты через запятую: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302"
+  }
+}
+</i18n>

@@ -65,7 +65,7 @@ function state (): SettingsStateInterface {
       iceCandidatePoolSize: 0,
       iceServers: [],
       iceTransportPolicy: 'all',
-      rtcpMuxPolicy: undefined
+      rtcpMuxPolicy: 'require'
     },
     pbx_config: {
       display_name: '',

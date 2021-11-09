@@ -77,6 +77,36 @@ const routes: RouteConfig[] = [
   },
 
   {
+    path: '/auto-dialer/params',
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "auto-dialer-list" */ '../views/AutoDialer/AutoDialerList.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'auto_dialer_params',
+        path: ''
+      },
+      {
+        component: () => import(/* webpackChunkName: "auto-dialer-view" */ '../views/AutoDialer/AutoDialerView.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'auto_dialer_params_view',
+        path: ':id'
+      }
+    ],
+    component: () => import(/* webpackChunkName: "auto-dialer" */ '../views/AutoDialer/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    }
+  },
+  {
     path: '/roles',
     component: () => import(/* webpackChunkName: "roles" */ '../views/Roles/Layout.vue'),
     children: [

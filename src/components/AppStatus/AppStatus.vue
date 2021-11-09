@@ -15,24 +15,6 @@
         <span :style="{ color: group.color }">{{ group.name }}</span>
       </v-tab>
       <v-spacer />
-      <v-tooltip
-        bottom
-        max-width="400"
-      >
-        <template #activator="{ on, attrs }">
-          <v-btn
-            v-bind="attrs"
-            color="red"
-            tile
-            text
-            v-on="on"
-            @click="$emit('on-close')"
-          >
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $tc('Close') }}</span>
-      </v-tooltip>
     </v-tabs>
     <v-divider />
     <v-tabs-items
@@ -44,6 +26,7 @@
           fluid
         >
           <v-radio-group
+            v-model="statusId"
             column
           >
             <v-row
@@ -62,6 +45,7 @@
                   :id="`v-radio-${item.id}`"
                   :key="`v-radio-${statusIndex}`"
                   :color="status.color"
+                  :value="item.id"
                   @change="onRadioChange(item)"
                 >
                   <template #label>
@@ -83,6 +67,7 @@
         >
           <v-radio-group
             :key="`v-radio-group-${tabIndex}`"
+            :value="statusId"
             column
           >
             <v-row>
@@ -95,6 +80,7 @@
                   :id="`v-radio-${status.id}`"
                   :label="status.name"
                   :color="tabItem.color"
+                  :value="status.id"
                   @change="onRadioChange(status)"
                 />
               </v-col>
@@ -107,7 +93,6 @@
 </template>
 
 <script lang="ts">
-import { StatusInterface } from '@/api/Database'
 import Vue from 'vue'
 
 export default Vue.extend({
@@ -137,7 +122,7 @@ export default Vue.extend({
 
   data () {
     return {
-      currentStatus: {} as unknown & StatusInterface,
+      statusId: 0,
       tab: null,
       tabStatus: 0
     }
@@ -152,7 +137,7 @@ export default Vue.extend({
   },
 
   mounted () {
-    // todo: implements
+    this.statusId = this.value
   },
 
   methods: {

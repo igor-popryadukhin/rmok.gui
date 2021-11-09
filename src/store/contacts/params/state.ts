@@ -27,8 +27,8 @@ export function defaultState () {
     filter_offset: 0,
     filter_task: '',
     filter_timezone: '',
-    order_by: '',
-    order_direction: 'asc'
+    order_by: 'created_at',
+    order_direction: 'desc'
   }
 }
 

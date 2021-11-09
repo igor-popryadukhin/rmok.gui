@@ -15,6 +15,10 @@ export default class IfVisible {
     ifvisible.on(name, handler)
   }
 
+  public off (name: 'blur' | 'focus' | 'idle' | 'wakeup', handler: CallableFunction): void {
+    ifvisible.off(name, handler)
+  }
+
   public onEvery (val: number, handler: CallableFunction): void {
     ifvisible.onEvery(val, handler)
   }

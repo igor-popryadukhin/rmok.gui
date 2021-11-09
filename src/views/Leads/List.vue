@@ -106,6 +106,12 @@ interface Computed {
 export default Vue.extend<Data, Methods, Computed>({
   components: { AppLoading, AppCountUp },
 
+  beforeRouteEnter (to, from, next) {
+    next((vm) => {
+      vm.$store.dispatch('contacts_new/items')
+    })
+  },
+
   data (): Data {
     return {
       leadsPerPage: 50,
@@ -126,24 +132,14 @@ export default Vue.extend<Data, Methods, Computed>({
     })
   },
 
-  async mounted () {
-    if (this.contactsItems.length === 0) {
-      this.loadContacts()
-    }
-  },
-
   methods: {
     ...mapActions({
       fetchContacts: 'contacts_new/items',
       fetchMore: 'contacts_new/items_more'
     }),
 
-    loadContacts () {
-      this.$store.dispatch('contacts_new/items')
-    },
-
     onBtnRefreshClick () {
-      this.loadContacts()
+      this.$store.dispatch('contacts_new/items')
     },
 
     onBtnLoadMoreClick () {

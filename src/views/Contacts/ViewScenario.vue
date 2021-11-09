@@ -8,17 +8,14 @@ import Vue from 'vue'
 import { mapGetters } from 'vuex'
 
 export default Vue.extend({
-  props: {
-    sex: {
-      type: String,
-      required: false,
-      default: ''
-    }
-  },
   computed: {
     ...mapGetters({
-      projectScenario: 'project/scenario'
-    })
+      contactViewProject: 'contact_view/project'
+    }),
+
+    projectScenario () {
+      return this.contactViewProject?.scenario || ''
+    }
   }
 })
 </script>

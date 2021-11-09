@@ -43,6 +43,12 @@ interface VInnerInterface extends VInterface {
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
 
+  beforeRouteEnter (to, from, next) {
+    next((vm) => {
+      vm.$store.dispatch('users_edit/fetch', to.params.user_id)
+    })
+  },
+
   data (): Data {
     return {
       tab: null
