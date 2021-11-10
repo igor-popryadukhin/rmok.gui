@@ -1022,6 +1022,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       .then(() => {
         this.audio = new Audio()
       }).catch(function (err) { console.log(err.name + ': ' + err.message) })
+
+    setInterval(() => {
+      if (['connecting', 'accepted', 'progress'].includes(this.$dialer.state)) {
+        this.$ifvisible.wakeup()
+      }
+    }, 1000)
   },
 
   mounted () {
@@ -1437,7 +1443,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
      */
     ifVisibleIdleHandler () {
-      this.degradation = true
+      // this.degradation = true
       this.$accountMonitoring.end()
     },
 
