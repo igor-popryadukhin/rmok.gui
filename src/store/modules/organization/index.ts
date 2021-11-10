@@ -1,22 +1,16 @@
 import { RootState } from '@/store'
 import { Module } from 'vuex'
-import state, { State } from './state'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import organization from '../modules/organization'
-import pbx_configuration from '../pbx_configuration'
+import state, { State } from './state'
 
 const module: Module<State, RootState> = {
   actions,
   getters,
   mutations,
   namespaced: true,
-  state,
-  modules: {
-    organization,
-    pbx_configuration
-  }
+  state
 }
 
 export default module

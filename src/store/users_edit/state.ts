@@ -23,25 +23,6 @@ export function defaultState (): State {
     password: '',
     middle_name: '',
     online: false,
-    organization: undefined,
-    pbx_configuration: {
-      rtc_configuration: {
-        certificates: [],
-        ice_transport_policy: 'all',
-        ice_servers: [],
-        ice_candidate_pool_size: 0,
-        rtcp_mux_policy: undefined,
-        bundle_policy: ''
-      },
-      credentials: {
-        server: '',
-        display_name: '',
-        login: '',
-        password: '',
-        port: 8089,
-        schema: 'wss'
-      }
-    },
     phone: '',
     project: undefined,
     projects: [],

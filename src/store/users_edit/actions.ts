@@ -9,23 +9,17 @@ const actions: ActionTree<State, RootState> = {
       .getById(id)
       .then((response) => {
         commit('id', response.id)
+        commit('organization/fill', response.organization)
 
-        commit('pbx_configuration/credentials/display_name', response.pbx_configuration.credentials?.display_name || '')
-        commit('pbx_configuration/credentials/login', response.pbx_configuration.credentials?.login || '')
-        commit('pbx_configuration/credentials/password', response.pbx_configuration.credentials?.password || '')
-        commit('pbx_configuration/credentials/schema', response.pbx_configuration.credentials?.schema || 'wss')
-        commit('pbx_configuration/credentials/server', response.pbx_configuration.credentials?.server || '')
-        commit('pbx_configuration/credentials/port', response.pbx_configuration.credentials?.port || 443)
-
-        commit('pbx_configuration/rtc_configuration/bundle_policy', response.pbx_configuration?.rtc_configuration?.bundle_policy || [])
-        commit('pbx_configuration/rtc_configuration/ice_servers', response.pbx_configuration?.rtc_configuration?.ice_servers || [])
-        commit('pbx_configuration/rtc_configuration/ice_transport_policy', response.pbx_configuration?.rtc_configuration?.ice_transport_policy || 'all')
-        commit('pbx_configuration/rtc_configuration/ice_candidate_pool_size', response.pbx_configuration?.rtc_configuration?.ice_candidate_pool_size || 0)
-        commit('pbx_configuration/rtc_configuration/rtcp_mux_policy', response.pbx_configuration?.rtc_configuration?.rtcp_mux_policy || 'require')
-        commit('pbx_configuration/rtc_configuration/certificates', response.pbx_configuration?.rtc_configuration?.certificates || [])
+        commit('pbx_configuration/credentials/fill', response?.pbx_configuration?.credentials)
+        commit('pbx_configuration/rtc_configuration/fill', response.pbx_configuration?.rtc_configuration)
       })
   },
 
+  /**
+   * Сохраняет текущее состояние параметров телефонии
+   * @param state
+   */
   save_pbx_configuration: ({ state }) => {
     return new Users()
       .edit(state.id, {

@@ -1,4 +1,4 @@
-interface Credentials {
+export interface Credentials {
   display_name: string;
   schema: string;
   server: string;
@@ -7,11 +7,11 @@ interface Credentials {
   password: string;
 }
 
-interface RTCConfiguration {
-  bundle_policy: string;
-  rtcp_mux_policy: string;
-  ice_servers: [],
-  ice_transport_policy: 'all' | 'relay',
+export interface RTCConfiguration {
+  bundle_policy: RTCBundlePolicy;
+  rtcp_mux_policy: RTCRtcpMuxPolicy;
+  ice_servers: RTCIceServer[],
+  ice_transport_policy: RTCIceTransportPolicy,
   ice_candidate_pool_size: number,
   certificates: []
 }

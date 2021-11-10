@@ -20,7 +20,6 @@ const mutations: MutationTree<ProfileState> = {
     state.email = payload.email
     state.role = payload.role
     state.login = payload.login
-    state.organization = payload.organization
     state.tz = payload.tz
     state.project = payload.project
     state.group = payload.group

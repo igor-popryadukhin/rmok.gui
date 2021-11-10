@@ -5,6 +5,7 @@ import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
 import pbx_configuration from '../pbx_configuration'
+import organization from '../modules/organization'
 
 const profile: Module<ProfileState, RootState> = {
   namespaced: true,
@@ -13,6 +14,7 @@ const profile: Module<ProfileState, RootState> = {
   getters,
   mutations,
   modules: {
+    organization,
     pbx_configuration
   }
 }

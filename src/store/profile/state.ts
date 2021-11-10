@@ -19,7 +19,6 @@ export interface ProfileState {
   tz?: string;
   last_login: number;
   role: Role;
-  organization?: Organization;
   created_at: number;
   country?: Country;
   project?: Project;
@@ -49,20 +48,6 @@ function state (): ProfileState {
       id: 0,
       name: '',
       permissions: []
-    },
-    organization: {
-      id: 0,
-      address: '',
-      city: '',
-      cpp: '',
-      description: '',
-      email: '',
-      inn: '',
-      name: '',
-      phone: '',
-      region: '',
-      site: '',
-      sphere_activity: ''
     },
     status: '',
     tz: '',
