@@ -106,7 +106,10 @@
                         </v-list-item-icon>
                         <v-list-item-content>
                           <v-list-item-title>{{ $tc('Export to Excel') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}</v-list-item-subtitle>
+                          <v-list-item-subtitle>
+                            {{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above')
+                            }}
+                          </v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </v-list>
@@ -433,7 +436,7 @@
           <span
             style="font-size: 10px; text-transform: uppercase; font-weight: 500; letter-spacing: 0.0892857143em"
           >
-            {{ $tc('selected_elements', contactsSelectedCount ) }}
+            {{ $tc('selected_elements', contactsSelectedCount) }}
           </span>
         </div>
         <div>
@@ -1010,52 +1013,52 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           // Сработает когда нажали кнопку отменить передачу контактов.
           instance.vmd.$on('cancel', () => (instance.close()))
 
-            interface Cs {
-              project_id: number;
-              user_ids: number[];
-            }
+          interface Cs {
+            project_id: number;
+            user_ids: number[];
+          }
 
-            // Сработает когда нажали кнопку подтверждения передачи.
-            instance.vmd.$on('confirm',
-              (data: Cs) => {
-                instance.close()
+          // Сработает когда нажали кнопку подтверждения передачи.
+          instance.vmd.$on('confirm',
+            (data: Cs) => {
+              instance.close()
 
-                let params: Record<string, any>
+              let params: Record<string, any>
 
-                if (this.contactsSelectedAll) {
-                  params = Object.assign({}, this.paramsForQuery)
-                  if ('count' in params) {
-                    delete params.count
-                  }
-
-                  if ('offset' in params) {
-                    delete params.offset
-                  }
-
-                  if ('order_direction' in params) {
-                    delete params.order_direction
-                  }
-
-                  if ('order_by' in params) {
-                    delete params.order_by
-                  }
-                } else {
-                  params = { ids: this.contactsSelected }
+              if (this.contactsSelectedAll) {
+                params = Object.assign({}, this.paramsForQuery)
+                if ('count' in params) {
+                  delete params.count
                 }
 
-                this.progressDialog.progress = 0
-                this.progressDialog.visible = true
-                this.progressDialog.message = this.$tc('Please stand by...')
+                if ('offset' in params) {
+                  delete params.offset
+                }
 
-                new Contacts()
-                  .transfer({
-                    destination_project_id: data.project_id, // Проект в который передаём.
-                    destination_user_ids: data.user_ids, // Идентификаторы пользователей, кому передаём.
-                    params // параметры для извлечения списка контактов
-                  }).finally(() => {
-                    this.$store.dispatch('contacts/unselect')
-                  })
-              })
+                if ('order_direction' in params) {
+                  delete params.order_direction
+                }
+
+                if ('order_by' in params) {
+                  delete params.order_by
+                }
+              } else {
+                params = { ids: this.contactsSelected }
+              }
+
+              this.progressDialog.progress = 0
+              this.progressDialog.visible = true
+              this.progressDialog.message = this.$tc('Please stand by...')
+
+              new Contacts()
+                .transfer({
+                  destination_project_id: data.project_id, // Проект в который передаём.
+                  destination_user_ids: data.user_ids, // Идентификаторы пользователей, кому передаём.
+                  params // параметры для извлечения списка контактов
+                }).finally(() => {
+                  this.$store.dispatch('contacts/unselect')
+                })
+            })
         })
     },
 

@@ -182,7 +182,7 @@
 </template>
 
 <script lang="ts">
-import { UserInterface, Users } from '@/api/Users'
+import { UserInterface } from '@/api/Users'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
 import { debounce } from 'vuetify/src/util/helpers'
@@ -370,11 +370,3 @@ export default (Vue as VueConstructor<VInnerInterface>).extend<Data, Methods, Co
   margin-right: 10px;
 }
 </style>
-
-<i18n>
-{
-  "ru": {
-    "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети"
-  }
-}
-</i18n>
