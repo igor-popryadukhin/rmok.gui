@@ -1,14 +1,12 @@
-import { GetterTree } from 'vuex'
 import { State } from './state'
-import { RootState } from '@/store'
 
-const getters: GetterTree<State, RootState> = {
-  login (state) { return state.login },
-  password (state) { return state.password },
-  port (state) { return state.port },
-  server (state) { return state.server },
-  schema (state) { return state.schema },
-  display_name (state) { return state.display_name }
+const getters = {
+  login (state: State) { return state.login },
+  password (state: State) { return state.password },
+  port (state: State) { return state.port },
+  server (state: State) { return state.server },
+  schema (state: State) { return state.schema },
+  display_name (state: State) { return state.display_name }
 }
 
 export default getters

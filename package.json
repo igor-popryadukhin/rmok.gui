@@ -5,12 +5,11 @@
   "scripts": {
     "serve": "vue-cli-service serve --host 0.0.0.0 --port 3000",
     "build": "vue-cli-service build",
+    "test:unit": "jest",
     "lint": "vue-cli-service lint",
     "test": "npm run codeceptjs"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.1.0",
-    "@typescript-eslint/parser": "^5.1.0",
     "@xstate/vue": "^0.3.0",
     "apexcharts": "^3.22.1",
     "core-js": "^3.6.5",
@@ -48,19 +47,27 @@
     "xstate": "^4.16.0"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.16.0",
     "@kazupon/vue-i18n-loader": "^0.5.0",
     "@types/debug": "^4.1.7",
+    "@types/jest": "^27.0.2",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.7",
     "@types/socket.io": "^2.1.13",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
     "@vue/cli-plugin-babel": "^4.5.8",
-    "@vue/cli-plugin-eslint": "^4.5.12",
+    "@vue/cli-plugin-eslint": "~v5.0.0-alpha.7",
     "@vue/cli-plugin-router": "^4.5.8",
     "@vue/cli-plugin-typescript": "^4.5.14",
     "@vue/cli-plugin-vuex": "^4.5.8",
-    "@vue/cli-service": "^4.5.8",
+    "@vue/cli-service": "~4.5.15",
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/eslint-config-typescript": "^8.0.0",
+    "@vue/test-utils": "^1.2.2",
     "axios": "^0.21.1",
-    "eslint": "^7.0.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "eslint": "^7.0.1",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-node": "^11.1.0",
@@ -68,17 +75,45 @@
     "eslint-plugin-sort-keys-fix": "^1.1.1",
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "^7.19.1",
+    "jest": "^27.3.1",
+    "jsdom": "^18.0.1",
+    "jsdom-global": "^3.0.2",
     "lint-staged": "^9.5.0",
+    "mocha": "^8.4.0",
+    "mochapack": "^2.1.2",
     "node-sass": "^5.0.0",
     "playwright": "^1.7.1",
     "sass": "~1.29.0",
     "sass-loader": "~10.1.0",
+    "ts-jest": "^27.0.7",
     "vue-cli-plugin-axios": "^0.0.4",
     "vue-cli-plugin-vuetify": "^2.0.7",
     "vue-cli-plugin-webpack-bundle-analyzer": "~2.0.0",
+    "vue-jest": "^3.0.7",
     "vue-template-compiler": "^2.6.12",
     "vuetify-loader": "^1.6.0",
     "webpack-bundle-analyzer": "^4.1.0"
+  },
+  "jest": {
+    "verbose": true,
+    "testURL": "http://localhost/",
+    "setupFilesAfterEnv": [
+      "<rootDir>jest.setup.js"
+    ],
+    "moduleNameMapper": {
+      "@/store/(.*)": "<rootDir>/src/store/$1"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "json",
+      "vue"
+    ],
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "transform": {
+      ".*\\.(vue)$": "vue-jest",
+      "^.+\\.tsx?$": "ts-jest"
+    }
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

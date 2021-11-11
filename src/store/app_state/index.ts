@@ -5,7 +5,7 @@ import actions from './actions'
 import mutations from './mutations'
 import state, { State } from './state'
 
-const module: Module<State, RootState> = {
+const app_state: Module<State, RootState> = {
   namespaced: true,
   state,
   actions,
@@ -13,4 +13,4 @@ const module: Module<State, RootState> = {
   mutations
 }
 
-export default module
+export default app_state
