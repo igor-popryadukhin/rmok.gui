@@ -324,7 +324,7 @@
             >
               mdi-pause-circle-outline
             </v-icon>
-            {{ profileFirstName || profileEmail ||profileLogin }}
+            {{ profileFirstName || profileEmail || profileLogin }}
             <!-- Подключен и зарегистрирован -->
             <span
               v-if="$dialer.isConnected() && $dialer.isRegistered()"
@@ -577,6 +577,7 @@ import { mapGetters } from 'vuex'
 import { RTCSession, IncomingEvent, OutgoingEvent, EndEvent } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import debug from 'debug'
+import { sleep } from '@/Utils'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -641,7 +642,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       },
       notificationShakeProcess: false,
       timerId: 0,
-      degradation: false
+      degradation: false,
+      dialerIsInitialize: false
     }
   },
 
@@ -1021,7 +1023,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       .getUserMedia({ audio: true })
       .then(() => {
         this.audio = new Audio()
-      }).catch(function (err) { console.log(err.name + ': ' + err.message) })
+      }).catch(function (err) {
+        console.log(err.name + ': ' + err.message)
+      })
 
     setInterval(() => {
       if (['connecting', 'accepted', 'progress'].includes(this.$dialer.state)) {
@@ -1206,9 +1210,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         if (typeof message === 'object' && 'status_code' in message) {
           if (message?.status_code === 480) {
             /**
-               * Q.850 описание: No answer from the user
-               * SIP описание: Temporarily unavailable
-               */
+             * Q.850 описание: No answer from the user
+             * SIP описание: Temporarily unavailable
+             */
             if (/Q\.850;cause=19/.test(String((message as any)?.data || ''))) {
               this.$toast.info('Subscriber unavailable')
             } else {
@@ -1216,11 +1220,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             }
           } else if (message?.status_code === 486) {
             /**
-               * Абонент занят.
-               * ----------------------------
-               * Q.850 описание: User busy
-               * SIP описание: Busy here
-               */
+             * Абонент занят.
+             * ----------------------------
+             * Q.850 описание: User busy
+             * SIP описание: Busy here
+             */
             if (/Q\.850;cause=17/.test(String((message as any)?.data || ''))) {
               this.$toast.info('The subscriber is busy')
             } else {
@@ -1228,23 +1232,23 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             }
           } else if (message?.status_code === 503) {
             /**
-               * Отсутствует доступный канал.
-               * Эта причина указывает на то, что в настоящее время нет подходящего канала для обработки вызова.
-               * ------------------------------------------------------------------------
-               * Q.850 описание: No circuit, channel unavailable
-               * SIP описание: Service unavailable
-               */
+             * Отсутствует доступный канал.
+             * Эта причина указывает на то, что в настоящее время нет подходящего канала для обработки вызова.
+             * ------------------------------------------------------------------------
+             * Q.850 описание: No circuit, channel unavailable
+             * SIP описание: Service unavailable
+             */
             if (/Q\.850;cause=34/.test(String((message as any)?.data || ''))) {
               this.$toast.info('Service unavailable')
             } else {
               this.$toast.error((message as any)?.data)
             }
             /**
-               * Ошибка SIP 603 обычно возвращается в качестве ответа,
-               * когда с вызываемой стороной был успешно установлен контакт,
-               * но она не может или не желает участвовать. Это сообщение об
-               * ошибке отправляется вашим сервером VoIP, и Zoiper просто отображает его.
-               */
+             * Ошибка SIP 603 обычно возвращается в качестве ответа,
+             * когда с вызываемой стороной был успешно установлен контакт,
+             * но она не может или не желает участвовать. Это сообщение об
+             * ошибке отправляется вашим сервером VoIP, и Zoiper просто отображает его.
+             */
           } else if (message?.status_code === 603) {
             this.$toast.info('Subscriber does not exist')
           } else {
@@ -1266,7 +1270,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       }
 
       // Данные для сохранения истории
-      const historyData: Record<string, number|string|null> = {
+      const historyData: Record<string, number | string | null> = {
         cause: event.cause,
         direction: session.direction,
         originator: event.originator,
@@ -1381,8 +1385,38 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       this.$store.dispatch('system/notifications_close_all')
     },
 
+    /**
+     * Срабатывает каждый раз когда меняются параметры профиля.
+     * Так же срабатывает если параметры изменила третья сторона.
+     */
     onSSEProfileChanged () {
       this.$store.dispatch('profile/load')
+        .then(() => {
+          // Механизм предотвращения инициализации
+          // телефонии в процессе её использования.
+          if (!this.dialerIsInitialize) {
+            const checkState = async (resolve: CallableFunction) => {
+              while (true) {
+                // Проверяю состояние простоя
+                if (this.$dialer.state === 'idle') {
+                  break
+                }
+                await sleep(1000)
+              }
+              resolve()
+            }
+
+            // Выполняем повторную инициализацию только в случае простоя.
+            new Promise<void>((resolve) => {
+              checkState(resolve)
+            }).then(() => {
+              this.dialerInitialize() // Пришло время выполнить инициализацию.
+              this.dialerIsInitialize = false
+            })
+
+            this.dialerIsInitialize = true
+          }
+        })
     },
 
     onFileDownload (name: string) {
@@ -1471,7 +1505,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             .getUserMedia({ audio: true })
             .then(() => {
               this.audio.play()
-            }).catch(function (err) { console.log(err.name + ': ' + err.message) })
+            }).catch(function (err) {
+              console.log(err.name + ': ' + err.message)
+            })
         })
       }
     },
@@ -1585,17 +1621,39 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 }
 
 @keyframes shake {
-  0% { transform: rotate(0deg); }
-  10% { transform:  rotate(4deg); }
-  20% { transform:  rotate(8deg); }
-  30% { transform:  rotate(12deg); }
-  40% { transform:  rotate(16deg); }
-  50% { transform:  rotate(20deg); }
-  60% { transform:  rotate(16deg); }
-  70% { transform:  rotate(12deg); }
-  80% { transform:  rotate(8deg); }
-  90% { transform:  rotate(4deg); }
-  100% { transform:  rotate(0deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(4deg);
+  }
+  20% {
+    transform: rotate(8deg);
+  }
+  30% {
+    transform: rotate(12deg);
+  }
+  40% {
+    transform: rotate(16deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+  60% {
+    transform: rotate(16deg);
+  }
+  70% {
+    transform: rotate(12deg);
+  }
+  80% {
+    transform: rotate(8deg);
+  }
+  90% {
+    transform: rotate(4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 </style>
