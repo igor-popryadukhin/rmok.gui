@@ -1075,10 +1075,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
       // RTC Config
       this.$dialer.pcConfig = {
-        iceServers: (this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers'] as any[])
+        iceServers: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers']
           .map((value) => {
             if (value.credential) {
-              return value.credential
+              return value
             }
             return {
               urls: value.urls
