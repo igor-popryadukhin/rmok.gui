@@ -1075,7 +1075,15 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
       // RTC Config
       this.$dialer.pcConfig = {
-        iceServers: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers'],
+        iceServers: (this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers'] as any[])
+          .map((value) => {
+            if (value.credential) {
+              return value.credential
+            }
+            return {
+              urls: value.urls
+            }
+          }),
         bundlePolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/bundle_policy'],
         iceCandidatePoolSize: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_candidate_pool_size'],
         rtcpMuxPolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy'],
