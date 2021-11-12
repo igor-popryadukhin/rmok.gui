@@ -1090,6 +1090,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         iceTransportPolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_transport_policy']
       }
 
+      debugDialer('pcConfig: %o', this.$dialer.pcConfig)
+
       const schema = this.$store.getters['profile/pbx_configuration/credentials/schema']
       const host = this.$store.getters['profile/pbx_configuration/credentials/server']
       const port = this.$store.getters['profile/pbx_configuration/credentials/port']
