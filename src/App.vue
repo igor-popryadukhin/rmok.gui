@@ -50,7 +50,6 @@
 import AppAudioPlayer from '@/components/AppAudioPlayer/AppAudioPlayer.vue'
 import { ProfileState } from '@/store/profile/state'
 import Vue from 'vue'
-import { VApp } from 'vuetify/lib'
 import { POSITION } from 'vue-toastification'
 import { ToastOptions } from 'vue-toastification/dist/types/src/types'
 import { ContactInterface } from '@/api/Schemas/ContactInterface'
@@ -67,8 +66,7 @@ export default Vue.extend({
   },
 
   components: {
-    AppAudioPlayer,
-    VApp
+    AppAudioPlayer
   },
 
   data () {

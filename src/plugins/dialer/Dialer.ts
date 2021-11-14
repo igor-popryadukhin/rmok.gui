@@ -26,12 +26,23 @@ import {
 } from './types'
 import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
 
+function makeAudioElement (id?: string): HTMLAudioElement {
+  const audioElement: HTMLAudioElement = document.createElement('audio')
+  if (id) {
+    audioElement.setAttribute('id', id)
+  }
+  audioElement.setAttribute('style', 'display: none')
+  audioElement.setAttribute('controls', '')
+  return audioElement
+}
+
 export interface DialerConfiguration {
   uri: string;
   password?: string;
   display_name?: string | undefined;
   realm?: string;
   pcConfig?: RTCConfiguration;
+  candidateReadyTimeOut?: number;
 }
 
 export enum DialerState {
@@ -81,6 +92,8 @@ export default class Dialer {
   private _state: DialerState;
   private _ua?: UA = null;
   private _pcConfig?: RTCConfiguration = null;
+  private _candidateReadyTimeoutId?: NodeJS.Timeout = null;
+  private _candidateReadyTimeOut = 0;
 
   private _onSessionConnecting?: EventHandlerConnecting
   private _onSessionProgress?: EventHandlerProgress
@@ -100,29 +113,15 @@ export default class Dialer {
    * @param config
    */
   constructor (url: string, config?: DialerConfiguration) {
-    this._localAudio = new Audio()
-    this._remoteAudio = new Audio()
-    this._audioElementForRinging = new Audio()
+    this._localAudio = makeAudioElement()
+    this._remoteAudio = makeAudioElement()
+    this._audioElementForRinging = makeAudioElement()
 
     this._localAudio.autoplay = true
     this._remoteAudio.autoplay = true
 
     this._timer = new Timer()
     this._state = DialerState.IDLE
-
-    // this.configure(url, config)
-
-    this._ua = new JsSIP.UA({
-      sockets: [new JsSIP.WebSocketInterface(url)],
-      uri: config.uri,
-      password: config.password,
-      display_name: config.display_name,
-      register: true,
-      realm: config.realm,
-      contact_uri: config.uri,
-      session_timers_refresh_method: 'invite',
-      session_timers: true
-    })
 
     return this
   }
@@ -139,7 +138,6 @@ export default class Dialer {
    * Позвонить.
    *
    * @param number
-   * @param pcConfig
    */
   public call (number: string): RTCSession {
     if (!this._ua) {
@@ -246,6 +244,7 @@ export default class Dialer {
       this._ua = null
     }
 
+    this._candidateReadyTimeOut = config?.candidateReadyTimeOut || 0
     this._ua = new JsSIP.UA({
       sockets: [new JsSIP.WebSocketInterface(url)],
       uri: config.uri,
@@ -334,9 +333,17 @@ export default class Dialer {
     this._sessionStartTime = new Date()
     this._currentRTCSession = event.session
 
-    this._currentRTCSession.on('icecandidate', (event) => {
-      DialerDebug(event.candidate.candidate)
-    })
+    if (this._candidateReadyTimeOut) {
+      this._currentRTCSession.on('icecandidate', (event) => {
+        DialerDebug(event.candidate.candidate)
+        if (this._candidateReadyTimeoutId != null) {
+          clearTimeout(this._candidateReadyTimeoutId)
+        }
+        this._candidateReadyTimeoutId = setTimeout(() => {
+          event.ready()
+        }, this._candidateReadyTimeOut)
+      })
+    }
 
     // Запускается после добавления локального медиа потока RTCSession и
     // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».

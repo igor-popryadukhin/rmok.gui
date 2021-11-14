@@ -227,6 +227,18 @@
               label="Мультиплексирование"
             />
           </div>
+          <div>
+            <v-text-field
+              v-model="rtcConfigurationCandidateReadyTimeOut"
+              :label="$tc('ice_candidate_ready')"
+              type="number"
+              style="max-width: 250px"
+            >
+              <template #append>
+                ms
+              </template>
+            </v-text-field>
+          </div>
         </div>
         <!-- ICE options -->
 
@@ -423,6 +435,15 @@ export default Vue.extend({
       }
     },
 
+    rtcConfigurationCandidateReadyTimeOut: {
+      get () {
+        return +this.$store.getters['users_edit/pbx_configuration/rtc_configuration/candidate_ready_timeout']
+      },
+      set (value: number|string) {
+        return this.$store.commit('users_edit/pbx_configuration/rtc_configuration/candidate_ready_timeout', +value)
+      }
+    },
+
     schemas () {
       return [
         {
@@ -456,11 +477,11 @@ export default Vue.extend({
       }).then((result: boolean) => {
         if (result) {
           // eslint-disable-next-line no-undef
-          const servers: RTCIceServer[] = (this.$store.getters['users_edit/pbx_configuration/rtc_configuration/ice_servers'] as RTCIceServer[])
+          const servers: Record<string, string|string[]>[] = this.rtcConfigurationIceServers
             .map((e) => {
               return {
                 credential: e.credential,
-                credentialType: e.credentialType,
+                credential_type: e.credential_type || 'password',
                 urls: e.urls,
                 username: e.username
               }
@@ -489,11 +510,11 @@ export default Vue.extend({
         handler: (target: 'save' | 'cancel', value: unknown & {urls: string; username?: string; password?: string}) => {
           if (target === 'save') {
             // eslint-disable-next-line no-undef
-            const servers: RTCIceServer[] = (this.$store.getters['users_edit/pbx_configuration/rtc_configuration/ice_servers'] as RTCIceServer[])
+            const servers: Record<string, string|string[]>[] = this.rtcConfigurationIceServers
               .map((e) => {
                 return {
                   credential: e.credential,
-                  credentialType: e.credentialType,
+                  credential_type: e.credential_type || 'password',
                   urls: e.urls,
                   username: e.username
                 }
@@ -519,11 +540,11 @@ export default Vue.extend({
         handler: (target: 'save' | 'cancel', value: unknown & { urls: string; username?: string; password?: string }) => {
           if (target === 'save') {
             // eslint-disable-next-line no-undef
-            const servers: RTCIceServer[] = (this.$store.getters['users_edit/pbx_configuration/rtc_configuration/ice_servers'] as RTCIceServer[])
+            const servers: Record<string, string|string[]>[] = this.rtcConfigurationIceServers
               .map((e) => {
                 return {
                   credential: e.credential,
-                  credentialType: e.credentialType,
+                  credential_type: e.credential_type || 'password',
                   urls: e.urls,
                   username: e.username
                 }
@@ -532,7 +553,7 @@ export default Vue.extend({
             servers.push({
               username: value.username,
               credential: value.password,
-              credentialType: 'password',
+              credential_type: 'password',
               urls: value.urls
                 .replace(/\s+/, '')
                 .split(',')
@@ -566,6 +587,8 @@ export default Vue.extend({
 {
   "ru": {
     "ice_transport_policy": "Транспортная политика ICE",
+    "ice_candidate_ready": "Завершить опрос кандидатов через",
+    "ice_candidate_ready_timeout": "Время ожидания завершения сбора ICE кандидатов (ms)",
     "tooltip": {
       "ice_transport_policy_all": "Будут рассмотрены все кандидаты ICE.",
       "ice_transport_policy_relay": "Будут рассмотрены только кандидаты ICE, IP-адреса которых ретранслируются, например, проходящие через сервер STUN или TURN."
@@ -573,6 +596,8 @@ export default Vue.extend({
   },
   "en": {
     "ice_transport_policy": "The current ICE transport policy",
+    "ice_candidate_ready": "Complete the candidate survey through",
+    "ice_candidate_ready_timeout": "Waiting time for the completion of the collection of ICE candidates (ms)",
     "tooltip": {
       "ice_transport_policy_all": "All ICE candidates will be considered.",
       "ice_transport_policy_relay": "Only ICE candidates whose IP addresses are being relayed, such as those being passed through a STUN or TURN server, will be considered."

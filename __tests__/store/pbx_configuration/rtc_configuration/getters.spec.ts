@@ -1,6 +1,6 @@
 
-import getters from '@/store/pbx_configuration/rtc_configuration/getters'
-import { State } from '@/store/pbx_configuration/rtc_configuration/state'
+import getters from './../../../../src/store/pbx_configuration/rtc_configuration/getters'
+import { State } from './../../../../src/store/pbx_configuration/rtc_configuration/state'
 
 const state: State = {
   bundle_policy: 'balanced',
@@ -8,14 +8,15 @@ const state: State = {
   ice_candidate_pool_size: 5,
   ice_servers: [{
     credential: 'token',
-    credentialType: 'password',
+    credential_type: 'password',
     urls: [
       'stun:stun.rmok.tech'
     ],
     username: ''
   }],
   ice_transport_policy: 'all',
-  rtcp_mux_policy: 'require'
+  rtcp_mux_policy: 'require',
+  candidate_ready_timeout: 5000
 }
 
 describe('Геттеры модуля rtc_configuration', () => {
@@ -34,7 +35,7 @@ describe('Геттеры модуля rtc_configuration', () => {
   test('Геттер "ice_servers" возвращает массив "[]"', () => {
     expect(getters.ice_servers(state)).toStrictEqual([{
       credential: 'token',
-      credentialType: 'password',
+      credential_type: 'password',
       urls: [
         'stun:stun.rmok.tech'
       ],
@@ -49,5 +50,9 @@ describe('Геттеры модуля rtc_configuration', () => {
 
   test('Геттер "rtcp_mux_policy" возвращает "require"', () => {
     expect(getters.rtcp_mux_policy(state)).toBe('require')
+  })
+
+  test('Геттер "candidate_ready_timeout" возвращает "5000"', () => {
+    expect(getters.candidate_ready_timeout(state)).toBe(5000)
   })
 })

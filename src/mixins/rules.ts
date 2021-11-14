@@ -1,8 +1,5 @@
 import Vue from 'vue'
-import { Route } from 'vue-router'
-import { NavigationGuardNext } from 'vue-router/types/router'
-import { loadLanguageAsync } from '@/plugins/i18n'
-import { isEmpty } from '@/Utils'
+import { isEmpty } from '@/utils/utils'
 
 interface DynamicRuleInterface {
   val: (value: string) => void;

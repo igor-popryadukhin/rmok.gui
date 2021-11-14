@@ -1,5 +1,5 @@
 
-import mutations from '@/store/pbx_configuration/credentials/mutations'
+import mutations from './../../../../src/store/pbx_configuration/credentials/mutations'
 
 const state = {
   login: '',

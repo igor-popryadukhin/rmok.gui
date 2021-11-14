@@ -5,8 +5,6 @@ import { Ripple } from 'vuetify/lib/directives'
 // @ts-ignore
 import ru from 'vuetify/lib/locale/ru'
 
-Vue.use(Vuetify)
-
 Vue.use(Vuetify, {
   directives: {
     Ripple

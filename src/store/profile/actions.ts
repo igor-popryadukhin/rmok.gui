@@ -3,6 +3,7 @@ import { RootState } from '@/store'
 import { ActionContext, ActionTree } from 'vuex'
 import { ProfileState } from './state'
 import { State } from '@/store/pbx_configuration/state'
+import { RTCIceServer } from '@/store/pbx_configuration/rtc_configuration/state'
 
 const actions: ActionTree<ProfileState, RootState> = {
   load ({ commit }: ActionContext<ProfileState, RootState>) {
@@ -39,10 +40,18 @@ const actions: ActionTree<ProfileState, RootState> = {
           rtc_configuration: {
             bundle_policy: state.pbx_configuration.rtc_configuration.bundle_policy,
             rtcp_mux_policy: state.pbx_configuration.rtc_configuration.rtcp_mux_policy,
-            ice_servers: state.pbx_configuration.rtc_configuration.ice_servers,
+            ice_servers: state.pbx_configuration.rtc_configuration.ice_servers.map((e: RTCIceServer) => {
+              if (e.username && e.credential) {
+                return e
+              }
+              return {
+                urls: e.urls
+              }
+            }),
             ice_transport_policy: state.pbx_configuration.rtc_configuration.ice_transport_policy,
             ice_candidate_pool_size: state.pbx_configuration.rtc_configuration.ice_candidate_pool_size,
-            certificates: state.pbx_configuration.rtc_configuration.certificates || []
+            certificates: state.pbx_configuration.rtc_configuration.certificates || [],
+            candidate_ready_timeout: state.pbx_configuration.rtc_configuration.candidate_ready_timeout
           }
         }
       })
@@ -63,10 +72,18 @@ const actions: ActionTree<ProfileState, RootState> = {
           rtc_configuration: {
             bundle_policy: state.pbx_configuration.rtc_configuration.bundle_policy,
             rtcp_mux_policy: state.pbx_configuration.rtc_configuration.rtcp_mux_policy,
-            ice_servers: state.pbx_configuration.rtc_configuration.ice_servers,
+            ice_servers: state.pbx_configuration.rtc_configuration.ice_servers.map((e: RTCIceServer) => {
+              if (e.username && e.credential) {
+                return e
+              }
+              return {
+                urls: e.urls
+              }
+            }),
             ice_transport_policy: state.pbx_configuration.rtc_configuration.ice_transport_policy,
             ice_candidate_pool_size: state.pbx_configuration.rtc_configuration.ice_candidate_pool_size,
-            certificates: state.pbx_configuration.rtc_configuration.certificates || []
+            certificates: state.pbx_configuration.rtc_configuration.certificates || [],
+            candidate_ready_timeout: state.pbx_configuration.rtc_configuration.candidate_ready_timeout
           }
         }
       })

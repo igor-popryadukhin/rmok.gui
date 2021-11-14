@@ -1,6 +1,6 @@
 <template>
   <v-layout>
-    {{ $store.state.profile.organization }}
+    Home
   </v-layout>
 </template>
 

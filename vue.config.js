@@ -22,7 +22,10 @@ module.exports = {
     disableHostCheck: true,
     host: '0.0.0.0',
     public: 'https://dev.rmok.tech',
-    port: 443
+    port: 443,
+    watchOptions: {
+      poll: true
+    }
   },
 
   filenameHashing: true,

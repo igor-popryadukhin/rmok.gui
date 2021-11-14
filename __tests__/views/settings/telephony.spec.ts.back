@@ -1,0 +1,55 @@
+import { shallowMount, createLocalVue, mount } from '@vue/test-utils'
+import Vuex from 'vuex'
+import Telephony from '../../../src/views/Settings/Telephony.vue'
+import Vuetify from 'vuetify'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { applicationInit } from '@/jest-application-init'
+
+const localVue = applicationInit(createLocalVue())
+
+localVue.use(Vuex)
+localVue.use(Vuetify)
+
+describe('Actions.vue', () => {
+  let actions
+  let store
+  let computed
+
+  beforeEach(() => {
+    store = new Vuex.Store({
+      modules: {
+        profile: {
+          modules: {
+            pbx_configuration: {
+              modules: {
+                rtc_configuration: {
+                  getters: {
+                    ice_servers () {
+                      return []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+    computed = {
+      rtcConfigurationIceServers () { return [] }
+    }
+    actions = {
+      actionClick: jest.fn(),
+      actionInput: jest.fn()
+    }
+  })
+
+  it('вызывает "actionInput", когда значение события — "input"', () => {
+    const wrapper = shallowMount(Telephony, {
+      store,
+      localVue,
+      computed
+    })
+  })
+})

@@ -138,8 +138,7 @@
 
 <script lang="ts">
 
-import { debounce } from 'vuetify/src/util/helpers'
-import { makeAudioElement } from './utils'
+import { makeAudioElement, debounce } from './utils'
 import Vue from 'vue'
 
 interface Data {

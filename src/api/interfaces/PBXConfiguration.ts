@@ -10,10 +10,11 @@ export interface Credentials {
 export interface RTCConfiguration {
   bundle_policy: RTCBundlePolicy;
   rtcp_mux_policy: RTCRtcpMuxPolicy;
-  ice_servers: RTCIceServer[],
-  ice_transport_policy: RTCIceTransportPolicy,
-  ice_candidate_pool_size: number,
-  certificates: []
+  ice_servers: RTCIceServer[];
+  ice_transport_policy: RTCIceTransportPolicy;
+  ice_candidate_pool_size: number;
+  certificates: [];
+  candidate_ready_timeout: number;
 }
 
 export default interface PBXConfiguration {

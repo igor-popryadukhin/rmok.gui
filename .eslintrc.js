@@ -4,22 +4,28 @@ module.exports = {
     es6: true,
     node: true
   },
+
   extends: [
     'plugin:vue/recommended',
     '@vue/standard',
     '@vue/typescript/recommended'
   ],
+
   ignorePatterns: [
     '**/node_modules/*',
     '**/tests/*'
   ],
+
   parserOptions: {
     ecmaVersion: 2020
   },
+
   plugins: [
     // 'sort-keys-fix'
   ],
+
   root: true,
+
   rules: {
     '@typescript-eslint/naming-convention': [
       'error',
@@ -57,5 +63,17 @@ module.exports = {
     'no-control-regex': 'off',
     'no-debugger': 'off'
     // 'sort-keys-fix/sort-keys-fix': 'warn'
-  }
+  },
+
+  overrides: [
+    {
+      files: [
+        '**/__tests__/*.{j,t}s?(x)',
+        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+      ],
+      env: {
+        jest: true
+      }
+    }
+  ]
 }

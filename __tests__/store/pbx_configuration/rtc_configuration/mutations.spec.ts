@@ -1,6 +1,6 @@
 
-import mutations from '@/store/pbx_configuration/rtc_configuration/mutations'
-import { State } from '@/store/pbx_configuration/rtc_configuration/state'
+import mutations from './../../../../src/store/pbx_configuration/rtc_configuration/mutations'
+import { State } from './../../../../src/store/pbx_configuration/rtc_configuration/state'
 
 const state: State = {
   bundle_policy: 'balanced',
@@ -8,7 +8,8 @@ const state: State = {
   ice_candidate_pool_size: 0,
   ice_servers: [],
   ice_transport_policy: 'all',
-  rtcp_mux_policy: 'require'
+  rtcp_mux_policy: 'require',
+  candidate_ready_timeout: 0
 }
 
 describe('Мутации модуля rtc_configuration', () => {
@@ -58,6 +59,11 @@ describe('Мутации модуля rtc_configuration', () => {
     expect(state.rtcp_mux_policy).toBe('require')
   })
 
+  test('Мутация "candidate_ready_timeout" заполняет данные "5000"', () => {
+    mutations.candidate_ready_timeout(state, 5000)
+    expect(state.candidate_ready_timeout).toBe(5000)
+  })
+
   test('Мутация "fill" заполняет все состояние', () => {
     mutations.fill(state, {
       bundle_policy: 'balanced',
@@ -73,7 +79,8 @@ describe('Мутации модуля rtc_configuration', () => {
       }
       ],
       ice_transport_policy: 'all',
-      rtcp_mux_policy: 'require'
+      rtcp_mux_policy: 'require',
+      candidate_ready_timeout: 5000
     })
     expect(state).toStrictEqual({
       bundle_policy: 'balanced',
@@ -89,7 +96,8 @@ describe('Мутации модуля rtc_configuration', () => {
       }
       ],
       ice_transport_policy: 'all',
-      rtcp_mux_policy: 'require'
+      rtcp_mux_policy: 'require',
+      candidate_ready_timeout: 5000
     })
   })
 })

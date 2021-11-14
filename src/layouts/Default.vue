@@ -578,6 +578,7 @@ import { RTCSession, IncomingEvent, OutgoingEvent, EndEvent } from 'jssip/lib/RT
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import debug from 'debug'
 import { sleep } from '@/Utils'
+import { makeAudioElement } from '@/utils/utils'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -602,7 +603,7 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
   data (): Data {
     return {
-      audio: new Audio(),
+      audio: makeAudioElement(),
       audioPlayed: false,
       accountMenuItems: [
         {
@@ -1078,16 +1079,25 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         iceServers: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers']
           .map((value) => {
             if (value.credential) {
-              return value
+              return {
+                credential: value.credential,
+                credentialType: value.credential_type,
+                urls: value.urls,
+                username: value.username
+              }
             }
             return {
               urls: value.urls
             }
           }),
+
         bundlePolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/bundle_policy'],
         iceCandidatePoolSize: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_candidate_pool_size'],
-        rtcpMuxPolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy'],
         iceTransportPolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_transport_policy']
+      }
+
+      if (this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']) {
+        this.$dialer.pcConfig.rtcpMuxPolicy = this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']
       }
 
       debugDialer('pcConfig: %o', this.$dialer.pcConfig)
@@ -1102,7 +1112,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         display_name: this.$profile.full_name,
         password: password,
         realm: host,
-        uri: `sip:${login}@${host}`
+        uri: `sip:${login}@${host}`,
+        candidateReadyTimeOut: this.$store.getters['profile/pbx_configuration/rtc_configuration/candidate_ready_timeout']
       })
       this.$dialer.on('newRTCSession', this.onNewRTCSession)
 

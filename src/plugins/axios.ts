@@ -2,8 +2,8 @@ import { app } from '@/main'
 import { Cookie } from '@/plugins/cookie'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Vue from 'vue'
-import { sleep } from '@/Utils'
 import debug from 'debug'
+import { sleep } from '@/utils/utils'
 
 const httpResponseLog = debug('APP').extend('HTTP').extend('RESPONSE')
 const httpRequestLog = debug('APP').extend('HTTP').extend('REQUEST')

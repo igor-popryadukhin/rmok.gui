@@ -1,6 +1,6 @@
 
-import getters from '@/store/pbx_configuration/credentials/getters'
-import { State } from '@/store/pbx_configuration/credentials/state'
+import getters from './../../../../src/store/pbx_configuration/credentials/getters'
+import { State } from './../../../../src/store/pbx_configuration/credentials/state'
 
 const state: State = {
   login: 'login',
