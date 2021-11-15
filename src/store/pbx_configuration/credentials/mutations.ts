@@ -10,7 +10,7 @@ const mutations = {
   display_name (state: State, payload) { state.display_name = payload },
 
   fill (state, payload: Credentials) {
-    state.schema = payload?.schema || 'sww'
+    state.schema = payload?.schema || 'wss'
     state.server = payload?.server || ''
     state.port = payload?.port || 8089
     state.display_name = payload?.display_name || ''
