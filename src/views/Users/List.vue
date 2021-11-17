@@ -17,7 +17,7 @@
           <template #left>
             <v-btn
               v-if="$isGranted('USER_CREATE')"
-              to="new"
+              to="create"
               text
               tile
               small

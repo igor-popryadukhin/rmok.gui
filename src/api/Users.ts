@@ -48,14 +48,14 @@ export class Users {
    *
    * @param data
    */
-  public create<T = any> (data: T): Promise<number> {
+  public create (data: Record<string, any>): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       $axios.post('/users', data)
         .then((response: AxiosResponse) => {
-          if ([201].includes(response.status)) {
-            return resolve(response.data.id)
+          if (response.status !== 201) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve(response.data.id)
         }).catch(reject)
     })
   }

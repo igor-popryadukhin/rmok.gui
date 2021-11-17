@@ -1,5 +1,5 @@
 // 1. Make sure to import 'vue' before declaring augmented types
-import { JsSIP } from '@/jsSIP/plugin'
+import Vue from 'vue'
 import { ProfileState } from '@/store/profile/state'
 import { AxiosInstance } from 'axios'
 import { Debugger } from 'debug'
@@ -63,6 +63,7 @@ declare module 'vue/types/vue' {
     $appDebug: Debugger;
     $ifvisible: IfVisible;
     $accountMonitoring: AccountMonitoring;
+    $axios: AxiosInstance;
     // Методы
     $isGranted: (roles: string | string[], strategy: 'affirmative' | 'unanimous' = 'affirmative') => boolean;
     $settings_vue_keep_alive: boolean;

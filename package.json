@@ -36,7 +36,7 @@
     "vue-meta": "^2.4.0",
     "vue-property-decorator": "^9.0.2",
     "vue-router": "^3.4.9",
-    "vue-toastification": "^1.7.11",
+    "vue-toastification": "^1.7.14",
     "vue-yandex-metrika": "^1.8.3",
     "vueditor": "^0.3.1",
     "vuescroll": "^4.16.1",
@@ -113,7 +113,7 @@
       "@/views/(.*)": "<rootDir>/src/views/$1",
       "@/api/(.*)": "<rootDir>/src/api/$1",
       "@/assets/(.*)": "<rootDir>/src/assets/$1",
-      "@/plugins/(.*)": "<rootDir>/src/plugins/$1",
+      "@/plugins/(.*)": "jest-transform-stub",
       "@/router": "<rootDir>/src/router",
       "@/directives": "<rootDir>/src/directives",
       "@/store/(.*)": "<rootDir>/src/store/$1",
@@ -123,7 +123,6 @@
       "@/mixins/(.*)": "<rootDir>/src/mixins/$1",
       "@/utils/(.*)": "<rootDir>/src/utils/$1",
       "^.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
-      "vuetify": "jest-transform-stub",
       "vuetify/lib": "jest-transform-stub",
       "vuetify/lib/directives": "jest-transform-stub",
       "vuetify/lib/locale/ru": "jest-transform-stub",
@@ -139,11 +138,12 @@
     "transform": {
       ".*\\.(vue)$": "vue-jest",
       "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.ts?$": "ts-jest",
       "^.*\\.js$": "babel-jest",
       ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "jest-transform-stub"
     },
     "transformIgnorePatterns": [
-      "node_modules/(?!vue-router|@babel|vuetify)"
+      "node_modules/vuetify"
     ]
   },
   "gitHooks": {

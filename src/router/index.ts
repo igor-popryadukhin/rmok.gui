@@ -1,4 +1,3 @@
-import store from '@/store'
 import Home from '@/views/Home.vue'
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
@@ -241,10 +240,10 @@ const routes: RouteConfig[] = [
         path: ''
       },
       {
-        component: () => import(/* webpackChunkName: "users-new" */ '../views/Users/UserNew.vue'),
+        component: () => import(/* webpackChunkName: "users-create" */ '../views/Users/UserCreate.vue'),
         meta: { layout: 'default', middleware: [] },
-        name: 'users_new',
-        path: 'new'
+        name: 'users_create',
+        path: 'create'
       },
       {
         path: ':user_id',
@@ -628,7 +627,7 @@ export interface MiddlewareContextInterface {
   to: Route;
   from: Route;
   next: NavigationGuardNext;
-  store: Store<any>
+  store?: Store<any>
 }
 
 // const timer = new Timer()
@@ -646,7 +645,6 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   const context: MiddlewareContextInterface = {
     from,
     next,
-    store,
     to
   }
   return middleware[0]({

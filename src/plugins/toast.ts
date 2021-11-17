@@ -1,7 +1,8 @@
 import i18n from '@/plugins/i18n'
 import Vue from 'vue'
 import Toast, { POSITION } from 'vue-toastification'
-import 'vue-toastification/dist/index.css'
+import '@/assets/scss/vue-toastnotification/themes/default/index.css'
+
 // see: https://maronato.github.io/vue-toastification
 Vue.use(Toast, {
   closeButton: 'button',

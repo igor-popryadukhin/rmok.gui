@@ -1,6 +1,6 @@
 import APIError from '@/api/classes/APIError'
 import TimeZone from '@/api/interfaces/TimeZone'
-import Country from '@/api/Schemas/Country'
+import Country from '@/api/interfaces/Country'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
