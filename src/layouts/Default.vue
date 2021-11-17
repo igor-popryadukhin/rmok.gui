@@ -798,7 +798,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               name: 'auto_dialer_params'
             }
           },
-          visible: false
+          visible: true
         },
         {
           title: 'Statistic',
