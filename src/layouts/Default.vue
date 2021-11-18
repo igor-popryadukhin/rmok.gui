@@ -500,70 +500,6 @@
       v-if="degradation"
       id="blur"
     />
-
-    <!-- Диалог входящего вызова -->
-    <v-dialog
-      v-model="incomingDialogVisible"
-      persistent
-      max-width="450"
-      hide-overlay
-      dark
-    >
-      <v-card
-        tile
-        flat
-        color="#404040"
-      >
-        <!--        <v-card-text class="d-flex align-center justify-center pt-4">-->
-        <!--          <v-icon-->
-        <!--            size="50"-->
-        <!--          >-->
-        <!--            mdi-phone-classic-->
-        <!--          </v-icon>-->
-        <!--        </v-card-text>-->
-        <v-card-text class="d-flex justify-center pt-5 pb-0">
-          <div class="text-center">
-            <div>
-              Входящий вызов
-            </div>
-            <div class="incoming-dialog-phone-number">
-              {{ contactIncomingContactName }}
-            </div>
-            <!--            <div>-->
-            <!--              {{ incomingDialog.phone_number }}-->
-            <!--            </div>-->
-          </div>
-        </v-card-text>
-        <v-card-actions class="d-flex justify-center pb-4">
-          <v-btn
-            elevation="0"
-            color="red"
-            :disabled="contactIncomingId === 0"
-            fab
-            dark
-            @click="onIncomingDialogHangupClick"
-          >
-            <v-icon>
-              mdi-phone-hangup
-            </v-icon>
-          </v-btn>
-          <div style="width: 200px" />
-          <v-btn
-            elevation="0"
-            color="green"
-            :disabled="contactIncomingId === 0"
-            fab
-            dark
-            @click="onIncomingDialogAnswerClick"
-          >
-            <v-icon>
-              mdi-phone
-            </v-icon>
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- Диалог входящего вызова -->
   </v-app>
 </template>
 
@@ -579,6 +515,7 @@ import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import debug from 'debug'
 import { sleep } from '@/Utils'
 import { makeAudioElement } from '@/utils/utils'
+import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -1169,7 +1106,26 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.$store.commit('contact_incoming/contact_name', session.data.target)
 
         // Показать диалог входящего.
-        this.incomingDialogVisible = true
+        this.$toast({
+          component: AppIncomingCallDialog,
+          props: {
+            // Будет вычислять новое значение без обновления всего состояния
+            display: () => this.contactIncomingContactName
+          },
+          listeners: {
+            answer: this.onIncomingDialogAnswerClick,
+            hangup: this.onIncomingDialogHangupClick
+          }
+        }, {
+          id: 'incoming-dialog',
+          icon: false,
+          timeout: 0,
+          closeButton: false,
+          closeOnClick: false,
+          toastClassName: 'app-incoming-call-dialog',
+          bodyClassName: '',
+          draggable: false
+        })
       }
 
       debugDialerEvent('Progress %o %o', session, event)
@@ -1182,6 +1138,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * @param event
      */
     onSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+      this.$toast.dismiss('incoming-dialog')
+
       this.stopAudio()
       this.$root.$emit('dialer-session-accepted', session, event)
 
@@ -1193,7 +1151,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * @param event
      */
     onSessionEnded (session: RTCSession, event: EndEvent) {
-      this.incomingDialogVisible = false
+      this.$toast.dismiss('incoming-dialog')
+
       this.stopAudio()
       this.onSessionFinality(session, event)
       this.$root.$emit('dialer-session-ended', session, event)
@@ -1209,7 +1168,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * @param event
      */
     onSessionFailed (session: RTCSession, event: EndEvent) {
-      this.incomingDialogVisible = false
+      this.$toast.dismiss('incoming-dialog')
+
       this.stopAudio()
       this.onSessionFinality(session, event)
       this.$root.$emit('dialer-session-failed', session, event)
@@ -1473,7 +1433,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * Срабатывает когда нажали на кнопку отклонить вызов.
      */
     onIncomingDialogHangupClick () {
-      this.incomingDialogVisible = false
+      this.$toast.dismiss('incoming-dialog')
       this.$dialer.hangUp()
     },
 
@@ -1481,7 +1441,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
      * Срабатывает когда нажали на кнопку принять вызов.
      */
     onIncomingDialogAnswerClick () {
-      this.incomingDialogVisible = false
+      this.$toast.dismiss('incoming-dialog')
 
       // Сразу перехожу в карточку контакта.
       this.$router.push({
@@ -1546,10 +1506,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
 <style lang="scss">
 
-.incoming-dialog {
-  &-phone-number {
-    font-size: 18px;
-  }
+.app-incoming-call-dialog {
+  background-color: #4b5360ed;
 }
 
 #blur {
