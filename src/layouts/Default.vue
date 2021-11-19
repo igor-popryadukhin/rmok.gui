@@ -1338,6 +1338,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         // Темы для подписок
         url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
 
+        if (this.$isGranted(['ROLE_ADMIN'])) {
+          url.searchParams.append('topic', `${window.origin}/administration`)
+        }
+
         const eventSource = new EventSource(url, {
           withCredentials: true
         })
