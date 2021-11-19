@@ -1,5 +1,4 @@
 import Country from '@/api/interfaces/Country'
-import Role from '@/api/interfaces/Role'
 import UserGroup from '@/api/interfaces/UserGroup'
 
 export interface ProfileState {
@@ -17,7 +16,6 @@ export interface ProfileState {
   contacts_count?: number;
   tz?: string;
   last_login: number;
-  role: Role;
   created_at: number;
   country?: Country;
   group?: UserGroup;
@@ -42,11 +40,6 @@ function state (): ProfileState {
     middle_name: '',
     full_name: '',
     phone: '',
-    role: {
-      id: 0,
-      name: '',
-      permissions: []
-    },
     status: '',
     mode: '',
     tz: '',

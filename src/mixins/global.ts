@@ -23,6 +23,7 @@ interface Props {
 Vue.mixin(Vue.extend<Data, Methods, Computed, Props>({
   computed: {
     ...mapGetters({
+      profileRolePermissions: 'profile/role/permissions',
       date_time_format: 'settings/date_time_format',
       $tooltip: 'settings/tooltip',
       $settings_vue_keep_alive: 'settings/vue_keep_alive'
@@ -82,7 +83,7 @@ Vue.mixin(Vue.extend<Data, Methods, Computed, Props>({
      * @param strict
      */
     $isGranted (value: string | string[], strict = false): boolean {
-      const rolesAvailable: string[] = this.$profile.role.permissions
+      const rolesAvailable: string[] = this.profileRolePermissions
       if (Array.isArray(value)) {
         let granted = false
 
