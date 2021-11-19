@@ -11,14 +11,7 @@
       </div>
     </template>
     <template v-else>
-      <v-row>
-        <v-col>1</v-col>
-        <v-col>2</v-col>
-      </v-row>
-      <v-row>
-        <v-col>3</v-col>
-        <v-col>4</v-col>
-      </v-row>
+      <!-- View Auto Dialer -->
     </template>
   </v-sheet>
 </template>

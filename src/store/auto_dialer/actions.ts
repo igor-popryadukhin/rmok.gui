@@ -9,12 +9,21 @@ const actions: ActionTree<State, RootState> = {
    * Пучить элементы обзвона.
    *
    * @param ctx
+   * @param payload
    */
-  fetch (ctx: ActionContext<State, RootState>): void {
+  fetch (ctx: ActionContext<State, RootState>, payload = {}): void {
     ctx.commit('fetch_process', true)
+
+    const params: Record<string, string | number> = {}
+
+    if (ctx.state.filter_offset) {
+      params.offset = ctx.state.filter_offset
+    }
+
     new AutodialerParams()
-      .get()
+      .get(Object.assign({ count: 50 }, params, payload))
       .then((response) => {
+        ctx.commit('total', +response.meta?.count || 0)
         ctx.commit('params', response.data)
       }).finally(() => (ctx.commit('fetch_process', false)))
   },

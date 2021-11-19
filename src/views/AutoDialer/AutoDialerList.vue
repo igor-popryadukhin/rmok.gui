@@ -9,7 +9,7 @@
           text
           @click="onBtnAddClick"
         >
-          {{ $tc('Add') }}
+          {{ $tc('Create') }}
         </v-btn>
         <v-btn
           :disabled="autoDialerFetchProcess"
@@ -20,6 +20,13 @@
         >
           {{ $tc('Refresh') }}
         </v-btn>
+      </template>
+      <template #right>
+        <app-pagination
+          v-model="filterOffset"
+          :per-page="50"
+          :count="autoDialerTotal"
+        />
       </template>
     </app-tools>
     <template v-if="autoDialerFetchProcess && autoDialerParams.length === 0">
@@ -54,14 +61,20 @@
             <tr>
               <th
                 class="text-left"
-                style="width: 10px;"
+                style="width: 20px;"
               >
                 {{ $tc('Name') }}
               </th>
               <th
                 class="text-left"
               >
-                {{ $tc('State') }}
+                {{ $tc('Status') }}
+              </th>
+              <th
+                class="text-left"
+                style="width: 100%;"
+              >
+                {{ $tc('Mode') }}
               </th>
             </tr>
           </thead>
@@ -100,6 +113,28 @@
                 </v-chip>
               </td>
               <!-- Статус -->
+              <!-- Режим -->
+              <td>
+                <v-chip
+                  v-if="item.mode === 'predictive'"
+                  color="green"
+                  label
+                  x-small
+                  outlined
+                >
+                  {{ $tc('Предиктивный') }}
+                </v-chip>
+                <v-chip
+                  v-else-if="item.mode === 'progressive'"
+                  color="blue"
+                  label
+                  x-small
+                  outlined
+                >
+                  {{ $tc('Прогрессивный') }}
+                </v-chip>
+              </td>
+              <!-- Режим -->
             </tr>
           </tbody>
         </template>
@@ -109,13 +144,18 @@
 </template>
 
 <script lang="ts">
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import Vue from 'vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { mapGetters } from 'vuex'
 import Autodialer from '@/api/interfaces/Autodialer'
 
 export default Vue.extend({
-  components: { AppLoading },
+  components: {
+    AppLoading,
+    AppPagination
+  },
+
   data () {
     return {
       processLoading: false
@@ -125,14 +165,27 @@ export default Vue.extend({
   computed: {
     ...mapGetters({
       autoDialerFetchProcess: 'auto_dialer/fetch_process',
-      autoDialerParams: 'auto_dialer/params'
-    })
+      autoDialerParams: 'auto_dialer/params',
+      autoDialerTotal: 'auto_dialer/total'
+    }),
+
+    filterOffset: {
+      get () {
+        return this.$store.getters['auto_dialer/filter_offset']
+      },
+
+      set (val: number) {
+        return this.$store.commit('auto_dialer/filter_offset', val)
+      }
+    }
   },
 
   mounted () {
     if (this.autoDialerParams.length === 0) {
       this.fetch()
     }
+
+    this.$watch('filterOffset', () => (this.fetch()))
   },
 
   methods: {
@@ -145,7 +198,7 @@ export default Vue.extend({
     },
 
     onBtnAddClick () {
-      // TODO: Handler
+      // TODO: Dialog call
     },
 
     onBtnRefreshClick () {
