@@ -12,7 +12,7 @@ Vue.use(Toast, {
   hideProgressBar: true,
   maxToasts: 14,
   newestOnTop: true,
-  position: POSITION.TOP_RIGHT,
+  position: POSITION.BOTTOM_RIGHT,
   showCloseButtonOnHover: true,
   timeout: 4500,
   transition: 'Vue-Toastification__bounce',

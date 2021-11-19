@@ -10,6 +10,7 @@ const getters: GetterTree<ProfileState, RootState> = {
   middle_name (state: ProfileState) { return state.middle_name },
   login (state: ProfileState) { return state.login },
   email (state: ProfileState) { return state.email },
+  mode (state: ProfileState) { return state.mode },
   profile_tz (state: ProfileState) { return state.tz }
 }
 

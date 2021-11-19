@@ -28,4 +28,5 @@ export default interface User {
   country?: Country;
   tz?: string;
   status?: string;
+  mode?: string;
 }

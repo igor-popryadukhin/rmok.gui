@@ -3,8 +3,9 @@ import { ProfileState } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<ProfileState> = {
+  mode (state, payload) { state.mode = payload },
+
   /**
-   * Загрузит текущий профиль пользователя.
    *
    * @param state
    * @param payload
@@ -21,9 +22,9 @@ const mutations: MutationTree<ProfileState> = {
     state.role = payload.role
     state.login = payload.login
     state.tz = payload.tz
-    state.project = payload.project
     state.group = payload.group
     state.status = payload.status
+    state.mode = payload.mode
   },
 
   tz (state: ProfileState, payload: string) { state.tz = payload }

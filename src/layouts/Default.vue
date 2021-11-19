@@ -187,111 +187,151 @@
       />
 
       <v-spacer />
-      <!-- Bell -->
 
-      <v-menu
-        v-model="systemNotificationsVisible"
-        :close-on-content-click="false"
-        nudge-left="150"
-      >
-        <template #activator="{ on, attrs }">
-          <v-btn
-            :disabled="systemNotifications.length === 0"
-            class="mr-1 ml-1"
-            icon
-            v-bind="attrs"
-            v-on="on"
+      <div class="v-toolbar__tools">
+        <!-- Активация автонабора -->
+        <template v-if="profileProjectId">
+          <v-tooltip
+            :open-delay="1200"
+            bottom
           >
-            <v-icon :class="notificationShakeProcess ? 'notification-shake' : ''">
-              mdi-bell
-            </v-icon>
-            <v-badge
-              v-if="systemNotificationsCount > 0"
-              color="red"
-              :content="systemNotificationsCount > 99 ? '99+' : systemNotificationsCount"
-            />
-          </v-btn>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-if="profileMode"
+                v-bind="attrs"
+                :loading="modeChangeProcess"
+                class="v-btn__wave_effect"
+                icon
+                v-on="on"
+                @click="onBtnChangeModeClick"
+              >
+                <v-icon>
+                  mdi-robot
+                </v-icon>
+                <template v-if="profileMode === 'incoming_autodialer'">
+                  <span class="wave wave--blue" />
+                  <span class="wave wave--blue" />
+                  <span class="wave wave--blue" />
+                </template>
+              </v-btn>
+            </template>
+            <span v-if="profileMode === 'incoming_autodialer'">
+              Режим автодозвона активен
+            </span>
+            <span v-else>
+              Режим автодозвона не активен
+            </span>
+          </v-tooltip>
         </template>
-        <v-card
-          class="overflow-y-auto"
-          max-width="800"
-          min-width="450"
-          max-height="500"
-          flat
-          tile
-        >
-          <v-card-text>
-            <v-list>
-              <template v-for="(item, itemIndex) in systemNotifications">
-                <v-list-item
-                  :key="itemIndex"
-                  link
-                >
-                  <v-list-item-icon v-if="item.priority ==='normal'">
-                    <v-icon color="primary">
-                      mdi-information-outline
-                    </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-tooltip bottom>
-                      <template #activator="{ on }">
-                        <v-list-item-title v-on="on">
-                          {{ item.message }}
-                        </v-list-item-title>
-                      </template>
-                      <span>
-                        {{ item.message }}
-                      </span>
-                    </v-tooltip>
-                    <v-btn
-                      v-if="item.url && (item.link_type === 'file')"
-                      style="max-width: 112px;"
-                      color="primary"
-                      outlined
-                      x-small
-                      tile
-                      @click="onFileDownload(item.url)"
-                    >
-                      {{ $tc('Download') }}
-                      <v-icon
-                        right
-                        dark
-                      >
-                        mdi-cloud-download
-                      </v-icon>
-                    </v-btn>
-                  </v-list-item-content>
-                  <v-list-item-action>
-                    <v-btn
-                      text
-                      small
-                      tile
-                      @click="onBtnCloseNotification(item.id)"
-                    >
-                      {{ $tc('Close') }}
-                    </v-btn>
-                  </v-list-item-action>
-                </v-list-item>
-                <v-divider
-                  :key="`v-divider-${itemIndex}`"
-                />
-              </template>
-            </v-list>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn
-              tile
-              block
-              text
-              small
-              @click="onSystemNotificationCloseAllClick"
-            >
-              {{ $tc('Close all') }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-menu>
+        <!-- Активация автонабора -->
 
+        <!-- Системные уведомления -->
+        <v-menu
+          v-model="systemNotificationsVisible"
+          :close-on-content-click="false"
+          nudge-left="150"
+          offset-y
+        >
+          <template #activator="{ on, attrs }">
+            <v-btn
+              :disabled="systemNotifications.length === 0"
+              icon
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon :class="notificationShakeProcess ? 'notification-shake' : ''">
+                mdi-bell
+              </v-icon>
+              <v-badge
+                v-if="systemNotificationsCount > 0"
+                color="red"
+                :content="systemNotificationsCount > 99 ? '99+' : systemNotificationsCount"
+              />
+            </v-btn>
+          </template>
+          <v-card
+            class="overflow-y-auto"
+            max-width="800"
+            min-width="450"
+            max-height="500"
+            flat
+            tile
+          >
+            <v-card-text>
+              <v-list>
+                <template v-for="(item, itemIndex) in systemNotifications">
+                  <v-list-item
+                    :key="itemIndex"
+                    link
+                  >
+                    <v-list-item-icon v-if="item.priority ==='normal'">
+                      <v-icon color="primary">
+                        mdi-information-outline
+                      </v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-tooltip bottom>
+                        <template #activator="{ on }">
+                          <v-list-item-title v-on="on">
+                            {{ item.message }}
+                          </v-list-item-title>
+                        </template>
+                        <span>
+                          {{ item.message }}
+                        </span>
+                      </v-tooltip>
+                      <v-btn
+                        v-if="item.url && (item.link_type === 'file')"
+                        style="max-width: 112px;"
+                        color="primary"
+                        outlined
+                        x-small
+                        tile
+                        @click="onFileDownload(item.url)"
+                      >
+                        {{ $tc('Download') }}
+                        <v-icon
+                          right
+                          dark
+                        >
+                          mdi-cloud-download
+                        </v-icon>
+                      </v-btn>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn
+                        text
+                        small
+                        tile
+                        @click="onBtnCloseNotification(item.id)"
+                      >
+                        {{ $tc('Close') }}
+                      </v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-divider
+                    :key="`v-divider-${itemIndex}`"
+                  />
+                </template>
+              </v-list>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                tile
+                block
+                text
+                small
+                @click="onSystemNotificationCloseAllClick"
+              >
+                {{ $tc('Close all') }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+        <!-- Системные уведомления -->
+      </div>
+
+      <!-- Меню аккаунта -->
       <v-menu
         offset-y
         min-width="300"
@@ -488,6 +528,7 @@
           </v-card-text>
         </v-card>
       </v-menu>
+      <!-- Меню аккаунта -->
     </v-app-bar>
 
     <!-- Main -->
@@ -516,6 +557,7 @@ import debug from 'debug'
 import { sleep } from '@/Utils'
 import { makeAudioElement } from '@/utils/utils'
 import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue'
+import { POSITION } from 'vue-toastification'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -540,6 +582,7 @@ interface Props {
 export default Vue.extend<Data, Methods, Computed, Props>({
   data (): Data {
     return {
+      modeChangeProcess: false,
       audio: makeAudioElement(),
       audioPlayed: false,
       accountMenuItems: [
@@ -592,6 +635,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       profileMiddleName: 'profile/middle_name',
       profileLogin: 'profile/login',
       profileEmail: 'profile/email',
+      profileMode: 'profile/mode',
+      profileProjectId: 'profile/project/id',
 
       tasksPendingCount: 'tasks/pending_count',
       systemNotifications: 'system/notifications',
@@ -1124,6 +1169,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
           closeOnClick: false,
           toastClassName: 'app-incoming-call-dialog',
           bodyClassName: '',
+          position: POSITION.TOP_CENTER,
           draggable: false
         })
       }
@@ -1455,6 +1501,29 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     /**
+     * Срабатывает при нажатии на кнопку изменения режима
+     */
+    onBtnChangeModeClick () {
+      this.modeChangeProcess = true
+      switch (this.profileMode) {
+        case 'normal': {
+          this.$axios.get('/account/mode/incoming_autodialer')
+            .then(() => (this.$toast.info('Режим автодозвона активирован.\nОжидайте входящий вызов!')))
+            .finally(() => (this.modeChangeProcess = false))
+          this.$store.commit('profile/mode', 'incoming_autodialer')
+          break
+        }
+        case 'incoming_autodialer': {
+          this.$axios.get('/account/mode/normal')
+            .then(() => (this.$toast.info('Режим автодозвона деактивирован.')))
+            .finally(() => (this.modeChangeProcess = false))
+          this.$store.commit('profile/mode', 'normal')
+          break
+        }
+      }
+    },
+
+    /**
      * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
      */
     ifVisibleIdleHandler () {
@@ -1505,6 +1574,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 </script>
 
 <style lang="scss">
+.v-toolbar__tools {
+  display: inline-flex;
+  & button {
+    margin-right: 5px;
+  }
+}
 
 .app-incoming-call-dialog {
   background-color: #4b5360ed;
@@ -1634,5 +1709,79 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     transform: rotate(0deg);
   }
 }
+
+// Wave effect
+.v-btn__wave_effect {}
+
+.v-btn__wave_effect .wave {
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  position: absolute;
+  animation: radio 3000ms linear infinite;
+  z-index: -1;
+  pointer-events: none;
+
+  &--blue {
+    border: 2px solid #76a2f4;
+  }
+
+  &--green {
+    border: 2px solid #38ff00;
+  }
+}
+
+.v-btn__wave_effect .wave:nth-of-type(2) {
+  animation-delay: 1000ms;
+}
+.v-btn__wave_effect .wave:nth-of-type(3) {
+  animation-delay: 2000ms;
+}
+.v-btn__wave_effect .wave:nth-of-type(4) {
+  animation-delay: 3000ms;
+}
+
+@keyframes radio {
+  0% {
+    width: 0;
+    height: 0;
+  }
+  10% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 0.4;
+  }
+  40% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  60% {
+    opacity: 0.5;
+  }
+  70% {
+    opacity: 0.4;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  80% {
+    opacity: 0.2;
+  }
+  90% {
+    opacity: 0.1;
+  }
+  100% {
+    width: 50px;
+    height: 50px;
+    opacity: 0;
+  }
+}
+
+// Wave effect
 
 </style>

@@ -1,7 +1,5 @@
 import Country from '@/api/interfaces/Country'
-import Organization from '@/api/interfaces/Organization'
 import Role from '@/api/interfaces/Role'
-import Project from '@/api/interfaces/Project'
 import UserGroup from '@/api/interfaces/UserGroup'
 
 export interface ProfileState {
@@ -15,13 +13,13 @@ export interface ProfileState {
   email?: string;
   phone?: string;
   status?: string;
+  mode?: string;
   contacts_count?: number;
   tz?: string;
   last_login: number;
   role: Role;
   created_at: number;
   country?: Country;
-  project?: Project;
   group?: UserGroup;
 }
 
@@ -50,9 +48,9 @@ function state (): ProfileState {
       permissions: []
     },
     status: '',
+    mode: '',
     tz: '',
     userpic: '',
-    project: undefined,
     group: undefined
   }
 }
