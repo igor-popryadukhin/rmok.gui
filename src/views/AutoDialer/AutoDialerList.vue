@@ -145,6 +145,7 @@
 
 <script lang="ts">
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import SAutoDialerSetParamsDialog from '@/snippets/SAutoDialerSetParamsDialog/SAutoDialerSetParamsDialog.vue'
 import Vue from 'vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { mapGetters } from 'vuex'
@@ -197,8 +198,32 @@ export default Vue.extend({
       // TODO: Handler
     },
 
-    onBtnAddClick () {
-      // TODO: Dialog call
+    async onBtnAddClick () {
+      const instance = await this.$dialog.show(SAutoDialerSetParamsDialog, {
+        onCancel: () => {
+          instance.close()
+        },
+        onCreate: (data) => {
+          // @TODO: Добавить проверки ошибок
+          // new AutodialerParams()
+          //   .add({
+          //     project_id: data.target_project
+          //   }).then(() => {
+          //     this.$toast.success(this.$tc('Параметры созданы'))
+          //     this.fetch()
+          //       this.$router.push({
+          //         name: 'auto_dialer_params_view',
+          //         params: {
+          //           id: String(data.target_project)
+          //         }
+          //       })
+          //   }).finally(() => (instance.close()))
+        },
+
+        title: 'Создание параметра "автодозвона"',
+        waitForResult: false,
+        width: '30%'
+      })
     },
 
     onBtnRefreshClick () {
