@@ -3,8 +3,8 @@ import { GetterTree } from 'vuex'
 import { State } from './state'
 
 const getters: GetterTree<State, RootState> = {
-  fetch_process (state: State) { return state.fetch_process },
-  params (state: State) { return state.params }
+  items (state: State) { return state.items },
+  total (state: State) { return state.total }
 }
 
 export default getters

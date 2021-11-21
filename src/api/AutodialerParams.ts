@@ -13,7 +13,7 @@ export default class AutodialerParams {
    *
    * @param params
    */
-  public get (params = {}): Promise<ResponseInterface<unknown, Autodialer[]>> {
+  public get (params = {}): Promise<ResponseInterface<Record<string, any>, Autodialer[]>> {
     return new Promise((resolve, reject) => {
       $axios.get('/autodialer/params', {
         params
@@ -24,6 +24,49 @@ export default class AutodialerParams {
           resolve(response.data)
         }
       }).catch(reject)
+    })
+  }
+
+  /**
+   * Создаёт новый параметры автодозвона.
+   * @param data
+   */
+  public create (data: Record<string, any>): Promise<number> {
+    return new Promise((resolve, reject) => {
+      $axios.post('/autodialer/params', data)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 201) {
+            throw new APIError(response.data)
+          } else {
+            resolve(response.data.id)
+          }
+        }).catch(reject)
+    })
+  }
+
+  public start (id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/autodialer/params/${id}/start`)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+          } else {
+            resolve(response.data)
+          }
+        }).catch(reject)
+    })
+  }
+
+  public stop (id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/autodialer/params/${id}/stop`)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+          } else {
+            resolve(response.data)
+          }
+        }).catch(reject)
     })
   }
 

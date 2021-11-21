@@ -9,14 +9,15 @@ const actions: ActionTree<State, RootState> = {
    * Пучить элементы обзвона.
    *
    * @param ctx
+   * @param payload
    */
-  fetch (ctx: ActionContext<State, RootState>): void {
-    ctx.commit('fetch_process', true)
-    new AutodialerParams()
-      .get()
+  fetch (ctx: ActionContext<State, RootState>, payload = {}) {
+    return new AutodialerParams()
+      .get(Object.assign({ count: 50 }, payload))
       .then((response) => {
-        ctx.commit('params', response.data)
-      }).finally(() => (ctx.commit('fetch_process', false)))
+        ctx.commit('total', +response.meta?.count || 0)
+        ctx.commit('items', response.data)
+      })
   },
 
   /**
@@ -25,7 +26,7 @@ const actions: ActionTree<State, RootState> = {
    * @param ctx
    */
   clear (ctx: ActionContext<State, RootState>) {
-    ctx.commit('params', [])
+    ctx.commit('items', [])
   }
 
 }

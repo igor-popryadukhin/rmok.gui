@@ -2,8 +2,8 @@ import { State } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<State> = {
-  fetch_process (state: State, payload) { state.fetch_process = payload },
-  params (state: State, payload) { state.params = payload }
+  items (state: State, payload) { state.items = payload },
+  total (state: State, payload) { state.total = payload }
 }
 
 export default mutations

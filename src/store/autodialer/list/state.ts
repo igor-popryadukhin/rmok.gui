@@ -1,14 +1,14 @@
 import Autodialer from '@/api/interfaces/Autodialer'
 
 export interface State {
-  fetch_process: boolean
-  params: Autodialer[];
+  items: Autodialer[];
+  total: number;
 }
 
 function state (): State {
   return {
-    fetch_process: false,
-    params: []
+    items: [],
+    total: 0
   }
 }
 
