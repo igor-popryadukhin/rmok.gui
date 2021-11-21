@@ -3,7 +3,7 @@
     <app-tools>
       <template #left>
         <v-btn
-          :disabled="autoDialerFetchProcess"
+          :disabled="processLoading"
           small
           tile
           text
@@ -12,7 +12,7 @@
           {{ $tc('Create') }}
         </v-btn>
         <v-btn
-          :disabled="autoDialerFetchProcess"
+          :disabled="processLoading"
           small
           tile
           text
@@ -23,13 +23,12 @@
       </template>
       <template #right>
         <app-pagination
-          v-model="filterOffset"
           :per-page="50"
           :count="autoDialerTotal"
         />
       </template>
     </app-tools>
-    <template v-if="autoDialerFetchProcess && autoDialerParams.length === 0">
+    <template v-if="processLoading && autoDialerParams.length === 0">
       <div
         class="d-flex align-center justify-center"
         style="height: 500px"
@@ -52,10 +51,7 @@
       </slot>
     </template>
     <template v-else>
-      <v-simple-table
-        class="table-contact-list"
-        dense
-      >
+      <v-simple-table dense>
         <template #default>
           <thead>
             <tr>
@@ -67,15 +63,11 @@
               </th>
               <th
                 class="text-left"
-              >
-                {{ $tc('Status') }}
-              </th>
-              <th
-                class="text-left"
                 style="width: 100%;"
               >
                 {{ $tc('Mode') }}
               </th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -91,33 +83,11 @@
               </td>
               <!-- Имя контакта -->
 
-              <!-- Статус -->
-              <td>
-                <v-chip
-                  v-if="item.status === 'ready'"
-                  color="blue"
-                  label
-                  x-small
-                  outlined
-                >
-                  {{ $tc('Не активен') }}
-                </v-chip>
-                <v-chip
-                  v-else-if="item.status === 'process'"
-                  color="green"
-                  label
-                  x-small
-                  outlined
-                >
-                  {{ $tc('Активен') }}
-                </v-chip>
-              </td>
-              <!-- Статус -->
               <!-- Режим -->
               <td>
                 <v-chip
                   v-if="item.mode === 'predictive'"
-                  color="green"
+                  color="primary"
                   label
                   x-small
                   outlined
@@ -126,7 +96,7 @@
                 </v-chip>
                 <v-chip
                   v-else-if="item.mode === 'progressive'"
-                  color="blue"
+                  color="primary"
                   label
                   x-small
                   outlined
@@ -135,6 +105,33 @@
                 </v-chip>
               </td>
               <!-- Режим -->
+              <!-- Действия -->
+              <td>
+                <v-btn
+                  v-if="item.status === 'ready'"
+                  :loading="processItemAction.includes(item.id)"
+                  icon
+                  x-small
+                  @click="onBtnItemPlayClick(item)"
+                >
+                  <v-icon>
+                    mdi-play
+                  </v-icon>
+                </v-btn>
+                <v-btn
+                  v-else-if="item.status === 'process'"
+                  :loading="processItemAction.includes(item.id)"
+                  color="red"
+                  icon
+                  x-small
+                  @click="onBtnItemStopClick(item)"
+                >
+                  <v-icon>
+                    mdi-stop
+                  </v-icon>
+                </v-btn>
+              </td>
+              <!-- Действия -->
             </tr>
           </tbody>
         </template>
@@ -145,92 +142,137 @@
 
 <script lang="ts">
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import SAutoDialerSetParamsDialog from '@/snippets/SAutoDialerSetParamsDialog/SAutoDialerSetParamsDialog.vue'
 import Vue from 'vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import { mapGetters } from 'vuex'
 import Autodialer from '@/api/interfaces/Autodialer'
+import AppDialogAutocomplete from '@/components/AppDialogAutocomplete/AppDialogAutocomplete.vue'
+import { $axios } from '@/plugins/axios'
+import debounce from '@/utils/debounce'
+import AutodialerParams from '@/api/AutodialerParams'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
+@Component({
   components: {
     AppLoading,
     AppPagination
-  },
-
-  data () {
-    return {
-      processLoading: false
-    }
-  },
-
-  computed: {
-    ...mapGetters({
-      autoDialerFetchProcess: 'auto_dialer/fetch_process',
-      autoDialerParams: 'auto_dialer/params',
-      autoDialerTotal: 'auto_dialer/total'
-    }),
-
-    filterOffset: {
-      get () {
-        return this.$store.getters['auto_dialer/filter_offset']
-      },
-
-      set (val: number) {
-        return this.$store.commit('auto_dialer/filter_offset', val)
-      }
-    }
-  },
-
-  mounted () {
-    if (this.autoDialerParams.length === 0) {
-      this.fetch()
-    }
-
-    this.$watch('filterOffset', () => (this.fetch()))
-  },
-
-  methods: {
-    fetch () {
-      this.$store.dispatch('auto_dialer/fetch')
-    },
-
-    onBtnItemPlayOrPauseClick (item: Autodialer) {
-      // TODO: Handler
-    },
-
-    async onBtnAddClick () {
-      const instance = await this.$dialog.show(SAutoDialerSetParamsDialog, {
-        onCancel: () => {
-          instance.close()
-        },
-        onCreate: (data) => {
-          // @TODO: Добавить проверки ошибок
-          // new AutodialerParams()
-          //   .add({
-          //     project_id: data.target_project
-          //   }).then(() => {
-          //     this.$toast.success(this.$tc('Параметры созданы'))
-          //     this.fetch()
-          //       this.$router.push({
-          //         name: 'auto_dialer_params_view',
-          //         params: {
-          //           id: String(data.target_project)
-          //         }
-          //       })
-          //   }).finally(() => (instance.close()))
-        },
-
-        title: 'Создание параметра "автодозвона"',
-        waitForResult: false,
-        width: '30%'
-      })
-    },
-
-    onBtnRefreshClick () {
-      this.fetch()
-    }
   }
 })
+export default class AutoDialerList extends Vue {
+  // This is data
+  processLoading = false
+  processItemAction = []
+
+  get autoDialerParams () { return this.$store.getters['autodialer/list/items'] }
+  get autoDialerTotal () { return this.$store.getters['autodialer/list/total'] }
+
+  // Фильтры
+  get filterOffset (): number { return Number(this.$routerQuery.getQuery('offset')) || 0 }
+  set filterOffset (val: number) { this.$routerQuery.setQuery({ offset: val }) }
+
+  get requestParameters () {
+    return {
+      offset: this.filterOffset
+    }
+  }
+
+  mounted () {
+    this.fetch = debounce(this.fetch, 500)
+    this.fetch()
+  }
+
+  fetch () {
+    this.processLoading = true
+    this.$store
+      .dispatch('autodialer/list/fetch', this.requestParameters)
+      .finally(() => (this.processLoading = false))
+  }
+
+  onBtnItemPlayClick (item: Autodialer) {
+    this.processItemAction.push(item.id)
+    new AutodialerParams()
+      .start(item.id)
+      .then(() => {
+        this.$toast.success(this.$tc('Autodial is starting'))
+        this.fetch()
+      })
+      .catch((e: Error) => {
+        this.$toast.error(this.$tc(e.message))
+      }).finally(() => {
+        const index = this.processItemAction.findIndex(value => value === item.id)
+        if (index > -1) {
+          this.processItemAction.splice(index, 1)
+        }
+      })
+  }
+
+  onBtnItemStopClick (item: Autodialer) {
+    this.processItemAction.push(item.id)
+    new AutodialerParams()
+      .stop(item.id)
+      .then(() => {
+        this.$toast.success(this.$tc('Autodial is stopping'))
+        this.fetch()
+      })
+      .catch((e: Error) => {
+        this.$toast.error(this.$tc(e.message))
+      }).finally(() => {
+        const index = this.processItemAction.findIndex(value => value === item.id)
+        if (index > -1) {
+          this.processItemAction.splice(index, 1)
+        }
+      })
+  }
+
+  async onBtnAddClick () {
+    const searchProjects = debounce((q: string, ready: CallableFunction) => {
+      $axios.get('/projects', { params: { q } })
+        .then((response) => {
+          ready(response.data.data)
+        })
+    }, 500)
+
+    let projectId = 0
+    const instance = await this.$dialog.show(AppDialogAutocomplete, {
+      waitForResult: false,
+      showClose: false,
+      persistent: true,
+      //= ===============================
+      title: 'Создание нового "автообзвона"',
+      itemText: 'name',
+      itemValue: 'id',
+
+      onSearch: searchProjects,
+      onSelect: (id: number) => {
+        projectId = id
+      }
+    })
+
+    // @ts-expect-error: Vue $on
+    instance.vmd.$on('ok', () => {
+      instance.close()
+      new AutodialerParams()
+        .create({ project_id: projectId })
+        .then((id: number) => {
+          this.$toast.success(this.$tc('Autodial has been successfully created'))
+          this.$router.push({
+            name: 'auto_dialer_params_view',
+            params: {
+              id: String(id)
+            }
+          })
+        })
+        .catch((e: Error) => {
+          this.$toast.error(this.$tc(e.message))
+        })
+    })
+    // @ts-expect-error: Vue $on
+    instance.vmd.$on('cancel', () => (instance.close()))
+  }
+
+  onBtnRefreshClick () {
+    this.fetch()
+  }
+}
 </script>
 
 <style scoped>

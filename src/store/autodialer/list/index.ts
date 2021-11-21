@@ -5,7 +5,7 @@ import actions from './actions'
 import mutations from './mutations'
 import state, { State } from './state'
 
-const project: Module<State, RootState> = {
+const module: Module<State, RootState> = {
   actions,
   getters,
   mutations,
@@ -13,4 +13,4 @@ const project: Module<State, RootState> = {
   state
 }
 
-export default project
+export default module

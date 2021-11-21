@@ -23,6 +23,7 @@
     ],
     "typeRoots": [
       "node_modules/vuetify/types",
+      "node_modules/vuetify-dialog/types",
       "node_modules/@types",
       "node_modules/@types/jest"
     ],
