@@ -44,6 +44,10 @@ export default class AutodialerParams {
     })
   }
 
+  /**
+   * Запускает процесс автообзвона
+   * @param id
+   */
   public start (id: number): Promise<void> {
     return new Promise((resolve, reject) => {
       $axios.get(`/autodialer/params/${id}/start`)
@@ -57,6 +61,10 @@ export default class AutodialerParams {
     })
   }
 
+  /**
+   * Останавливает процесс автообзвона
+   * @param id
+   */
   public stop (id: number): Promise<void> {
     return new Promise((resolve, reject) => {
       $axios.get(`/autodialer/params/${id}/stop`)
@@ -78,6 +86,36 @@ export default class AutodialerParams {
   public getById (id: number): Promise<Autodialer> {
     return new Promise((resolve, reject) => {
       $axios.get(`/autodialer/params/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+          } else {
+            resolve(response.data)
+          }
+        }).catch(reject)
+    })
+  }
+
+  public getJournal (id: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/autodialer/params/${id}/journal`)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+          } else {
+            resolve(response.data)
+          }
+        }).catch(reject)
+    })
+  }
+
+  /**
+   *
+   * @param id
+   */
+  public getStatsOnline (id: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      $axios.get(`/autodialer/params/${id}/stats/online`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)

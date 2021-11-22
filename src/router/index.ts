@@ -89,7 +89,7 @@ const routes: RouteConfig[] = [
         path: ''
       },
       {
-        component: () => import(/* webpackChunkName: "auto-dialer-view" */ '../views/AutoDialer/AutoDialerView.vue'),
+        component: () => import(/* webpackChunkName: "auto-dialer-view" */ '../views/AutoDialer/AutoDialerView/Index.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
