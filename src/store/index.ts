@@ -92,8 +92,7 @@ const store = new Vuex.Store({
       key: window.origin,
       paths: [
         'unsaved_call',
-        'profile',
-        'tasks',
+        // 'profile',
         'database',
         'settings',
         'filters',

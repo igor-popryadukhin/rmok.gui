@@ -1,34 +1,43 @@
 <template>
-  <v-row
-    class="fill-height"
-    align-content="center"
-    justify="center"
+  <div
+    class="app-loading--wrap"
   >
-    <v-col
-      class="text-subtitle-1 text-center"
-      cols="12"
-    >
-      {{ $tc('Loading content...') }}
-    </v-col>
-    <v-col cols="6">
+    <div class="message">
+      {{ $tc(message) }}
+    </div>
+    <div style="width: 250px">
       <v-progress-linear
         :color="$vuetify.theme.currentTheme.primary"
         indeterminate
-        rounded
         height="6"
       />
-    </v-col>
-  </v-row>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Prop } from 'vue-property-decorator'
 
-export default Vue.extend({
-  name: 'AppLoading'
-})
+@Component
+export default class AppLoading extends Vue {
+  @Prop({ default: 'Loading content...' }) readonly message: string
+}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
+.app-loading--wrap {
+  padding: 0px;
+
+  align-items: center;
+  flex-direction: column;
+  display: flex;
+
+  & .message {
+    color: #5f6060;
+    margin-bottom: 5px;
+  }
+}
 </style>

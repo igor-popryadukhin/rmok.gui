@@ -1,5 +1,18 @@
 <template>
+  <v-app v-if="profileLoading">
+    <v-main>
+      <v-container
+        class="d-flex align-center fill-height justify-center"
+        fluid
+      >
+        <div style="max-width: 450px">
+          <app-loading message="Loading..." />
+        </div>
+      </v-container>
+    </v-main>
+  </v-app>
   <v-app
+    v-else
     id="inspire"
   >
     <!-- Nav drawer -->
@@ -344,21 +357,21 @@
             v-on="on"
           >
             <v-icon
-              v-if="$profile.status === 'available'"
+              v-if="profileStatus === 'available'"
               size="20"
               class="mr-2"
             >
               mdi-check-circle-outline
             </v-icon>
             <v-icon
-              v-else-if="$profile.status === 'do_not_disturb'"
+              v-else-if="profileStatus === 'do_not_disturb'"
               size="20"
               class="mr-2"
             >
               mdi-minus-circle-outline
             </v-icon>
             <v-icon
-              v-else-if="$profile.status === 'coffee_break'"
+              v-else-if="profileStatus === 'coffee_break'"
               size="20"
               class="mr-2"
             >
@@ -399,7 +412,7 @@
               <v-list-item>
                 <v-list-item-content>
                   <v-list-item-title class="text-h6">
-                    {{ $profile.full_name }}
+                    {{ profileFullName }}
                   </v-list-item-title>
                   <v-list-item-subtitle v-if="$profile.group">
                     {{ $profile.login }} ({{ $profile.group.name }})
@@ -439,7 +452,7 @@
               tile
               dense
             >
-              <v-list-item-group :value="$profile.status">
+              <v-list-item-group :value="profileStatus">
                 <v-list-item
                   value="available"
                   link
@@ -534,7 +547,12 @@
     <!-- Main -->
     <v-main>
       <v-container fluid>
-        <router-view />
+        <v-fade-transition
+          leave-absolute
+          mode="in-out"
+        >
+          <router-view v-show="showRouterView" />
+        </v-fade-transition>
       </v-container>
     </v-main>
     <div
@@ -558,76 +576,15 @@ import { sleep } from '@/Utils'
 import { makeAudioElement } from '@/utils/utils'
 import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue'
 import { POSITION } from 'vue-toastification'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import Component from 'vue-class-component'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
 const debugDialerEvent = appDebug.extend('DIALER-EVENT')
 
-interface Data {
-  [key: string]: any;
-}
-
-interface Methods {
-  [key: string]: any;
-}
-
-interface Computed {
-  [key: string]: any;
-}
-
-interface Props {
-  [key: string]: any;
-}
-
-export default Vue.extend<Data, Methods, Computed, Props>({
-  data (): Data {
-    return {
-      modeChangeProcess: false,
-      audio: makeAudioElement(),
-      audioPlayed: false,
-      accountMenuItems: [
-        {
-          attrs: {
-            dense: true,
-            to: {
-              name: 'settings_profile'
-            }
-          },
-          icon: {
-            attrs: {},
-            name: 'mdi-account'
-          },
-          title: 'Profile'
-        },
-        {
-          attrs: {
-            dense: true
-          },
-          icon: {
-            attrs: {},
-            name: 'mdi-exit-run'
-          },
-          on: {
-            click: () => this.$router.replace({ name: 'login' })
-          },
-          title: 'Exit'
-        }
-      ],
-      dialog: false,
-      drawer: true,
-      mini: false,
-      settings: {
-        suppressScrollX: false,
-        suppressScrollY: false,
-        wheelPropagation: false
-      },
-      notificationShakeProcess: false,
-      timerId: 0,
-      degradation: false,
-      dialerIsInitialize: false
-    }
-  },
-
+@Component({
+  components: { AppLoading },
   computed: {
     ...mapGetters({
       profileFirstName: 'profile/first_name',
@@ -671,12 +628,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     profile (): ProfileState {
       return this.$store.getters['profile/profile']
-    },
-
-    avatar () {
-      const first: string = this.profile.first_name || 'N'
-      const last: string = this.profile.last_name || 'N'
-      return first.charAt(0) + last.charAt(0)
     },
 
     mainMenu () {
@@ -985,7 +936,58 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.$store.commit('settings/navigation_drawer_mini', value)
       }
     }
-  },
+  }
+})
+export default class Default extends Vue {
+  profileLoading = true
+  showRouterView = false
+  modeChangeProcess = false
+  audio = makeAudioElement()
+  audioPlayed = false
+  accountMenuItems = [
+    {
+      attrs: {
+        dense: true,
+        to: {
+          name: 'settings_profile'
+        }
+      },
+      icon: {
+        attrs: {},
+        name: 'mdi-account'
+      },
+      title: 'Profile'
+    },
+    {
+      attrs: {
+        dense: true
+      },
+      icon: {
+        attrs: {},
+        name: 'mdi-exit-run'
+      },
+      on: {
+        click: () => this.$router.replace({ name: 'login' })
+      },
+      title: 'Exit'
+    }
+  ]
+
+  dialog = false
+  drawer = true
+  mini = false
+  notificationShakeProcess = false
+  timerId = 0
+  degradation = false
+  dialerIsInitialize = false
+
+  get avatar (): string {
+    return this.$store.state.profile.abbreviation
+  }
+
+  get profileFullName (): string { return this.$store.state.profile.full_name }
+  get profileMode (): string { return this.$store.state.profile.mode }
+  get profileStatus (): string { return this.$store.state.profile.status }
 
   created () {
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
@@ -1015,11 +1017,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.$ifvisible.wakeup()
       }
     }, 1000)
-  },
+  }
 
   mounted () {
     this.$store.dispatch('profile/load')
       .then(() => {
+        this.profileLoading = false
+        // Что бы не наблюдать построение элементов, покажем их через 300 ms
+        setTimeout(() => (this.showRouterView = true), 300)
         this.sseInitialize()
         this.dialerInitialize()
       })
@@ -1039,7 +1044,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     this.audio.onended = () => {
       this.audioPlayed = false
     }
-  },
+  }
 
   beforeDestroy () {
     this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
@@ -1047,534 +1052,532 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler)
 
     clearInterval(this.timerId)
-  },
+  }
 
-  methods: {
-    dialerInitialize () {
-      debugDialer('Dialer initialize...')
-      // Обработчики событий телефонии.
+  dialerInitialize () {
+    debugDialer('Dialer initialize...')
+    // Обработчики событий телефонии.
 
-      this.$dialer.off('newRTCSession', this.onNewRTCSession)
+    this.$dialer.off('newRTCSession', this.onNewRTCSession)
 
-      // RTC Config
-      this.$dialer.pcConfig = {
-        iceServers: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers']
-          .map((value) => {
-            if (value.credential) {
-              return {
-                credential: value.credential,
-                credentialType: value.credential_type,
-                urls: value.urls,
-                username: value.username
-              }
-            }
+    // RTC Config
+    this.$dialer.pcConfig = {
+      iceServers: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers']
+        .map((value) => {
+          if (value.credential) {
             return {
-              urls: value.urls
+              credential: value.credential,
+              credentialType: value.credential_type,
+              urls: value.urls,
+              username: value.username
             }
-          }),
-
-        bundlePolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/bundle_policy'],
-        iceCandidatePoolSize: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_candidate_pool_size'],
-        iceTransportPolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_transport_policy']
-      }
-
-      if (this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']) {
-        this.$dialer.pcConfig.rtcpMuxPolicy = this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']
-      }
-
-      debugDialer('pcConfig: %o', this.$dialer.pcConfig)
-
-      const schema = this.$store.getters['profile/pbx_configuration/credentials/schema']
-      const host = this.$store.getters['profile/pbx_configuration/credentials/server']
-      const port = this.$store.getters['profile/pbx_configuration/credentials/port']
-      const login = this.$store.getters['profile/pbx_configuration/credentials/login']
-      const password = this.$store.getters['profile/pbx_configuration/credentials/password']
-
-      this.$dialer.configure(`${schema}://${host}:${port}/ws`, {
-        display_name: this.$profile.full_name,
-        password: password,
-        realm: host,
-        uri: `sip:${login}@${host}`,
-        candidateReadyTimeOut: this.$store.getters['profile/pbx_configuration/rtc_configuration/candidate_ready_timeout']
-      })
-      this.$dialer.on('newRTCSession', this.onNewRTCSession)
-
-      // Подключение в зависимости от состояния статуса пользователя.
-      if (['available', 'do_not_disturb'].includes(this.$profile.status)) {
-        if (!this.$dialer.isConnected()) {
-          this.$dialer.connect()
-        }
-      }
-    },
-
-    /**
-     * Fired for an incoming or outgoing session/call.
-     * @param event
-     */
-    onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
-      // Call-ID – идентификатор вызова.
-      event.session.data.call_id = event.request.getHeader('Call-ID')
-      this.$ifvisible.wakeup()
-    },
-
-    /**
-     * Запускается после добавления локального медиапотока в RTCSession и до начала сбора
-     * ICE для начального запроса INVITE или передачи ответа «200 OK».
-     *
-     * @param session
-     * @param event
-     */
-    onSessionConnecting (session: RTCSession, event) {
-      this.$root.$emit('dialer-session-connection', session, event)
-
-      debugDialerEvent('Connecting %o %o', session, event)
-    },
-
-    /**
-     * Срабатывает при получении или генерации ответа класса 1XX SIP (> 100) на запрос INVITE.
-     *
-     * @param session
-     * @param event
-     */
-    onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
-      this.$root.$emit('dialer-session-progress', session, event)
-
-      // Если входящий
-      if (session.direction === 'incoming') {
-        this.playAudio('/sounds/ringing2.mp3', true) // Проигрываю мелодию входящего вызова.
-        session.data.target = session.remote_identity.uri.user // Номер входящего
-
-        debugDialerEvent('Входящий: %s', session.data.target)
-
-        // Загружаю информацию о контакте с сервера.
-        this.$store.dispatch('contact_incoming/get_by_phone_number', session.data.target)
-        this.$store.commit('contact_incoming/contact_name', session.data.target)
-
-        // Показать диалог входящего.
-        this.$toast({
-          component: AppIncomingCallDialog,
-          props: {
-            // Будет вычислять новое значение без обновления всего состояния
-            display: () => this.contactIncomingContactName
-          },
-          listeners: {
-            answer: this.onIncomingDialogAnswerClick,
-            hangup: this.onIncomingDialogHangupClick
           }
-        }, {
-          id: 'incoming-dialog',
-          icon: false,
-          timeout: 0,
-          closeButton: false,
-          closeOnClick: false,
-          toastClassName: 'app-incoming-call-dialog',
-          bodyClassName: '',
-          position: POSITION.TOP_CENTER,
-          draggable: false
-        })
+          return {
+            urls: value.urls
+          }
+        }),
+
+      bundlePolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/bundle_policy'],
+      iceCandidatePoolSize: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_candidate_pool_size'],
+      iceTransportPolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_transport_policy']
+    }
+
+    if (this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']) {
+      this.$dialer.pcConfig.rtcpMuxPolicy = this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']
+    }
+
+    debugDialer('pcConfig: %o', this.$dialer.pcConfig)
+
+    const schema = this.$store.getters['profile/pbx_configuration/credentials/schema']
+    const host = this.$store.getters['profile/pbx_configuration/credentials/server']
+    const port = this.$store.getters['profile/pbx_configuration/credentials/port']
+    const login = this.$store.getters['profile/pbx_configuration/credentials/login']
+    const password = this.$store.getters['profile/pbx_configuration/credentials/password']
+
+    this.$dialer.configure(`${schema}://${host}:${port}/ws`, {
+      display_name: this.profileFullName,
+      password: password,
+      realm: host,
+      uri: `sip:${login}@${host}`,
+      candidateReadyTimeOut: this.$store.getters['profile/pbx_configuration/rtc_configuration/candidate_ready_timeout']
+    })
+    this.$dialer.on('newRTCSession', this.onNewRTCSession)
+
+    // Подключение в зависимости от состояния статуса пользователя.
+    if (['available', 'do_not_disturb'].includes(this.profileStatus)) {
+      if (!this.$dialer.isConnected()) {
+        this.$dialer.connect()
       }
+    }
+  }
 
-      debugDialerEvent('Progress %o %o', session, event)
-    },
+  /**
+   * Fired for an incoming or outgoing session/call.
+   * @param event
+   */
+  onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
+    // Call-ID – идентификатор вызова.
+    event.session.data.call_id = event.request.getHeader('Call-ID')
+    this.$ifvisible.wakeup()
+  }
 
-    /**
-     * Срабатывает, когда звонок принят (2XX received/sent).
-     *
-     * @param session
-     * @param event
-     */
-    onSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
-      this.$toast.dismiss('incoming-dialog')
+  /**
+   * Запускается после добавления локального медиапотока в RTCSession и до начала сбора
+   * ICE для начального запроса INVITE или передачи ответа «200 OK».
+   *
+   * @param session
+   * @param event
+   */
+  onSessionConnecting (session: RTCSession, event) {
+    this.$root.$emit('dialer-session-connection', session, event)
 
-      this.stopAudio()
-      this.$root.$emit('dialer-session-accepted', session, event)
+    debugDialerEvent('Connecting %o %o', session, event)
+  }
 
-      debugDialerEvent('Accepted %o %o', session, event)
-    },
+  /**
+   * Срабатывает при получении или генерации ответа класса 1XX SIP (> 100) на запрос INVITE.
+   *
+   * @param session
+   * @param event
+   */
+  onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+    this.$root.$emit('dialer-session-progress', session, event)
 
-    /**
-     * @param session
-     * @param event
-     */
-    onSessionEnded (session: RTCSession, event: EndEvent) {
-      this.$toast.dismiss('incoming-dialog')
+    // Если входящий
+    if (session.direction === 'incoming') {
+      this.playAudio('/sounds/ringing2.mp3', true) // Проигрываю мелодию входящего вызова.
+      session.data.target = session.remote_identity.uri.user // Номер входящего
 
-      this.stopAudio()
-      this.onSessionFinality(session, event)
-      this.$root.$emit('dialer-session-ended', session, event)
-      this.$root.$emit('dialer-session-finality', session, event) // Финальный
+      debugDialerEvent('Входящий: %s', session.data.target)
 
-      debugDialerEvent('Ended %o %o', session, event)
-    },
+      // Загружаю информацию о контакте с сервера.
+      this.$store.dispatch('contact_incoming/get_by_phone_number', session.data.target)
+      this.$store.commit('contact_incoming/contact_name', session.data.target)
 
-    /**
-     * Срабатывает, когда сеанс не может быть установлен.
-     *
-     * @param session
-     * @param event
-     */
-    onSessionFailed (session: RTCSession, event: EndEvent) {
-      this.$toast.dismiss('incoming-dialog')
-
-      this.stopAudio()
-      this.onSessionFinality(session, event)
-      this.$root.$emit('dialer-session-failed', session, event)
-      this.$root.$emit('dialer-session-finality', session, event)
-
-      debugDialerEvent('Failed %o %o', session, event)
-
-      if (event.originator === 'local') {
-        // Локальный
-        if (event.cause === 'Canceled') {
-          this.$toast.info('Call canceled')
+      // Показать диалог входящего.
+      this.$toast({
+        component: AppIncomingCallDialog,
+        props: {
+          // Будет вычислять новое значение без обновления всего состояния
+          display: () => this.contactIncomingContactName
+        },
+        listeners: {
+          answer: this.onIncomingDialogAnswerClick,
+          hangup: this.onIncomingDialogHangupClick
         }
-        if (event.cause === 'User Denied Media Access') {
-          this.$toast.error('No microphone access.\n' +
-            'You must provide permission to use the microphone.')
-        }
-      } else if (event.originator === 'remote') {
-        const message = event.message
-        if (typeof message === 'object' && 'status_code' in message) {
-          if (message?.status_code === 480) {
-            /**
-             * Q.850 описание: No answer from the user
-             * SIP описание: Temporarily unavailable
-             */
-            if (/Q\.850;cause=19/.test(String((message as any)?.data || ''))) {
-              this.$toast.info('Subscriber unavailable')
-            } else {
-              this.$toast.error((message as any)?.data)
-            }
-          } else if (message?.status_code === 486) {
-            /**
-             * Абонент занят.
-             * ----------------------------
-             * Q.850 описание: User busy
-             * SIP описание: Busy here
-             */
-            if (/Q\.850;cause=17/.test(String((message as any)?.data || ''))) {
-              this.$toast.info('The subscriber is busy')
-            } else {
-              this.$toast.error((message as any)?.data)
-            }
-          } else if (message?.status_code === 503) {
-            /**
-             * Отсутствует доступный канал.
-             * Эта причина указывает на то, что в настоящее время нет подходящего канала для обработки вызова.
-             * ------------------------------------------------------------------------
-             * Q.850 описание: No circuit, channel unavailable
-             * SIP описание: Service unavailable
-             */
-            if (/Q\.850;cause=34/.test(String((message as any)?.data || ''))) {
-              this.$toast.info('Service unavailable')
-            } else {
-              this.$toast.error((message as any)?.data)
-            }
-            /**
-             * Ошибка SIP 603 обычно возвращается в качестве ответа,
-             * когда с вызываемой стороной был успешно установлен контакт,
-             * но она не может или не желает участвовать. Это сообщение об
-             * ошибке отправляется вашим сервером VoIP, и Zoiper просто отображает его.
-             */
-          } else if (message?.status_code === 603) {
-            this.$toast.info('Subscriber does not exist')
+      }, {
+        id: 'incoming-dialog',
+        icon: false,
+        timeout: 0,
+        closeButton: false,
+        closeOnClick: false,
+        toastClassName: 'app-incoming-call-dialog',
+        bodyClassName: '',
+        position: POSITION.TOP_CENTER,
+        draggable: false
+      })
+    }
+
+    debugDialerEvent('Progress %o %o', session, event)
+  }
+
+  /**
+   * Срабатывает, когда звонок принят (2XX received/sent).
+   *
+   * @param session
+   * @param event
+   */
+  onSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+    this.$toast.dismiss('incoming-dialog')
+
+    this.stopAudio()
+    this.$root.$emit('dialer-session-accepted', session, event)
+
+    debugDialerEvent('Accepted %o %o', session, event)
+  }
+
+  /**
+   * @param session
+   * @param event
+   */
+  onSessionEnded (session: RTCSession, event: EndEvent) {
+    this.$toast.dismiss('incoming-dialog')
+
+    this.stopAudio()
+    this.onSessionFinality(session, event)
+    this.$root.$emit('dialer-session-ended', session, event)
+    this.$root.$emit('dialer-session-finality', session, event) // Финальный
+
+    debugDialerEvent('Ended %o %o', session, event)
+  }
+
+  /**
+   * Срабатывает, когда сеанс не может быть установлен.
+   *
+   * @param session
+   * @param event
+   */
+  onSessionFailed (session: RTCSession, event: EndEvent) {
+    this.$toast.dismiss('incoming-dialog')
+
+    this.stopAudio()
+    this.onSessionFinality(session, event)
+    this.$root.$emit('dialer-session-failed', session, event)
+    this.$root.$emit('dialer-session-finality', session, event)
+
+    debugDialerEvent('Failed %o %o', session, event)
+
+    if (event.originator === 'local') {
+      // Локальный
+      if (event.cause === 'Canceled') {
+        this.$toast.info('Call canceled')
+      }
+      if (event.cause === 'User Denied Media Access') {
+        this.$toast.error('No microphone access.\n' +
+          'You must provide permission to use the microphone.')
+      }
+    } else if (event.originator === 'remote') {
+      const message = event.message
+      if (typeof message === 'object' && 'status_code' in message) {
+        if (message?.status_code === 480) {
+          /**
+           * Q.850 описание: No answer from the user
+           * SIP описание: Temporarily unavailable
+           */
+          if (/Q\.850;cause=19/.test(String((message as any)?.data || ''))) {
+            this.$toast.info('Subscriber unavailable')
           } else {
             this.$toast.error((message as any)?.data)
           }
-        }
-      }
-    },
-
-    /**
-     * Срабатывает при завершении сессии.
-     * @param session
-     * @param event
-     */
-    onSessionFinality (session: RTCSession, event: EndEvent) {
-      if (session.direction === 'incoming') {
-        session.data.contact_id = this.contactIncomingId
-        session.data.contact_name = this.contactIncomingContactName
-      }
-
-      // Данные для сохранения истории
-      const historyData: Record<string, number | string | null> = {
-        cause: event.cause,
-        direction: session.direction,
-        originator: event.originator,
-        session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
-        session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
-        type: 'call',
-        audio_record_id: session.data.call_id,
-        target: session.data.target
-      }
-
-      // Если есть время разговора
-      if ((session.start_time) && (session.end_time)) {
-        historyData.start_timestamp = session.start_time.getTime() / 1000
-        historyData.end_timestamp = session.end_time.getTime() / 1000
-      }
-
-      // Сохраняю историю звонка
-      new Contacts()
-        .addHistory(session.data.contact_id, historyData)
-        .then((id: number) => {
-          // Удаляю из Vuex
-          // this.$store.dispatch('contacts_new/items_remove_from_store', this.contactViewContactId)
-
-          this.$store.commit('unsaved_call/data/contact_id', session.data.contact_id)
-          this.$store.commit('unsaved_call/data/contact_name', session.data.contact_name)
-          this.$store.commit('unsaved_call/data/contact_history_id', id)
-          this.$store.commit('unsaved_call/data/call_id', session.data.call_id)
-          this.$store.commit('unsaved_call/data/direction', session.direction)
-          this.$store.commit('unsaved_call/unsaved', true)
-        })
-    },
-    // DIALER EVENTS
-
-    sseInitialize () {
-      if ('VUE_APP_SSE' in process.env) {
-        const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
-
-        // Темы для подписок
-        url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
-
-        if (this.$isGranted(['ROLE_ADMIN'])) {
-          url.searchParams.append('topic', `${window.origin}/administration`)
-        }
-
-        const eventSource = new EventSource(url, {
-          withCredentials: true
-        })
-
-        eventSource.addEventListener('event', (event: Event) => {
-          if (event instanceof MessageEvent) {
-            const obj: SSEMessage = JSON.parse(event.data)
-
-            appDebug.extend('SSE').extend('EVENT')('%o', obj)
-
-            // Кидаем сообщение на корневую шину
-            this.$root.$emit('sse-' + obj.name, obj)
-
-            // Что-то изменилось в задачах
-            if (obj.name === 'tasks-changed') {
-              if (this.$isGranted('SECTION_TASKS')) {
-                this.$store.dispatch('tasks/pending_count')
-              }
-            } else if (obj.name === 'system-notification') {
-              // Звук уведомления только если в режиме ожидания.
-              this.$store.dispatch('system/notifications')
-                .then(() => {
-                  this.notificationShake()
-                  if (this.$dialer.state === 'idle') {
-                    this.playAudio('/sounds/notifications/1.mp3')
-                  }
-                })
-            }
+        } else if (message?.status_code === 486) {
+          /**
+           * Абонент занят.
+           * ----------------------------
+           * Q.850 описание: User busy
+           * SIP описание: Busy here
+           */
+          if (/Q\.850;cause=17/.test(String((message as any)?.data || ''))) {
+            this.$toast.info('The subscriber is busy')
+          } else {
+            this.$toast.error((message as any)?.data)
           }
-        })
-
-        // SSE типа message
-        eventSource.onmessage = (event) => {
-          // Emit в корневой экземпляр
-          this.$root.$emit('root-sse-message', event.data)
-        }
-      }
-    },
-
-    showNotification (title: string, body: string) {
-      if (document.visibilityState === 'visible') {
-        return
-      }
-      const icon = 'image-url'
-      const notification = new Notification(title, { body, icon })
-      notification.onclick = () => {
-        notification.close()
-        window.parent.focus()
-      }
-    },
-
-    notificationShake () {
-      this.notificationShakeProcess = true
-      setTimeout(() => {
-        this.notificationShakeProcess = false
-      }, 800)
-    },
-
-    requestAndShowPermission () {
-      Notification.requestPermission((permission) => {
-        if (permission === 'denied') {
-          this.$toast.info('Что бы получать системные уведомления, требуются разрешения!')
-        }
-      })
-    },
-
-    onBtnCloseNotification (id: number) {
-      this.$store.dispatch('system/notifications_close', id)
-    },
-
-    onSystemNotificationCloseAllClick () {
-      this.$store.dispatch('system/notifications_close_all')
-    },
-
-    /**
-     * Срабатывает каждый раз когда меняются параметры профиля.
-     * Так же срабатывает если параметры изменила третья сторона.
-     */
-    onSSEProfileChanged () {
-      this.$store.dispatch('profile/load')
-        .then(() => {
-          // Механизм предотвращения инициализации
-          // телефонии в процессе её использования.
-          if (!this.dialerIsInitialize) {
-            const checkState = async (resolve: CallableFunction) => {
-              while (true) {
-                // Проверяю состояние простоя
-                if (this.$dialer.state === 'idle') {
-                  break
-                }
-                await sleep(1000)
-              }
-              resolve()
-            }
-
-            // Выполняем повторную инициализацию только в случае простоя.
-            new Promise<void>((resolve) => {
-              checkState(resolve)
-            }).then(() => {
-              this.dialerInitialize() // Пришло время выполнить инициализацию.
-              this.dialerIsInitialize = false
-            })
-
-            this.dialerIsInitialize = true
+        } else if (message?.status_code === 503) {
+          /**
+           * Отсутствует доступный канал.
+           * Эта причина указывает на то, что в настоящее время нет подходящего канала для обработки вызова.
+           * ------------------------------------------------------------------------
+           * Q.850 описание: No circuit, channel unavailable
+           * SIP описание: Service unavailable
+           */
+          if (/Q\.850;cause=34/.test(String((message as any)?.data || ''))) {
+            this.$toast.info('Service unavailable')
+          } else {
+            this.$toast.error((message as any)?.data)
           }
-        })
-    },
-
-    onFileDownload (name: string) {
-      this.$store.dispatch('contacts_new/file_contact_download', name)
-    },
-
-    /**
-     * Срабатывает когда нажали на элемент статуса.
-     * @param status
-     */
-    onStatusListItemClick (status: string) {
-      switch (status) {
-        case 'do_not_disturb':
-        case 'available': {
-          if (!this.$dialer.isConnected()) {
-            this.$dialer.connect()
-          }
-          break
-        }
-
-        case 'coffee_break': {
-          if (this.$dialer.isConnected()) {
-            this.$dialer.disconnect()
-          }
-          break
+          /**
+           * Ошибка SIP 603 обычно возвращается в качестве ответа,
+           * когда с вызываемой стороной был успешно установлен контакт,
+           * но она не может или не желает участвовать. Это сообщение об
+           * ошибке отправляется вашим сервером VoIP, и Zoiper просто отображает его.
+           */
+        } else if (message?.status_code === 603) {
+          this.$toast.info('Subscriber does not exist')
+        } else {
+          this.$toast.error((message as any)?.data)
         }
       }
-
-      this.$store.dispatch('profile/set_status', status)
-    },
-
-    /**
-     * Срабатывает когда нажали на кнопку отклонить вызов.
-     */
-    onIncomingDialogHangupClick () {
-      this.$toast.dismiss('incoming-dialog')
-      this.$dialer.hangUp()
-    },
-
-    /**
-     * Срабатывает когда нажали на кнопку принять вызов.
-     */
-    onIncomingDialogAnswerClick () {
-      this.$toast.dismiss('incoming-dialog')
-
-      // Сразу перехожу в карточку контакта.
-      this.$router.push({
-        name: 'contacts_view_scenario',
-        params: {
-          contact_id: String(this.contactIncomingId)
-        }
-      }).finally(() => {
-        this.$dialer.answer()
-      })
-    },
-
-    /**
-     * Срабатывает при нажатии на кнопку изменения режима
-     */
-    onBtnChangeModeClick () {
-      this.modeChangeProcess = true
-      switch (this.profileMode) {
-        case 'normal': {
-          this.$axios.get('/account/mode/incoming_autodialer')
-            .then(() => (this.$toast.info('Режим автодозвона активирован.\nОжидайте входящий вызов!')))
-            .finally(() => (this.modeChangeProcess = false))
-          this.$store.commit('profile/mode', 'incoming_autodialer')
-          break
-        }
-        case 'incoming_autodialer': {
-          this.$axios.get('/account/mode/normal')
-            .then(() => (this.$toast.info('Режим автодозвона деактивирован.')))
-            .finally(() => (this.modeChangeProcess = false))
-          this.$store.commit('profile/mode', 'normal')
-          break
-        }
-      }
-    },
-
-    /**
-     * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
-     */
-    ifVisibleIdleHandler () {
-      // this.degradation = true
-      this.$accountMonitoring.end()
-    },
-
-    /**
-     * Срабатывает при пробуждении после сна.
-     */
-    ifVisibleWakeupHandler () {
-      this.degradation = false
-    },
-
-    /**
-     * Воспроизводит любой аудиофайл.
-     *
-     * @param src
-     * @param loop
-     */
-    playAudio (src: string, loop: false) {
-      this.audioPlayed = true
-      if (this.audioPlayed) {
-        this.audio.src = src
-        this.audio.loop = loop
-        this.audio.play().catch(() => {
-          navigator
-            .mediaDevices
-            .getUserMedia({ audio: true })
-            .then(() => {
-              this.audio.play()
-            }).catch(function (err) {
-              console.log(err.name + ': ' + err.message)
-            })
-        })
-      }
-    },
-
-    stopAudio () {
-      if (!this.audio.paused) {
-        this.audio.pause()
-      }
-      this.audio.currentTime = 0.0
-      this.audioPlayed = false
     }
   }
-})
+
+  /**
+   * Срабатывает при завершении сессии.
+   * @param session
+   * @param event
+   */
+  onSessionFinality (session: RTCSession, event: EndEvent) {
+    if (session.direction === 'incoming') {
+      session.data.contact_id = this.contactIncomingId
+      session.data.contact_name = this.contactIncomingContactName
+    }
+
+    // Данные для сохранения истории
+    const historyData: Record<string, number | string | null> = {
+      cause: event.cause,
+      direction: session.direction,
+      originator: event.originator,
+      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
+      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
+      type: 'call',
+      audio_record_id: session.data.call_id,
+      target: session.data.target
+    }
+
+    // Если есть время разговора
+    if ((session.start_time) && (session.end_time)) {
+      historyData.start_timestamp = session.start_time.getTime() / 1000
+      historyData.end_timestamp = session.end_time.getTime() / 1000
+    }
+
+    // Сохраняю историю звонка
+    new Contacts()
+      .addHistory(session.data.contact_id, historyData)
+      .then((id: number) => {
+        // Удаляю из Vuex
+        // this.$store.dispatch('contacts_new/items_remove_from_store', this.contactViewContactId)
+
+        this.$store.commit('unsaved_call/data/contact_id', session.data.contact_id)
+        this.$store.commit('unsaved_call/data/contact_name', session.data.contact_name)
+        this.$store.commit('unsaved_call/data/contact_history_id', id)
+        this.$store.commit('unsaved_call/data/call_id', session.data.call_id)
+        this.$store.commit('unsaved_call/data/direction', session.direction)
+        this.$store.commit('unsaved_call/unsaved', true)
+      })
+  }
+  // DIALER EVENTS
+
+  sseInitialize () {
+    if ('VUE_APP_SSE' in process.env) {
+      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
+
+      // Темы для подписок
+      url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
+
+      if (this.$isGranted(['ROLE_ADMIN'])) {
+        url.searchParams.append('topic', `${window.origin}/administration`)
+      }
+
+      const eventSource = new EventSource(url, {
+        withCredentials: true
+      })
+
+      eventSource.addEventListener('event', (event: Event) => {
+        if (event instanceof MessageEvent) {
+          const obj: SSEMessage = JSON.parse(event.data)
+
+          appDebug.extend('SSE').extend('EVENT')('%o', obj)
+
+          // Кидаем сообщение на корневую шину
+          this.$root.$emit('sse-' + obj.name, obj)
+
+          // Что-то изменилось в задачах
+          if (obj.name === 'tasks-changed') {
+            if (this.$isGranted('SECTION_TASKS')) {
+              this.$store.dispatch('tasks/pending_count')
+            }
+          } else if (obj.name === 'system-notification') {
+            // Звук уведомления только если в режиме ожидания.
+            this.$store.dispatch('system/notifications')
+              .then(() => {
+                this.notificationShake()
+                if (this.$dialer.state === 'idle') {
+                  this.playAudio('/sounds/notifications/1.mp3')
+                }
+              })
+          }
+        }
+      })
+
+      // SSE типа message
+      eventSource.onmessage = (event) => {
+        // Emit в корневой экземпляр
+        this.$root.$emit('root-sse-message', event.data)
+      }
+    }
+  }
+
+  showNotification (title: string, body: string) {
+    if (document.visibilityState === 'visible') {
+      return
+    }
+    const icon = 'image-url'
+    const notification = new Notification(title, { body, icon })
+    notification.onclick = () => {
+      notification.close()
+      window.parent.focus()
+    }
+  }
+
+  notificationShake () {
+    this.notificationShakeProcess = true
+    setTimeout(() => {
+      this.notificationShakeProcess = false
+    }, 800)
+  }
+
+  requestAndShowPermission () {
+    Notification.requestPermission((permission) => {
+      if (permission === 'denied') {
+        this.$toast.info('Что бы получать системные уведомления, требуются разрешения!')
+      }
+    })
+  }
+
+  onBtnCloseNotification (id: number) {
+    this.$store.dispatch('system/notifications_close', id)
+  }
+
+  onSystemNotificationCloseAllClick () {
+    this.$store.dispatch('system/notifications_close_all')
+  }
+
+  /**
+   * Срабатывает каждый раз когда меняются параметры профиля.
+   * Так же срабатывает если параметры изменила третья сторона.
+   */
+  onSSEProfileChanged () {
+    this.$store.dispatch('profile/load')
+      .then(() => {
+        // Механизм предотвращения инициализации
+        // телефонии в процессе её использования.
+        if (!this.dialerIsInitialize) {
+          const checkState = async (resolve: CallableFunction) => {
+            while (true) {
+              // Проверяю состояние простоя
+              if (this.$dialer.state === 'idle') {
+                break
+              }
+              await sleep(1000)
+            }
+            resolve()
+          }
+
+          // Выполняем повторную инициализацию только в случае простоя.
+          new Promise<void>((resolve) => {
+            checkState(resolve)
+          }).then(() => {
+            this.dialerInitialize() // Пришло время выполнить инициализацию.
+            this.dialerIsInitialize = false
+          })
+
+          this.dialerIsInitialize = true
+        }
+      })
+  }
+
+  onFileDownload (name: string) {
+    this.$store.dispatch('contacts_new/file_contact_download', name)
+  }
+
+  /**
+   * Срабатывает когда нажали на элемент статуса.
+   * @param status
+   */
+  onStatusListItemClick (status: string) {
+    switch (status) {
+      case 'do_not_disturb':
+      case 'available': {
+        if (!this.$dialer.isConnected()) {
+          this.$dialer.connect()
+        }
+        break
+      }
+
+      case 'coffee_break': {
+        if (this.$dialer.isConnected()) {
+          this.$dialer.disconnect()
+        }
+        break
+      }
+    }
+
+    this.$store.dispatch('profile/set_status', status)
+  }
+
+  /**
+   * Срабатывает когда нажали на кнопку отклонить вызов.
+   */
+  onIncomingDialogHangupClick () {
+    this.$toast.dismiss('incoming-dialog')
+    this.$dialer.hangUp()
+  }
+
+  /**
+   * Срабатывает когда нажали на кнопку принять вызов.
+   */
+  onIncomingDialogAnswerClick () {
+    this.$toast.dismiss('incoming-dialog')
+
+    // Сразу перехожу в карточку контакта.
+    this.$router.push({
+      name: 'contacts_view_scenario',
+      params: {
+        contact_id: String(this.contactIncomingId)
+      }
+    }).finally(() => {
+      this.$dialer.answer()
+    })
+  }
+
+  /**
+   * Срабатывает при нажатии на кнопку изменения режима
+   */
+  onBtnChangeModeClick () {
+    this.modeChangeProcess = true
+    switch (this.profileMode) {
+      case 'normal': {
+        this.$axios.get('/account/mode/incoming_autodialer')
+          .then(() => (this.$toast.info('Режим автодозвона активирован.\nОжидайте входящий вызов!')))
+          .finally(() => (this.modeChangeProcess = false))
+        this.$store.commit('profile/mode', 'incoming_autodialer')
+        break
+      }
+      case 'incoming_autodialer': {
+        this.$axios.get('/account/mode/normal')
+          .then(() => (this.$toast.info('Режим автодозвона деактивирован.')))
+          .finally(() => (this.modeChangeProcess = false))
+        this.$store.commit('profile/mode', 'normal')
+        break
+      }
+    }
+  }
+
+  /**
+   * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
+   */
+  ifVisibleIdleHandler () {
+    // this.degradation = true
+    this.$accountMonitoring.end()
+  }
+
+  /**
+   * Срабатывает при пробуждении после сна.
+   */
+  ifVisibleWakeupHandler () {
+    this.degradation = false
+  }
+
+  /**
+   * Воспроизводит любой аудиофайл.
+   *
+   * @param src
+   * @param loop
+   */
+  playAudio (src: string, loop = false) {
+    this.audioPlayed = true
+    if (this.audioPlayed) {
+      this.audio.src = src
+      this.audio.loop = loop
+      this.audio.play().catch(() => {
+        navigator
+          .mediaDevices
+          .getUserMedia({ audio: true })
+          .then(() => {
+            this.audio.play()
+          }).catch(function (err) {
+            console.log(err.name + ': ' + err.message)
+          })
+      })
+    }
+  }
+
+  stopAudio () {
+    if (!this.audio.paused) {
+      this.audio.pause()
+    }
+    this.audio.currentTime = 0.0
+    this.audioPlayed = false
+  }
+}
 </script>
 
 <style lang="scss">

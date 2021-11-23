@@ -13,7 +13,9 @@ const actions: ActionTree<ProfileState, RootState> = {
         commit('fill', response)
         commit('role/fill', response.role)
         commit('organization/fill', response.organization)
-        if (response.project) { commit('project/fill', response.project) }
+        if (response.project) {
+          commit('project/fill', response.project)
+        }
         commit('pbx_configuration/credentials/fill', response?.pbx_configuration?.credentials)
         commit('pbx_configuration/rtc_configuration/fill', response?.pbx_configuration?.rtc_configuration)
       })

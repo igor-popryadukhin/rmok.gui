@@ -7,6 +7,7 @@ export interface ProfileState {
   last_name: string;
   middle_name?: string;
   full_name?: string;
+  abbreviation?: string;
   userpic?: string;
   login: string;
   email?: string;
@@ -39,6 +40,7 @@ function state (): ProfileState {
     login: '',
     middle_name: '',
     full_name: '',
+    abbreviation: '',
     phone: '',
     status: '',
     mode: '',
