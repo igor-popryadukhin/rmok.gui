@@ -139,7 +139,7 @@ const routes: RouteConfig[] = [
     path: '/contacts',
     children: [
       {
-        component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/Contacts.vue'),
+        component: () => import(/* webpackChunkName: "contact-list" */ '../views/Contacts/ContactList/Index.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
@@ -449,7 +449,7 @@ const routes: RouteConfig[] = [
           middleware: []
         },
         name: 'settings_for_developer',
-        path: 'development'
+        path: 'developers'
       },
       {
         component: () => import(/* webpackChunkName: "settings-system" */ '../views/Settings/System.vue'),
@@ -594,6 +594,16 @@ if (process.env.NODE_ENV === 'development') {
     },
     name: 'symfony_profiler',
     path: '/_profiler'
+  })
+  routes.push({
+    component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/Development/Index.vue'),
+    meta: {
+      layout: 'default',
+      middleware: [],
+      title: 'Only for developers'
+    },
+    name: 'development',
+    path: '/development'
   })
 }
 

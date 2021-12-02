@@ -1,20 +1,19 @@
 <template>
-  <v-sheet v-bind="vSheetAttrs">
-    <v-simple-table
-      v-bind="vSimpleTableAttrs"
-      fixed-header
-      dense
-    >
-      <template #default>
-        <thead>
-          <slot name="head" />
-        </thead>
-        <tbody>
-          <slot name="body" />
-        </tbody>
-      </template>
-    </v-simple-table>
-  </v-sheet>
+  <v-simple-table
+    v-bind="vSimpleTableAttrs"
+    class="app-table"
+    fixed-header
+    dense
+  >
+    <template #default>
+      <thead>
+        <slot name="head" />
+      </thead>
+      <tbody>
+        <slot name="body" />
+      </tbody>
+    </template>
+  </v-simple-table>
 </template>
 
 <script lang="ts">
@@ -56,6 +55,31 @@ export default class AppTable extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+/* width */
+.app-table {
+  & table {
+    &::-webkit-scrollbar {
+      width: 12px !important;
+      height: 10px;
+    }
+
+    /* Track */
+    &::-webkit-scrollbar-track {
+      background: #e8e7e7;
+    }
+
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+      background: #11659d !important;
+      height: 10px;
+    }
+
+    /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+      background: #a5a5a5;
+    }
+  }
+}
 
 </style>

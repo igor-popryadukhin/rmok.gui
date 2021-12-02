@@ -1,6 +1,6 @@
 import Component from 'vue-class-component'
-import Vue from 'vue'
 import { mapGetters } from 'vuex'
+import AppBase from '@/AppBase'
 
 @Component({
   computed: {
@@ -10,4 +10,8 @@ import { mapGetters } from 'vuex'
     })
   }
 })
-export default class Base extends Vue {}
+export default class Base extends AppBase {
+  get paramsId (): number {
+    return +this.$route.params.id
+  }
+}

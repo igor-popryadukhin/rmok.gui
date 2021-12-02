@@ -2,7 +2,7 @@ import APIError from './classes/APIError'
 import Contact from './interfaces/Contact'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { ContactTagInterface } from './Schemas/ContactInterface'
 import ContactHistory from '@/api/interfaces/ContactHistory'
 

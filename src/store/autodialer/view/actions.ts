@@ -16,6 +16,19 @@ const actions: ActionTree<State, RootState> = {
       .then((response) => {
         ctx.commit('fill', response)
       })
+  },
+
+  /**
+   * Сохраняет состояние на сервере.
+   *
+   * @param ctx
+   */
+  apply (ctx: ActionContext<State, RootState>) {
+    const data: Record<string, any> = {
+      call_back_in_minutes: ctx.state.call_back_in_minutes,
+      count_of_call_lines: ctx.state.count_of_call_lines
+    }
+    return new AutodialerParams().edit(ctx.state.id, data)
   }
 
 }

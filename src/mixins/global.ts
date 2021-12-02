@@ -74,29 +74,6 @@ Vue.mixin(Vue.extend<Data, Methods, Computed, Props>({
      */
     $confirm (): boolean {
       return window.confirm(this.$tc('Do you really want to leave? you have unsaved changes!'))
-    },
-
-    /**
-     * Проверяет, предоставлен ли атрибут по текущему токену.
-     *
-     * @param value
-     * @param strict
-     */
-    $isGranted (value: string | string[], strict = false): boolean {
-      const rolesAvailable: string[] = this.profileRolePermissions
-      if (Array.isArray(value)) {
-        let granted = false
-
-        for (const role1 of rolesAvailable) {
-          for (const role2 of value) {
-            if (!granted) { granted = role1 === role2 }
-          }
-        }
-
-        return granted
-      }
-
-      return rolesAvailable.includes(value)
     }
   }
 }))

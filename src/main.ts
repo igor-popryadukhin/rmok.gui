@@ -1,5 +1,5 @@
 import Vue from 'vue'
-
+import 'vue-class-component/hooks' // import hooks type to enable auto-complete
 import App from '@/App.vue'
 import router from '@/router'
 import store from '@/store'

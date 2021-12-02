@@ -32,6 +32,7 @@
   "Audio file playback speed": "Скорость воспроизведения аудио файла",
   "Authentication Error!": "Ошибка аутентификации!",
   "Authentication...": "Аутентификация...",
+  "Auto dialer": "Автообзвон",
   "Automatically complete the task after the call": "Автоматически выполнить задачу после звонка",
   "Available": "Доступен",
   "Available actions": "Доступные действия",
@@ -208,6 +209,7 @@
   "Members available for integration": "Пользователи, доступные для интеграции",
   "Middle name": "Отчество",
   "Minimum length INN 9 characters": "Минимальная длина ИНН 9 символов",
+  "Mode": "Режим",
   "More": "Ещё",
   "My country is not on the list": "Моей страны нет в списке",
   "Name": "Имя",
@@ -308,6 +310,7 @@
   "Site": "Сайт",
   "Some fields are not filled correctly!": "Некоторые поля заполнены некорректно!",
   "Sorting": "Сортировка",
+  "Start": "Старт",
   "Start typing to Search": "Начните вводить в поиск",
   "Start typing to initialize your search.": "Начните вводить текст для инициализации поиска.",
   "Statistic": "Статистика",
@@ -318,6 +321,7 @@
   "Status not set": "Статус не установлен",
   "Status removed.": "Статус удален.",
   "Statuses": "Статусы",
+  "Stop": "Стоп",
   "Subscriber does not exist": "Абонент не существует",
   "Subscriber unavailable": "Абонент недоступен",
   "Subscriber's phone number to whom we are calling": "Номер телефона абонента кому звоним",
@@ -634,7 +638,5 @@
   "unknown_number": "Неизвестный номер",
   "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети",
   "video": "Видео",
-  "yes": "Да",
-  "Auto dialer": "Автообзвон",
-  "Mode": "Режим"
+  "yes": "Да"
 }

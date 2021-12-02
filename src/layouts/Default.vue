@@ -404,7 +404,7 @@
               <v-list-item>
                 <v-list-item-avatar class="primary">
                   <span style="color: white">
-                    {{ avatar }}
+                    {{ profileAbbreviation }}
                   </span>
                 </v-list-item-avatar>
               </v-list-item>
@@ -547,10 +547,7 @@
     <!-- Main -->
     <v-main>
       <v-container fluid>
-        <v-fade-transition
-          leave-absolute
-          mode="in-out"
-        >
+        <v-fade-transition>
           <router-view v-show="showRouterView" />
         </v-fade-transition>
       </v-container>
@@ -567,7 +564,6 @@ import { Calls } from '@/api/Calls'
 import { Contacts } from '@/api/Contacts'
 import SSEMessage from '@/interfaces/SSEMessage'
 import { ProfileState } from '@/store/profile/state'
-import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { RTCSession, IncomingEvent, OutgoingEvent, EndEvent } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
@@ -578,12 +574,16 @@ import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomin
 import { POSITION } from 'vue-toastification'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
+import AppBase from '@/AppBase'
+import Postman from './Postman'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
 const debugDialerEvent = appDebug.extend('DIALER-EVENT')
 
-@Component({
+// eslint-disable-next-line no-use-before-define
+@Component<DefaultLayout>({
+  mixins: [Postman],
   components: { AppLoading },
   computed: {
     ...mapGetters({
@@ -600,7 +600,6 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
       systemNotificationsCount: 'system/notifications_count',
 
       contactIncomingId: 'contact_incoming/id',
-      contactIncomingContactName: 'contact_incoming/contact_name',
 
       contactOutgoingId: 'contact_outgoing/id',
       contactOutgoingContactName: 'contact_outgoing/contact_name'
@@ -630,304 +629,6 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
       return this.$store.getters['profile/profile']
     },
 
-    mainMenu () {
-      return [
-        {
-          title: 'Новые',
-          icon: 'mdi-phone-dial',
-          list_item: {
-            to: {
-              name: 'leads'
-            }
-          },
-          badge: {
-            content: 0,
-            visible: false,
-            color: '#ff5722'
-          },
-          visible: this.$isGranted('SECTION_CONTACTS_NEW')
-        },
-        {
-          title: 'Очередь',
-          icon: 'mdi-human-queue',
-          list_item: {
-            to: {
-              name: 'queue'
-            }
-          },
-          new: true,
-          visible: [17, 82, 274].includes(this.$profile.id)
-        },
-        {
-          title: 'Tasks',
-          icon: 'mdi-book-check',
-          list_item: {
-            to: {
-              name: 'tasks'
-            }
-          },
-          badge: {
-            content: this.tasksPendingCount > 99 ? '99+' : this.tasksPendingCount,
-            visible: this.tasksPendingCount > 0,
-            color: '#ff5722'
-          },
-          visible: this.$isGranted('SECTION_TASKS')
-        },
-        {
-          title: 'Contacts',
-          icon: 'mdi-contacts',
-          list_item: {
-            to: {
-              name: 'contacts'
-            }
-          },
-          visible: this.$isGranted('SECTION_CONTACTS')
-        },
-        {
-          title: 'Roles',
-          icon: 'mdi-puzzle',
-          list_item: {
-            to: {
-              name: 'roles'
-            }
-          },
-          visible: this.$isGranted('EDIT_ROLE')
-        },
-        {
-          title: 'Groups',
-          icon: 'mdi-account-group',
-          list_item: {
-            to: {
-              name: 'groups_list'
-            }
-          },
-          visible: this.$isGranted('SECTION_GROUPS')
-        },
-        {
-          title: 'Users',
-          icon: 'mdi-account-multiple-outline',
-          list_item: {
-            to: {
-              name: 'users_list'
-            }
-          },
-          visible: this.$isGranted(['USER_CREATE', 'USER_EDIT', 'USER_DELETE'])
-        },
-        {
-          title: 'Projects',
-          icon: 'mdi-projector-screen',
-          list_item: {
-            to: {
-              name: 'projects_list'
-            }
-          },
-          visible: this.$isGranted('SECTION_PROJECTS')
-        },
-        {
-          title: 'Auto dialer',
-          icon: 'mdi-robot',
-          list_item: {
-            to: {
-              name: 'auto_dialer_params'
-            }
-          },
-          visible: true
-        },
-        {
-          title: 'Statistic',
-          active: false,
-          children: [
-            {
-              attrs: {
-                to: {
-                  name: 'statistics_recent_calls'
-                }
-              },
-              icon: '',
-              title: 'Last call statistics',
-              visible: this.$isGranted('STATISTICS_RECENT_CALLS')
-            },
-            {
-              attrs: {
-                to: {
-                  name: 'statistics_all_calls'
-                }
-              },
-              icon: '',
-              title: 'Statistics for all calls',
-              visible: this.$isGranted('STATISTICS_ALL_CALLS')
-            },
-            {
-              attrs: {
-                to: {
-                  name: 'statistics_call_count'
-                }
-              },
-              icon: '',
-              title: 'By the number of calls',
-              visible: this.$isGranted('STATISTICS_CALL_COUNT')
-            },
-            {
-              attrs: {
-                to: {
-                  name: 'statistics_activity'
-                }
-              },
-              icon: '',
-              title: 'Employment of employees',
-              visible: this.$isGranted('STATISTICS_ACTIVITY')
-            },
-            {
-              attrs: {
-                to: {
-                  name: 'statistics_unauthorized_breaks'
-                }
-              },
-              icon: '',
-              title: 'Unauthorized breaks',
-              visible: this.$isGranted('STATISTICS_UNAUTHORIZED_BREAKS')
-            }
-          ],
-          icon: 'mdi-chart-arc',
-          list_item: {},
-          visible: this.$isGranted([
-            'STATISTICS_RECENT_CALLS',
-            'STATISTICS_ALL_CALLS',
-            'STATISTICS_CALL_COUNT',
-            'STATISTICS_ACTIVITY',
-            'STATISTICS_UNAUTHORIZED_BREAKS'
-          ])
-        },
-        {
-          title: 'Integrations',
-          active: false,
-          icon: 'mdi-api',
-          visible: this.$isGranted('SECTION_INTEGRATIONS'),
-          children: [
-            {
-              title: 'Integration of contacts',
-              attrs: {
-                to: {
-                  name: 'integrations_contacts'
-                }
-              },
-              icon: '',
-              visible: true
-            },
-            {
-              title: 'Project Integration Settings',
-              attrs: {
-                to: {
-                  name: 'itegrationset_list'
-                }
-              },
-              icon: 'mdi-arrow-decision-outline',
-              visible: true
-            }
-          ]
-        },
-        { divider: true },
-        {
-          active: false,
-          children: [
-            {
-              title: 'Profile',
-              attrs: {
-                to: {
-                  name: 'settings_profile'
-                }
-              },
-              icon: 'mdi-account',
-              visible: true
-            },
-            {
-              title: 'Contacts',
-              attrs: {
-                to: {
-                  name: 'settings_contacts'
-                }
-              },
-              icon: 'mdi-contacts',
-              visible: true
-            },
-            {
-              title: 'Telephony',
-              attrs: {
-                to: {
-                  name: 'settings_telephony'
-                }
-              },
-              icon: 'mdi-webrtc',
-              visible: true
-            },
-            {
-              title: 'Journal',
-              attrs: {
-                to: {
-                  name: 'settings_journal'
-                }
-              },
-              icon: 'mdi-history',
-              visible: true
-            },
-            {
-              title: 'Security',
-              attrs: {
-                to: {
-                  name: 'settings_security'
-                }
-              },
-              icon: 'mdi-security',
-              visible: true
-            },
-            {
-              title: 'For developer',
-              attrs: {
-                to: {
-                  name: 'settings_for_developer'
-                }
-              },
-              icon: 'mdi-flask',
-              visible: this.$isGranted('section.dev_tools')
-            },
-            {
-              title: 'Regional settings',
-              attrs: {
-                to: {
-                  name: 'settings_regional'
-                }
-              },
-              icon: 'mdi-translate',
-              visible: true
-            },
-            {
-              title: 'System',
-              attrs: {
-                to: {
-                  name: 'settings_system'
-                }
-              },
-              icon: 'mdi-cog',
-              visible: true
-            },
-            {
-              attrs: {},
-              on: {
-                click: () => {
-                  new Calls().communicationQualityDownload()
-                }
-              },
-              title: 'Скачать результаты опроса качества связи',
-              visible: true
-            }
-          ],
-          icon: 'mdi-cog-outline',
-          title: 'Settings',
-          visible: true
-        }
-      ]
-    },
-
     navigation_drawer_mini: {
       get () {
         return this.$store.getters['settings/navigation_drawer_mini']
@@ -938,7 +639,8 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
     }
   }
 })
-export default class Default extends Vue {
+
+export default class DefaultLayout extends AppBase {
   profileLoading = true
   showRouterView = false
   modeChangeProcess = false
@@ -981,13 +683,324 @@ export default class Default extends Vue {
   degradation = false
   dialerIsInitialize = false
 
-  get avatar (): string {
-    return this.$store.state.profile.abbreviation
-  }
-
+  // Вычисляемые свойства
+  get contactIncomingId () { return this.$store.state.contact_incoming.id }
+  get contactIncomingContactName () { return this.$store.state.contact_incoming.contact_name }
+  get profileId (): number { return this.$store.state.profile.id }
+  get profileAbbreviation (): string { return this.$store.state.profile.abbreviation }
   get profileFullName (): string { return this.$store.state.profile.full_name }
   get profileMode (): string { return this.$store.state.profile.mode }
   get profileStatus (): string { return this.$store.state.profile.status }
+  get tasksPendingCount () { return this.$store.state.tasks.pending_count }
+  get mainMenu () {
+    return [
+      {
+        title: 'Новые',
+        icon: 'mdi-phone-dial',
+        list_item: {
+          to: {
+            name: 'leads'
+          }
+        },
+        badge: {
+          content: 0,
+          visible: false,
+          color: '#ff5722'
+        },
+        visible: this.$isGranted('SECTION_CONTACTS_NEW')
+      },
+      {
+        title: 'Очередь',
+        icon: 'mdi-human-queue',
+        list_item: {
+          to: {
+            name: 'queue'
+          }
+        },
+        new: true,
+        visible: [17, 82, 274].includes(this.profileId)
+      },
+      {
+        title: 'Tasks',
+        icon: 'mdi-book-check',
+        list_item: {
+          to: {
+            name: 'tasks'
+          }
+        },
+        badge: {
+          content: this.tasksPendingCount > 99 ? '99+' : this.tasksPendingCount,
+          visible: this.tasksPendingCount > 0,
+          color: '#ff5722'
+        },
+        visible: this.$isGranted('SECTION_TASKS')
+      },
+      {
+        title: 'Contacts',
+        icon: 'mdi-contacts',
+        list_item: {
+          to: {
+            name: 'contacts'
+          }
+        },
+        visible: this.$isGranted('SECTION_CONTACTS')
+      },
+      {
+        title: 'Roles',
+        icon: 'mdi-puzzle',
+        list_item: {
+          to: {
+            name: 'roles'
+          }
+        },
+        visible: this.$isGranted('EDIT_ROLE')
+      },
+      {
+        title: 'Groups',
+        icon: 'mdi-account-group',
+        list_item: {
+          to: {
+            name: 'groups_list'
+          }
+        },
+        visible: this.$isGranted('SECTION_GROUPS')
+      },
+      {
+        title: 'Users',
+        icon: 'mdi-account-multiple-outline',
+        list_item: {
+          to: {
+            name: 'users_list'
+          }
+        },
+        visible: this.$isGranted(['USER_CREATE', 'USER_EDIT', 'USER_DELETE'])
+      },
+      {
+        title: 'Projects',
+        icon: 'mdi-projector-screen',
+        list_item: {
+          to: {
+            name: 'projects_list'
+          }
+        },
+        visible: this.$isGranted('SECTION_PROJECTS')
+      },
+      {
+        title: 'Auto dialer',
+        icon: 'mdi-robot',
+        list_item: {
+          to: {
+            name: 'auto_dialer_params'
+          }
+        },
+        visible: true
+      },
+      {
+        title: 'Statistic',
+        active: false,
+        children: [
+          {
+            attrs: {
+              to: {
+                name: 'statistics_recent_calls'
+              }
+            },
+            icon: '',
+            title: 'Last call statistics',
+            visible: this.$isGranted('STATISTICS_RECENT_CALLS')
+          },
+          {
+            attrs: {
+              to: {
+                name: 'statistics_all_calls'
+              }
+            },
+            icon: '',
+            title: 'Statistics for all calls',
+            visible: this.$isGranted('STATISTICS_ALL_CALLS')
+          },
+          {
+            attrs: {
+              to: {
+                name: 'statistics_call_count'
+              }
+            },
+            icon: '',
+            title: 'By the number of calls',
+            visible: this.$isGranted('STATISTICS_CALL_COUNT')
+          },
+          {
+            attrs: {
+              to: {
+                name: 'statistics_activity'
+              }
+            },
+            icon: '',
+            title: 'Employment of employees',
+            visible: this.$isGranted('STATISTICS_ACTIVITY')
+          },
+          {
+            attrs: {
+              to: {
+                name: 'statistics_unauthorized_breaks'
+              }
+            },
+            icon: '',
+            title: 'Unauthorized breaks',
+            visible: this.$isGranted('STATISTICS_UNAUTHORIZED_BREAKS')
+          }
+        ],
+        icon: 'mdi-chart-arc',
+        list_item: {},
+        visible: this.$isGranted([
+          'STATISTICS_RECENT_CALLS',
+          'STATISTICS_ALL_CALLS',
+          'STATISTICS_CALL_COUNT',
+          'STATISTICS_ACTIVITY',
+          'STATISTICS_UNAUTHORIZED_BREAKS'
+        ])
+      },
+      {
+        title: 'Integrations',
+        active: false,
+        icon: 'mdi-api',
+        visible: this.$isGranted('SECTION_INTEGRATIONS'),
+        children: [
+          {
+            title: 'Integration of contacts',
+            attrs: {
+              to: {
+                name: 'integrations_contacts'
+              }
+            },
+            icon: '',
+            visible: true
+          },
+          {
+            title: 'Project Integration Settings',
+            attrs: {
+              to: {
+                name: 'itegrationset_list'
+              }
+            },
+            icon: 'mdi-arrow-decision-outline',
+            visible: true
+          }
+        ]
+      },
+      { divider: true },
+      {
+        active: false,
+        children: [
+          {
+            title: 'Profile',
+            attrs: {
+              to: {
+                name: 'settings_profile'
+              }
+            },
+            icon: 'mdi-account',
+            visible: true
+          },
+          {
+            title: 'Contacts',
+            attrs: {
+              to: {
+                name: 'settings_contacts'
+              }
+            },
+            icon: 'mdi-contacts',
+            visible: true
+          },
+          {
+            title: 'Telephony',
+            attrs: {
+              to: {
+                name: 'settings_telephony'
+              }
+            },
+            icon: 'mdi-webrtc',
+            visible: true
+          },
+          {
+            title: 'Journal',
+            attrs: {
+              to: {
+                name: 'settings_journal'
+              }
+            },
+            icon: 'mdi-history',
+            visible: true
+          },
+          {
+            title: 'Security',
+            attrs: {
+              to: {
+                name: 'settings_security'
+              }
+            },
+            icon: 'mdi-security',
+            visible: true
+          },
+          {
+            title: 'For developer',
+            attrs: {
+              to: {
+                name: 'settings_for_developer'
+              }
+            },
+            icon: 'mdi-flask',
+            visible: this.$isGranted('section.dev_tools')
+          },
+          {
+            title: 'Regional settings',
+            attrs: {
+              to: {
+                name: 'settings_regional'
+              }
+            },
+            icon: 'mdi-translate',
+            visible: true
+          },
+          {
+            title: 'System',
+            attrs: {
+              to: {
+                name: 'settings_system'
+              }
+            },
+            icon: 'mdi-cog',
+            visible: true
+          },
+          {
+            attrs: {},
+            on: {
+              click: () => {
+                new Calls().communicationQualityDownload()
+              }
+            },
+            title: 'Скачать результаты опроса качества связи',
+            visible: true
+          }
+        ],
+        icon: 'mdi-cog-outline',
+        title: 'Settings',
+        visible: true
+      },
+      {
+        active: false,
+        icon: 'mdi-dev-to',
+        title: 'Only for developers',
+        list_item: {
+          to: {
+            name: 'development'
+          }
+        },
+        visible: process.env.NODE_ENV === 'development'
+      }
+    ]
+  }
+  // Вычисляемые свойства
 
   created () {
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
@@ -1340,7 +1353,7 @@ export default class Default extends Vue {
       const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
 
       // Темы для подписок
-      url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
+      url.searchParams.append('topic', `${window.origin}/users/${this.profileId}/event`)
 
       if (this.$isGranted(['ROLE_ADMIN'])) {
         url.searchParams.append('topic', `${window.origin}/administration`)

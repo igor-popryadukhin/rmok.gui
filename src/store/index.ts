@@ -28,20 +28,25 @@ Vue.use(Vuex)
 
 const vuexDebug = debug('VUEX')
 const vuexDebugActions = vuexDebug.extend('ACTION')
-const vuexDebugPersistedstate = vuexDebug.extend('PERSISTEDSTATE')
+const vuexDebugMutations = vuexDebug.extend('MUTATION')
+const vuexDebugPersistedState = vuexDebug.extend('PERSISTED-STATE')
+const vuexDebugPersistedStateGet = vuexDebugPersistedState.extend('GET')
+const vuexDebugPersistedStateSet = vuexDebugPersistedState.extend('SET')
+const vuexDebugPersistedStateRemove = vuexDebugPersistedState.extend('REMOVE')
 
 const get = (key: string) => {
-  vuexDebugPersistedstate('GET: %s', key)
-  return localStorage.getItem(key)
+  const value = localStorage.getItem(key)
+  vuexDebugPersistedStateGet('%s [%o]', key, value)
+  return value
 }
 
 const set = debounce((key: string, value: string) => {
-  vuexDebugPersistedstate('SET: %s [%o]', key, value)
+  vuexDebugPersistedStateSet('%s [%o]', key, value)
   localStorage.setItem(key, value)
-}, 500)
+}, 1000)
 
 const remove = (key: string) => {
-  vuexDebugPersistedstate('REMOVE: %s', key)
+  vuexDebugPersistedStateRemove(key)
   localStorage.removeItem(key)
 }
 
@@ -98,6 +103,7 @@ const store = new Vuex.Store({
         'filters',
         'symfony',
         'contacts.params',
+        'contacts.list.filter',
         'statistic_recent_call.filter',
         'system.route'
       ],
@@ -112,6 +118,10 @@ const store = new Vuex.Store({
 
 store.subscribeAction((ap, rs) => {
   vuexDebugActions('%o %o', ap, rs)
+})
+
+store.subscribe((ap, rs) => {
+  vuexDebugMutations('%o %o', ap, rs)
 })
 
 export default store

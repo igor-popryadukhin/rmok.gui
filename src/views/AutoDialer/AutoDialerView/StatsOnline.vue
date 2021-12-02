@@ -1,31 +1,47 @@
 <template>
-  <app-table
-    :height="250"
-    class="operators-online__table"
+  <v-sheet
+    :height="258"
+    class="pa-1"
     outlined
-    fixed-header
-    dense
   >
-    <template #head>
-      <tr>
-        <th class="text-left">
-          Дата/время
-        </th>
-        <th class="text-left">
-          Количество онлайн
-        </th>
-      </tr>
-    </template>
-    <template #body>
-      <tr
-        v-for="(item, key) in autodialerStatsOnlineItems"
-        :key="key"
+    <template v-if="processLoading">
+      <div
+        class="d-flex fill-height align-center justify-center"
       >
-        <td>{{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH:mm:ss') }}</td>
-        <td>{{ item.text }}</td>
-      </tr>
+        <div class="grey--text">
+          <app-loading />
+        </div>
+      </div>
     </template>
-  </app-table>
+    <template v-else>
+      <app-table
+        :height="250"
+        class="operators-online__table"
+        fixed-header
+        dense
+      >
+        <template #head>
+          <tr>
+            <th class="text-left">
+              Дата/время
+            </th>
+            <th class="text-left">
+              Количество онлайн
+            </th>
+          </tr>
+        </template>
+        <template #body>
+          <tr
+            v-for="(item, key) in autodialerStatsOnlineItems"
+            :key="key"
+          >
+            <td>{{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH:mm:ss') }}</td>
+            <td>{{ item.text }}</td>
+          </tr>
+        </template>
+      </app-table>
+    </template>
+  </v-sheet>
 </template>
 
 <script lang="ts">
@@ -35,22 +51,21 @@ import { Prop } from 'vue-property-decorator'
 import AppTable from '@/components/AppTable/AppTable.vue'
 import { mapGetters } from 'vuex'
 import debounce from '@/utils/debounce'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 @Component({
-  components: { AppTable },
+  components: { AppLoading, AppTable },
   computed: {
     ...mapGetters({
       autodialerStatsOnlineItems: 'autodialer/view/stats_online/items'
     })
   }
 })
-export default class OperatorsOnline extends Base {
+export default class StatsOnline extends Base {
   @Prop({ default: 0 }) readonly height?: number
   @Prop({ default: false }) readonly outlined: boolean
 
-  get paramsId (): number {
-    return +this.$route.params.id
-  }
+  processLoading = true
 
   created () {
     this.onSSEStatsChange = debounce(this.onSSEStatsChange, 3000)
@@ -61,6 +76,7 @@ export default class OperatorsOnline extends Base {
 
   mounted () {
     this.$store.dispatch('autodialer/view/stats_online/fetch', this.paramsId)
+      .finally(() => (this.processLoading = false))
   }
 
   beforeDestroy () {

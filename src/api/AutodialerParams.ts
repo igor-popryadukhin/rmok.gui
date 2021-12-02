@@ -96,6 +96,25 @@ export default class AutodialerParams {
     })
   }
 
+  /**
+   * Вносит изменения в конфигурацию.
+   *
+   * @param id
+   * @param data
+   */
+  public edit (id: number, data: Record<string, any>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      $axios.patch(`/autodialer/params/${id}`, data)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+          } else {
+            resolve(response.data)
+          }
+        }).catch(reject)
+    })
+  }
+
   public getJournal (id: number): Promise<any> {
     return new Promise((resolve, reject) => {
       $axios.get(`/autodialer/params/${id}/journal`)
