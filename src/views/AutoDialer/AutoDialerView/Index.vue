@@ -20,39 +20,49 @@
             <div class="mb-5">
               <h3>{{ autodialerName }}</h3>
             </div>
-            <div class="py-2">
-              <v-btn
-                v-if="autodialerStatus === 'ready'"
-                :loading="processStartingOrStopping"
-                color="primary"
-                style="min-width: 150px"
-                outlined
-                tile
-                @click="onBtnStartClick"
-              >
-                {{ $tc('Start') }}
-              </v-btn>
-              <v-btn
-                v-else-if="autodialerStatus === 'process'"
-                :loading="processStartingOrStopping"
-                color="primary"
-                style="min-width: 150px"
-                outlined
-                tile
-                @click="onBtnStopClick"
-              >
-                {{ $tc('Stop') }}
-              </v-btn>
-              <v-btn
-                v-else
-                color="primary"
-                style="min-width: 150px"
-                outlined
-                tile
-                disabled
-              >
-                {{ $tc('Start') }}
-              </v-btn>
+            <div class="py-2 row">
+              <div class="col-6">
+                <v-btn
+                  v-if="autodialerStatus === 'ready'"
+                  :loading="processStartingOrStopping"
+                  color="primary"
+                  style="min-width: 150px"
+                  outlined
+                  tile
+                  @click="onBtnStartClick"
+                >
+                  {{ $tc('Start') }}
+                </v-btn>
+                <v-btn
+                  v-else-if="autodialerStatus === 'process'"
+                  :loading="processStartingOrStopping"
+                  color="primary"
+                  style="min-width: 150px"
+                  outlined
+                  tile
+                  @click="onBtnStopClick"
+                >
+                  {{ $tc('Stop') }}
+                </v-btn>
+                <v-btn
+                  v-else
+                  color="primary"
+                  style="min-width: 150px"
+                  outlined
+                  tile
+                  disabled
+                >
+                  {{ $tc('Start') }}
+                </v-btn>
+              </div>
+              <div class="col-6">
+                <v-select
+                  v-model="autodialerMode"
+                  :items="autodialerModeOptions"
+                  label="Режим"
+                  dense
+                />
+              </div>
             </div>
             <div class="d-flex py-2">
               <v-text-field
@@ -129,6 +139,10 @@ export default class AutoDialerView extends Base {
   processLoading = true
   processStartingOrStopping = false
   processApply = false
+  autodialerModeOptions = [
+    { text: 'Предиктивный', value: 'predictive' },
+    { text: 'Прогрессивный', value: 'progressive' }
+  ]
 
   get callBackInMinutes (): number { return +this.$store.state.autodialer.view.call_back_in_minutes }
   set callBackInMinutes (val: number) { this.$store.commit('autodialer/view/call_back_in_minutes', +val) }
@@ -141,6 +155,9 @@ export default class AutoDialerView extends Base {
       this.$store.commit('autodialer/view/count_of_call_lines', +val)
     }
   }
+
+  get autodialerMode (): string { return this.$store.state.autodialer.view.mode }
+  set autodialerMode (val: string) { this.$store.commit('autodialer/view/mode', val) }
 
   mounted () {
     this.$store
