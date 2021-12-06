@@ -4,21 +4,13 @@ import state, { State } from './state'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import organization from '../modules/organization'
-import pbx_configuration from '../pbx_configuration'
-import sessions from './sessions'
 
 const module: Module<State, RootState> = {
   actions,
   getters,
   mutations,
   namespaced: true,
-  state,
-  modules: {
-    organization,
-    pbx_configuration,
-    sessions
-  }
+  state
 }
 
 export default module

@@ -45,10 +45,12 @@ Vue.config.productionTip = false
 
 loadLanguageAsync('ru', 'main').then()
 
-export const app: Vue = new Vue({
+const $app: Vue = new Vue({
   i18n,
   render: (h) => h(App),
   router,
   store,
   vuetify
 }).$mount('#app')
+
+export default $app

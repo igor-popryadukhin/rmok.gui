@@ -1,4 +1,4 @@
-import { app } from '@/main'
+import $app from '@/main'
 import { Cookie } from '@/plugins/cookie'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Vue from 'vue'
@@ -71,7 +71,7 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
             config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
           }
         }).catch(() => {
-          app.$router.replace({ name: 'login' }).then()
+          $app.$router.replace({ name: 'login' }).then()
         })
       }
       isRefreshTokenProcess = false
@@ -95,14 +95,14 @@ _axios.interceptors.response.use(
     httpResponseLog('%o', response)
 
     if ('x-debug-token-link' in response.headers) {
-      app.$store.commit('symfony/call_collection', {
+      $app.$store.commit('symfony/call_collection', {
         endpoint: response.request.responseURL,
         profiler: response.headers['x-debug-token-link']
       })
     }
 
     if (response.status === 401) {
-      return app.$router.replace({ name: 'login' }).finally(() => Promise.reject(response))
+      return $app.$router.replace({ name: 'login' }).finally(() => Promise.reject(response))
     } else {
       return response
     }

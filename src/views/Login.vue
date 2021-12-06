@@ -86,23 +86,25 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import axios, { AxiosResponse } from 'axios'
+import AppBase from '@/AppBase'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  data () {
-    return {
-      authorization: {
-        loading: false,
-        login: '',
-        password: ''
-      },
-      errorMessage: '',
-      isError: false,
-      processAuthorization: false,
-      processMessage: ''
-    }
-  },
+// See https://github.com/lancedikson/bowser
+import * as Bowser from 'bowser'
+
+@Component
+export default class Login extends AppBase {
+  authorization = {
+    loading: false,
+    login: '',
+    password: ''
+  }
+
+  errorMessage = ''
+  isError = false
+  processAuthorization = false
+  processMessage = ''
 
   created () {
     this.$store.dispatch('contacts/resetState')
@@ -112,49 +114,57 @@ export default Vue.extend({
     this.$store.dispatch('statistic_recent_call/resetState')
     this.$store.dispatch('statistic_recent_call/filter/resetState')
     this.$store.dispatch('statistic_all_call/filter/resetState')
-  },
-
-  methods: {
-    login (login: string, password: string) {
-      this.processAuthorization = true
-      this.isError = false
-      this.authorization.loading = true
-      this.processMessage = this.$tc('Authentication...')
-      axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
-        login,
-        password
-      }).then(async (response: AxiosResponse) => {
-        if (response.status === 200) {
-          /* eslint-disable */
-          // @ts-ignore
-          this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 })
-
-          // TODO: SSE JWT
-          this.$cookie.set('mercureAuthorization', 'eyJhbGciOiJIUzUxMiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.DJkY462v8sDVWMdAlmpIjvac_NfXjLoh8nfLfdT6wb-4CN6Vth1qL0HY36U2QFowXsj6JzDQ58r0fOI-J-JSsA', { path: '/', 'max-age': 86400 })
-          // @ts-ignore
-          this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
-
-          this.processMessage = this.$tc('Loading profile data...')
-          await this.$store.dispatch('profile/load')
-
-          setTimeout(() => {
-            this.$router.replace('/leads')
-          }, 1000)
-
-          this.processMessage = this.$tc('Login successful!')
-          /* eslint-enable */
-        } else {
-          this.processMessage = this.$tc('Authentication Error!')
-        }
-      }).catch(() => {
-        this.processMessage = this.$tc('Authentication Error!')
-      }).finally(() => {
-        setTimeout(() => {
-          this.authorization.loading = false
-          this.processAuthorization = false
-        }, 3000)
-      })
-    }
+    this.$store.dispatch('users_edit/sessions/resetState')
   }
-})
+
+  login (login: string, password: string) {
+    const browser = Bowser.parse(window.navigator.userAgent)
+
+    this.processAuthorization = true
+    this.isError = false
+    this.authorization.loading = true
+    this.processMessage = this.$tc('Authentication...')
+    axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
+      login,
+      password,
+      meta: {
+        ...browser
+      }
+    }).then(async (response: AxiosResponse) => {
+      if (response.status === 200) {
+        /* eslint-disable */
+        // @ts-ignore
+        this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 })
+
+        // TODO: SSE JWT
+        this.$cookie.set('mercureAuthorization', 'eyJhbGciOiJIUzUxMiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.DJkY462v8sDVWMdAlmpIjvac_NfXjLoh8nfLfdT6wb-4CN6Vth1qL0HY36U2QFowXsj6JzDQ58r0fOI-J-JSsA', { path: '/', 'max-age': 86400 })
+        // @ts-ignore
+        this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
+
+        this.processMessage = this.$tc('Loading profile data...')
+        await this.$store.dispatch('profile/load')
+
+        setTimeout(() => {
+          this.$router.replace('/leads')
+        }, 1000)
+
+        this.processMessage = this.$tc('Login successful!')
+        /* eslint-enable */
+      } else {
+        this.processMessage = this.$tc('Authentication Error!')
+      }
+    }).catch(() => {
+      this.processMessage = this.$tc('Authentication Error!')
+    }).finally(() => {
+      setTimeout(() => {
+        this.authorization.loading = false
+        this.processAuthorization = false
+      }, 3000)
+    })
+  }
+
+  browser () {
+    //
+  }
+}
 </script>

@@ -23,6 +23,7 @@ import incoming_dialog from './incoming_dialog'
 import statistic_activity from './statistic_activity'
 import { database } from './database'
 import debug from 'debug'
+import $app from '@/main'
 
 Vue.use(Vuex)
 
@@ -90,7 +91,9 @@ const store = new Vuex.Store({
 
   mutations: {},
 
-  getters: {},
+  getters: {
+    routeParams: () => Object.assign({}, $app.$route.params)
+  },
 
   plugins: [
     createPersistedState({

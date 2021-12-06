@@ -16,7 +16,6 @@
         >
           <template #left>
             <v-btn
-              v-if="$isGranted('USER_CREATE')"
               to="create"
               text
               tile
@@ -137,7 +136,6 @@
 
                 <v-list-item-action>
                   <v-btn
-                    v-if="$isGranted('USER_EDIT')"
                     :to="`${item.id}/main`"
                     small
                     text
@@ -168,7 +166,7 @@
           v-model="filterProjectId"
           :label="$tc('User\'s current project')"
         />
-        <template v-if="$isGranted(['ROLE_ADMIN', 'ROLE_RCC'])">
+        <template>
           <app-user-group-autocomplete
             v-model="filterUserGroupId"
             :label="$tc('User group')"

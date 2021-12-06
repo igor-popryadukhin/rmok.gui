@@ -4,9 +4,9 @@ import { State } from './state'
 import Users from '@/api/Users'
 
 const actions: ActionTree<State, RootState> = {
-  fetch: ({ commit }, id: number) => {
+  fetch: ({ commit, rootGetters }) => {
     return new Users()
-      .getById(id)
+      .getById(rootGetters.routeParams.user_id)
       .then((response) => {
         commit('id', response.id)
         commit('organization/fill', response.organization)

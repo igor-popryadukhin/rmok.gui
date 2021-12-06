@@ -266,6 +266,12 @@ const routes: RouteConfig[] = [
             meta: { layout: 'default', middleware: [], anonymous: true },
             name: 'users_edit_schedule',
             path: 'schedule'
+          },
+          {
+            component: () => import(/* webpackChunkName: "users-edit-sessions" */ '../views/Users/UserSessions.vue'),
+            meta: { layout: 'default', middleware: [], anonymous: true },
+            name: 'users_edit_sessions',
+            path: 'sessions'
           }
         ],
         meta: {
