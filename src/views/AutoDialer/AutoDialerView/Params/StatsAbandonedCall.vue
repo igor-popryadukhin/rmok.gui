@@ -1,6 +1,6 @@
 <template>
   <v-sheet
-    :height="258"
+    :height="400"
     class="pa-1"
     outlined
   >
@@ -32,7 +32,7 @@
         </template>
         <template #body>
           <tr
-            v-for="(item, key) in autodialerStatsOnlineItems"
+            v-for="(item, key) in []"
             :key="key"
           >
             <td>{{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH:mm:ss') }}</td>
@@ -46,47 +46,19 @@
 
 <script lang="ts">
 import Component from 'vue-class-component'
-import Base from './Base'
+import Base from '../Base'
 import { Prop } from 'vue-property-decorator'
 import AppTable from '@/components/AppTable/AppTable.vue'
-import { mapGetters } from 'vuex'
-import debounce from '@/utils/debounce'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 @Component({
-  components: { AppLoading, AppTable },
-  computed: {
-    ...mapGetters({
-      autodialerStatsOnlineItems: 'autodialer/view/stats_online/items'
-    })
-  }
+  components: { AppLoading, AppTable }
 })
-export default class StatsOnline extends Base {
+export default class StatsAbandonedCall extends Base {
   @Prop({ default: 0 }) readonly height?: number
   @Prop({ default: false }) readonly outlined: boolean
 
-  processLoading = true
-
-  created () {
-    this.onSSEStatsChange = debounce(this.onSSEStatsChange, 3000)
-
-    // Subscribe sse events
-    this.$root.$on('sse-autodialer-stats-change', this.onSSEStatsChange)
-  }
-
-  mounted () {
-    this.$store.dispatch('autodialer/view/stats_online/fetch', this.paramsId)
-      .finally(() => (this.processLoading = false))
-  }
-
-  beforeDestroy () {
-    // Unsubscribe sse events
-    this.$root.$off('sse-autodialer-stats-change', this.onSSEStatsChange)
-  }
-
-  onSSEStatsChange () {
-    this.$store.dispatch('autodialer/view/stats_online/fetch', this.paramsId)
-  }
+  processLoading = false
 }
 </script>
 

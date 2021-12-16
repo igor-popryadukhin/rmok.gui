@@ -3,7 +3,7 @@ import { ActionContext, ActionTree } from 'vuex'
 import { State } from './state'
 import AutodialerParams from '@/api/AutodialerParams'
 
-const actions: ActionTree<State, RootState> = {
+export const actions: ActionTree<State, RootState> = {
 
   /**
    *
@@ -33,5 +33,3 @@ const actions: ActionTree<State, RootState> = {
   }
 
 }
-
-export default actions

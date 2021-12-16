@@ -76,7 +76,7 @@ const routes: RouteConfig[] = [
   },
 
   {
-    path: '/auto-dialer/params',
+    path: '/auto-dialer',
     children: [
       {
         component: () => import(/* webpackChunkName: "auto-dialer-list" */ '../views/AutoDialer/AutoDialerList.vue'),
@@ -95,8 +95,55 @@ const routes: RouteConfig[] = [
           layout: 'default',
           middleware: []
         },
-        name: 'auto_dialer_params_view',
-        path: ':id'
+        path: ':id',
+        children: [
+          {
+            redirect: {
+              name: 'auto_dialer_tab_params'
+            },
+            path: ''
+          },
+          {
+            component: () => import(/* webpackChunkName: "auto-dialer-tab-params" */ '../views/AutoDialer/AutoDialerView/Params/Index.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'default',
+              middleware: []
+            },
+            name: 'auto_dialer_tab_params',
+            path: 'params'
+          },
+          {
+            component: () => import(/* webpackChunkName: "auto-dialer-tab-contacts" */ '../views/AutoDialer/AutoDialerView/Contacts/Index.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'default',
+              middleware: []
+            },
+            name: 'auto_dialer_tab_contacts',
+            path: 'contacts'
+          },
+          {
+            component: () => import(/* webpackChunkName: "auto-dialer-tab-schedule" */ '../views/AutoDialer/AutoDialerView/Schedule/Index.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'default',
+              middleware: []
+            },
+            name: 'auto_dialer_tab_schedule',
+            path: 'schedule'
+          },
+          {
+            component: () => import(/* webpackChunkName: "auto-dialer-tab-repeat-call-settings" */ '../views/AutoDialer/AutoDialerView/RepeatСallSettings/Index.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'default',
+              middleware: []
+            },
+            name: 'auto_dialer_tab_repeat_calls_settings',
+            path: 'repeat-call-settings'
+          }
+        ]
       }
     ],
     component: () => import(/* webpackChunkName: "auto-dialer" */ '../views/AutoDialer/Layout.vue'),

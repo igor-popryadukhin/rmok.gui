@@ -92,19 +92,30 @@ import Component from 'vue-class-component'
 
 // See https://github.com/lancedikson/bowser
 import * as Bowser from 'bowser'
+import { Route } from 'vue-router/types/router'
 
-@Component
+@Component({
+  beforeRouteEnter (to: Route, from: Route, next) {
+    next(vm => {
+      // Если перешли на страницу авторизации.
+      // Следует отключиться от телефонии.
+      if (vm.$dialer.isConnected()) {
+        vm.$dialer.disconnect()
+      }
+    })
+  }
+})
 export default class Login extends AppBase {
   authorization = {
     loading: false,
     login: '',
     password: ''
-  }
+  };
 
-  errorMessage = ''
-  isError = false
-  processAuthorization = false
-  processMessage = ''
+  errorMessage = '';
+  isError = false;
+  processAuthorization = false;
+  processMessage = '';
 
   created () {
     this.$store.dispatch('contacts/resetState')
@@ -134,21 +145,24 @@ export default class Login extends AppBase {
       if (response.status === 200) {
         /* eslint-disable */
         // @ts-ignore
-        this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 })
+        this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 });
 
         // TODO: SSE JWT
-        this.$cookie.set('mercureAuthorization', 'eyJhbGciOiJIUzUxMiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.DJkY462v8sDVWMdAlmpIjvac_NfXjLoh8nfLfdT6wb-4CN6Vth1qL0HY36U2QFowXsj6JzDQ58r0fOI-J-JSsA', { path: '/', 'max-age': 86400 })
+        this.$cookie.set('mercureAuthorization', 'eyJhbGciOiJIUzUxMiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.DJkY462v8sDVWMdAlmpIjvac_NfXjLoh8nfLfdT6wb-4CN6Vth1qL0HY36U2QFowXsj6JzDQ58r0fOI-J-JSsA', {
+          path: '/',
+          'max-age': 86400
+        });
         // @ts-ignore
-        this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
+        this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' });
 
-        this.processMessage = this.$tc('Loading profile data...')
-        await this.$store.dispatch('profile/load')
+        this.processMessage = this.$tc('Loading profile data...');
+        await this.$store.dispatch('profile/load');
 
         setTimeout(() => {
-          this.$router.replace('/leads')
-        }, 1000)
+          this.$router.replace('/leads');
+        }, 1000);
 
-        this.processMessage = this.$tc('Login successful!')
+        this.processMessage = this.$tc('Login successful!');
         /* eslint-enable */
       } else {
         this.processMessage = this.$tc('Authentication Error!')

@@ -576,6 +576,8 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
 import AppBase from '@/AppBase'
 import Postman from './Postman'
+import { Watch } from 'vue-property-decorator'
+import debounce from '@/utils/debounce'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -1002,7 +1004,18 @@ export default class DefaultLayout extends AppBase {
   }
   // Вычисляемые свойства
 
+  @Watch('$dialer.state')
+  onWatchDialerState (value: string) {
+    if (value === 'idle') {
+      this.dialerStateChange('not_inuse')
+    } else {
+      this.dialerStateChange('inuse')
+    }
+  }
+
   created () {
+    this.dialerStateChange = debounce(this.dialerStateChange, 350)
+
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
 
     this.$dialer.onSessionConnecting = this.onSessionConnecting
@@ -1129,8 +1142,15 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
+    debugDialerEvent('NewRTCSession %o', event)
+
     // Call-ID – идентификатор вызова.
     event.session.data.call_id = event.request.getHeader('Call-ID')
+
+    if (event.session.direction === 'incoming') {
+      this.playAudio('/sounds/ringing2.mp3', true) // Проигрываю мелодию входящего вызова.
+    }
+
     this.$ifvisible.wakeup()
   }
 
@@ -1158,7 +1178,6 @@ export default class DefaultLayout extends AppBase {
 
     // Если входящий
     if (session.direction === 'incoming') {
-      this.playAudio('/sounds/ringing2.mp3', true) // Проигрываю мелодию входящего вызова.
       session.data.target = session.remote_identity.uri.user // Номер входящего
 
       debugDialerEvent('Входящий: %s', session.data.target)
@@ -1203,7 +1222,8 @@ export default class DefaultLayout extends AppBase {
   onSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     this.$toast.dismiss('incoming-dialog')
 
-    this.stopAudio()
+    setTimeout(() => (this.stopAudio()), 500)
+
     this.$root.$emit('dialer-session-accepted', session, event)
 
     debugDialerEvent('Accepted %o %o', session, event)
@@ -1216,7 +1236,8 @@ export default class DefaultLayout extends AppBase {
   onSessionEnded (session: RTCSession, event: EndEvent) {
     this.$toast.dismiss('incoming-dialog')
 
-    this.stopAudio()
+    setTimeout(() => (this.stopAudio()), 500)
+
     this.onSessionFinality(session, event)
     this.$root.$emit('dialer-session-ended', session, event)
     this.$root.$emit('dialer-session-finality', session, event) // Финальный
@@ -1233,7 +1254,8 @@ export default class DefaultLayout extends AppBase {
   onSessionFailed (session: RTCSession, event: EndEvent) {
     this.$toast.dismiss('incoming-dialog')
 
-    this.stopAudio()
+    setTimeout(() => (this.stopAudio()), 500)
+
     this.onSessionFinality(session, event)
     this.$root.$emit('dialer-session-failed', session, event)
     this.$root.$emit('dialer-session-finality', session, event)
@@ -1510,14 +1532,14 @@ export default class DefaultLayout extends AppBase {
   onIncomingDialogAnswerClick () {
     this.$toast.dismiss('incoming-dialog')
 
+    this.$dialer.answer()
+
     // Сразу перехожу в карточку контакта.
     this.$router.push({
       name: 'contacts_view_scenario',
       params: {
         contact_id: String(this.contactIncomingId)
       }
-    }).finally(() => {
-      this.$dialer.answer()
     })
   }
 
@@ -1550,6 +1572,7 @@ export default class DefaultLayout extends AppBase {
   ifVisibleIdleHandler () {
     // this.degradation = true
     this.$accountMonitoring.end()
+    this.$store.commit('app_state/page', 'sex')
   }
 
   /**
@@ -1566,8 +1589,8 @@ export default class DefaultLayout extends AppBase {
    * @param loop
    */
   playAudio (src: string, loop = false) {
-    this.audioPlayed = true
-    if (this.audioPlayed) {
+    if (!this.audioPlayed) {
+      this.audioPlayed = true
       this.audio.src = src
       this.audio.loop = loop
       this.audio.play().catch(() => {
@@ -1589,6 +1612,10 @@ export default class DefaultLayout extends AppBase {
     }
     this.audio.currentTime = 0.0
     this.audioPlayed = false
+  }
+
+  dialerStateChange (state: 'not_inuse'|'inuse') {
+    this.$axios.get(`/account/dialer-state/${state}`)
   }
 }
 </script>

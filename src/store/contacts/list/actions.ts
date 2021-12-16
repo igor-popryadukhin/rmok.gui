@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 const cancelTokenSources: CancelTokenSource[] = []
 
 const actions: ActionTree<ContactListState, RootState> = {
-  fetch: ({ commit, state, getters }: ActionContext<ContactListState, RootState>) => {
+  fetch: ({ commit, state, getters, dispatch }: ActionContext<ContactListState, RootState>) => {
     const len = cancelTokenSources.length
     for (let i = 0; i < len; i++) {
       cancelTokenSources.pop()?.cancel()
@@ -62,17 +62,6 @@ const actions: ActionTree<ContactListState, RootState> = {
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
           commit('total', response.data?.meta?.count || 0)
-
-          if (getters.items_selected.length > 0) {
-            const selected: number[] = getters.items_selected.map((e) => e)
-            response.data.forEach((e) => {
-              if (!selected.includes(e.id)) {
-                selected.push(e.id)
-              }
-            })
-            commit('items_selected', selected)
-          }
-
           commit('items', response.data?.data || [])
           resolve()
         }
@@ -95,7 +84,17 @@ const actions: ActionTree<ContactListState, RootState> = {
    * @param commit
    * @param state
    */
-  selected_all: ({ commit, state }) => {
+  selected_all: ({ commit, dispatch }) => {
+    dispatch('selected_all_in_page')
+    commit('selected_all', true)
+  },
+
+  /**
+   * Выделяет все контакты на странице
+   * @param commit
+   * @param state
+   */
+  selected_all_in_page: ({ commit, state }) => {
     // Копирую ранее выбранные идентификаторы
     const contactIds: number[] = state.items_selected.map((id: number) => id)
     state.items.forEach((e: Contact) => {
@@ -105,12 +104,29 @@ const actions: ActionTree<ContactListState, RootState> = {
       }
     })
     // Фиксирую состояние
-    commit('selected', contactIds)
-    commit('selected_all', true)
+    commit('items_selected', contactIds)
+  },
+
+  /**
+   * Отменяет выделение на текущей странице
+   * @param commit
+   * @param state
+   */
+  unselect_all_in_page: ({ commit, state }) => {
+    const contactIds: number[] = state.items_selected.map((id: number) => id)
+
+    state.items.forEach((e: Contact) => {
+      const index = contactIds.findIndex((id) => id === e.id)
+      if (index > -1) {
+        contactIds.splice(index, 1)
+      }
+    })
+    // Фиксирую состояние
+    commit('items_selected', contactIds)
   },
 
   unselect: ({ commit }) => {
-    commit('selected', [])
+    commit('items_selected', [])
     commit('selected_all', false)
   },
 

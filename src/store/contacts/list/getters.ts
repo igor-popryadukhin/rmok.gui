@@ -8,11 +8,28 @@ const getters: GetterTree<ContactListState, RootState> = {
   total (state: ContactListState) { return state?.total || 0 },
   items (state: ContactListState) { return state?.items || [] },
   items_selected (state: ContactListState) { return state.items_selected },
+
   /**
    * True = все элементы выбраны
    * @param state
    */
   selected_all (state: ContactListState) { return state.selected_all },
+
+  /**
+   * True = все элементы на странице выбраны
+   * @param state
+   */
+  selected_all_in_page (state: ContactListState) {
+    if (state.items_selected.length === 0) { return false }
+
+    for (const item of state.items) {
+      if (state.items_selected.findIndex((id) => id === item.id) === -1) {
+        return false
+      }
+    }
+
+    return true
+  },
   /**
    * Состояние неопределённости, прям как...
    *
@@ -32,7 +49,6 @@ const getters: GetterTree<ContactListState, RootState> = {
       }
     }
     return false
-    // return state.selected.length < state.per_page && state.selected.length > 0
   },
   selected_count (state: ContactListState) { return state.selected_all ? state.total : state.items_selected.length }
 }

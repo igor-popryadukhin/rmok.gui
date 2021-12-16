@@ -29,9 +29,9 @@
           :disabled="!selected"
           text
           tile
-          @click="$emit('ok')"
+          @click="$emit('ok', selected)"
         >
-          {{ $tc('Save') }}
+          {{ $tc(okTitle) }}
         </v-btn>
       </div>
     </v-card-actions>
@@ -49,6 +49,8 @@ export default class AppDialogAutocomplete extends Vue {
   @Prop({ default: 'value' }) readonly itemValue: string
   @Prop({ default: false }) readonly returnObject: boolean
   @Prop({ default: '' }) readonly title: string
+  @Prop({ default: 'Save' }) readonly okTitle: string
+  @Prop({ type: Function, default: null }) readonly onMounted?: CallableFunction
   @Prop({ type: Function, default: null }) readonly onSearch?: CallableFunction
   @Prop({ type: Function, default: null }) readonly onSelect?: CallableFunction
 
@@ -69,6 +71,14 @@ export default class AppDialogAutocomplete extends Vue {
   onWatchSelected (val: Record<string, any>[] | string[]) {
     if (typeof this.onSelect === 'function' && val) {
       this.onSelect(val)
+    }
+  }
+
+  mounted () {
+    if (typeof this.onMounted === 'function') {
+      this.onMounted((items: Record<string, any>[] | string[]) => {
+        this.options = items
+      })
     }
   }
 }

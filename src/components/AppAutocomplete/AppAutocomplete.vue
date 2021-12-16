@@ -82,6 +82,11 @@ export default class AppAutocomplete extends Vue {
     return val
   }
 
+  @Emit('mounted')
+  onMountedEmit () {
+    return undefined
+  }
+
   @Emit('click:clear')
   onClickClear () {
     this.query = null
@@ -95,6 +100,10 @@ export default class AppAutocomplete extends Vue {
       const index = this.selectedValue.findIndex((e: number) => e === id)
       if (index >= 0) this.selectedValue.splice(index, 1)
     }
+  }
+
+  mounted () {
+    this.onMountedEmit()
   }
 }
 </script>
