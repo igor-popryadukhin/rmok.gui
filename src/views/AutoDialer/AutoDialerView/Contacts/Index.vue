@@ -24,6 +24,8 @@
         >
           {{ $tc('Refresh') }}
         </v-btn>
+        <v-spacer />
+        <app-paginator />
       </div>
 
       <v-divider />
@@ -55,10 +57,11 @@ import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import debounce from '@/utils/debounce'
 import { Ref } from 'vue-property-decorator'
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
 
 // eslint-disable-next-line no-use-before-define
 @Component<Index>({
-  components: { AppLoading, List }
+  components: { AppPaginator, AppLoading, List }
 })
 export default class Index extends AppBase {
   @Ref() readonly tools!: Element
