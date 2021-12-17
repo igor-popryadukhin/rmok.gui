@@ -57,15 +57,24 @@
             <tr>
               <th
                 class="text-left"
-                style="width: 20px;"
               >
                 {{ $tc('Name') }}
               </th>
               <th
                 class="text-left"
-                style="width: 100%;"
               >
                 {{ $tc('Mode') }}
+              </th>
+              <th
+                class="text-left"
+              >
+                {{ $tc('Количество контактов') }}
+              </th>
+              <th
+                class="text-left"
+                style="width: 68%;"
+              >
+                {{ $tc('Процент завершённых') }}
               </th>
               <th />
             </tr>
@@ -105,6 +114,16 @@
                 </v-chip>
               </td>
               <!-- Режим -->
+              <!-- Количество контактов -->
+              <td>
+                {{ item.contacts_count }}
+              </td>
+              <!-- Количество контактов -->
+              <!-- Процент завершённых -->
+              <td>
+                {{ item.percentage_completed_calls }}
+              </td>
+              <!-- Процент завершённых -->
               <!-- Действия -->
               <td>
                 <v-btn
