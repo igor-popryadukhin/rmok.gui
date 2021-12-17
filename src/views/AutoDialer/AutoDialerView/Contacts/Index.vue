@@ -25,7 +25,12 @@
           {{ $tc('Refresh') }}
         </v-btn>
         <v-spacer />
-        <app-paginator />
+        <app-paginator
+          v-model="offset"
+          :per-page="callsPerPage"
+          :count="callsTotal"
+          @change="onAppPaginationChange"
+        />
       </div>
 
       <v-divider />
@@ -72,6 +77,19 @@ export default class Index extends AppBase {
   // Увеличивает значение при изменении размера компонента.
   tick = 0
 
+  get callsTotal () { return this.$store.getters['autodialer/view/calls/total'] }
+  get callsPerPage () { return this.$store.getters['autodialer/view/calls/per_page'] }
+
+  get offset (): number { return this.$store.getters['autodialer/view/calls/filter_offset'] }
+  set offset (val: string|number) { this.$store.commit('autodialer/view/calls/filter_offset', +val) }
+
+  get requestParameters () {
+    return {
+      count: this.callsPerPage,
+      offset: this.offset
+    }
+  }
+
   get listHeight () {
     const tick = this.tick
     return this.$el.clientHeight - this.tools.clientHeight
@@ -82,7 +100,7 @@ export default class Index extends AppBase {
   }
 
   mounted () {
-    this.$store.dispatch('autodialer/view/calls/fetch', +this.$route.params.id)
+    this.$store.dispatch('autodialer/view/calls/fetch', this.requestParameters)
       .finally(() => (this.loading = false))
   }
 
@@ -92,8 +110,14 @@ export default class Index extends AppBase {
 
   private onBtnRefreshClick () {
     this.btnRefreshLoading = true
-    this.$store.dispatch('autodialer/view/calls/fetch', +this.$route.params.id)
+    this.$store.dispatch('autodialer/view/calls/fetch', this.requestParameters)
       .finally(() => (this.btnRefreshLoading = false))
+  }
+
+  private onAppPaginationChange () {
+    this.loading = true
+    this.$store.dispatch('autodialer/view/calls/fetch', this.requestParameters)
+      .finally(() => (this.loading = false))
   }
 }
 </script>
