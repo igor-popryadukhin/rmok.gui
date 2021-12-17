@@ -280,7 +280,7 @@ export default class ContactList extends Base {
   }
 
   private onBtnCancelSelectionClick () {
-    this.$store.dispatch('contacts/list/unselect')
+    this.$store.dispatch('contacts/list/unselect_all')
   }
 }
 

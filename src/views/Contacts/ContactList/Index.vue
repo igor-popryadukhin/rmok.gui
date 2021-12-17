@@ -10,7 +10,10 @@
         order-md="0"
         order-sm="1"
       >
-        <contact-list-tools class="mb-2" />
+        <contact-list-tools
+          class="mb-2"
+          @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
+        />
         <v-divider />
         <contact-list
           :loading="contactLoading"
@@ -41,6 +44,12 @@
     </v-row>
 
     <contact-create />
+
+    <app-progress-dialog
+      v-if="progressDialog.visible"
+      :progress="progressDialog.progress"
+      :message="progressDialog.message"
+    />
   </v-sheet>
 </template>
 
@@ -54,10 +63,13 @@ import ContactList from './ContactList.vue'
 import Contact from '@/api/interfaces/Contact'
 import debounce from '@/utils/debounce'
 import { Watch } from 'vue-property-decorator'
+import SSEMessage from '@/interfaces/SSEMessage'
+import AppProgressDialog from '@/components/AppProgressDialog/AppProgressDialog.vue'
 
 // eslint-disable-next-line no-use-before-define
 @Component<Index>({
   components: {
+    AppProgressDialog,
     ContactCreate: () => import('@/views/Contacts/ContactList/ContactCreate.vue'),
     ContactList,
     AppTable,
@@ -73,6 +85,12 @@ import { Watch } from 'vue-property-decorator'
   }
 })
 export default class Index extends Base {
+  progressDialog = {
+    visible: false,
+    message: '',
+    progress: 0
+  }
+
   get heightContactList () {
     return this.screenHeight - 125
   }
@@ -93,6 +111,12 @@ export default class Index extends Base {
 
   created () {
     this.onFilterChange = debounce(this.onFilterChange, 350)
+
+    this.$root.$on('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
+  }
+
+  beforeDestroy () {
+    this.$root.$off('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
   }
 
   /**
@@ -101,6 +125,26 @@ export default class Index extends Base {
    */
   private onFilterChange () {
     this.$store.dispatch('contacts/list/fetch')
+  }
+
+  private onToolsBtnAddToAutodialer () {
+    this.$store.dispatch('contacts/list/add_to_autodialer', 3)
+  }
+
+  private onSSEContactsAddToAutodialer (message: SSEMessage) {
+    if (message.payload.status === 'progress') {
+      this.progressDialog.progress = +message.payload.percent
+      this.progressDialog.message = this.$tc('Please stand by...')
+      this.progressDialog.visible = true
+    } else if (message.payload.status === 'success') {
+      this.progressDialog.visible = false
+      this.progressDialog.message = ''
+      this.progressDialog.progress = 0
+
+      this.$store.dispatch('contacts/list/unselect_all')
+    } else if (message.payload.status === 'failure') {
+      this.$toast.error(message.payload.message)
+    }
   }
 }
 

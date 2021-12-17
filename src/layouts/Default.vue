@@ -1376,6 +1376,7 @@ export default class DefaultLayout extends AppBase {
 
       // Темы для подписок
       url.searchParams.append('topic', `${window.origin}/users/${this.profileId}/event`)
+      url.searchParams.append('topic', `${window.origin}/users/${this.profileId}/${this.$currentTabID}/event`)
 
       if (this.$isGranted(['ROLE_ADMIN'])) {
         url.searchParams.append('topic', `${window.origin}/administration`)

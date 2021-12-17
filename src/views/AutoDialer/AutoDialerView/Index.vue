@@ -77,6 +77,12 @@ export default class AutoDialerView extends Base {
         }
       },
       {
+        title: 'Операторы',
+        to: {
+          name: 'auto_dialer_tab_operators'
+        }
+      },
+      {
         title: 'Расписание',
         to: {
           name: 'auto_dialer_tab_schedule'

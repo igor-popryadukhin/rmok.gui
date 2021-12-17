@@ -3,6 +3,7 @@ import { Module } from 'vuex'
 import { getters } from './getters'
 import { actions } from './actions'
 import { mutations } from './mutations'
+import { operators } from './operators'
 import calls from './calls'
 import journal from './journal'
 import stats_online from './stats_online'
@@ -16,6 +17,7 @@ const module: Module<State, RootState> = {
   state,
   modules: {
     calls,
+    operators,
     journal,
     stats_online
   }

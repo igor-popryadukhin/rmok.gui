@@ -5,13 +5,30 @@ import Vue from 'vue'
 import debug from 'debug'
 import { sleep } from '@/utils/utils'
 
+function importModuleUUID () {
+  return import(/* webpackPrefetch: false, webpackPreload: false, webpackChunkName: "uuid"  */'uuid')
+}
+
+let tabID: string|null = null
+importModuleUUID()
+  .then(({ v4 }) => {
+    tabID = sessionStorage.tabID &&
+    sessionStorage.closedLastTab !== '2'
+      ? sessionStorage.tabID
+      : sessionStorage.tabID = v4()
+    sessionStorage.closedLastTab = '2'
+
+    window.addEventListener('unload', () => (sessionStorage.closedLastTab = '1'))
+    window.addEventListener('beforeunload', () => (sessionStorage.closedLastTab = '1'))
+  })
+
 const httpResponseLog = debug('APP').extend('HTTP').extend('RESPONSE')
 const httpRequestLog = debug('APP').extend('HTTP').extend('REQUEST')
 
 // Full config:  https://github.com/axios/axios#request-config
-// axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
-// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+// axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || ''
+// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
+// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 
 /* eslint-disable */
 const config = {
@@ -37,25 +54,29 @@ if (process.env.NODE_ENV === 'development') {
 /* eslint-disable */
 // @ts-ignore
 _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequestConfig | Promise<AxiosRequestConfig> => {
-  httpRequestLog('%o', config)
+    httpRequestLog('%o', config)
 
-  // todo: set locale optional
-  config.headers.Language = 'ru'
+    // todo: set locale optional
+    config.headers.Language = 'ru'
 
-  if (isRefreshTokenProcess) {
-    console.log('%c%s', 'color: red;', `Запрос ${config.url} ожидает обновление токена...`)
-    promises.push(new Promise<void>(async (resolve) => {
-      while (isRefreshTokenProcess) {
-        await sleep(500)
-      }
-      console.log('%c%s', 'color: green;', `Запрос ${config.url} разрешён!`)
-      resolve()
-    }))
-    // This is process update token
-    await Promise.all(promises)
-  }
+    if (tabID) {
+      config.headers['Tab-ID'] = tabID
+    }
 
-  if (cookie.has('access_token')) {
+    if (isRefreshTokenProcess) {
+      console.log('%c%s', 'color: red;', `Запрос ${config.url} ожидает обновление токена...`)
+      promises.push(new Promise<void>(async (resolve) => {
+        while (isRefreshTokenProcess) {
+          await sleep(500)
+        }
+        console.log('%c%s', 'color: green;', `Запрос ${config.url} разрешён!`)
+        resolve()
+      }))
+      // This is process update token
+      await Promise.all(promises)
+    }
+
+    if (cookie.has('access_token')) {
       config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
       return config
     } else {

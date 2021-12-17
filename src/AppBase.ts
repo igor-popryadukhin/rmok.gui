@@ -2,6 +2,13 @@ import Vue from 'vue'
 
 export default class AppBase extends Vue {
   /**
+   * Уникальный идентификатор вкладки
+   */
+  get $currentTabID (): string {
+    return sessionStorage.tabID || ''
+  }
+
+  /**
    * Высота окна
    */
   get screenHeight () {

@@ -8,6 +8,44 @@ import dayjs from 'dayjs'
 
 const cancelTokenSources: CancelTokenSource[] = []
 
+function normalizeQuery (query: Record<string, string|number|Array<string|number>>) {
+  const inner = Object.assign({}, query)
+
+  if (!inner.q) { delete inner.q }
+  if (!inner.project_id) { delete inner.project_id }
+  if (!(Array.isArray(inner.status_ids) && inner.status_ids.length === 0)) { delete inner.status_ids }
+  if (!inner.owner_id) { delete inner.owner_id }
+  if (!inner.user_group_id) { delete inner.user_group_id }
+  if (!(Array.isArray(inner.tag_ids) && inner.tag_ids.length > 0)) { delete inner.tag_ids }
+  if (!inner.contact_created_at) { delete inner.contact_created_at }
+  if (!inner.calling) { delete inner.calling }
+  if (!inner.offset) { delete inner.offset }
+  if (!inner.task) { delete inner.task }
+  if (!inner.timezone) { delete inner.timezone }
+  if (!inner.utc_offset) { delete inner.utc_offset }
+
+  // Модифицирую формат даты
+  if ('contact_created_at' in inner) {
+    if (Array.isArray(inner.contact_created_at) && inner.contact_created_at.length === 2) {
+      let contactCreatedAtStart = dayjs(inner.contact_created_at[0], 'YYYY-MM-DD')
+      let contactCreatedAtEnd = dayjs(inner.contact_created_at[1], 'YYYY-MM-DD')
+
+      contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+      contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+      if (contactCreatedAtStart.unix() > contactCreatedAtEnd.unix()) {
+        inner.contact_created_at = `${contactCreatedAtEnd.unix()},${contactCreatedAtStart.unix()}`
+      } else {
+        inner.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
+      }
+    } else {
+      delete inner.contact_created_at
+    }
+  }
+
+  return inner
+}
+
 const actions: ActionTree<ContactListState, RootState> = {
   fetch: ({ commit, state, getters, dispatch }: ActionContext<ContactListState, RootState>) => {
     const len = cancelTokenSources.length
@@ -16,40 +54,9 @@ const actions: ActionTree<ContactListState, RootState> = {
     }
 
     return new Promise<void>((resolve, reject) => {
-      const query: Record<string, string|number|Array<string|number>> = Object.assign({}, getters['filter/all'])
-
-      if (!query.q) { delete query.q }
-      if (!query.project_id) { delete query.project_id }
-      if (!(Array.isArray(query.status_ids) && query.status_ids.length > 0)) { delete query.status_ids }
-      if (!query.owner_id) { delete query.owner_id }
-      if (!query.user_group_id) { delete query.user_group_id }
-      if (!(Array.isArray(query.tag_ids) && query.tag_ids.length > 0)) { delete query.tag_ids }
-      if (!query.contact_created_at) { delete query.contact_created_at }
-      if (!query.calling) { delete query.calling }
-      if (!query.offset) { delete query.offset }
-      if (!query.task) { delete query.task }
-      if (!query.timezone) { delete query.timezone }
+      const query: Record<string, string|number|Array<string|number>> = getters['filter/all']
 
       query.count = state.per_page
-
-      // Модифицирую формат даты
-      if ('contact_created_at' in query) {
-        if (Array.isArray(query.contact_created_at) && query.contact_created_at.length === 2) {
-          let contactCreatedAtStart = dayjs(query.contact_created_at[0], 'YYYY-MM-DD')
-          let contactCreatedAtEnd = dayjs(query.contact_created_at[1], 'YYYY-MM-DD')
-
-          contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
-          contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
-
-          if (contactCreatedAtStart.unix() > contactCreatedAtEnd.unix()) {
-            query.contact_created_at = `${contactCreatedAtEnd.unix()},${contactCreatedAtStart.unix()}`
-          } else {
-            query.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
-          }
-        } else {
-          delete query.contact_created_at
-        }
-      }
 
       const cancelTokenSource = axios.CancelToken.source()
       cancelTokenSources.push(cancelTokenSource)
@@ -66,6 +73,25 @@ const actions: ActionTree<ContactListState, RootState> = {
           resolve()
         }
       }).catch(reject).finally(() => (commit('loading', false)))
+    })
+  },
+
+  add_to_autodialer: ({ getters }: ActionContext<ContactListState, RootState>, id: number) => {
+    const filter_contacts: Record<string, string|number|Array<string|number>> = getters['filter/all']
+
+    if ('count' in filter_contacts) { delete filter_contacts.count }
+    if ('offset' in filter_contacts) { delete filter_contacts.offset }
+
+    return new Promise<boolean>((resolve, reject) => {
+      $axios.post(`/autodialer/${id}/add-contacts`, {
+        filter_contacts
+      }).then((response: AxiosResponse) => {
+        if (response.status !== 202) {
+          throw new Error('Ошибка')
+        }
+
+        resolve(true)
+      }).catch(reject)
     })
   },
 
@@ -125,7 +151,7 @@ const actions: ActionTree<ContactListState, RootState> = {
     commit('items_selected', contactIds)
   },
 
-  unselect: ({ commit }) => {
+  unselect_all: ({ commit }) => {
     commit('items_selected', [])
     commit('selected_all', false)
   },

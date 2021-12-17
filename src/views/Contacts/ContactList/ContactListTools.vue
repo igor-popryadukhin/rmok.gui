@@ -58,6 +58,7 @@
       small
       tile
       text
+      @click="emitBtnAddToAutodialer"
     >
       {{ $tc('Add to autodialer') }}
     </v-btn>
@@ -74,7 +75,7 @@
 <script lang="ts">
 import Base from './Base'
 import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import { Prop, Emit } from 'vue-property-decorator'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 
 @Component({
@@ -82,6 +83,11 @@ import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 })
 export default class ContactListTools extends Base {
   @Prop({ default: false }) readonly outlined: boolean
+
+  @Emit('btn:click:add-to-autodialer')
+  emitBtnAddToAutodialer () {
+    return undefined
+  }
 
   /** True - если есть выбранные контакты */
   get contactsIsSelected (): boolean {

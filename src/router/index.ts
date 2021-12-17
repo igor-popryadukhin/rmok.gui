@@ -124,6 +124,16 @@ const routes: RouteConfig[] = [
             path: 'contacts'
           },
           {
+            component: () => import(/* webpackChunkName: "auto-dialer-tab-operators" */ '../views/AutoDialer/AutoDialerView/Operators/Index.vue'),
+            meta: {
+              anonymous: true,
+              layout: 'default',
+              middleware: []
+            },
+            name: 'auto_dialer_tab_operators',
+            path: 'operators'
+          },
+          {
             component: () => import(/* webpackChunkName: "auto-dialer-tab-schedule" */ '../views/AutoDialer/AutoDialerView/Schedule/Index.vue'),
             meta: {
               anonymous: true,
