@@ -13,14 +13,16 @@ const actions: ActionTree<State, RootState> = {
    * @param ctx
    * @param id
    */
-  fetch (ctx: ActionContext<State, RootState>, id: number) {
+  fetch: ({ commit, rootGetters }, params = {}) => {
     return new Promise<void>((resolve, reject) => {
-      $axios.get(`/autodialer/${id}/operators`)
+      const id = rootGetters.routeParams.id
+      $axios.get(`/autodialer/${id}/operators`, { params })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
           } else {
-            ctx.commit('items', response.data?.data || [])
+            commit('total', response.data?.meta?.count || 0)
+            commit('items', response.data?.data || [])
             resolve()
           }
         }).catch(reject)

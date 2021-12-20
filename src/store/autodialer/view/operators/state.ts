@@ -1,10 +1,16 @@
 export interface State {
   items: any[];
+  total: number;
+  per_page: number;
+  filter_offset: number;
 }
 
 function state (): State {
   return {
-    items: []
+    items: [],
+    total: 0,
+    per_page: 30,
+    filter_offset: 0
   }
 }
 
