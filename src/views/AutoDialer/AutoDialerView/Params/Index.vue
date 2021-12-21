@@ -69,17 +69,24 @@
               style="width: 50%"
             />
           </div>
-          <div class="d-flex py-2">
-            <v-spacer />
-            <v-btn
-              :loading="processApply"
-              color="primary"
-              outlined
-              tile
-              @click="onBtnApplyClick"
-            >
-              {{ $tc('Apply') }}
-            </v-btn>
+          <div class="row py-2">
+            <div class="col-6">
+              <v-text-field
+                v-model="queueName"
+                label="Имя очереди"
+              />
+            </div>
+            <div class="col-6 text-right">
+              <v-btn
+                :loading="processApply"
+                color="primary"
+                outlined
+                tile
+                @click="onBtnApplyClick"
+              >
+                {{ $tc('Apply') }}
+              </v-btn>
+            </div>
           </div>
         </v-sheet>
       </v-col>
@@ -90,7 +97,10 @@
         />
       </v-col>
     </v-row>
-    <v-row no-gutters>
+    <v-row
+      no-gutters
+      class="mt-6"
+    >
       <v-col>
         <div>
           <h4 class="grey--text">
@@ -162,6 +172,9 @@ export default class AutoDialerView extends Base {
       }
     ]
   }
+
+  get queueName (): string { return this.$store.state.autodialer.view.queue_name }
+  set queueName (val: string) { this.$store.commit('autodialer/view/queue_name', val) }
 
   /**
    * Срабатывает при нажатии на кнопку Start

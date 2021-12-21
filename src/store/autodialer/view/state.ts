@@ -8,6 +8,7 @@ export interface State {
   maximum_attempts: number;
   repeat_calls_settings_available_actions: Array<Record<string, any>>;
   repeat_calls_settings: Array<Record<string, any>>;
+  queue_name: string;
 }
 
 function state (): State {
@@ -20,7 +21,8 @@ function state (): State {
     count_of_call_lines: 0,
     maximum_attempts: 0,
     repeat_calls_settings_available_actions: [],
-    repeat_calls_settings: []
+    repeat_calls_settings: [],
+    queue_name: ''
   }
 }
 

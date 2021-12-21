@@ -27,7 +27,8 @@ export const actions: ActionTree<State, RootState> = {
     const data: Record<string, any> = {
       call_back_in_minutes: ctx.state.call_back_in_minutes,
       count_of_call_lines: ctx.state.count_of_call_lines,
-      mode: ctx.state.mode
+      mode: ctx.state.mode,
+      queue_name: ctx.state.queue_name
     }
     return new AutodialerParams().edit(ctx.state.id, data)
   }
