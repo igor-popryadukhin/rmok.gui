@@ -29,6 +29,10 @@ const getters: GetterTree<State, RootState> & Getters = {
   all (state: State) {
     const obj: Record<string, any> = {}
 
+    if (state.filter_q) {
+      obj.q = state.filter_q
+    }
+
     if (state.filter_project_id) {
       obj.project_id = state.filter_project_id
     }

@@ -3,12 +3,11 @@ export interface State {
   name: string;
   status: string;
   mode: string;
-  call_back_in_minutes: number;
-  count_of_call_lines: number;
+  pickup_timeout: number;
+  max_calls_number: number;
   maximum_attempts: number;
   repeat_calls_settings_available_actions: Array<Record<string, any>>;
   repeat_calls_settings: Array<Record<string, any>>;
-  queue_name: string;
 }
 
 function state (): State {
@@ -17,12 +16,11 @@ function state (): State {
     name: '',
     status: 'ready',
     mode: '',
-    call_back_in_minutes: 0,
-    count_of_call_lines: 0,
+    pickup_timeout: 0,
+    max_calls_number: 0,
     maximum_attempts: 0,
     repeat_calls_settings_available_actions: [],
-    repeat_calls_settings: [],
-    queue_name: ''
+    repeat_calls_settings: []
   }
 }
 

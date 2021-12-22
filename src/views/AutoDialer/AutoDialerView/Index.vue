@@ -3,9 +3,10 @@
     <v-tabs
       v-model="tab"
       color="primary"
+      height="35"
+      show-arrows
       optional
       hide-slider
-      height="35"
       style="margin-bottom: 5px"
     >
       <v-tab
@@ -19,7 +20,7 @@
 
     <v-sheet
       :height="height"
-      class="pa-2"
+      class="pa-3"
       style="overflow-y: auto"
       outlined
     >
@@ -67,7 +68,13 @@ export default class AutoDialerView extends Base {
       {
         title: 'Общее',
         to: {
-          name: 'auto_dialer_tab_params'
+          name: 'auto_dialer_tab_main'
+        }
+      },
+      {
+        title: 'Телефония',
+        to: {
+          name: 'auto_dialer_tab_telephony'
         }
       },
       {
@@ -92,6 +99,12 @@ export default class AutoDialerView extends Base {
         title: 'Контакты',
         to: {
           name: 'auto_dialer_tab_contacts'
+        }
+      },
+      {
+        title: 'Журнал',
+        to: {
+          name: 'auto_dialer_tab_journal'
         }
       }
     ]

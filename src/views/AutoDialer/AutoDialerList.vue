@@ -86,7 +86,7 @@
             >
               <!-- Имя контакта -->
               <td style="white-space: nowrap">
-                <router-link :to="{ name: 'auto_dialer_tab_params', params: { id: item.id } }">
+                <router-link :to="{ name: 'auto_dialer_tab_main', params: { id: item.id } }">
                   {{ item.name }}
                 </router-link>
               </td>

@@ -76,11 +76,15 @@ const actions: ActionTree<ContactListState, RootState> = {
     })
   },
 
-  add_to_autodialer: ({ getters }: ActionContext<ContactListState, RootState>, id: number) => {
+  add_to_autodialer: ({ state, getters }: ActionContext<ContactListState, RootState>, id: number) => {
     const filter_contacts: Record<string, string|number|Array<string|number>> = getters['filter/all']
 
     if ('count' in filter_contacts) { delete filter_contacts.count }
     if ('offset' in filter_contacts) { delete filter_contacts.offset }
+
+    if (state.items_selected.length > 0) {
+      filter_contacts.ids = state.items_selected
+    }
 
     return new Promise<boolean>((resolve, reject) => {
       $axios.post(`/autodialer/${id}/add-contacts`, {
