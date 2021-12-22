@@ -7,6 +7,7 @@ export const getters: GetterTree<State, RootState> = {
   name (state: State) { return state.name },
   status (state: State) { return state.status },
   mode (state: State) { return state.mode },
+  queue_name (state: State) { return state.queue_name },
   pickup_timeout (state: State) { return state.pickup_timeout },
   max_calls_number (state: State) { return state.max_calls_number },
   maximum_attempts (state: State) { return state.maximum_attempts },
