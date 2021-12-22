@@ -116,20 +116,27 @@ import Base from '../Base'
 import AutodialerParams from '@/api/AutodialerParams'
 import StatsOnline from './StatsOnline.vue'
 import StatsAbandonedCall from './StatsAbandonedCall.vue'
+import { AxiosResponse } from 'axios'
+import APIError from '@/api/classes/APIError'
 
 @Component({
   components: { StatsAbandonedCall, StatsOnline, AppLoading, Journal }
 })
 export default class AutoDialerView extends Base {
-  processStartingOrStopping = false
-  processApply = false
+  processStartingOrStopping = false;
+  processApply = false;
   autodialerModeOptions = [
     { text: 'Предиктивный', value: 'predictive' },
     { text: 'Прогрессивный', value: 'progressive' }
-  ]
+  ];
 
-  get autodialerMode (): string { return this.$store.state.autodialer.view.mode }
-  set autodialerMode (val: string) { this.$store.commit('autodialer/view/mode', val) }
+  get autodialerMode (): string {
+    return this.$store.state.autodialer.view.mode
+  }
+
+  set autodialerMode (val: string) {
+    this.$store.commit('autodialer/view/mode', val)
+  }
 
   get autodialerStatusOptions () {
     return [
@@ -144,15 +151,18 @@ export default class AutoDialerView extends Base {
    */
   onBtnStartClick () {
     this.processStartingOrStopping = true
-    new AutodialerParams()
-      .start(+this.$route.params.id)
-      .then(() => {
-        this.$toast.success(this.$tc('Autodial is starting'))
+    this.$axios.get(`/autodialer/params/${+this.$route.params.id}/start`)
+      .then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+        this.$toast.success('Auto dialer activated')
         this.$store
           .dispatch('autodialer/view/fetch', this.$route.params.id)
           .finally(() => (this.processStartingOrStopping = false))
-      }).catch((e: Error) => {
-        this.$toast.error(this.$tc(e.message))
+      }).catch((reason: Error) => {
+        this.processStartingOrStopping = false
+        this.$toast.error(reason.message)
       })
   }
 
@@ -161,15 +171,18 @@ export default class AutoDialerView extends Base {
    */
   onBtnStopClick () {
     this.processStartingOrStopping = true
-    new AutodialerParams()
-      .stop(+this.$route.params.id)
-      .then(() => {
-        this.$toast.success(this.$tc('Autodial is stopping'))
+    this.$axios.get(`/autodialer/params/${+this.$route.params.id}/stop`)
+      .then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+        this.$toast.success('Auto dialer deactivated')
         this.$store
           .dispatch('autodialer/view/fetch', this.$route.params.id)
           .finally(() => (this.processStartingOrStopping = false))
-      }).catch((e: Error) => {
-        this.$toast.error(this.$tc(e.message))
+      }).catch((reason: Error) => {
+        this.processStartingOrStopping = false
+        this.$toast.error(reason.message)
       })
   }
 
