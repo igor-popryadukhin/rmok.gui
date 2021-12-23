@@ -639,5 +639,10 @@
   "unknown_number": "Неизвестный номер",
   "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети",
   "video": "Видео",
-  "yes": "Да"
+  "yes": "Да",
+  "Scenarios": "Сценарий",
+  "Scenario name": "Название сценария",
+  "Scenario created": "Сценарий создан",
+  "Scenario new": "Новый сценарий",
+  "Scenario deleted": "Сценарий удалён."
 }
