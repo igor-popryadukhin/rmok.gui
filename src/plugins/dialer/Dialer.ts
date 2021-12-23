@@ -350,13 +350,12 @@ export default class Dialer {
     this._currentRTCSession.on('connecting', (event: ConnectingEvent) => {
       // Тут мы подключаемся к микрофону и цепляем к нему поток, который пойдёт в астер
       const peerconnection = this._currentRTCSession.connection
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+
+      // @ts-expect-error: peerconnection.getLocalStreams()[0]
       this._localClonedStream = peerconnection.getLocalStreams()[0]
 
       peerconnection.addEventListener('addstream', (event) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error: this._remoteAudio.srcObject = event.stream
         this._remoteAudio.srcObject = event.stream
       })
 

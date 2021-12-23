@@ -217,7 +217,7 @@ export default class Index extends AppBase {
    */
   private onBtnSaveClick () {
     this.processSave = true
-    $axios.patch(`/autodialer/params/${this.$route.params.id}`, {
+    $axios.patch(`/autodialer/${this.$route.params.id}`, {
       maximum_attempts: this.maximumAttempts,
       repeat_calls_settings: this.statuses.map((e: Record<string, any>) => {
         return {

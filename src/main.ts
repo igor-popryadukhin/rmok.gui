@@ -4,6 +4,8 @@ import App from '@/App.vue'
 import router from '@/router'
 import store from '@/store'
 import '@/directives'
+// @see https://stackoverflow.com/questions/52122011/failed-to-execute-postmessage-on-window-googletagmanager
+import './fix.postMessage'
 
 // Style
 import '@/assets/scss/style.scss'

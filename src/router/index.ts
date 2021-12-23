@@ -162,16 +162,6 @@ const routes: RouteConfig[] = [
             },
             name: 'auto_dialer_tab_telephony',
             path: 'telephony'
-          },
-          {
-            component: () => import(/* webpackChunkName: "auto-dialer-tab-journal" */ '../views/AutoDialer/AutoDialerView/Journal/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'auto_dialer_tab_journal',
-            path: 'journal'
           }
         ]
       }

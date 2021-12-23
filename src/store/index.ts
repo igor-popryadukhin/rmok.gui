@@ -24,6 +24,7 @@ import statistic_activity from './statistic_activity'
 import { database } from './database'
 import debug from 'debug'
 import $app from '@/main'
+import { account } from './account'
 
 Vue.use(Vuex)
 
@@ -64,6 +65,7 @@ const store = new Vuex.Store({
   },
 
   modules: {
+    account,
     app_state,
     database,
     profile,

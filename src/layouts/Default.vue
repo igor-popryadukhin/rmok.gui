@@ -1004,17 +1004,8 @@ export default class DefaultLayout extends AppBase {
   }
   // Вычисляемые свойства
 
-  @Watch('$dialer.state')
-  onWatchDialerState (value: string) {
-    if (value === 'idle') {
-      this.dialerStateChange('not_inuse')
-    } else {
-      this.dialerStateChange('inuse')
-    }
-  }
-
   created () {
-    this.dialerStateChange = debounce(this.dialerStateChange, 350)
+    this.$store.dispatch('account/busy_state', false)
 
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
 
@@ -1144,6 +1135,8 @@ export default class DefaultLayout extends AppBase {
   onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
     debugDialerEvent('NewRTCSession %o', event)
 
+    this.$store.dispatch('account/busy_state', true)
+
     // Call-ID – идентификатор вызова.
     event.session.data.call_id = event.request.getHeader('Call-ID')
 
@@ -1175,6 +1168,7 @@ export default class DefaultLayout extends AppBase {
    */
   onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     this.$root.$emit('dialer-session-progress', session, event)
+    this.$store.dispatch('account/busy_state', true)
 
     // Если входящий
     if (session.direction === 'incoming') {
@@ -1330,6 +1324,8 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   onSessionFinality (session: RTCSession, event: EndEvent) {
+    this.$store.dispatch('account/busy_state', false)
+
     if (session.direction === 'incoming') {
       session.data.contact_id = this.contactIncomingId
       session.data.contact_name = this.contactIncomingContactName
@@ -1588,12 +1584,14 @@ export default class DefaultLayout extends AppBase {
    *
    * @param src
    * @param loop
+   * @param playbackRate
    */
-  playAudio (src: string, loop = false) {
+  playAudio (src: string, loop = false, playbackRate = 1.0) {
     if (!this.audioPlayed) {
       this.audioPlayed = true
       this.audio.src = src
       this.audio.loop = loop
+      this.audio.playbackRate = playbackRate
       this.audio.play().catch(() => {
         navigator
           .mediaDevices
@@ -1613,10 +1611,6 @@ export default class DefaultLayout extends AppBase {
     }
     this.audio.currentTime = 0.0
     this.audioPlayed = false
-  }
-
-  dialerStateChange (state: 'not_inuse'|'inuse') {
-    this.$axios.get(`/account/dialer-state/${state}`)
   }
 }
 </script>

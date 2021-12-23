@@ -71,7 +71,7 @@
                 text
                 outlined
                 tile
-                @click="onBtnCallClick(contactViewDefaultPhone.raw)"
+                @click.native="onBtnCallClick(contactViewDefaultPhone.raw)"
               >
                 {{ $tc('Call') }}
               </v-btn>

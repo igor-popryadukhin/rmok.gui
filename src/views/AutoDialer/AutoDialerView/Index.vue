@@ -49,6 +49,7 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
   components: { AppLoading }
 })
 export default class AutoDialerView extends Base {
+  sse: EventSource|null = null
   loading = true
 
   get height () {
@@ -100,12 +101,6 @@ export default class AutoDialerView extends Base {
         to: {
           name: 'auto_dialer_tab_contacts'
         }
-      },
-      {
-        title: 'Журнал',
-        to: {
-          name: 'auto_dialer_tab_journal'
-        }
       }
     ]
   }
@@ -114,6 +109,42 @@ export default class AutoDialerView extends Base {
     this.$store
       .dispatch('autodialer/view/fetch', this.$route.params.id)
       .finally(() => (this.loading = false))
+
+    this.sseOpen()
+  }
+
+  beforeDestroy () {
+    this.sseClose()
+  }
+
+  private sseOpen () {
+    if ('VUE_APP_SSE' in process.env) {
+      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
+
+      // Темы для подписок
+      url.searchParams.append('topic', `${window.origin}/autodialer/${this.$route.params.id}/messages`)
+
+      this.sse = new EventSource(url, {
+        withCredentials: true
+      })
+
+      this.sse.addEventListener('autodialer-journal-change', (event: Event) => {
+        if (event instanceof MessageEvent) {
+          this.$root.$emit('sse-autodialer-journal-change', JSON.parse(event.data))
+        }
+      })
+      this.sse.addEventListener('autodialer-worker-stats', (event: Event) => {
+        if (event instanceof MessageEvent) {
+          this.$root.$emit('sse-autodialer-worker-stats', JSON.parse(event.data))
+        }
+      })
+    }
+  }
+
+  private sseClose () {
+    if (this.sse instanceof EventSource) {
+      this.sse.close()
+    }
   }
 }
 </script>

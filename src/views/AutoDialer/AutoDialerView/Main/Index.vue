@@ -80,31 +80,19 @@
           </div>
         </v-sheet>
       </v-col>
+      <v-col class="d-flex justify-start">
+        <stats />
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col>
-        <stats-online
-          height="200"
+        <h4>Журнал действий и событий</h4>
+        <journal
+          :height="450"
           outlined
         />
       </v-col>
     </v-row>
-    <!--    <v-row>-->
-    <!--      <v-col>-->
-    <!--        <div>-->
-    <!--          <h4 class="grey&#45;&#45;text">-->
-    <!--            Журнал действий-->
-    <!--          </h4>-->
-    <!--        </div>-->
-    <!--        <journal />-->
-    <!--      </v-col>-->
-    <!--      <v-col>-->
-    <!--        <div>-->
-    <!--          <h4 class="grey&#45;&#45;text">-->
-    <!--            Процент сброшенных звонков-->
-    <!--          </h4>-->
-    <!--        </div>-->
-    <!--        <stats-abandoned-call />-->
-    <!--      </v-col>-->
-    <!--    </v-row>-->
   </v-sheet>
 </template>
 
@@ -112,23 +100,31 @@
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
 import Journal from './Journal.vue'
-import Base from '../Base'
-import AutodialerParams from '@/api/AutodialerParams'
 import StatsOnline from './StatsOnline.vue'
 import StatsAbandonedCall from './StatsAbandonedCall.vue'
 import { AxiosResponse } from 'axios'
 import APIError from '@/api/classes/APIError'
+import AppBase from '@/AppBase'
+import Stats from './Stats.vue'
 
 @Component({
-  components: { StatsAbandonedCall, StatsOnline, AppLoading, Journal }
+  components: { Stats, StatsAbandonedCall, StatsOnline, AppLoading, Journal }
 })
-export default class AutoDialerView extends Base {
+export default class AutoDialerView extends AppBase {
   processStartingOrStopping = false;
   processApply = false;
   autodialerModeOptions = [
     { text: 'Предиктивный', value: 'predictive' },
     { text: 'Прогрессивный', value: 'progressive' }
   ];
+
+  get autodialerName (): string {
+    return this.$store.state.autodialer.view.name
+  }
+
+  get autodialerStatus (): string {
+    return this.$store.state.autodialer.view.status
+  }
 
   get autodialerMode (): string {
     return this.$store.state.autodialer.view.mode

@@ -1,6 +1,6 @@
 <template>
   <v-sheet
-    :height="400"
+    :height="height"
     class="pa-1"
     outlined
   >
@@ -14,34 +14,57 @@
       </div>
     </template>
     <template v-else>
-      <app-table
-        :height="392"
-        class="journal__table"
-        outlined
+      <v-simple-table
+        :height="height - 10"
+        class="contact-list"
         fixed-header
         dense
       >
-        <template #head>
-          <tr>
-            <th class="text-left">
-              Дата/время
-            </th>
-            <th class="text-left">
-              Действие
-            </th>
-          </tr>
+        <template #default>
+          <thead>
+            <tr class="contact-list__th">
+              <th class="text-left">
+                {{ $tc('Action') }}
+              </th>
+              <th class="text-left">
+                {{ $tc('Originator') }}
+              </th>
+              <th class="text-left">
+                {{ $tc('Date time') }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-if="items.length > 0">
+              <tr
+                v-for="(item, key) in items"
+                :key="key"
+                class="contact-list__tr"
+              >
+                <td class="contact-list__td_action-text">
+                  {{ item.action_text }}
+                </td>
+                <td class="contact-list__td_originator">
+                  {{ item.originator.full_name }}
+                </td>
+                <td class="contact-list__td_created-at">
+                  {{ $dayjs(item.created_at).format('DD.MM.YYYY HH:mm') }}
+                </td>
+              </tr>
+            </template>
+            <template v-else>
+              <tr
+                :style="{ height: `${height - 32}px` }"
+                class="text-center fill-height"
+              >
+                <td colspan="6">
+                  {{ $tc('No record found') }}
+                </td>
+              </tr>
+            </template>
+          </tbody>
         </template>
-        <template #body>
-          <tr
-            v-for="(item, key) in autodialerJournalItems"
-            :key="key"
-            :style="itemStyle(item)"
-          >
-            <td>{{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH:mm:ss') }}</td>
-            <td>{{ item.text }}</td>
-          </tr>
-        </template>
-      </app-table>
+      </v-simple-table>
     </template>
   </v-sheet>
 </template>
@@ -53,6 +76,7 @@ import AppTable from '@/components/AppTable/AppTable.vue'
 import { mapGetters } from 'vuex'
 import debounce from '@/utils/debounce'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import { Prop } from 'vue-property-decorator'
 
 @Component({
   components: { AppLoading, AppTable },
@@ -63,41 +87,31 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
   }
 })
 export default class Journal extends Base {
+  @Prop({ default: 200 }) readonly height: number;
   processLoading = true
 
-  created () {
-    this.onSSEJournalChange = debounce(this.onSSEJournalChange, 3000)
+  get items (): Array<Record<string, any>> {
+    return this.$store.getters['autodialer/view/journal/items']
+  }
 
-    // Subscribe sse events
+  created () {
     this.$root.$on('sse-autodialer-journal-change', this.onSSEJournalChange)
   }
 
   mounted () {
-    this.$store.dispatch('autodialer/view/journal/fetch', this.paramsId)
+    this.$store.dispatch('autodialer/view/journal/fetch')
       .finally(() => (this.processLoading = false))
   }
 
   beforeDestroy () {
-    // Unsubscribe sse events
     this.$root.$off('sse-autodialer-journal-change', this.onSSEJournalChange)
   }
 
-  onSSEJournalChange () {
-    this.$store.dispatch('autodialer/view/journal/fetch', this.paramsId)
-  }
-
-  itemStyle (item: any) {
-    const style: Record<string, any> = {}
-
-    if (this.isAfter(item.created_at, 5)) {
-      style['background-color'] = 'rgba(0,255,25,0.35)'
-    } else if (this.isAfter(item.created_at, 10)) {
-      style['background-color'] = 'rgba(0,255,25,0.25)'
-    } else if (this.isAfter(item.created_at, 15)) {
-      style['background-color'] = 'rgba(0,255,25,0.1)'
-    }
-
-    return style
+  onSSEJournalChange (data: Record<string, any>) {
+    const items = this.items.map(e => e)
+    items.unshift(data)
+    items.pop()
+    this.$store.commit('autodialer/view/journal/items', items)
   }
 
   isAfter (timestamp: number, val: number): boolean {
@@ -107,54 +121,58 @@ export default class Journal extends Base {
 </script>
 
 <style lang="scss" scoped>
-.journal__table {
-  & table {
-    table-layout: fixed; width:100%;
-    & thead {
-      & tr {
-        & th {
-          border-bottom: #3a70d4 !important;
-          border-bottom-width: 3px !important;
-          border-bottom-style: solid !important;
-        }
+.contact-list {}
+.contact-list__th {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap !important;
+}
+.contact-list__tr {
+  color: #5f6060;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap !important;
+}
 
-        & th:nth-child(1) {
-          width: 1px !important;
-          white-space: nowrap !important;
-        }
+.contact-list__tr:nth-child(odd) {background-color: #607d8b17;}
+.contact-list__tr:nth-child(even) {background-color: inherit;}
+.contact-list__td {
+  cursor: pointer;
+  user-select: none;
+}
 
-        & th:first-child {
-          border-right: 3px solid #3b71d5;
-          background: #e8edff;
-          color: #669;
-        }
+.contact-list__td_action-text {
+  text-align: left;
+  width: auto;
+  white-space: nowrap !important;
+}
 
-        & th:last-child {
-          width: 100% !important;
-          white-space: nowrap !important;
-        }
-      }
-    }
+.contact-list__td_originator {
+  width: 10px;
+  white-space: nowrap !important;
+}
 
-    & tbody {
-      & tr {
-        & td:nth-child(1) {
-          width: 1px !important;
-          white-space: nowrap !important;
-        }
+.contact-list__td_created-at {
+  width: 10px;
+  white-space: nowrap !important;
+}
 
-        & td:first-child {
-          border-right: 3px solid #3b71d5;
-          background: #e8edff;
-          color: #669;
-        }
+.shake {
+  /* Start the shake animation and make the animation last for 0.5 seconds */
+  animation: shake 1s;
+  /* When the animation is finished, start again */
+  animation-iteration-count: infinite;
+}
 
-        & td:last-child {
-          width: 100% !important;
-          white-space: nowrap !important;
-        }
-      }
-    }
+@keyframes shake {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 </style>

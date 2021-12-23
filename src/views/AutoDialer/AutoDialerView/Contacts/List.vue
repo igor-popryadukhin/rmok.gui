@@ -12,6 +12,9 @@
             {{ $tc('Contact name') }}
           </th>
           <th class="text-left">
+            {{ $tc('Result') }}
+          </th>
+          <th class="text-left">
             {{ $tc('Progress') }}
           </th>
           <th class="text-left">
@@ -35,10 +38,25 @@
             :key="key"
             class="contact-list__tr"
           >
-            <td class="contact-list__td_contact-name">
+            <td class="contact-list__td contact-list_contact-name">
               {{ item.contact_name }}
             </td>
-            <td>
+            <td class="contact-list__td contact-list_contact-status">
+              <template v-if="item.last_status">
+                <v-chip
+                  :color="item.last_status.color"
+                  x-small
+                  label
+                  outlined
+                >
+                  {{ item.last_status.name }}
+                </v-chip>
+              </template>
+              <template v-else>
+                —
+              </template>
+            </td>
+            <td class="contact-list__td contact-list_progress">
               <v-chip
                 v-if="item.progress === 'init'"
                 color="#ffc107"
@@ -66,7 +84,7 @@
                 {{ $tc('Complete') }}
               </v-chip>
             </td>
-            <td class="contact-list__td_calling">
+            <td class="contact-list__td contact-list_calling">
               <template v-if="item.is_calling">
                 <v-icon
                   class="shake"
@@ -79,10 +97,10 @@
                 —
               </template>
             </td>
-            <td class="contact-list__td_attempts">
+            <td class="contact-list__td contact-list_attempts">
               {{ item.attempts_left }}
             </td>
-            <td class="contact-list__td_last-call-at">
+            <td class="contact-list__td contact-list_last-call-at">
               <template v-if="item.last_call_at">
                 {{ $dayjs(item.last_call_at).format('DD.MM.YYYY HH:mm') }}
               </template>
@@ -90,7 +108,7 @@
                 —
               </template>
             </td>
-            <td class="contact-list__td_next-call-at">
+            <td class="contact-list__td contact-list_next-call-at">
               <template v-if="item.next_call_at">
                 {{ $dayjs(item.next_call_at).format('DD.MM.YYYY HH:mm') }}
               </template>
@@ -147,30 +165,39 @@ export default class List extends AppBase {
 .contact-list__tr:nth-child(odd) {background-color: #607d8b17;}
 .contact-list__tr:nth-child(even) {background-color: inherit;}
 .contact-list__td {
+  font-size: 13px !important;
   cursor: pointer;
   user-select: none;
 }
-.contact-list__td_contact-name {
+.contact-list_contact-name {
   text-align: left;
   text-transform: uppercase;
+  width: auto;
+  white-space: nowrap !important;
+}
+.contact-list_contact-status {
   width: 10px;
   white-space: nowrap !important;
 }
-.contact-list__td_calling {
+.contact-list_progress {
+  width: 10px;
+  white-space: nowrap !important;
+}
+.contact-list_calling {
   text-align: center;
   width: 10px;
   white-space: nowrap !important;
 }
-.contact-list__td_attempts {
+.contact-list_attempts {
   text-align: center;
   width: 10px;
   white-space: nowrap !important;
 }
-.contact-list__td_last-call-at {
+.contact-list_last-call-at {
   width: 10px;
   white-space: nowrap !important;
 }
-.contact-list__td_next-call-at {
+.contact-list_next-call-at {
   width: 10px;
   white-space: nowrap !important;
 }
