@@ -663,6 +663,44 @@ const routes: RouteConfig[] = [
     },
     name: 'statistics',
     path: '/statistics'
+  },
+  {
+    path: '/scenarios',
+    children: [
+      {
+        component: () => import(/* webpackChunkName: "scenarios_list" */ '../views/Scenarios/ScenariosList.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'scenarios_list',
+        path: ''
+      },
+      {
+        component: () => import(/* webpackChunkName: "scenarios_edit" */ '../views/Scenarios/ScenariosEdit.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'scenarios_edit',
+        path: ':id/main'
+      },
+      {
+        component: () => import(/* webpackChunkName: "scenarios_create" */ '../views/Scenarios/ScenariosCreate.vue'),
+        meta: {
+          layout: 'default',
+          middleware: []
+        },
+        name: 'scenarios_create',
+        path: 'create'
+      }
+    ],
+    component: () => import(/* webpackChunkName: "scenarios" */ '../views/Scenarios/Layout.vue'),
+    meta: {
+      layout: 'default',
+      middleware: []
+    }
   }
 ]
 

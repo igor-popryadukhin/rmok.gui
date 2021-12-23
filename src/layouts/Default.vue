@@ -798,6 +798,16 @@ export default class DefaultLayout extends AppBase {
         visible: true
       },
       {
+        title: 'Scenarios',
+        icon: 'mdi-script-text',
+        list_item: {
+          to: {
+            name: 'scenarios_list'
+          }
+        },
+        visible: true
+      },
+      {
         title: 'Statistic',
         active: false,
         children: [

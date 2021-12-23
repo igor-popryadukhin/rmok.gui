@@ -17,6 +17,7 @@ import contacts_new from './contacts_new'
 import statistic_recent_call from './statistic_recent_call'
 import statistic_all_call from './statistic_all_call'
 import autodialer from './autodialer'
+import scenarios from './scenarios'
 import unsaved_call from './unsaved_call'
 import contact from './contact'
 import incoming_dialog from './incoming_dialog'
@@ -86,7 +87,8 @@ const store = new Vuex.Store({
     statistic_recent_call,
     statistic_all_call,
     autodialer,
-    statistic_activity
+    statistic_activity,
+    scenarios
   },
 
   mutations: {},
