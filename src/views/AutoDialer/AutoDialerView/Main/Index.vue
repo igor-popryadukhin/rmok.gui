@@ -179,7 +179,7 @@ export default class AutoDialerView extends AppBase {
   }
 
   @Watch('isChanged')
-  isChangedWatchHandle (value: boolean) {
+  changeWatchHandler (value: boolean) {
     if (value) {
       this.onApplyChanges = debounce(this.onApplyChanges, 1500)
       this.onApplyChanges()
