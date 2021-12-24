@@ -104,7 +104,7 @@ export default class AutodialerParams {
    */
   public edit (id: number, data: Record<string, any>): Promise<void> {
     return new Promise((resolve, reject) => {
-      $axios.patch(`/autodialer/params/${id}`, data)
+      $axios.patch(`/autodialer/${id}`, data)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)

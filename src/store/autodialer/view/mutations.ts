@@ -6,6 +6,7 @@ export const mutations: MutationTree<State> = {
   max_calls_number (state, payload) { state.max_calls_number = payload },
   mode (state, payload) { state.mode = payload },
   queue_name (state, payload) { state.queue_name = payload },
+  scenario_id (state, payload) { state.scenario_id = payload },
 
   fill (state, payload) {
     state.id = payload.id
@@ -18,5 +19,6 @@ export const mutations: MutationTree<State> = {
     state.maximum_attempts = payload.maximum_attempts
     state.repeat_calls_settings_available_actions = payload.repeat_calls_settings_available_actions
     state.repeat_calls_settings = payload.repeat_calls_settings
+    state.scenario_id = payload.scenario_id
   }
 }

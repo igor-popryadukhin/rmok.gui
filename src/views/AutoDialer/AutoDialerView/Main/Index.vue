@@ -44,6 +44,20 @@
           </div>
           <!-- Режим -->
 
+          <!-- Сценарии -->
+          <div class="mb-1">
+            <v-select
+              v-model="autodialerScenario"
+              :items="scenariosItems"
+              item-text="name"
+              item-value="id"
+              label="Сценарий"
+              dense
+              outlined
+            />
+          </div>
+          <!-- Сценарии -->
+
           <div class="mb-1">
             <v-btn
               v-if="autodialerStatus === 'ready'"
@@ -106,12 +120,15 @@ import { AxiosResponse } from 'axios'
 import APIError from '@/api/classes/APIError'
 import AppBase from '@/AppBase'
 import Stats from './Stats.vue'
+import { Watch } from 'vue-property-decorator'
+import debounce from '@/utils/debounce'
 
 @Component({
   components: { Stats, StatsAbandonedCall, StatsOnline, AppLoading, Journal }
 })
 export default class AutoDialerView extends AppBase {
   processStartingOrStopping = false;
+  isChanged = false
   processApply = false;
   autodialerModeOptions = [
     { text: 'Предиктивный', value: 'predictive' },
@@ -140,6 +157,33 @@ export default class AutoDialerView extends AppBase {
         text: ''
       }
     ]
+  }
+
+  get autodialerScenario (): number {
+    return this.$store.state.autodialer.view.scenario_id
+  }
+
+  set autodialerScenario (val: number) {
+    this.$store.commit('autodialer/view/scenario_id', +val)
+  }
+
+  get scenariosItems () { return this.$store.getters['scenarios/list/items'] }
+
+  mounted () {
+    this.$store.dispatch('scenarios/list/fetch')
+  }
+
+  created () {
+    this.$watch('autodialerMode', () => (this.isChanged = true))
+    this.$watch('autodialerScenario', () => (this.isChanged = true))
+  }
+
+  @Watch('isChanged')
+  isChangedWatchHandle (value: boolean) {
+    if (value) {
+      this.onApplyChanges = debounce(this.onApplyChanges, 1500)
+      this.onApplyChanges()
+    }
   }
 
   /**
@@ -185,10 +229,11 @@ export default class AutoDialerView extends AppBase {
   /**
    * Срабатывает при нажатии на кнопку Apply
    */
-  onBtnApplyClick () {
+  private onApplyChanges () {
     this.processApply = true
     this.$store.dispatch('autodialer/view/apply')
       .then(() => {
+        this.isChanged = false
         this.$toast.success('Changes accepted')
       }).catch((e: Error) => {
         this.$toast.error(e.message)

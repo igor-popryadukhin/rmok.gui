@@ -9,6 +9,7 @@ export interface State {
   maximum_attempts: number;
   repeat_calls_settings_available_actions: Array<Record<string, any>>;
   repeat_calls_settings: Array<Record<string, any>>;
+  scenario_id?: number;
 }
 
 function state (): State {
@@ -22,7 +23,8 @@ function state (): State {
     max_calls_number: 0,
     maximum_attempts: 0,
     repeat_calls_settings_available_actions: [],
-    repeat_calls_settings: []
+    repeat_calls_settings: [],
+    scenario_id: 0
   }
 }
 
