@@ -240,14 +240,14 @@
 
         <!-- Системные уведомления -->
         <v-menu
-          v-model="systemNotificationsVisible"
+          v-model="notificationsVisible"
           :close-on-content-click="false"
           nudge-left="150"
           offset-y
         >
           <template #activator="{ on, attrs }">
             <v-btn
-              :disabled="systemNotifications.length === 0"
+              :disabled="notificationsItems.length === 0"
               icon
               v-bind="attrs"
               v-on="on"
@@ -256,30 +256,31 @@
                 mdi-bell
               </v-icon>
               <v-badge
-                v-if="systemNotificationsCount > 0"
+                v-if="notificationsCount > 0"
                 color="red"
-                :content="systemNotificationsCount > 99 ? '99+' : systemNotificationsCount"
+                :content="notificationsCount > 99 ? '99+' : notificationsCount"
               />
             </v-btn>
           </template>
           <v-card
-            class="overflow-y-auto"
             max-width="800"
             min-width="450"
-            max-height="500"
             flat
             tile
           >
-            <v-card-text>
+            <v-card-text
+              class="overflow-y-auto"
+              style="max-height: 500px"
+            >
               <v-list>
-                <template v-for="(item, itemIndex) in systemNotifications">
+                <template v-for="(item, itemIndex) in notificationsItems">
                   <v-list-item
                     :key="itemIndex"
                     link
                   >
-                    <v-list-item-icon v-if="item.priority ==='normal'">
-                      <v-icon color="primary">
-                        mdi-information-outline
+                    <v-list-item-icon v-if="item.icon">
+                      <v-icon color="grey">
+                        {{ item.icon }}
                       </v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
@@ -598,8 +599,6 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
       profileProjectId: 'profile/project/id',
 
       tasksPendingCount: 'tasks/pending_count',
-      systemNotifications: 'system/notifications',
-      systemNotificationsCount: 'system/notifications_count',
 
       contactIncomingId: 'contact_incoming/id',
 
@@ -614,16 +613,6 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
       },
       set (val: boolean) {
         return this.$store.commit('incoming_dialog/visible', val)
-      }
-    },
-
-    // Состояние видимости меню системных уведомлений
-    systemNotificationsVisible: {
-      get () {
-        return this.$store.getters['system/notifications_visible']
-      },
-      set (val: boolean) {
-        return this.$store.commit('system/notifications_visible', val)
       }
     },
 
@@ -686,6 +675,16 @@ export default class DefaultLayout extends AppBase {
   dialerIsInitialize = false
 
   // Вычисляемые свойства
+
+  // Системные уведомления
+  get notificationsVisible () { return this.$store.getters['notifications/visible'] }
+  set notificationsVisible (value: boolean) { this.$store.commit('notifications/visible', value) }
+  get notificationsCount () { return this.$store.getters['notifications/count'] }
+  set notificationsCount (value: number) { this.$store.commit('notifications/count', value) }
+  get notificationsItems (): Array<Record<string, any>> { return this.$store.getters['notifications/items'] }
+  set notificationsItems (value: Array<Record<string, any>>) { this.$store.commit('notifications/items', value) }
+  // Системные уведомления
+
   get contactIncomingId () { return this.$store.state.contact_incoming.id }
   get contactIncomingContactName () { return this.$store.state.contact_incoming.contact_name }
   get profileId (): number { return this.$store.state.profile.id }
@@ -1063,7 +1062,7 @@ export default class DefaultLayout extends AppBase {
       }, 5000)
     }
 
-    this.$store.dispatch('system/notifications')
+    this.$store.dispatch('notifications/fetch')
 
     this.audio.onplay = () => {
       this.audioPlayed = true
@@ -1376,6 +1375,9 @@ export default class DefaultLayout extends AppBase {
   }
   // DIALER EVENTS
 
+  /**
+   * SSE Initialization
+   */
   sseInitialize () {
     if ('VUE_APP_SSE' in process.env) {
       const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
@@ -1400,22 +1402,28 @@ export default class DefaultLayout extends AppBase {
 
           // Кидаем сообщение на корневую шину
           this.$root.$emit('sse-' + obj.name, obj)
+        }
+      })
 
-          // Что-то изменилось в задачах
-          if (obj.name === 'tasks-changed') {
-            if (this.$isGranted('SECTION_TASKS')) {
-              this.$store.dispatch('tasks/pending_count')
-            }
-          } else if (obj.name === 'system-notification') {
-            // Звук уведомления только если в режиме ожидания.
-            this.$store.dispatch('system/notifications')
-              .then(() => {
-                this.notificationShake()
-                if (this.$dialer.state === 'idle') {
-                  this.playAudio('/sounds/notifications/1.mp3')
-                }
-              })
+      // Системные уведомления.
+      eventSource.addEventListener('system-notification', (event: Event) => {
+        if (event instanceof MessageEvent) {
+          const obj: Record<string, any> = JSON.parse(event.data)
+          appDebug.extend('SSE').extend('SYSTEM-NOTIFICATION')('%o', obj)
+
+          const notifications = this.notificationsItems.map((value) => value)
+          if (notifications.findIndex(value => value.id === obj.id) === -1) {
+            notifications.unshift(obj)
+            this.notificationsItems = notifications
+            this.notificationsCount++
           }
+
+          this.notificationShake()
+          if (this.$dialer.state === 'idle') {
+            this.playAudio('/sounds/notifications/1.mp3')
+          }
+
+          this.$root.$emit('sse-system-notification', obj)
         }
       })
 
@@ -1424,18 +1432,6 @@ export default class DefaultLayout extends AppBase {
         // Emit в корневой экземпляр
         this.$root.$emit('root-sse-message', event.data)
       }
-    }
-  }
-
-  showNotification (title: string, body: string) {
-    if (document.visibilityState === 'visible') {
-      return
-    }
-    const icon = 'image-url'
-    const notification = new Notification(title, { body, icon })
-    notification.onclick = () => {
-      notification.close()
-      window.parent.focus()
     }
   }
 
@@ -1455,11 +1451,11 @@ export default class DefaultLayout extends AppBase {
   }
 
   onBtnCloseNotification (id: number) {
-    this.$store.dispatch('system/notifications_close', id)
+    this.$store.dispatch('notifications/close', id)
   }
 
   onSystemNotificationCloseAllClick () {
-    this.$store.dispatch('system/notifications_close_all')
+    this.$store.dispatch('notifications/close_all')
   }
 
   /**
@@ -1602,6 +1598,9 @@ export default class DefaultLayout extends AppBase {
       this.audio.src = src
       this.audio.loop = loop
       this.audio.playbackRate = playbackRate
+      this.audio.onended = () => {
+        this.audioPlayed = false
+      }
       this.audio.play().catch(() => {
         navigator
           .mediaDevices

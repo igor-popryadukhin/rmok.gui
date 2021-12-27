@@ -167,11 +167,13 @@
       </app-autocomplete>
 
       <app-autocomplete
-        v-model="utcOffset"
-        :options="utcOffsetOptions"
+        v-model="timeZoneId"
+        :options="timezones"
+        :label="$tc('Time zone')"
         item-text="name"
-        item-value="value"
+        item-value="id"
         clearable
+        @focus="fetchTimeZones"
         @change="onFilterChange"
       />
 
@@ -181,8 +183,10 @@
         :return-value.sync="contactCreatedAt"
         :close-on-content-click="false"
         transition="scale-transition"
-        offset-y
         min-width="auto"
+        offset-y
+        offset-x
+        left
       >
         <template #activator="{ on, attrs }">
           <v-text-field
@@ -203,6 +207,7 @@
           v-model="contactCreatedAtDates"
           :first-day-of-week="1"
           locale="ru"
+          flat
           range
           no-title
           show-current
@@ -237,6 +242,7 @@ import debounce from '@/utils/debounce'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import ContactTag from '@/api/interfaces/ContactTag'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
+import { TimeZone } from '@/store/contacts/list/filter/state'
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactListFilters>({
@@ -262,11 +268,19 @@ export default class ContactListFilters extends Base {
       contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
       contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
 
-      if (contactCreatedAtStart.unix() > contactCreatedAtEnd.unix()) {
-        return 'c ' + contactCreatedAtEnd.format('DD.MM.YYYY') + ' по ' + contactCreatedAtStart.format('DD.MM.YYYY')
+      if (contactCreatedAtStart.toDate() > contactCreatedAtEnd.toDate()) {
+        return contactCreatedAtEnd.format('DD.MM.YYYY') + ' - ' + contactCreatedAtStart.format('DD.MM.YYYY')
       } else {
-        return 'c ' + contactCreatedAtStart.format('DD.MM.YYYY') + ' по ' + contactCreatedAtEnd.format('DD.MM.YYYY')
+        return contactCreatedAtStart.format('DD.MM.YYYY') + ' - ' + contactCreatedAtEnd.format('DD.MM.YYYY')
       }
+    } else if (Array.isArray(this.contactCreatedAt) && this.contactCreatedAt.length === 1) {
+      let contactCreatedAtStart = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
+      let contactCreatedAtEnd = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
+
+      contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
+      contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
+
+      return contactCreatedAtStart.format('DD.MM.YYYY') + ' - ' + contactCreatedAtEnd.format('DD.MM.YYYY')
     }
     return ''
   }
@@ -322,12 +336,12 @@ export default class ContactListFilters extends Base {
     this.$store.commit('contacts/list/filter/filter_tag_ids', val)
   }
 
-  get utcOffset (): number {
-    return this.$store.getters['contacts/list/filter/filter_utc_offset']
+  get timeZoneId (): number {
+    return this.$store.getters['contacts/list/filter/filter_timezone_id']
   }
 
-  set utcOffset (val: number) {
-    this.$store.commit('contacts/list/filter/filter_utc_offset', val)
+  set timeZoneId (val: number) {
+    this.$store.commit('contacts/list/filter/filter_timezone_id', val)
   }
 
   get contactCreatedAt (): string[] {
@@ -391,53 +405,8 @@ export default class ContactListFilters extends Base {
     ], tags)
   }
 
-  get utcOffsetOptions () {
-    return [
-      {
-        name: '+2 Калининград',
-        value: 2
-      },
-      {
-        name: '+3 Москва',
-        value: 3
-      },
-      {
-        name: '+4 Самара',
-        value: 4
-      },
-      {
-        name: '+5 Екатеринбург',
-        value: 5
-      },
-      {
-        name: '+6 Омск',
-        value: 6
-      },
-      {
-        name: '+7 Красноярск',
-        value: 7
-      },
-      {
-        name: '+8 Иркутск',
-        value: 8
-      },
-      {
-        name: '+9 Якутск',
-        value: 9
-      },
-      {
-        name: '+10 Владивосток',
-        value: 10
-      },
-      {
-        name: '+11 Магадан',
-        value: 11
-      },
-      {
-        name: '+12 Камчатка',
-        value: 12
-      }
-    ]
+  get timezones (): TimeZone[] {
+    return this.$store.getters['contacts/list/filter/timezones']
   }
   // endregion
 
@@ -455,6 +424,7 @@ export default class ContactListFilters extends Base {
     if (this.statusIds.length > 0) { this.onAppAutocompleteStatusesFocus() }
     if (this.userGroupId > 0) { this.onAppAutocompleteUserGroupsFocus() }
     if (this.tagIds.length > 0) { this.onSearchTags() }
+    if (this.timeZoneId > 0) { this.fetchTimeZones() }
 
     if (this.contactCreatedAt.length === 2) {
       this.contactCreatedAtDates = this.contactCreatedAt
@@ -567,8 +537,12 @@ export default class ContactListFilters extends Base {
    */
   private onSearchTags (q = '') {
     const params: Record<string, any> = { q }
-    const fetch = this.tags.findIndex((e) => e.name.toLowerCase().indexOf((q || '').toLowerCase()) > -1) === -1 ||
-      this.tags.length === 0
+    const fetch = this
+      .tags
+      .findIndex((e) => e.name
+        .toLowerCase()
+        .indexOf((q || '')
+          .toLowerCase()) > -1) === -1 || this.tags.length === 0
 
     if (fetch) {
       this.tagsLoading = true
@@ -590,6 +564,12 @@ export default class ContactListFilters extends Base {
   private onContactCreatedAtBtnOkClick (value: string[]) {
     // @ts-expect-error: Contact created at
     return this.$refs.contactCreatedAtMenu?.save(value)
+  }
+
+  private fetchTimeZones () {
+    if (this.timezones.length === 0) {
+      this.$store.dispatch('contacts/list/filter/fetchTimeZones')
+    }
   }
   // endregion
 }

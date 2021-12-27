@@ -73,6 +73,7 @@
   "Client": "Клиент",
   "Client's current time": "Текущее время клиента",
   "Close": "Закрыть",
+  "Close all": "Закрыть все",
   "Comment": "Комментарий",
   "Comments": "Комментарии",
   "Confirmation request": "Запрос подтверждения",
@@ -294,6 +295,11 @@
   "Save and continue": "Сохранить и продолжить",
   "Save settings": "Сохранить настройки",
   "Scenario": "Сценарий",
+  "Scenario created": "Сценарий создан",
+  "Scenario deleted": "Сценарий удалён.",
+  "Scenario name": "Название сценария",
+  "Scenario new": "Новый сценарий",
+  "Scenarios": "Сценарий",
   "Schedule": "График работы",
   "Search": "Поиск",
   "Search by name": "Поиск по имени",
@@ -639,10 +645,5 @@
   "unknown_number": "Неизвестный номер",
   "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети",
   "video": "Видео",
-  "yes": "Да",
-  "Scenarios": "Сценарий",
-  "Scenario name": "Название сценария",
-  "Scenario created": "Сценарий создан",
-  "Scenario new": "Новый сценарий",
-  "Scenario deleted": "Сценарий удалён."
+  "yes": "Да"
 }

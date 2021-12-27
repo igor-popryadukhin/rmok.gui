@@ -7,6 +7,7 @@ import mutations from './mutations'
 import params from './params'
 import list from './list'
 import create from './create'
+import { transfer_dialog } from './transfer_dialog'
 
 const module: Module<ContactsState, RootState> = {
   actions,
@@ -17,6 +18,7 @@ const module: Module<ContactsState, RootState> = {
   modules: {
     params,
     list,
+    transfer_dialog,
     create
   }
 }

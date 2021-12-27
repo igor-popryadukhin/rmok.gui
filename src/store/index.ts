@@ -26,6 +26,7 @@ import { database } from './database'
 import debug from 'debug'
 import $app from '@/main'
 import { account } from './account'
+import { notifications } from './notifications'
 
 Vue.use(Vuex)
 
@@ -67,6 +68,7 @@ const store = new Vuex.Store({
 
   modules: {
     account,
+    notifications,
     app_state,
     database,
     profile,

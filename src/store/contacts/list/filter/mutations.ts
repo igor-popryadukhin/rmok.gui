@@ -7,6 +7,7 @@ const mutations: MutationTree<State> = {
   users (state: State, payload) { state.users = payload },
   user_groups (state: State, payload) { state.user_groups = payload },
   tags (state: State, payload) { state.tags = payload },
+  timezones (state: State, payload) { state.timezones = payload },
   /// //////////////////////////////////////////////////////////////////////////
   filter_q (state: State, payload) { state.filter_q = payload },
   filter_project_id (state: State, payload) { state.filter_project_id = payload },
@@ -18,7 +19,7 @@ const mutations: MutationTree<State> = {
   filter_calling (state: State, payload) { state.filter_calling = payload },
   filter_offset (state: State, payload) { state.filter_offset = payload },
   filter_task (state, payload) { state.filter_task = payload },
-  filter_utc_offset (state: State, payload) { state.filter_utc_offset = payload }
+  filter_timezone_id (state: State, payload) { state.filter_timezone_id = payload }
   /// //////////////////////////////////////////////////////////////////////////
 }
 

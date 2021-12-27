@@ -13,6 +13,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   users (state: State) { return state.users },
   user_groups (state: State) { return state.user_groups },
   tags (state: State) { return state.tags },
+  timezones (state: State) { return state.timezones },
   /// //////////////////////////////////////////////////////////////////////////
   filter_q (state: State) { return state.filter_q },
   filter_project_id (state: State) { return state.filter_project_id },
@@ -24,7 +25,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   filter_calling (state: State) { return state.filter_calling },
   filter_offset (state: State) { return state.filter_offset || 0 },
   filter_task (state) { return state.filter_task },
-  filter_utc_offset (state: State) { return state.filter_utc_offset },
+  filter_timezone_id (state: State) { return state.filter_timezone_id },
   /// //////////////////////////////////////////////////////////////////////////
   all (state: State) {
     const obj: Record<string, any> = {}
@@ -41,21 +42,39 @@ const getters: GetterTree<State, RootState> & Getters = {
       obj.status_ids = state.filter_status_ids
     }
 
-    return obj
+    if (state.filter_user_group_id) {
+      obj.user_group_id = state.filter_user_group_id
+    }
 
-    // return {
-    //   q: state.filter_q || null,
-    //   project_id: state.filter_project_id || 0,
-    //   status_ids: state.filter_status_ids || [],
-    //   owner_id: state.filter_owner_id || 0,
-    //   user_group_id: state.filter_user_group_id || 0,
-    //   tag_ids: state.filter_tag_ids || [],
-    //   contact_created_at: state.filter_contact_created_at || 0,
-    //   calling: state.filter_calling || null,
-    //   offset: state.filter_offset || 0,
-    //   task: state.filter_task || null,
-    //   utc_offset: state.filter_utc_offset || null
-    // }
+    if (state.filter_owner_id) {
+      obj.owner_id = state.filter_owner_id
+    }
+
+    if (state.filter_task) {
+      obj.task = state.filter_task
+    }
+
+    if (state.filter_calling) {
+      obj.calling = state.filter_calling
+    }
+
+    if ((state.filter_tag_ids || []).length) {
+      obj.tag_ids = state.filter_tag_ids
+    }
+
+    if (state.filter_timezone_id) {
+      obj.timezone_id = state.filter_timezone_id
+    }
+
+    if (state.filter_contact_created_at) {
+      obj.contact_created_at = state.filter_contact_created_at
+    }
+
+    if (state.filter_offset) {
+      obj.offset = state.filter_offset
+    }
+
+    return obj
   }
   /// //////////////////////////////////////////////////////////////////////////
 }

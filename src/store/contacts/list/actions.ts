@@ -47,7 +47,7 @@ function normalizeQuery (query: Record<string, string|number|Array<string|number
 }
 
 const actions: ActionTree<ContactListState, RootState> = {
-  fetch: ({ commit, state, getters, dispatch }: ActionContext<ContactListState, RootState>) => {
+  fetch: ({ commit, state, getters }: ActionContext<ContactListState, RootState>) => {
     const len = cancelTokenSources.length
     for (let i = 0; i < len; i++) {
       cancelTokenSources.pop()?.cancel()

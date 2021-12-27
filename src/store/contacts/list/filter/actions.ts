@@ -103,6 +103,20 @@ const actions: ActionTree<State, RootState> = {
         }
       })
     })
+  },
+
+  fetchTimeZones: ({ commit, state }, params = {}) => {
+    return new Promise<void>((resolve) => {
+      $axios.get('/database/timezones')
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new Error(response.statusText)
+          }
+
+          commit('timezones', response.data || [])
+          resolve()
+        })
+    })
   }
 }
 

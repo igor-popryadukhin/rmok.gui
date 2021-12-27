@@ -259,6 +259,10 @@ export default class ContactList extends Base {
     return this.$store.getters['contacts/list/selected_all_in_page']
   }
 
+  set itemsSelectedAllInPage (val: boolean) {
+    // no set
+  }
+
   get itemsSelectedIndeterminate (): boolean {
     return this.$store.getters['contacts/list/selected_indeterminate']
   }

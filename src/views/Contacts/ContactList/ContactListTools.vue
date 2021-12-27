@@ -130,7 +130,7 @@ export default class ContactListTools extends Base {
   }
 
   private onBtnTransferContactsClick () {
-    // TODO: Handler
+    this.$store.dispatch('contacts/transfer_dialog/show')
   }
 }
 </script>

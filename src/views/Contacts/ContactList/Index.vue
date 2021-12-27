@@ -15,11 +15,13 @@
           @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
         />
         <v-divider />
+        <!-- Контакт лист -->
         <contact-list
           :loading="contactLoading"
           :height="heightContactList"
           overlay
         />
+        <!-- Контакт лист -->
       </v-col>
 
       <!-- Фильтры -->
@@ -44,6 +46,11 @@
     </v-row>
 
     <contact-create />
+
+    <contacts-transfer-dialog
+      v-if="contactsTransferDialogVisible"
+      @close="contactTransferDialogVisible = false"
+    />
 
     <app-progress-dialog
       v-if="progressDialog.visible"
@@ -71,6 +78,7 @@ import AppProgressDialog from '@/components/AppProgressDialog/AppProgressDialog.
   components: {
     AppProgressDialog,
     ContactCreate: () => import('@/views/Contacts/ContactList/ContactCreate.vue'),
+    ContactsTransferDialog: () => import('./ContactsTransferDialog.vue'),
     ContactList,
     AppTable,
     ContactListTools,
@@ -91,10 +99,14 @@ export default class Index extends Base {
     progress: 0
   }
 
+  contactTransferDialogVisible = false
+
+  // Вычисляемая высота списка контактов
   get heightContactList () {
     return this.screenHeight - 125
   }
 
+  // Вычисляемая высота области фильтров
   get heightContactListFilters () {
     return this.screenHeight - 90
   }
@@ -104,6 +116,11 @@ export default class Index extends Base {
     return this.$store.getters['contacts/list/filter/all']
   }
 
+  get contactsTransferDialogVisible () {
+    return this.$store.getters['contacts/transfer_dialog/visible']
+  }
+
+  // Здесь отслеживаем все параметры фильтров в одном месте.
   @Watch('filterAll')
   filterAllWatch () {
     this.onFilterChange()
@@ -113,10 +130,12 @@ export default class Index extends Base {
     this.onFilterChange = debounce(this.onFilterChange, 350)
 
     this.$root.$on('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
+    this.$root.$on('sse-contacts-transferred', this.onSSEContactsTransferred)
   }
 
   beforeDestroy () {
     this.$root.$off('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
+    this.$root.$off('sse-contacts-transferred', this.onSSEContactsTransferred)
   }
 
   /**
@@ -145,6 +164,11 @@ export default class Index extends Base {
     } else if (message.payload.status === 'failure') {
       this.$toast.error(message.payload.message)
     }
+  }
+
+  private onSSEContactsTransferred () {
+    this.$store.dispatch('contacts/list/unselect_all')
+    this.$store.dispatch('contacts/list/fetch')
   }
 }
 

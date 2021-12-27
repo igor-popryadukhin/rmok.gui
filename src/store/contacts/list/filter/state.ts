@@ -33,12 +33,18 @@ export interface Tag {
   color: string;
 }
 
+export interface TimeZone {
+  id: number;
+  name: string;
+}
+
 export interface State {
   projects: Project[];
   statuses: Status[];
   users: User[];
   user_groups: UserGroup[];
   tags: Tag[];
+  timezones: TimeZone[];
   /// /////////////////////////////////
   filter_q: string|null;
   filter_project_id: number;
@@ -50,7 +56,7 @@ export interface State {
   filter_calling: null | 'yes' | 'no';
   filter_offset: number;
   filter_task: string|null;
-  filter_utc_offset: number|null;
+  filter_timezone_id: number|null;
   /// /////////////////////////////////
 }
 
@@ -61,6 +67,7 @@ export function defaultState () {
     users: [],
     user_groups: [],
     tags: [],
+    timezones: [],
     /// /////////////////////////////////
     filter_q: '',
     filter_project_id: 0,
@@ -72,7 +79,7 @@ export function defaultState () {
     filter_calling: null,
     filter_offset: 0,
     filter_task: '',
-    filter_utc_offset: null
+    filter_timezone_id: null
     /// /////////////////////////////////
   }
 }
