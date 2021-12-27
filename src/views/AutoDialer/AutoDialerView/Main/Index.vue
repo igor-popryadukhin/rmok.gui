@@ -24,6 +24,7 @@
           <!-- Описание -->
           <div class="mb-1">
             <v-textarea
+              v-model="description"
               :label="$tc('Description')"
               rows="3"
               dense
@@ -128,8 +129,9 @@ import debounce from '@/utils/debounce'
 })
 export default class AutoDialerView extends AppBase {
   processStartingOrStopping = false;
-  isChanged = false
+  isChanged = false;
   processApply = false;
+  isChangedDescription = false;
   autodialerModeOptions = [
     { text: 'Предиктивный', value: 'predictive' },
     { text: 'Прогрессивный', value: 'progressive' }
@@ -169,6 +171,14 @@ export default class AutoDialerView extends AppBase {
 
   get scenariosItems () { return this.$store.getters['scenarios/list/items'] }
 
+  get description (): string {
+    return this.$store.state.autodialer.view.description
+  }
+
+  set description (val: string) {
+    this.$store.commit('autodialer/view/description', val)
+  }
+
   mounted () {
     this.$store.dispatch('scenarios/list/fetch')
   }
@@ -176,6 +186,7 @@ export default class AutoDialerView extends AppBase {
   created () {
     this.$watch('autodialerMode', () => (this.isChanged = true))
     this.$watch('autodialerScenario', () => (this.isChanged = true))
+    this.$watch('description', () => (this.isChangedDescription = true))
   }
 
   @Watch('isChanged')
@@ -183,6 +194,18 @@ export default class AutoDialerView extends AppBase {
     if (value) {
       this.onApplyChanges = debounce(this.onApplyChanges, 1500)
       this.onApplyChanges()
+    }
+  }
+
+  @Watch('isChangedDescription')
+  changeDescriptionHandler (value: boolean) {
+    // Запрос на каждый пятый добавленный символ к строке
+    const lengthChar = 5
+    if (value && (this.description.length % lengthChar === 0)) {
+      this.onApplyChanges = debounce(this.onApplyChanges, 1500)
+      this.onApplyChanges()
+    } else {
+      this.isChangedDescription = false
     }
   }
 
@@ -234,6 +257,7 @@ export default class AutoDialerView extends AppBase {
     this.$store.dispatch('autodialer/view/apply')
       .then(() => {
         this.isChanged = false
+        this.isChangedDescription = false
         this.$toast.success('Changes accepted')
       }).catch((e: Error) => {
         this.$toast.error(e.message)
