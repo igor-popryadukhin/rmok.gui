@@ -53,7 +53,7 @@ export default class AutoDialerView extends Base {
   loading = true
 
   get height () {
-    return this.screenHeight - 130
+    return this.screenHeight - 115
   }
 
   get tab () {

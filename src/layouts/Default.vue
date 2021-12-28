@@ -173,7 +173,7 @@
     <!-- App bar -->
     <v-app-bar
       elevation="0"
-      :height="$headerHeight"
+      :height="50"
       class="background--header"
       app
       dark
@@ -182,367 +182,319 @@
         class="mr-2"
         @click.stop="navigation_drawer_mini = !navigation_drawer_mini"
       />
-      <!--      <v-toolbar-title class="d-inline-block toolbar-title mr-md-5 mr-lg-5">-->
-      <!--        <div class="hidden-sm-and-down">RMOK</div>-->
-      <!--        <div class="hidden-sm-and-down toolbar-title-subtitle text-lowercase">{{ $profile.role.name }}</div>-->
-      <!--      </v-toolbar-title>-->
 
-      <v-text-field
+      <v-toolbar
+        :height="50"
+        class="tool-bar"
         flat
-        solo-inverted
-        hide-details
-        prepend-inner-icon="mdi-magnify"
-        :label="$t('Search')"
-        class="mr-4"
-        style="max-width: 400px"
-        height="40"
-        dense
-      />
-
-      <v-spacer />
-
-      <div class="v-toolbar__tools">
-        <!-- Активация автонабора -->
-        <template v-if="profileProjectId">
-          <v-tooltip
-            :open-delay="1200"
-            bottom
+      >
+        <v-spacer />
+        <v-toolbar-items>
+          <!-- Системные уведомления -->
+          <v-menu
+            v-model="notificationsVisible"
+            :close-on-content-click="false"
+            nudge-left="150"
+            offset-y
           >
             <template #activator="{ on, attrs }">
               <v-btn
-                v-if="profileMode"
+                :disabled="notificationsItems.length === 0"
+                text
                 v-bind="attrs"
-                :loading="modeChangeProcess"
-                class="v-btn__wave_effect"
-                icon
                 v-on="on"
-                @click="onBtnChangeModeClick"
               >
-                <v-icon>
-                  mdi-robot
+                <v-icon :class="notificationShakeProcess ? 'notification-shake' : ''">
+                  mdi-bell
                 </v-icon>
-                <template v-if="profileMode === 'incoming_autodialer'">
-                  <span class="wave wave--blue" />
-                  <span class="wave wave--blue" />
-                  <span class="wave wave--blue" />
-                </template>
+                <v-badge
+                  v-if="notificationsCount > 0"
+                  color="red"
+                  :content="notificationsCount > 99 ? '99+' : notificationsCount"
+                />
               </v-btn>
             </template>
-            <span v-if="profileMode === 'incoming_autodialer'">
-              Режим автодозвона активен
-            </span>
-            <span v-else>
-              Режим автодозвона не активен
-            </span>
-          </v-tooltip>
-        </template>
-        <!-- Активация автонабора -->
-
-        <!-- Системные уведомления -->
-        <v-menu
-          v-model="notificationsVisible"
-          :close-on-content-click="false"
-          nudge-left="150"
-          offset-y
-        >
-          <template #activator="{ on, attrs }">
-            <v-btn
-              :disabled="notificationsItems.length === 0"
-              icon
-              v-bind="attrs"
-              v-on="on"
+            <v-card
+              max-width="800"
+              min-width="450"
+              flat
+              tile
             >
-              <v-icon :class="notificationShakeProcess ? 'notification-shake' : ''">
-                mdi-bell
-              </v-icon>
-              <v-badge
-                v-if="notificationsCount > 0"
-                color="red"
-                :content="notificationsCount > 99 ? '99+' : notificationsCount"
-              />
-            </v-btn>
-          </template>
-          <v-card
-            max-width="800"
-            min-width="450"
-            flat
-            tile
+              <v-card-text
+                class="overflow-y-auto"
+                style="max-height: 500px"
+              >
+                <v-list>
+                  <template v-for="(item, itemIndex) in notificationsItems">
+                    <v-list-item
+                      :key="itemIndex"
+                      link
+                    >
+                      <v-list-item-icon v-if="item.icon">
+                        <v-icon color="grey">
+                          {{ item.icon }}
+                        </v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-tooltip bottom>
+                          <template #activator="{ on }">
+                            <v-list-item-title v-on="on">
+                              {{ item.message }}
+                            </v-list-item-title>
+                          </template>
+                          <span>
+                            {{ item.message }}
+                          </span>
+                        </v-tooltip>
+                        <v-btn
+                          v-if="item.url && (item.link_type === 'file')"
+                          style="max-width: 112px;"
+                          color="primary"
+                          outlined
+                          x-small
+                          tile
+                          @click="onFileDownload(item.url)"
+                        >
+                          {{ $tc('Download') }}
+                          <v-icon
+                            right
+                            dark
+                          >
+                            mdi-cloud-download
+                          </v-icon>
+                        </v-btn>
+                      </v-list-item-content>
+                      <v-list-item-action>
+                        <v-btn
+                          text
+                          small
+                          tile
+                          @click="onBtnCloseNotification(item.id)"
+                        >
+                          {{ $tc('Close') }}
+                        </v-btn>
+                      </v-list-item-action>
+                    </v-list-item>
+                    <v-divider
+                      :key="`v-divider-${itemIndex}`"
+                    />
+                  </template>
+                </v-list>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  tile
+                  block
+                  text
+                  small
+                  @click="onSystemNotificationCloseAllClick"
+                >
+                  {{ $tc('Close all') }}
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-menu>
+          <!-- Системные уведомления -->
+          <!-- Меню аккаунта -->
+          <v-menu
+            offset-y
+            min-width="300"
           >
-            <v-card-text
-              class="overflow-y-auto"
-              style="max-height: 500px"
-            >
-              <v-list>
-                <template v-for="(item, itemIndex) in notificationsItems">
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                text
+                tile
+                v-on="on"
+              >
+                <v-icon
+                  v-if="profileStatus === 'available'"
+                  size="20"
+                  class="mr-2"
+                >
+                  mdi-check-circle-outline
+                </v-icon>
+                <v-icon
+                  v-else-if="profileStatus === 'do_not_disturb'"
+                  size="20"
+                  class="mr-2"
+                >
+                  mdi-minus-circle-outline
+                </v-icon>
+                <v-icon
+                  v-else-if="profileStatus === 'coffee_break'"
+                  size="20"
+                  class="mr-2"
+                >
+                  mdi-pause-circle-outline
+                </v-icon>
+                {{ profileFirstName || profileEmail || profileLogin }}
+                <!-- Подключен и зарегистрирован -->
+                <span
+                  v-if="$dialer.isConnected() && $dialer.isRegistered()"
+                  class="dialer-indicator dialer-indicator-connected-and-registered ml-1"
+                />
+                <!-- Подключен -->
+                <span
+                  v-else-if="$dialer.isConnected()"
+                  class="dialer-indicator dialer-indicator-connected ml-1"
+                />
+                <!-- Не подключен -->
+                <span
+                  v-else
+                  class="dialer-indicator dialer-indicator-disconnected ml-1"
+                />
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-text
+                v-if="$profile"
+                class="px-0 py-0"
+              >
+                <v-list>
+                  <v-list-item>
+                    <v-list-item-avatar class="primary">
+                      <span style="color: white">
+                        {{ profileAbbreviation }}
+                      </span>
+                    </v-list-item-avatar>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title class="text-h6">
+                        {{ profileFullName }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle v-if="$profile.group">
+                        {{ $profile.login }} ({{ $profile.group.name }})
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle v-else>
+                        {{ $profile.login }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <!-- Проект -->
                   <v-list-item
-                    :key="itemIndex"
+                    v-if="$profile.project"
                     link
                   >
-                    <v-list-item-icon v-if="item.icon">
-                      <v-icon color="grey">
-                        {{ item.icon }}
-                      </v-icon>
-                    </v-list-item-icon>
                     <v-list-item-content>
-                      <v-tooltip bottom>
-                        <template #activator="{ on }">
-                          <v-list-item-title v-on="on">
-                            {{ item.message }}
-                          </v-list-item-title>
-                        </template>
-                        <span>
-                          {{ item.message }}
-                        </span>
-                      </v-tooltip>
-                      <v-btn
-                        v-if="item.url && (item.link_type === 'file')"
-                        style="max-width: 112px;"
-                        color="primary"
-                        outlined
-                        x-small
-                        tile
-                        @click="onFileDownload(item.url)"
-                      >
-                        {{ $tc('Download') }}
-                        <v-icon
-                          right
-                          dark
-                        >
-                          mdi-cloud-download
-                        </v-icon>
-                      </v-btn>
+                      <v-list-item-title>
+                        {{ $tc('Current project') }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle>{{ $profile.project.name }}</v-list-item-subtitle>
                     </v-list-item-content>
+
+                    <!-- Смена проекта TODO: Реализовать обработчик/механизм смены проекта-->
                     <v-list-item-action>
-                      <v-btn
-                        text
-                        small
-                        tile
-                        @click="onBtnCloseNotification(item.id)"
-                      >
-                        {{ $tc('Close') }}
-                      </v-btn>
+                      <v-icon>mdi-menu-down</v-icon>
                     </v-list-item-action>
+                    <!-- Смена проекта -->
                   </v-list-item>
-                  <v-divider
-                    :key="`v-divider-${itemIndex}`"
-                  />
-                </template>
-              </v-list>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn
-                tile
-                block
-                text
-                small
-                @click="onSystemNotificationCloseAllClick"
-              >
-                {{ $tc('Close all') }}
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-menu>
-        <!-- Системные уведомления -->
-      </div>
-
-      <!-- Меню аккаунта -->
-      <v-menu
-        offset-y
-        min-width="300"
-      >
-        <template #activator="{ on, attrs }">
-          <v-btn
-            v-bind="attrs"
-            text
-            tile
-            v-on="on"
-          >
-            <v-icon
-              v-if="profileStatus === 'available'"
-              size="20"
-              class="mr-2"
-            >
-              mdi-check-circle-outline
-            </v-icon>
-            <v-icon
-              v-else-if="profileStatus === 'do_not_disturb'"
-              size="20"
-              class="mr-2"
-            >
-              mdi-minus-circle-outline
-            </v-icon>
-            <v-icon
-              v-else-if="profileStatus === 'coffee_break'"
-              size="20"
-              class="mr-2"
-            >
-              mdi-pause-circle-outline
-            </v-icon>
-            {{ profileFirstName || profileEmail || profileLogin }}
-            <!-- Подключен и зарегистрирован -->
-            <span
-              v-if="$dialer.isConnected() && $dialer.isRegistered()"
-              class="dialer-indicator dialer-indicator-connected-and-registered ml-1"
-            />
-            <!-- Подключен -->
-            <span
-              v-else-if="$dialer.isConnected()"
-              class="dialer-indicator dialer-indicator-connected ml-1"
-            />
-            <!-- Не подключен -->
-            <span
-              v-else
-              class="dialer-indicator dialer-indicator-disconnected ml-1"
-            />
-          </v-btn>
-        </template>
-        <v-card>
-          <v-card-text
-            v-if="$profile"
-            class="px-0 py-0"
-          >
-            <v-list>
-              <v-list-item>
-                <v-list-item-avatar class="primary">
-                  <span style="color: white">
-                    {{ profileAbbreviation }}
-                  </span>
-                </v-list-item-avatar>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title class="text-h6">
-                    {{ profileFullName }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle v-if="$profile.group">
-                    {{ $profile.login }} ({{ $profile.group.name }})
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle v-else>
-                    {{ $profile.login }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-
-              <!-- Проект -->
-              <v-list-item
-                v-if="$profile.project"
-                link
-              >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $tc('Current project') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>{{ $profile.project.name }}</v-list-item-subtitle>
-                </v-list-item-content>
-
-                <!-- Смена проекта TODO: Реализовать обработчик/механизм смены проекта-->
-                <v-list-item-action>
-                  <v-icon>mdi-menu-down</v-icon>
-                </v-list-item-action>
-                <!-- Смена проекта -->
-              </v-list-item>
-              <!-- Проект -->
-            </v-list>
-          </v-card-text>
-          <v-divider v-if="$profile" />
-          <!-- Статусы -->
-          <v-card-text class="px-0 py-0">
-            <v-list
-              class="pl-0 pr-0"
-              tile
-              dense
-            >
-              <v-list-item-group :value="profileStatus">
-                <v-list-item
-                  value="available"
-                  link
-                  @click="onStatusListItemClick('available')"
+                  <!-- Проект -->
+                </v-list>
+              </v-card-text>
+              <v-divider v-if="$profile" />
+              <!-- Статусы -->
+              <v-card-text class="px-0 py-0">
+                <v-list
+                  class="pl-0 pr-0"
+                  tile
+                  dense
                 >
-                  <v-list-item-icon>
-                    <v-icon>
-                      mdi-check-circle-outline
-                    </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ $tc('Available') }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item
-                  value="do_not_disturb"
-                  link
-                  @click="onStatusListItemClick('do_not_disturb')"
+                  <v-list-item-group :value="profileStatus">
+                    <v-list-item
+                      value="available"
+                      link
+                      @click="onStatusListItemClick('available')"
+                    >
+                      <v-list-item-icon>
+                        <v-icon>
+                          mdi-check-circle-outline
+                        </v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Available') }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      value="do_not_disturb"
+                      link
+                      @click="onStatusListItemClick('do_not_disturb')"
+                    >
+                      <v-list-item-icon>
+                        <v-icon>
+                          mdi-minus-circle-outline
+                        </v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Do not disturb') }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item
+                      value="coffee_break"
+                      link
+                      @click="onStatusListItemClick('coffee_break')"
+                    >
+                      <v-list-item-icon>
+                        <v-icon>
+                          mdi-pause-circle-outline
+                        </v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc('Перерыв') }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
+              </v-card-text>
+              <!-- Статусы -->
+              <v-card-text class="px-0 py-0">
+                <v-divider />
+              </v-card-text>
+              <v-card-text class="px-0 py-0">
+                <v-list
+                  class="pl-0 pr-0"
+                  tile
                 >
-                  <v-list-item-icon>
-                    <v-icon>
-                      mdi-minus-circle-outline
-                    </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ $tc('Do not disturb') }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item
-                  value="coffee_break"
-                  link
-                  @click="onStatusListItemClick('coffee_break')"
-                >
-                  <v-list-item-icon>
-                    <v-icon>
-                      mdi-pause-circle-outline
-                    </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ $tc('Перерыв') }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card-text>
-          <!-- Статусы -->
-          <v-card-text class="px-0 py-0">
-            <v-divider />
-          </v-card-text>
-          <v-card-text class="px-0 py-0">
-            <v-list
-              class="pl-0 pr-0"
-              tile
-            >
-              <template
-                v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
-              >
-                <v-divider
-                  v-if="accountMenuItem.divider"
-                  :key="accountMenuItemIndex"
-                />
-                <v-subheader
-                  v-else-if="accountMenuItem.subheader"
-                  :key="accountMenuItemIndex"
-                  v-bind="accountMenuItem"
-                >
-                  {{ accountMenuItem.title }}
-                </v-subheader>
-                <v-list-item
-                  v-else
-                  :key="accountMenuItemIndex"
-                  v-bind="accountMenuItem.attrs"
-                  v-on="accountMenuItem.on"
-                >
-                  <v-list-item-icon>
-                    <v-icon v-bind="accountMenuItem.icon.attrs">
-                      {{ accountMenuItem.icon.name }}
-                    </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ $tc(accountMenuItem.title) }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-            </v-list>
-          </v-card-text>
-        </v-card>
-      </v-menu>
-      <!-- Меню аккаунта -->
+                  <template
+                    v-for="(accountMenuItem, accountMenuItemIndex) in accountMenuItems"
+                  >
+                    <v-divider
+                      v-if="accountMenuItem.divider"
+                      :key="accountMenuItemIndex"
+                    />
+                    <v-subheader
+                      v-else-if="accountMenuItem.subheader"
+                      :key="accountMenuItemIndex"
+                      v-bind="accountMenuItem"
+                    >
+                      {{ accountMenuItem.title }}
+                    </v-subheader>
+                    <v-list-item
+                      v-else
+                      :key="accountMenuItemIndex"
+                      v-bind="accountMenuItem.attrs"
+                      v-on="accountMenuItem.on"
+                    >
+                      <v-list-item-icon>
+                        <v-icon v-bind="accountMenuItem.icon.attrs">
+                          {{ accountMenuItem.icon.name }}
+                        </v-icon>
+                      </v-list-item-icon>
+                      <v-list-item-content>
+                        <v-list-item-title>{{ $tc(accountMenuItem.title) }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </template>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </v-menu>
+          <!-- Меню аккаунта -->
+        </v-toolbar-items>
+      </v-toolbar>
     </v-app-bar>
 
     <!-- Main -->
@@ -577,8 +529,6 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
 import AppBase from '@/AppBase'
 import Postman from './Postman'
-import { Watch } from 'vue-property-decorator'
-import debounce from '@/utils/debounce'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -1626,6 +1576,12 @@ export default class DefaultLayout extends AppBase {
 </script>
 
 <style lang="scss">
+.tool-bar {
+  background-color: inherit !important;
+}
+.tool-bar div {
+  padding: 0 !important;
+}
 .v-toolbar__tools {
   display: inline-flex;
   & button {

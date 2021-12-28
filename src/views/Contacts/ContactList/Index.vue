@@ -89,12 +89,7 @@ export default class Index extends Base {
 
   // Вычисляемая высота списка контактов
   get heightContactList () {
-    return this.screenHeight - 125
-  }
-
-  // Вычисляемая высота области фильтров
-  get heightContactListFilters () {
-    return this.screenHeight - 90
+    return this.screenHeight - 112
   }
 
   // Все параметры фильтров
