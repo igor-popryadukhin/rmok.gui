@@ -136,7 +136,7 @@
 
                 <v-list-item-action>
                   <v-btn
-                    :to="`${item.id}/main`"
+                    :to="{ name: 'users_edit_main', params: { user_id: item.id } }"
                     small
                     text
                     tile

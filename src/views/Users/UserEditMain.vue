@@ -163,21 +163,21 @@
         </v-row>
 
         <!-- Роль -->
-        <v-row class="mb-5">
-          <v-col
-            cols="12"
-            lg="4"
-            md="6"
-          >
-            <app-role-autocomplete
-              v-model="targetUser.role_id"
-              :items="availableRoles"
-              :label="$tc('Role')"
-              item-text="title"
-              item-value="value"
-            />
-          </v-col>
-        </v-row>
+        <!--        <v-row class="mb-5">-->
+        <!--          <v-col-->
+        <!--            cols="12"-->
+        <!--            lg="4"-->
+        <!--            md="6"-->
+        <!--          >-->
+        <!--            <app-role-autocomplete-->
+        <!--              v-model="targetUser.role_id"-->
+        <!--              :items="availableRoles"-->
+        <!--              :label="$tc('Role')"-->
+        <!--              item-text="title"-->
+        <!--              item-value="value"-->
+        <!--            />-->
+        <!--          </v-col>-->
+        <!--        </v-row>-->
 
         <!-- Контактная информация -->
         <app-tools>
@@ -269,7 +269,7 @@ interface VInnerInterface extends VInterface {
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
-  components: { AppUserGroupAutocomplete, AppRoleAutocomplete, AppLoading },
+  components: { AppUserGroupAutocomplete, AppLoading },
 
   mixins: [rules, vueScrollOptions, statusActions],
 

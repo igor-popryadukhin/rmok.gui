@@ -48,6 +48,7 @@
                 {{ $tc('Name') }}
               </th>
               <th
+                v-if="visibleColumnResponsible"
                 class="text-left"
               >
                 {{ $tc('Responsible') }}
@@ -94,8 +95,13 @@
                 <!-- Имя контакта -->
 
                 <!-- Владелец -->
-                <td v-if="item.owner">
-                  {{ item.owner.full_name }}
+                <td v-if="visibleColumnResponsible">
+                  <template v-if="item.owner">
+                    {{ item.owner.full_name }}
+                  </template>
+                  <template v-else>
+                    —
+                  </template>
                 </td>
                 <!-- Владелец -->
 
@@ -269,6 +275,10 @@ export default class ContactList extends Base {
 
   get itemsSelectedCount (): number {
     return this.$store.getters['contacts/list/selected_count']
+  }
+
+  get visibleColumnResponsible (): boolean {
+    return this.$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ALL'])
   }
 
   private onTableHeadCheckboxClick () {

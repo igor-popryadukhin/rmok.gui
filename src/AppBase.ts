@@ -15,8 +15,10 @@ export default class AppBase extends Vue {
     return this.$vuetify.breakpoint.height
   }
 
-  get profileRolePermissions () {
-    return this.$store.getters['profile/role/permissions']
+  get accountPermissions () {
+    return (this.$store.getters['profile/permissions'] || [])
+      .filter((value) => value.granted)
+      .map((value) => value.id)
   }
 
   /**
@@ -25,7 +27,7 @@ export default class AppBase extends Vue {
    * @param value
    */
   public $isGranted (value: string | string[]): boolean {
-    const rolesAvailable: string[] = this.profileRolePermissions
+    const rolesAvailable: string[] = this.accountPermissions
     if (Array.isArray(value)) {
       let granted = false
 

@@ -57,6 +57,9 @@ export interface State {
   filter_offset: number;
   filter_task: string|null;
   filter_timezone_id: number|null;
+
+  order_by: string|null;
+  order_direction: 'asc' | 'desc';
   /// /////////////////////////////////
 }
 
@@ -79,7 +82,10 @@ export function defaultState () {
     filter_calling: null,
     filter_offset: 0,
     filter_task: '',
-    filter_timezone_id: null
+    filter_timezone_id: null,
+
+    order_by: '',
+    order_direction: 'asc'
     /// /////////////////////////////////
   }
 }

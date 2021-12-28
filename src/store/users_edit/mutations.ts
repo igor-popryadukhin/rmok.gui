@@ -22,6 +22,7 @@ const mutations: MutationTree<State> = {
   password (state: State, payload) { state.password = payload },
   pbx_configuration (state: State, payload) { state.pbx_configuration = payload },
   roles (state: State, payload) { state.roles = payload },
+  permissions (state: State, payload) { state.permissions = payload },
   phone (state: State, payload) { state.phone = payload },
 
   /**

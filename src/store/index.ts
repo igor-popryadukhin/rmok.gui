@@ -27,6 +27,7 @@ import debug from 'debug'
 import $app from '@/main'
 import { account } from './account'
 import { notifications } from './notifications'
+import { roles } from './roles'
 
 Vue.use(Vuex)
 
@@ -68,6 +69,7 @@ const store = new Vuex.Store({
 
   modules: {
     account,
+    roles,
     notifications,
     app_state,
     database,

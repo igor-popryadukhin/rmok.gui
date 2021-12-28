@@ -5,6 +5,7 @@ import { RootState } from '@/store'
 const getters: GetterTree<State, RootState> = {
   id (state: State) { return state?.id || 0 },
   name (state: State) { return state?.name || '' },
+  key (state: State) { return state?.key || '' },
   permissions (state: State) { return state?.permissions || [] }
 }
 

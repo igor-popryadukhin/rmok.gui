@@ -31,6 +31,7 @@ export function defaultState (): State {
       name: '',
       permissions: []
     },
+    permissions: [],
     roles: [],
     tz: '',
     userpic: ''

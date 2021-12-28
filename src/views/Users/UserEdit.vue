@@ -3,19 +3,21 @@
     <v-tabs
       vertical
     >
-      <v-tab
-        v-for="(tab, tabKey) in tabs"
-        v-bind="tab.attrs"
-        :key="tabKey"
-        class="tab"
-      >
-        {{ $tc(tab.title) }}
-        <v-spacer />
-      </v-tab>
+      <template v-for="(tab, tabKey) in tabs">
+        <v-tab
+          v-if="tab.visible"
+          v-bind="tab.attrs"
+          :key="tabKey"
+          class="tab"
+        >
+          {{ $tc(tab.title) }}
+          <v-spacer />
+        </v-tab>
+      </template>
 
       <v-tabs-items
-        class="pa-2 pl-4 v-tabs-items__border"
-        style="min-height: 500px"
+        class="v-tabs-items__border pl-2"
+        :style="tabsItemsStyle"
       >
         <keep-alive>
           <router-view />
@@ -39,10 +41,18 @@ import Component from 'vue-class-component'
 export default class UserEdit extends AppBase {
   tab = null
 
+  get tabsItemsStyle () {
+    return {
+      height: `${this.screenHeight - 90}px`,
+      'overflow-y': 'auto'
+    }
+  }
+
   get tabs () {
     return [
       {
         title: 'Main information',
+        visible: true,
         attrs: {
           to: {
             name: 'users_edit_main'
@@ -51,6 +61,7 @@ export default class UserEdit extends AppBase {
       },
       {
         title: 'Telephony',
+        visible: true,
         attrs: {
           to: {
             name: 'users_edit_telephony'
@@ -59,6 +70,7 @@ export default class UserEdit extends AppBase {
       },
       {
         title: 'Schedule',
+        visible: this.$isGranted('USER_WORK_TIME_MANAGEMENT'),
         attrs: {
           to: {
             name: 'users_edit_schedule'
@@ -66,7 +78,17 @@ export default class UserEdit extends AppBase {
         }
       },
       {
+        title: 'Capabilities',
+        visible: true,
+        attrs: {
+          to: {
+            name: 'users_edit_capabilities'
+          }
+        }
+      },
+      {
         title: 'Sessions',
+        visible: true,
         attrs: {
           to: {
             name: 'users_edit_sessions'

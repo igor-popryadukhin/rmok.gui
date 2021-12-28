@@ -11,7 +11,8 @@ const getters: GetterTree<ProfileState, RootState> = {
   login (state: ProfileState) { return state.login },
   email (state: ProfileState) { return state.email },
   mode (state: ProfileState) { return state.mode },
-  profile_tz (state: ProfileState) { return state.tz }
+  profile_tz (state: ProfileState) { return state.tz },
+  permissions (state: ProfileState) { return state.permissions }
 }
 
 export default getters

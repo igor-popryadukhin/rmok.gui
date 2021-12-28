@@ -734,7 +734,7 @@ export default class DefaultLayout extends AppBase {
           visible: this.tasksPendingCount > 0,
           color: '#ff5722'
         },
-        visible: this.$isGranted('SECTION_TASKS')
+        visible: this.$isGranted('TASKS_VIEW')
       },
       {
         title: 'Contacts',
@@ -744,7 +744,7 @@ export default class DefaultLayout extends AppBase {
             name: 'contacts'
           }
         },
-        visible: this.$isGranted('SECTION_CONTACTS')
+        visible: this.$isGranted(['CONTACTS_VIEW', 'CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])
       },
       {
         title: 'Roles',
@@ -754,7 +754,7 @@ export default class DefaultLayout extends AppBase {
             name: 'roles'
           }
         },
-        visible: this.$isGranted('EDIT_ROLE')
+        visible: this.$isGranted('ROLE_MANAGEMENT')
       },
       {
         title: 'Groups',
@@ -764,7 +764,7 @@ export default class DefaultLayout extends AppBase {
             name: 'groups_list'
           }
         },
-        visible: this.$isGranted('SECTION_GROUPS')
+        visible: this.$isGranted(['ROLE_ADMIN'])
       },
       {
         title: 'Users',
@@ -774,7 +774,7 @@ export default class DefaultLayout extends AppBase {
             name: 'users_list'
           }
         },
-        visible: this.$isGranted(['USER_CREATE', 'USER_EDIT', 'USER_DELETE'])
+        visible: this.$isGranted(['USER_MANAGEMENT'])
       },
       {
         title: 'Projects',
@@ -794,7 +794,7 @@ export default class DefaultLayout extends AppBase {
             name: 'auto_dialer_params'
           }
         },
-        visible: true
+        visible: this.$isGranted('AUTODIALER_MANAGEMENT')
       },
       {
         title: 'Scenarios',
@@ -804,7 +804,7 @@ export default class DefaultLayout extends AppBase {
             name: 'scenarios_list'
           }
         },
-        visible: true
+        visible: this.$isGranted('SCENARIO_MANAGEMENT')
       },
       {
         title: 'Statistic',
@@ -818,7 +818,7 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'Last call statistics',
-            visible: this.$isGranted('STATISTICS_RECENT_CALLS')
+            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_RECENT_CALLS'])
           },
           {
             attrs: {
@@ -828,7 +828,7 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'Statistics for all calls',
-            visible: this.$isGranted('STATISTICS_ALL_CALLS')
+            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_ALL_CALLS'])
           },
           {
             attrs: {
@@ -838,7 +838,7 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'By the number of calls',
-            visible: this.$isGranted('STATISTICS_CALL_COUNT')
+            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_CALL_COUNT'])
           },
           {
             attrs: {
@@ -848,7 +848,7 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'Employment of employees',
-            visible: this.$isGranted('STATISTICS_ACTIVITY')
+            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_ACTIVITY'])
           },
           {
             attrs: {
@@ -858,12 +858,13 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'Unauthorized breaks',
-            visible: this.$isGranted('STATISTICS_UNAUTHORIZED_BREAKS')
+            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_UNAUTHORIZED_BREAKS'])
           }
         ],
         icon: 'mdi-chart-arc',
         list_item: {},
         visible: this.$isGranted([
+          'ROLE_ADMIN',
           'STATISTICS_RECENT_CALLS',
           'STATISTICS_ALL_CALLS',
           'STATISTICS_CALL_COUNT',

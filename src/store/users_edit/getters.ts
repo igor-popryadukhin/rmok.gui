@@ -23,6 +23,7 @@ const getters: GetterTree<State, RootState> = {
   password (state: State) { return state.password },
   pbx_configuration (state: State) { return state.pbx_configuration },
   roles (state: State) { return state.roles },
+  permissions (state: State) { return state.permissions },
   phone (state: State) { return state.phone }
 }
 

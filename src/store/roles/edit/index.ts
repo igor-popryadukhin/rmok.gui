@@ -5,12 +5,10 @@ import actions from './actions'
 import mutations from './mutations'
 import state, { State } from './state'
 
-const module: Module<State, RootState> = {
+export const edit: Module<State, RootState> = {
+  namespaced: true,
+  state,
   actions,
   getters,
-  mutations,
-  namespaced: true,
-  state
+  mutations
 }
-
-export default module

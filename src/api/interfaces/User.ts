@@ -25,6 +25,7 @@ export default interface User {
   project?: Project;
   projects?: Project[];
   pbx_configuration?: PBXConfiguration;
+  permissions?: Array<Record<string, any>>;
   country?: Country;
   tz?: string;
   status?: string;

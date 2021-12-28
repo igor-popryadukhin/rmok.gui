@@ -10,6 +10,7 @@ const actions: ActionTree<State, RootState> = {
       .then((response) => {
         commit('id', response.id)
         commit('organization/fill', response.organization)
+        commit('permissions', response.permissions)
 
         commit('pbx_configuration/credentials/fill', response?.pbx_configuration?.credentials)
         commit('pbx_configuration/rtc_configuration/fill', response.pbx_configuration?.rtc_configuration)

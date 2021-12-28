@@ -26,6 +26,10 @@ const getters: GetterTree<State, RootState> & Getters = {
   filter_offset (state: State) { return state.filter_offset || 0 },
   filter_task (state) { return state.filter_task },
   filter_timezone_id (state: State) { return state.filter_timezone_id },
+
+  order_by (state: State) { return state.order_by },
+  order_direction (state: State) { return state.order_direction },
+
   /// //////////////////////////////////////////////////////////////////////////
   all (state: State) {
     const obj: Record<string, any> = {}
@@ -72,6 +76,11 @@ const getters: GetterTree<State, RootState> & Getters = {
 
     if (state.filter_offset) {
       obj.offset = state.filter_offset
+    }
+
+    if (state.order_by && state.order_direction) {
+      obj.order_by = state.order_by
+      obj.order_direction = state.order_direction
     }
 
     return obj

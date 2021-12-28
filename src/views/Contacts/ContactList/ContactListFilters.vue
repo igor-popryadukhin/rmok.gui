@@ -12,6 +12,7 @@
       />
 
       <app-autocomplete
+        v-if="$isGranted(['CONTACTS_VIEW_ALL'])"
         v-model="projectId"
         :options="projects"
         :label="$tc('Project')"
@@ -72,6 +73,7 @@
       </app-autocomplete>
 
       <app-autocomplete
+        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
         v-model="userGroupId"
         :options="userGroups"
         :label="$tc('Group')"
@@ -86,6 +88,7 @@
       />
 
       <app-autocomplete
+        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
         v-model="userId"
         :options="users"
         :label="$tc('Responsible')"
@@ -170,12 +173,28 @@
         v-model="timeZoneId"
         :options="timezones"
         :label="$tc('Time zone')"
-        item-text="name"
+        item-text="name_local"
         item-value="id"
         clearable
         @focus="fetchTimeZones"
         @change="onFilterChange"
-      />
+      >
+        <template #item="{ item, attrs, on }">
+          <v-list-item
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ item.name_local }}</v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-list-item-action-text>
+                {{ item.offset_string }}
+              </v-list-item-action-text>
+            </v-list-item-action>
+          </v-list-item>
+        </template>
+      </app-autocomplete>
 
       <v-menu
         ref="contactCreatedAtMenu"
@@ -258,6 +277,7 @@ export default class ContactListFilters extends Base {
   tagsLoading = false
   // endregion
 
+  /** Текущий проект пользователя */
   get profileProjectId (): number { return this.$store.getters['profile/project/id'] }
 
   get dateRangeText (): string {
@@ -290,9 +310,12 @@ export default class ContactListFilters extends Base {
 
   set q (val: string|null) { this.$store.commit('contacts/list/filter/filter_q', val) }
 
-  get projectId (): number|null { return this.$store.getters['contacts/list/filter/filter_project_id'] }
+  get projectId (): number|null {
+    return this.$store.getters['contacts/list/filter/filter_project_id'] ||
+      this.profileProjectId
+  }
 
-  set projectId (val: string|number) {
+  set projectId (val: number) {
     this.$store.commit('contacts/list/filter/filter_project_id', val)
 
     // Сброс состояния связанных фильтров
@@ -357,13 +380,16 @@ export default class ContactListFilters extends Base {
   // region Данные для заполнения фильтров
   get projects (): Record<string, any>[] { return this.$store.getters['contacts/list/filter/projects'] }
 
+  /** Статусы */
   get statuses (): Record<string, any>[] {
     if (!this.projectId) {
       return []
     }
-    return (this.$store.getters['contacts/list/filter/statuses'] as Record<string, any>[]).filter((e) => e.project.id === this.projectId)
+    return (this.$store.getters['contacts/list/filter/statuses'] as Record<string, any>[])
+      .filter((e) => e.project.id === this.projectId)
   }
 
+  /** Пользователи */
   get users (): Record<string, any>[] {
     const users: Record<string, any>[] = this.$store.getters['contacts/list/filter/users']
     return users.filter((e) => {
@@ -371,6 +397,7 @@ export default class ContactListFilters extends Base {
     })
   }
 
+  /** Группы пользователей */
   get userGroups (): Record<string, any>[] { return this.$store.getters['contacts/list/filter/user_groups'] }
 
   get filterTasksItems () {
@@ -394,6 +421,7 @@ export default class ContactListFilters extends Base {
     })
   }
 
+  /** Теги */
   get tags (): ContactTag[] {
     const tags = this.$store.getters['contacts/list/filter/tags'] as Record<string, any>[]
     return [].concat([

@@ -64,9 +64,9 @@ declare module 'vue/types/vue' {
     $ifvisible: IfVisible;
     $accountMonitoring: AccountMonitoring;
     $axios: AxiosInstance;
-    // Методы
-    $isGranted: (roles: string | string[], strategy: 'affirmative' | 'unanimous' = 'affirmative') => boolean;
     $settings_vue_keep_alive: boolean;
+    // Методы
+    $isGranted (value: string | string[], strict = false): boolean;
     $consoleLog (message?: any, ...optionalParams: any[]): void;
   }
 }

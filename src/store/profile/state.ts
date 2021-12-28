@@ -19,6 +19,7 @@ export interface ProfileState {
   last_login: number;
   created_at: number;
   country?: Country;
+  permissions?: Array<Record<string, any>>;
   group?: UserGroup;
 }
 
@@ -46,6 +47,7 @@ function state (): ProfileState {
     mode: '',
     tz: '',
     userpic: '',
+    permissions: [],
     group: undefined
   }
 }

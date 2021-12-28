@@ -177,7 +177,7 @@ const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "roles" */ '../views/Roles/Layout.vue'),
     children: [
       {
-        component: () => import(/* webpackChunkName: "roles-list" */ '../views/Roles/List.vue'),
+        component: () => import(/* webpackChunkName: "roles-list" */ '../views/Roles/Items/Index.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
@@ -187,14 +187,14 @@ const routes: RouteConfig[] = [
         path: ''
       },
       {
-        component: () => import(/* webpackChunkName: "roles-edit" */ '../views/Roles/Edit.vue'),
+        component: () => import(/* webpackChunkName: "roles-edit" */ '../views/Roles/Edit/Index.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
           middleware: []
         },
         name: 'roles_edit',
-        path: ':role_id'
+        path: ':id'
       }
     ],
     meta: {
@@ -333,6 +333,12 @@ const routes: RouteConfig[] = [
             meta: { layout: 'default', middleware: [], anonymous: true },
             name: 'users_edit_schedule',
             path: 'schedule'
+          },
+          {
+            component: () => import(/* webpackChunkName: "users-edit-capabilities" */ '../views/Users/UserCapabilities.vue'),
+            meta: { layout: 'default', middleware: [], anonymous: true },
+            name: 'users_edit_capabilities',
+            path: 'capabilities'
           },
           {
             component: () => import(/* webpackChunkName: "users-edit-sessions" */ '../views/Users/UserSessions.vue'),

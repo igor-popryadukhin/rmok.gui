@@ -107,7 +107,7 @@ const actions: ActionTree<State, RootState> = {
 
   fetchTimeZones: ({ commit, state }, params = {}) => {
     return new Promise<void>((resolve) => {
-      $axios.get('/database/timezones')
+      $axios.get('/handbooks/timezones')
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new Error(response.statusText)

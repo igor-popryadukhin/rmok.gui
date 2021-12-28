@@ -4,47 +4,8 @@ import { ContactListState } from './state'
 import Contact from '@/api/interfaces/Contact'
 import axios, { AxiosResponse, CancelTokenSource } from 'axios'
 import { $axios } from '@/plugins/axios'
-import dayjs from 'dayjs'
 
 const cancelTokenSources: CancelTokenSource[] = []
-
-function normalizeQuery (query: Record<string, string|number|Array<string|number>>) {
-  const inner = Object.assign({}, query)
-
-  if (!inner.q) { delete inner.q }
-  if (!inner.project_id) { delete inner.project_id }
-  if (!(Array.isArray(inner.status_ids) && inner.status_ids.length === 0)) { delete inner.status_ids }
-  if (!inner.owner_id) { delete inner.owner_id }
-  if (!inner.user_group_id) { delete inner.user_group_id }
-  if (!(Array.isArray(inner.tag_ids) && inner.tag_ids.length > 0)) { delete inner.tag_ids }
-  if (!inner.contact_created_at) { delete inner.contact_created_at }
-  if (!inner.calling) { delete inner.calling }
-  if (!inner.offset) { delete inner.offset }
-  if (!inner.task) { delete inner.task }
-  if (!inner.timezone) { delete inner.timezone }
-  if (!inner.utc_offset) { delete inner.utc_offset }
-
-  // Модифицирую формат даты
-  if ('contact_created_at' in inner) {
-    if (Array.isArray(inner.contact_created_at) && inner.contact_created_at.length === 2) {
-      let contactCreatedAtStart = dayjs(inner.contact_created_at[0], 'YYYY-MM-DD')
-      let contactCreatedAtEnd = dayjs(inner.contact_created_at[1], 'YYYY-MM-DD')
-
-      contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
-      contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
-
-      if (contactCreatedAtStart.unix() > contactCreatedAtEnd.unix()) {
-        inner.contact_created_at = `${contactCreatedAtEnd.unix()},${contactCreatedAtStart.unix()}`
-      } else {
-        inner.contact_created_at = `${contactCreatedAtStart.unix()},${contactCreatedAtEnd.unix()}`
-      }
-    } else {
-      delete inner.contact_created_at
-    }
-  }
-
-  return inner
-}
 
 const actions: ActionTree<ContactListState, RootState> = {
   fetch: ({ commit, state, getters }: ActionContext<ContactListState, RootState>) => {
