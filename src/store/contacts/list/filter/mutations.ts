@@ -22,8 +22,9 @@ const mutations: MutationTree<State> = {
   filter_timezone_id (state: State, payload) { state.filter_timezone_id = payload },
 
   order_by (state: State, payload) { state.order_by = payload },
-  order_direction (state: State, payload) { state.order_direction = payload }
+  order_direction (state: State, payload) { state.order_direction = payload },
   /// //////////////////////////////////////////////////////////////////////////
+  filter_panel_visible (state: State, payload) { state.filter_panel_visible = payload }
 }
 
 export default mutations

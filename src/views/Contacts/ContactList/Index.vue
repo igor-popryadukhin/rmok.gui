@@ -1,15 +1,7 @@
 <template>
   <v-sheet>
     <v-row>
-      <v-col
-        cols="12"
-        md="9"
-        lg="9"
-        order-xl="0"
-        order-lg="0"
-        order-md="0"
-        order-sm="1"
-      >
+      <v-col>
         <contact-list-tools
           class="mb-2"
           @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
@@ -22,30 +14,24 @@
           overlay
         />
         <!-- Контакт лист -->
-      </v-col>
 
-      <!-- Фильтры -->
-      <v-col
-        cols="12"
-        md="3"
-        lg="3"
-        order-xl="1"
-        order-lg="1"
-        order-md="1"
-        order-sm="0"
-      >
-        <v-sheet
-          :height="heightContactListFilters"
-          class="pr-2"
-          style="overflow-y: auto;"
+        <v-navigation-drawer
+          v-model="filterPanelVisible"
+          width="400"
+          absolute
+          temporary
+          hide-overlay
+          right
         >
-          <contact-list-filters />
-        </v-sheet>
+          <v-container
+            class="pa-4"
+            fluid
+          >
+            <contact-list-filters />
+          </v-container>
+        </v-navigation-drawer>
       </v-col>
-      <!-- Фильтры -->
     </v-row>
-
-    <contact-create />
 
     <contacts-transfer-dialog
       v-if="contactsTransferDialogVisible"
@@ -120,6 +106,14 @@ export default class Index extends Base {
     return this.$store.getters['contacts/transfer_dialog/visible']
   }
 
+  get filterPanelVisible (): boolean {
+    return this.$store.getters['contacts/list/filter/filter_panel_visible']
+  }
+
+  set filterPanelVisible (val: boolean) {
+    this.$store.commit('contacts/list/filter/filter_panel_visible', val)
+  }
+
   // Здесь отслеживаем все параметры фильтров в одном месте.
   @Watch('filterAll')
   filterAllWatch () {
@@ -175,7 +169,14 @@ export default class Index extends Base {
 </script>
 
 <style lang="scss" scoped>
-
+.navigation-drawer-button {
+  top: 10px;
+  left: 10px;
+  height: 50px;
+  width: 100px;
+  position: absolute;
+  background-color: #3a70d4;
+}
 </style>
 
 <i18n>

@@ -63,6 +63,50 @@
       {{ $tc('Add to autodialer') }}
     </v-btn>
 
+    <!-- Импорт -->
+    <template v-if="$isGranted('IMPORT_EXPORT_CONTACTS')">
+      <v-menu offset-y>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            text
+            tile
+            small
+            v-on="on"
+          >
+            {{ $tc('Import') }}
+          </v-btn>
+        </template>
+        <v-list
+          class="py-0"
+          dense
+        >
+          <v-list-item
+            link
+            disabled
+            @click="onBtnImportClick('csv')"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ $tc('Import from CSV') }}</v-list-item-title>
+              <v-list-item-subtitle>{{ $tc('Text format') }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item
+            link
+            @click="onBtnImportClick('excel')"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ $tc('Import from Excel') }}</v-list-item-title>
+              <v-list-item-subtitle>
+                {{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </template>
+    <!-- Импорт -->
+
     <v-spacer />
     <app-pagination
       v-model="offset"
@@ -75,6 +119,15 @@
       :items="sortingOptions"
       item-text="name"
     />
+    <v-btn
+      class="ml-1"
+      small
+      tile
+      text
+      @click="filterPanelVisible = !filterPanelVisible"
+    >
+      {{ $tc('Filter') }}
+    </v-btn>
   </v-sheet>
 </template>
 
@@ -161,6 +214,14 @@ export default class ContactListTools extends Base {
     ]
   }
 
+  get filterPanelVisible (): boolean {
+    return this.$store.getters['contacts/list/filter/filter_panel_visible']
+  }
+
+  set filterPanelVisible (val: boolean) {
+    this.$store.commit('contacts/list/filter/filter_panel_visible', val)
+  }
+
   private onBtnAddClick () {
     this.$store.commit('contacts/create/dialog_visible', true)
   }
@@ -178,6 +239,10 @@ export default class ContactListTools extends Base {
   }
 
   private onBtnTransferContactsClick () {
+    this.$store.dispatch('contacts/transfer_dialog/show')
+  }
+
+  private onBtnImportClick (val: string) {
     this.$store.dispatch('contacts/transfer_dialog/show')
   }
 }

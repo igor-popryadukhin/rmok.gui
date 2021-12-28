@@ -61,6 +61,7 @@ export interface State {
   order_by: string|null;
   order_direction: 'asc' | 'desc';
   /// /////////////////////////////////
+  filter_panel_visible: boolean;
 }
 
 export function defaultState () {
@@ -85,8 +86,9 @@ export function defaultState () {
     filter_timezone_id: null,
 
     order_by: '',
-    order_direction: 'asc'
+    order_direction: 'asc',
     /// /////////////////////////////////
+    filter_panel_visible: true
   }
 }
 

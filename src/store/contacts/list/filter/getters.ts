@@ -30,6 +30,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   order_by (state: State) { return state.order_by },
   order_direction (state: State) { return state.order_direction },
 
+  filter_panel_visible (state: State) { return state.filter_panel_visible },
   /// //////////////////////////////////////////////////////////////////////////
   all (state: State) {
     const obj: Record<string, any> = {}
@@ -86,6 +87,7 @@ const getters: GetterTree<State, RootState> & Getters = {
     return obj
   }
   /// //////////////////////////////////////////////////////////////////////////
+
 }
 
 export default getters
