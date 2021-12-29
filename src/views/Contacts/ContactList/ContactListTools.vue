@@ -97,29 +97,29 @@
         </contacts-assign-tags>
       </template>
       <!-- Установка тегов -->
-
-      <v-spacer />
-      <app-pagination
-        v-model="offset"
-        :count="contactsTotal"
-        :per-page="contactsPerPage"
-      />
-      <app-btn-sorting
-        v-model="sorting"
-        :label="$tc('Sorting')"
-        :items="sortingOptions"
-        item-text="name"
-      />
-      <v-btn
-        class="ml-1"
-        small
-        tile
-        text
-        @click="filterPanelVisible = !filterPanelVisible"
-      >
-        {{ $tc('Filter') }}
-      </v-btn>
     </template>
+
+    <v-spacer />
+    <app-pagination
+      v-model="offset"
+      :count="contactsTotal"
+      :per-page="contactsPerPage"
+    />
+    <app-btn-sorting
+      v-model="sorting"
+      :label="$tc('Sorting')"
+      :items="sortingOptions"
+      item-text="name"
+    />
+    <v-btn
+      class="ml-1"
+      small
+      tile
+      text
+      @click="filterPanelVisible = !filterPanelVisible"
+    >
+      {{ $tc('Filter') }}
+    </v-btn>
   </v-sheet>
 </template>
 

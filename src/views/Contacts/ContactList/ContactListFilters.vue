@@ -391,10 +391,14 @@ export default class ContactListFilters extends Base {
 
   /** Пользователи */
   get users (): Record<string, any>[] {
-    const users: Record<string, any>[] = this.$store.getters['contacts/list/filter/users']
-    return users.filter((e) => {
-      return e?.project?.id === this.projectId
-    })
+    if (this.projectId) {
+      return (this.$store.getters['contacts/list/filter/users'] || [])
+        .filter((e) => {
+          return e?.project?.id === this.projectId
+        })
+    }
+
+    return this.$store.getters['contacts/list/filter/users']
   }
 
   /** Группы пользователей */
