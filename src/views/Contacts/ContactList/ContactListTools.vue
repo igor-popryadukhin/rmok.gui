@@ -64,7 +64,7 @@
     </v-btn>
 
     <!-- Импорт -->
-    <template v-if="$isGranted('CONTACTS_IMPORT')">
+    <template v-if="!contactsIsSelected && $isGranted('CONTACTS_IMPORT')">
       <contact-list-menu-import>
         <template #activator="{ attrs, on }">
           <v-btn
@@ -78,26 +78,44 @@
           </v-btn>
         </template>
       </contact-list-menu-import>
-      <!-- Импорт -->
-
-      <!-- Установка тегов -->
-      <template v-if="contactsIsSelected && $isGranted('CONTACTS_ASSIGN_TAGS')">
-        <contacts-assign-tags>
-          <template #activator="{ attrs, on }">
-            <v-btn
-              v-bind="attrs"
-              text
-              small
-              tile
-              v-on="on"
-            >
-              {{ $tc('Set tags') }}
-            </v-btn>
-          </template>
-        </contacts-assign-tags>
-      </template>
-      <!-- Установка тегов -->
     </template>
+    <!-- Импорт -->
+
+    <!-- Экспорт -->
+    <template v-if="contactsIsSelected && $isGranted('CONTACTS_EXPORT')">
+      <contact-list-menu-export>
+        <template #activator="{ attrs, on }">
+          <v-btn
+            v-bind="attrs"
+            text
+            small
+            tile
+            v-on="on"
+          >
+            {{ $tc('Export') }}
+          </v-btn>
+        </template>
+      </contact-list-menu-export>
+    </template>
+    <!-- Экспорт -->
+
+    <!-- Установка тегов -->
+    <template v-if="contactsIsSelected && $isGranted('CONTACTS_ASSIGN_TAGS')">
+      <contacts-assign-tags>
+        <template #activator="{ attrs, on }">
+          <v-btn
+            v-bind="attrs"
+            text
+            small
+            tile
+            v-on="on"
+          >
+            {{ $tc('Set tags') }}
+          </v-btn>
+        </template>
+      </contacts-assign-tags>
+    </template>
+    <!-- Установка тегов -->
 
     <v-spacer />
     <app-pagination
@@ -135,7 +153,8 @@ import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
     AppBtnSorting,
     AppPagination,
     ContactsAssignTags: () => import('./ContactsAssignTags.vue'),
-    ContactListMenuImport: () => import('./ContactListMenuImport.vue')
+    ContactListMenuImport: () => import('./ContactListMenuImport.vue'),
+    ContactListMenuExport: () => import('./ContactListMenuExport.vue')
   }
 })
 export default class ContactListTools extends Base {

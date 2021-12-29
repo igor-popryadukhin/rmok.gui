@@ -1628,8 +1628,8 @@ export default class DefaultLayout extends AppBase {
 
   private onMainProcessDialogUpdate ({ message, progress }) {
     this.progressDialog.visible = true
-    this.progressDialog.message = message
-    this.progressDialog.progress = progress
+    this.progressDialog.message = message || this.progressDialog.message
+    this.progressDialog.progress = progress || this.progressDialog.progress
   }
 
   private onMainProcessDialogHide () {
