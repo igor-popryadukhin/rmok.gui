@@ -120,11 +120,13 @@ export default class Index extends Base {
 
     this.$root.$on('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
     this.$root.$on('sse-contacts-transferred', this.onSSEContactsTransferred)
+    this.$root.$on('sse-contact-assign-tags-successfully', this.onSSEContactsAssignTagsSuccessFully)
   }
 
   beforeDestroy () {
     this.$root.$off('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
     this.$root.$off('sse-contacts-transferred', this.onSSEContactsTransferred)
+    this.$root.$off('sse-contact-assign-tags-successfully', this.onSSEContactsAssignTagsSuccessFully)
   }
 
   /**

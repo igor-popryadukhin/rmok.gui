@@ -107,6 +107,24 @@
     </template>
     <!-- Импорт -->
 
+    <!-- Установка тегов -->
+    <template v-if="contactsIsSelected && $isGranted('CONTACTS_ASSIGN_TAGS')">
+      <contacts-assign-tags>
+        <template #activator="{ attrs, on }">
+          <v-btn
+            v-bind="attrs"
+            text
+            small
+            tile
+            v-on="on"
+          >
+            {{ $tc('Set tags') }}
+          </v-btn>
+        </template>
+      </contacts-assign-tags>
+    </template>
+    <!-- Установка тегов -->
+
     <v-spacer />
     <app-pagination
       v-model="offset"
@@ -139,7 +157,11 @@ import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 
 @Component({
-  components: { AppBtnSorting, AppPagination }
+  components: {
+    AppBtnSorting,
+    AppPagination,
+    ContactsAssignTags: () => import('./ContactsAssignTags.vue')
+  }
 })
 export default class ContactListTools extends Base {
   @Prop({ default: false }) readonly outlined: boolean
