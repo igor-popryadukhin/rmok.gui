@@ -64,52 +64,8 @@
     </v-btn>
 
     <!-- Импорт -->
-    <template v-if="$isGranted('IMPORT_EXPORT_CONTACTS')">
-      <v-menu offset-y>
-        <template #activator="{ on, attrs }">
-          <v-btn
-            v-bind="attrs"
-            text
-            tile
-            small
-            v-on="on"
-          >
-            {{ $tc('Import') }}
-          </v-btn>
-        </template>
-        <v-list
-          class="py-0"
-          dense
-        >
-          <v-list-item
-            link
-            disabled
-            @click="onBtnImportClick('csv')"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ $tc('Import from CSV') }}</v-list-item-title>
-              <v-list-item-subtitle>{{ $tc('Text format') }}</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item
-            link
-            @click="onBtnImportClick('excel')"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ $tc('Import from Excel') }}</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ $tc('Office Open XML (.xlsx, .xls) Excel 2007, Excel 97 and above') }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </template>
-    <!-- Импорт -->
-
-    <!-- Установка тегов -->
-    <template v-if="contactsIsSelected && $isGranted('CONTACTS_ASSIGN_TAGS')">
-      <contacts-assign-tags>
+    <template v-if="$isGranted('CONTACTS_IMPORT')">
+      <contact-list-menu-import>
         <template #activator="{ attrs, on }">
           <v-btn
             v-bind="attrs"
@@ -118,34 +74,52 @@
             tile
             v-on="on"
           >
-            {{ $tc('Set tags') }}
+            {{ $tc('Import') }}
           </v-btn>
         </template>
-      </contacts-assign-tags>
-    </template>
-    <!-- Установка тегов -->
+      </contact-list-menu-import>
+      <!-- Импорт -->
 
-    <v-spacer />
-    <app-pagination
-      v-model="offset"
-      :count="contactsTotal"
-      :per-page="contactsPerPage"
-    />
-    <app-btn-sorting
-      v-model="sorting"
-      :label="$tc('Sorting')"
-      :items="sortingOptions"
-      item-text="name"
-    />
-    <v-btn
-      class="ml-1"
-      small
-      tile
-      text
-      @click="filterPanelVisible = !filterPanelVisible"
-    >
-      {{ $tc('Filter') }}
-    </v-btn>
+      <!-- Установка тегов -->
+      <template v-if="contactsIsSelected && $isGranted('CONTACTS_ASSIGN_TAGS')">
+        <contacts-assign-tags>
+          <template #activator="{ attrs, on }">
+            <v-btn
+              v-bind="attrs"
+              text
+              small
+              tile
+              v-on="on"
+            >
+              {{ $tc('Set tags') }}
+            </v-btn>
+          </template>
+        </contacts-assign-tags>
+      </template>
+      <!-- Установка тегов -->
+
+      <v-spacer />
+      <app-pagination
+        v-model="offset"
+        :count="contactsTotal"
+        :per-page="contactsPerPage"
+      />
+      <app-btn-sorting
+        v-model="sorting"
+        :label="$tc('Sorting')"
+        :items="sortingOptions"
+        item-text="name"
+      />
+      <v-btn
+        class="ml-1"
+        small
+        tile
+        text
+        @click="filterPanelVisible = !filterPanelVisible"
+      >
+        {{ $tc('Filter') }}
+      </v-btn>
+    </template>
   </v-sheet>
 </template>
 
@@ -160,7 +134,8 @@ import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
   components: {
     AppBtnSorting,
     AppPagination,
-    ContactsAssignTags: () => import('./ContactsAssignTags.vue')
+    ContactsAssignTags: () => import('./ContactsAssignTags.vue'),
+    ContactListMenuImport: () => import('./ContactListMenuImport.vue')
   }
 })
 export default class ContactListTools extends Base {

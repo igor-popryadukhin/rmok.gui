@@ -509,6 +509,38 @@
       v-if="degradation"
       id="blur"
     />
+
+    <!-- <editor-fold desc="Диалог процесса выполнения"> -->
+    <v-dialog
+      v-model="progressDialog.visible"
+      overlay-opacity="0.3"
+      width="300"
+    >
+      <v-card
+        color="primary"
+        dark
+        tile
+      >
+        <v-card-text>
+          <div style="height: 20px">
+            {{ progressDialog.message }}
+          </div>
+          <v-progress-linear
+            v-model="progressDialog.progress"
+            :indeterminate="progressDialog.progress === 0"
+            height="16"
+            color="white"
+            class="mb-0"
+          >
+            <strong
+              v-if="progressDialog.progress > 0"
+              class="black--text"
+            >{{ Math.ceil(progressDialog.progress) }}%</strong>
+          </v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <!-- </editor-fold> -->
   </v-app>
 </template>
 
@@ -583,6 +615,12 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
 })
 
 export default class DefaultLayout extends AppBase {
+  progressDialog = {
+    visible: false,
+    message: '',
+    progress: 0
+  }
+
   profileLoading = true
   showRouterView = false
   modeChangeProcess = false
@@ -968,6 +1006,10 @@ export default class DefaultLayout extends AppBase {
   created () {
     this.$store.dispatch('account/busy_state', false)
 
+    this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow)
+    this.$root.$on('main-process-dialog-update', this.onMainProcessDialogUpdate)
+    this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide)
+
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
 
     this.$dialer.onSessionConnecting = this.onSessionConnecting
@@ -1028,6 +1070,10 @@ export default class DefaultLayout extends AppBase {
     this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
     this.$ifvisible.off('idle', this.ifVisibleIdleHandler)
     this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler)
+
+    this.$root.$off('main-process-dialog-show', this.onMainProcessDialogShow)
+    this.$root.$off('main-process-dialog-update', this.onMainProcessDialogUpdate)
+    this.$root.$off('main-process-dialog-hide', this.onMainProcessDialogHide)
 
     clearInterval(this.timerId)
   }
@@ -1572,6 +1618,24 @@ export default class DefaultLayout extends AppBase {
     }
     this.audio.currentTime = 0.0
     this.audioPlayed = false
+  }
+
+  private onMainProcessDialogShow ({ message, progress }) {
+    this.progressDialog.visible = true
+    this.progressDialog.message = message
+    this.progressDialog.progress = progress
+  }
+
+  private onMainProcessDialogUpdate ({ message, progress }) {
+    this.progressDialog.visible = true
+    this.progressDialog.message = message
+    this.progressDialog.progress = progress
+  }
+
+  private onMainProcessDialogHide () {
+    this.progressDialog.visible = false
+    this.progressDialog.message = ''
+    this.progressDialog.progress = 0
   }
 }
 </script>

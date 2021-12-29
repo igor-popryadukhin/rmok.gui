@@ -8,6 +8,10 @@ export default class AppBase extends Vue {
     return sessionStorage.tabID || ''
   }
 
+  get $isDev (): boolean {
+    return process.env.NODE_ENV === 'development'
+  }
+
   /**
    * Высота окна
    */
