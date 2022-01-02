@@ -1,6 +1,6 @@
 <template>
   <v-btn-toggle
-    v-model="option"
+    v-model="itemValue"
     group
     dense
   >
@@ -8,32 +8,36 @@
       <slot
         name="item"
         :item="item"
-        :disabled="disabled"
       >
-        <v-tooltip
-          :open-delay="1000"
-          :close-delay="1000"
-          bottom
-        >
-          <template #activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs"
-              :key="key"
-              :value="item.value"
-              :disabled="disabled"
-              v-on="on"
-              @click="onBtnClick(item.value)"
-            >
-              <slot
-                name="btn"
-                :item="item"
+        <template v-if="item.tooltip">
+          <v-tooltip
+            :open-delay="1000"
+            :close-delay="1000"
+            bottom
+          >
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                :key="key"
+                :value="item.value"
+                small
+                v-on="on"
               >
                 {{ item.title }}
-              </slot>
-            </v-btn>
-          </template>
-          <span v-if="item.tooltip">{{ item.tooltip }}</span>
-        </v-tooltip>
+              </v-btn>
+            </template>
+            <span v-if="item.tooltip">{{ item.tooltip }}</span>
+          </v-tooltip>
+        </template>
+        <template v-else>
+          <v-btn
+            :key="key"
+            :value="item.value"
+            small
+          >
+            {{ item.title }}
+          </v-btn>
+        </template>
       </slot>
     </template>
     <slot name="item-append" />
@@ -42,58 +46,17 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { Prop, ModelSync } from 'vue-property-decorator'
+import Component from 'vue-class-component'
 
-export default Vue.extend({
-  name: 'AppBtnToggleDate',
+@Component
+export default class AppBtnToggleDate extends Vue {
+  @Prop({ required: true, default: () => [] })
+    readonly items: Array<Record<string, any>>
 
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-
-  props: {
-    items: {
-      type: Array,
-      default () {
-        return []
-      }
-    },
-    value: {
-      type: [String, Object, Array],
-      default () {
-        return null
-      }
-    },
-    disabled: {
-      type: Boolean,
-      default () {
-        return false
-      }
-    }
-  },
-
-  data () {
-    return {
-      option: null as string | null
-    }
-  },
-
-  watch: {
-    value (value: any) {
-      this.option = value
-    }
-  },
-
-  mounted () {
-    this.option = this.value
-  },
-
-  methods: {
-    onBtnClick (value: any) {
-      this.$emit('change', value)
-    }
-  }
-})
+  @ModelSync('value', 'change', { type: [String, Number], required: false, default: null })
+    itemValue: string | number
+}
 </script>
 
 <style scoped>

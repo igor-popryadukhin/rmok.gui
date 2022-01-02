@@ -28,6 +28,7 @@ import $app from '@/main'
 import { account } from './account'
 import { notifications } from './notifications'
 import { roles } from './roles'
+import { statistics } from './statistics'
 
 Vue.use(Vuex)
 
@@ -90,6 +91,7 @@ const store = new Vuex.Store({
     contact_outgoing: contact,
     contacts,
     contacts_new,
+    statistics,
     statistic_recent_call,
     statistic_all_call,
     autodialer,
@@ -116,6 +118,8 @@ const store = new Vuex.Store({
         'contacts.params',
         'contacts.list.filter',
         'statistic_recent_call.filter',
+        // 'statistics.recent_calls.filter',
+        'statistics.recent_calls',
         'system.route'
       ],
       storage: {

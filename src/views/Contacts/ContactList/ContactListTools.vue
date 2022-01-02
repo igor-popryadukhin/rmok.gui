@@ -136,6 +136,7 @@
       text
       @click="filterPanelVisible = !filterPanelVisible"
     >
+      <v-icon>mdi-filter-outline</v-icon>
       {{ $tc('Filter') }}
     </v-btn>
   </v-sheet>

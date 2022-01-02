@@ -1,11 +1,9 @@
 <template>
   <div
-    class="d-flex align-center app-tools"
+    class="d-flex align-center justify-space-between"
     style="margin-bottom: 10px"
   >
-    <slot name="left" />
-    <v-spacer />
-    <slot name="right" />
+    <slot />
   </div>
 </template>
 
@@ -16,8 +14,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .app-tools {}
-  .app-tools > *:not(:last-child) {
-    margin-right: 5px;
-  }
+  @import "style";
 </style>

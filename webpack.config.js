@@ -1,11 +1,20 @@
 import path from 'path'
-
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 module.exports = {
   configureWebpack: {
     resolve: {
       symlinks: false
     }
   },
+
+  devServer: {
+    writeToDisk: true
+  },
+
+  plugins: [
+    new VuetifyLoaderPlugin()
+  ],
 
   module: {
     rules: [

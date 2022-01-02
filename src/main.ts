@@ -16,6 +16,7 @@ import '@/mixins/global'
 // Plugins
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import vuetify from '@/plugins/vuetify'
+import '@/plugins/string'
 import '@/plugins/axios'
 import '@/plugins/debug'
 import '@/plugins/toast'
@@ -42,6 +43,8 @@ Vue.component('Help', () => import(/* webpackPreload: true */ './layouts/Help.vu
 
 Vue.component('AppDivider', () => import(/* webpackPreload: true */ './components/AppDivider/AppDivider.vue'))
 Vue.component('AppTools', () => import(/* webpackPreload: true */ './components/AppTools/AppTools.vue'))
+Vue.component('AppToolsRight', () => import(/* webpackPreload: true */ './components/AppTools/AppToolsRight.vue'))
+Vue.component('AppToolsLeft', () => import(/* webpackPreload: true */ './components/AppTools/AppToolsLeft.vue'))
 
 Vue.config.productionTip = false
 

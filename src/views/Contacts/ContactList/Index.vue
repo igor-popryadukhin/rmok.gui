@@ -15,60 +15,33 @@
         />
         <!-- Контакт лист -->
 
-        <v-navigation-drawer
-          v-model="filterPanelVisible"
-          width="400"
-          absolute
-          temporary
-          hide-overlay
-          right
-        >
-          <v-container
-            class="pa-4"
-            fluid
-          >
-            <contact-list-filters />
-          </v-container>
-        </v-navigation-drawer>
+        <app-navigation-drawer v-model="filterPanelVisible">
+          <contact-list-filters />
+        </app-navigation-drawer>
       </v-col>
     </v-row>
-
-    <contacts-transfer-dialog
-      v-if="contactsTransferDialogVisible"
-      @close="contactTransferDialogVisible = false"
-    />
-
-    <app-progress-dialog
-      v-if="progressDialog.visible"
-      :progress="progressDialog.progress"
-      :message="progressDialog.message"
-    />
   </v-sheet>
 </template>
 
 <script lang="ts">
 import Component from 'vue-class-component'
 import Base from './Base'
-import ContactListFilters from './ContactListFilters.vue'
 import ContactListTools from './ContactListTools.vue'
 import AppTable from '@/components/AppTable/AppTable.vue'
-import ContactList from './ContactList.vue'
 import Contact from '@/api/interfaces/Contact'
 import debounce from '@/utils/debounce'
 import { Watch } from 'vue-property-decorator'
-import SSEMessage from '@/interfaces/SSEMessage'
-import AppProgressDialog from '@/components/AppProgressDialog/AppProgressDialog.vue'
 
 // eslint-disable-next-line no-use-before-define
 @Component<Index>({
   components: {
-    AppProgressDialog,
     ContactCreate: () => import('@/views/Contacts/ContactList/ContactCreate.vue'),
     ContactsTransferDialog: () => import('./ContactsTransferDialog.vue'),
-    ContactList,
+    AppNavigationDrawer: () => import('@/components/AppNavigationDrawer/AppNavigationDrawer.vue'),
+    ContactListFilters: () => import('./ContactListFilters.vue'),
+    ContactList: () => import('./ContactList.vue'),
     AppTable,
-    ContactListTools,
-    ContactListFilters
+    ContactListTools
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
@@ -79,14 +52,6 @@ import AppProgressDialog from '@/components/AppProgressDialog/AppProgressDialog.
   }
 })
 export default class Index extends Base {
-  progressDialog = {
-    visible: false,
-    message: '',
-    progress: 0
-  }
-
-  contactTransferDialogVisible = false
-
   // Вычисляемая высота списка контактов
   get heightContactList () {
     return this.screenHeight - 112
@@ -118,12 +83,10 @@ export default class Index extends Base {
   created () {
     this.onFilterChange = debounce(this.onFilterChange, 350)
 
-    this.$root.$on('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
     this.$root.$on('sse-contacts-transferred', this.onSSEContactsTransferred)
   }
 
   beforeDestroy () {
-    this.$root.$off('sse-contacts-add-to-autodialer', this.onSSEContactsAddToAutodialer)
     this.$root.$off('sse-contacts-transferred', this.onSSEContactsTransferred)
   }
 
@@ -137,22 +100,6 @@ export default class Index extends Base {
 
   private onToolsBtnAddToAutodialer () {
     this.$store.dispatch('contacts/list/add_to_autodialer', 3)
-  }
-
-  private onSSEContactsAddToAutodialer (message: SSEMessage) {
-    if (message.payload.status === 'progress') {
-      this.progressDialog.progress = +message.payload.percent
-      this.progressDialog.message = this.$tc('Please stand by...')
-      this.progressDialog.visible = true
-    } else if (message.payload.status === 'success') {
-      this.progressDialog.visible = false
-      this.progressDialog.message = ''
-      this.progressDialog.progress = 0
-
-      this.$store.dispatch('contacts/list/unselect_all')
-    } else if (message.payload.status === 'failure') {
-      this.$toast.error(message.payload.message)
-    }
   }
 
   private onSSEContactsTransferred () {

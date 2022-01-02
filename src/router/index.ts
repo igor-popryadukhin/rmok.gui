@@ -607,7 +607,7 @@ const routes: RouteConfig[] = [
   {
     children: [
       {
-        component: () => import(/* webpackChunkName: "statistics-recent-calls" */ '../views/Statistics/RecentCalls.vue'),
+        component: () => import(/* webpackChunkName: "statistics-recent-calls" */ '../views/Statistics/RecentCalls/Index.vue'),
         meta: {
           layout: 'default',
           middleware: []

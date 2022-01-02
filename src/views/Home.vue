@@ -1,6 +1,10 @@
 <template>
   <v-layout>
-    .
+    <div class="space-y-4">
+      <div class="w-96 bg-white shadow rounded">
+        w-96
+      </div>
+    </div>
   </v-layout>
 </template>
 

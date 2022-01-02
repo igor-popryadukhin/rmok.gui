@@ -753,7 +753,7 @@ export default class DefaultLayout extends AppBase {
             name: 'groups_list'
           }
         },
-        visible: this.$isGranted(['ROLE_ADMIN'])
+        visible: this.$isGranted('USER_GROUP_MANAGEMENT')
       },
       {
         title: 'Users',
@@ -853,7 +853,6 @@ export default class DefaultLayout extends AppBase {
         icon: 'mdi-chart-arc',
         list_item: {},
         visible: this.$isGranted([
-          'ROLE_ADMIN',
           'STATISTICS_RECENT_CALLS',
           'STATISTICS_ALL_CALLS',
           'STATISTICS_CALL_COUNT',
