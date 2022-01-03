@@ -24,28 +24,18 @@
       app
       dark
     >
-      <v-list-item class="px-2 pth-63">
-        <v-list-item-avatar
-          class="v-icon--link"
-          color="white"
-        >
-          <v-btn
-            icon
-            link
-            color="primary"
-            @click.stop="navigation_drawer_mini = !navigation_drawer_mini"
-          >
-            R
-          </v-btn>
-        </v-list-item-avatar>
+      <v-list-item>
         <v-list-item-content>
-          <v-list-item-title>RMOK</v-list-item-title>
-          <v-list-item-subtitle>{{ $profile.role.name }}</v-list-item-subtitle>
+          <v-list-item-title class="text-h6">
+            RMOK
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            subtitle
+          </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
       <v-divider />
-
       <v-list dense>
         <template
           v-for="(mainMenuItem, mainMenuIndex) in mainMenu"
@@ -656,7 +646,7 @@ export default class DefaultLayout extends AppBase {
   ]
 
   dialog = false
-  drawer = true
+  drawer = false
   mini = false
   notificationShakeProcess = false
   timerId = 0
