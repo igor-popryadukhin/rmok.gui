@@ -92,10 +92,6 @@ export default Vue.extend({
     itemText: {
       type: String,
       default: 'name'
-    },
-    t: {
-      type: Function,
-      default: (name: string) => name
     }
   },
 

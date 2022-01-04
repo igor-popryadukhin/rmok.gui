@@ -1022,7 +1022,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .margin-right > *:not(:nth-child(0)) {
   margin-right: 10px;
 }

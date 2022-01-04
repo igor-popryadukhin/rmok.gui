@@ -25,7 +25,7 @@ module.exports = {
     ...(process.env.VUE_APP_DEV_SERVER_PORT ? { port: process.env.VUE_APP_DEV_SERVER_PORT } : {}),
     watchOptions: {
       watch: true,
-      poll: 1000,
+      poll: 200,
       aggregateTimeout: 500,
       ignored: /node_modules/
     }
