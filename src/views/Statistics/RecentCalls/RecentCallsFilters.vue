@@ -408,19 +408,19 @@ export default class RecentCallsFilters extends AppBase {
   // endregion Параметры запроса
 
   // region Данные для заполнения фильтров
-  get projects (): Record<string, any>[] { return this.$store.getters['statistics/recent_calls/filter/projects'] }
+  get projects (): Array<Record<string, any>> { return this.$store.getters['statistics/recent_calls/filter/projects'] }
 
   /** Статусы */
-  get statuses (): Record<string, any>[] {
+  get statuses (): Array<Record<string, any>> {
     if (!this.projectId) {
       return []
     }
-    return (this.$store.getters['statistics/recent_calls/filter/statuses'] as Record<string, any>[])
+    return (this.$store.getters['statistics/recent_calls/filter/statuses'] as Array<Record<string, any>>)
       .filter((e) => e.project.id === this.projectId)
   }
 
   /** Пользователи */
-  get users (): Record<string, any>[] {
+  get users (): Array<Record<string, any>> {
     if (this.projectId) {
       return (this.$store.getters['statistics/recent_calls/filter/users'] || [])
         .filter((e) => {
@@ -432,7 +432,7 @@ export default class RecentCallsFilters extends AppBase {
   }
 
   /** Группы пользователей */
-  get userGroups (): Record<string, any>[] { return this.$store.getters['statistics/recent_calls/filter/user_groups'] }
+  get userGroups (): Array<Record<string, any>> { return this.$store.getters['statistics/recent_calls/filter/user_groups'] }
 
   get filterTasksItems () {
     return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
@@ -457,7 +457,7 @@ export default class RecentCallsFilters extends AppBase {
 
   /** Теги */
   get tags (): ContactTag[] {
-    const tags = this.$store.getters['statistics/recent_calls/filter/tags'] as Record<string, any>[]
+    const tags = this.$store.getters['statistics/recent_calls/filter/tags'] as Array<Record<string, any>>
     return [].concat([
       {
         id: 0,

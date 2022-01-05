@@ -199,7 +199,7 @@ export default class AppContactEditDialog extends Vue {
   @PropSync('fieldFirstName', { type: String }) fieldFirstNameSync!: string
   @PropSync('fieldLastName', { type: String }) fieldLastNameSync!: string
   @PropSync('fieldMiddleName', { type: String }) fieldMiddleNameSync!: string
-  @PropSync('fieldPhones', { type: Array }) fieldPhonesSync!: Record<string, any>[]
+  @PropSync('fieldPhones', { type: Array }) fieldPhonesSync!: Array<Record<string, any>>
 
   @Emit('action:cancel')
   private actionCancel () {

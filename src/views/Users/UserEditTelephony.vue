@@ -477,7 +477,7 @@ export default Vue.extend({
       }).then((result: boolean) => {
         if (result) {
           // eslint-disable-next-line no-undef
-          const servers: Record<string, string|string[]>[] = this.rtcConfigurationIceServers
+          const servers: Array<Record<string, string|string[]>> = this.rtcConfigurationIceServers
             .map((e) => {
               return {
                 credential: e.credential,
@@ -510,7 +510,7 @@ export default Vue.extend({
         handler: (target: 'save' | 'cancel', value: unknown & {urls: string; username?: string; password?: string}) => {
           if (target === 'save') {
             // eslint-disable-next-line no-undef
-            const servers: Record<string, string|string[]>[] = this.rtcConfigurationIceServers
+            const servers: Array<Record<string, string|string[]>> = this.rtcConfigurationIceServers
               .map((e) => {
                 return {
                   credential: e.credential,
@@ -540,7 +540,7 @@ export default Vue.extend({
         handler: (target: 'save' | 'cancel', value: unknown & { urls: string; username?: string; password?: string }) => {
           if (target === 'save') {
             // eslint-disable-next-line no-undef
-            const servers: Record<string, string|string[]>[] = this.rtcConfigurationIceServers
+            const servers: Array<Record<string, string|string[]>> = this.rtcConfigurationIceServers
               .map((e) => {
                 return {
                   credential: e.credential,

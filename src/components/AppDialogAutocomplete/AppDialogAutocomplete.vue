@@ -61,14 +61,14 @@ export default class AppDialogAutocomplete extends Vue {
   @Watch('query', {})
   onWatchQuery (val: string) {
     if (typeof this.onSearch === 'function') {
-      this.onSearch(val, (items: Record<string, any>[] | string[]) => {
+      this.onSearch(val, (items: Array<Record<string, any>> | string[]) => {
         this.options = items
       })
     }
   }
 
   @Watch('selected', {})
-  onWatchSelected (val: Record<string, any>[] | string[]) {
+  onWatchSelected (val: Array<Record<string, any>> | string[]) {
     if (typeof this.onSelect === 'function' && val) {
       this.onSelect(val)
     }
@@ -76,7 +76,7 @@ export default class AppDialogAutocomplete extends Vue {
 
   mounted () {
     if (typeof this.onMounted === 'function') {
-      this.onMounted((items: Record<string, any>[] | string[]) => {
+      this.onMounted((items: Array<Record<string, any>> | string[]) => {
         this.options = items
       })
     }
