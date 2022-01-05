@@ -2,7 +2,9 @@ pipelines:
   default:
     - step:
         name: "Build for review"
-        runs-on: self.hosted
+        runs-on:
+          - self.hosted
+          - dev
         image: node:16.13.0
         artifacts:
           - dist

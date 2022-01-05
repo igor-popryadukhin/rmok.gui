@@ -118,8 +118,7 @@ const store = new Vuex.Store({
         'contacts.params',
         'contacts.list.filter',
         'statistic_recent_call.filter',
-        // 'statistics.recent_calls.filter',
-        'statistics.recent_calls',
+        'statistics.recent_calls.filter',
         'system.route'
       ],
       storage: {
