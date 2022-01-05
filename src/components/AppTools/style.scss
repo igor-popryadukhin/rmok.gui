@@ -1,0 +1,4 @@
+.app-tools {}
+.app-tools > *:not(:last-child) {
+  margin-right: 5px;
+}
