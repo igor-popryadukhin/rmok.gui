@@ -1,29 +1,22 @@
 pipelines:
-  default:
-    - step:
-        name: "Build for review"
-        runs-on:
-          - self.hosted
-          - dev
-        image: node:16.13.0
-        artifacts:
-          - dist
-        script:
-          - echo $VUE_ENV_REVIEW | base64 -di > ./.env
-          - npm install
-          - npm run build
-          - pipe: atlassian/rsync-deploy:0.7.0
-            variables:
-              USER: $RSYNC_USER
-              SERVER: $RSYNC_SERVER
-              REMOTE_PATH: $RSYNC_REMOTE_PATH
-              LOCAL_PATH: 'dist'
-
-#    - step:
-#        name: "Deploy to production"
-#        runs-on: self.hosted
-#        trigger: manual
-#        artifacts:
-#          - dist
-#        script:
-#          - npm install
+  branches:
+    develop:
+      - step:
+          name: "Build for review"
+          runs-on:
+            - self.hosted
+            - dev
+          image: node:16.13.0
+          artifacts:
+            - dist
+          script:
+            - echo $VUE_ENV_REVIEW | base64 -di > ./.env
+            - npm install
+            - npm run build
+            - pipe: atlassian/rsync-deploy:0.7.0
+              variables:
+                USER: $SSH_USER
+                SERVER: $SSH_SERVER
+                REMOTE_PATH: "~/www/rmok.gui"
+                LOCAL_PATH: "dist"
+                EXTRA_ARGS: "--delete"
