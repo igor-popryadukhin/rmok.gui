@@ -90,7 +90,7 @@ export default class Journal extends Base {
   @Prop({ default: 200 }) readonly height: number;
   processLoading = true
 
-  get items (): Array<Record<string, any>> {
+  get items (): Array<Record<string, unknown>> {
     return this.$store.getters['autodialer/view/journal/items']
   }
 
@@ -107,7 +107,7 @@ export default class Journal extends Base {
     this.$root.$off('sse-autodialer-journal-change', this.onSSEJournalChange)
   }
 
-  onSSEJournalChange (data: Record<string, any>) {
+  onSSEJournalChange (data: Record<string, unknown>) {
     const items = this.items.map(e => e)
     items.unshift(data)
     items.pop()

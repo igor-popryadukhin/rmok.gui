@@ -12,6 +12,7 @@ module.exports = {
   ],
 
   ignorePatterns: [
+    'node_modules',
     '**/node_modules/*',
     '**/tests/*'
   ],

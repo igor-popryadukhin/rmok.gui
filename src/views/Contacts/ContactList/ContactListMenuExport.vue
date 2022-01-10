@@ -75,7 +75,7 @@ export default class ContactListMenuImport extends AppBase {
   get contactsListSelectedAll (): boolean { return this.$store.getters['contacts/list/selected_all'] }
   get contactsListItemsSelected () { return this.$store.getters['contacts/list/items_selected'] }
   get contactFilter () {
-    const params: Record<string, any> = this.$store.getters['contacts/list/filter/all']
+    const params: Record<string, unknown> = this.$store.getters['contacts/list/filter/all']
 
     if ('offset' in params) { delete params.offset }
     if ('count' in params) { delete params.count }
@@ -86,7 +86,7 @@ export default class ContactListMenuImport extends AppBase {
   }
 
   private onMenuItemClick (format: string) {
-    let request: Record<string, any> = {}
+    let request: Record<string, unknown> = {}
 
     if (this.contactsListSelectedAll) {
       // На основе фильтров

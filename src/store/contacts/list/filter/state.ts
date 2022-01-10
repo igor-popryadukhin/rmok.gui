@@ -1,3 +1,4 @@
+import Status from '@/api/interfaces/Status'
 
 export interface Group {
   id: number;
@@ -8,13 +9,6 @@ export interface Group {
 export interface Project {
   id: number;
   name: string;
-}
-
-interface Status {
-  id: number;
-  name: string;
-  project: Project;
-  group: Group;
 }
 
 interface UserGroup {
@@ -64,7 +58,7 @@ export interface State {
   filter_panel_visible: boolean;
 }
 
-export function defaultState () {
+export function defaultState (): State {
   return {
     projects: [],
     statuses: [],
@@ -92,6 +86,4 @@ export function defaultState () {
   }
 }
 
-const state = defaultState()
-
-export default state
+export const state = defaultState()

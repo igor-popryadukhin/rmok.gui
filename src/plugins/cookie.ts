@@ -1,8 +1,5 @@
 import Vue from 'vue'
 
-interface CookieOptionsInterface {
-  [key: string]: any;
-}
 /* eslint-disable */
 export class Cookie {
   public set (name: string, value: string, options: any = { path: '/' }) {

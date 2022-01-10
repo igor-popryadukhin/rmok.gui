@@ -27,7 +27,7 @@ export default class Index extends AppBase {
   @Prop({ default: [] }) readonly labels: string[]
   @Prop({ default: [] }) readonly series: number[]
 
-  get apexChartOptions (): any {
+  get apexChartOptions () {
     return {
       chart: {
         animations: {

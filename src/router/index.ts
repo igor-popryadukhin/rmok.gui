@@ -6,7 +6,6 @@ import { Store } from 'vuex'
 
 Vue.use(VueRouter)
 
-// Взлом
 const originPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push (location) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -217,34 +216,41 @@ const routes: RouteConfig[] = [
       },
       {
         path: ':contact_id',
-        component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/View.vue'),
+        component: () => import(/* webpackChunkName: "contacts-view-layout" */ '../views/Contacts/ContactsView/ContactsView.vue'),
         children: [
           {
             name: 'contacts_view',
             path: '',
-            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ViewScenario.vue'),
+            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ContactsView/ContactsViewScenario.vue'),
             meta: { layout: 'default', middleware: [] }
           },
           {
             name: 'contacts_view_scenario',
             path: 'scenario',
-            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ViewScenario.vue'),
+            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ContactsView/ContactsViewScenario.vue'),
             meta: { layout: 'default', middleware: [] }
           },
           {
-            component: () => import(/* webpackChunkName: "contacts-view-history" */ '../views/Contacts/ViewHistory.vue'),
+            component: () => import(/* webpackChunkName: "contacts-view-history" */ '../views/Contacts/ContactsView/ContactsViewHistory.vue'),
             meta: { layout: 'default', middleware: [] },
             name: 'contacts_view_history',
             path: 'history'
           },
           {
-            component: () => import(/* webpackChunkName: "contacts-view-tasks" */ '../views/Contacts/ViewTasks.vue'),
+            component: () => import(/* webpackChunkName: "contacts-view-tasks" */ '../views/Contacts/ContactsView/ContactsViewTasks.vue'),
             meta: { layout: 'default', middleware: [] },
             name: 'contacts_view_tasks',
             path: 'tasks'
+          },
+          {
+            component: () => import(/* webpackChunkName: "contacts-view-status" */ '../views/Contacts/ContactsView/ContactsViewStatus.vue'),
+            meta: { layout: 'default', middleware: [] },
+            name: 'contacts_view_status',
+            path: 'status'
           }
         ],
-        meta: { layout: 'default', middleware: [] }
+        meta: { layout: 'default', middleware: [] },
+        redirect: { name: 'contacts_view' }
       }
     ],
     component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/Layout.vue'),
@@ -285,172 +291,181 @@ const routes: RouteConfig[] = [
   {
     name: 'tasks',
     path: '/tasks',
-    component: () => import(/* webpackChunkName: "tasks-list" */ '../views/Tasks/List.vue'),
+    component: () => import(/* webpackChunkName: "tasks" */ '../views/Tasks/Tasks.vue'),
+    children: [
+      {
+        name: 'tasks_list',
+        path: ':id',
+        component: () => import(/* webpackChunkName: "tasks-list" */ '../views/Tasks/TasksList.vue'),
+        meta: { layout: 'default', middleware: [] },
+        props: true
+      }
+    ],
     meta: { layout: 'default', middleware: [] }
   },
-  {
-    path: '/users',
-    component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/Layout.vue'),
-    meta: {
-      layout: 'default',
-      middleware: []
-    },
-    children: [
-      {
-        component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/List.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'users_list',
-        path: ''
-      },
-      {
-        component: () => import(/* webpackChunkName: "users-create" */ '../views/Users/UserCreate.vue'),
-        meta: { layout: 'default', middleware: [] },
-        name: 'users_create',
-        path: 'create'
-      },
-      {
-        path: ':user_id',
-        component: () => import(/* webpackChunkName: "users-edit" */ '../views/Users/UserEdit.vue'),
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "users-edit-main" */ '../views/Users/UserEditMain.vue'),
-            meta: { layout: 'default', middleware: [] },
-            name: 'users_edit_main',
-            path: 'main'
-          },
-          {
-            component: () => import(/* webpackChunkName: "users-edit-telephony" */ '../views/Users/UserEditTelephony.vue'),
-            meta: { layout: 'default', middleware: [] },
-            name: 'users_edit_telephony',
-            path: 'telephony'
-          },
-          {
-            component: () => import(/* webpackChunkName: "users-edit-schedule" */ '../views/Users/UserEditSchedule.vue'),
-            meta: { layout: 'default', middleware: [], anonymous: true },
-            name: 'users_edit_schedule',
-            path: 'schedule'
-          },
-          {
-            component: () => import(/* webpackChunkName: "users-edit-capabilities" */ '../views/Users/UserCapabilities.vue'),
-            meta: { layout: 'default', middleware: [], anonymous: true },
-            name: 'users_edit_capabilities',
-            path: 'capabilities'
-          },
-          {
-            component: () => import(/* webpackChunkName: "users-edit-sessions" */ '../views/Users/UserSessions.vue'),
-            meta: { layout: 'default', middleware: [], anonymous: true },
-            name: 'users_edit_sessions',
-            path: 'sessions'
-          }
-        ],
-        meta: {
-          layout: 'default',
-          middleware: []
-        }
-      }
-    ]
-  },
-  {
-    children: [
-      {
-        component: () => import(/* webpackChunkName: "groups-list" */ '../views/Groups/List.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'groups_list',
-        path: ''
-      },
-      {
-        component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/New.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'groups_new',
-        path: 'new'
-      },
-      {
-        component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/Edit.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'groups_edit',
-        path: ':id'
-      }
-    ],
-    component: () => import(/* webpackChunkName: "groups-list" */ '../views/Users/Layout.vue'),
-    meta: {
-      layout: 'default',
-      middleware: []
-    },
-    path: '/groups'
-  },
-  {
-    component: () => import(/* webpackChunkName: "integrations-layout" */ '../views/Settings/Layout.vue'),
-    children: [
-      {
-        component: () => import(/* webpackChunkName: "integrations-contacts-list" */ '@/views/Integrations/Contacts/List.vue'),
-        meta: {
-          icon: '',
-          layout: 'default',
-          middleware: []
-        },
-        name: 'integrations_contacts',
-        path: 'contacts'
-      },
-      {
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "itegrationset-list" */ '../views/Integrations/IntegrationSettings/List.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'itegrationset_list',
-            path: ''
-          },
-          {
-            component: () => import(/* webpackChunkName: "itegrationset-new" */ '../views/Integrations/IntegrationSettings/New.vue'),
-            meta: {
-              layout: 'default',
-              middleware: []
-            },
-            name: 'itegrationset_new',
-            path: 'new'
-          },
-          {
-            component: () => import(/* webpackChunkName: "itegrationset-edit" */ '../views/Integrations/IntegrationSettings/Edit.vue'),
-            meta: {
-              layout: 'default',
-              middleware: []
-            },
-            name: 'itegrationset_edit',
-            path: ':id'
-          }
-        ],
-        component: () => import(/* webpackChunkName: "itegrationset-list" */ '../views/Integrations/IntegrationSettings/Layout.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        path: 'itegrationset'
-      }
-    ],
-    meta: {
-      layout: 'default',
-      middleware: []
-    },
-    name: 'integrations',
-    path: '/integrations'
-  },
+  // {
+  //   path: '/users',
+  //   component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/Layout.vue'),
+  //   meta: {
+  //     layout: 'default',
+  //     middleware: []
+  //   },
+  //   children: [
+  //     {
+  //       component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/List.vue'),
+  //       meta: {
+  //         anonymous: true,
+  //         layout: 'default',
+  //         middleware: []
+  //       },
+  //       name: 'users_list',
+  //       path: ''
+  //     },
+  //     {
+  //       component: () => import(/* webpackChunkName: "users-create" */ '../views/Users/UserCreate.vue'),
+  //       meta: { layout: 'default', middleware: [] },
+  //       name: 'users_create',
+  //       path: 'create'
+  //     },
+  //     {
+  //       path: ':user_id',
+  //       component: () => import(/* webpackChunkName: "users-edit" */ '../views/Users/UserEdit.vue'),
+  //       children: [
+  //         {
+  //           component: () => import(/* webpackChunkName: "users-edit-main" */ '../views/Users/UserEditMain.vue'),
+  //           meta: { layout: 'default', middleware: [] },
+  //           name: 'users_edit_main',
+  //           path: 'main'
+  //         },
+  //         {
+  //           component: () => import(/* webpackChunkName: "users-edit-telephony" */ '../views/Users/UserEditTelephony.vue'),
+  //           meta: { layout: 'default', middleware: [] },
+  //           name: 'users_edit_telephony',
+  //           path: 'telephony'
+  //         },
+  //         {
+  //           component: () => import(/* webpackChunkName: "users-edit-schedule" */ '../views/Users/UserEditSchedule.vue'),
+  //           meta: { layout: 'default', middleware: [], anonymous: true },
+  //           name: 'users_edit_schedule',
+  //           path: 'schedule'
+  //         },
+  //         {
+  //           component: () => import(/* webpackChunkName: "users-edit-capabilities" */ '../views/Users/UserCapabilities.vue'),
+  //           meta: { layout: 'default', middleware: [], anonymous: true },
+  //           name: 'users_edit_capabilities',
+  //           path: 'capabilities'
+  //         },
+  //         {
+  //           component: () => import(/* webpackChunkName: "users-edit-sessions" */ '../views/Users/UserSessions.vue'),
+  //           meta: { layout: 'default', middleware: [], anonymous: true },
+  //           name: 'users_edit_sessions',
+  //           path: 'sessions'
+  //         }
+  //       ],
+  //       meta: {
+  //         layout: 'default',
+  //         middleware: []
+  //       }
+  //     }
+  //   ]
+  // },
+  // {
+  //   children: [
+  //     {
+  //       component: () => import(/* webpackChunkName: "groups-list" */ '../views/Groups/List.vue'),
+  //       meta: {
+  //         anonymous: true,
+  //         layout: 'default',
+  //         middleware: []
+  //       },
+  //       name: 'groups_list',
+  //       path: ''
+  //     },
+  //     {
+  //       component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/New.vue'),
+  //       meta: {
+  //         layout: 'default',
+  //         middleware: []
+  //       },
+  //       name: 'groups_new',
+  //       path: 'new'
+  //     },
+  //     {
+  //       component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/Edit.vue'),
+  //       meta: {
+  //         layout: 'default',
+  //         middleware: []
+  //       },
+  //       name: 'groups_edit',
+  //       path: ':id'
+  //     }
+  //   ],
+  //   component: () => import(/* webpackChunkName: "groups-list" */ '../views/Users/Layout.vue'),
+  //   meta: {
+  //     layout: 'default',
+  //     middleware: []
+  //   },
+  //   path: '/groups'
+  // },
+  // {
+  //   component: () => import(/* webpackChunkName: "integrations-layout" */ '../views/Settings/Layout.vue'),
+  //   children: [
+  //     {
+  //       component: () => import(/* webpackChunkName: "integrations-contacts-list" */ '@/views/Integrations/Contacts/List.vue'),
+  //       meta: {
+  //         icon: '',
+  //         layout: 'default',
+  //         middleware: []
+  //       },
+  //       name: 'integrations_contacts',
+  //       path: 'contacts'
+  //     },
+  //     {
+  //       children: [
+  //         {
+  //           component: () => import(/* webpackChunkName: "itegrationset-list" */ '../views/Integrations/IntegrationSettings/List.vue'),
+  //           meta: {
+  //             anonymous: true,
+  //             layout: 'default',
+  //             middleware: []
+  //           },
+  //           name: 'itegrationset_list',
+  //           path: ''
+  //         },
+  //         {
+  //           component: () => import(/* webpackChunkName: "itegrationset-new" */ '../views/Integrations/IntegrationSettings/New.vue'),
+  //           meta: {
+  //             layout: 'default',
+  //             middleware: []
+  //           },
+  //           name: 'itegrationset_new',
+  //           path: 'new'
+  //         },
+  //         {
+  //           component: () => import(/* webpackChunkName: "itegrationset-edit" */ '../views/Integrations/IntegrationSettings/Edit.vue'),
+  //           meta: {
+  //             layout: 'default',
+  //             middleware: []
+  //           },
+  //           name: 'itegrationset_edit',
+  //           path: ':id'
+  //         }
+  //       ],
+  //       component: () => import(/* webpackChunkName: "itegrationset-list" */ '../views/Integrations/IntegrationSettings/Layout.vue'),
+  //       meta: {
+  //         layout: 'default',
+  //         middleware: []
+  //       },
+  //       path: 'itegrationset'
+  //     }
+  //   ],
+  //   meta: {
+  //     layout: 'default',
+  //     middleware: []
+  //   },
+  //   name: 'integrations',
+  //   path: '/integrations'
+  // },
   {
     name: 'settings',
     path: '/settings',
@@ -543,66 +558,41 @@ const routes: RouteConfig[] = [
     ]
   },
   {
+    name: 'projects',
+    path: '/projects',
+    component: () => import(/* webpackChunkName: "projects" */ '../views/Projects/Projects.vue'),
+    children: [],
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    name: 'projects_view',
+    path: '/projects/:id',
+    redirect: { name: 'projects_view_main' },
+    component: () => import(/* webpackChunkName: "projects-view" */ '../views/Projects/ProjectsView.vue'),
     children: [
       {
-        component: () => import(/* webpackChunkName: "projects" */ '../views/Projects/List.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'projects_list',
-        path: ''
+        name: 'projects_view_main',
+        path: 'main',
+        component: () => import(/* webpackChunkName: "projects-view-main" */ '../views/Projects/ProjectsViewMain.vue'),
+        children: [],
+        meta: { layout: 'default', middleware: [] }
       },
       {
-        component: () => import(/* webpackChunkName: "projects-edit" */ '@/views/Projects/ProjectEdit.vue'),
-        children: [
-          {
-            component: () => import(/* webpackChunkName: "projects-edit-main" */ '@/views/Projects/ProjectEditMain.vue'),
-            meta: {
-              layout: 'default',
-              middleware: []
-            },
-            name: 'projects_main',
-            path: 'main',
-            props: true
-          },
-          {
-            component: () => import(/* webpackChunkName: "projects-edit-members" */ '@/views/Projects/ProjectEditMembers.vue'),
-            meta: {
-              layout: 'default',
-              middleware: []
-            },
-            name: 'projects_members',
-            path: 'members'
-          },
-          {
-            component: () => import(/* webpackChunkName: "projects-edit-statuses" */ '@/views/Projects/ProjectEditStatuses.vue'),
-            meta: {
-              layout: 'default',
-              middleware: []
-            },
-            name: 'projects_statuses',
-            path: 'statuses'
-          }
-        ],
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'projects_edit',
-        path: ':project_id',
-        redirect: {
-          name: 'projects_main'
-        }
+        name: 'projects_view_people',
+        path: 'people',
+        component: () => import(/* webpackChunkName: "projects-view-people" */ '../views/Projects/ProjectsViewPeople.vue'),
+        children: [],
+        meta: { layout: 'default', middleware: [] }
+      },
+      {
+        name: 'projects_view_statuses',
+        path: 'statuses',
+        component: () => import(/* webpackChunkName: "projects-view-people" */ '../views/Projects/ProjectsViewStatuses.vue'),
+        children: [],
+        meta: { layout: 'default', middleware: [] }
       }
     ],
-    component: () => import(/* webpackChunkName: "administrator" */ '../views/Projects/Layout.vue'),
-    meta: {
-      layout: 'default',
-      middleware: []
-    },
-    path: '/projects'
+    meta: { layout: 'default', middleware: [] }
   },
   {
     children: [
@@ -614,43 +604,43 @@ const routes: RouteConfig[] = [
         },
         name: 'statistics_recent_calls',
         path: 'recent-calls'
-      },
-      {
-        component: () => import(/* webpackChunkName: "statistics-all-calls" */ '../views/Statistics/AllCalls.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'statistics_all_calls',
-        path: 'all-calls'
-      },
-      {
-        component: () => import(/* webpackChunkName: "statistics-call-count" */ '../views/Statistics/CallCount.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'statistics_call_count',
-        path: 'call-count'
-      },
-      {
-        component: () => import(/* webpackChunkName: "statistics-activity" */ '../views/Statistics/Activity.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'statistics_activity',
-        path: 'activity'
-      },
-      {
-        component: () => import(/* webpackChunkName: "statistics-unauthorized-breaks" */ '../views/Statistics/UnauthorizedBreaks.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'statistics_unauthorized_breaks',
-        path: 'unauthorized-breaks'
       }
+      // {
+      //   component: () => import(/* webpackChunkName: "statistics-all-calls" */ '../views/Statistics/AllCalls.vue'),
+      //   meta: {
+      //     layout: 'default',
+      //     middleware: []
+      //   },
+      //   name: 'statistics_all_calls',
+      //   path: 'all-calls'
+      // },
+      // {
+      //   component: () => import(/* webpackChunkName: "statistics-call-count" */ '../views/Statistics/CallCount.vue'),
+      //   meta: {
+      //     layout: 'default',
+      //     middleware: []
+      //   },
+      //   name: 'statistics_call_count',
+      //   path: 'call-count'
+      // },
+      // {
+      //   component: () => import(/* webpackChunkName: "statistics-activity" */ '../views/Statistics/Activity.vue'),
+      //   meta: {
+      //     layout: 'default',
+      //     middleware: []
+      //   },
+      //   name: 'statistics_activity',
+      //   path: 'activity'
+      // },
+      // {
+      //   component: () => import(/* webpackChunkName: "statistics-unauthorized-breaks" */ '../views/Statistics/UnauthorizedBreaks.vue'),
+      //   meta: {
+      //     layout: 'default',
+      //     middleware: []
+      //   },
+      //   name: 'statistics_unauthorized_breaks',
+      //   path: 'unauthorized-breaks'
+      // }
     ],
     component: () => import(/* webpackChunkName: "statistics" */ '../views/Statistics/Layout.vue'),
     meta: {
@@ -756,8 +746,6 @@ export interface MiddlewareContextInterface {
   next: NavigationGuardNext;
   store?: Store<any>
 }
-
-// const timer = new Timer()
 
 router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   if (!to.meta.middleware) {

@@ -64,12 +64,12 @@ export default class Index extends AppBase {
     return this.$store.getters['roles/edit/permissions']
   }
 
-  set permissions (value: Array<Record<string, any>>) {
+  set permissions (value: Array<Record<string, unknown>>) {
     this.$store.commit('roles/edit/permissions', value)
   }
 
   @Watch('permissions')
-  permissionsWatchHandler (value: Array<Record<string, any>>) {
+  permissionsWatchHandler (value: Array<Record<string, unknown>>) {
     this.permissionsEdit = value.map((value) => { return { ...value } })
   }
 

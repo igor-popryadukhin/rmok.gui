@@ -26,7 +26,7 @@ import Base from '../Base'
 export default class Journal extends Base {
   stats = []
 
-  get items (): Array<Record<string, any>> {
+  get items (): Array<Record<string, unknown>> {
     return this.$store.getters['autodialer/view/journal/items']
   }
 
@@ -38,7 +38,7 @@ export default class Journal extends Base {
     this.$root.$off('sse-autodialer-worker-stats', this.onSSEAutodialerWorkerStats)
   }
 
-  onSSEAutodialerWorkerStats (data: Array<Record<string, any>>) {
+  onSSEAutodialerWorkerStats (data: Array<Record<string, unknown>>) {
     this.stats = data
   }
 }

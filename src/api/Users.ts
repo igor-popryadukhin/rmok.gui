@@ -48,7 +48,7 @@ export class Users {
    *
    * @param data
    */
-  public create (data: Record<string, any>): Promise<number> {
+  public create (data: Record<string, unknown>): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       $axios.post('/users', data)
         .then((response: AxiosResponse) => {
@@ -136,7 +136,7 @@ export class Users {
    * Возвращает список пользователей в соответствии с заданным критерием поиска.
    * @param params
    */
-  public find (params = {}): Promise<ResponseInterface<Record<string, any>, User[]>> {
+  public find (params = {}): Promise<ResponseInterface<Record<string, unknown>, User[]>> {
     return new Promise((resolve, reject) => {
       $axios.get('/users', {
         params

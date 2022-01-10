@@ -24,9 +24,8 @@ module.exports = {
     ...(process.env.VUE_APP_DEV_SERVER_PUBLIC ? { public: process.env.VUE_APP_DEV_SERVER_PUBLIC } : {}),
     ...(process.env.VUE_APP_DEV_SERVER_PORT ? { port: process.env.VUE_APP_DEV_SERVER_PORT } : {}),
     watchOptions: {
-      watch: true,
-      poll: 200,
-      aggregateTimeout: 500,
+      aggregateTimeout: 300,
+      poll: true,
       ignored: /node_modules/
     }
   },

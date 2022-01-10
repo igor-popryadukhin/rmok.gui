@@ -5,8 +5,10 @@ import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import Weekday from 'dayjs/plugin/weekday'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import 'dayjs/locale/ru'
 
+dayjs.extend(customParseFormat)
 dayjs.extend(relativeTime)
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -27,3 +29,5 @@ class Plugin {
 }
 
 Vue.use(new Plugin())
+
+export default dayjs

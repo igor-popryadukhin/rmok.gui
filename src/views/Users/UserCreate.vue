@@ -404,49 +404,49 @@ export default Vue.extend({
     // Поля
 
     // Управление состоянием полей ввода информации
-    firstNameField (): Record<string, any> {
+    firstNameField (): Record<string, unknown> {
       const index = this.$data.errors.findIndex((e) => e.property_name === '[first_name]')
       if (index > -1) {
         return this.fieldComputeState(this.$data.errors[index])
       }
       return this.defaultValid
     },
-    lastNameField (): Record<string, any> {
+    lastNameField (): Record<string, unknown> {
       const index = this.$data.errors.findIndex((e) => e.property_name === '[last_name]')
       if (index > -1) {
         return this.fieldComputeState(this.$data.errors[index])
       }
       return this.defaultValid
     },
-    middleNameField (): Record<string, any> {
+    middleNameField (): Record<string, unknown> {
       const index = this.$data.errors.findIndex((e) => e.property_name === '[middle_name]')
       if (index > -1) {
         return this.fieldComputeState(this.$data.errors[index])
       }
       return this.defaultValid
     },
-    loginField (): Record<string, any> {
+    loginField (): Record<string, unknown> {
       const index = this.$data.errors.findIndex((e) => e.property_name === '[login]')
       if (index > -1) {
         return this.fieldComputeState(this.$data.errors[index])
       }
       return this.defaultValid
     },
-    emailField (): Record<string, any> {
+    emailField (): Record<string, unknown> {
       const index = this.$data.errors.findIndex((e) => e.property_name === '[email]')
       if (index > -1) {
         return this.fieldComputeState(this.$data.errors[index])
       }
       return this.defaultValid
     },
-    phoneField (): Record<string, any> {
+    phoneField (): Record<string, unknown> {
       const index = this.$data.errors.findIndex((e) => e.property_name === '[phone]')
       if (index > -1) {
         return this.fieldComputeState(this.$data.errors[index])
       }
       return this.defaultValid
     },
-    passwordField (): Record<string, any> {
+    passwordField (): Record<string, unknown> {
       if (this.password !== this.password2) {
         return {
           error: true,
@@ -461,7 +461,7 @@ export default Vue.extend({
 
       return this.defaultValid
     },
-    roleField (): Record<string, any> {
+    roleField (): Record<string, unknown> {
       const index = this.$data.errors.findIndex((e) => e.property_name === '[role_id]')
       if (index > -1) {
         return this.fieldComputeState(this.$data.errors[index])
@@ -578,7 +578,7 @@ export default Vue.extend({
      * @param data
      * @return Promise<boolean>
      */
-    async validateProperties (data: Record<string, any>): Promise<boolean> {
+    async validateProperties (data: Record<string, unknown>): Promise<boolean> {
       return new Promise<boolean>((resolve) => {
         clearTimeout(this.validatePropertiesTimeoutId)
         this.validateProcess = true
@@ -609,7 +609,7 @@ export default Vue.extend({
      * Запускает процесс валидации заданных полей.
      */
     validateAll () {
-      const validateData: Record<string, any> = {
+      const validateData: Record<string, unknown> = {
         first_name: this.first_name,
         last_name: this.last_name,
         login: this.login,
@@ -640,7 +640,7 @@ export default Vue.extend({
      *
      * @param item
      */
-    fieldComputeState (item: Record<string, any>) {
+    fieldComputeState (item: Record<string, unknown>) {
       if (item.status === 'failure') {
         return {
           errorMessages: [item.message],

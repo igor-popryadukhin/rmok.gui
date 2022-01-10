@@ -161,7 +161,7 @@ export default class ContactsAssignTags extends AppBase {
   get contactsListSelectedCount () { return this.$store.getters['contacts/list/selected_count'] }
   get contactsListItemsSelected () { return this.$store.getters['contacts/list/items_selected'] }
   get contactFilter () {
-    const params: Record<string, any> = this.$store.getters['contacts/list/filter/all']
+    const params: Record<string, unknown> = this.$store.getters['contacts/list/filter/all']
 
     if ('offset' in params) { delete params.offset }
     if ('count' in params) { delete params.count }
@@ -189,7 +189,7 @@ export default class ContactsAssignTags extends AppBase {
   }
 
   private onAssignTagClick () {
-    const request: Record<string, any> = {}
+    const request: Record<string, unknown> = {}
 
     if (this.contactsListSelectedAll) {
       // На основе фильтров

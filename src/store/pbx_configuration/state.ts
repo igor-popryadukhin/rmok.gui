@@ -1,6 +1,6 @@
 
 export interface State {
-  [keys: string]: any;
+  [keys: string]: unknown;
 }
 
 function defaultState (): State {

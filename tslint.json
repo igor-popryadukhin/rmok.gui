@@ -5,11 +5,15 @@
   ],
   "linterOptions": {
     "exclude": [
-      "node_modules"
+      "node_modules",
+      "./node_modules",
+      "./node_modules/*",
+      "./node_modules/vuetify/src/util/helpers.ts"
     ]
   },
   "jsRules": {},
   "rules": {
+    "member-access": false,
     "no-string-literal": [
       false
     ],

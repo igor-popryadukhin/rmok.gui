@@ -25,7 +25,7 @@ export const actions: ActionTree<State, RootState> = {
    * @param ctx
    */
   apply (ctx: ActionContext<State, RootState>) {
-    const data: Record<string, any> = {
+    const data: Record<string, unknown> = {
       name: ctx.state.name,
       scenario: ctx.state.scenario
     }

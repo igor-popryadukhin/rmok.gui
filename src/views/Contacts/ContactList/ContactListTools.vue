@@ -190,14 +190,14 @@ export default class ContactListTools extends Base {
   get contactsPerPage () { return this.$store.getters['contacts/list/per_page'] }
   get contactsTotal () { return this.$store.getters['contacts/list/total'] }
 
-  get sorting (): Record<string, any> {
+  get sorting (): Record<string, unknown> {
     return {
       order_by: this.$store.getters['contacts/list/filter/order_by'],
       order_direction: this.$store.getters['contacts/list/filter/order_direction']
     }
   }
 
-  set sorting (val: Record<string, any>) {
+  set sorting (val: Record<string, unknown>) {
     this.$store.commit('contacts/list/filter/order_by', val?.order_by)
     this.$store.commit('contacts/list/filter/order_direction', val?.order_direction)
   }

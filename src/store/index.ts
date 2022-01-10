@@ -2,14 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import app_state from './app_state'
-import project from './project'
-import tasks from './tasks'
+import projects from './projects'
+import { tasks } from './tasks'
 import settings from './settings'
 import filter from './filter'
 import symfony from './symfony'
 import system from './system'
 import profile from './profile'
-import statuses from './statuses'
 import users from './users'
 import users_edit from './users_edit'
 import contacts from './contacts'
@@ -75,8 +74,7 @@ const store = new Vuex.Store({
     app_state,
     database,
     profile,
-    project,
-    statuses,
+    projects,
     settings,
     filter,
     symfony,
@@ -116,6 +114,8 @@ const store = new Vuex.Store({
         'filters',
         'symfony',
         'contacts.params',
+        'contacts.view.settings',
+        'contacts.view.unsaved_call',
         'contacts.list.filter',
         'statistic_recent_call.filter',
         'statistics.recent_calls.filter',

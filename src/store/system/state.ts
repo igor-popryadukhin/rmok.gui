@@ -1,6 +1,6 @@
 
 export interface State {
-  permissions: Array<Record<string, any>>;
+  permissions: Array<Record<string, unknown>>;
 }
 
 function state (): State {

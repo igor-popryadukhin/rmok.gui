@@ -142,7 +142,7 @@ export default class List extends AppBase {
     ]
   }
 
-  private contextMenuShow (item: Record<string, any>, e: PointerEvent) {
+  private contextMenuShow (item: Record<string, unknown>, e: PointerEvent) {
     e.preventDefault()
     this.contextMenu.currentItem = item
     this.contextMenu.visible = false

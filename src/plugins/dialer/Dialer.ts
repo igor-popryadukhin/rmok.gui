@@ -107,12 +107,7 @@ export default class Dialer {
   private _localClonedStream: any;
   private _currentRTCSession?: RTCSession = null;
 
-  /**
-   *
-   * @param url
-   * @param config
-   */
-  constructor (url: string, config?: DialerConfiguration) {
+  constructor () {
     this._localAudio = makeAudioElement()
     this._remoteAudio = makeAudioElement()
     this._audioElementForRinging = makeAudioElement()
@@ -278,7 +273,7 @@ export default class Dialer {
    * @param handler
    */
   public off (event: string, handler: (...args: any[]) => void): Dialer {
-    this._ua = this._ua?.removeListener(event, handler)
+    this._ua = this._ua?.off(event, handler)
     return this
   }
 
@@ -300,11 +295,11 @@ export default class Dialer {
    */
   private unInitializeListeners () {
     if (this._ua) {
-      this._ua.removeAllListeners('registered')
-      this._ua.removeAllListeners('unregistered')
-      this._ua.removeAllListeners('connected')
-      this._ua.removeAllListeners('disconnected')
-      this._ua.removeAllListeners('newRTCSession')
+      this._ua.off('registered', this.onRegistered.bind(this))
+      this._ua.off('unregistered', this.onUnregistered.bind(this))
+      this._ua.off('connected', this.onConnected.bind(this))
+      this._ua.off('disconnected', this.onDisconnected.bind(this))
+      this._ua.off('newRTCSession', this.onNewRTCSession.bind(this))
     }
   }
 

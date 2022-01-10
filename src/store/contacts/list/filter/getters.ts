@@ -33,7 +33,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   filter_panel_visible (state: State) { return state.filter_panel_visible },
   /// //////////////////////////////////////////////////////////////////////////
   all (state: State) {
-    const obj: Record<string, any> = {}
+    const obj: Record<string, unknown> = {}
 
     if (state.filter_q) {
       obj.q = state.filter_q

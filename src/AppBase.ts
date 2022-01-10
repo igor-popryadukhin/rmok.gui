@@ -15,8 +15,15 @@ export default class AppBase extends Vue {
   /**
    * Высота окна
    */
-  get screenHeight () {
+  get screenHeight (): number {
     return this.$vuetify.breakpoint.height
+  }
+
+  /**
+   * Ширина окна
+   */
+  get screenWidth (): number {
+    return this.$vuetify.breakpoint.width
   }
 
   get accountPermissions () {
@@ -24,6 +31,9 @@ export default class AppBase extends Vue {
       .filter((value) => value.granted)
       .map((value) => value.id)
   }
+
+  get navigationDrawerWidth (): number { return this.$store.getters['settings/navigation_drawer_width'] }
+  get containerWidth (): number { return this.$store.getters['settings/container_width'] }
 
   /**
    * Проверяет наличие разрешений
@@ -56,9 +66,9 @@ export default class AppBase extends Vue {
    * вкладки - браузер может фактически не отображать диалоговое окно или
    * может не ждать, пока пользователь подтвердит или отменит диалоговое окно.
    */
-  // public $confirm (message = 'Do you really want to leave? you have unsaved changes!') {
-  //   return window.confirm(this.$tc(message))
-  // }
+  public $confirm (message = 'Do you really want to leave? you have unsaved changes!') {
+    return window.confirm(this.$tc(message))
+  }
 
   public $confirmBeforeunload (message = 'Do you really want to leave? you have unsaved changes!') {
     window.onbeforeunload = (ev: BeforeUnloadEvent) => {

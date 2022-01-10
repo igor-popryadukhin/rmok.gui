@@ -1,12 +1,11 @@
 import { Account } from '@/api/Account'
 import { RootState } from '@/store'
 import { ActionContext, ActionTree } from 'vuex'
-import { ProfileState } from './state'
-import { State } from '@/store/pbx_configuration/state'
+import { State } from './state'
 import { RTCIceServer } from '@/store/pbx_configuration/rtc_configuration/state'
 
-const actions: ActionTree<ProfileState, RootState> = {
-  load ({ commit }: ActionContext<ProfileState, RootState>) {
+const actions: ActionTree<State, RootState> = {
+  load ({ commit }: ActionContext<State, RootState>) {
     return new Account()
       .getProfile()
       .then((response) => {
@@ -68,7 +67,7 @@ const actions: ActionTree<ProfileState, RootState> = {
           credentials: {
             login: state.pbx_configuration.credentials.login,
             password: state.pbx_configuration.credentials.password,
-            scheme: state.pbx_configuration.credentials.scheme,
+            scheme: state.pbx_configuration.credentials.schema,
             server: state.pbx_configuration.credentials.server,
             port: state.pbx_configuration.credentials.port,
             display_name: state.pbx_configuration.credentials.display_name
@@ -93,7 +92,7 @@ const actions: ActionTree<ProfileState, RootState> = {
       })
   },
 
-  set_status (ctx: ActionContext<ProfileState, RootState>, payload): Promise<void> {
+  set_status (ctx: ActionContext<State, RootState>, payload): Promise<void> {
     return new Account().setStatus(payload)
   }
 }

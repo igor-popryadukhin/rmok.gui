@@ -14,7 +14,6 @@
         @search="onAppAutocompleteProjectsSearch"
         @focus="onAppAutocompleteProjectsSearchFocus"
         @change="onFilterChange"
-        @mounted="$appDebug"
       />
       <!-- Проект -->
 
@@ -278,7 +277,9 @@
 </template>
 
 <script lang="ts">
-
+import Project from '@/api/interfaces/Project'
+import User from '@/api/interfaces/User'
+import UserGroup from '@/api/interfaces/UserGroup'
 import Component from 'vue-class-component'
 import debounce from '@/utils/debounce'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
@@ -292,11 +293,6 @@ import { Emit } from 'vue-property-decorator'
   components: { AppMenuDatePicker, AppAutocomplete }
 })
 export default class RecentCallsFilters extends AppBase {
-  @Emit('btn:refresh:click')
-  private btnRefreshClick () {
-    return undefined
-  }
-
   // region Данные
   contactCreatedAtMenu = false
   contactCreatedAtDates = []
@@ -305,6 +301,11 @@ export default class RecentCallsFilters extends AppBase {
   usersLoading = false
   tagsLoading = false
   // endregion
+
+  @Emit('btn:refresh:click')
+  private btnRefreshClick () {
+    return undefined
+  }
 
   /** Текущий проект пользователя */
   get profileProjectId (): number { return this.$store.getters['profile/project/id'] }
@@ -357,7 +358,7 @@ export default class RecentCallsFilters extends AppBase {
     return this.$store.getters['statistics/recent_calls/filter/status_ids']
   }
 
-  set statusIds (val: string|number|(string|number)[]) {
+  set statusIds (val: number[]) {
     this.$store.commit('statistics/recent_calls/filter/status_ids', val)
   }
 
@@ -408,19 +409,19 @@ export default class RecentCallsFilters extends AppBase {
   // endregion Параметры запроса
 
   // region Данные для заполнения фильтров
-  get projects (): Array<Record<string, any>> { return this.$store.getters['statistics/recent_calls/filter/projects'] }
+  get projects (): Project[] { return this.$store.getters['statistics/recent_calls/filter/projects'] }
 
   /** Статусы */
-  get statuses (): Array<Record<string, any>> {
+  get statuses (): Array<Record<string, unknown>> {
     if (!this.projectId) {
       return []
     }
-    return (this.$store.getters['statistics/recent_calls/filter/statuses'] as Array<Record<string, any>>)
-      .filter((e) => e.project.id === this.projectId)
+    return (this.$store.getters['statistics/recent_calls/filter/statuses'] as Array<Record<string, Record<string, unknown>>>)
+      .filter((e) => e.project?.id === this.projectId)
   }
 
   /** Пользователи */
-  get users (): Array<Record<string, any>> {
+  get users (): User[] {
     if (this.projectId) {
       return (this.$store.getters['statistics/recent_calls/filter/users'] || [])
         .filter((e) => {
@@ -432,7 +433,7 @@ export default class RecentCallsFilters extends AppBase {
   }
 
   /** Группы пользователей */
-  get userGroups (): Array<Record<string, any>> { return this.$store.getters['statistics/recent_calls/filter/user_groups'] }
+  get userGroups (): UserGroup[] { return this.$store.getters['statistics/recent_calls/filter/user_groups'] }
 
   get filterTasksItems () {
     return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
@@ -457,7 +458,7 @@ export default class RecentCallsFilters extends AppBase {
 
   /** Теги */
   get tags (): ContactTag[] {
-    const tags = this.$store.getters['statistics/recent_calls/filter/tags'] as Array<Record<string, any>>
+    const tags = this.$store.getters['statistics/recent_calls/filter/tags'] as Array<Record<string, unknown>>
     return [].concat([
       {
         id: 0,
@@ -510,7 +511,7 @@ export default class RecentCallsFilters extends AppBase {
    * @private
    */
   private onAppAutocompleteProjectsSearch (q = '') {
-    if (this.projects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
+    if (this.projects.findIndex((e) => e.name.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.$store.dispatch('statistics/recent_calls/filter/fetchProjects', {
         q
       })
@@ -522,7 +523,7 @@ export default class RecentCallsFilters extends AppBase {
   }
 
   private onAppAutocompleteStatusesSearch (q = '') {
-    if (this.projects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
+    if (this.projects.findIndex((e) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.statusesLoading = true
       this.$store.dispatch('statistics/recent_calls/filter/fetchStatuses', {
         q
@@ -535,7 +536,7 @@ export default class RecentCallsFilters extends AppBase {
    * @private
    */
   private onAppAutocompleteStatusesFocus () {
-    const params: Record<string, any> = {}
+    const params: Record<string, unknown> = {}
     if (this.projectId > 0) {
       params.project_id = this.projectId
     }
@@ -558,7 +559,7 @@ export default class RecentCallsFilters extends AppBase {
   }
 
   private onSearchUsersGroups (q = '') {
-    if (this.userGroups.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
+    if (this.userGroups.findIndex((e) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.userGroupsLoading = true
       this.$store.dispatch('statistics/recent_calls/filter/fetchUserGroups', {
         q
@@ -567,12 +568,12 @@ export default class RecentCallsFilters extends AppBase {
   }
 
   private onSearchUsers (q = '') {
-    const params: Record<string, any> = { q }
+    const params: Record<string, unknown> = { q }
     if (this.projectId > 0) {
       params.project_id = this.projectId
     }
 
-    if (this.users.findIndex((e: any) => e.full_name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
+    if (this.users.findIndex((e) => e.full_name.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.usersLoading = true
       this.$store.dispatch('statistics/recent_calls/filter/fetchUsers', params)
         .finally(() => (this.usersLoading = false))
@@ -580,7 +581,7 @@ export default class RecentCallsFilters extends AppBase {
   }
 
   private onUsersFocus () {
-    const params: Record<string, any> = {}
+    const params: Record<string, unknown> = {}
     if (this.projectId > 0) {
       params.project_id = this.projectId
     }
@@ -598,7 +599,7 @@ export default class RecentCallsFilters extends AppBase {
    * @private
    */
   private onSearchTags (q = '') {
-    const params: Record<string, any> = { q }
+    const params: Record<string, unknown> = { q }
     const fetch = this
       .tags
       .findIndex((e) => e.name

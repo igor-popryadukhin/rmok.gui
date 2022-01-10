@@ -16,7 +16,7 @@ const actions: ActionTree<State, RootState> = {
       }).then((response) => {
         const itemsCopy = state.projects.map((value) => value)
         response.data.forEach((value) => {
-          if (itemsCopy.findIndex((e: any) => e.id === value.id) === -1) {
+          if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
             itemsCopy.push(value)
           }
         })
@@ -29,8 +29,8 @@ const actions: ActionTree<State, RootState> = {
       .find(params)
       .then((response) => {
         const itemsCopy = state.statuses.map((value) => value)
-        response.forEach((value: any) => {
-          if (itemsCopy.findIndex((e: any) => e.id === value.id) === -1) {
+        response.forEach((value) => {
+          if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
             itemsCopy.push(value)
           }
         })
@@ -45,8 +45,8 @@ const actions: ActionTree<State, RootState> = {
           if (response.status === 200) {
             const itemsCopy = state.users.map((value) => value)
 
-            response.data?.data.forEach((value: any) => {
-              if (itemsCopy.findIndex((e: any) => e.id === value.id) === -1) {
+            response.data?.data.forEach((value) => {
+              if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
                 itemsCopy.push(value)
               }
             })
@@ -64,8 +64,8 @@ const actions: ActionTree<State, RootState> = {
           if (response.status === 200) {
             const itemsCopy = state.user_groups.map((value) => value)
 
-            response.data?.data.forEach((value: any) => {
-              if (itemsCopy.findIndex((e: any) => e.id === value.id) === -1) {
+            response.data?.data.forEach((value) => {
+              if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
                 itemsCopy.push(value)
               }
             })
@@ -93,8 +93,8 @@ const actions: ActionTree<State, RootState> = {
         if (response.status === 200) {
           const itemsCopy = state.tags.map((value) => value)
 
-          response.data?.data.forEach((value: any) => {
-            if (itemsCopy.findIndex((e: any) => e.id === value.id) === -1) {
+          response.data?.data.forEach((value) => {
+            if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
               itemsCopy.push(value)
             }
           })
@@ -105,7 +105,7 @@ const actions: ActionTree<State, RootState> = {
     })
   },
 
-  fetchTimeZones: ({ commit, state }, params = {}) => {
+  fetchTimeZones: ({ commit }) => {
     return new Promise<void>((resolve) => {
       $axios.get('/handbooks/timezones')
         .then((response: AxiosResponse) => {

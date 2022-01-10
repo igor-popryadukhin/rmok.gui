@@ -1,7 +1,8 @@
 import Country from '@/api/interfaces/Country'
+import PBXConfiguration from '@/api/interfaces/PBXConfiguration'
 import UserGroup from '@/api/interfaces/UserGroup'
 
-export interface ProfileState {
+export interface State {
   id: number;
   first_name: string;
   last_name: string;
@@ -19,11 +20,12 @@ export interface ProfileState {
   last_login: number;
   created_at: number;
   country?: Country;
-  permissions?: Array<Record<string, any>>;
+  pbx_configuration?: PBXConfiguration;
+  permissions?: Array<Record<string, unknown>>;
   group?: UserGroup;
 }
 
-function state (): ProfileState {
+function state (): State {
   return {
     contacts_count: 0,
     country: {
@@ -47,6 +49,7 @@ function state (): ProfileState {
     mode: '',
     tz: '',
     userpic: '',
+    pbx_configuration: null,
     permissions: [],
     group: undefined
   }

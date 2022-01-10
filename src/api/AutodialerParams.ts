@@ -13,7 +13,7 @@ export default class AutodialerParams {
    *
    * @param params
    */
-  public get (params = {}): Promise<ResponseInterface<Record<string, any>, Autodialer[]>> {
+  public get (params = {}): Promise<ResponseInterface<Record<string, unknown>, Autodialer[]>> {
     return new Promise((resolve, reject) => {
       $axios.get('/autodialer/params', {
         params
@@ -31,7 +31,7 @@ export default class AutodialerParams {
    * Создаёт новый параметры автодозвона.
    * @param data
    */
-  public create (data: Record<string, any>): Promise<number> {
+  public create (data: Record<string, unknown>): Promise<number> {
     return new Promise((resolve, reject) => {
       $axios.post('/autodialer/params', data)
         .then((response: AxiosResponse) => {
@@ -102,7 +102,7 @@ export default class AutodialerParams {
    * @param id
    * @param data
    */
-  public edit (id: number, data: Record<string, any>): Promise<void> {
+  public edit (id: number, data: Record<string, unknown>): Promise<void> {
     return new Promise((resolve, reject) => {
       $axios.patch(`/autodialer/${id}`, data)
         .then((response: AxiosResponse) => {

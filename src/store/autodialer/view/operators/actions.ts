@@ -11,7 +11,7 @@ const actions: ActionTree<State, RootState> = {
   /**
    *
    * @param ctx
-   * @param id
+   * @param params
    */
   fetch: ({ commit, rootGetters }, params = {}) => {
     return new Promise<void>((resolve, reject) => {

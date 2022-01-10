@@ -31,7 +31,7 @@ const actions: ActionTree<State, RootState> = {
     // Скрываю диалог передачи контактов
     dispatch('hide')
 
-    let params: Record<string, any> = rootGetters['contacts/list/filter/all']
+    let params: Record<string, unknown> = rootGetters['contacts/list/filter/all']
 
     if ((rootGetters['contacts/list/items_selected'] || []).length > 0 && !rootGetters['contacts/list/selected_all']) {
       params = {

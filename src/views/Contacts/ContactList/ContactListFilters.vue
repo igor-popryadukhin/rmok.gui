@@ -378,19 +378,19 @@ export default class ContactListFilters extends Base {
   // endregion Параметры запроса
 
   // region Данные для заполнения фильтров
-  get projects (): Array<Record<string, any>> { return this.$store.getters['contacts/list/filter/projects'] }
+  get projects (): Array<Record<string, unknown>> { return this.$store.getters['contacts/list/filter/projects'] }
 
   /** Статусы */
-  get statuses (): Array<Record<string, any>> {
+  get statuses (): Array<Record<string, Record<string, unknown>>> {
     if (!this.projectId) {
       return []
     }
-    return (this.$store.getters['contacts/list/filter/statuses'] as Array<Record<string, any>>)
+    return (this.$store.getters['contacts/list/filter/statuses'] as Array<Record<string, Record<string, unknown>>>)
       .filter((e) => e.project.id === this.projectId)
   }
 
   /** Пользователи */
-  get users (): Array<Record<string, any>> {
+  get users (): Array<Record<string, Record<string, unknown>>> {
     if (this.projectId) {
       return (this.$store.getters['contacts/list/filter/users'] || [])
         .filter((e) => {
@@ -402,7 +402,7 @@ export default class ContactListFilters extends Base {
   }
 
   /** Группы пользователей */
-  get userGroups (): Array<Record<string, any>> { return this.$store.getters['contacts/list/filter/user_groups'] }
+  get userGroups (): Array<Record<string, unknown>> { return this.$store.getters['contacts/list/filter/user_groups'] }
 
   get filterTasksItems () {
     return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
@@ -427,7 +427,7 @@ export default class ContactListFilters extends Base {
 
   /** Теги */
   get tags (): ContactTag[] {
-    const tags = this.$store.getters['contacts/list/filter/tags'] as Array<Record<string, any>>
+    const tags = this.$store.getters['contacts/list/filter/tags'] as Array<Record<string, unknown>>
     return [].concat([
       {
         id: 0,
@@ -505,7 +505,7 @@ export default class ContactListFilters extends Base {
    * @private
    */
   private onAppAutocompleteStatusesFocus () {
-    const params: Record<string, any> = {}
+    const params: Record<string, unknown> = {}
     if (this.projectId > 0) {
       params.project_id = this.projectId
     }
@@ -537,7 +537,7 @@ export default class ContactListFilters extends Base {
   }
 
   private onSearchUsers (q = '') {
-    const params: Record<string, any> = { q }
+    const params: Record<string, unknown> = { q }
     if (this.projectId > 0) {
       params.project_id = this.projectId
     }
@@ -550,7 +550,7 @@ export default class ContactListFilters extends Base {
   }
 
   private onUsersFocus () {
-    const params: Record<string, any> = {}
+    const params: Record<string, unknown> = {}
     if (this.projectId > 0) {
       params.project_id = this.projectId
     }
@@ -568,7 +568,7 @@ export default class ContactListFilters extends Base {
    * @private
    */
   private onSearchTags (q = '') {
-    const params: Record<string, any> = { q }
+    const params: Record<string, unknown> = { q }
     const fetch = this
       .tags
       .findIndex((e) => e.name

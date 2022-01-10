@@ -6,6 +6,7 @@ import actions from './actions'
 import mutations from './mutations'
 import list from './list'
 import create from './create'
+import view from './view'
 import { transfer_dialog } from './transfer_dialog'
 
 const module: Module<ContactsState, RootState> = {
@@ -16,6 +17,7 @@ const module: Module<ContactsState, RootState> = {
   state,
   modules: {
     list,
+    view,
     transfer_dialog,
     create
   }

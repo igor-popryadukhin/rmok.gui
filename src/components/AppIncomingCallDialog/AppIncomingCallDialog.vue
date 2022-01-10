@@ -34,17 +34,13 @@
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-property-decorator'
+import Component from 'vue-class-component'
+import { Prop, Vue } from 'vue-property-decorator'
 
-export default Vue.extend({
-  name: 'AppIncomingCallDialog',
-  props: {
-    display: {
-      type: Function,
-      default: () => () => ''
-    }
-  }
-})
+@Component
+export default class AppIncomingCallDialog extends Vue {
+  @Prop({ default: () => () => '' }) readonly display: CallableFunction
+}
 </script>
 
 <style lang="scss" scoped>

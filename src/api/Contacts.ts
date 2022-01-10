@@ -2,7 +2,7 @@ import APIError from './classes/APIError'
 import Contact from './interfaces/Contact'
 import ResponseInterface from '@/api/Schemas/ResponseInterface'
 import { $axios } from '@/plugins/axios'
-import axios, { AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import { ContactTagInterface } from './Schemas/ContactInterface'
 import ContactHistory from '@/api/interfaces/ContactHistory'
 
@@ -406,7 +406,7 @@ export class Contacts {
    *
    * @param params
    */
-  public export (params: Record<string, any>): Promise<void> {
+  public export (params: Record<string, unknown>): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/export', params)
         .then((response: AxiosResponse) => {
@@ -440,7 +440,7 @@ export class Contacts {
    *
    * @param params
    */
-  public setTags (params: Record<string, any> = {}): Promise<void> {
+  public setTags (params: Record<string, unknown> = {}): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/tags/set', params)
         .then((response: AxiosResponse) => {

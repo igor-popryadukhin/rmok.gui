@@ -2,7 +2,7 @@
 export interface State {
   id: number;
   name: string;
-  permissions: Array<Record<string, any>>;
+  permissions: Array<Record<string, unknown>>;
 }
 
 function defaultState (): State {

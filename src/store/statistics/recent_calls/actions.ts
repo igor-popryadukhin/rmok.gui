@@ -9,7 +9,7 @@ import APIError from '@/api/classes/APIError'
 const actions: ActionTree<State, RootState> = {
   fetch_pie: ({ commit, getters }: ActionContext<State, RootState>) => {
     return new Promise<void>((resolve) => {
-      const request: Record<string, any> = { ...getters['filter/all'] }
+      const request: Record<string, unknown> = { ...getters['filter/all'] }
 
       if ('offset' in request) { delete request.offset }
       if ('count' in request) { delete request.count }
@@ -33,7 +33,7 @@ const actions: ActionTree<State, RootState> = {
 
   fetch_history: ({ commit, getters }: ActionContext<State, RootState>) => {
     return new Promise<void>((resolve) => {
-      const request: Record<string, any> = { ...getters['filter/all'] }
+      const request: Record<string, unknown> = { ...getters['filter/all'] }
 
       commit('history_fetching', true)
       $axios.get('/statistics/recent-calls/history', {

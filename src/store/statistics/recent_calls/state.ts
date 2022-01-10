@@ -6,7 +6,7 @@ export interface State {
   pie_series: number[];
 
   history_fetching: boolean;
-  history: Array<Record<string, any>>;
+  history: Array<Record<string, unknown>>;
 }
 
 export function defaultState (): State {

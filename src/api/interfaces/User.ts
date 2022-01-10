@@ -10,7 +10,7 @@ export default interface User {
   first_name: string;
   last_name: string;
   middle_name?: string;
-  full_name?: string;
+  full_name: string;
   userpic?: string;
   online: boolean;
   last_activity_at?: number;
@@ -25,7 +25,7 @@ export default interface User {
   project?: Project;
   projects?: Project[];
   pbx_configuration?: PBXConfiguration;
-  permissions?: Array<Record<string, any>>;
+  permissions?: Array<Record<string, unknown>>;
   country?: Country;
   tz?: string;
   status?: string;

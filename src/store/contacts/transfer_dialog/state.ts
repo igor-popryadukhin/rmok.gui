@@ -1,7 +1,7 @@
 export interface State {
   visible: boolean;
-  available_projects: Array<Record<string, any>>;
-  available_users: Array<Record<string, any>>;
+  available_projects: Array<Record<string, unknown>>;
+  available_users: Array<Record<string, unknown>>;
   project_id: number|null;
   user_ids: number[];
 }

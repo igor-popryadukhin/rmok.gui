@@ -2,7 +2,7 @@
 export interface State {
   items_offset: number;
   items_count: number;
-  items: Array<Record<string, any>>;
+  items: Array<Record<string, unknown>>;
 }
 
 function defaultState (): State {

@@ -14,9 +14,9 @@ export function isEmpty (value: unknown): boolean {
  * @param arr
  * @param callback
  */
-export async function filter (arr: any[], callback: any) {
+export async function filter (arr: unknown[], callback: CallableFunction) {
   const fail = Symbol('filter')
-  return (await Promise.all(arr.map(async (item: any) => (
+  return (await Promise.all(arr.map(async (item) => (
     await callback(item)) ? item : fail
   ))).filter((i) => i !== fail)
 }
@@ -24,6 +24,6 @@ export async function filter (arr: any[], callback: any) {
 /**
  * @param ms
  */
-export async function sleep (ms: number): Promise<any> {
+export async function sleep (ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

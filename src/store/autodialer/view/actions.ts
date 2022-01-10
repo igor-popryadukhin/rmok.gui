@@ -24,7 +24,7 @@ export const actions: ActionTree<State, RootState> = {
    * @param ctx
    */
   apply (ctx: ActionContext<State, RootState>) {
-    const data: Record<string, any> = {
+    const data: Record<string, unknown> = {
       pickup_timeout: ctx.state.pickup_timeout,
       max_calls_number: ctx.state.max_calls_number,
       mode: ctx.state.mode,

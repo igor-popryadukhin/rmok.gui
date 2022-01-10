@@ -54,7 +54,7 @@ export default class UserCapabilities extends AppBase {
   }
 
   @Watch('userPermissions')
-  userPermissionsWatchHandler (value: Array<Record<string, any>>) {
+  userPermissionsWatchHandler (value: Array<Record<string, unknown>>) {
     this.permissions = value.map(e => { return { ...e } })
   }
 

@@ -7,11 +7,11 @@
         md="3"
       >
         <app-tools>
-          <template #left>
+          <app-tools-left>
             <h3 class="grey--text">
               {{ $tc('Projects') }}
             </h3>
-          </template>
+          </app-tools-left>
         </app-tools>
 
         <v-divider />
@@ -67,11 +67,11 @@
       <!-- Участники проекта -->
       <v-col>
         <app-tools>
-          <template #left>
+          <app-tools-left>
             <h3 class="grey--text">
               {{ $tc('Project members') }}
             </h3>
-          </template>
+          </app-tools-left>
         </app-tools>
 
         <v-divider />
@@ -168,11 +168,11 @@
         md="3"
       >
         <app-tools>
-          <template #left>
+          <app-tools-left>
             <h3 class="grey--text">
               {{ $tc('Parameters') }}
             </h3>
-          </template>
+          </app-tools-left>
         </app-tools>
 
         <v-divider />
@@ -233,236 +233,220 @@ import APIError from '@/api/classes/APIError'
 import ContactsIntegrations from '@/api/ContactsIntegrations'
 import Projects from '@/api/Projects'
 import { UserInterface } from '@/api/Users'
+import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
-import AppTools from '@/components/AppTools/AppTools.vue'
-import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Watch } from 'vue-property-decorator'
+@Component({
+  components: { AppSearchInput, AppLoading }
+})
+export default class List extends AppBase {
+  switchChangeProcess = false
+  integrationId = -1
+  integrationHoverId = 0
+  integrationsLoading = false
+  integrationsTotal = 0
+  integrations = []
+  // Проекты
+  projectHoverId = 0
+  projectsTotal = 0
+  projectsLoading = false
+  projects = []
 
-export default Vue.extend({
-  components: { AppSearchInput, AppLoading, AppTools },
+  userForJoin = null
 
-  data () {
-    return {
-      switchChangeProcess: false,
-      integrationId: -1,
-      integrationHoverId: 0,
-      integrationsLoading: false,
-      integrationsTotal: 0,
-      integrations: [] as any[],
-      // Проекты
-      projectHoverId: 0,
-      projectsTotal: 0,
-      projectsLoading: false,
-      projects: [] as any[],
+  get projectSelectedId () {
+    return +this.$route.query?.project_id || -1
+  }
 
-      userForJoin: null
+  set projectSelectedId (val: number) {
+    this.$routerQuery.setQuery({ project_id: val })
+  }
+
+  get integrationSearch () {
+    // TODO: Решить проблему
+    return ''
+  }
+
+  set integrationSearch (val: string) {
+    this.$routerQuery.setQuery({ q: val })
+  }
+
+  get integrationParams () {
+    const params = []
+
+    const integration = this.integrations.find(e => e.id === this.integrationId)
+
+    if ('project_name' in integration) {
+      params.push({
+        title: this.$tc('Project'),
+        value: integration.project_name
+      })
     }
-  },
 
-  computed: {
-    // Выбранный проект
-    projectSelectedId: {
-      set (val: number) {
-        this.$routerQuery.setQuery({ project_id: val })
-      },
+    if ('user_name' in integration) {
+      params.push({
+        title: this.$tc('Participant'),
+        value: integration.user_name
+      })
+    }
 
-      get () {
-        return +this.$route.query?.project_id || -1
-      }
-    },
-
-    integrationSearch: {
-      set (val?: string) {
-        if (typeof val === 'string') {
-          this.$routerQuery.setQuery({ q: val })
-        } else {
-          this.$routerQuery.removeQuery(['q'])
-        }
-      },
-
-      get () {
-        return this.$route.query?.q || null
-      }
-    },
-
-    integrationParams () {
-      const params = []
-
-      const integration = this.integrations.find(e => e.id === this.integrationId)
-
-      if (this.assertObjectHasAttribute(integration, 'project_name')) {
-        params.push({
-          title: this.$tc('Project'),
-          value: integration.project_name
-        })
-      }
-
-      if (this.assertObjectHasAttribute(integration, 'user_name')) {
-        params.push({
-          title: this.$tc('Participant'),
-          value: integration.user_name
-        })
-      }
-
-      if (this.assertObjectHasAttribute(integration, 'limit')) {
-        params.push({
-          title: this.$tc('Limit'),
-          value: integration.limit,
-          input: {
-            attrs: {
-              type: 'number',
-              value: integration.limit,
-              style: {
-                width: '100px'
-              }
-            },
-            on: {
-              change: (val: number) => {
-                integration.limit = +val
-                new ContactsIntegrations()
-                  .edit(integration.id, {
-                    limit: val
-                  }).then(() => {
-                    this.$toast.success(this.$tc('Changes accepted'))
-                  })
-              }
+    if ('limit' in integration) {
+      params.push({
+        title: this.$tc('Limit'),
+        value: integration.limit,
+        input: {
+          attrs: {
+            type: 'number',
+            value: integration.limit,
+            style: {
+              width: '100px'
+            }
+          },
+          on: {
+            change: (val: number) => {
+              integration.limit = +val
+              new ContactsIntegrations()
+                .edit(integration.id, {
+                  limit: val
+                }).then(() => {
+                  this.$toast.success(this.$tc('Changes accepted'))
+                })
             }
           }
-        })
-      }
-
-      if (this.assertObjectHasAttribute(integration, 'is_active')) {
-        params.push({
-          title: this.$tc('Status'),
-          value: integration.is_active ? this.$tc('Active') : this.$tc('Not active')
-        })
-      }
-
-      return params
-    },
-
-    paramsForUsers () {
-      return {
-        project_id: this.projectSelectedId
-      }
-    },
-    count () {
-      return this.$data.integrations?.length || 0
+        }
+      })
     }
-  },
 
-  watch: {
-    //
-    userForJoin (val?: UserInterface) {
-      if (val?.id) {
-        new ContactsIntegrations()
-          .add(this.projectSelectedId, val?.id)
-          .then(() => {
-            this.$toast.success(this.$tc('Changes accepted'))
-            this.fetchIntegrations(this.projectSelectedId)
-          })
-          .catch((e: APIError) => {
-            switch (e.error_code) {
-              case 'integration_already_exists': {
-                this.$toast.warning(e.message)
-                break
-              }
-              default: {
-                this.$toast.error(e.message)
-              }
+    if ('is_active' in integration) {
+      params.push({
+        title: this.$tc('Status'),
+        value: integration.is_active ? this.$tc('Active') : this.$tc('Not active')
+      })
+    }
+
+    return params
+  }
+
+  get paramsForUsers () {
+    return {
+      project_id: this.projectSelectedId
+    }
+  }
+
+  get count () {
+    return this.$data.integrations?.length || 0
+  }
+
+  @Watch('userForJoin')
+  userForJoinWatchHandler (val?: UserInterface) {
+    if (val?.id) {
+      new ContactsIntegrations()
+        .add(this.projectSelectedId, val?.id)
+        .then(() => {
+          this.$toast.success(this.$tc('Changes accepted'))
+          this.fetchIntegrations(this.projectSelectedId)
+        })
+        .catch((e: APIError) => {
+          switch (e.error_code) {
+            case 'integration_already_exists': {
+              this.$toast.warning(e.message)
+              break
             }
-          }).finally(() => {
-            this.$data.switchChangeProcess = false
-          })
+            default: {
+              this.$toast.error(e.message)
+            }
+          }
+        }).finally(() => {
+          this.$data.switchChangeProcess = false
+        })
 
-        // Очищаю предыдущий выбор
-        setTimeout(() => {
-          this.$data.userForJoin = null
-        }, 300)
-      }
+      // Очищаю предыдущий выбор
+      setTimeout(() => {
+        this.$data.userForJoin = null
+      }, 300)
     }
-  },
+  }
 
-  async mounted () {
-    // Сначала загружаю проекты
+  public async mounted () {
+  // Сначала загружаю проекты
     await this.fetchProjects()
     if (this.projectSelectedId > -1) {
       this.fetchIntegrations(this.projectSelectedId)
     }
-  },
+  }
 
-  methods: {
-    /**
-     * Загрузить с сервера доступные проекты
-     */
-    fetchProjects () {
-      this.$data.projectsLoading = true
-      return new Projects()
-        .find()
-        .then((response) => {
-          this.$data.projectsTotal = response?.meta?.count || 0
-          this.$data.projects = response.data
-        }).finally(() => (this.$data.projectsLoading = false))
-    },
+  /**
+ * Загрузить с сервера доступные проекты
+ */
+  private fetchProjects () {
+    this.$data.projectsLoading = true
+    return new Projects()
+      .find()
+      .then((response) => {
+        this.$data.projectsTotal = response?.meta?.count || 0
+        this.$data.projects = response.data
+      }).finally(() => (this.$data.projectsLoading = false))
+  }
 
-    /**
-     * Загрузить с сервера параметры интеграций
-     */
-    fetchIntegrations (project_id: number, params = {}) {
-      this.$data.integrationsLoading = true
-      new ContactsIntegrations()
-        .find(Object.assign(params, { project_id }))
-        .then((response) => {
-          this.$data.integrationsTotal = response.meta?.count || 0
-          this.$data.integrations = response.data
-        }).finally(() => {
-          this.$data.integrationsLoading = false
-        })
-    },
+  /**
+ * Загрузить с сервера параметры интеграций
+ */
+  private fetchIntegrations (project_id: number, params = {}) {
+    this.$data.integrationsLoading = true
+    new ContactsIntegrations()
+      .find(Object.assign(params, { project_id }))
+      .then((response) => {
+        this.$data.integrationsTotal = response.meta?.count || 0
+        this.$data.integrations = response.data
+      }).finally(() => {
+        this.$data.integrationsLoading = false
+      })
+  }
 
-    /**
-     * Событие, которое генерируется при вводе текста в строку поиска участников проекта.
-     */
-    onSearchChange (q?: string) {
-      if (typeof q === 'string') {
-        this.fetchIntegrations(this.projectSelectedId, { q })
-      } else {
-        this.fetchIntegrations(this.projectSelectedId)
-      }
-    },
-
-    /**
-     * Событие, которое генерируется при нажатии на элемент списка проектов.
-     *
-     * @param id
-     * @param event
-     */
-    onProjectListItemClick (id: number, event: Event) {
-      this.integrationSearch = ''
-      this.fetchIntegrations(id)
-    },
-
-    /**
-     * Событие, которое генерируется при изменении состояния активности интеграции.
-     *
-     * @param id
-     * @param state
-     */
-    onSwitchChange (id: number, state: boolean) {
-      this.$data.switchChangeProcess = true
-      new ContactsIntegrations()
-        .setActive(id, state)
-        .then(() => {
-          this.$toast.success(this.$tc('Changes accepted'))
-        })
-        .catch((e: Error) => {
-          this.$toast.error(e.message)
-        }).finally(() => {
-          this.$data.switchChangeProcess = false
-        })
+  /**
+ * Событие, которое генерируется при вводе текста в строку поиска участников проекта.
+ */
+  private onSearchChange (q?: string) {
+    if (typeof q === 'string') {
+      this.fetchIntegrations(this.projectSelectedId, { q })
+    } else {
+      this.fetchIntegrations(this.projectSelectedId)
     }
   }
-})
+
+  /**
+ * Событие, которое генерируется при нажатии на элемент списка проектов.
+ *
+ * @param id
+ * @param event
+ */
+  private onProjectListItemClick (id: number, event: Event) {
+    this.integrationSearch = ''
+    this.fetchIntegrations(id)
+  }
+
+  /**
+ * Событие, которое генерируется при изменении состояния активности интеграции.
+ *
+ * @param id
+ * @param state
+ */
+  private onSwitchChange (id: number, state: boolean) {
+    this.$data.switchChangeProcess = true
+    new ContactsIntegrations()
+      .setActive(id, state)
+      .then(() => {
+        this.$toast.success(this.$tc('Changes accepted'))
+      })
+      .catch((e: Error) => {
+        this.$toast.error(e.message)
+      }).finally(() => {
+        this.$data.switchChangeProcess = false
+      })
+  }
+}
 </script>
 
 <style scoped>

@@ -141,7 +141,7 @@ export default class ContactsTransferDialog extends Base {
   }
 
   private onSearchUsers (q = '') {
-    const params: Record<string, any> = { q }
+    const params: Record<string, unknown> = { q }
     if (this.projectId > 0) {
       params.project_id = this.projectId
     }

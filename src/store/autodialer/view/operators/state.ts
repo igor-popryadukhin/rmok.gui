@@ -1,5 +1,7 @@
+import User from '@/api/interfaces/User'
+
 export interface State {
-  items: any[];
+  items: User[];
   total: number;
   per_page: number;
   filter_offset: number;

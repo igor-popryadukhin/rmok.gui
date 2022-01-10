@@ -1,15 +1,30 @@
 <template>
   <v-dialog
     v-model="visible"
-    max-width="700"
+    max-width="800"
+    persistent
+    hide-overlay
   >
     <v-card
+      width="100%"
       tile
     >
-      <v-card-title />
+      <template v-if="dialogTitle || dialogSubTitle">
+        <v-card-title v-if="dialogTitle">
+          {{ dialogTitle }}
+        </v-card-title>
+        <v-card-subtitle v-if="dialogSubTitle">
+          {{ dialogSubTitle }}
+        </v-card-subtitle>
+      </template>
+      <div
+        v-else
+        style="height: 16px"
+      />
+
       <v-card-text>
         <v-btn-toggle
-          v-model="dType"
+          v-model="typeSync"
           tile
           color="deep-purple accent-3"
           group
@@ -31,34 +46,33 @@
           ref="menuDatePicker"
           v-model="menuDatePickerVisible"
           :close-on-content-click="false"
-          :return-value.sync="dDate"
+          :return-value="date"
           transition="scale-transition"
           offset-y
-          min-width="auto"
         >
           <template #activator="{ on, attrs }">
             <v-text-field
-              v-model="dDate"
+              v-model="dateDisplay"
               v-bind="attrs"
+              prepend-icon="mdi-calendar-month"
+              style="max-width: 145px"
+              readonly
               dense
               solo
               flat
               filled
-              prepend-icon="mdi-clock-outline"
-              style="max-width: 145px"
               v-on="on"
             />
           </template>
           <v-date-picker
-            v-model="dDate"
-            no-title
-            show-current
+            v-model="date"
             :first-day-of-week="1"
-            @change="$refs.menuDatePicker.save(dDate)"
+            no-title
+            @change="$refs.menuDatePicker.save(date)"
           />
         </v-menu>
         <v-text-field
-          v-model="dTime"
+          v-model="time"
           :label="$tc('Time')"
           type="time"
           dense
@@ -70,7 +84,7 @@
       </v-card-text>
       <v-card-text>
         <v-textarea
-          v-model="dDescription"
+          v-model="descriptionSync"
           prepend-icon="mdi-calendar-text-outline"
           filled
         />
@@ -78,139 +92,149 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
+          color="grey"
+          text
+          small
+          tile
+          @click="cancelClickEmit"
+        >
+          {{ $tc('Cancel') }}
+        </v-btn>
+        <v-btn
           color="primary"
           text
           small
           tile
-          @click="onBtnSaveClick"
+          @click="okClickEmit"
         >
           {{ $tc('Save') }}
         </v-btn>
       </v-card-actions>
     </v-card>
+    <template #activator="{ on, attrs }">
+      <slot
+        name="activator"
+        :attrs="attrs"
+        :on="on"
+      />
+    </template>
   </v-dialog>
 </template>
 
 <script lang="ts">
+import dayjs from '@/plugins/dayjs'
 import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Emit, Prop, PropSync, Ref, VModel, Watch } from 'vue-property-decorator'
 
-export default Vue.extend({
-  name: 'AppTaskDialogEdit',
+@Component
+export default class TasksDialogEdit extends Vue {
+  menuDatePickerVisible = false
+  formatDateTime = 'YYYY-MM-DDTHH:mm'
+  formatDate = 'YYYY-MM-DD'
+  formatTime = 'HH:mm'
 
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
+  date = null
+  time = null
 
-  props: {
-    date: {
-      type: String,
-      default: () => {
-        const dateTime = new Date()
-        const year = String(dateTime.getFullYear())
-        const month = String(dateTime.getMonth() + 1)
-        const date = String(dateTime.getDate())
-        return `${year}-${month.padStart(2, '00')}-${date.padStart(2, '00')}`
+  @PropSync('type', { default: () => '' }) typeSync!: string
+  @PropSync('dateTime', {
+    default: () => '',
+    validator (value: string): boolean {
+      return dayjs(value).isValid()
+    }
+  }) dateTimeSync!: string
+
+  @PropSync('description', { default: () => '' }) descriptionSync!: string
+
+  @Prop({
+    default: () => [
+      {
+        text: 'Call',
+        value: 'call'
+      },
+      {
+        text: 'Task',
+        value: 'task'
+      },
+      {
+        text: 'Meeting',
+        value: 'meeting'
+      },
+      {
+        text: 'To send a letter',
+        value: 'letter'
+      },
+      {
+        text: 'Other',
+        value: 'other'
       }
-    },
-    time: {
-      type: String,
-      default: () => new Date().toTimeString().substring(0, 5)
-    },
-    type: {
-      type: String,
-      default: 'call'
-    },
-    description: {
-      type: String,
-      default: null
-    },
-    value: {
-      type: Boolean,
-      default: false
-    }
-  },
+    ]
+  }) readonly types!: Array<Record<string, Record<string, {text: string; value: string}>>>
 
-  data () {
-    return {
-      menuDatePickerVisible: false,
-      visible: false,
-      dDate: '',
-      dTime: '',
-      dType: 'call',
-      dDescription: ''
-    }
-  },
+  @Prop({ default: () => null }) readonly dialogTitle!: string|null
+  @Prop({ default: () => null }) readonly dialogSubTitle!: string|null
+  @Prop({ default: () => 'YYYY-MM-DD' }) readonly displayFormatDate!: string
+  @Prop({ default: () => 'HH:mm' }) readonly displayFormatTime!: string
 
-  computed: {
-    types () {
-      return [
-        {
-          text: 'Call',
-          value: 'call'
-        },
-        {
-          text: 'Task',
-          value: 'task'
-        },
-        {
-          text: 'Meeting',
-          value: 'meeting'
-        },
-        {
-          text: 'To send a letter',
-          value: 'letter'
-        },
-        {
-          text: 'Other',
-          value: 'other'
-        }
-      ]
-    }
-  },
+  @VModel({
+    default: () => false,
+    type: Boolean
+  }) visible!: boolean
 
-  watch: {
-    value (val: boolean) {
-      this.menuDatePickerVisible = val
-    }
-  },
+  @Ref('menuDatePicker') menuDatePicker: Element
 
-  mounted () {
-    this.visible = this.value
-    this.dDescription = this.description
-    this.dDate = this.date
-    this.dTime = this.time
-    this.dType = this.type
+  get dateDisplay () {
+    return dayjs(this.dateTimeSync, this.formatDateTime).format(this.displayFormatDate)
+  }
 
-    this.$watch('visible', (val: boolean) => {
-      this.$emit('change', val)
-    })
-    this.$watch('dDate', (val: string) => {
-      this.$emit('update:date', val)
-    })
-    this.$watch('dTime', (val: string) => {
-      this.$emit('update:time', val)
-    })
-    this.$watch('dType', (val: string) => {
-      this.$emit('update:type', val)
-    })
-    this.$watch('dDescription', (val: string) => {
-      this.$emit('update:text', val)
-    })
-  },
+  get timeDisplay () {
+    return dayjs(this.dateTimeSync, this.formatDateTime).format(this.displayFormatTime)
+  }
 
-  methods: {
-    onBtnSaveClick () {
-      this.visible = false
-      this.$emit('update', {
-        date: this.dDate,
-        time: this.dTime,
-        type: this.dType,
-        description: this.dDescription
-      })
+  @Watch('dateTimeSync')
+  dateTimeSyncWatchHandler (val: string) {
+    if (val) {
+      this.date = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatDate)
+      this.time = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatTime)
     }
   }
-})
+
+  @Watch('time')
+  timeWatchHandler (val: string) {
+    if (val) {
+      this.dateTimeSync = this.dateTimeSyncFormat(this.date, val)
+    }
+  }
+
+  @Watch('date')
+  dateWatchHandler (val: string) {
+    if (val) {
+      this.dateTimeSync = this.dateTimeSyncFormat(val, this.time)
+    }
+  }
+
+  @Emit('action:ok:click')
+  okClickEmit () {
+    this.visible = false
+    return undefined
+  }
+
+  @Emit('action:cancel:click')
+  cancelClickEmit () {
+    this.visible = false
+    return undefined
+  }
+
+  public created () {
+    this.date = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatDate)
+    this.time = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatTime)
+  }
+
+  private dateTimeSyncFormat (date: string, time: string) {
+    return dayjs(`${date}T${time}`, this.formatDateTime).format(this.formatDateTime)
+  }
+}
 
 </script>
 

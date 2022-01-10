@@ -76,7 +76,7 @@ enum SIPErrorCauses {
   NOT_FOUND = 'Not Found',
   ADDRESS_INCOMPLETE = 'Address Incomplete',
   INCOMPATIBLE_SDP = 'Incompatible SDP',
-  AUTHENTICATION_ERROR = 'Authentication Error',
+  AUTHENTICATION_ERROR = 'Authentication Error'
 }
 
 enum RTCSessionCause {

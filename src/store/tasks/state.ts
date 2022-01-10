@@ -1,10 +1,10 @@
 export interface TasksState {
-  pending_count: number;
+  pending_items: Array<Record<string, unknown>>;
 }
 
 function state (): TasksState {
   return {
-    pending_count: 0
+    pending_items: []
   }
 }
 

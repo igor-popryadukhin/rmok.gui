@@ -8,6 +8,8 @@ const mutations: MutationTree<SettingsStateInterface> = {
    * @param payload
    */
   navigation_drawer_mini (state, payload) { state.navigation_drawer.mini = payload },
+  navigation_drawer_width (state, payload) { state.navigation_drawer.width = payload },
+  container_width (state, payload) { state.container_width = payload },
 
   /**
    * Громкость аудио плеера

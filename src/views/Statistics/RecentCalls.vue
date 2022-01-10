@@ -626,7 +626,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
 
     paramsFilters () {
-      const params: Record<string, any> = {}
+      const params: Record<string, unknown> = {}
 
       if (this.filterPeriod) {
         const daysJsStart = this.$dayjs().set('h', 0).set('m', 0).set('s', 0)

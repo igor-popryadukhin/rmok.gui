@@ -1,12 +1,12 @@
 <template>
   <v-sheet>
     <app-tools>
-      <template #left>
+      <app-tools-left>
         <h3 class="grey--text">
           {{ $tc('Основные параметры профиля' ) }}
         </h3>
-      </template>
-      <template #right>
+      </app-tools-left>
+      <app-tools-right>
         <v-btn
           :loading="targetUserSaveProcessLoading"
           :disabled="targetUserProcessLoading"
@@ -19,7 +19,7 @@
         >
           {{ $tc('Save') }}
         </v-btn>
-      </template>
+      </app-tools-right>
     </app-tools>
     <v-divider class="mb-5" />
     <template v-if="targetUserProcessLoading">
@@ -247,7 +247,6 @@ import statusActions from '@/mixins/statusActions'
 import vueScrollOptions from '@/mixins/vueScrollOptions'
 import VInterface from '@/VInterface'
 import Vue, { VueConstructor } from 'vue'
-import AppRoleAutocomplete from '@/components/AppRoleAutocomplete/AppRoleAutocomplete.vue'
 import { debounce } from 'vuetify/src/util/helpers'
 import AppUserGroupAutocomplete from '@/components/AppUserGroupAutocomplete/AppUserGroupAutocomplete.vue'
 

@@ -74,7 +74,7 @@ export class Account {
   /**
    * Редактирует информацию текущего профиля.
    */
-  public updateProfile (data: Record<string, any>): Promise<any> {
+  public updateProfile (data: Record<string, unknown>): Promise<any> {
     return new Promise((resolve, reject): Promise<any> | any => {
       $axios.patch('/account/profile', data)
         .then((response: AxiosResponse) => {

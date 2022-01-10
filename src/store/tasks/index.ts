@@ -1,16 +1,18 @@
 import { RootState } from '@/store'
 import { Module } from 'vuex'
-import getters from './getters'
 import actions from './actions'
+import getters from './getters'
+import list from './list'
 import mutations from './mutations'
 import state, { TasksState } from './state'
 
-const module: Module<TasksState, RootState> = {
+export const tasks: Module<TasksState, RootState> = {
   actions,
   getters,
   mutations,
   namespaced: true,
-  state
+  state,
+  modules: {
+    list
+  }
 }
-
-export default module

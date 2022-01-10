@@ -2,6 +2,7 @@ import PBXConfig from '@/api/interfaces/PBXConfig'
 
 interface NavigationDrawerInterface {
   mini: boolean;
+  width: number;
 }
 
 interface AudioPlayerInterface {
@@ -29,6 +30,7 @@ interface TooltipInterface {
 export interface SettingsStateInterface {
   contact_list: ContactListInterface,
   navigation_drawer: NavigationDrawerInterface;
+  container_width: number;
   audio_player: AudioPlayerInterface;
   date_time_format: DateTimeFormatInterface;
   tooltip: TooltipInterface;
@@ -50,8 +52,10 @@ function state (): SettingsStateInterface {
       short_time: 'HH:mm'
     },
     navigation_drawer: {
-      mini: true
+      mini: true,
+      width: 0
     },
+    container_width: 0,
     audio_player: {
       volume: 1
     },

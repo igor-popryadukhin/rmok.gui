@@ -8,7 +8,7 @@ export default interface Notification {
   title: string;
   message?: string;
   message2?: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   /** @deprecated */
   click?: (e: Notification, i: number) => void;
   actions?: NotificationAction[];

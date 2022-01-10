@@ -102,9 +102,9 @@ export function isEmpty (value: unknown): boolean {
  * @param arr
  * @param callback
  */
-export async function filter (arr: any[], callback: any) {
+export async function filter<T> (arr: T[], callback: CallableFunction) {
   const fail = Symbol('filter')
-  return (await Promise.all(arr.map(async (item: any) => (
+  return (await Promise.all(arr.map(async (item: T) => (
     await callback(item)) ? item : fail
   ))).filter((i) => i !== fail)
 }
@@ -112,7 +112,7 @@ export async function filter (arr: any[], callback: any) {
 /**
  * @param ms
  */
-export async function sleep (ms: number): Promise<any> {
+export async function sleep (ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
@@ -126,7 +126,7 @@ export async function sleep (ms: number): Promise<any> {
  * Если удален только один элемент, возвращается массив из одного элемента.
  * Если элементы не удалены, возвращается пустой массив.
  */
-export function deleteObjectFromArray<T> (array: T[], propertyName: string, value: any) {
+export function deleteObjectFromArray<T, V> (array: T[], propertyName: string, value: V) {
   const index = array.findIndex((e) => e[propertyName] === value)
   if (index > -1) {
     return array.splice(index, 1)

@@ -9,6 +9,7 @@ export default interface Contact {
   first_name: string;
   last_name: string;
   middle_name: string;
+  full_name: string;
   contact_name: string;
   city?: string;
   region?: string;

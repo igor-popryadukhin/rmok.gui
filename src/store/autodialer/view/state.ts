@@ -7,8 +7,8 @@ export interface State {
   pickup_timeout: number;
   max_calls_number: number;
   maximum_attempts: number;
-  repeat_calls_settings_available_actions: Array<Record<string, any>>;
-  repeat_calls_settings: Array<Record<string, any>>;
+  repeat_calls_settings_available_actions: Array<Record<string, unknown>>;
+  repeat_calls_settings: Array<Record<string, unknown>>;
   scenario_id?: number;
   description?: string;
 }

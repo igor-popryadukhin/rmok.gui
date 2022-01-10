@@ -13,7 +13,7 @@ export default class Scenarios {
    *
    * @param params
    */
-  public get (params = {}): Promise<ResponseInterface<Record<string, any>, Scenario[]>> {
+  public get (params = {}): Promise<ResponseInterface<Record<string, unknown>, Scenario[]>> {
     return new Promise((resolve, reject) => {
       $axios.get('/scenarios', {
         params
@@ -31,7 +31,7 @@ export default class Scenarios {
    * Создаёт новый сценарий.
    * @param data
    */
-  public create (data: Record<string, any>): Promise<number> {
+  public create (data: Record<string, unknown>): Promise<number> {
     return new Promise((resolve, reject) => {
       $axios.post('/scenarios', data)
         .then((response: AxiosResponse) => {
@@ -68,7 +68,7 @@ export default class Scenarios {
    * @param id
    * @param data
    */
-  public edit (id: number, data: Record<string, any>): Promise<void> {
+  public edit (id: number, data: Record<string, unknown>): Promise<void> {
     return new Promise((resolve, reject) => {
       $axios.patch(`/scenarios/${id}`, data)
         .then((response: AxiosResponse) => {

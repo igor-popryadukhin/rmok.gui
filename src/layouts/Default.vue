@@ -17,8 +17,10 @@
   >
     <!-- Nav drawer -->
     <v-navigation-drawer
+      ref="navigationDrawer"
       v-model="drawer"
-      :mini-variant.sync="navigation_drawer_mini"
+      v-resize="onNavigationDrawerResize"
+      :mini-variant="navigation_drawer_mini"
       class="background--drawer"
       permanent
       app
@@ -169,7 +171,6 @@
       dark
     >
       <v-app-bar-nav-icon
-        class="mr-2"
         @click.stop="navigation_drawer_mini = !navigation_drawer_mini"
       />
 
@@ -489,7 +490,11 @@
 
     <!-- Main -->
     <v-main>
-      <v-container fluid>
+      <v-container
+        ref="container"
+        v-resize="onContainerResize"
+        fluid
+      >
         <v-fade-transition>
           <router-view v-show="showRouterView" />
         </v-fade-transition>
@@ -536,9 +541,12 @@
 
 <script lang="ts">
 import { Calls } from '@/api/Calls'
-import { Contacts } from '@/api/Contacts'
 import SSEMessage from '@/interfaces/SSEMessage'
-import { ProfileState } from '@/store/profile/state'
+import VNavigationDrawer from '@/interfaces/VNavigationDrawer'
+import { State as ProfileState } from '@/store/profile/state'
+import debounce from '@/utils/debounce'
+import { AxiosResponse } from 'axios'
+import { Ref } from 'vue-property-decorator'
 import { mapGetters } from 'vuex'
 import { RTCSession, IncomingEvent, OutgoingEvent, EndEvent } from 'jssip/lib/RTCSession'
 import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
@@ -603,7 +611,6 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
     }
   }
 })
-
 export default class DefaultLayout extends AppBase {
   progressDialog = {
     visible: false,
@@ -660,8 +667,8 @@ export default class DefaultLayout extends AppBase {
   set notificationsVisible (value: boolean) { this.$store.commit('notifications/visible', value) }
   get notificationsCount () { return this.$store.getters['notifications/count'] }
   set notificationsCount (value: number) { this.$store.commit('notifications/count', value) }
-  get notificationsItems (): Array<Record<string, any>> { return this.$store.getters['notifications/items'] }
-  set notificationsItems (value: Array<Record<string, any>>) { this.$store.commit('notifications/items', value) }
+  get notificationsItems (): Array<Record<string, unknown>> { return this.$store.getters['notifications/items'] }
+  set notificationsItems (value: Array<Record<string, unknown>>) { this.$store.commit('notifications/items', value) }
   // Системные уведомления
 
   get contactIncomingId () { return this.$store.state.contact_incoming.id }
@@ -713,7 +720,7 @@ export default class DefaultLayout extends AppBase {
           visible: this.tasksPendingCount > 0,
           color: '#ff5722'
         },
-        visible: this.$isGranted('TASKS_VIEW')
+        visible: true
       },
       {
         title: 'Contacts',
@@ -725,45 +732,45 @@ export default class DefaultLayout extends AppBase {
         },
         visible: this.$isGranted(['CONTACTS_VIEW', 'CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])
       },
-      {
-        title: 'Roles',
-        icon: 'mdi-puzzle',
-        list_item: {
-          to: {
-            name: 'roles'
-          }
-        },
-        visible: this.$isGranted('ROLE_MANAGEMENT')
-      },
-      {
-        title: 'Groups',
-        icon: 'mdi-account-group',
-        list_item: {
-          to: {
-            name: 'groups_list'
-          }
-        },
-        visible: this.$isGranted('USER_GROUP_MANAGEMENT')
-      },
-      {
-        title: 'Users',
-        icon: 'mdi-account-multiple-outline',
-        list_item: {
-          to: {
-            name: 'users_list'
-          }
-        },
-        visible: this.$isGranted(['USER_MANAGEMENT'])
-      },
+      // {
+      //   title: 'Roles',
+      //   icon: 'mdi-puzzle',
+      //   list_item: {
+      //     to: {
+      //       name: 'roles'
+      //     }
+      //   },
+      //   visible: this.$isGranted('ROLE_MANAGEMENT')
+      // },
+      // {
+      //   title: 'Groups',
+      //   icon: 'mdi-account-group',
+      //   list_item: {
+      //     to: {
+      //       name: 'groups_list'
+      //     }
+      //   },
+      //   visible: this.$isGranted('USER_GROUP_MANAGEMENT')
+      // },
+      // {
+      //   title: 'Users',
+      //   icon: 'mdi-account-multiple-outline',
+      //   list_item: {
+      //     to: {
+      //       name: 'users_list'
+      //     }
+      //   },
+      //   visible: this.$isGranted(['USER_MANAGEMENT'])
+      // },
       {
         title: 'Projects',
         icon: 'mdi-projector-screen',
         list_item: {
           to: {
-            name: 'projects_list'
+            name: 'projects'
           }
         },
-        visible: this.$isGranted('SECTION_PROJECTS')
+        visible: true
       },
       {
         title: 'Auto dialer',
@@ -992,7 +999,12 @@ export default class DefaultLayout extends AppBase {
   }
   // Вычисляемые свойства
 
+  @Ref('navigationDrawer') readonly navigationDrawer: VNavigationDrawer
+  @Ref('container') readonly container: HTMLElement
+
   created () {
+    this.onContainerResize = debounce(this.onContainerResize, 500)
+
     this.$store.dispatch('account/busy_state', false)
 
     this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow)
@@ -1002,10 +1014,6 @@ export default class DefaultLayout extends AppBase {
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
 
     this.$dialer.onSessionConnecting = this.onSessionConnecting
-    this.$dialer.onSessionProgress = this.onSessionProgress
-    this.$dialer.onSessionAccepted = this.onSessionAccepted
-    this.$dialer.onSessionEnded = this.onSessionEnded
-    this.$dialer.onSessionFailed = this.onSessionFailed
 
     // Событие сработает когда пользователь не будет активен в течении 60 секунд
     this.$ifvisible.setIdleDuration(120)
@@ -1126,17 +1134,31 @@ export default class DefaultLayout extends AppBase {
 
   /**
    * Fired for an incoming or outgoing session/call.
-   * @param event
+   * @param newRTCSession
    */
-  onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
-    debugDialerEvent('NewRTCSession %o', event)
+  onNewRTCSession (newRTCSession: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
+    debugDialerEvent('NewRTCSession %o', newRTCSession)
 
-    this.$store.dispatch('account/busy_state', true)
+    newRTCSession.session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
+      this.onSessionProgress(newRTCSession.session, event)
+    })
+
+    newRTCSession.session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
+      this.onSessionAccepted(newRTCSession.session, event)
+    })
+
+    newRTCSession.session.on('failed', (event: EndEvent) => {
+      this.onSessionFailed(newRTCSession.session, event)
+    })
+
+    newRTCSession.session.on('ended', (event: EndEvent) => {
+      this.onSessionEnded(newRTCSession.session, event)
+    })
 
     // Call-ID – идентификатор вызова.
-    event.session.data.call_id = event.request.getHeader('Call-ID')
+    newRTCSession.session.data.call_id = newRTCSession.request.getHeader('Call-ID')
 
-    if (event.session.direction === 'incoming') {
+    if (newRTCSession.session.direction === 'incoming') {
       this.playAudio('/sounds/ringing2.mp3', true) // Проигрываю мелодию входящего вызова.
     }
 
@@ -1262,17 +1284,21 @@ export default class DefaultLayout extends AppBase {
           'You must provide permission to use the microphone.')
       }
     } else if (event.originator === 'remote') {
-      const message = event.message
+      const message = {
+        status_code: (event.message as unknown as { status_code: number }).status_code || 0,
+        data: (event.message as unknown as { data: string }).data || ''
+      }
+
       if (typeof message === 'object' && 'status_code' in message) {
-        if (message?.status_code === 480) {
+        if (message.status_code === 480) {
           /**
            * Q.850 описание: No answer from the user
            * SIP описание: Temporarily unavailable
            */
-          if (/Q\.850;cause=19/.test(String((message as any)?.data || ''))) {
+          if (/Q\.850;cause=19/.test(message.data)) {
             this.$toast.info('Subscriber unavailable')
           } else {
-            this.$toast.error((message as any)?.data)
+            this.$toast.error(message.data)
           }
         } else if (message?.status_code === 486) {
           /**
@@ -1281,10 +1307,10 @@ export default class DefaultLayout extends AppBase {
            * Q.850 описание: User busy
            * SIP описание: Busy here
            */
-          if (/Q\.850;cause=17/.test(String((message as any)?.data || ''))) {
+          if (/Q\.850;cause=17/.test(String(message?.data || ''))) {
             this.$toast.info('The subscriber is busy')
           } else {
-            this.$toast.error((message as any)?.data)
+            this.$toast.error(message?.data)
           }
         } else if (message?.status_code === 503) {
           /**
@@ -1294,10 +1320,10 @@ export default class DefaultLayout extends AppBase {
            * Q.850 описание: No circuit, channel unavailable
            * SIP описание: Service unavailable
            */
-          if (/Q\.850;cause=34/.test(String((message as any)?.data || ''))) {
+          if (/Q\.850;cause=34/.test(String(message?.data || ''))) {
             this.$toast.info('Service unavailable')
           } else {
-            this.$toast.error((message as any)?.data)
+            this.$toast.error(message?.data)
           }
           /**
            * Ошибка SIP 603 обычно возвращается в качестве ответа,
@@ -1308,7 +1334,7 @@ export default class DefaultLayout extends AppBase {
         } else if (message?.status_code === 603) {
           this.$toast.info('Subscriber does not exist')
         } else {
-          this.$toast.error((message as any)?.data)
+          this.$toast.error(message?.data)
         }
       }
     }
@@ -1346,18 +1372,18 @@ export default class DefaultLayout extends AppBase {
     }
 
     // Сохраняю историю звонка
-    new Contacts()
-      .addHistory(session.data.contact_id, historyData)
-      .then((id: number) => {
-        // Удаляю из Vuex
-        // this.$store.dispatch('contacts_new/items_remove_from_store', this.contactViewContactId)
-
-        this.$store.commit('unsaved_call/data/contact_id', session.data.contact_id)
-        this.$store.commit('unsaved_call/data/contact_name', session.data.contact_name)
-        this.$store.commit('unsaved_call/data/contact_history_id', id)
-        this.$store.commit('unsaved_call/data/call_id', session.data.call_id)
-        this.$store.commit('unsaved_call/data/direction', session.direction)
-        this.$store.commit('unsaved_call/unsaved', true)
+    this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
+      .then((response: AxiosResponse) => {
+        if ([200, 201].includes(response.status)) {
+          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
+          this.$store.commit('unsaved_call/data/call_id', session.data.call_id)
+          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
+          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
+        } else {
+          this.$toast.error('Не удалось сохранить историю вызова')
+        }
       })
   }
   // DIALER EVENTS
@@ -1395,7 +1421,7 @@ export default class DefaultLayout extends AppBase {
       // Системные уведомления.
       eventSource.addEventListener('system-notification', (event: Event) => {
         if (event instanceof MessageEvent) {
-          const obj: Record<string, any> = JSON.parse(event.data)
+          const obj: Record<string, unknown> = JSON.parse(event.data)
           appDebug.extend('SSE').extend('SYSTEM-NOTIFICATION')('%o', obj)
 
           const notifications = this.notificationsItems.map((value) => value)
@@ -1427,14 +1453,6 @@ export default class DefaultLayout extends AppBase {
     setTimeout(() => {
       this.notificationShakeProcess = false
     }, 800)
-  }
-
-  requestAndShowPermission () {
-    Notification.requestPermission((permission) => {
-      if (permission === 'denied') {
-        this.$toast.info('Что бы получать системные уведомления, требуются разрешения!')
-      }
-    })
   }
 
   onBtnCloseNotification (id: number) {
@@ -1534,34 +1552,10 @@ export default class DefaultLayout extends AppBase {
   }
 
   /**
-   * Срабатывает при нажатии на кнопку изменения режима
-   */
-  onBtnChangeModeClick () {
-    this.modeChangeProcess = true
-    switch (this.profileMode) {
-      case 'normal': {
-        this.$axios.get('/account/mode/incoming_autodialer')
-          .then(() => (this.$toast.info('Режим автодозвона активирован.\nОжидайте входящий вызов!')))
-          .finally(() => (this.modeChangeProcess = false))
-        this.$store.commit('profile/mode', 'incoming_autodialer')
-        break
-      }
-      case 'incoming_autodialer': {
-        this.$axios.get('/account/mode/normal')
-          .then(() => (this.$toast.info('Режим автодозвона деактивирован.')))
-          .finally(() => (this.modeChangeProcess = false))
-        this.$store.commit('profile/mode', 'normal')
-        break
-      }
-    }
-  }
-
-  /**
    * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
    */
   ifVisibleIdleHandler () {
     // this.degradation = true
-    this.$accountMonitoring.end()
     this.$store.commit('app_state/page', 'sex')
   }
 
@@ -1572,13 +1566,6 @@ export default class DefaultLayout extends AppBase {
     this.degradation = false
   }
 
-  /**
-   * Воспроизводит любой аудиофайл.
-   *
-   * @param src
-   * @param loop
-   * @param playbackRate
-   */
   playAudio (src: string, loop = false, playbackRate = 1.0) {
     if (!this.audioPlayed) {
       this.audioPlayed = true
@@ -1625,6 +1612,24 @@ export default class DefaultLayout extends AppBase {
     this.progressDialog.visible = false
     this.progressDialog.message = ''
     this.progressDialog.progress = 0
+  }
+
+  /**
+   * Срабатывает, когда изменяется размер v-navigation-drawer
+   *
+   * @private
+   */
+  private onNavigationDrawerResize () {
+    this.$store.commit('settings/navigation_drawer_width', this.navigationDrawer.computedWidth)
+  }
+
+  /**
+   * Срабатывает, когда изменяется размер основного контейнера
+   *
+   * @private
+   */
+  private onContainerResize () {
+    this.$store.commit('settings/container_width', this.container.clientWidth)
   }
 }
 </script>
@@ -1843,7 +1848,4 @@ export default class DefaultLayout extends AppBase {
     opacity: 0;
   }
 }
-
-// Wave effect
-
 </style>

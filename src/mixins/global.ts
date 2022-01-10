@@ -1,4 +1,4 @@
-import { ProfileState } from '@/store/profile/state'
+import { State as ProfileState } from '@/store/profile/state'
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { version } from '../../package.json'
@@ -67,13 +67,6 @@ Vue.mixin(Vue.extend<Data, Methods, Computed, Props>({
     assertObjectHasAttribute (obj: any, key: string): boolean {
       if (obj === null || obj === undefined) { return false }
       return {}.hasOwnProperty.call(obj, key)
-    },
-
-    /**
-     * Метод Window.confirm() отображает модальное диалоговое окно с дополнительным сообщением и двумя кнопками: OK и Отмена.
-     */
-    $confirm (): boolean {
-      return window.confirm(this.$tc('Do you really want to leave? you have unsaved changes!'))
     }
   }
 }))

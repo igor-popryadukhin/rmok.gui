@@ -4,6 +4,9 @@ import { GetterTree } from 'vuex'
 
 const getters: GetterTree<SettingsStateInterface, RootState> = {
   navigation_drawer_mini (state: SettingsStateInterface) { return state.navigation_drawer.mini },
+  navigation_drawer_width (state: SettingsStateInterface) { return state.navigation_drawer.width },
+  container_width (state: SettingsStateInterface) { return state.container_width },
+
   audio_player_volume (state: SettingsStateInterface) { return state.audio_player.volume },
   date_time_format (state: SettingsStateInterface) { return state.date_time_format },
   contact_list (state: SettingsStateInterface) { return state.contact_list },

@@ -1,10 +1,7 @@
 <template>
   <div class="schedule-wrapper">
     <!--    <div :style="verticalLineCss" ref="lineVertical"></div>-->
-    <table
-      cellpadding="0"
-      cellspacing="0"
-    >
+    <table>
       <thead>
         <tr>
           <td />
@@ -48,6 +45,8 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import Component from 'vue-class-component'
+import { ModelSync, Prop, Watch } from 'vue-property-decorator'
 
 interface ScheduleInterface {
   day: number;
@@ -61,116 +60,78 @@ interface ScheduleMatrixInterface {
   schedule: ScheduleInterface;
 }
 
-export default Vue.extend({
-  name: 'AppScheduleWeek',
+@Component
+export default class AppScheduleWeek extends Vue {
+  @Prop({ default: 'greens' }) readonly elementColor: string
+  @Prop({ default: 30 }) readonly elementSize: number
+  @Prop({ default: false }) readonly disabled: boolean
+  @ModelSync('value', 'change', { default: () => [] })
+  readonly valueArray!: Array<Record<string, unknown>>
 
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-  props: {
-    elementColor: {
-      type: String,
-      default () {
-        return 'green'
-      }
-    },
+  private days = []
+  private hours = []
+  private matrix = []
 
-    elementSize: {
-      type: Number,
-      default () {
-        return 30
-      }
-    },
+  get currentDay () {
+    return new Date().getDay()
+  }
 
-    disabled: {
-      type: Boolean,
-      default: () => false
-    },
+  get currentHour () {
+    return String(new Date().getHours()).padStart(2, '00') + ':00'
+  }
 
-    value: {
-      type: Array,
-      default () {
-        return []
-      }
-    }
-  },
+  get verticalLineCss () {
+    const left = 100
+    const first = 113
+    const length = 750
+    // const hours = new Date().getHours()
 
-  data () {
+    // const difference = length - first
+
     return {
-      days: [] as any[],
-      hours: [] as any[],
-      matrix: [] as ScheduleMatrixInterface[]
+      display: 'block',
+      position: 'absolute',
+      'background-color': '#f44336',
+      left: `${left}px`,
+      top: '169px',
+      height: '205px',
+      width: '2px'
     }
-  },
+  }
 
-  computed: {
-    currentDay () {
-      return new Date().getDay()
-    },
+  get cssElementSize () {
+    return {
+      height: '50px',
+      width: '50px'
+    }
+  }
 
-    currentHour () {
-      return String(new Date().getHours()).padStart(2, '00') + ':00'
-    },
+  get selected () {
+    return this.matrix.filter((value) => {
+      return value.selected
+    }).map((value) => {
+      return value.schedule
+    })
+  }
 
-    verticalLineCss () {
-      const left = 100
-      const first = 113
-      const length = 750
-      // const hours = new Date().getHours()
-
-      // const difference = length - first
-
-      return {
-        display: 'block',
-        position: 'absolute',
-        'background-color': '#f44336',
-        left: `${left}px`,
-        top: '169px',
-        height: '205px',
-        width: '2px'
-      }
-    },
-
-    cssElementSize () {
-      return {
-        height: '50px',
-        width: '50px'
-      }
-    },
-
-    selected () {
-      return this.matrix.filter((value: ScheduleMatrixInterface) => {
-        return value.selected
-      }).map((value: ScheduleMatrixInterface) => {
-        return value.schedule
+  @Watch('valueArray', { deep: true })
+  valueWatchHandler (val) {
+    if (val) {
+      this.matrix = this.matrix.map(value => {
+        value.selected = false
+        return value
       })
-    }
-  },
-
-  watch: {
-    value: {
-      handler (val?: ScheduleInterface[]) {
-        if (val) {
-          this.matrix = this.matrix.map(value => {
-            value.selected = false
-            return value
-          })
-          for (let i = 0; i < this.matrix.length; i++) {
-            for (let j = 0; j < val.length; j++) {
-              if (this.matrix[i].schedule.day === val[j].day && this.matrix[i].schedule.time === val[j].time) {
-                this.matrix[i].selected = true
-              }
-            }
+      for (let i = 0; i < this.matrix.length; i++) {
+        for (let j = 0; j < val.length; j++) {
+          if (this.matrix[i].schedule.day === val[j].day && this.matrix[i].schedule.time === val[j].time) {
+            this.matrix[i].selected = true
           }
         }
-      },
-
-      deep: true
+      }
     }
-  },
+  }
 
-  mounted () {
+  public mounted () {
     for (let i = 0; i < 24; i++) {
       this.hours.push({
         title: String(i).padStart(2, '00'),
@@ -210,69 +171,66 @@ export default Vue.extend({
         })
       }
     }
-  },
-
-  methods: {
-    onMouseUpCtrl (itemDay: any, event: MouseEvent) {
-      event.preventDefault()
-      this.matrix = this.matrix.map(value => {
-        if (itemDay.d === value.schedule.day) { value.selected = false }
-        return value
-      })
-      this.$emit('change', this.selected)
-    },
-
-    onMatrixClick ({ itemDay, itemHour }: any) {
-      const x = itemDay?.x || 0
-      const y = itemHour?.y || 0
-      this.setMatrixState(x, y || 0, !this.getMatrixState(x, y))
-
-      this.$emit('change', this.selected)
-      this.$emit('click:square', this.getMatrix(x, y))
-    },
-
-    setMatrixState (x: number, y: number, selected: boolean) {
-      const m = this.matrix.find(value => {
-        return value.x === x && value.y === y
-      })
-
-      if (m) { m.selected = selected }
-    },
-
-    getMatrixState (x: number, y: number) {
-      const m = this.matrix.find(value => {
-        return value.x === x && value.y === y
-      })
-
-      if (m) {
-        return m.selected
-      }
-
-      return false
-    },
-
-    getMatrix (x: number, y: number): ScheduleMatrixInterface | undefined {
-      const m = this.matrix.find(value => {
-        return value.x === x && value.y === y
-      })
-
-      if (m) {
-        return m
-      }
-
-      return undefined
-    },
-
-    calculateStyle (x: number, y: number) {
-      const m = this.getMatrix(x, y)
-
-      if (m) {
-        return {}
-      }
-    }
   }
 
-})
+  private onMouseUpCtrl (itemDay: any, event: MouseEvent) {
+    event.preventDefault()
+    this.matrix = this.matrix.map(value => {
+      if (itemDay.d === value.schedule.day) { value.selected = false }
+      return value
+    })
+    this.$emit('change', this.selected)
+  }
+
+  private onMatrixClick ({ itemDay, itemHour }: any) {
+    const x = itemDay?.x || 0
+    const y = itemHour?.y || 0
+    this.setMatrixState(x, y || 0, !this.getMatrixState(x, y))
+
+    this.$emit('change', this.selected)
+    this.$emit('click:square', this.getMatrix(x, y))
+  }
+
+  private setMatrixState (x: number, y: number, selected: boolean) {
+    const m = this.matrix.find(value => {
+      return value.x === x && value.y === y
+    })
+
+    if (m) { m.selected = selected }
+  }
+
+  private getMatrixState (x: number, y: number) {
+    const m = this.matrix.find(value => {
+      return value.x === x && value.y === y
+    })
+
+    if (m) {
+      return m.selected
+    }
+
+    return false
+  }
+
+  private getMatrix (x: number, y: number): ScheduleMatrixInterface | undefined {
+    const m = this.matrix.find(value => {
+      return value.x === x && value.y === y
+    })
+
+    if (m) {
+      return m
+    }
+
+    return undefined
+  }
+
+  private calculateStyle (x: number, y: number) {
+    const m = this.getMatrix(x, y)
+
+    if (m) {
+      return {}
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

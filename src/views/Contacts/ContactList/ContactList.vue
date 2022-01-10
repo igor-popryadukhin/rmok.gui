@@ -227,7 +227,7 @@ export default class ContactList extends Base {
   snackbarStyle = { opacity: 0.8 }
 
   get vSimpleTableAttrs () {
-    const attrs: Record<string, any> = {}
+    const attrs: Record<string, unknown> = {}
 
     if (this.height) {
       attrs.height = this.height

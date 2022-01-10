@@ -34,7 +34,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   panel_visible (state: State) { return state.panel_visible },
   /// //////////////////////////////////////////////////////////////////////////
   all (state: State) {
-    const obj: Record<string, any> = {}
+    const obj: Record<string, unknown> = {}
 
     if (state.period) {
       obj.period = state.period

@@ -1,8 +1,8 @@
 import User from '@/api/interfaces/User'
-import { ProfileState } from './state'
+import { State } from './state'
 import { MutationTree } from 'vuex'
 
-const mutations: MutationTree<ProfileState> = {
+const mutations: MutationTree<State> = {
   mode (state, payload) { state.mode = payload },
 
   /**
@@ -28,7 +28,7 @@ const mutations: MutationTree<ProfileState> = {
     state.permissions = payload.permissions
   },
 
-  tz (state: ProfileState, payload: string) { state.tz = payload }
+  tz (state: State, payload: string) { state.tz = payload }
 }
 
 export default mutations

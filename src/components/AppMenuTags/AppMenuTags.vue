@@ -199,7 +199,6 @@ export default Vue.extend({
      * @param q
      */
     search (q: string) {
-      this.$appDebug(q)
       const found = this.tags.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1)
 
       if (found.length === 0) {

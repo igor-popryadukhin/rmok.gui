@@ -16,6 +16,7 @@
     :chips="chips"
     :deletable-chips="deletableChips"
     :small-chips="chips"
+    :hide-details="hideDetails"
     color="primary"
     hide-selected
     outlined
@@ -49,7 +50,7 @@ import { Prop, Emit, Watch, ModelSync } from 'vue-property-decorator'
 
 @Component
 export default class AppAutocomplete extends Vue {
-  @Prop({ default: [] }) readonly options: Record<string, any>
+  @Prop({ default: [] }) readonly options: Record<string, unknown>
   @Prop({ default: 'text' }) readonly itemText: string
   @Prop({ default: 'value' }) readonly itemValue: string
   @Prop({ default: null }) readonly itemColor?: string
@@ -61,6 +62,7 @@ export default class AppAutocomplete extends Vue {
   @Prop({ default: false }) readonly returnObject: boolean
   @Prop({ default: false }) readonly chips: boolean
   @Prop({ default: false }) readonly deletableChips: boolean
+  @Prop({ default: false }) readonly hideDetails: boolean
   @Prop({ default: null }) readonly value: any
 
   @ModelSync('value', 'change') readonly selectedValue: any

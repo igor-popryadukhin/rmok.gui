@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import Status from '@/api/interfaces/Status'
 
 export interface Group {
   id: number;
@@ -9,13 +9,6 @@ export interface Group {
 export interface Project {
   id: number;
   name: string;
-}
-
-interface Status {
-  id: number;
-  name: string;
-  project: Project;
-  group: Group;
 }
 
 interface UserGroup {

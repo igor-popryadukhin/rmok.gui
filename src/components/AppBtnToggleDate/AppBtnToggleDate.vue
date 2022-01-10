@@ -52,7 +52,7 @@ import Component from 'vue-class-component'
 @Component
 export default class AppBtnToggleDate extends Vue {
   @Prop({ required: true, default: () => [] })
-    readonly items: Array<Record<string, any>>
+    readonly items: Array<Record<string, unknown>>
 
   @ModelSync('value', 'change', { type: [String, Number], required: false, default: null })
     itemValue: string | number
