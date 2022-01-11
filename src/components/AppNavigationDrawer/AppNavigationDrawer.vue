@@ -2,11 +2,11 @@
   <v-navigation-drawer
     v-model="panelVisible"
     :mobile-breakpoint="0"
+    :right="right"
     width="400"
     absolute
     temporary
     hide-overlay
-    right
     touchless
   >
     <v-container
@@ -22,12 +22,12 @@
 
 import Component from 'vue-class-component'
 import Vue from 'vue'
-import { ModelSync } from 'vue-property-decorator'
+import { Prop, VModel } from 'vue-property-decorator'
 
 @Component
 export default class AppNavigationDrawer extends Vue {
-  @ModelSync('visible', 'change', { type: Boolean, default: () => false })
-  readonly panelVisible!: boolean
+  @Prop({ type: Boolean, default: () => true }) right!: boolean
+  @VModel({ type: Boolean, default: () => false }) panelVisible!: boolean
 }
 </script>
 

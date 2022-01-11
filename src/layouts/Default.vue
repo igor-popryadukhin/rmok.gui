@@ -753,16 +753,16 @@ export default class DefaultLayout extends AppBase {
       //   },
       //   visible: this.$isGranted('USER_GROUP_MANAGEMENT')
       // },
-      // {
-      //   title: 'Users',
-      //   icon: 'mdi-account-multiple-outline',
-      //   list_item: {
-      //     to: {
-      //       name: 'users_list'
-      //     }
-      //   },
-      //   visible: this.$isGranted(['USER_MANAGEMENT'])
-      // },
+      {
+        title: 'Users',
+        icon: 'mdi-account-multiple-outline',
+        list_item: {
+          to: {
+            name: 'users'
+          }
+        },
+        visible: this.$isGranted(['USER_MANAGEMENT'])
+      },
       {
         title: 'Projects',
         icon: 'mdi-projector-screen',

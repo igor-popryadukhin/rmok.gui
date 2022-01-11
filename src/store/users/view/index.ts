@@ -1,23 +1,19 @@
 import { RootState } from '@/store'
 import { Module } from 'vuex'
-import state, { State } from './state'
+import state, { UsersViewState } from './state'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import list from './list'
-import view from './view'
-import create from './create'
+import sessions from './sessions'
 
-const module: Module<State, RootState> = {
+const module: Module<UsersViewState, RootState> = {
   actions,
   getters,
   mutations,
   namespaced: true,
   state,
   modules: {
-    create,
-    list,
-    view
+    sessions
   }
 }
 

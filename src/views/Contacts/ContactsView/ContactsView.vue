@@ -70,7 +70,7 @@
           </v-btn>
           <v-btn
             v-else
-            :disabled="!$dialer.isConnected() && !$dialer.isRegistered()"
+            :disabled="!$dialer.isConnected() && !$dialer.isRegistered() || contactFetching"
             class="mr-0"
             color="primary"
             text

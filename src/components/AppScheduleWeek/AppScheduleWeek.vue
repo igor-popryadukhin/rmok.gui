@@ -44,20 +44,16 @@
 </template>
 
 <script lang="ts">
+import Schedule from './Schedule'
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { ModelSync, Prop, Watch } from 'vue-property-decorator'
-
-interface ScheduleInterface {
-  day: number;
-  time: string;
-}
+import { Prop, VModel, Watch } from 'vue-property-decorator'
 
 interface ScheduleMatrixInterface {
   x: number;
   y: number;
   selected: boolean;
-  schedule: ScheduleInterface;
+  schedule: Schedule;
 }
 
 @Component
@@ -65,8 +61,7 @@ export default class AppScheduleWeek extends Vue {
   @Prop({ default: 'greens' }) readonly elementColor: string
   @Prop({ default: 30 }) readonly elementSize: number
   @Prop({ default: false }) readonly disabled: boolean
-  @ModelSync('value', 'change', { default: () => [] })
-  readonly valueArray!: Array<Record<string, unknown>>
+  @VModel({ default: () => [] }) schedule!: Schedule[]
 
   private days = []
   private hours = []
@@ -114,7 +109,7 @@ export default class AppScheduleWeek extends Vue {
     })
   }
 
-  @Watch('valueArray', { deep: true })
+  @Watch('schedule', { deep: true })
   valueWatchHandler (val) {
     if (val) {
       this.matrix = this.matrix.map(value => {
@@ -171,6 +166,19 @@ export default class AppScheduleWeek extends Vue {
         })
       }
     }
+
+    const schedule = this.schedule.map((e) => ({ ...e }))
+    this.matrix = this.matrix.map(value => {
+      value.selected = false
+      return value
+    })
+    for (let i = 0; i < this.matrix.length; i++) {
+      for (let j = 0; j < schedule.length; j++) {
+        if (this.matrix[i].schedule.day === schedule[j].day && this.matrix[i].schedule.time === schedule[j].time) {
+          this.matrix[i].selected = true
+        }
+      }
+    }
   }
 
   private onMouseUpCtrl (itemDay: any, event: MouseEvent) {
@@ -179,7 +187,7 @@ export default class AppScheduleWeek extends Vue {
       if (itemDay.d === value.schedule.day) { value.selected = false }
       return value
     })
-    this.$emit('change', this.selected)
+    this.schedule = this.selected
   }
 
   private onMatrixClick ({ itemDay, itemHour }: any) {
@@ -187,7 +195,7 @@ export default class AppScheduleWeek extends Vue {
     const y = itemHour?.y || 0
     this.setMatrixState(x, y || 0, !this.getMatrixState(x, y))
 
-    this.$emit('change', this.selected)
+    this.schedule = this.selected
     this.$emit('click:square', this.getMatrix(x, y))
   }
 

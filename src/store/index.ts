@@ -9,6 +9,7 @@ import filter from './filter'
 import symfony from './symfony'
 import system from './system'
 import profile from './profile'
+import groups from './groups'
 import users from './users'
 import users_edit from './users_edit'
 import contacts from './contacts'
@@ -80,6 +81,7 @@ const store = new Vuex.Store({
     symfony,
     system,
     tasks,
+    groups,
     users,
     users_edit,
     unsaved_call,

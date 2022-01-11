@@ -1,9 +1,8 @@
 <template>
-  <v-sheet style="min-height: 500px">
+  <v-sheet height="100%">
     <template v-if="loading">
       <div
         class="d-flex fill-height align-center justify-center"
-        style="min-height: inherit"
       >
         <div class="grey--text">
           <app-loading />
@@ -14,7 +13,6 @@
       <template v-if="sessions.length === 0">
         <div
           class="d-flex fill-height align-center justify-center"
-          style="min-height: inherit"
         >
           <div class="grey--text">
             {{ $tc('Empty') }}
@@ -73,23 +71,42 @@ import Component from 'vue-class-component'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppTable from '@/components/AppTable/AppTable.vue'
 
-@Component({
-  components: { AppTable, AppLoading }
+// eslint-disable-next-line no-use-before-define
+@Component<UsersViewSessions>({
+  components: { AppTable, AppLoading },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (vm.sessions.length === 0) {
+        vm.loading = true
+        vm.$store.dispatch('users/view/sessions/fetch')
+          .finally(() => (vm.loading = false))
+      }
+    })
+  }
 })
-export default class UserSessions extends AppBase {
+export default class UsersViewSessions extends AppBase {
   loading = false
 
   get sessions () {
-    return this.$store.getters['users_edit/sessions/items']
-  }
-
-  mounted () {
-    this.loading = true
-    this.$store.dispatch('users_edit/sessions/fetch').finally(() => (this.loading = false))
+    return this.$store.getters['users/view/sessions/items']
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.sessions-page {
+  height: 100%;
+}
 
+.sessions-page__tabs {
+  height: 35px;
+}
+
+.sessions-page__list {
+  height: calc(100% - 35px);
+  height: -moz-calc(100% - 35px);
+  height: -webkit-calc(100% - 35px);
+
+  overflow: auto;
+}
 </style>

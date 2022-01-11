@@ -1,7 +1,7 @@
 <template>
   <v-sheet>
-    <app-tools>
-      <template #left>
+    <div class="d-flex justify-space-between">
+      <div>
         <v-btn
           :disabled="processLoading"
           small
@@ -20,14 +20,17 @@
         >
           {{ $tc('Refresh') }}
         </v-btn>
-      </template>
-      <template #right>
+      </div>
+      <div>
         <app-pagination
           :per-page="50"
           :count="autoDialerTotal"
         />
-      </template>
-    </app-tools>
+      </div>
+    </div>
+
+    <v-divider class="my-2" />
+
     <template v-if="processLoading && autoDialerParams.length === 0">
       <div
         class="d-flex align-center justify-center"
