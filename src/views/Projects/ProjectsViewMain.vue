@@ -36,9 +36,11 @@
 
       <div class="mb-3">
         <v-btn
+          :loading="conservationProcess"
           tile
           text
           outlined
+          @click="projectSave"
         >
           {{ $tc('Save change') }}
         </v-btn>
@@ -50,6 +52,7 @@
 </template>
 
 <script lang="ts">
+import APIError from '@/api/classes/APIError'
 import AppBase from '@/AppBase'
 import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue'
 import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
@@ -61,12 +64,36 @@ import Component from 'vue-class-component'
   components: { AppPellEditor, ProjectsTools, ProjectsItems }
 })
 export default class ProjectsViewMain extends AppBase {
+  conservationProcess = false
+
   get name () { return this.$store.getters['projects/view/project_name'] }
   set name (val: string) { this.$store.commit('projects/view/project_name', val) }
   get description () { return this.$store.getters['projects/view/project_description'] }
   set description (val: string) { this.$store.commit('projects/view/project_description', val) }
   get scenario () { return this.$store.getters['projects/view/project_scenario'] }
   set scenario (val: string) { this.$store.commit('projects/view/project_scenario', val) }
+
+  private projectSave () {
+    this.conservationProcess = true
+    this.$axios.patch(`/projects/${this.$route.params.id}`, {
+      name: this.name,
+      description: this.description,
+      scenario: this.scenario
+    }).then((response) => {
+      if (response.status !== 200) {
+        throw new APIError(response.data)
+      }
+      this.$toast.success('Changes accepted')
+    }).catch((reason) => {
+      if (reason instanceof APIError) {
+        reason.errors.forEach((e) => {
+          this.$toast.error(e.message)
+        })
+      } else {
+        this.$toast.error(reason.message)
+      }
+    }).finally(() => (this.conservationProcess = false))
+  }
 }
 </script>
 

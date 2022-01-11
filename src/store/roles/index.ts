@@ -3,10 +3,10 @@ import { Module } from 'vuex'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import state, { State } from './state'
+import state, { RolesState } from './state'
 import { edit } from './edit'
 
-export const roles: Module<State, RootState> = {
+export const roles: Module<RolesState, RootState> = {
   namespaced: true,
   state,
   actions,

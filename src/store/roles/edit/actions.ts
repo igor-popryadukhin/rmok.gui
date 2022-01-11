@@ -11,7 +11,8 @@ const actions: ActionTree<State, RootState> = {
    * @param rootGetters
    */
   fetch ({ commit, rootGetters }) {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
+      commit('fetching', true)
       $axios
         .get(`/roles/${rootGetters.routeParams.id}`)
         .then((response) => {
@@ -19,9 +20,12 @@ const actions: ActionTree<State, RootState> = {
             throw new APIError(response.data)
           }
 
-          commit('fill', response.data)
+          commit('role_name', response.data.name)
+          commit('role_permissions', response.data.permissions)
+
           resolve()
-        })
+        }).catch(reject)
+        .finally(() => (commit('fetching', false)))
     })
   },
 
@@ -32,18 +36,18 @@ const actions: ActionTree<State, RootState> = {
    * @param rootGetters
    */
   save ({ state, rootGetters }) {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       $axios
         .patch(`/roles/${rootGetters.routeParams.id}`, {
-          name: state.name,
-          permissions: state.permissions.filter((value) => value.granted).map((value) => value.id)
+          name: state.role_name,
+          permissions: state.role_permissions.filter((value) => value.granted).map((value) => value.id)
         }).then((response) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
           }
 
           resolve()
-        })
+        }).catch(reject)
     })
   }
 }

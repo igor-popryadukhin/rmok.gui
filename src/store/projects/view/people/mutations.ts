@@ -6,7 +6,7 @@ const mutations: MutationTree<ProjectsViewPeopleState> = {
   items_count (state: ProjectsViewPeopleState, payload) { state.items_count = payload },
 
   fetching (state: ProjectsViewPeopleState, payload) { state.fetching = payload },
-  reset_state (state: ProjectsViewPeopleState) { Object.assign(state, defaultState()) }
+  flush (state: ProjectsViewPeopleState) { Object.assign(state, defaultState()) }
 }
 
 export default mutations

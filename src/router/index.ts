@@ -172,34 +172,18 @@ const routes: RouteConfig[] = [
     }
   },
   {
+    name: 'roles',
     path: '/roles',
-    component: () => import(/* webpackChunkName: "roles" */ '../views/Roles/Layout.vue'),
-    children: [
-      {
-        component: () => import(/* webpackChunkName: "roles-list" */ '../views/Roles/Items/Index.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'roles',
-        path: ''
-      },
-      {
-        component: () => import(/* webpackChunkName: "roles-edit" */ '../views/Roles/Edit/Index.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'roles_edit',
-        path: ':id'
-      }
-    ],
-    meta: {
-      layout: 'default',
-      middleware: []
-    }
+    component: () => import(/* webpackChunkName: "roles" */ '../views/Roles/Roles.vue'),
+    children: [],
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    name: 'roles_view',
+    path: '/roles/:id',
+    component: () => import(/* webpackChunkName: "roles-view" */ '../views/Roles/RolesView.vue'),
+    children: [],
+    meta: { layout: 'default', middleware: [] }
   },
   {
     path: '/contacts',

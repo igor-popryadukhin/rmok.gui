@@ -1,11 +1,7 @@
 <template>
-  <v-layout>
-    <div class="space-y-4">
-      <div class="w-96 bg-white shadow rounded">
-        w-97
-      </div>
-    </div>
-  </v-layout>
+  <v-sheet class="d-flex align-center justify-center fill-height">
+    Домашняя страница
+  </v-sheet>
 </template>
 
 <script lang="ts">

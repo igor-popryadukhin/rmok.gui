@@ -1,10 +1,10 @@
 import { RootState } from '@/store'
 import { ActionTree } from 'vuex'
-import { State } from './state'
+import { RolesState } from './state'
 import { $axios } from '@/plugins/axios'
 import APIError from '@/api/classes/APIError'
 
-const actions: ActionTree<State, RootState> = {
+const actions: ActionTree<RolesState, RootState> = {
   /**
    *
    * @param commit
@@ -12,6 +12,7 @@ const actions: ActionTree<State, RootState> = {
    */
   fetch ({ commit, state }) {
     return new Promise<void>((resolve) => {
+      commit('items_fetching', true)
       $axios
         .get('/roles', {
           params: {
@@ -26,7 +27,7 @@ const actions: ActionTree<State, RootState> = {
 
           commit('items', response.data?.data || [])
           resolve()
-        })
+        }).finally(() => (commit('items_fetching', false)))
     })
   }
 }

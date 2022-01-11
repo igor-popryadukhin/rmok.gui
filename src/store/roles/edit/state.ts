@@ -1,15 +1,16 @@
 
 export interface State {
-  id: number;
-  name: string;
-  permissions: Array<Record<string, unknown>>;
+  fetching: boolean;
+  /// //////////////////////
+  role_name: string;
+  role_permissions: Array<Record<string, unknown>>;
 }
 
 function defaultState (): State {
   return {
-    id: 0,
-    name: '',
-    permissions: []
+    fetching: false,
+    role_name: '',
+    role_permissions: []
   }
 }
 

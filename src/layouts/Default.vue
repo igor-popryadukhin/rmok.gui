@@ -493,6 +493,7 @@
       <v-container
         ref="container"
         v-resize="onContainerResize"
+        class="main-container"
         fluid
       >
         <v-fade-transition>
@@ -732,16 +733,16 @@ export default class DefaultLayout extends AppBase {
         },
         visible: this.$isGranted(['CONTACTS_VIEW', 'CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])
       },
-      // {
-      //   title: 'Roles',
-      //   icon: 'mdi-puzzle',
-      //   list_item: {
-      //     to: {
-      //       name: 'roles'
-      //     }
-      //   },
-      //   visible: this.$isGranted('ROLE_MANAGEMENT')
-      // },
+      {
+        title: 'Roles',
+        icon: 'mdi-puzzle',
+        list_item: {
+          to: {
+            name: 'roles'
+          }
+        },
+        visible: this.$isGranted('ROLE_MANAGEMENT')
+      },
       // {
       //   title: 'Groups',
       //   icon: 'mdi-account-group',
@@ -1635,6 +1636,15 @@ export default class DefaultLayout extends AppBase {
 </script>
 
 <style lang="scss">
+
+.main-container {
+  height: calc(100vh - 50px);
+  height: -moz-calc(100vh - 50px);
+  height: -webkit-calc(100vh - 50px);
+  height: calc(100vh - 50px);
+  overflow: auto;
+}
+
 .tool-bar {
   background-color: inherit !important;
 }

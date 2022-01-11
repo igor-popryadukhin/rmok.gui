@@ -9,7 +9,6 @@ const actions: ActionTree<ProjectsViewPeopleState, RootState> = {
   fetch: ({ commit, rootGetters }: ActionContext<ProjectsViewPeopleState, RootState>) => {
     return new Promise<void>((resolve) => {
       const query: Record<string, Record<string, unknown>> = {}
-      commit('reset_state')
       commit('fetching', true)
       $axios.get(`/projects/${rootGetters.routeParams.id}/members`, {
         params: query

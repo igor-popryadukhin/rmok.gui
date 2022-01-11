@@ -1,0 +1,6 @@
+{
+  "Role name must be at most 255 characters long": "Имя роли должно содержать не более 255 символов.",
+  "Role name is required.": "Требуется имя роли.",
+  "Name must be at most 255 characters long": "Имя должно содержать не более 255 символов.",
+  "Name is required.": "Требуется имя."
+}

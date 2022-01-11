@@ -1,110 +1,106 @@
 <template>
-  <v-sheet
-    height="100%"
-  >
-    <template v-if="fetching && items.length === 0">
-      <div class="d-flex align-center justify-center fill-height">
-        <app-loading />
-      </div>
-    </template>
-    <template v-else-if="items.length === 0">
-      <div class="d-flex align-center justify-center fill-height">
-        {{ $tc('Empty') }}
-      </div>
-    </template>
-    <template v-else>
-      <div class="people">
-        <div
-          class="people__tools d-flex"
+  <v-sheet class="projects-view-people">
+    <div
+      v-if="fetching && items.length === 0"
+      class="d-flex align-center justify-center fill-height"
+    >
+      <app-loading />
+    </div>
+    <div
+      v-else-if="items.length === 0"
+      class="d-flex align-center justify-center fill-height"
+    >
+      {{ $tc('Empty') }}
+    </div>
+    <div
+      v-else
+      class="projects-view-people__box"
+    >
+      <div
+        class="projects-view-people__tools d-flex align-center"
+      >
+        <app-autocomplete
+          v-model="availablePeopleSelected"
+          :options="filteredPeople"
+          :loading="availablePeopleFetching"
+          item-text="full_name"
+          item-value="id"
+          class="mr-2"
+          clearable
+          multiple
+          hide-details
+          @search="onSearchPeople"
+          @focus="onSearchPeopleFocus"
         >
-          <div class="d-flex flex-nowrap grow">
-            <app-autocomplete
-              v-model="availablePeopleSelected"
-              :options="filteredPeople"
-              :loading="availablePeopleFetching"
-              item-text="full_name"
-              item-value="id"
-              class="mr-2"
-              clearable
-              multiple
-              hide-details
-              @search="onSearchPeople"
-              @focus="onSearchPeopleFocus"
+          <template #selection="{ item, attrs, selected }">
+            <v-chip
+              v-bind="attrs"
+              :input-value="selected"
+              color="primary"
+              close
+              small
+              label
+              outlined
+              @click:close="onPeopleSelectedRemove(item)"
             >
-              <template #selection="{ item, attrs, selected }">
-                <v-chip
-                  v-bind="attrs"
-                  :input-value="selected"
-                  color="primary"
-                  close
-                  small
-                  label
-                  outlined
-                  @click:close="onPeopleSelectedRemove(item)"
-                >
-                  <v-avatar
-                    size="16"
-                    left
-                  >
-                    <v-img
-                      sizes="16,24,48,64,128"
-                      src="/images/default-avatar.png"
-                    />
-                  </v-avatar>
-                  {{ item.full_name }}
-                </v-chip>
-              </template>
-            </app-autocomplete>
-            <v-btn
-              :loading="processAdd"
-              height="40"
-              text
-              tile
-              @click="onBtnAddPeopleClick"
-            >
-              {{ $tc('Add') }}
-            </v-btn>
-          </div>
-          <div class="d-flex flex-nowrap grow">
-            <app-paginator />
-          </div>
-        </div>
-        <div class="people__list">
-          <v-list dense>
-            <template v-for="(item, itemKey) in items">
-              <v-list-item :key="`v-list-item-${itemKey}`">
-                <v-list-item-avatar>
-                  <v-img :src="item.userpic || 'images/default-avatar.png'" />
-                  <v-badge
-                    v-show="item.online"
-                    offset-y="16"
-                    offset-x="13"
-                    color="#38ff00"
-                    dot
-                    bordered
-                  />
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.full_name }}</v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn
-                    tile
-                    text
-                    ripple
-                    small
-                    @click="onBtnExcludePeople(item)"
-                  >
-                    {{ $tc('To exclude') }}
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-              <v-divider :key="`v-divider-${itemKey}`" />
-            </template>
-          </v-list>
-        </div>
+              <v-avatar
+                size="16"
+                left
+              >
+                <v-img
+                  sizes="16,24,48,64,128"
+                  src="/images/default-avatar.png"
+                />
+              </v-avatar>
+              {{ item.full_name }}
+            </v-chip>
+          </template>
+        </app-autocomplete>
+        <v-btn
+          :loading="processAdd"
+          height="40"
+          text
+          tile
+          @click="onBtnAddPeopleClick"
+        >
+          {{ $tc('Add') }}
+        </v-btn>
       </div>
-    </template>
+      <div class="projects-view-people__list">
+        <v-list dense>
+          <template v-for="(item, itemKey) in items">
+            <v-list-item :key="`v-list-item-${itemKey}`">
+              <v-list-item-avatar>
+                <v-img :src="item.userpic || 'images/default-avatar.png'" />
+                <v-badge
+                  v-show="item.online"
+                  offset-y="16"
+                  offset-x="13"
+                  color="#38ff00"
+                  dot
+                  bordered
+                />
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ item.full_name }}</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn
+                  tile
+                  text
+                  ripple
+                  small
+                  @click="onBtnExcludePeople(item)"
+                >
+                  {{ $tc('To exclude') }}
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+            <v-divider :key="`v-divider-${itemKey}`" />
+          </template>
+        </v-list>
+      </div>
+    </div>
   </v-sheet>
 </template>
 
@@ -241,14 +237,21 @@ export default class ProjectsViewPeople extends AppBase {
 </script>
 
 <style lang="scss" scoped>
-.people { height: inherit}
-.people__tools {
+.projects-view-people { height: 100% }
+
+.projects-view-people__tools {
   height: 60px;
   margin-bottom: 2px;
 }
 
-.people__list {
-  height: calc(100% - 70px); // TODO: Протестировать в других браузерах.
+.projects-view-people__box {
+  height: 100%;
+}
+
+.projects-view-people__list {
+  height: calc(100% - 70px);
+  height: -moz-calc(100% - 70px);
+  height: -webkit-calc(100% - 70px);
   overflow: auto;
 }
 </style>

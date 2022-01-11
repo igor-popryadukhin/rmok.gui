@@ -4,6 +4,7 @@
       small
       tile
       text
+      @click="btnClickAdd"
     >
       {{ $tc('Add') }}
     </v-btn>
@@ -13,9 +14,14 @@
 <script lang="ts">
 import AppBase from '@/AppBase'
 import Component from 'vue-class-component'
+import { Emit } from 'vue-property-decorator'
 
 @Component
 export default class ProjectsTools extends AppBase {
+  @Emit('click:add')
+  btnClickAdd () {
+    return undefined
+  }
 }
 </script>
 

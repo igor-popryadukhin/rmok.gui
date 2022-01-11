@@ -20,6 +20,10 @@ const actions: ActionTree<ProjectsListState, RootState> = {
         }
       }).finally(() => (commit('items_fetching', false)))
     })
+  },
+
+  flush: ({ commit }: ActionContext<ProjectsListState, RootState>) => {
+    commit('flush')
   }
 }
 

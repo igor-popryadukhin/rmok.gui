@@ -2,13 +2,15 @@ import { State } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<State> = {
-  name (state, payload) { state.name = payload },
-  permissions (state, payload) { state.permissions = payload },
+  fetching (state, payload) { state.fetching = payload },
+
+  role_name (state, payload) { state.role_name = payload },
+  role_permissions (state, payload) { state.role_permissions = payload },
 
   fill (state, payload) {
-    state.id = payload.id || 0
-    state.name = payload.name || ''
-    state.permissions = payload.permissions || []
+    // state.role_id = payload.id || 0
+    state.role_name = payload.name || ''
+    state.role_permissions = payload.permissions || []
   }
 }
 

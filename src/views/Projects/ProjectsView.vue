@@ -86,6 +86,10 @@ export default class ProjectsView extends AppBase {
       }
     ]
   }
+
+  public beforeDestroy () {
+    this.$store.dispatch('projects/view/flush')
+  }
 }
 </script>
 
