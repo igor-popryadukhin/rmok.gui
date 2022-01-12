@@ -247,6 +247,13 @@ const routes: RouteConfig[] = [
             meta: { layout: 'default', middleware: [] },
             name: 'contacts_view_status',
             path: 'status'
+          },
+          {
+            component: () => import(/* webpackChunkName: "contacts-view-status" */ '../views/Contacts/ContactsView/ContactsViewChat.vue'),
+            meta: { layout: 'default', middleware: [] },
+            name: 'contacts_view_chat',
+            // path: 'chat/:type/:id'
+            path: 'chat'
           }
         ],
         meta: { layout: 'default', middleware: [] },
