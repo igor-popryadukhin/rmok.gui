@@ -524,9 +524,9 @@ export default class ContactsView extends AppBase {
         visible: true,
         to: {
           name: 'contacts_view_chat',
-          contact_id: 108,
-          type: 'telegram',
-          id: 1
+          params: {
+            chat_id: 1
+          }
         }
       }
     ]

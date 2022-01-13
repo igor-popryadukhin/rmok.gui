@@ -2,15 +2,18 @@
   <v-sheet
     height="100%"
   >
-    <div class="d-flex flex-row">
-      <div class="col-8">
+    <div class="d-flex flex-row justify-space-between py-2">
+      <div class="d-flex align-center">
         <v-text-field
-          prepend-icon="mdi-magnify"
-          label="Поиск по сообщениям"
+          prepend-inner-icon="mdi-magnify"
+          :label="$tc('Search')"
+          style="max-width: 350px"
           dense
+          outlined
+          hide-details
         />
       </div>
-      <div class="col-4 d-flex justify-center align-center">
+      <div class="d-flex align-center">
         <v-btn
           small
           tile
@@ -72,17 +75,15 @@
 </template>
 
 <script lang="ts">
-import ContactsViewBase from './ContactsViewBase'
+import AppBase from '@/AppBase'
 import Component from 'vue-class-component'
 import AppChat from '@/components/AppChat/AppChat.vue'
 import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
-import AppChatBottomTools from '@/components/AppChat/AppChatBottomTools.vue'
 
-// eslint-disable-next-line no-use-before-define
 @Component({
   components: { AppChatMessage, AppChat }
 })
-export default class ContactsViewChat extends ContactsViewBase {
+export default class ContactsViewChat extends AppBase {
   // Fake data
   get messages () {
     return [

@@ -73,7 +73,12 @@ export default class AppChatMessage extends Vue {
   @Prop() name!: string
   @Prop() text!: string
   @Prop() dateTime!: string
-  @Prop() status!: string
+  @Prop({
+    type: String,
+    validator (value: string): boolean {
+      return ['delivered', 'sent', 'read'].includes(value)
+    }
+  }) status!: string
 
   @Prop({ default: () => false }) sent!: boolean
 }
