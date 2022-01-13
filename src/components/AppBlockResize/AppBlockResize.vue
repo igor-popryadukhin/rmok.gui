@@ -68,7 +68,9 @@ export default class AppBlockResize extends Vue {
       x = obj_event.pageX
       y = obj_event.pageY
     } else {
+      // @ts-expect-error: x = window.event.clientX
       x = window.event.clientX
+      // @ts-expect-error: y = window.event.clientY
       y = window.event.clientY
       if (this.ie) {
         y -= 2

@@ -108,6 +108,7 @@ export default Vue.extend({
 
   methods: {
     onBtnSaveClick () {
+      // @ts-expect-error: if (!this.$refs.form.validate(true)) { return }
       if (!this.$refs.form.validate(true)) { return }
 
       this.$emit('btn:save')

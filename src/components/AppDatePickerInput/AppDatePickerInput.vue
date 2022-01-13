@@ -170,6 +170,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         this.datePickerValue = null
       }
 
+      // @ts-expect-error: this.$refs.menu.save(this.datePickerValue)
       this.$refs.menu.save(this.datePickerValue)
       this.$emit('change', this.datePickerValue)
     },
@@ -177,9 +178,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     onSave (val: string | string[]) {
       if (Array.isArray(val)) {
         if (val.length < 2) {
+          // @ts-expect-error: this.$refs.menu.save(null)
           this.$refs.menu.save(null)
           return
         }
+        // @ts-expect-error: this.$refs.menu.save(val.sort((a: string, b: string) => {
         this.$refs.menu.save(val.sort((a: string, b: string) => {
           return new Date(a).getTime() - new Date(b).getTime()
         }))

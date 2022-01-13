@@ -7,6 +7,8 @@ pipelines:
             - self.hosted
             - dev
           image: node:16.13.0
+          caches:
+            - node
           artifacts:
             - dist
           script:

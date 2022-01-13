@@ -48,7 +48,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapGetters } from 'vuex'
 import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
@@ -123,6 +122,7 @@ export default Vue.extend({
 
   watch: {
     q (val: string) {
+      // @ts-expect-error: val && this.options.findIndex((e) => e.name?.toLowerCase().indexOf(val.toLowerCase()) > -1) === -1 && this.fetchOptions()
       val && this.options.findIndex((e) => e.name?.toLowerCase().indexOf(val.toLowerCase()) > -1) === -1 && this.fetchOptions()
     }
   },

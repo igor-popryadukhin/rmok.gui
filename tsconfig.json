@@ -16,11 +16,7 @@
     "strictNullChecks": false,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": [
-      "webpack-env",
-      "vuetify",
-      "jest"
-    ],
+    "types": [],
     "typeRoots": [
       "node_modules/vuetify/types",
       "node_modules/vuetify-dialog/types",

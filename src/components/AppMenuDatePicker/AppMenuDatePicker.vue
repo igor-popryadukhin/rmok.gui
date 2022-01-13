@@ -127,10 +127,12 @@ export default Vue.extend({
   methods: {
     onBtnOkClick (value: string | string[]) {
       this.$emit('change', value)
+      // @ts-expect-error: return this.$refs.menu?.save(value)
       return this.$refs.menu?.save(value)
     },
     onTextFieldDateRangeClearClick () {
       this.$emit('change', null)
+      // @ts-expect-error: return this.$refs.menu?.save(null)
       return this.$refs.menu?.save(null)
     },
 
