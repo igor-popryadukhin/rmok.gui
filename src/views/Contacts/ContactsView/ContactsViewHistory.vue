@@ -204,17 +204,22 @@
 
 <script lang="ts">
 import ContactHistory from '@/api/interfaces/ContactHistory'
+import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import debounce from '@/utils/debounce'
-import ContactsViewBase from './ContactsViewBase'
 import Component from 'vue-class-component'
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsViewHistory>({
-  components: { AppLoading }
+  components: { AppLoading },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.dispatch('contacts/view/history/fetch', to.params.id)
+    })
+  }
 })
-export default class ContactsViewHistory extends ContactsViewBase {
+export default class ContactsViewHistory extends AppBase {
   get historyItemsFetching (): boolean {
     return this.$store.getters['contacts/view/history/items_fetching']
   }
@@ -223,22 +228,18 @@ export default class ContactsViewHistory extends ContactsViewBase {
     return this.$store.getters['contacts/view/history/items']
   }
 
-  private secondsToHmsDigital (s: number) {
-    return secondsToHmsDigital(s)
-  }
-
   public created () {
     this.fetchHistory = debounce(this.fetchHistory, 500)
 
     this.$root.$on('sse-contact-history-changed', this.onSSEContactHistoryChanged)
   }
 
-  public mounted () {
-    this.fetchHistory()
-  }
-
   public beforeDestroy () {
     this.$root.$off('sse-contact-history-changed', this.onSSEContactHistoryChanged)
+  }
+
+  private secondsToHmsDigital (s: number) {
+    return secondsToHmsDigital(s)
   }
 
   private onSSEContactHistoryChanged () {
@@ -246,7 +247,7 @@ export default class ContactsViewHistory extends ContactsViewBase {
   }
 
   private fetchHistory () {
-    this.$store.dispatch('contacts/view/history/fetch')
+    this.$store.dispatch('contacts/view/history/fetch', this.$route.params.id)
   }
 }
 

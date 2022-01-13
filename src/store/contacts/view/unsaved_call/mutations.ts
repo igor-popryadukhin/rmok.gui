@@ -1,4 +1,4 @@
-import { UnsavedCallState } from './state'
+import unsavedCallState, { UnsavedCallState } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<UnsavedCallState> = {
@@ -11,7 +11,9 @@ const mutations: MutationTree<UnsavedCallState> = {
   data_comment (state, payload) { state.data_comment = payload },
 
   persists (state, payload) { state.persists = payload },
-  unsaved (state, payload) { state.unsaved = payload }
+  unsaved (state, payload) { state.unsaved = payload },
+
+  flush (state) { Object.assign(state, unsavedCallState()) }
 }
 
 export default mutations

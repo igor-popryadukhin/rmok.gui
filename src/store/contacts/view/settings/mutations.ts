@@ -6,7 +6,7 @@ const mutations: MutationTree<ContactsViewSettingsState> = {
   right_width (state, payload) { state.right_width = payload },
 
   /** Сброс состояния */
-  resetState (state) {
+  flush (state) {
     Object.assign(state, contactsViewSettingsState())
   }
 }

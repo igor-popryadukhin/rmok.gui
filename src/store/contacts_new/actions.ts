@@ -96,8 +96,8 @@ const actions: ActionTree<State, RootState> = {
     }
   },
 
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   },
 
   file_contact_download: ({ commit, state }, name: string) => {

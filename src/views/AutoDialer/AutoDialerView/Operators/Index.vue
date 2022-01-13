@@ -254,7 +254,7 @@ export default class Index extends AppBase {
 
   private addUsers (userIds: number[]) {
     this.usersIdsForAdd = []
-    this.$axios.post(`/autodialer/${this.$route.params.id}/operators`, {
+    this.$axios.post(`/auto-dialers/${this.$route.params.id}/operators`, {
       user_ids: userIds
     }).then((response: AxiosResponse) => {
       if (![200, 204].includes(response.status)) {

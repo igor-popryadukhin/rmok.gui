@@ -70,7 +70,7 @@
           </v-btn>
           <v-btn
             v-else
-            :disabled="!$dialer.isConnected() && !$dialer.isRegistered() || contactFetching"
+            :disabled="!$dialer.isConnected() && !$dialer.isRegistered() || contactFetching || isUnsavedCall"
             class="mr-0"
             color="primary"
             text
@@ -347,20 +347,58 @@
         optional
       >
         <template v-for="(tab, tabIndex) in tabs">
-          <v-tab
-            v-if="tab.visible"
-            :key="`tab-${tabIndex}`"
-            :to="tab.to"
-            class="tabs__tab"
-            exact-path
-            exact
-          >
-            <v-icon left>
-              {{ tab.icon }}
-            </v-icon>
-            {{ $tc(`route.${tab.name}`) }}
-            <v-spacer />
-          </v-tab>
+          <template v-if="tab.contextMenu && tab.contextMenu.length">
+            <v-menu
+              :key="`v-menu-${tabIndex}`"
+              offset-y
+            >
+              <template #activator="{ on, attrs }">
+                <v-tab
+                  v-if="tab.visible"
+                  :key="`tab-${tabIndex}`"
+                  v-bind="attrs"
+                  :to="tab.to"
+                  class="tabs__tab"
+                  exact-path
+                  exact
+                  @contextmenu="(e) => { e.preventDefault(); on.click(e) }"
+                >
+                  <v-icon left>
+                    {{ tab.icon }}
+                  </v-icon>
+                  {{ $tc(`route.${tab.name}`) }}
+                  <v-spacer />
+                </v-tab>
+              </template>
+              <v-list dense>
+                <v-list-item
+                  v-for="(contextMenuItem, contextMenuItemIndex) in tab.contextMenu"
+                  :key="`v-list-item-${contextMenuItemIndex}`"
+                  link
+                  v-bind="contextMenuItem.attrs"
+                  v-on="contextMenuItem.on"
+                >
+                  <v-list-item-title>{{ contextMenuItem.title }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+          <template v-else>
+            <v-tab
+              v-if="tab.visible"
+              :key="`tab-${tabIndex}`"
+              :to="tab.to"
+              class="tabs__tab"
+              exact-path
+              exact
+            >
+              <v-icon left>
+                {{ tab.icon }}
+              </v-icon>
+              {{ $tc(`route.${tab.name}`) }}
+              <v-spacer />
+            </v-tab>
+          </template>
           <v-divider
             :key="'v-divider-' + tabIndex"
             vertical
@@ -387,12 +425,12 @@
 import ContactEmail from '@/api/interfaces/ContactEmail'
 import ContactPhone from '@/api/interfaces/ContactPhone'
 import ContactTag from '@/api/interfaces/ContactTag'
+import AppBase from '@/AppBase'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppTaskDialogEdit from '@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'
 import dayjs from '@/plugins/dayjs'
 import { Watch } from 'vue-property-decorator'
-import ContactsViewBase from './ContactsViewBase'
 import Component from 'vue-class-component'
 
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
@@ -401,13 +439,12 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 @Component<ContactsView>({
   components: {
     AppTaskDialogEdit,
-    ContactsViewStatus: () => import('@/views/Contacts/ContactsView/ContactsViewStatus.vue'),
     AppBlockResize,
     AppLoading
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      vm.$store.dispatch('contacts/view/fetch')
+      vm.$store.dispatch('contacts/view/fetch', to.params.id)
     })
   },
   beforeRouteLeave (to, from, next) {
@@ -424,7 +461,7 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
     }
   }
 })
-export default class ContactsView extends ContactsViewBase {
+export default class ContactsView extends AppBase {
   contactTimeTick = 0
   taskDialogVisible = false
   taskDialog = {
@@ -438,24 +475,31 @@ export default class ContactsView extends ContactsViewBase {
   set tab (value: string) { this.$appDebug('Tab: %s', value) }
 
   get tabs () {
-    const params = { contact_id: this.contactId }
     return [
       {
         name: 'contacts_view_status',
         icon: 'mdi-list-status',
         visible: this.isUnsavedCall,
         to: {
-          name: 'contacts_view_status',
-          params
-        }
+          name: 'contacts_view_status'
+        },
+        contextMenu: [
+          {
+            title: 'Закрыть',
+            on: {
+              click: () => {
+                this.$store.dispatch('contacts/view/unsaved_call/flush')
+              }
+            }
+          }
+        ]
       },
       {
         name: 'contacts_view_scenario',
         icon: 'mdi-script-text',
         visible: true,
         to: {
-          name: 'contacts_view_scenario',
-          params
+          name: 'contacts_view_scenario'
         }
       },
       {
@@ -463,8 +507,7 @@ export default class ContactsView extends ContactsViewBase {
         icon: 'mdi-history',
         visible: true,
         to: {
-          name: 'contacts_view_history',
-          params
+          name: 'contacts_view_history'
         }
       },
       {
@@ -472,8 +515,7 @@ export default class ContactsView extends ContactsViewBase {
         icon: 'mdi-clipboard-list',
         visible: true,
         to: {
-          name: 'contacts_view_tasks',
-          params
+          name: 'contacts_view_tasks'
         }
       }
     ]
@@ -523,12 +565,12 @@ export default class ContactsView extends ContactsViewBase {
     if (val) {
       this.$router.push({
         name: 'contacts_view_status',
-        params: { contact_id: String(this.contactId) }
+        params: { contact_id: String(this.$route.params.id) }
       })
     } else {
       this.$router.push({
         name: 'contacts_view_history',
-        params: { contact_id: String(this.contactId) }
+        params: { contact_id: String(this.$route.params.id) }
       })
     }
   }
@@ -546,7 +588,7 @@ export default class ContactsView extends ContactsViewBase {
   private onBtnCallClick (target: string) {
     const session = this.$dialer.call(target)
 
-    session.data.contact_id = this.contactId
+    session.data.contact_id = this.$route.params.id
     session.data.contact_name = this.contactName
     session.data.target = target
   }
@@ -556,7 +598,7 @@ export default class ContactsView extends ContactsViewBase {
       this.$toast.warning('Пожалуйста, выберите статус')
       this.$router.push({
         name: 'contacts_view_status',
-        params: { contact_id: String(this.contactId) }
+        params: { contact_id: String(this.$route.params.id) }
       })
     }
   }
@@ -571,7 +613,7 @@ export default class ContactsView extends ContactsViewBase {
       type: this.taskDialog.type,
       description: this.taskDialog.description,
       planned_for: this.$dayjs(this.taskDialog.dateTime, dateTimeFormat).toISOString(),
-      contact_id: this.contactId
+      contact_id: this.$route.params.id
     }).then((response) => {
       if (response.status === 201) {
         this.$toast.success('Task created')

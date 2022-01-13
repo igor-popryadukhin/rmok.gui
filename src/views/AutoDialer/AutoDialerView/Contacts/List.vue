@@ -9,6 +9,17 @@
       <thead>
         <tr class="contact-list__th">
           <th class="text-left">
+            <v-checkbox
+              v-model="selectedAllInPage"
+              :ripple="false"
+              :true-value="true"
+              :false-value-value="false"
+              class="ma-0 pa-0"
+              dense
+              hide-details
+            />
+          </th>
+          <th class="text-left">
             {{ $tc('Contact name') }}
           </th>
           <th class="text-left">
@@ -38,6 +49,17 @@
             :key="key"
             class="contact-list__tr"
           >
+            <td class="contact-list__td contact-list_check-box">
+              <v-checkbox
+                v-model="callsSelected"
+                :ripple="false"
+                :value="item.id"
+                class="ma-0 pa-0"
+                multiple
+                dense
+                hide-details
+              />
+            </td>
             <td class="contact-list__td contact-list_contact-name">
               {{ item.contact_name }}
             </td>
@@ -136,14 +158,28 @@
 <script lang="ts">
 import Component from 'vue-class-component'
 import AppBase from '@/AppBase'
-import { Prop } from 'vue-property-decorator'
+import { Prop, Watch } from 'vue-property-decorator'
 
 @Component
 export default class List extends AppBase {
   @Prop({ default: 200 }) readonly height: number;
 
+  selectedAllInPage = false
+
   get calls () {
     return this.$store.getters['autodialer/view/calls/items']
+  }
+
+  get callsSelected () { return this.$store.getters['autodialer/view/calls/items_selected'] }
+  set callsSelected (val) { this.$store.commit('autodialer/view/calls/items_selected', val) }
+
+  @Watch('selectedAllInPage')
+  selectedAllInPageWatchHandler (val: boolean) {
+    if (val) {
+      this.$store.dispatch('autodialer/view/calls/selected_all_in_page')
+    } else {
+      this.$store.dispatch('autodialer/view/calls/unselected_all_in_page')
+    }
   }
 }
 </script>
@@ -168,6 +204,9 @@ export default class List extends AppBase {
   font-size: 13px !important;
   cursor: pointer;
   user-select: none;
+}
+.contact-list_check-box {
+  width: 1px;
 }
 .contact-list_contact-name {
   text-align: left;

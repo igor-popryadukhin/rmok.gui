@@ -3,6 +3,7 @@ import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<State> = {
   items (state, payload) { state.items = payload },
+  items_selected (state, payload) { state.items_selected = payload },
   total (state: State, payload) { state.total = payload },
   filter_offset (state: State, payload) { state.filter_offset = payload }
 }

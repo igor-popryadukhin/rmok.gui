@@ -23,7 +23,7 @@ const mutations: MutationTree<ContactsViewState> = {
   contact_created_at (state, payload) { state.contact_created_at = payload },
 
   /** Сброс состояния */
-  resetState (state) {
+  flush (state) {
     Object.assign(state, contactsViewState())
   }
 }

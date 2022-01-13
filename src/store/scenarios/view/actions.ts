@@ -1,9 +1,11 @@
+import APIError from '@/api/classes/APIError'
+import { $axios } from '@/plugins/axios'
 import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
-import { State } from './state'
-import Scenarios from '@/api/Scenarios'
+import { AxiosResponse } from 'axios'
+import { ActionTree } from 'vuex'
+import { ScenarioViewState } from './state'
 
-export const actions: ActionTree<State, RootState> = {
+export const actions: ActionTree<ScenarioViewState, RootState> = {
 
   /**
    * Детальная информация о сценарий
@@ -11,33 +13,16 @@ export const actions: ActionTree<State, RootState> = {
    * @param ctx
    * @param id
    */
-  fetch (ctx: ActionContext<State, RootState>, id) {
-    return new Scenarios()
-      .getById(id)
-      .then((response) => {
-        ctx.commit('fill', response)
-      })
-  },
-
-  /**
-   * Сохраняет состояние на сервере.
-   *
-   * @param ctx
-   */
-  apply (ctx: ActionContext<State, RootState>) {
-    const data: Record<string, unknown> = {
-      name: ctx.state.name,
-      scenario: ctx.state.scenario
-    }
-    return new Scenarios().edit(ctx.state.id, data)
-  },
-
-  /**
-   * Удаляет сценарий
-   *
-   * @param ctx
-   */
-  delete (ctx: ActionContext<State, RootState>) {
-    return new Scenarios().delete(ctx.state.id)
+  fetch ({ commit }, id) {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get(`/scenarios/${id}`)
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+          }
+          commit('fill', response.data)
+          resolve()
+        }).catch(reject)
+    })
   }
 }

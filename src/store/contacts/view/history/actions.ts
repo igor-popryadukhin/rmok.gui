@@ -1,25 +1,19 @@
+import APIError from '@/api/classes/APIError'
 import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
+import { ActionTree } from 'vuex'
 import { ContactsViewHistoryState } from './state'
-import { AxiosResponse, CancelTokenSource } from 'axios'
+import { AxiosResponse } from 'axios'
 import { $axios } from '@/plugins/axios'
 
-const cancelTokenSources: CancelTokenSource[] = []
-
 const actions: ActionTree<ContactsViewHistoryState, RootState> = {
-  fetch: ({ commit, rootGetters }: ActionContext<ContactsViewHistoryState, RootState>) => {
-    const len = cancelTokenSources.length
-    for (let i = 0; i < len; i++) {
-      cancelTokenSources.pop()?.cancel()
-    }
-
+  fetch: ({ commit }, payload) => {
     return new Promise<void>((resolve, reject) => {
-      setTimeout(() => (commit('items_fetching', true)), 0)
+      commit('items_fetching', true)
 
-      $axios.get(`/contacts/${rootGetters.routeParams.contact_id}/history`)
+      $axios.get(`/contacts/${payload}/history`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new Error(response.statusText)
+            throw new APIError(response.data)
           }
 
           commit('items_count', response.data?.meta?.count || 0)
@@ -30,8 +24,8 @@ const actions: ActionTree<ContactsViewHistoryState, RootState> = {
     })
   },
 
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   }
 }
 

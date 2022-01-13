@@ -1,3 +1,5 @@
+import Project from '@/api/interfaces/Project'
+import User from '@/api/interfaces/User'
 import { RootState } from '@/store'
 import { ActionTree } from 'vuex'
 import { State } from './state'
@@ -63,9 +65,9 @@ const actions: ActionTree<State, RootState> = {
       .find({
         ...params
       }).then((response) => {
-        const itemsCopy = state.available_projects.map((value) => value)
+        const itemsCopy = (JSON.parse(JSON.stringify(state.available_projects)) as Project[])
         response.data.forEach((value) => {
-          if (itemsCopy.findIndex((e: any) => e.id === value.id) === -1) {
+          if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
             itemsCopy.push(value)
           }
         })
@@ -78,10 +80,10 @@ const actions: ActionTree<State, RootState> = {
       $axios.get('/users', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            const itemsCopy = state.available_users.map((value) => value)
+            const itemsCopy = (JSON.parse(JSON.stringify(state.available_users)) as User[])
 
-            response.data?.data.forEach((value: any) => {
-              if (itemsCopy.findIndex((e: any) => e.id === value.id) === -1) {
+            response.data?.data.forEach((value) => {
+              if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
                 itemsCopy.push(value)
               }
             })

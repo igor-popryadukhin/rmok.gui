@@ -124,7 +124,7 @@
               <!-- Количество контактов -->
               <!-- Процент завершённых -->
               <td>
-                {{ item.percentage_completed_calls }}
+                {{ item.percentage_completed_calls }} %
               </td>
               <!-- Процент завершённых -->
               <!-- Действия -->

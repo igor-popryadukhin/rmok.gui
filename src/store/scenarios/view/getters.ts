@@ -1,9 +1,10 @@
 import { RootState } from '@/store'
 import { GetterTree } from 'vuex'
-import { State } from './state'
+import { ScenarioViewState } from './state'
 
-export const getters: GetterTree<State, RootState> = {
-  id (state: State) { return state.id },
-  name (state: State) { return state.name },
-  scenario (state: State) { return state.scenario }
+export const getters: GetterTree<ScenarioViewState, RootState> = {
+  id (state: ScenarioViewState) { return state.id },
+  name (state: ScenarioViewState) { return state.name },
+  description (state: ScenarioViewState) { return state.description },
+  scenario (state: ScenarioViewState) { return state.scenario }
 }

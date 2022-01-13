@@ -9,7 +9,7 @@ const mutations: MutationTree<State> = {
   more_available (state: State, payload) { state.more_available = payload },
 
   /** Сброс состояния */
-  resetState (state: State) {
+  flush (state: State) {
     Object.assign(state, defaultState())
   }
 }

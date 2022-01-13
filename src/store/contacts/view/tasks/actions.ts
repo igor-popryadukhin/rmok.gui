@@ -23,8 +23,8 @@ const actions: ActionTree<ContactsViewTasksState, RootState> = {
     })
   },
 
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   }
 }
 

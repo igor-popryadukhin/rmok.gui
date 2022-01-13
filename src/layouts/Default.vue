@@ -788,7 +788,7 @@ export default class DefaultLayout extends AppBase {
         icon: 'mdi-script-text',
         list_item: {
           to: {
-            name: 'scenarios_list'
+            name: 'scenarios'
           }
         },
         visible: this.$isGranted('SCENARIO_MANAGEMENT')
@@ -1140,18 +1140,22 @@ export default class DefaultLayout extends AppBase {
   onNewRTCSession (newRTCSession: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
     debugDialerEvent('NewRTCSession %o', newRTCSession)
 
+    // Обработчик прогресса вызова
     newRTCSession.session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
       this.onSessionProgress(newRTCSession.session, event)
     })
 
+    // Обработчик принятия вызова
     newRTCSession.session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
       this.onSessionAccepted(newRTCSession.session, event)
     })
 
+    // Обработчик ошибок
     newRTCSession.session.on('failed', (event: EndEvent) => {
       this.onSessionFailed(newRTCSession.session, event)
     })
 
+    // Обработчик завершения
     newRTCSession.session.on('ended', (event: EndEvent) => {
       this.onSessionEnded(newRTCSession.session, event)
     })
@@ -1187,7 +1191,6 @@ export default class DefaultLayout extends AppBase {
    */
   onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     this.$root.$emit('dialer-session-progress', session, event)
-    this.$store.dispatch('account/busy_state', true)
 
     // Если входящий
     if (session.direction === 'incoming') {
@@ -1541,13 +1544,11 @@ export default class DefaultLayout extends AppBase {
   onIncomingDialogAnswerClick () {
     this.$toast.dismiss('incoming-dialog')
 
-    this.$dialer.answer()
-
-    // Сразу перехожу в карточку контакта.
+    setTimeout(() => (this.$dialer.answer()))
     this.$router.push({
       name: 'contacts_view_scenario',
       params: {
-        contact_id: String(this.contactIncomingId)
+        id: String(this.contactIncomingId)
       }
     })
   }

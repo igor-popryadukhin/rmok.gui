@@ -53,15 +53,24 @@
     >
       {{ $tc('Transfer contacts') }}
     </v-btn>
-    <v-btn
-      v-if="contactsIsSelected && $isGranted('AUTODIALER_MANAGEMENT')"
-      small
-      tile
-      text
-      @click="emitBtnAddToAutodialer"
-    >
-      {{ $tc('Add to autodialer') }}
-    </v-btn>
+
+    <!-- Добавление в автодозвон -->
+    <template v-if="contactsIsSelected && $isGranted('AUTODIALER_MANAGEMENT')">
+      <contacts-menu-add-to-autodialer>
+        <template #activator="{ attrs, on }">
+          <v-btn
+            v-bind="attrs"
+            text
+            small
+            tile
+            v-on="on"
+          >
+            {{ $tc('Add to autodial') }}
+          </v-btn>
+        </template>
+      </contacts-menu-add-to-autodialer>
+    </template>
+    <!-- Добавление в автодозвон -->
 
     <!-- Импорт -->
     <template v-if="!contactsIsSelected && $isGranted('CONTACTS_IMPORT')">
@@ -155,7 +164,8 @@ import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
     AppPagination,
     ContactsAssignTags: () => import('./ContactsAssignTags.vue'),
     ContactListMenuImport: () => import('./ContactListMenuImport.vue'),
-    ContactListMenuExport: () => import('./ContactListMenuExport.vue')
+    ContactListMenuExport: () => import('./ContactListMenuExport.vue'),
+    ContactsMenuAddToAutodialer: () => import('./ContactsMenuAddToAutodialer.vue')
   }
 })
 export default class ContactListTools extends Base {

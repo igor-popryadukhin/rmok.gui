@@ -54,8 +54,8 @@ const actions: ActionTree<ContactsState, RootState> = {
     commit('selected_all', false)
   },
 
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   }
 }
 

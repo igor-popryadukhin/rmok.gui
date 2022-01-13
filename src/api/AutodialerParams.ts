@@ -15,7 +15,7 @@ export default class AutodialerParams {
    */
   public get (params = {}): Promise<ResponseInterface<Record<string, unknown>, Autodialer[]>> {
     return new Promise((resolve, reject) => {
-      $axios.get('/autodialer/params', {
+      $axios.get('/auto-dialers', {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
@@ -33,7 +33,7 @@ export default class AutodialerParams {
    */
   public create (data: Record<string, unknown>): Promise<number> {
     return new Promise((resolve, reject) => {
-      $axios.post('/autodialer/params', data)
+      $axios.post('/auto-dialers', data)
         .then((response: AxiosResponse) => {
           if (response.status !== 201) {
             throw new APIError(response.data)
@@ -50,7 +50,7 @@ export default class AutodialerParams {
    */
   public start (id: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      $axios.get(`/autodialer/params/${id}/start`)
+      $axios.get(`/auto-dialers/${id}/start`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
@@ -67,7 +67,7 @@ export default class AutodialerParams {
    */
   public stop (id: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      $axios.get(`/autodialer/params/${id}/stop`)
+      $axios.get(`/auto-dialers/${id}/stop`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
@@ -85,7 +85,7 @@ export default class AutodialerParams {
    */
   public getById (id: number): Promise<Autodialer> {
     return new Promise((resolve, reject) => {
-      $axios.get(`/autodialer/params/${id}`)
+      $axios.get(`/auto-dialers/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
@@ -104,7 +104,7 @@ export default class AutodialerParams {
    */
   public edit (id: number, data: Record<string, unknown>): Promise<void> {
     return new Promise((resolve, reject) => {
-      $axios.patch(`/autodialer/${id}`, data)
+      $axios.patch(`/auto-dialers/${id}`, data)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
@@ -117,7 +117,7 @@ export default class AutodialerParams {
 
   public getJournal (id: number): Promise<any> {
     return new Promise((resolve, reject) => {
-      $axios.get(`/autodialer/params/${id}/journal`)
+      $axios.get(`/auto-dialers/${id}/journal`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
@@ -134,7 +134,7 @@ export default class AutodialerParams {
    */
   public getStatsOnline (id: number): Promise<any> {
     return new Promise((resolve, reject) => {
-      $axios.get(`/autodialer/params/${id}/stats/online`)
+      $axios.get(`/auto-dialers/${id}/stats/online`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)

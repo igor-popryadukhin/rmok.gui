@@ -14,7 +14,7 @@ const actions: ActionTree<State, RootState> = {
    */
   fetch (ctx: ActionContext<State, RootState>) {
     return new Promise<void>((resolve) => {
-      $axios.get(`/autodialer/${ctx.rootGetters.routeParams.id}/journal`, { params: ctx.getters.filter })
+      $axios.get(`/auto-dialers/${ctx.rootGetters.routeParams.id}/journal`, { params: ctx.getters.filter })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)

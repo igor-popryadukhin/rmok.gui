@@ -16,7 +16,7 @@ const actions: ActionTree<State, RootState> = {
   fetch: ({ commit, rootGetters }, params = {}) => {
     return new Promise<void>((resolve, reject) => {
       const id = rootGetters.routeParams.id
-      $axios.get(`/autodialer/${id}/operators`, { params })
+      $axios.get(`/auto-dialers/${id}/operators`, { params })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new APIError(response.data)
@@ -37,7 +37,7 @@ const actions: ActionTree<State, RootState> = {
 
     return new Promise<void>((resolve, reject) => {
       $axios
-        .get(`/autodialer/${autodialerId}/operators/exclude`, {
+        .get(`/auto-dialers/${autodialerId}/operators/exclude`, {
           params: {
             user_ids: userIds
           }

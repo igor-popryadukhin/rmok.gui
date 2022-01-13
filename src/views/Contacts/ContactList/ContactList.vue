@@ -88,7 +88,7 @@
 
                 <!-- Имя контакта -->
                 <td>
-                  <router-link :to="{ name: 'contacts_view', params: { contact_id: item.id } }">
+                  <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
                     {{ item.name }}
                   </router-link>
                 </td>

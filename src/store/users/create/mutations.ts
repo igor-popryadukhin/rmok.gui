@@ -16,7 +16,7 @@ const mutations = {
    * Сбрасывает до состояния по умолчанию.
    * @param state
    */
-  resetState (state: State) {
+  flush (state: State) {
     Object.assign(state, defaultState())
   }
 }

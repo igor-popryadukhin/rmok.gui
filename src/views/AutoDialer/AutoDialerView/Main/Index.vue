@@ -214,7 +214,7 @@ export default class AutoDialerView extends AppBase {
    */
   onBtnStartClick () {
     this.processStartingOrStopping = true
-    this.$axios.get(`/autodialer/params/${+this.$route.params.id}/start`)
+    this.$axios.get(`/auto-dialers/${+this.$route.params.id}/start`)
       .then((response: AxiosResponse) => {
         if (response.status !== 200) {
           throw new APIError(response.data)
@@ -234,7 +234,7 @@ export default class AutoDialerView extends AppBase {
    */
   onBtnStopClick () {
     this.processStartingOrStopping = true
-    this.$axios.get(`/autodialer/params/${+this.$route.params.id}/stop`)
+    this.$axios.get(`/auto-dialers/${+this.$route.params.id}/stop`)
       .then((response: AxiosResponse) => {
         if (response.status !== 200) {
           throw new APIError(response.data)

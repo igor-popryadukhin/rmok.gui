@@ -17,18 +17,12 @@
 </template>
 
 <script lang="ts">
-import ContactsViewBase from './ContactsViewBase'
+import AppBase from '@/AppBase'
 import Component from 'vue-class-component'
 
-// eslint-disable-next-line no-use-before-define
 @Component
-export default class ContactsViewScenario extends ContactsViewBase {
-  get contactScenarioContent (): string { return this.$store.getters['contacts/view/contact_scenario_content'] }
-  get contactProjectScenario (): string { return this.$store.getters['contacts/view/contact_project_scenario'] }
-
-  get scenario () {
-    return this.contactScenarioContent || this.contactProjectScenario
-  }
+export default class ContactsViewScenario extends AppBase {
+  get scenario (): string { return this.$store.getters['contacts/view/contact_project_scenario'] }
 }
 
 </script>

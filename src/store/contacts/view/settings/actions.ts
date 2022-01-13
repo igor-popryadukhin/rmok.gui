@@ -3,8 +3,8 @@ import { ActionTree } from 'vuex'
 import { ContactsViewSettingsState } from './state'
 
 const actions: ActionTree<ContactsViewSettingsState, RootState> = {
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   }
 }
 

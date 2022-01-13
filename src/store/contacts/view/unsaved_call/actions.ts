@@ -6,8 +6,9 @@ import { ActionTree } from 'vuex'
 import { UnsavedCallState } from './state'
 
 const actions: ActionTree<UnsavedCallState, RootState> = {
-  save ({ commit, state }) {
+  save ({ commit, state, dispatch }) {
     commit('persists', true)
+
     return new Promise<void>((resolve) => {
       $axios.patch(`/contacts/history/${state.data_contact_history_id}`, {
         comment: state.data_comment,
@@ -16,19 +17,13 @@ const actions: ActionTree<UnsavedCallState, RootState> = {
         if (response.status !== 200) {
           throw new APIError(response.data)
         }
-        commit('unsaved', false)
-
-        commit('data_contact_history_id', 0)
-        commit('data_contact_id', 0)
-        commit('data_contact_name', '')
-        commit('data_call_id', null)
-        commit('data_status_id', 0)
-        commit('data_comment', '')
-
+        dispatch('flush')
         resolve()
       }).finally(() => (commit('persists', false)))
     })
-  }
+  },
+
+  flush ({ commit }) { commit('flush') }
 }
 
 export default actions

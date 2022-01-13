@@ -48,7 +48,7 @@ const actions: ActionTree<ContactListState, RootState> = {
     }
 
     return new Promise<boolean>((resolve, reject) => {
-      $axios.post(`/autodialer/${id}/add-contacts`, {
+      $axios.post(`/auto-dialers/${id}/add-contacts`, {
         filter_contacts
       }).then((response: AxiosResponse) => {
         if (response.status !== 202) {
@@ -121,8 +121,8 @@ const actions: ActionTree<ContactListState, RootState> = {
     commit('selected_all', false)
   },
 
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   }
 }
 

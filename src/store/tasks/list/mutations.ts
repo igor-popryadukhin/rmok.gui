@@ -8,7 +8,7 @@ const mutations: MutationTree<TasksListState> = {
   items_fetching (state: TasksListState, payload) { state.items_fetching = payload },
 
   /** Сброс состояния */
-  resetState (state: TasksListState) {
+  flush (state: TasksListState) {
     Object.assign(state, defaultState())
   }
 }

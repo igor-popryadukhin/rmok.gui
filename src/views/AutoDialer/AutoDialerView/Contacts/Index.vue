@@ -9,13 +9,7 @@
     >
       <div class="d-flex mb-1">
         <v-btn
-          tile
-          text
-          small
-        >
-          {{ $tc('Add') }}
-        </v-btn>
-        <v-btn
+          v-if="callsSelected.length === 0"
           :loading="btnRefreshLoading"
           tile
           text
@@ -23,6 +17,25 @@
           @click="onBtnRefreshClick"
         >
           {{ $tc('Refresh') }}
+        </v-btn>
+        <v-btn
+          v-if="callsSelected.length > 0"
+          :loading="removalProcess"
+          tile
+          text
+          small
+          @click="onBtnDeleteClick"
+        >
+          {{ $tc('Delete') }}
+        </v-btn>
+        <v-btn
+          v-if="callsSelected.length > 0"
+          tile
+          text
+          small
+          @click="onBtnDeleteClick"
+        >
+          {{ $tc('Repeat') }}
         </v-btn>
         <v-spacer />
         <app-paginator
@@ -71,11 +84,14 @@ import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
 export default class Index extends AppBase {
   @Ref() readonly tools!: Element
 
+  removalProcess = false
   loading = true
   btnRefreshLoading = false
 
   // Увеличивает значение при изменении размера компонента.
   tick = 0
+
+  get callsSelected (): number[] { return this.$store.getters['autodialer/view/calls/items_selected'] }
 
   get callsTotal () { return this.$store.getters['autodialer/view/calls/total'] }
   get callsPerPage () { return this.$store.getters['autodialer/view/calls/per_page'] }
@@ -118,6 +134,16 @@ export default class Index extends AppBase {
     this.loading = true
     this.$store.dispatch('autodialer/view/calls/fetch', this.requestParameters)
       .finally(() => (this.loading = false))
+  }
+
+  private onBtnDeleteClick () {
+    this.removalProcess = true
+    this.$store
+      .dispatch('autodialer/view/calls/delete_selected')
+      .then(() => {
+        this.$store.dispatch('autodialer/view/calls/fetch', this.requestParameters)
+      })
+      .finally(() => (this.removalProcess = false))
   }
 }
 </script>

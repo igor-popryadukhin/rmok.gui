@@ -63,8 +63,8 @@ const actions: ActionTree<State, RootState> = {
    * Сбрасывает до состояния по умолчанию.
    * @param commit
    */
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   }
 }
 

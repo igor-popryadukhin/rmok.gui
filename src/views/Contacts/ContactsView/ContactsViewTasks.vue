@@ -94,11 +94,11 @@
 
 <script lang="ts">
 import Task from '@/api/interfaces/Task'
+import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import dayjs from '@/plugins/dayjs'
 import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
-import ContactsViewBase from './ContactsViewBase'
 
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 
@@ -107,9 +107,14 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
   components: {
     AppTaskDialogEdit: () => import('@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'),
     AppLoading
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.dispatch('contacts/view/tasks/fetch', to.params.id)
+    })
   }
 })
-export default class ContactsViewTasks extends ContactsViewBase {
+export default class ContactsViewTasks extends AppBase {
   tasksCloseProcessIds = []
   tasksEditProcessIds = []
   taskDialogVisible = false
@@ -134,10 +139,6 @@ export default class ContactsViewTasks extends ContactsViewBase {
     this.fetchTasks = debounce(this.fetchTasks, 1000)
 
     this.$root.$on('sse-tasks-changed', this.onSSETasksChanged)
-  }
-
-  public mounted () {
-    this.fetchTasks()
   }
 
   public beforeDestroy () {

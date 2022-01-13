@@ -9,7 +9,7 @@ const mutations: MutationTree<ContactListState> = {
   selected_all (state: ContactListState, payload) { state.selected_all = payload },
 
   /** Сброс состояния */
-  resetState (state: ContactListState) {
+  flush (state: ContactListState) {
     Object.assign(state, defaultState())
   }
 }

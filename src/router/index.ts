@@ -186,62 +186,43 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [] }
   },
   {
+    name: 'contacts',
     path: '/contacts',
+    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/ContactList/Index.vue'),
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    name: 'contacts_view',
+    path: '/contacts/:id',
+    redirect: { name: 'contacts_view_scenario' },
+    component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/ContactsView/ContactsView.vue'),
     children: [
       {
-        component: () => import(/* webpackChunkName: "contact-list" */ '../views/Contacts/ContactList/Index.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'contacts',
-        path: ''
+        name: 'contacts_view_scenario',
+        path: 'scenario',
+        component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ContactsView/ContactsViewScenario.vue'),
+        meta: { layout: 'default', middleware: [] }
       },
       {
-        path: ':contact_id',
-        component: () => import(/* webpackChunkName: "contacts-view-layout" */ '../views/Contacts/ContactsView/ContactsView.vue'),
-        children: [
-          {
-            name: 'contacts_view',
-            path: '',
-            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ContactsView/ContactsViewScenario.vue'),
-            meta: { layout: 'default', middleware: [] }
-          },
-          {
-            name: 'contacts_view_scenario',
-            path: 'scenario',
-            component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ContactsView/ContactsViewScenario.vue'),
-            meta: { layout: 'default', middleware: [] }
-          },
-          {
-            component: () => import(/* webpackChunkName: "contacts-view-history" */ '../views/Contacts/ContactsView/ContactsViewHistory.vue'),
-            meta: { layout: 'default', middleware: [] },
-            name: 'contacts_view_history',
-            path: 'history'
-          },
-          {
-            component: () => import(/* webpackChunkName: "contacts-view-tasks" */ '../views/Contacts/ContactsView/ContactsViewTasks.vue'),
-            meta: { layout: 'default', middleware: [] },
-            name: 'contacts_view_tasks',
-            path: 'tasks'
-          },
-          {
-            component: () => import(/* webpackChunkName: "contacts-view-status" */ '../views/Contacts/ContactsView/ContactsViewStatus.vue'),
-            meta: { layout: 'default', middleware: [] },
-            name: 'contacts_view_status',
-            path: 'status'
-          }
-        ],
+        component: () => import(/* webpackChunkName: "contacts-view-history" */ '../views/Contacts/ContactsView/ContactsViewHistory.vue'),
         meta: { layout: 'default', middleware: [] },
-        redirect: { name: 'contacts_view' }
+        name: 'contacts_view_history',
+        path: 'history'
+      },
+      {
+        component: () => import(/* webpackChunkName: "contacts-view-tasks" */ '../views/Contacts/ContactsView/ContactsViewTasks.vue'),
+        meta: { layout: 'default', middleware: [] },
+        name: 'contacts_view_tasks',
+        path: 'tasks'
+      },
+      {
+        component: () => import(/* webpackChunkName: "contacts-view-status" */ '../views/Contacts/ContactsView/ContactsViewStatus.vue'),
+        meta: { layout: 'default', middleware: [] },
+        name: 'contacts_view_status',
+        path: 'status'
       }
     ],
-    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/Layout.vue'),
-    meta: {
-      layout: 'default',
-      middleware: []
-    }
+    meta: { layout: 'default', middleware: [] }
   },
   {
     path: '/leads',
@@ -672,42 +653,18 @@ const routes: RouteConfig[] = [
     path: '/statistics'
   },
   {
+    name: 'scenarios',
     path: '/scenarios',
-    children: [
-      {
-        component: () => import(/* webpackChunkName: "scenarios_list" */ '../views/Scenarios/ScenariosList.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: []
-        },
-        name: 'scenarios_list',
-        path: ''
-      },
-      {
-        component: () => import(/* webpackChunkName: "scenarios_edit" */ '../views/Scenarios/ScenariosEdit.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'scenarios_edit',
-        path: ':id/main'
-      },
-      {
-        component: () => import(/* webpackChunkName: "scenarios_create" */ '../views/Scenarios/ScenariosCreate.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'scenarios_create',
-        path: 'create'
-      }
-    ],
-    component: () => import(/* webpackChunkName: "scenarios" */ '../views/Scenarios/Layout.vue'),
-    meta: {
-      layout: 'default',
-      middleware: []
-    }
+    children: [],
+    component: () => import(/* webpackChunkName: "scenarios" */ '../views/Scenarios/Scenarios.vue'),
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    name: 'scenarios_view',
+    path: '/scenarios/:id',
+    children: [],
+    component: () => import(/* webpackChunkName: "scenarios-view" */ '../views/Scenarios/ScenariosView.vue'),
+    meta: { layout: 'default', middleware: [] }
   }
 ]
 

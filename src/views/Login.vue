@@ -118,14 +118,14 @@ export default class Login extends AppBase {
   processMessage = '';
 
   created () {
-    this.$store.dispatch('contacts/resetState')
-    this.$store.dispatch('contacts/params/resetState') // Сброс состояния параметров фильтров контакт листа.
-    this.$store.dispatch('contacts_new/resetState')
-    this.$store.dispatch('statistic_recent_call/pie/resetState')
-    this.$store.dispatch('statistic_recent_call/resetState')
-    this.$store.dispatch('statistic_recent_call/filter/resetState')
-    this.$store.dispatch('statistic_all_call/filter/resetState')
-    this.$store.dispatch('users_edit/sessions/resetState')
+    this.$store.dispatch('contacts/flush')
+    this.$store.dispatch('contacts/params/flush') // Сброс состояния параметров фильтров контакт листа.
+    this.$store.dispatch('contacts_new/flush')
+    this.$store.dispatch('statistic_recent_call/pie/flush')
+    this.$store.dispatch('statistic_recent_call/flush')
+    this.$store.dispatch('statistic_recent_call/filter/flush')
+    this.$store.dispatch('statistic_all_call/filter/flush')
+    this.$store.dispatch('users_edit/sessions/flush')
   }
 
   login (login: string, password: string) {

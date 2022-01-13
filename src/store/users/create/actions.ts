@@ -30,7 +30,7 @@ const actions: ActionTree<State, RootState> = {
     return new Users()
       .create(postData)
       .then((id) => {
-        commit('resetState')
+        commit('flush')
         return id
       })
   },
@@ -39,8 +39,8 @@ const actions: ActionTree<State, RootState> = {
    * Сбрасывает до состояния по умолчанию.
    * @param commit
    */
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush')
   }
 }
 

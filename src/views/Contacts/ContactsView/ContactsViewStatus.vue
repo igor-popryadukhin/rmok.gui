@@ -109,12 +109,12 @@
 
 <script lang="ts">
 import StatusGroup from '@/api/interfaces/StatusGroup'
+import AppBase from '@/AppBase'
 import { Prop } from 'vue-property-decorator'
-import ContactsViewBase from './ContactsViewBase'
 import Component from 'vue-class-component'
 
 @Component
-export default class ContactsViewStatus extends ContactsViewBase {
+export default class ContactsViewStatus extends AppBase {
   tabStatus = 0
   @Prop({ default: 300 }) readonly height!: number
 

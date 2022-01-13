@@ -123,7 +123,7 @@ export default class Telephony extends AppBase {
 
   private onBtnApplyClick () {
     this.processApply = true
-    this.$axios.patch(`/autodialer/${this.$route.params.id}`, {
+    this.$axios.patch(`/auto-dialers/${this.$route.params.id}`, {
       max_calls_number: this.maxCallsNumber,
       pickup_timeout: this.pickupTimeout,
       queue_name: this.queueName

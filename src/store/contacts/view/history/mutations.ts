@@ -7,7 +7,7 @@ const mutations: MutationTree<ContactsViewHistoryState> = {
   items (state, payload) { state.items = payload },
 
   /** Сброс состояния */
-  resetState (state) {
+  flush (state) {
     Object.assign(state, contactsViewState())
   }
 }

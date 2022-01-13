@@ -1,7 +1,10 @@
+import Project from '@/api/interfaces/Project'
+import User from '@/api/interfaces/User'
+
 export interface State {
   visible: boolean;
-  available_projects: Array<Record<string, unknown>>;
-  available_users: Array<Record<string, unknown>>;
+  available_projects: Project[];
+  available_users: User[];
   project_id: number|null;
   user_ids: number[];
 }
