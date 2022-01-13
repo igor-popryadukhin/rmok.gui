@@ -43,7 +43,7 @@
           v-for="(mainMenuItem, mainMenuIndex) in mainMenu"
         >
           <v-list-group
-            v-if="mainMenuItem.children && mainMenuItem.visible"
+            v-if="mainMenuItem.children"
             :key="mainMenuIndex"
             v-model="mainMenuItem.active"
             no-action
@@ -95,7 +95,7 @@
           />
 
           <v-list-item
-            v-else-if="mainMenuItem.visible"
+            v-else
             :key="`main-menu-list-item-${mainMenuIndex}`"
             v-bind="mainMenuItem.list_item"
             link
@@ -791,7 +791,7 @@ export default class DefaultLayout extends AppBase {
             name: 'scenarios'
           }
         },
-        visible: this.$isGranted('SCENARIO_MANAGEMENT')
+        visible: false// this.$isGranted('SCENARIO_MANAGEMENT')
       },
       {
         title: 'Statistic',
@@ -996,7 +996,7 @@ export default class DefaultLayout extends AppBase {
         },
         visible: process.env.NODE_ENV === 'development'
       }
-    ]
+    ].filter((e) => e.visible)
   }
   // Вычисляемые свойства
 
