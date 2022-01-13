@@ -126,7 +126,7 @@ export default class TasksList extends TasksBase {
   }
 
   public created () {
-    this.fetchTasks = debounce(this.fetchTasks, 1000)
+    this.fetchTasks = debounce(this.fetchTasks, 3000)
     this.$root.$on('sse-tasks-changed', this.onSSETasksChanged)
   }
 
@@ -140,7 +140,7 @@ export default class TasksList extends TasksBase {
       this.$router.push({
         name: 'contacts_view_tasks',
         params: {
-          contact_id: String(task.contact.id)
+          id: String(task.contact.id)
         }
       })
     }

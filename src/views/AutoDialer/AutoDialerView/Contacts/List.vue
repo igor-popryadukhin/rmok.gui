@@ -61,7 +61,7 @@
               />
             </td>
             <td class="contact-list__td contact-list_contact-name">
-              {{ item.contact_name }}
+              {{ item.contact.name }}
             </td>
             <td class="contact-list__td contact-list_contact-status">
               <template v-if="item.last_status">
