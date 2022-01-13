@@ -45,20 +45,6 @@
           </div>
           <!-- Режим -->
 
-          <!-- Сценарии -->
-          <div class="mb-1">
-            <v-select
-              v-model="autodialerScenario"
-              :items="scenariosItems"
-              item-text="name"
-              item-value="id"
-              label="Сценарий"
-              dense
-              outlined
-            />
-          </div>
-          <!-- Сценарии -->
-
           <div class="mb-1">
             <v-btn
               v-if="autodialerStatus === 'ready'"
@@ -153,24 +139,6 @@ export default class AutoDialerView extends AppBase {
     this.$store.commit('autodialer/view/mode', val)
   }
 
-  get autodialerStatusOptions () {
-    return [
-      {
-        text: ''
-      }
-    ]
-  }
-
-  get autodialerScenario (): number {
-    return this.$store.state.autodialer.view.scenario_id
-  }
-
-  set autodialerScenario (val: number) {
-    this.$store.commit('autodialer/view/scenario_id', +val)
-  }
-
-  get scenariosItems () { return this.$store.getters['scenarios/list/items'] }
-
   get description (): string {
     return this.$store.state.autodialer.view.description
   }
@@ -179,13 +147,8 @@ export default class AutoDialerView extends AppBase {
     this.$store.commit('autodialer/view/description', val)
   }
 
-  mounted () {
-    this.$store.dispatch('scenarios/list/fetch')
-  }
-
-  created () {
+  public created () {
     this.$watch('autodialerMode', () => (this.isChanged = true))
-    this.$watch('autodialerScenario', () => (this.isChanged = true))
     this.$watch('description', () => (this.isChangedDescription = true))
   }
 

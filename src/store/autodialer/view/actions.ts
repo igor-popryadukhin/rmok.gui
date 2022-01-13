@@ -28,7 +28,6 @@ export const actions: ActionTree<State, RootState> = {
       pickup_timeout: ctx.state.pickup_timeout,
       max_calls_number: ctx.state.max_calls_number,
       mode: ctx.state.mode,
-      scenario_id: ctx.state.scenario_id,
       description: ctx.state.description
     }
     return new AutodialerParams().edit(ctx.state.id, data)
