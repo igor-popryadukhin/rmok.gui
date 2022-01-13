@@ -9,7 +9,7 @@ const actions: ActionTree<ContactsViewTasksState, RootState> = {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => (commit('items_fetching', true)), 0)
 
-      $axios.get('/tasks', { params: { contact_id: rootGetters.routeParams.contact_id } })
+      $axios.get('/tasks', { params: { id: rootGetters.routeParams.contact_id } })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new Error(response.statusText)

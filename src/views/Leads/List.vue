@@ -46,7 +46,7 @@
             :key="`list-item-${item.id}`"
             ripple
             selectable
-            :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
+            :to="{ name: 'contacts_view', params: { id: item.id } }"
             style="min-height: 35px"
           >
             <v-list-item-content class="pa-0">

@@ -387,7 +387,7 @@
                     {{ $dayjs(item.created_at * 1000).format('YYYY.MM.DD HH:mm') }}
                   </td>
                   <td>
-                    <router-link :to="{ name: 'contacts_view', params: { contact_id: item.contact.id } }">
+                    <router-link :to="{ name: 'contacts_view', params: { id: item.contact.id } }">
                       {{ item.contact.full_name }}
                     </router-link>
                   </td>

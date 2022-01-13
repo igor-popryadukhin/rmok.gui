@@ -1246,6 +1246,8 @@ export default class DefaultLayout extends AppBase {
   }
 
   /**
+   * Завершение диалога.
+   *
    * @param session
    * @param event
    */
@@ -1253,6 +1255,46 @@ export default class DefaultLayout extends AppBase {
     this.$toast.dismiss('incoming-dialog')
 
     setTimeout(() => (this.stopAudio()), 500)
+
+    /// /////////////////////////////////////////////////
+    if (session.direction === 'incoming') {
+      session.data.contact_id = this.contactIncomingId
+      session.data.contact_name = this.contactIncomingContactName
+    }
+
+    // Данные для сохранения истории
+    const historyData: Record<string, number | string | null> = {
+      cause: event.cause,
+      direction: session.direction,
+      originator: event.originator,
+      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
+      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
+      type: 'call',
+      audio_record_id: session.data.call_id,
+      target: session.data.target
+    }
+
+    // Если есть время разговора
+    if ((session.start_time) && (session.end_time)) {
+      historyData.start_timestamp = session.start_time.getTime() / 1000
+      historyData.end_timestamp = session.end_time.getTime() / 1000
+    }
+
+    // Сохраняю историю звонка
+    this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
+      .then((response: AxiosResponse) => {
+        if ([200, 201].includes(response.status)) {
+          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
+          this.$store.commit('unsaved_call/data/call_id', session.data.call_id)
+          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
+          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
+        } else {
+          this.$toast.error('Не удалось сохранить историю вызова')
+        }
+      })
+    /// /////////////////////////////////////////////////
 
     this.onSessionFinality(session, event)
     this.$root.$emit('dialer-session-ended', session, event)
@@ -1351,44 +1393,6 @@ export default class DefaultLayout extends AppBase {
    */
   onSessionFinality (session: RTCSession, event: EndEvent) {
     this.$store.dispatch('account/busy_state', false)
-
-    if (session.direction === 'incoming') {
-      session.data.contact_id = this.contactIncomingId
-      session.data.contact_name = this.contactIncomingContactName
-    }
-
-    // Данные для сохранения истории
-    const historyData: Record<string, number | string | null> = {
-      cause: event.cause,
-      direction: session.direction,
-      originator: event.originator,
-      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
-      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
-      type: 'call',
-      audio_record_id: session.data.call_id,
-      target: session.data.target
-    }
-
-    // Если есть время разговора
-    if ((session.start_time) && (session.end_time)) {
-      historyData.start_timestamp = session.start_time.getTime() / 1000
-      historyData.end_timestamp = session.end_time.getTime() / 1000
-    }
-
-    // Сохраняю историю звонка
-    this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
-      .then((response: AxiosResponse) => {
-        if ([200, 201].includes(response.status)) {
-          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
-          this.$store.commit('unsaved_call/data/call_id', session.data.call_id)
-          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
-          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
-        } else {
-          this.$toast.error('Не удалось сохранить историю вызова')
-        }
-      })
   }
   // DIALER EVENTS
 

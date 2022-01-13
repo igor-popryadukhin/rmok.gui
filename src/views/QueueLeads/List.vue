@@ -70,7 +70,7 @@
             >
               <!-- Имя контакта -->
               <td :style="{ 'border-left': `6px solid ${item.color || null}` }">
-                <router-link :to="{ name: 'contacts_view', params: { contact_id: item.id } }">
+                <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
                   {{ item.name }}
                 </router-link>
                 <v-icon

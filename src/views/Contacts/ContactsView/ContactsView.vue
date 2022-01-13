@@ -340,6 +340,7 @@
       :style="{ width: `${rightWidth}px` }"
     >
       <v-tabs
+        :key="`v-tabs-${tick}`"
         v-model="tab"
         class="tabs"
         height="35"
@@ -358,6 +359,8 @@
                   :key="`tab-${tabIndex}`"
                   v-bind="attrs"
                   :to="tab.to"
+                  :active-class="tab.active_class || ''"
+                  :class="tab.class || ''"
                   class="tabs__tab"
                   exact-path
                   exact
@@ -388,6 +391,8 @@
               v-if="tab.visible"
               :key="`tab-${tabIndex}`"
               :to="tab.to"
+              :active-class="tab.active_class || ''"
+              :class="tab.class || ''"
               class="tabs__tab"
               exact-path
               exact
@@ -447,6 +452,17 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
       vm.$store.dispatch('contacts/view/fetch', to.params.id)
     })
   },
+  beforeRouteUpdate (to, from, next) {
+    this.tick++
+
+    if (to.params.id !== from.params.id) {
+      this.$store
+        .dispatch('contacts/view/fetch', to.params.id)
+        .then(() => (next()))
+    } else {
+      next()
+    }
+  },
   beforeRouteLeave (to, from, next) {
     let answer = true
 
@@ -455,6 +471,7 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
     }
 
     if (answer) {
+      this.$store.dispatch('contacts/view/unsaved_call/flush')
       next()
     } else {
       next(false)
@@ -462,6 +479,7 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
   }
 })
 export default class ContactsView extends AppBase {
+  tick = 0
   contactTimeTick = 0
   taskDialogVisible = false
   taskDialog = {
@@ -480,6 +498,8 @@ export default class ContactsView extends AppBase {
         name: 'contacts_view_status',
         icon: 'mdi-list-status',
         visible: this.isUnsavedCall,
+        active_class: 'red--text',
+        class: 'red--text',
         to: {
           name: 'contacts_view_status'
         },
@@ -576,12 +596,12 @@ export default class ContactsView extends AppBase {
     if (val) {
       this.$router.push({
         name: 'contacts_view_status',
-        params: { contact_id: String(this.$route.params.id) }
+        params: { id: String(this.$route.params.id) }
       })
     } else {
       this.$router.push({
         name: 'contacts_view_history',
-        params: { contact_id: String(this.$route.params.id) }
+        params: { id: String(this.$route.params.id) }
       })
     }
   }
@@ -609,7 +629,7 @@ export default class ContactsView extends AppBase {
       this.$toast.warning('Пожалуйста, выберите статус')
       this.$router.push({
         name: 'contacts_view_status',
-        params: { contact_id: String(this.$route.params.id) }
+        params: { id: String(this.$route.params.id) }
       })
     }
   }
@@ -639,6 +659,9 @@ export default class ContactsView extends AppBase {
 <style lang="scss" scoped>
 .tabs {}
 .tabs__tab {}
+.tab-color--red {
+  color: #f57474;
+}
 .text-truncate {
   white-space: nowrap;
   overflow: hidden;
