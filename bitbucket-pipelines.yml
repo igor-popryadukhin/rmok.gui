@@ -13,6 +13,7 @@ pipelines:
             - dist
           script:
             - echo $VUE_ENV_REVIEW | base64 -di > ./.env
+            - npm config set registry http://registry.npmjs.org/
             - npm install
             - npm run build
             - pipe: atlassian/rsync-deploy:0.7.0
