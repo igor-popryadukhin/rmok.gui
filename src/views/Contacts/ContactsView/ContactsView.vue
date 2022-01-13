@@ -517,6 +517,17 @@ export default class ContactsView extends AppBase {
         to: {
           name: 'contacts_view_tasks'
         }
+      },
+      {
+        name: 'contacts_view_chat',
+        icon: 'mdi-facebook-messenger',
+        visible: true,
+        to: {
+          name: 'contacts_view_chat',
+          contact_id: 108,
+          type: 'telegram',
+          id: 1
+        }
       }
     ]
   }
