@@ -192,7 +192,7 @@ import Vue from 'vue'
 import VueApexCharts from 'vue-apexcharts'
 import { mapActions, mapGetters } from 'vuex'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 Vue.use(VueApexCharts)

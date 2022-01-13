@@ -137,7 +137,7 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'
 import { $axios } from '@/plugins/axios'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 import SSEMessage from '@/interfaces/SSEMessage'
 
 interface Data {

@@ -124,7 +124,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 import ContactTag from '@/api/interfaces/ContactTag'
 import { Contacts } from '@/api/Contacts'
 import { randomColor } from '@/utils/utils'

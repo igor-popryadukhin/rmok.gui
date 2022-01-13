@@ -192,7 +192,7 @@ import { format } from 'date-fns'
 import Vue, { VueConstructor } from 'vue'
 
 import VueApexCharts from 'vue-apexcharts'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 
 Vue.use(VueApexCharts)
 Vue.component('Apexchart', VueApexCharts)

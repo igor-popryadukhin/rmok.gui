@@ -39,7 +39,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 import { Prop, Emit, Watch, ModelSync } from 'vue-property-decorator'
 

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 
 const mixin = Vue.extend({
   methods: {

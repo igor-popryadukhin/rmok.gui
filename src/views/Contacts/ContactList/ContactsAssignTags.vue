@@ -130,7 +130,7 @@
 import Component from 'vue-class-component'
 import AppBase from '@/AppBase'
 import ContactTag from '@/api/interfaces/ContactTag'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 import { Watch } from 'vue-property-decorator'
 import { AxiosResponse } from 'axios'
 import APIError from '@/api/classes/APIError'

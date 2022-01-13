@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce'
 
 export default Vue.extend({
   name: 'AppContactTagAutocomplete',

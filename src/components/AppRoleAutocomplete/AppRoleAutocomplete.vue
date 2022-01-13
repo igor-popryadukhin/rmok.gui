@@ -44,9 +44,9 @@
 </template>
 
 <script lang="ts">
+import debounce from '@/utils/debounce'
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { debounce } from 'vuetify/src/util/helpers'
 
 export default Vue.extend({
   name: 'AppRoleAutocomplete',
