@@ -139,7 +139,7 @@
 
                 <td>
                   <template v-if="item.last_call_at">
-                    {{ $dayjs(item.last_call_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`) }}
+                    {{ $dayjs(item.last_call_at * 1000).format('DD.MM.YYYY HH.mm') }}
                   </template>
                   <template v-else>
                     —

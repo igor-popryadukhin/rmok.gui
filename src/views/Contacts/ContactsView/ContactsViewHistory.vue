@@ -178,7 +178,7 @@
             </v-list-item-content>
             <v-list-item-action>
               <v-list-item-action-text
-                v-text="$dayjs(item.created_at * 1000).format(`${date_time_format.short_date} ${date_time_format.short_time}`)"
+                v-text="$dayjs(item.created_at * 1000).format('DD.MM.YYYY HH.mm')"
               />
               <div class="d-flex flex-wrap">
                 <v-btn

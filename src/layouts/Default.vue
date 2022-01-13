@@ -339,7 +339,7 @@
             </template>
             <v-card>
               <v-card-text
-                v-if="$profile"
+                v-if="profileProject"
                 class="px-0 py-0"
               >
                 <v-list>
@@ -351,30 +351,30 @@
                     </v-list-item-avatar>
                   </v-list-item>
 
-                  <v-list-item>
-                    <v-list-item-content>
-                      <v-list-item-title class="text-h6">
-                        {{ profileFullName }}
-                      </v-list-item-title>
-                      <v-list-item-subtitle v-if="$profile.group">
-                        {{ $profile.login }} ({{ $profile.group.name }})
-                      </v-list-item-subtitle>
-                      <v-list-item-subtitle v-else>
-                        {{ $profile.login }}
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
+                  <!--                  <v-list-item>-->
+                  <!--                    <v-list-item-content>-->
+                  <!--                      <v-list-item-title class="text-h6">-->
+                  <!--                        {{ profileFullName }}-->
+                  <!--                      </v-list-item-title>-->
+                  <!--                      <v-list-item-subtitle v-if="$profile.group">-->
+                  <!--                        {{ $profile.login }} ({{ $profile.group.name }})-->
+                  <!--                      </v-list-item-subtitle>-->
+                  <!--                      <v-list-item-subtitle v-else>-->
+                  <!--                        {{ $profile.login }}-->
+                  <!--                      </v-list-item-subtitle>-->
+                  <!--                    </v-list-item-content>-->
+                  <!--                  </v-list-item>-->
 
                   <!-- Проект -->
                   <v-list-item
-                    v-if="$profile.project"
+                    v-if="profileProject"
                     link
                   >
                     <v-list-item-content>
                       <v-list-item-title>
                         {{ $tc('Current project') }}
                       </v-list-item-title>
-                      <v-list-item-subtitle>{{ $profile.project.name }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>{{ profileProject.name }}</v-list-item-subtitle>
                     </v-list-item-content>
 
                     <!-- Смена проекта TODO: Реализовать обработчик/механизм смены проекта-->
@@ -386,7 +386,7 @@
                   <!-- Проект -->
                 </v-list>
               </v-card-text>
-              <v-divider v-if="$profile" />
+              <v-divider v-if="profileProject" />
               <!-- Статусы -->
               <v-card-text class="px-0 py-0">
                 <v-list
@@ -543,6 +543,7 @@
 <script lang="ts">
 import { Calls } from '@/api/Calls'
 import APIError from '@/api/classes/APIError'
+import Project from '@/api/interfaces/Project'
 import SSEMessage from '@/interfaces/SSEMessage'
 import VNavigationDrawer from '@/interfaces/VNavigationDrawer'
 import { State as ProfileState } from '@/store/profile/state'
@@ -680,6 +681,7 @@ export default class DefaultLayout extends AppBase {
   get profileFullName (): string { return this.$store.state.profile.full_name }
   get profileMode (): string { return this.$store.state.profile.mode }
   get profileStatus (): string { return this.$store.state.profile.status }
+  get profileProject (): Project { return this.$store.state.profile.project }
   get tasksPendingCount () { return this.$store.state.tasks.pending_count }
   get mainMenu () {
     return [

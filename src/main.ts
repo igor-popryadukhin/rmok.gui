@@ -10,9 +10,6 @@ import './fix.postMessage'
 // Style
 import '@/assets/scss/style.scss'
 
-// Mixins
-import '@/mixins/global'
-
 // Plugins
 import i18n, { loadLanguageAsync } from '@/plugins/i18n'
 import vuetify from '@/plugins/vuetify'

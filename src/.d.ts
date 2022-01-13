@@ -1,6 +1,5 @@
 // 1. Make sure to import 'vue' before declaring augmented types
 import Vue from 'vue'
-import { ProfileState } from '@/store/profile/state'
 import { AxiosInstance } from 'axios'
 import { Debugger } from 'debug'
 import { Cookie } from './plugins/cookie'
@@ -9,7 +8,7 @@ import { RouterQuery } from '@/plugins/router-query'
 import { Permission } from '@/plugins/permission'
 import AccountMonitoring from '@/plugins/account-monitoring/AccountMonitoring'
 import IfVisible from '@/plugins/ifvisible/IfVisible'
-import Dialer from '@/plugins/dialer/Dialer';
+import Dialer from '@/plugins/dialer/Dialer'
 
 // 2. Specify a file with the types you want to augment
 //    Vue has the constructor type in types/vue.d.ts
@@ -38,7 +37,6 @@ declare module 'vue/types/vue' {
     $axios: AxiosInstance;
     $htmlAudioElement: HTMLAudioElement;
     $version: string;
-    $profile: ProfileState;
     $settings_vue_keep_alive: boolean;
     $appDebug: Debugger
     // Методы
@@ -59,7 +57,6 @@ declare module 'vue/types/vue' {
     $myGlobal: string;
     $htmlAudioElement: HTMLAudioElement;
     $version: string;
-    $profile: ProfileState;
     $appDebug: Debugger;
     $ifvisible: IfVisible;
     $accountMonitoring: AccountMonitoring;

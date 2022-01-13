@@ -16,7 +16,9 @@
     "strictNullChecks": false,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": [],
+    "types": [
+      "vuetify"
+    ],
     "typeRoots": [
       "node_modules/vuetify/types",
       "node_modules/vuetify-dialog/types",

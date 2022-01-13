@@ -1,5 +1,6 @@
 import Country from '@/api/interfaces/Country'
 import PBXConfiguration from '@/api/interfaces/PBXConfiguration'
+import Project from '@/api/interfaces/Project'
 import UserGroup from '@/api/interfaces/UserGroup'
 
 export interface State {
@@ -22,6 +23,7 @@ export interface State {
   country?: Country;
   pbx_configuration?: PBXConfiguration;
   permissions?: Array<Record<string, unknown>>;
+  project: Project|null;
   group?: UserGroup;
 }
 
@@ -51,6 +53,7 @@ function state (): State {
     userpic: '',
     pbx_configuration: null,
     permissions: [],
+    project: null,
     group: undefined
   }
 }

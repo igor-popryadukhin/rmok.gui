@@ -26,6 +26,7 @@ const mutations: MutationTree<State> = {
     state.status = payload.status
     state.mode = payload.mode
     state.permissions = payload.permissions
+    state.project = payload.project
   },
 
   tz (state: State, payload: string) { state.tz = payload }
