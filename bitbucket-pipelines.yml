@@ -6,20 +6,30 @@ pipelines:
           runs-on:
             - self.hosted
             - dev
-          image: node:16.13.0
-          caches:
-            - node
           artifacts:
             - dist
           script:
             - echo $VUE_ENV_REVIEW | base64 -di > ./.env
-            - npm config set registry http://registry.npmjs.org/
-            - npm install
-            - npm run build
+            # Доставка исходного кода на сервер
             - pipe: atlassian/rsync-deploy:0.7.0
               variables:
                 USER: $SSH_USER
                 SERVER: $SSH_SERVER
-                REMOTE_PATH: "~/www/rmok.gui"
-                LOCAL_PATH: "dist"
+                REMOTE_PATH: "~/tmp/rmok.gui"
+                LOCAL_PATH: "."
                 EXTRA_ARGS: "--delete"
+              # Сборка/настройка проекта
+            - pipe: atlassian/ssh-run:0.4.0
+              variables:
+                SSH_USER: $SSH_USER
+                SERVER: $SSH_SERVER
+                COMMAND: "cd ~/tmp/rmok.gui && npm install --no-progress && npm run build"
+                MODE: "command"
+                DEBUG: "false"
+            - pipe: atlassian/ssh-run:0.4.0
+              variables:
+                SSH_USER: $SSH_USER
+                SERVER: $SSH_SERVER
+                COMMAND: "rsync -rq --delete ~/tmp/rmok.gui/dist/. ~/www/rmok.gui"
+                MODE: "command"
+                DEBUG: "false"
