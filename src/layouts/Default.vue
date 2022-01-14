@@ -561,7 +561,7 @@ import { POSITION } from 'vue-toastification'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
 import AppBase from '@/AppBase'
-import Postman from './Postman'
+import WS from './WS'
 import SSEEvents from './SSEEvents'
 
 const appDebug = debug('APP')
@@ -570,7 +570,7 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
 
 // eslint-disable-next-line no-use-before-define
 @Component<DefaultLayout>({
-  mixins: [Postman, SSEEvents],
+  mixins: [WS, SSEEvents],
   components: { AppLoading },
   computed: {
     ...mapGetters({

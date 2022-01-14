@@ -7,7 +7,7 @@ const postmanDebug = debug('APP').extend('POSTMAN')
 const postmanMessageDebug = postmanDebug.extend('MESSAGE')
 
 @Component
-export default class Postman extends AppBase {
+export default class WS extends AppBase {
   private socket: Socket
 
   public created () {
@@ -21,9 +21,9 @@ export default class Postman extends AppBase {
   }
 
   public mounted () {
-    if ('VUE_APP_POSTMAN_ENDPOINT' in process.env) {
+    if ('VUE_APP_WS' in process.env) {
       postmanDebug('Инициализация...')
-      this.socket = io(process.env.VUE_APP_POSTMAN_ENDPOINT, {
+      this.socket = io(process.env.VUE_APP_WS, {
         path: '/ws',
         autoConnect: true,
         transports: ['websocket', 'polling'],
@@ -48,7 +48,7 @@ export default class Postman extends AppBase {
         })
       })
     } else {
-      console.warn('Модуль "Postman" не активен!')
+      console.warn('"ws" не активен!')
     }
 
     setTimeout(this.updateState, 1000)
