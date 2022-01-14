@@ -541,7 +541,7 @@ export default class ContactsView extends AppBase {
       {
         name: 'contacts_view_chat',
         icon: 'mdi-facebook-messenger',
-        visible: true,
+        visible: false,
         to: {
           name: 'contacts_view_chat',
           params: {

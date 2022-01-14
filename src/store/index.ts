@@ -13,7 +13,7 @@ import groups from './groups'
 import users from './users'
 import users_edit from './users_edit'
 import contacts from './contacts'
-import contacts_new from './contacts_new'
+import leads from './leads'
 import statistic_recent_call from './statistic_recent_call'
 import statistic_all_call from './statistic_all_call'
 import autodialer from './autodialer'
@@ -90,7 +90,7 @@ const store = new Vuex.Store({
     contact_incoming: contact,
     contact_outgoing: contact,
     contacts,
-    contacts_new,
+    leads,
     statistics,
     statistic_recent_call,
     statistic_all_call,

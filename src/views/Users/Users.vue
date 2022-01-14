@@ -24,7 +24,6 @@
           {{ $tc('Refresh') }}
         </v-btn>
       </div>
-      <v-divider class="mt-1" />
       <div
         class="d-flex align-center py-4"
       >

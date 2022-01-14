@@ -698,7 +698,7 @@ export default class DefaultLayout extends AppBase {
           visible: false,
           color: '#ff5722'
         },
-        visible: this.$isGranted('SECTION_CONTACTS_NEW')
+        visible: true
       },
       {
         title: 'Очередь',
