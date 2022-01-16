@@ -34,11 +34,11 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
 import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { $axios } from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
+import Component from 'vue-class-component'
 
 @Component({
   components: { AppLoading }

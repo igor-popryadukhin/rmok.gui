@@ -1,26 +1,29 @@
 import { Account } from '@/api/Account'
+import APIError from '@/api/classes/APIError'
+import { $axios } from '@/plugins/axios'
 import { RootState } from '@/store'
+import { AxiosResponse } from 'axios'
 import { ActionContext, ActionTree } from 'vuex'
-import { State } from './state'
+import { ProfileState } from './state'
 import { RTCIceServer } from '@/store/pbx_configuration/rtc_configuration/state'
 
-const actions: ActionTree<State, RootState> = {
-  load ({ commit }: ActionContext<State, RootState>) {
-    return new Account()
-      .getProfile()
-      .then((response) => {
-        commit('fill', response)
-        commit('role/fill', response.role)
-        commit('organization/fill', response.organization)
-        if (response.project) {
-          commit('project/fill', response.project)
-        }
-        commit('pbx_configuration/credentials/fill', response?.pbx_configuration?.credentials)
-        commit('pbx_configuration/rtc_configuration/fill', response?.pbx_configuration?.rtc_configuration)
-      })
+const actions: ActionTree<ProfileState, RootState> = {
+  fetch ({ commit }) {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get('/account/profile')
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            throw new APIError(response.data)
+          }
+
+          commit('fill', response.data)
+
+          resolve()
+        }).catch(reject)
+    })
   },
 
-  save_pbx_configuration_credentials ({ state }: ActionContext<State, RootState>): Promise<void> {
+  save_pbx_configuration_credentials ({ state }: ActionContext<ProfileState, RootState>): Promise<void> {
     return new Account()
       .updateProfile({
         pbx_configuration: {
@@ -36,7 +39,7 @@ const actions: ActionTree<State, RootState> = {
       })
   },
 
-  save_pbx_configuration_rtc_configuration ({ state }: ActionContext<State, RootState>): Promise<void> {
+  save_pbx_configuration_rtc_configuration ({ state }: ActionContext<ProfileState, RootState>): Promise<void> {
     return new Account()
       .updateProfile({
         pbx_configuration: {
@@ -60,7 +63,7 @@ const actions: ActionTree<State, RootState> = {
       })
   },
 
-  save_pbx_configuration ({ state }: ActionContext<State, RootState>): Promise<void> {
+  save_pbx_configuration ({ state }: ActionContext<ProfileState, RootState>): Promise<void> {
     return new Account()
       .updateProfile({
         pbx_configuration: {
@@ -92,7 +95,7 @@ const actions: ActionTree<State, RootState> = {
       })
   },
 
-  set_status (ctx: ActionContext<State, RootState>, payload): Promise<void> {
+  set_status (ctx: ActionContext<ProfileState, RootState>, payload): Promise<void> {
     return new Account().setStatus(payload)
   }
 }

@@ -4,9 +4,12 @@ import { State } from './state'
 
 const getters: GetterTree<State, RootState> = {
   items (state: State) { return state.items },
+  items_total (state: State) { return state.items_total },
+  items_per_page (state: State) { return state.items_per_page },
+  items_callers (state: State) { return state.items_callers },
+  items_callers_total (state: State) { return state.items_callers_total },
   items_selected (state: State) { return state.items_selected },
-  total (state: State) { return state.total },
-  per_page (state: State) { return state.per_page },
+
   filter_offset (state: State) { return state.filter_offset || 0 }
 }
 

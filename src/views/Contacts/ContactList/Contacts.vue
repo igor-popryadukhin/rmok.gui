@@ -24,18 +24,17 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import Base from './Base'
-import ContactListTools from './ContactListTools.vue'
-import AppTable from '@/components/AppTable/AppTable.vue'
 import Contact from '@/api/interfaces/Contact'
+import AppBase from '@/AppBase'
+import AppTable from '@/components/AppTable/AppTable.vue'
 import debounce from '@/utils/debounce'
+import Component from 'vue-class-component'
 import { Watch } from 'vue-property-decorator'
+import ContactListTools from './ContactListTools.vue'
 
 // eslint-disable-next-line no-use-before-define
-@Component<Index>({
+@Component<Contacts>({
   components: {
-    ContactCreate: () => import('@/views/Contacts/ContactList/ContactCreate.vue'),
     ContactsTransferDialog: () => import('./ContactsTransferDialog.vue'),
     AppNavigationDrawer: () => import('@/components/AppNavigationDrawer/AppNavigationDrawer.vue'),
     ContactListFilters: () => import('./ContactListFilters.vue'),
@@ -51,7 +50,7 @@ import { Watch } from 'vue-property-decorator'
     })
   }
 })
-export default class Index extends Base {
+export default class Contacts extends AppBase {
   // Вычисляемая высота списка контактов
   get heightContactList () {
     return this.screenHeight - 112

@@ -86,90 +86,85 @@ const routes: RouteConfig[] = [
         },
         name: 'auto_dialer_params',
         path: ''
-      },
+      }
+    ],
+    component: () => import(/* webpackChunkName: "auto-dialer" */ '../views/AutoDialer/Layout.vue'),
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    name: 'auto_dialer_view',
+    path: '/auto-dialer/:id',
+    redirect: {
+      name: 'auto_dialer_view_tab_main'
+    },
+    component: () => import(/* webpackChunkName: "auto-dialer-view" */ '../views/AutoDialer/AutoDialerView/Index.vue'),
+    meta: {
+      anonymous: true,
+      layout: 'default',
+      middleware: []
+    },
+    children: [
       {
-        component: () => import(/* webpackChunkName: "auto-dialer-view" */ '../views/AutoDialer/AutoDialerView/Index.vue'),
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-main" */ '../views/AutoDialer/AutoDialerView/Main/Index.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
           middleware: []
         },
-        path: ':id',
-        children: [
-          {
-            redirect: {
-              name: 'auto_dialer_tab_main'
-            },
-            path: ''
-          },
-          {
-            component: () => import(/* webpackChunkName: "auto-dialer-tab-main" */ '../views/AutoDialer/AutoDialerView/Main/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'auto_dialer_tab_main',
-            path: 'main'
-          },
-          {
-            component: () => import(/* webpackChunkName: "auto-dialer-tab-contacts" */ '../views/AutoDialer/AutoDialerView/Contacts/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'auto_dialer_tab_contacts',
-            path: 'contacts'
-          },
-          {
-            component: () => import(/* webpackChunkName: "auto-dialer-tab-operators" */ '../views/AutoDialer/AutoDialerView/Operators/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'auto_dialer_tab_operators',
-            path: 'operators'
-          },
-          {
-            component: () => import(/* webpackChunkName: "auto-dialer-tab-schedule" */ '../views/AutoDialer/AutoDialerView/Schedule/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'auto_dialer_tab_schedule',
-            path: 'schedule'
-          },
-          {
-            component: () => import(/* webpackChunkName: "auto-dialer-tab-repeat-call-settings" */ '../views/AutoDialer/AutoDialerView/RepeatСallSettings/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'auto_dialer_tab_repeat_calls_settings',
-            path: 'repeat-call-settings'
-          },
-          {
-            component: () => import(/* webpackChunkName: "auto-dialer-tab-telephony" */ '../views/AutoDialer/AutoDialerView/Telephony/Index.vue'),
-            meta: {
-              anonymous: true,
-              layout: 'default',
-              middleware: []
-            },
-            name: 'auto_dialer_tab_telephony',
-            path: 'telephony'
-          }
-        ]
+        name: 'auto_dialer_view_tab_main',
+        path: 'main'
+      },
+      {
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-contacts" */ '../views/AutoDialer/AutoDialerView/Contacts/Contacts.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'auto_dialer_view_tab_contacts',
+        path: 'contacts'
+      },
+      {
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-operators" */ '../views/AutoDialer/AutoDialerView/Operators/Index.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'auto_dialer_view_tab_operators',
+        path: 'operators'
+      },
+      {
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-schedule" */ '../views/AutoDialer/AutoDialerView/Schedule/Index.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'auto_dialer_view_tab_schedule',
+        path: 'schedule'
+      },
+      {
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-repeat-call-settings" */ '../views/AutoDialer/AutoDialerView/RepeatСallSettings/Index.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'auto_dialer_view_tab_repeat_calls_settings',
+        path: 'repeat-call-settings'
+      },
+      {
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-telephony" */ '../views/AutoDialer/AutoDialerView/Telephony/Index.vue'),
+        meta: {
+          anonymous: true,
+          layout: 'default',
+          middleware: []
+        },
+        name: 'auto_dialer_view_tab_telephony',
+        path: 'telephony'
       }
-    ],
-    component: () => import(/* webpackChunkName: "auto-dialer" */ '../views/AutoDialer/Layout.vue'),
-    meta: {
-      layout: 'default',
-      middleware: []
-    }
+    ]
   },
   {
     name: 'roles',
@@ -188,7 +183,7 @@ const routes: RouteConfig[] = [
   {
     name: 'contacts',
     path: '/contacts',
-    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/ContactList/Index.vue'),
+    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/ContactList/Contacts.vue'),
     meta: { layout: 'default', middleware: [] }
   },
   {
@@ -248,6 +243,7 @@ const routes: RouteConfig[] = [
   {
     name: 'tasks',
     path: '/tasks',
+    redirect: { name: 'tasks_list', params: { id: 'for-today' } },
     component: () => import(/* webpackChunkName: "tasks" */ '../views/Tasks/Tasks.vue'),
     children: [
       {
@@ -588,17 +584,15 @@ const routes: RouteConfig[] = [
     ],
     meta: { layout: 'default', middleware: [] }
   },
+
+  {
+    name: 'statistics_recent_calls',
+    path: '/statistics/recent-calls',
+    component: () => import(/* webpackChunkName: "statistics-recent-calls" */ '../views/Statistics/RecentCalls/RecentCalls.vue'),
+    meta: { layout: 'default', middleware: [] }
+  },
   {
     children: [
-      {
-        component: () => import(/* webpackChunkName: "statistics-recent-calls" */ '../views/Statistics/RecentCalls/Index.vue'),
-        meta: {
-          layout: 'default',
-          middleware: []
-        },
-        name: 'statistics_recent_calls',
-        path: 'recent-calls'
-      }
       // {
       //   component: () => import(/* webpackChunkName: "statistics-all-calls" */ '../views/Statistics/AllCalls.vue'),
       //   meta: {

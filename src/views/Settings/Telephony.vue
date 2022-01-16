@@ -1,614 +1,500 @@
 <template>
-  <v-sheet>
-    <v-row>
-      <v-col
-        cols="12"
-        xl="6"
-        lg="6"
-        md="6"
+  <v-container
+    class="mt-5"
+    style="max-width: 500px;"
+  >
+    <!--<editor-fold desc="Параметры подключения">-->
+    <h3 class="grey--text">
+      {{ $tc('Параметры подключения') }}
+    </h3>
+    <v-divider class="mb-5" />
+    <div class="mb-5">
+      <v-text-field
+        v-model="credentialsDisplayName"
+        :label="$tc('SIP phone number')"
+        :hint="$tc('The phone number that is displayed when calling from your PBX')"
+        persistent-hint
+        dense
+        outlined
+        flat
+      />
+
+      <v-text-field
+        v-model="credentialsLogin"
+        :label="$tc('Login')"
+        :hint="$tc('Login to access your PBX. For example: 003452')"
+        persistent-hint
+        dense
+        outlined
+        flat
+      />
+      <v-text-field
+        v-model="credentialsPassword"
+        :label="$tc('Password')"
+        :hint="$tc('PBX access password')"
+        autocomplete="new-password"
+        persistent-hint
+        required
+        dense
+        outlined
+        flat
+      />
+
+      <v-text-field
+        v-model="credentialsServer"
+        :label="$tc('Server address')"
+        :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru:4445')"
+        class="mr-5"
+        persistent-hint
+        required
+        outlined
+        dense
+      />
+      <div class="d-flex flex-row">
+        <v-select
+          v-model="credentialsSchema"
+          :label="$tc('Schema')"
+          :items="schemas"
+          item-text="title"
+          item-value="value"
+          class="mr-5"
+          outlined
+          dense
+        />
+        <v-text-field
+          v-model="credentialsPort"
+          :label="$tc('Port')"
+          type="number"
+          persistent-hint
+          required
+          outlined
+          dense
+        />
+      </div>
+    </div>
+    <!--</editor-fold>-->
+
+    <!--<editor-fold desc="ICE Параметры">-->
+    <h3 class="grey--text">
+      {{ $tc('ICE options') }}
+    </h3>
+    <v-divider class="mb-5" />
+    <div class="mb-5">
+      <v-radio-group
+        v-model="rtcBundlePolicy"
+        label="SDP bundle"
       >
-        <app-tools>
-          <template #left>
-            <h2 class="grey--text">
-              {{ $tc('Telephony') }}
-            </h2>
-          </template>
-          <template #right>
-            <v-btn
-              :disabled="!profilePbxConfigValid"
-              :loading="processCredentialSave"
-              color="primary"
-              outlined
-              text
-              tile
-              small
-              @click="onBtnSaveCredentialsClick"
-            >
-              {{ $tc('Save') }}
-            </v-btn>
-          </template>
-        </app-tools>
-        <v-divider />
-        <v-form
-          v-model="profilePbxConfigValid"
-          lazy-validation
+        <v-radio
+          :label="$tc('Balanced')"
+          value="balanced"
+        />
+        <v-radio
+          :label="$tc('Max-compat')"
+          value="max-compat"
+        />
+        <v-radio
+          :label="$tc('Max-bundle')"
+          value="max-bundle"
+        />
+      </v-radio-group>
+      <v-radio-group
+        v-model="rtcICETransportPolicy"
+        :label="$tc('ice_transport_policy')"
+      >
+        <v-tooltip
+          open-delay="1000"
+          max-width="350"
+          left
         >
-          <v-row>
-            <v-col
-              cols="12"
-            >
-              <v-text-field
-                v-model="profilePbxConfigDisplayName"
-                :label="$tc('SIP phone number')"
-                :hint="$tc('The phone number that is displayed when calling from your PBX')"
-                persistent-hint
-                :rules="[assertLength({ max: 20 })]"
-                counter
-                autofocus
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              class="d-flex d-inline-flex"
-            >
-              <v-select
-                v-model="profilePbxConfigScheme"
-                :label="$tc('Schema')"
-                :items="schemas"
-                item-text="title"
-                item-value="value"
-                class="mr-5"
-                style="max-width: 100px"
-              />
-              <v-text-field
-                v-model="profilePbxConfigServer"
-                :label="$tc('Server address')"
-                :hint="$tc('The address of your PBX server. For example: pbx.mycompany.ru:4445')"
-                :rules="[rules.notBlank, rules.ipOrDomain]"
-                class="mr-5"
-                persistent-hint
-                required
-              />
-              <v-text-field
-                v-model="profilePbxConfigPort"
-                :label="$tc('Port')"
-                type="number"
-                persistent-hint
-                :rules="[rules.positive]"
-                style="max-width: 100px"
-                required
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              cols="12"
-            >
-              <v-text-field
-                v-model="profilePbxConfigLogin"
-                :label="$tc('Login')"
-                :hint="$tc('Login to access your PBX. For example: 003452')"
-                persistent-hint
-                :rules="[rules.notBlank, rules.noSpace]"
-                required
-              />
-            </v-col>
-          </v-row>
-          <v-row class="mb-5">
-            <v-col
-              cols="12"
-              md="12"
-            >
-              <v-text-field
-                v-model="profilePbxConfigPassword"
-                :label="$tc('Password')"
-                :hint="$tc('PBX access password')"
-                :type="password.visible ? '' : 'password'"
-                persistent-hint
-                required
-                :rules="[rules.notBlank, rules.noSpace]"
-                autocomplete="new-password"
-              >
-                <template #append>
-                  <v-btn
-                    v-if="password.visible"
-                    icon
-                    @click="password.visible = false"
-                  >
-                    <v-icon>mdi-eye</v-icon>
-                  </v-btn>
-                  <v-btn
-                    v-else
-                    icon
-                    @click="password.visible = true"
-                  >
-                    <v-icon>mdi-eye-off</v-icon>
-                  </v-btn>
-                </template>
-              </v-text-field>
-            </v-col>
-          </v-row>
-        </v-form>
-      </v-col>
-      <v-col>
-        <!-- ICE options -->
-        <app-tools>
-          <template #left>
-            <h2 class="grey--text">
-              {{ $tc('ICE options') }}
-            </h2>
-            <v-btn
-              href="https://en.wikipedia.org/wiki/Interactive_Connectivity_Establishment"
-              target="_blank"
-              color="primary"
-              icon
-              x-small
-            >
-              <v-icon>
-                mdi-information-outline
-              </v-icon>
-            </v-btn>
-          </template>
-          <template #right>
-            <v-btn
-              :loading="processRTCConfigurationSave"
-              color="primary"
-              outlined
-              text
-              tile
-              small
-              @click="onBtnSaveRTCConfigurationClick"
-            >
-              {{ $tc('Save') }}
-            </v-btn>
-          </template>
-        </app-tools>
-        <v-divider />
-        <div class="d-flex flex-column">
-          <div>
-            <v-radio-group
-              v-model="rtcConfigurationBundlePolicy"
-              label="SDP bundle"
-            >
-              <v-radio
-                :label="$tc('Balanced')"
-                value="balanced"
-              />
-              <v-radio
-                :label="$tc('Max-compat')"
-                value="max-compat"
-              />
-              <v-radio
-                :label="$tc('Max-bundle')"
-                value="max-bundle"
-              />
-            </v-radio-group>
-          </div>
-          <div>
-            <v-radio-group
-              v-model="rtcConfigurationIceTransportPolicy"
-              :label="$tc('ice_transport_policy')"
-            >
-              <v-tooltip
-                open-delay="1000"
-                max-width="350"
-                left
-              >
-                <template #activator="{ on, attrs }">
-                  <v-radio
-                    label="All"
-                    value="all"
-                    v-bind="attrs"
-                    v-on="on"
-                  />
-                </template>
-                <span>
-                  {{ $tc('tooltip.ice_transport_policy_all') }}
-                </span>
-              </v-tooltip>
-              <v-tooltip
-                open-delay="1000"
-                max-width="350"
-                left
-              >
-                <template #activator="{ on, attrs }">
-                  <v-radio
-                    label="Relay"
-                    value="relay"
-                    v-bind="attrs"
-                    v-on="on"
-                  />
-                </template>
-                <span>
-                  {{ $tc('tooltip.ice_transport_policy_relay') }}
-                </span>
-              </v-tooltip>
-            </v-radio-group>
-          </div>
-          <div>
-            <v-slider
-              v-model="rtcConfigurationIceCandidatePoolSize"
-              label="ICE Candidate Pool"
-              max="10"
-              ticks
-              persistent-hint
+          <template #activator="{ on, attrs }">
+            <v-radio
+              label="All"
+              value="all"
+              v-bind="attrs"
+              v-on="on"
             />
-          </div>
-          <div>
-            <v-checkbox
-              v-model="rtcConfigurationRtcpMuxPolicy"
-              label="Мультиплексирование"
+          </template>
+          <span>
+            {{ $tc('tooltip.ice_transport_policy_all') }}
+          </span>
+        </v-tooltip>
+        <v-tooltip
+          open-delay="1000"
+          max-width="350"
+          left
+        >
+          <template #activator="{ on, attrs }">
+            <v-radio
+              label="Relay"
+              value="relay"
+              v-bind="attrs"
+              v-on="on"
             />
-          </div>
-          <div>
-            <v-text-field
-              v-model="rtcConfigurationCandidateReadyTimeOut"
-              :label="$tc('ice_candidate_ready')"
-              type="number"
-              style="max-width: 250px"
-            >
-              <template #append>
-                ms
-              </template>
-            </v-text-field>
-          </div>
+          </template>
+          <span>
+            {{ $tc('tooltip.ice_transport_policy_relay') }}
+          </span>
+        </v-tooltip>
+      </v-radio-group>
+      <div>
+        <v-slider
+          v-model="rtcICECandidatePoolSize"
+          label="ICE Candidate Pool"
+          max="10"
+          ticks
+          persistent-hint
+        />
+      </div>
+      <div>
+        <v-checkbox
+          v-model="rtcMuxPolicy"
+          label="Мультиплексирование"
+        />
+      </div>
+      <div>
+        <v-text-field
+          v-model="rtcCandidateReadyTimeOut"
+          :label="$tc('ice_candidate_ready')"
+          type="number"
+          style="max-width: 250px"
+        >
+          <template #append>
+            ms
+          </template>
+        </v-text-field>
+      </div>
+    </div>
+    <!--</editor-fold>-->
+
+    <!--<editor-fold desc="ICE Серверы">-->
+    <div class="mb-5">
+      <div class="d-flex justify-space-between">
+        <div>
+          <h3 class="grey--text">
+            {{ $tc('ICE Серверы') }}
+          </h3>
         </div>
-        <!-- ICE options -->
-
-        <!-- ICE servers -->
-        <app-tools>
-          <template #left>
-            <h3 class="grey--text">
-              {{ $tc('ice_server', 2) }}
-            </h3>
-          </template>
-          <template #right>
-            <v-btn
-              :color="$vuetify.theme.currentTheme.primary"
-              outlined
-              text
-              tile
-              small
-              @click="onBtnAddStunTurnServerClick"
-            >
-              {{ $tc('Add') }}
-            </v-btn>
-          </template>
-        </app-tools>
-        <v-divider />
-
-        <template v-if="rtcConfigurationIceServers.length > 0">
-          <v-list
-            max-width="800"
-            class="mb-5"
-            dense
+        <div>
+          <app-i-c-e-server-editor-dialog
+            @click:save="onICEServerDialogSave(-1, $event)"
           >
-            <template v-for="(item, index) in rtcConfigurationIceServers">
-              <v-list-item
-                :key="'v-list-item-' + index"
-                link
+            <template #activator="{ on }">
+              <v-btn
+                x-small
+                tile
+                text
+                outlined
+                v-on="on"
               >
-                <v-list-item-content class="py-0">
-                  <v-list-item-title>
-                    {{ Array.isArray(item.urls) ? item.urls.join(', ') : item.urls }}
-                  </v-list-item-title>
-                </v-list-item-content>
-
-                <v-list-item-action class="mx-0 ml-1">
-                  <v-btn
-                    block
-                    icon
-                    small
-                    @click="onBtnEditStunTurnServerClick(item, index)"
-                  >
-                    <v-icon small>
-                      mdi-square-edit-outline
-                    </v-icon>
-                  </v-btn>
-                </v-list-item-action>
-                <v-list-item-action class="mx-0 ml-1">
-                  <v-btn
-                    block
-                    icon
-                    small
-                    @click="onBtnDeleteStunTurnServerClick(item.urls, index)"
-                  >
-                    <v-icon small>
-                      mdi-trash-can-outline
-                    </v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-
-              <v-divider
-                v-show="rtcConfigurationIceServers.length > 1"
-                :key="'v-divider-' + index"
-              />
+                {{ $tc('Add') }}
+              </v-btn>
             </template>
-          </v-list>
+          </app-i-c-e-server-editor-dialog>
+        </div>
+      </div>
+      <v-divider class="mb-1" />
+      <div
+        v-if="rtcICEServers.length === 0"
+        class="d-flex align-center justify-center fill-height"
+        style="height: 64px"
+      >
+        <span class="grey--text">
+          {{ $tc('ICE Servers not installed') }}
+        </span>
+      </div>
+      <v-list v-else>
+        <template v-for="(item, itemIndex) in rtcICEServers">
+          <v-divider
+            v-if="itemIndex>0"
+            :key="`v-divider-${itemIndex}`"
+          />
+          <v-list-item
+            :key="`v-list-item-${itemIndex}`"
+            link
+          >
+            <v-list-item-content>
+              <v-list-item-title v-if="Array.isArray(item.urls)">
+                {{ item.urls.join(', ') }}
+              </v-list-item-title>
+              <v-list-item-title v-else>
+                {{ item.urls }}
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action class="d-flex flex-row">
+              <app-i-c-e-server-editor-dialog
+                :urls="item.urls.join(', ')"
+                :username="item.username"
+                :credential="item.credential"
+                @click:save="onICEServerDialogSave(itemIndex, $event)"
+              >
+                <template #activator="{ on }">
+                  <v-btn
+                    class="mr-2"
+                    tile
+                    icon
+                    x-small
+                    v-on="on"
+                  >
+                    <v-icon>mdi-square-edit-outline</v-icon>
+                  </v-btn>
+                </template>
+              </app-i-c-e-server-editor-dialog>
+              <app-confirm-dialog
+                text="Вы хотите удалить ICE сервер?"
+                @click:confirm="deleteICEServer(itemIndex)"
+              >
+                <template #activator="{ on }">
+                  <v-btn
+                    tile
+                    icon
+                    x-small
+                    v-on="on"
+                  >
+                    <v-icon>mdi-trash-can-outline</v-icon>
+                  </v-btn>
+                </template>
+              </app-confirm-dialog>
+            </v-list-item-action>
+          </v-list-item>
         </template>
-        <template v-else>
-          <div class="d-flex justify-center">
-            <div class="pa-16 grey--text">
-              {{ $tc('Empty') }}
-            </div>
-          </div>
-        </template>
-        <!-- ICE servers -->
-      </v-col>
-    </v-row>
-  </v-sheet>
+      </v-list>
+    </div>
+    <!--    <app-i-c-e-server-editor />-->
+    <!--</editor-fold>-->
+
+    <v-divider class="mb-2" />
+
+    <div class="mb-5">
+      <v-btn
+        :loading="conservationProcess"
+        :disabled="!isChanged"
+        tile
+        text
+        outlined
+        @click="onBtnSaveChangeClick"
+      >
+        {{ $tc('Save change') }}
+      </v-btn>
+    </div>
+
+    <div style="margin-bottom: 200px" />
+  </v-container>
 </template>
 
 <script lang="ts">
-import AppICEServerEditor from '@/components/AppICEServerEditor/AppICEServerEditor.vue'
-import Vue from 'vue'
-import rules from '@/mixins/rules'
-import { mapGetters } from 'vuex'
 
-export default Vue.extend({
+import APIError from '@/api/classes/APIError'
+import PBXConfiguration, { Credentials, RTCConfiguration, RTCIceServer } from '@/api/interfaces/PBXConfiguration'
+import AppBase from '@/AppBase'
+import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue'
+import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue'
+import { $axios } from '@/plugins/axios'
+import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
+import ProjectsTools from '@/views/Projects/ProjectsTools.vue'
+import { AxiosResponse } from 'axios'
+import Component from 'vue-class-component'
+import { Watch } from 'vue-property-decorator'
 
-  mixins: [rules],
-
-  data () {
-    return {
-      profilePbxConfigValid: false,
-      password: {
-        visible: false
-      },
-      processCredentialSave: false,
-      processRTCConfigurationSave: false
-    }
-  },
-
-  computed: {
-    ...mapGetters({
-      rtcConfigurationIceServers: 'profile/pbx_configuration/rtc_configuration/ice_servers'
-    }),
-
-    profilePbxConfigDisplayName: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/credentials/display_name']
-      },
-      set (value: string) {
-        return this.$store.commit('profile/pbx_configuration/credentials/display_name', value)
-      }
-    },
-
-    profilePbxConfigScheme: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/credentials/schema']
-      },
-      set (value: string) {
-        return this.$store.commit('profile/pbx_configuration/credentials/schema', value)
-      }
-    },
-
-    profilePbxConfigServer: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/credentials/server']
-      },
-      set (value: string) {
-        return this.$store.commit('profile/pbx_configuration/credentials/server', value)
-      }
-    },
-
-    profilePbxConfigPort: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/credentials/port']
-      },
-      set (value: number) {
-        return this.$store.commit('profile/pbx_configuration/credentials/port', +value)
-      }
-    },
-
-    profilePbxConfigLogin: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/credentials/login']
-      },
-      set (value: string) {
-        return this.$store.commit('profile/pbx_configuration/credentials/login', value)
-      }
-    },
-
-    profilePbxConfigPassword: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/credentials/password']
-      },
-      set (value: string) {
-        return this.$store.commit('profile/pbx_configuration/credentials/password', value)
-      }
-    },
-
-    rtcConfigurationBundlePolicy: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/rtc_configuration/bundle_policy']
-      },
-      set (value: 'balanced' | 'max-bundle' | 'max-compat') {
-        return this.$store.commit('profile/pbx_configuration/rtc_configuration/bundle_policy', value)
-      }
-    },
-
-    rtcConfigurationIceTransportPolicy: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_transport_policy']
-      },
-      set (value: 'all' | 'relay') {
-        return this.$store.commit('profile/pbx_configuration/rtc_configuration/ice_transport_policy', value)
-      }
-    },
-
-    rtcConfigurationIceCandidatePoolSize: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_candidate_pool_size']
-      },
-      set (value: number) {
-        return this.$store.commit('profile/pbx_configuration/rtc_configuration/ice_candidate_pool_size', value)
-      }
-    },
-
-    /** Мультиплексирование */
-    rtcConfigurationRtcpMuxPolicy: {
-      get () {
-        return this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']
-      },
-      set (value: boolean) {
-        return this.$store.commit('profile/pbx_configuration/rtc_configuration/rtcp_mux_policy', value ? 'require' : null)
-      }
-    },
-
-    rtcConfigurationCandidateReadyTimeOut: {
-      get () {
-        return +this.$store.getters['profile/pbx_configuration/rtc_configuration/candidate_ready_timeout']
-      },
-      set (value: number|string) {
-        return this.$store.commit('profile/pbx_configuration/rtc_configuration/candidate_ready_timeout', +value)
-      }
-    },
-
-    schemas () {
-      return [
-        {
-          title: 'wss://',
-          value: 'wss'
-        },
-        {
-          title: 'ws://',
-          value: 'ws'
-        }
-      ]
-    }
-
-  },
-
-  methods: {
-    /**
-     * Срабатывает когда нажали на кнопку удалить, элемента списка ICE серверов.
-     * @param urls
-     * @param index
-     */
-    onBtnDeleteStunTurnServerClick (urls: string | string[], index: number) {
-      this.$dialog.confirm({
-        title: this.$tc('Confirmation request'),
-        text: this.$t('Delete "{value}"?', { value: Array.isArray(urls) ? urls.join(', ') : urls }).toString(),
-        showClose: false,
-        actions: {
-          false: this.$tc('Cancel'),
-          true: this.$tc('Yes')
-        }
-      }).then((result: boolean) => {
-        if (result) {
-          // eslint-disable-next-line no-undef
-          const servers: Array<Record<string, string|string[]>> = this.rtcConfigurationIceServers
-            .map((e) => {
-              return {
-                credential: e.credential,
-                credential_type: e.credential_type || 'password',
-                urls: e.urls,
-                username: e.username
-              }
-            })
-
-          servers.splice(index, 1)
-          this.$store.commit('profile/pbx_configuration/rtc_configuration/ice_servers', servers)
-        }
-      })
-    },
-
-    /**
-     * @param item
-     * @param index
-     */
-    // eslint-disable-next-line no-undef
-    async onBtnEditStunTurnServerClick (item: RTCIceServer, index: number) {
-      const dialog = await this.$dialog.show(AppICEServerEditor, {
-        waitForResult: false,
-        showClose: false,
-        // Props
-        urls: Array.isArray(item.urls) ? item.urls.join(', ') : item.urls,
-        username: item.username,
-        password: item.credential,
-        // Handlers
-        handler: (target: 'save' | 'cancel', value: unknown & {urls: string; username?: string; password?: string}) => {
-          if (target === 'save') {
-            // eslint-disable-next-line no-undef
-            const servers: Array<Record<string, string|string[]>> = this.rtcConfigurationIceServers
-              .map((e) => {
-                return {
-                  credential: e.credential,
-                  credential_type: e.credential_type || 'password',
-                  urls: e.urls,
-                  username: e.username
-                }
-              })
-
-            servers[index].username = value.username
-            servers[index].credential = value.password
-            servers[index].urls = value.urls
-              .replace(/\s+/, '')
-              .split(',')
-              .map(e => e.trim())
-
-            this.$store.commit('profile/pbx_configuration/rtc_configuration/ice_servers', servers)
-          }
-          dialog.close()
-        }
-      })
-    },
-
-    async onBtnAddStunTurnServerClick () {
-      const dialog = await this.$dialog.show(AppICEServerEditor, {
-        waitForResult: false,
-        handler: (target: 'save' | 'cancel', value: unknown & { urls: string; username?: string; password?: string }) => {
-          if (target === 'save') {
-            // eslint-disable-next-line no-undef
-            const servers: Array<Record<string, string|string[]>> = this.rtcConfigurationIceServers
-              .map((e) => {
-                return {
-                  credential: e.credential,
-                  credential_type: e.credential_type || 'password',
-                  urls: e.urls,
-                  username: e.username
-                }
-              })
-
-            servers.push({
-              username: value.username,
-              credential: value.password,
-              credential_type: 'password',
-              urls: value.urls
-                .replace(/\s+/, '')
-                .split(',')
-                .map(e => e.trim())
-            })
-
-            this.$store.commit('profile/pbx_configuration/rtc_configuration/ice_servers', servers)
-          }
-          dialog.close()
-        }
-      })
-    },
-
-    onBtnSaveRTCConfigurationClick () {
-      this.$data.processRTCConfigurationSave = true
-      this.$store.dispatch('profile/save_pbx_configuration_rtc_configuration')
-        .then(() => (this.$toast.success('Changes accepted')))
-        .catch(() => {
-          this.$toast.error('An error occurred while saving')
-        }).finally(() => (this.$data.processRTCConfigurationSave = false))
-    },
-
-    onBtnSaveCredentialsClick () {
-      this.$data.processCredentialSave = true
-      this.$store.dispatch('profile/save_pbx_configuration_credentials')
-        .then(() => (this.$toast.success('Changes accepted')))
-        .catch(() => {
-          this.$toast.error('An error occurred while saving')
-        }).finally(() => (this.$data.processCredentialSave = false))
-    }
+// eslint-disable-next-line no-use-before-define
+@Component<Telephony>({
+  components: {
+    AppConfirmDialog,
+    AppICEServerEditorDialog: () => import('@/components/AppICEServerEditor/AppICEServerEditorDialog.vue'),
+    AppPellEditor,
+    ProjectsTools,
+    ProjectsItems
   }
 })
+export default class Telephony extends AppBase {
+  conservationProcess = false
+  oldFormState = null
+  username = ''
+
+  @Watch('username')
+  usernameWatch (v) {
+    this.$toast.info(v)
+  }
+
+  get pbxConfig (): PBXConfiguration { return this.$store.getters['profile/pbx_configuration'] }
+  get credentials (): Credentials { return this.pbxConfig.credentials }
+  get rtcConfiguration (): RTCConfiguration { return this.pbxConfig.rtc_configuration }
+
+  // Параметры подключения
+  get credentialsDisplayName (): string { return this.credentials.display_name }
+  set credentialsDisplayName (val: string) {
+    this.$store
+      .commit('profile/pbx_configuration_credentials', Object.assign(
+        JSON.parse(JSON.stringify(this.credentials)), { display_name: val }
+      ))
+  }
+
+  get credentialsLogin (): string { return this.credentials.login }
+  set credentialsLogin (val: string) {
+    this.$store
+      .commit('profile/pbx_configuration_credentials', Object.assign(
+        JSON.parse(JSON.stringify(this.credentials)), { login: val }
+      ))
+  }
+
+  get credentialsPassword (): string { return this.credentials.password }
+  set credentialsPassword (val: string) {
+    this.$store
+      .commit('profile/pbx_configuration_credentials', Object.assign(
+        JSON.parse(JSON.stringify(this.credentials)), { password: val }
+      ))
+  }
+
+  get credentialsServer (): string { return this.credentials.server }
+  set credentialsServer (val: string) {
+    this.$store
+      .commit('profile/pbx_configuration_credentials', Object.assign(
+        JSON.parse(JSON.stringify(this.credentials)), { server: val }
+      ))
+  }
+
+  get credentialsSchema (): string { return this.credentials.schema }
+  set credentialsSchema (val: string) {
+    this.$store
+      .commit('profile/pbx_configuration_credentials', Object.assign(
+        JSON.parse(JSON.stringify(this.credentials)), { schema: val }
+      ))
+  }
+
+  get credentialsPort (): number { return this.credentials.port }
+  set credentialsPort (val: number) {
+    this.$store
+      .commit('profile/pbx_configuration_credentials', Object.assign(
+        JSON.parse(JSON.stringify(this.credentials)), { port: val }
+      ))
+  }
+  // Параметры подключения
+
+  // ICE
+  get rtcBundlePolicy (): 'balanced' | 'max-bundle' | 'max-compat' { return this.rtcConfiguration.bundle_policy }
+  set rtcBundlePolicy (val: 'balanced' | 'max-bundle' | 'max-compat') {
+    this.$store
+      .commit('profile/pbx_configuration_rtc_configuration', Object.assign(
+        JSON.parse(JSON.stringify(this.rtcConfiguration)), { bundle_policy: val }
+      ))
+  }
+
+  get rtcICETransportPolicy (): 'all' | 'relay' { return this.rtcConfiguration.ice_transport_policy }
+  set rtcICETransportPolicy (val: 'all' | 'relay') {
+    this.$store
+      .commit('profile/pbx_configuration_rtc_configuration', Object.assign(
+        JSON.parse(JSON.stringify(this.rtcConfiguration)), { ice_transport_policy: val }
+      ))
+  }
+
+  get rtcICECandidatePoolSize (): number { return this.rtcConfiguration.ice_candidate_pool_size }
+  set rtcICECandidatePoolSize (val: number) {
+    this.$store
+      .commit('profile/pbx_configuration_rtc_configuration', Object.assign(
+        JSON.parse(JSON.stringify(this.rtcConfiguration)), { ice_candidate_pool_size: val }
+      ))
+  }
+
+  get rtcMuxPolicy (): 'require' | undefined { return this.rtcConfiguration.rtcp_mux_policy }
+  set rtcMuxPolicy (val: 'require' | undefined) {
+    this.$store
+      .commit('profile/pbx_configuration_rtc_configuration', Object.assign(
+        JSON.parse(JSON.stringify(this.rtcConfiguration)), { rtcp_mux_policy: val }
+      ))
+  }
+
+  get rtcCandidateReadyTimeOut (): number { return this.rtcConfiguration.candidate_ready_timeout }
+  set rtcCandidateReadyTimeOut (val: number) {
+    this.$store
+      .commit('profile/pbx_configuration_rtc_configuration', Object.assign(
+        JSON.parse(JSON.stringify(this.rtcConfiguration)), { candidate_ready_timeout: +val }
+      ))
+  }
+
+  // eslint-disable-next-line no-undef
+  get rtcICEServers (): RTCIceServer[] { return this.$store.getters['profile/pbx_configuration_rtc_configuration_ice_servers'] }
+  // ICE
+
+  get isChanged () {
+    return this.oldFormState !== JSON.stringify(this.pbxConfig)
+  }
+
+  get schemas () {
+    return [
+      {
+        title: 'wss://',
+        value: 'wss'
+      },
+      {
+        title: 'ws://',
+        value: 'ws'
+      }
+    ]
+  }
+
+  public mounted () {
+    this.oldFormState = JSON.stringify(this.pbxConfig)
+  }
+
+  private onBtnSaveChangeClick () {
+    this.conservationProcess = true
+    $axios.patch('/account/profile', {
+      pbx_configuration: this.pbxConfig
+    }).then((response: AxiosResponse) => {
+      if (![200, 204].includes(response.status)) {
+        throw new APIError(response.data)
+      }
+
+      this.oldFormState = JSON.stringify(this.pbxConfig)
+      this.$toast.success('Changes accepted')
+    }).catch((reason) => {
+      if (reason instanceof APIError) {
+        reason.errors.forEach((e) => {
+          this.$toast.error(e.message)
+        })
+      } else {
+        this.$toast.error(reason.message)
+      }
+    }).finally(() => (this.conservationProcess = false))
+  }
+
+  private onICEServerDialogSave (index: number, data) {
+    const iceServers = JSON.parse(JSON.stringify(this.rtcICEServers)) as RTCIceServer[]
+
+    if (index === -1) {
+      iceServers.push({
+        urls: String(data.urls).split(',').map((e) => e.trim()),
+        username: data.username,
+        credential: data.credential,
+        credential_type: 'password'
+      })
+
+      this.$store
+        .commit('profile/pbx_configuration_rtc_configuration_ice_servers', iceServers)
+    } else {
+      iceServers[index].username = data.username
+      iceServers[index].urls = String(data.urls).split(',').map((e) => e.trim())
+      iceServers[index].credential = data.credential
+
+      this.$store
+        .commit('profile/pbx_configuration_rtc_configuration_ice_servers', iceServers)
+    }
+  }
+
+  /**
+   *
+   * @param index
+   */
+  deleteICEServer (index: number) {
+    // eslint-disable-next-line no-undef
+    const iceServers = JSON.parse(JSON.stringify(this.rtcICEServers)) as RTCIceServer[]
+
+    if (typeof iceServers[index] !== 'undefined') {
+      iceServers.splice(index, 1)
+      this.$store
+        .commit('profile/pbx_configuration_rtc_configuration_ice_servers', iceServers)
+    }
+  }
+}
 </script>
 
 <style scoped>

@@ -1,9 +1,11 @@
 import Country from '@/api/interfaces/Country'
 import PBXConfiguration from '@/api/interfaces/PBXConfiguration'
 import Project from '@/api/interfaces/Project'
+import Role from '@/api/interfaces/Role'
+import TimeZone from '@/api/interfaces/TimeZone'
 import UserGroup from '@/api/interfaces/UserGroup'
 
-export interface State {
+export interface ProfileState {
   id: number;
   first_name: string;
   last_name: string;
@@ -17,7 +19,7 @@ export interface State {
   status?: string;
   mode?: string;
   contacts_count?: number;
-  tz?: string;
+  tz?: TimeZone;
   last_login: number;
   created_at: number;
   country?: Country;
@@ -25,9 +27,10 @@ export interface State {
   permissions?: Array<Record<string, unknown>>;
   project: Project|null;
   group?: UserGroup;
+  role?: Role;
 }
 
-function state (): State {
+function state (): ProfileState {
   return {
     contacts_count: 0,
     country: {
@@ -49,12 +52,31 @@ function state (): State {
     phone: '',
     status: '',
     mode: '',
-    tz: '',
+    tz: null,
     userpic: '',
-    pbx_configuration: null,
+    pbx_configuration: {
+      rtc_configuration: {
+        bundle_policy: undefined,
+        candidate_ready_timeout: 0,
+        certificates: [],
+        ice_candidate_pool_size: 0,
+        ice_servers: [],
+        ice_transport_policy: undefined,
+        rtcp_mux_policy: 'require'
+      },
+      credentials: {
+        display_name: '',
+        login: '',
+        password: '',
+        port: 0,
+        schema: '',
+        server: ''
+      }
+    },
     permissions: [],
     project: null,
-    group: undefined
+    group: null,
+    role: null
   }
 }
 

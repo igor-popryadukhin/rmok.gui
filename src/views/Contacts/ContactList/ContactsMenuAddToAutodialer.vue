@@ -109,14 +109,14 @@
 </template>
 
 <script lang="ts">
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
-import AppBase from '@/AppBase'
-import ContactTag from '@/api/interfaces/ContactTag'
-import { Watch } from 'vue-property-decorator'
-import { AxiosResponse } from 'axios'
 import APIError from '@/api/classes/APIError'
+import ContactTag from '@/api/interfaces/ContactTag'
+import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import debounce from '@/utils/debounce'
+import { AxiosResponse } from 'axios'
+import Component from 'vue-class-component'
+import { Watch } from 'vue-property-decorator'
 
 @Component({
   components: { AppLoading }

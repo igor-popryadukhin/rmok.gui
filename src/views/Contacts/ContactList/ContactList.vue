@@ -207,19 +207,19 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import Base from './Base'
+import AppBase from '@/AppBase'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import AppTable from '@/components/AppTable/AppTable.vue'
 import ContactListFilters from '@/views/Contacts/ContactList/ContactListFilters.vue'
 import ContactListTools from '@/views/Contacts/ContactList/ContactListTools.vue'
-import AppTable from '@/components/AppTable/AppTable.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import Component from 'vue-class-component'
 import { Prop } from 'vue-property-decorator'
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactList>({
   components: { AppLoading, AppTable, ContactListTools, ContactListFilters }
 })
-export default class ContactList extends Base {
+export default class ContactList extends AppBase {
   @Prop({ default: 0 }) readonly height: number
   @Prop({ default: false }) readonly overlay: boolean
   @Prop({ default: false }) readonly loading: boolean
@@ -243,6 +243,8 @@ export default class ContactList extends Base {
   get items () {
     return this.$store.getters['contacts/list/items']
   }
+
+  get contactLoading (): boolean { return this.$store.getters['contacts/list/loading'] }
 
   /** Выбранные элементы */
   get itemsSelected (): number[] {

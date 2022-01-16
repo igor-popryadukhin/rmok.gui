@@ -1,18 +1,22 @@
 import { RootState } from '@/store'
-import { State } from './state'
+import { ProfileState } from './state'
 
 import { GetterTree } from 'vuex'
 
-const getters: GetterTree<State, RootState> = {
-  profile (state: State): State { return Object.assign({}, state) },
-  first_name (state: State) { return state.first_name },
-  last_name (state: State) { return state.last_name },
-  middle_name (state: State) { return state.middle_name },
-  login (state: State) { return state.login },
-  email (state: State) { return state.email },
-  mode (state: State) { return state.mode },
-  profile_tz (state: State) { return state.tz },
-  permissions (state: State) { return state.permissions }
+const getters: GetterTree<ProfileState, RootState> = {
+  profile (state: ProfileState): ProfileState { return Object.assign({}, state) },
+  first_name (state: ProfileState) { return state.first_name },
+  last_name (state: ProfileState) { return state.last_name },
+  middle_name (state: ProfileState) { return state.middle_name },
+  login (state: ProfileState) { return state.login },
+  email (state: ProfileState) { return state.email },
+  mode (state: ProfileState) { return state.mode },
+  profile_tz (state: ProfileState) { return state.tz },
+  permissions (state: ProfileState) { return state.permissions },
+  pbx_configuration (state: ProfileState) { return state.pbx_configuration },
+  pbx_configuration_credentials (state: ProfileState) { return state.pbx_configuration.credentials },
+  pbx_configuration_rtc_configuration (state: ProfileState) { return state.pbx_configuration.rtc_configuration },
+  pbx_configuration_rtc_configuration_ice_servers (state: ProfileState) { return state.pbx_configuration?.rtc_configuration?.ice_servers || [] }
 }
 
 export default getters

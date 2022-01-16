@@ -9,7 +9,7 @@ import axios, { AxiosResponse, CancelTokenSource } from 'axios'
 const cancelTokenSourcesTags: CancelTokenSource[] = []
 
 const actions: ActionTree<State, RootState> = {
-  fetchProjects: ({ commit, state }, params = {}) => {
+  fetch_projects: ({ commit, state }, params = {}) => {
     new Projects()
       .find({
         ...params
@@ -24,7 +24,7 @@ const actions: ActionTree<State, RootState> = {
       })
   },
 
-  fetchStatuses: ({ commit, state }, params = {}) => {
+  fetch_statuses: ({ commit, state }, params = {}) => {
     return new Statuses()
       .find(params)
       .then((response) => {
@@ -38,7 +38,7 @@ const actions: ActionTree<State, RootState> = {
       })
   },
 
-  fetchUsers: ({ commit, state }, params = {}) => {
+  fetch_users: ({ commit, state }, params = {}) => {
     return new Promise<void>((resolve) => {
       $axios.get('/users', { params })
         .then((response: AxiosResponse) => {

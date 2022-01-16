@@ -19,19 +19,42 @@ Vue.component('ApexChart', VueApexCharts)
 
 @Component
 export default class Index extends AppBase {
-  @Prop({ default: null }) readonly height: number | string | null
-  @Prop({ default: null }) readonly width: number | string | null
-  @Prop({ default: false, type: Boolean }) readonly left: boolean
-  @Prop({ default: false, type: Boolean }) readonly right: boolean
-  @Prop({ default: [] }) readonly colors: string[]
-  @Prop({ default: [] }) readonly labels: string[]
-  @Prop({ default: [] }) readonly series: number[]
+  @Prop({ default: null }) readonly height!: number | string | null
+  @Prop({ default: null }) readonly width!: number | string | null
+  @Prop({ default: false, type: Boolean }) readonly left!: boolean
+  @Prop({ default: false, type: Boolean }) readonly right!: boolean
+  @Prop({ default: [] }) readonly colors!: string[]
+  @Prop({ default: [] }) readonly labels!: string[]
+  @Prop({ default: [] }) readonly series!: number[]
 
   get apexChartOptions () {
     return {
       chart: {
+        type: 'donut',
         animations: {
-          enabled: false // Off animations
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
+          animateGradually: {
+            enabled: true,
+            delay: 150
+          },
+          dynamicAnimation: {
+            enabled: true,
+            speed: 350
+          }
+        }
+      },
+      noData: {
+        text: this.$tc('No data'),
+        align: 'center',
+        verticalAlign: 'middle',
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: undefined,
+          fontSize: '14px',
+          fontFamily: undefined
         }
       },
       colors: this.colors,

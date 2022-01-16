@@ -1,9 +1,10 @@
+import RolePermission from '@/api/interfaces/RolePermission'
 
 export interface State {
   fetching: boolean;
   /// //////////////////////
   role_name: string;
-  role_permissions: Array<Record<string, unknown>>;
+  role_permissions: RolePermission[];
 }
 
 function defaultState (): State {

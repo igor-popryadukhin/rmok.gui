@@ -60,7 +60,7 @@ const actions: ActionTree<State, RootState> = {
     })
   },
 
-  fetchProjects: ({ commit, state }, params = {}) => {
+  fetch_projects: ({ commit, state }, params = {}) => {
     new Projects()
       .find({
         ...params
@@ -75,7 +75,7 @@ const actions: ActionTree<State, RootState> = {
       })
   },
 
-  fetchUsers: ({ commit, state }, params = {}) => {
+  fetch_users: ({ commit, state }, params = {}) => {
     return new Promise<void>((resolve) => {
       $axios.get('/users', { params })
         .then((response: AxiosResponse) => {

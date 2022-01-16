@@ -48,10 +48,7 @@ export interface State {
   user_group_id: number;
   tag_ids: number[];
   contact_created_at: string;
-  calling: null | 'yes' | 'no';
   offset: number;
-  task: string|null;
-  timezone_id: number|null;
 
   order_by: string|null;
   order_direction: 'asc' | 'desc';
@@ -76,16 +73,13 @@ export function defaultState (): State {
     user_group_id: 0,
     tag_ids: [],
     contact_created_at: '',
-    calling: null,
     offset: 0,
-    task: '',
-    timezone_id: null,
 
-    order_by: '',
-    order_direction: 'asc',
+    order_by: 'created_at',
+    order_direction: 'desc',
     /// /////////////////////////////////
     panel_visible: true
   }
 }
 
-export const state = defaultState()
+export const state = defaultState

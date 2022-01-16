@@ -9,47 +9,50 @@ const actions: ActionTree<State, RootState> = {
   /**
    *
    * @param ctx
-   * @param params
+   * @param pyload
    */
-  fetch: ({ commit, rootGetters }, params = {}) => {
+  fetch: ({ commit, state }, pyload) => {
     return new Promise<void>((resolve, reject) => {
-      const id = rootGetters.routeParams.id
-      $axios.get(`/auto-dialers/${id}/calls`, { params })
-        .then((response) => {
-          if (response.status !== 200) {
-            throw new APIError(response.data)
-          } else {
-            commit('total', response.data?.meta?.count || 0)
-            commit('items', response.data?.data || [])
-            resolve()
-          }
-        }).catch(reject)
-    })
-  },
-
-  delete_selected: ({ commit, getters, rootGetters }) => {
-    return new Promise<void>((resolve, reject) => {
-      const id = rootGetters.routeParams.id
-      const ids = getters.items_selected
-      $axios.delete(`/auto-dialers/${id}/contacts`, { params: { ids } })
-        .then((response) => {
-          if (response.status !== 200) {
-            throw new APIError(response.data)
-          }
-          commit('items_selected', [])
+      $axios.get(`/auto-dialers/${pyload}/calls`, {
+        params: {
+          only_callers: 0,
+          offset: state.filter_offset,
+          count: state.items_per_page
+        }
+      }).then((response) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        } else {
+          commit('items_total', response.data?.meta?.count || 0)
+          commit('items', response.data?.data || [])
           resolve()
-        }).catch(reject)
+        }
+      }).catch(reject)
     })
   },
 
-  selected_all_in_page: ({ commit, state }) => {
-    const itemsSelected: number[] = state.items_selected.map((id: number) => id)
-    state.items.forEach((e) => {
-      if (!itemsSelected.includes(e.id)) {
-        itemsSelected.push(e.id)
-      }
+  /**
+   *
+   * @param ctx
+   * @param payload
+   */
+  fetch_callers: ({ commit }, payload) => {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get(`/auto-dialers/${payload}/calls`, {
+        params: {
+          only_callers: 1,
+          count: 50
+        }
+      }).then((response) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        } else {
+          commit('items_callers_total', response.data?.meta?.count || 0)
+          commit('items_callers', response.data?.data || [])
+          resolve()
+        }
+      }).catch(reject)
     })
-    commit('items_selected', itemsSelected)
   },
 
   unselected_all_in_page: ({ commit }) => {

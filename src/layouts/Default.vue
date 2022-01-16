@@ -26,13 +26,13 @@
       app
       dark
     >
-      <v-list-item>
+      <v-list-item style="height: 50px">
         <v-list-item-content>
           <v-list-item-title class="text-h6">
             RMOK
           </v-list-item-title>
-          <v-list-item-subtitle>
-            subtitle
+          <v-list-item-subtitle v-if="profile.role">
+            {{ profile.role.name }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -237,23 +237,6 @@
                             {{ item.message }}
                           </span>
                         </v-tooltip>
-                        <v-btn
-                          v-if="item.url && (item.link_type === 'file')"
-                          style="max-width: 112px;"
-                          color="primary"
-                          outlined
-                          x-small
-                          tile
-                          @click="onFileDownload(item.url)"
-                        >
-                          {{ $tc('Download') }}
-                          <v-icon
-                            right
-                            dark
-                          >
-                            mdi-cloud-download
-                          </v-icon>
-                        </v-btn>
                       </v-list-item-content>
                       <v-list-item-action>
                         <v-btn
@@ -299,27 +282,27 @@
                 v-on="on"
               >
                 <v-icon
-                  v-if="profileStatus === 'available'"
+                  v-if="profile.status === 'available'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-check-circle-outline
                 </v-icon>
                 <v-icon
-                  v-else-if="profileStatus === 'do_not_disturb'"
+                  v-else-if="profile.status === 'do_not_disturb'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-minus-circle-outline
                 </v-icon>
                 <v-icon
-                  v-else-if="profileStatus === 'coffee_break'"
+                  v-else-if="profile.status === 'coffee_break'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-pause-circle-outline
                 </v-icon>
-                {{ profileFirstName || profileEmail || profileLogin }}
+                {{ profile.first_name || profile.email || profile.login }}
                 <!-- Подключен и зарегистрирован -->
                 <span
                   v-if="$dialer.isConnected() && $dialer.isRegistered()"
@@ -339,42 +322,42 @@
             </template>
             <v-card>
               <v-card-text
-                v-if="profileProject"
+                v-if="profile.project"
                 class="px-0 py-0"
               >
                 <v-list>
                   <v-list-item>
                     <v-list-item-avatar class="primary">
                       <span style="color: white">
-                        {{ profileAbbreviation }}
+                        {{ profile.abbreviation }}
                       </span>
                     </v-list-item-avatar>
                   </v-list-item>
 
-                  <!--                  <v-list-item>-->
-                  <!--                    <v-list-item-content>-->
-                  <!--                      <v-list-item-title class="text-h6">-->
-                  <!--                        {{ profileFullName }}-->
-                  <!--                      </v-list-item-title>-->
-                  <!--                      <v-list-item-subtitle v-if="$profile.group">-->
-                  <!--                        {{ $profile.login }} ({{ $profile.group.name }})-->
-                  <!--                      </v-list-item-subtitle>-->
-                  <!--                      <v-list-item-subtitle v-else>-->
-                  <!--                        {{ $profile.login }}-->
-                  <!--                      </v-list-item-subtitle>-->
-                  <!--                    </v-list-item-content>-->
-                  <!--                  </v-list-item>-->
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title class="text-h6">
+                        {{ profile.full_name }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle v-if="profile.group">
+                        @{{ profile.login }} ({{ profile.group.name }})
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle v-else>
+                        @{{ profile.login }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
 
                   <!-- Проект -->
                   <v-list-item
-                    v-if="profileProject"
+                    v-if="profile.project"
                     link
                   >
                     <v-list-item-content>
                       <v-list-item-title>
                         {{ $tc('Current project') }}
                       </v-list-item-title>
-                      <v-list-item-subtitle>{{ profileProject.name }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>{{ profile.project.name }}</v-list-item-subtitle>
                     </v-list-item-content>
 
                     <!-- Смена проекта TODO: Реализовать обработчик/механизм смены проекта-->
@@ -386,7 +369,7 @@
                   <!-- Проект -->
                 </v-list>
               </v-card-text>
-              <v-divider v-if="profileProject" />
+              <v-divider v-if="profile.project" />
               <!-- Статусы -->
               <v-card-text class="px-0 py-0">
                 <v-list
@@ -394,7 +377,7 @@
                   tile
                   dense
                 >
-                  <v-list-item-group :value="profileStatus">
+                  <v-list-item-group :value="profile.status">
                     <v-list-item
                       value="available"
                       link
@@ -543,26 +526,27 @@
 <script lang="ts">
 import { Calls } from '@/api/Calls'
 import APIError from '@/api/classes/APIError'
-import Project from '@/api/interfaces/Project'
+import Notification from '@/api/interfaces/Notification'
+import { Credentials, RTCConfiguration } from '@/api/interfaces/PBXConfiguration'
+import AppBase from '@/AppBase'
+import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import SSEMessage from '@/interfaces/SSEMessage'
 import VNavigationDrawer from '@/interfaces/VNavigationDrawer'
-import { State as ProfileState } from '@/store/profile/state'
-import debounce from '@/utils/debounce'
-import { AxiosResponse } from 'axios'
-import { Ref } from 'vue-property-decorator'
-import { mapGetters } from 'vuex'
-import { RTCSession, IncomingEvent, OutgoingEvent, EndEvent } from 'jssip/lib/RTCSession'
-import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
-import debug from 'debug'
+import { ProfileState } from '@/store/profile/state'
 import { sleep } from '@/Utils'
+import debounce from '@/utils/debounce'
 import { makeAudioElement } from '@/utils/utils'
-import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue'
-import { POSITION } from 'vue-toastification'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import { AxiosResponse } from 'axios'
+import dayjs from 'dayjs'
+import debug from 'debug'
+import { EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
+import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
 import Component from 'vue-class-component'
-import AppBase from '@/AppBase'
-import WS from './WS'
+import { Ref } from 'vue-property-decorator'
+import { POSITION } from 'vue-toastification'
 import SSEEvents from './SSEEvents'
+import WS from './WS'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -573,37 +557,6 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
   mixins: [WS, SSEEvents],
   components: { AppLoading },
   computed: {
-    ...mapGetters({
-      profileFirstName: 'profile/first_name',
-      profileLastName: 'profile/last_name',
-      profileMiddleName: 'profile/middle_name',
-      profileLogin: 'profile/login',
-      profileEmail: 'profile/email',
-      profileMode: 'profile/mode',
-      profileProjectId: 'profile/project/id',
-
-      tasksPendingCount: 'tasks/pending_count',
-
-      contactIncomingId: 'contact_incoming/id',
-
-      contactOutgoingId: 'contact_outgoing/id',
-      contactOutgoingContactName: 'contact_outgoing/contact_name'
-    }),
-
-    // Состояние видимости диалога входящего вызова
-    incomingDialogVisible: {
-      get () {
-        return this.$store.getters['incoming_dialog/visible']
-      },
-      set (val: boolean) {
-        return this.$store.commit('incoming_dialog/visible', val)
-      }
-    },
-
-    profile (): ProfileState {
-      return this.$store.getters['profile/profile']
-    },
-
     navigation_drawer_mini: {
       get () {
         return this.$store.getters['settings/navigation_drawer_mini']
@@ -623,7 +576,6 @@ export default class DefaultLayout extends AppBase {
 
   profileLoading = true
   showRouterView = false
-  modeChangeProcess = false
   audio = makeAudioElement()
   audioPlayed = false
   accountMenuItems = [
@@ -656,8 +608,7 @@ export default class DefaultLayout extends AppBase {
   ]
 
   dialog = false
-  drawer = false
-  mini = false
+  drawer = true
   notificationShakeProcess = false
   timerId = 0
   degradation = false
@@ -670,19 +621,17 @@ export default class DefaultLayout extends AppBase {
   set notificationsVisible (value: boolean) { this.$store.commit('notifications/visible', value) }
   get notificationsCount () { return this.$store.getters['notifications/count'] }
   set notificationsCount (value: number) { this.$store.commit('notifications/count', value) }
-  get notificationsItems (): Array<Record<string, unknown>> { return this.$store.getters['notifications/items'] }
-  set notificationsItems (value: Array<Record<string, unknown>>) { this.$store.commit('notifications/items', value) }
+  get notificationsItems (): Notification[] { return this.$store.getters['notifications/items'] }
+  set notificationsItems (value: Notification[]) { this.$store.commit('notifications/items', value) }
   // Системные уведомления
+
+  get profile (): ProfileState { return this.$store.state.profile }
+  get profilePBXCredentials (): Credentials { return this.$store.getters['profile/pbx_configuration_credentials'] }
+  get profileRTCConfiguration (): RTCConfiguration { return this.$store.getters['profile/pbx_configuration_rtc_configuration'] }
 
   get contactIncomingId () { return this.$store.state.contact_incoming.id }
   get contactIncomingContactName () { return this.$store.state.contact_incoming.contact_name }
-  get profileId (): number { return this.$store.state.profile.id }
-  get profileAbbreviation (): string { return this.$store.state.profile.abbreviation }
-  get profileFullName (): string { return this.$store.state.profile.full_name }
-  get profileMode (): string { return this.$store.state.profile.mode }
-  get profileStatus (): string { return this.$store.state.profile.status }
-  get profileProject (): Project { return this.$store.state.profile.project }
-  get tasksPendingCount () { return this.$store.state.tasks.pending_count }
+
   get mainMenu () {
     return [
       {
@@ -709,7 +658,7 @@ export default class DefaultLayout extends AppBase {
           }
         },
         new: true,
-        visible: [17, 82, 274].includes(this.profileId)
+        visible: [17, 82, 274].includes(this.profile.id)
       },
       {
         title: 'Tasks',
@@ -719,11 +668,11 @@ export default class DefaultLayout extends AppBase {
             name: 'tasks'
           }
         },
-        badge: {
-          content: this.tasksPendingCount > 99 ? '99+' : this.tasksPendingCount,
-          visible: this.tasksPendingCount > 0,
-          color: '#ff5722'
-        },
+        // badge: {
+        //   content: 1 > 99 ? '99+' : 0,
+        //   visible: 2 > 0,
+        //   color: '#ff5722'
+        // },
         visible: true
       },
       {
@@ -734,7 +683,7 @@ export default class DefaultLayout extends AppBase {
             name: 'contacts'
           }
         },
-        visible: this.$isGranted(['CONTACTS_VIEW', 'CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])
+        visible: true
       },
       {
         title: 'Roles',
@@ -774,7 +723,7 @@ export default class DefaultLayout extends AppBase {
             name: 'projects'
           }
         },
-        visible: true
+        visible: this.$isGranted(['PROJECTS_MANAGEMENT'])
       },
       {
         title: 'Auto dialer',
@@ -799,6 +748,7 @@ export default class DefaultLayout extends AppBase {
       {
         title: 'Statistic',
         active: false,
+        visible: true,
         children: [
           {
             attrs: {
@@ -808,7 +758,7 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'Last call statistics',
-            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_RECENT_CALLS'])
+            visible: true
           },
           {
             attrs: {
@@ -852,14 +802,7 @@ export default class DefaultLayout extends AppBase {
           }
         ],
         icon: 'mdi-chart-arc',
-        list_item: {},
-        visible: this.$isGranted([
-          'STATISTICS_RECENT_CALLS',
-          'STATISTICS_ALL_CALLS',
-          'STATISTICS_CALL_COUNT',
-          'STATISTICS_ACTIVITY',
-          'STATISTICS_UNAUTHORIZED_BREAKS'
-        ])
+        list_item: {}
       },
       {
         title: 'Integrations',
@@ -1006,7 +949,7 @@ export default class DefaultLayout extends AppBase {
   @Ref('navigationDrawer') readonly navigationDrawer: VNavigationDrawer
   @Ref('container') readonly container: HTMLElement
 
-  created () {
+  public created () {
     this.onContainerResize = debounce(this.onContainerResize, 500)
 
     this.$store.dispatch('account/busy_state', false)
@@ -1016,8 +959,6 @@ export default class DefaultLayout extends AppBase {
     this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide)
 
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
-
-    this.$dialer.onSessionConnecting = this.onSessionConnecting
 
     // Событие сработает когда пользователь не будет активен в течении 60 секунд
     this.$ifvisible.setIdleDuration(120)
@@ -1040,22 +981,22 @@ export default class DefaultLayout extends AppBase {
     }, 1000)
   }
 
-  mounted () {
-    this.$store.dispatch('profile/load')
+  public mounted () {
+    this.$store.dispatch('profile/fetch')
       .then(() => {
         this.profileLoading = false
         // Что бы не наблюдать построение элементов, покажем их через 300 ms
         setTimeout(() => (this.showRouterView = true), 300)
         this.sseInitialize()
-        this.dialerInitialize()
-      })
 
-    // Через 5 секунд запрашиваю количество открытых задач
-    if (this.$isGranted('SECTION_TASKS')) {
-      setTimeout(() => {
-        this.$store.dispatch('tasks/pending_count')
-      }, 5000)
-    }
+        if (this.profilePBXCredentials.login) { this.dialerInitialize() }
+
+        if (!this.profile.tz) {
+          this.$axios.patch('/account/profile', {
+            tz: dayjs.tz.guess()
+          })
+        }
+      })
 
     this.$store.dispatch('notifications/fetch')
 
@@ -1067,7 +1008,7 @@ export default class DefaultLayout extends AppBase {
     }
   }
 
-  beforeDestroy () {
+  public beforeDestroy () {
     this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
     this.$ifvisible.off('idle', this.ifVisibleIdleHandler)
     this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler)
@@ -1079,7 +1020,7 @@ export default class DefaultLayout extends AppBase {
     clearInterval(this.timerId)
   }
 
-  dialerInitialize () {
+  private dialerInitialize () {
     debugDialer('Dialer initialize...')
     // Обработчики событий телефонии.
 
@@ -1087,7 +1028,7 @@ export default class DefaultLayout extends AppBase {
 
     // RTC Config
     this.$dialer.pcConfig = {
-      iceServers: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_servers']
+      iceServers: this.profileRTCConfiguration.ice_servers
         .map((value) => {
           if (value.credential) {
             return {
@@ -1102,34 +1043,34 @@ export default class DefaultLayout extends AppBase {
           }
         }),
 
-      bundlePolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/bundle_policy'],
-      iceCandidatePoolSize: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_candidate_pool_size'],
-      iceTransportPolicy: this.$store.getters['profile/pbx_configuration/rtc_configuration/ice_transport_policy']
+      bundlePolicy: this.profileRTCConfiguration.bundle_policy,
+      iceCandidatePoolSize: this.profileRTCConfiguration.ice_candidate_pool_size,
+      iceTransportPolicy: this.profileRTCConfiguration.ice_transport_policy
     }
 
-    if (this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']) {
-      this.$dialer.pcConfig.rtcpMuxPolicy = this.$store.getters['profile/pbx_configuration/rtc_configuration/rtcp_mux_policy']
+    if (this.profileRTCConfiguration.rtcp_mux_policy) {
+      this.$dialer.pcConfig.rtcpMuxPolicy = this.profileRTCConfiguration.rtcp_mux_policy
     }
 
     debugDialer('pcConfig: %o', this.$dialer.pcConfig)
 
-    const schema = this.$store.getters['profile/pbx_configuration/credentials/schema']
-    const host = this.$store.getters['profile/pbx_configuration/credentials/server']
-    const port = this.$store.getters['profile/pbx_configuration/credentials/port']
-    const login = this.$store.getters['profile/pbx_configuration/credentials/login']
-    const password = this.$store.getters['profile/pbx_configuration/credentials/password']
+    const schema = this.profilePBXCredentials.schema
+    const host = this.profilePBXCredentials.server
+    const port = this.profilePBXCredentials.port
+    const login = this.profilePBXCredentials.login
+    const password = this.profilePBXCredentials.password
 
     this.$dialer.configure(`${schema}://${host}:${port}/ws`, {
-      display_name: this.profileFullName,
+      display_name: this.profile.full_name,
       password: password,
       realm: host,
       uri: `sip:${login}@${host}`,
-      candidateReadyTimeOut: this.$store.getters['profile/pbx_configuration/rtc_configuration/candidate_ready_timeout']
+      candidateReadyTimeOut: this.profileRTCConfiguration.candidate_ready_timeout
     })
     this.$dialer.on('newRTCSession', this.onNewRTCSession)
 
     // Подключение в зависимости от состояния статуса пользователя.
-    if (['available', 'do_not_disturb'].includes(this.profileStatus)) {
+    if (['available', 'do_not_disturb'].includes(this.profile.status)) {
       if (!this.$dialer.isConnected()) {
         this.$dialer.connect()
       }
@@ -1140,8 +1081,13 @@ export default class DefaultLayout extends AppBase {
    * Fired for an incoming or outgoing session/call.
    * @param newRTCSession
    */
-  onNewRTCSession (newRTCSession: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
+  private onNewRTCSession (newRTCSession: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
     debugDialerEvent('NewRTCSession %o', newRTCSession)
+
+    // Обработчик прогресса вызова
+    newRTCSession.session.on('connecting', (event) => {
+      this.onSessionConnecting(newRTCSession.session, event)
+    })
 
     // Обработчик прогресса вызова
     newRTCSession.session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
@@ -1180,7 +1126,7 @@ export default class DefaultLayout extends AppBase {
    * @param session
    * @param event
    */
-  onSessionConnecting (session: RTCSession, event) {
+  private onSessionConnecting (session: RTCSession, event) {
     this.$root.$emit('dialer-session-connection', session, event)
 
     debugDialerEvent('Connecting %o %o', session, event)
@@ -1192,7 +1138,7 @@ export default class DefaultLayout extends AppBase {
    * @param session
    * @param event
    */
-  onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+  private onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     this.$root.$emit('dialer-session-progress', session, event)
 
     // Если входящий
@@ -1238,7 +1184,7 @@ export default class DefaultLayout extends AppBase {
    * @param session
    * @param event
    */
-  onSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+  private onSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     this.$toast.dismiss('incoming-dialog')
 
     setTimeout(() => (this.stopAudio()), 500)
@@ -1254,7 +1200,7 @@ export default class DefaultLayout extends AppBase {
    * @param session
    * @param event
    */
-  onSessionEnded (session: RTCSession, event: EndEvent) {
+  private onSessionEnded (session: RTCSession, event: EndEvent) {
     this.$toast.dismiss('incoming-dialog')
 
     setTimeout(() => (this.stopAudio()), 500)
@@ -1273,7 +1219,7 @@ export default class DefaultLayout extends AppBase {
    * @param session
    * @param event
    */
-  onSessionFailed (session: RTCSession, event: EndEvent) {
+  private onSessionFailed (session: RTCSession, event: EndEvent) {
     this.$toast.dismiss('incoming-dialog')
 
     setTimeout(() => (this.stopAudio()), 500)
@@ -1355,7 +1301,7 @@ export default class DefaultLayout extends AppBase {
    * @param session
    * @param event
    */
-  onSessionFinality (session: RTCSession, event: EndEvent) {
+  private onSessionFinality (session: RTCSession, event: EndEvent) {
     this.$store.dispatch('account/busy_state', false)
 
     if (session.direction === 'incoming') {
@@ -1403,13 +1349,13 @@ export default class DefaultLayout extends AppBase {
   /**
    * SSE Initialization
    */
-  sseInitialize () {
+  private sseInitialize () {
     if ('VUE_APP_SSE' in process.env) {
       const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
 
       // Темы для подписок
-      url.searchParams.append('topic', `${window.origin}/users/${this.profileId}/event`)
-      url.searchParams.append('topic', `${window.origin}/users/${this.profileId}/${this.$currentTabID}/event`)
+      url.searchParams.append('topic', `${window.origin}/users/${this.profile.id}/event`)
+      url.searchParams.append('topic', `${window.origin}/users/${this.profile.id}/${this.$currentTabID}/event`)
 
       if (this.$isGranted(['ROLE_ADMIN'])) {
         url.searchParams.append('topic', `${window.origin}/administration`)
@@ -1433,7 +1379,7 @@ export default class DefaultLayout extends AppBase {
       // Системные уведомления.
       eventSource.addEventListener('system-notification', (event: Event) => {
         if (event instanceof MessageEvent) {
-          const obj: Record<string, unknown> = JSON.parse(event.data)
+          const obj = JSON.parse(event.data) as Notification
           appDebug.extend('SSE').extend('SYSTEM-NOTIFICATION')('%o', obj)
 
           const notifications = this.notificationsItems.map((value) => value)
@@ -1460,18 +1406,18 @@ export default class DefaultLayout extends AppBase {
     }
   }
 
-  notificationShake () {
+  private notificationShake () {
     this.notificationShakeProcess = true
     setTimeout(() => {
       this.notificationShakeProcess = false
     }, 800)
   }
 
-  onBtnCloseNotification (id: number) {
+  private onBtnCloseNotification (id: number) {
     this.$store.dispatch('notifications/close', id)
   }
 
-  onSystemNotificationCloseAllClick () {
+  private onSystemNotificationCloseAllClick () {
     this.$store.dispatch('notifications/close_all')
   }
 
@@ -1479,8 +1425,8 @@ export default class DefaultLayout extends AppBase {
    * Срабатывает каждый раз когда меняются параметры профиля.
    * Так же срабатывает если параметры изменила третья сторона.
    */
-  onSSEProfileChanged () {
-    this.$store.dispatch('profile/load')
+  private onSSEProfileChanged () {
+    this.$store.dispatch('profile/fetch')
       .then(() => {
         // Механизм предотвращения инициализации
         // телефонии в процессе её использования.
@@ -1509,15 +1455,11 @@ export default class DefaultLayout extends AppBase {
       })
   }
 
-  onFileDownload (name: string) {
-    this.$store.dispatch('contacts_new/file_contact_download', name)
-  }
-
   /**
    * Срабатывает когда нажали на элемент статуса.
    * @param status
    */
-  onStatusListItemClick (status: string) {
+  private onStatusListItemClick (status: string) {
     switch (status) {
       case 'do_not_disturb':
       case 'available': {
@@ -1541,7 +1483,7 @@ export default class DefaultLayout extends AppBase {
   /**
    * Срабатывает когда нажали на кнопку отклонить вызов.
    */
-  onIncomingDialogHangupClick () {
+  private onIncomingDialogHangupClick () {
     this.$toast.dismiss('incoming-dialog')
     this.$dialer.hangUp()
   }
@@ -1549,7 +1491,7 @@ export default class DefaultLayout extends AppBase {
   /**
    * Срабатывает когда нажали на кнопку принять вызов.
    */
-  onIncomingDialogAnswerClick () {
+  private onIncomingDialogAnswerClick () {
     this.$toast.dismiss('incoming-dialog')
 
     setTimeout(() => (this.$dialer.answer()))
@@ -1564,7 +1506,7 @@ export default class DefaultLayout extends AppBase {
   /**
    * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
    */
-  ifVisibleIdleHandler () {
+  private ifVisibleIdleHandler () {
     // this.degradation = true
     this.$store.commit('app_state/page', 'sex')
   }
@@ -1572,11 +1514,11 @@ export default class DefaultLayout extends AppBase {
   /**
    * Срабатывает при пробуждении после сна.
    */
-  ifVisibleWakeupHandler () {
+  private ifVisibleWakeupHandler () {
     this.degradation = false
   }
 
-  playAudio (src: string, loop = false, playbackRate = 1.0) {
+  private playAudio (src: string, loop = false, playbackRate = 1.0) {
     if (!this.audioPlayed) {
       this.audioPlayed = true
       this.audio.src = src
@@ -1598,7 +1540,7 @@ export default class DefaultLayout extends AppBase {
     }
   }
 
-  stopAudio () {
+  private stopAudio () {
     if (!this.audio.paused) {
       this.audio.pause()
     }

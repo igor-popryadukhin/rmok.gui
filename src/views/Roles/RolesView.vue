@@ -27,13 +27,16 @@
           class="mb-3 overflow-auto px-2"
           outlined
         >
-          <template v-for="(item, key) in permissionsEdit">
+          <template v-for="(item) in rolePermissions">
             <v-checkbox
-              :key="'v-checkbox-' + key"
-              v-model="item.granted"
+              :key="'v-checkbox-' + item.id"
               :label="item.name"
+              :false-value="false"
+              :true-value="true"
+              :input-value="item.granted"
               hide-details
               dense
+              @change="onCheckChange(item, $event)"
             />
           </template>
         </v-sheet>
@@ -61,13 +64,12 @@
 
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
-import Role from '@/api/interfaces/Role'
+import RolePermission from '@/api/interfaces/RolePermission'
 import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import rules from '@/mixins/rules'
 import { loadLanguageAsync } from '@/plugins/i18n'
 import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
 
 import Vue from 'vue'
 import Vuelidate, { validationMixin } from 'vuelidate'
@@ -92,7 +94,6 @@ Vue.use(Vuelidate)
 })
 export default class RolesView extends AppBase {
   saveProcess = false
-  permissionsEdit = []
 
   get thisPageHeight () { return this.screenHeight - 80 }
   get fetching (): boolean { return this.$store.getters['roles/edit/fetching'] }
@@ -100,8 +101,8 @@ export default class RolesView extends AppBase {
   get roleName () { return this.$store.getters['roles/edit/role_name'] }
   set roleName (value: string) { this.$store.commit('roles/edit/role_name', value) }
 
-  get rolePermissions () { return this.$store.getters['roles/edit/role_permissions'] }
-  set rolePermissions (value: Role[]) {
+  get rolePermissions (): RolePermission[] { return this.$store.getters['roles/edit/role_permissions'] }
+  set rolePermissions (value: RolePermission[]) {
     this.$store.commit('roles/edit/role_permissions', value)
   }
 
@@ -114,19 +115,31 @@ export default class RolesView extends AppBase {
     return errors.map((e) => this.$tc(e))
   }
 
-  @Watch('rolePermissions')
-  permissionsWatchHandler (value: Array<Record<string, unknown>>) {
-    this.permissionsEdit = value.map((value) => { return { ...value } })
+  private onCheckChange (item: RolePermission, value: boolean) {
+    const permissions = JSON.parse(JSON.stringify(this.rolePermissions)) as RolePermission[]
+    const index = permissions.findIndex((e) => e.id === item.id)
+
+    if (index > -1) {
+      permissions[index].granted = value
+      this.rolePermissions = permissions
+    }
   }
 
   private onBtnSaveClick () {
     this.$v.$touch()
-
-    this.rolePermissions = this.permissionsEdit
     this.saveProcess = true
-    this.$store.dispatch('roles/edit/save')
-      .then(() => (this.$toast.success('Changes accepted')))
-      .catch((reason: Error | APIError) => {
+
+    this.$axios
+      .patch(`/roles/${this.$route.params.id}`, {
+        name: this.roleName,
+        permissions: this.rolePermissions.filter((value) => value.granted).map((value) => value.id)
+      }).then((response) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+
+        this.$toast.success('Changes accepted')
+      }).catch((reason: Error | APIError) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
             this.$toast.error(e.message)
@@ -134,8 +147,7 @@ export default class RolesView extends AppBase {
         } else {
           this.$toast.error(reason.message)
         }
-      })
-      .finally(() => (this.saveProcess = false))
+      }).finally(() => (this.saveProcess = false))
   }
 }
 </script>

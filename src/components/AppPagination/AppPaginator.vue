@@ -39,45 +39,25 @@
 <script lang="ts">
 import Vue from 'vue'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
-import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
-import { Prop, Emit, Watch, ModelSync } from 'vue-property-decorator'
+import { Prop, Emit, Watch, VModel } from 'vue-property-decorator'
 
 // eslint-disable-next-line no-use-before-define
 @Component<AppPaginator>({
-  components: { AppCountUp },
-  mounted () {
-    this.calculate()
-
-    if (this.debounce) {
-      this.$watch('offset', debounce((val: number) => {
-        this.$emit('change', val)
-      }, 500))
-    } else {
-      this.$watch('offset', (val: number) => {
-        this.$emit('change', val)
-      })
-    }
-  }
+  components: { AppCountUp }
 })
 export default class AppPaginator extends Vue {
   @Prop({ default: 50 }) readonly perPage: number
   @Prop({ default: 0 }) readonly count: number
-  @Prop({ default: 0 }) readonly value: number
   @Prop({ default: false }) readonly disabled: boolean
   @Prop({ default: false }) readonly debounce: boolean
 
-  @ModelSync('value', 'change', { type: Number })
-  readonly valueValue!: boolean
+  @VModel({ type: Number, default: () => 0 }) offset!: number
 
   public page = 0
 
   get pages () {
     return Math.ceil(this.count / this.perPage)
-  }
-
-  get offset () {
-    return Math.ceil(this.$data.page * this.perPage) - +this.perPage
   }
 
   get offsetStart () {
@@ -98,7 +78,7 @@ export default class AppPaginator extends Vue {
   }
 
   private calculate () {
-    this.page = (this.pages - Math.ceil((this.count - this.value) / this.perPage)) + 1
+    this.page = (this.pages - Math.ceil((this.count - this.offset) / this.perPage)) + 1
   }
 
   @Watch('count')
@@ -106,14 +86,28 @@ export default class AppPaginator extends Vue {
     this.calculate()
   }
 
-  @Emit('btn:left:click')
+  @Emit('click:btn:left')
   private onBtnLeftClick () {
     this.page--
+    this.offset = Math.ceil(this.page * this.perPage) - +this.perPage
+    return {
+      page: this.page,
+      offset: this.offset
+    }
   }
 
-  @Emit('btn:right:click')
+  @Emit('click:btn:right')
   private onBtnRightClick () {
     this.page++
+    this.offset = Math.ceil(this.page * this.perPage) - +this.perPage
+    return {
+      page: this.page,
+      offset: this.offset
+    }
+  }
+
+  public mounted () {
+    this.calculate()
   }
 }
 </script>

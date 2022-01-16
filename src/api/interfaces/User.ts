@@ -1,3 +1,4 @@
+import TimeZone from './TimeZone'
 import Organization from './Organization'
 import Project from './Project'
 import Role from './Role'
@@ -27,7 +28,7 @@ export default interface User {
   pbx_configuration?: PBXConfiguration;
   permissions?: Array<Record<string, unknown>>;
   country?: Country;
-  tz?: string;
+  tz?: TimeZone;
   status?: string;
   mode?: string;
 }

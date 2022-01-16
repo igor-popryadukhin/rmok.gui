@@ -34,7 +34,7 @@
               <v-list-item-title
                 :style="{ color: taskItem.expired ? 'red' : '' }"
               >
-                {{ `${taskTypeDisplay(taskItem.type)} ${$dayjs(taskItem.planned_for).format(`DD MMMM, в dddd, в ${date_time_format.long_time} a`)}` }}
+                {{ `${taskTypeDisplay(taskItem.type)} ${$dayjs(taskItem.planned_for).format(`DD MMMM, в dddd, в HH:mm a`)}` }}
               </v-list-item-title>
               <v-list-item-subtitle>
                 <template v-if="taskItem.contact">

@@ -11,7 +11,6 @@ import system from './system'
 import profile from './profile'
 import groups from './groups'
 import users from './users'
-import users_edit from './users_edit'
 import contacts from './contacts'
 import leads from './leads'
 import statistic_recent_call from './statistic_recent_call'
@@ -83,7 +82,6 @@ const store = new Vuex.Store({
     tasks,
     groups,
     users,
-    users_edit,
     unsaved_call,
     incoming_dialog,
     contact_view: contact,

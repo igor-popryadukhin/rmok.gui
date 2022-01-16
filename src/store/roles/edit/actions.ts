@@ -27,28 +27,6 @@ const actions: ActionTree<State, RootState> = {
         }).catch(reject)
         .finally(() => (commit('fetching', false)))
     })
-  },
-
-  /**
-   * Сохраняет текущее состояние в базе данных
-   *
-   * @param state
-   * @param rootGetters
-   */
-  save ({ state, rootGetters }) {
-    return new Promise<void>((resolve, reject) => {
-      $axios
-        .patch(`/roles/${rootGetters.routeParams.id}`, {
-          name: state.role_name,
-          permissions: state.role_permissions.filter((value) => value.granted).map((value) => value.id)
-        }).then((response) => {
-          if (response.status !== 200) {
-            throw new APIError(response.data)
-          }
-
-          resolve()
-        }).catch(reject)
-    })
   }
 }
 

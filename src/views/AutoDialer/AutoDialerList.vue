@@ -89,7 +89,7 @@
             >
               <!-- Имя контакта -->
               <td style="white-space: nowrap">
-                <router-link :to="{ name: 'auto_dialer_tab_main', params: { id: item.id } }">
+                <router-link :to="{ name: 'auto_dialer_view', params: { id: item.id } }">
                   {{ item.name }}
                 </router-link>
               </td>
@@ -277,7 +277,7 @@ export default class AutoDialerList extends Vue {
         .then((id: number) => {
           this.$toast.success(this.$tc('Autodial has been successfully created'))
           this.$router.push({
-            name: 'auto_dialer_tab_params',
+            name: 'auto_dialer_view_tab_params',
             params: {
               id: String(id)
             }

@@ -6,7 +6,7 @@
   >
     <div class="users-page__tools mb-1">
       <div
-        class="d-flex grow"
+        class="d-flex grow mb-1"
       >
         <v-btn
           text
@@ -24,6 +24,9 @@
           {{ $tc('Refresh') }}
         </v-btn>
       </div>
+
+      <v-divider />
+
       <div
         class="d-flex align-center py-4"
       >

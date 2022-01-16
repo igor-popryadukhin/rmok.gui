@@ -1,8 +1,9 @@
 <template>
-  <app-tools>
-    <app-tools-left>
+  <div class="d-flex flex-nowrap align-center justify-space-between mb-2">
+    <div class="d-flex flex-nowrap align-center">
       <v-btn
         v-if="!refreshLoading"
+        min-width="100"
         text
         tile
         small
@@ -12,6 +13,7 @@
       </v-btn>
       <v-btn
         v-else
+        min-width="100"
         color="red"
         text
         tile
@@ -20,16 +22,43 @@
       >
         {{ $tc('Cancel') }}
       </v-btn>
-    </app-tools-left>
-    <app-tools-right>
+    </div>
+    <div class="d-flex flex-nowrap align-center">
       <app-btn-toggle-date
         v-model="filterPeriod"
         :items="dateRangeCollection"
-      />
-      <v-divider
-        class="mx-1"
-        vertical
-      />
+        class="mr-5"
+      >
+        <template #item-append>
+          <v-menu
+            :close-on-content-click="false"
+            transition="scale-transition"
+            min-width="auto"
+            offset-y
+            left
+          >
+            <template #activator="{ on, attrs }">
+              <v-btn
+                small
+                value="sex"
+                v-bind="attrs"
+                v-on="on"
+              >
+                {{ customPeriodDisplay || $tc('Customizable') }}
+              </v-btn>
+            </template>
+            <v-date-picker
+              v-model="customPeriod"
+              :first-day-of-week="1"
+              locale="ru"
+              flat
+              range
+              no-title
+              show-current
+            />
+          </v-menu>
+        </template>
+      </app-btn-toggle-date>
       <v-btn
         small
         text
@@ -39,19 +68,22 @@
         <v-icon>mdi-filter-outline</v-icon>
         {{ $tc('Filter') }}
       </v-btn>
-    </app-tools-right>
-  </app-tools>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import AppBase from '@/AppBase'
 import Component from 'vue-class-component'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
+import { Watch } from 'vue-property-decorator'
+
 @Component({
   components: { AppBtnToggleDate }
 })
 export default class RecentCallsTools extends AppBase {
   isoFormat = 'YYYY-MM-DDTHH:mm:ss'
+  customPeriod = null
 
   get filterPanelVisible () { return this.$store.getters['statistics/recent_calls/filter/panel_visible'] }
   set filterPanelVisible (value: boolean) { this.$store.commit('statistics/recent_calls/filter/panel_visible', value) }
@@ -63,7 +95,21 @@ export default class RecentCallsTools extends AppBase {
     return this.$store.getters['statistics/recent_calls/filter/period'] || `${dtA.format(this.isoFormat)}|${dtB.format(this.isoFormat)}`
   }
 
-  set filterPeriod (val: string) { this.$store.commit('statistics/recent_calls/filter/period', val) }
+  set filterPeriod (val: string) {
+    if (/\d{4}-\d{2}-\d{2}\d{2}:\d{2}:\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/s.test(val)) {
+      this.customPeriod = []
+      this.$store.commit('statistics/recent_calls/filter/period', val)
+    }
+  }
+
+  get customPeriodDisplay () {
+    if (Array.isArray(this.customPeriod) && this.customPeriod.length === 2) {
+      const dtA = this.$dayjs(this.customPeriod[0], 'YYYY-MM-DD')
+      const dtB = this.$dayjs(this.customPeriod[1], 'YYYY-MM-DD')
+      return [dtA.format('DD.MM.YYYY'), dtB.format('DD.MM.YYYY')].join(' - ')
+    }
+    return ''
+  }
 
   // Возможные варианты диапазонов
   get dateRangeCollection () {
@@ -103,6 +149,36 @@ export default class RecentCallsTools extends AppBase {
     return this.$store.getters['statistics/recent_calls/pie_fetching']
   }
 
+  @Watch('filterPeriod')
+  filterPeriodWatchHandler () {
+    this.$store.commit('statistics/recent_calls/filter/offset', 0)
+    this.fetchStatistic()
+  }
+
+  @Watch('customPeriod')
+  customPeriodWatchHandler (val: string[]) {
+    this.$store.commit('statistics/recent_calls/filter/offset', 0)
+    if (val.length === 2) {
+      const d1 = this.$dayjs(val[0], 'YYYY-MM-DD')
+      const d2 = this.$dayjs(val[1], 'YYYY-MM-DD')
+      if (d1.diff(d2, 'day') >= 0) {
+        this.$store.commit('statistics/recent_calls/filter/period', `${val[1]}T00:00:00|${val[0]}T23:59:59`)
+      } else {
+        this.$store.commit('statistics/recent_calls/filter/period', `${val[0]}T00:00:00|${val[1]}T23:59:59`)
+      }
+    }
+  }
+
+  public mounted () {
+    if (this.filterPeriod && this.dateRangeCollection.findIndex((e) => e.value === this.filterPeriod) === -1) {
+      const dates = this.filterPeriod.split('|')
+      this.customPeriod = [
+        this.$dayjs(dates[0]).format('YYYY-MM-DD'),
+        this.$dayjs(dates[1]).format('YYYY-MM-DD')
+      ]
+    }
+  }
+
   private fetchStatistic () {
     this.$store.dispatch('statistics/recent_calls/fetch_total_calls')
     this.$store.dispatch('statistics/recent_calls/fetch_pie')
@@ -114,7 +190,7 @@ export default class RecentCallsTools extends AppBase {
   }
 
   private onBtnLoadCancel () {
-    this.$store.dispatch('statistics/recent_calls/cancel_fetching_all')
+    this.$store.dispatch('statistics/recent_calls/cancel_fetch_all')
   }
 }
 </script>

@@ -127,15 +127,15 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import AppBase from '@/AppBase'
-import ContactTag from '@/api/interfaces/ContactTag'
-import debounce from '@/utils/debounce'
-import { Watch } from 'vue-property-decorator'
-import { AxiosResponse } from 'axios'
 import APIError from '@/api/classes/APIError'
-import { $axios } from '@/plugins/axios'
+import ContactTag from '@/api/interfaces/ContactTag'
+import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import { $axios } from '@/plugins/axios'
+import debounce from '@/utils/debounce'
+import { AxiosResponse } from 'axios'
+import Component from 'vue-class-component'
+import { Watch } from 'vue-property-decorator'
 
 @Component({
   components: { AppLoading }

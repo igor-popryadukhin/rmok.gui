@@ -152,11 +152,11 @@
 </template>
 
 <script lang="ts">
-import Base from './Base'
-import Component from 'vue-class-component'
-import { Prop, Emit } from 'vue-property-decorator'
-import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import AppBase from '@/AppBase'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import Component from 'vue-class-component'
+import { Emit, Prop } from 'vue-property-decorator'
 
 @Component({
   components: {
@@ -168,7 +168,7 @@ import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
     ContactsMenuAddToAutodialer: () => import('./ContactsMenuAddToAutodialer.vue')
   }
 })
-export default class ContactListTools extends Base {
+export default class ContactListTools extends AppBase {
   @Prop({ default: false }) readonly outlined: boolean
 
   @Emit('btn:click:add-to-autodialer')

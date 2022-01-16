@@ -255,19 +255,19 @@
 </template>
 
 <script lang="ts">
-import Base from './Base'
-import Component from 'vue-class-component'
-import debounce from '@/utils/debounce'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import ContactTag from '@/api/interfaces/ContactTag'
+import AppBase from '@/AppBase'
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import { TimeZone } from '@/store/contacts/list/filter/state'
+import debounce from '@/utils/debounce'
+import Component from 'vue-class-component'
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactListFilters>({
   components: { AppMenuDatePicker, AppAutocomplete }
 })
-export default class ContactListFilters extends Base {
+export default class ContactListFilters extends AppBase {
   // region Данные
   contactCreatedAtMenu = false
   contactCreatedAtDates = []
@@ -481,20 +481,20 @@ export default class ContactListFilters extends Base {
    */
   private onAppAutocompleteProjectsSearch (q = '') {
     if (this.projects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.$store.dispatch('contacts/list/filter/fetchProjects', {
+      this.$store.dispatch('contacts/list/filter/fetch_projects', {
         q
       })
     }
   }
 
   private onAppAutocompleteProjectsSearchFocus () {
-    if (this.projects.length === 0) { this.$store.dispatch('contacts/list/filter/fetchProjects', {}) }
+    if (this.projects.length === 0) { this.$store.dispatch('contacts/list/filter/fetch_projects', {}) }
   }
 
   private onAppAutocompleteStatusesSearch (q = '') {
     if (this.projects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.statusesLoading = true
-      this.$store.dispatch('contacts/list/filter/fetchStatuses', {
+      this.$store.dispatch('contacts/list/filter/fetch_statuses', {
         q
       }).finally(() => (this.statusesLoading = false))
     }
@@ -511,7 +511,7 @@ export default class ContactListFilters extends Base {
     }
     if (this.statuses.length === 0) {
       this.statusesLoading = true
-      this.$store.dispatch('contacts/list/filter/fetchStatuses', params)
+      this.$store.dispatch('contacts/list/filter/fetch_statuses', params)
         .finally(() => (this.statusesLoading = false))
     }
   }
@@ -544,7 +544,7 @@ export default class ContactListFilters extends Base {
 
     if (this.users.findIndex((e: any) => e.full_name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.usersLoading = true
-      this.$store.dispatch('contacts/list/filter/fetchUsers', params)
+      this.$store.dispatch('contacts/list/filter/fetch_users', params)
         .finally(() => (this.usersLoading = false))
     }
   }
@@ -557,7 +557,7 @@ export default class ContactListFilters extends Base {
 
     if (this.users.length === 0) {
       this.usersLoading = true
-      this.$store.dispatch('contacts/list/filter/fetchUsers', params)
+      this.$store.dispatch('contacts/list/filter/fetch_users', params)
         .finally(() => (this.usersLoading = false))
     }
   }

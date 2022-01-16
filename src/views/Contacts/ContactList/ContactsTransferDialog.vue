@@ -108,13 +108,14 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import Base from './Base'
+import AppBase from '@/AppBase'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
+import Component from 'vue-class-component'
+
 @Component({
   components: { AppAutocomplete }
 })
-export default class ContactsTransferDialog extends Base {
+export default class ContactsTransferDialog extends AppBase {
   dialogVisible = true
 
   get contactsListSelectedCount () { return this.$store.getters['contacts/list/selected_count'] }
@@ -130,7 +131,7 @@ export default class ContactsTransferDialog extends Base {
 
   private onAppAutocompleteProjectsSearch (q = '') {
     if (this.availableProjects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.$store.dispatch('contacts/transfer_dialog/fetchProjects', {
+      this.$store.dispatch('contacts/transfer_dialog/fetch_projects', {
         q
       })
     }
@@ -147,7 +148,7 @@ export default class ContactsTransferDialog extends Base {
     }
 
     if (this.availableUsers.findIndex((e: any) => e.full_name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.$store.dispatch('contacts/transfer_dialog/fetchUsers', params)
+      this.$store.dispatch('contacts/transfer_dialog/fetch_users', params)
     }
   }
 

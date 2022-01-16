@@ -1,4 +1,4 @@
-import { State } from './state'
+import { defaultState, State } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<State> = {
@@ -17,15 +17,14 @@ const mutations: MutationTree<State> = {
   user_group_id (state: State, payload) { state.user_group_id = payload },
   tag_ids (state: State, payload) { state.tag_ids = payload },
   contact_created_at (state: State, payload) { state.contact_created_at = payload },
-  calling (state: State, payload) { state.calling = payload },
   offset (state: State, payload) { state.offset = payload },
-  task (state, payload) { state.task = payload },
-  timezone_id (state: State, payload) { state.timezone_id = payload },
 
   order_by (state: State, payload) { state.order_by = payload },
   order_direction (state: State, payload) { state.order_direction = payload },
   /// //////////////////////////////////////////////////////////////////////////
-  panel_visible (state: State, payload) { state.panel_visible = payload }
+  panel_visible (state: State, payload) { state.panel_visible = payload },
+
+  flush (state: State) { Object.assign(state, defaultState()) }
 }
 
 export default mutations

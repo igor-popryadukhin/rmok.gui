@@ -7,6 +7,13 @@ export interface Credentials {
   password: string;
 }
 
+export interface RTCIceServer {
+  credential?: string;
+  credential_type?: 'password';
+  urls: string | string[];
+  username?: string;
+}
+
 export interface RTCConfiguration {
   bundle_policy: RTCBundlePolicy;
   rtcp_mux_policy: RTCRtcpMuxPolicy;

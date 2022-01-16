@@ -13,6 +13,7 @@ const mutations: MutationTree<UsersViewState> = {
   user_pbx_configuration (state: UsersViewState, payload) { state.user_pbx_configuration = payload },
   user_pbx_configuration_credentials (state: UsersViewState, payload) { state.user_pbx_configuration.credentials = payload },
   user_pbx_configuration_rtc_configuration (state: UsersViewState, payload) { state.user_pbx_configuration.rtc_configuration = payload },
+  user_pbx_configuration_rtc_configuration_ice_servers (state: UsersViewState, payload) { state.user_pbx_configuration.rtc_configuration.ice_servers = payload },
   user_schedule (state: UsersViewState, payload) { state.user_schedule = payload },
 
   fetching (state: UsersViewState, payload) { state.fetching = payload },

@@ -5,8 +5,12 @@ export interface State {
   pie_colors: string[];
   pie_series: number[];
 
+  total_calls: number;
+  total_calls_fetching: boolean;
+
   history_fetching: boolean;
   history: Array<Record<string, unknown>>;
+  history_count: number;
 }
 
 export function defaultState (): State {
@@ -16,11 +20,15 @@ export function defaultState (): State {
     pie_colors: [],
     pie_series: [],
 
+    total_calls: 0,
+    total_calls_fetching: false,
+
     history_fetching: false,
-    history: []
+    history: [],
+    history_count: 0
   }
 }
 
-const state = defaultState()
+const state = defaultState
 
 export default state

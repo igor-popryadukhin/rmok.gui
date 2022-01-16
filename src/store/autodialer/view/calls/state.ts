@@ -1,24 +1,27 @@
-interface Call {
-  id: number;
-  is_new: boolean
-}
+import AutodialerCall from '@/api/interfaces/AutodialerCall'
 
 export interface State {
-  items: Call[];
-  items_selected: number[];
-  total: number;
-  per_page: number;
+  items: AutodialerCall[];
+  items_total: number;
+  items_per_page: number;
+  items_callers: AutodialerCall[];
+  items_callers_total: number;
+  items_selected: AutodialerCall[];
+
   filter_offset: number;
 }
 
-function state (): State {
+function defaultState (): State {
   return {
     items: [],
+    items_total: 0,
+    items_per_page: 100,
+    items_callers: [],
+    items_callers_total: 0,
     items_selected: [],
-    total: 0,
-    per_page: 30,
+
     filter_offset: 0
   }
 }
 
-export default state
+export default defaultState

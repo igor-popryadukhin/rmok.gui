@@ -156,7 +156,7 @@ export default class Login extends AppBase {
         this.$cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' });
 
         this.processMessage = this.$tc('Loading profile data...');
-        await this.$store.dispatch('profile/load');
+        await this.$store.dispatch('profile/fetch');
 
         setTimeout(() => {
           this.$router.replace('/leads');

@@ -13,8 +13,6 @@
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
 import Project from '@/api/interfaces/Project'
-import StatusGroup from '@/api/interfaces/StatusGroup'
-import Roles from '@/api/Roles'
 import AppBase from '@/AppBase'
 import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
 import ProjectsTools from '@/views/Projects/ProjectsTools.vue'

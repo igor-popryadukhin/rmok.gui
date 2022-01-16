@@ -23,10 +23,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   user_group_id (state: State) { return state.user_group_id },
   tag_ids (state: State) { return state.tag_ids },
   contact_created_at (state: State) { return state.contact_created_at },
-  calling (state: State) { return state.calling },
   offset (state: State) { return state.offset || 0 },
-  task (state) { return state.task },
-  timezone_id (state: State) { return state.timezone_id },
 
   order_by (state: State) { return state.order_by },
   order_direction (state: State) { return state.order_direction },
@@ -58,10 +55,6 @@ const getters: GetterTree<State, RootState> & Getters = {
 
     if ((state.tag_ids || []).length) {
       obj.tag_ids = state.tag_ids
-    }
-
-    if (state.timezone_id) {
-      obj.timezone_id = state.timezone_id
     }
 
     if (state.contact_created_at) {

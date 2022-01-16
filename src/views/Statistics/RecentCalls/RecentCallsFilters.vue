@@ -1,5 +1,5 @@
 <template>
-  <v-sheet>
+  <div>
     <div class="py-2">
       <!-- Проект -->
       <app-autocomplete
@@ -13,7 +13,7 @@
         clearable
         @search="onAppAutocompleteProjectsSearch"
         @focus="onAppAutocompleteProjectsSearchFocus"
-        @change="onFilterChange"
+        @change="filterChangeEmit"
       />
       <!-- Проект -->
 
@@ -32,7 +32,7 @@
         multiple
         @search="onAppAutocompleteStatusesSearch"
         @focus="onAppAutocompleteStatusesFocus"
-        @change="onFilterChange"
+        @change="filterChangeEmit"
       >
         <template
           #item="{ item, on, attrs }"
@@ -78,7 +78,7 @@
         clearable
         @search="onSearchUsersGroups"
         @focus="onAppAutocompleteUserGroupsFocus"
-        @change="onFilterChange"
+        @change="filterChangeEmit"
       />
       <!-- Группа -->
 
@@ -94,35 +94,9 @@
         clearable
         @search="onSearchUsers"
         @focus="onUsersFocus"
-        @change="onFilterChange"
+        @change="filterChangeEmit"
       />
       <!-- Ответственный -->
-
-      <!-- Задача -->
-      <v-select
-        v-model="task"
-        clearable
-        :label="$tc('Tasks')"
-        :items="filterTasksItems"
-        outlined
-        dense
-        @change="onFilterChange"
-      />
-      <!-- Задача -->
-
-      <!-- Is calling -->
-      <v-select
-        v-model="calling"
-        label="Прозвонено"
-        :items="callingOptions"
-        item-text="text"
-        item-value="value"
-        clearable
-        outlined
-        dense
-        @change="onFilterChange"
-      />
-      <!-- Is calling -->
 
       <!-- Теги -->
       <app-autocomplete
@@ -139,7 +113,7 @@
         clearable
         @search="onSearchTags"
         @focus="onSearchTags()"
-        @change="onFilterChange"
+        @change="filterChangeEmit"
       >
         <template
           #item="{ item, on, attrs }"
@@ -171,35 +145,6 @@
         </template>
       </app-autocomplete>
       <!-- Теги -->
-
-      <!-- Временная зона контакта -->
-      <app-autocomplete
-        v-model="timeZoneId"
-        :options="timezones"
-        :label="$tc('Time zone')"
-        item-text="name_local"
-        item-value="id"
-        clearable
-        @focus="fetchTimeZones"
-        @change="onFilterChange"
-      >
-        <template #item="{ item, attrs, on }">
-          <v-list-item
-            v-bind="attrs"
-            v-on="on"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ item.name_local }}</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text>
-                {{ item.offset_string }}
-              </v-list-item-action-text>
-            </v-list-item-action>
-          </v-list-item>
-        </template>
-      </app-autocomplete>
-      <!-- Временная зона контакта -->
 
       <!-- Дата и время создания контакта -->
       <v-menu
@@ -265,15 +210,12 @@
         block
         text
         tile
-        @click="btnRefreshClick"
+        @click="clickBtnRefresh"
       >
-        <template #loader>
-          Loading
-        </template>
         {{ $tc('Refresh') }}
       </v-btn>
     </div>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
@@ -302,8 +244,13 @@ export default class RecentCallsFilters extends AppBase {
   tagsLoading = false
   // endregion
 
-  @Emit('btn:refresh:click')
-  private btnRefreshClick () {
+  @Emit('click:btn:refresh')
+  private clickBtnRefresh () {
+    return undefined
+  }
+
+  @Emit('filter:change')
+  private filterChangeEmit () {
     return undefined
   }
 
@@ -374,28 +321,12 @@ export default class RecentCallsFilters extends AppBase {
     this.$store.commit('statistics/recent_calls/filter/owner_id', val)
   }
 
-  get task (): string { return this.$store.getters['statistics/recent_calls/filter/task'] }
-
-  set task (val: string) { this.$store.commit('statistics/recent_calls/filter/task', val) }
-
-  get calling (): string { return this.$store.getters['statistics/recent_calls/filter/calling'] }
-
-  set calling (val: string) { this.$store.commit('statistics/recent_calls/filter/calling', val) }
-
   get tagIds (): number[] {
     return this.$store.getters['statistics/recent_calls/filter/tag_ids']
   }
 
   set tagIds (val: number[]) {
     this.$store.commit('statistics/recent_calls/filter/tag_ids', val)
-  }
-
-  get timeZoneId (): number {
-    return this.$store.getters['statistics/recent_calls/filter/timezone_id']
-  }
-
-  set timeZoneId (val: number) {
-    this.$store.commit('statistics/recent_calls/filter/timezone_id', val)
   }
 
   get contactCreatedAt (): string[] {
@@ -435,27 +366,6 @@ export default class RecentCallsFilters extends AppBase {
   /** Группы пользователей */
   get userGroups (): UserGroup[] { return this.$store.getters['statistics/recent_calls/filter/user_groups'] }
 
-  get filterTasksItems () {
-    return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
-      return {
-        value: e,
-        text: this.$tc(`ContactsFilters.Tasks.${e}`)
-      }
-    })
-  }
-
-  get callingOptions () {
-    return [
-      { text: 'Yes', value: 'yes' },
-      { text: 'No', value: 'no' }
-    ].map((e) => {
-      return {
-        value: e.value,
-        text: this.$tc(e.text)
-      }
-    })
-  }
-
   /** Теги */
   get tags (): ContactTag[] {
     const tags = this.$store.getters['statistics/recent_calls/filter/tags'] as Array<Record<string, unknown>>
@@ -467,15 +377,11 @@ export default class RecentCallsFilters extends AppBase {
       }
     ], tags)
   }
-
-  get timezones () {
-    return this.$store.getters['statistics/recent_calls/filter/timezones']
-  }
   // endregion
 
   // region Обработчики жизненного цикла
   created () {
-    this.onFilterChange = debounce(this.onFilterChange, 350)
+    this.filterChangeEmit = debounce(this.filterChangeEmit, 350)
     this.onSearchUsers = debounce(this.onSearchUsers, 500)
     this.onSearchTags = debounce(this.onSearchTags, 500)
     this.onAppAutocompleteProjectsSearch = debounce(this.onAppAutocompleteProjectsSearch, 500)
@@ -487,7 +393,6 @@ export default class RecentCallsFilters extends AppBase {
     if (this.statusIds.length > 0) { this.onAppAutocompleteStatusesFocus() }
     if (this.userGroupId > 0) { this.onAppAutocompleteUserGroupsFocus() }
     if (this.tagIds.length > 0) { this.onSearchTags() }
-    if (this.timeZoneId > 0) { this.fetchTimeZones() }
 
     if (this.contactCreatedAt.length === 2) {
       this.contactCreatedAtDates = this.contactCreatedAt
@@ -498,34 +403,26 @@ export default class RecentCallsFilters extends AppBase {
   // region Вспомогательные метод и обработчики
 
   /**
-   * Срабатывает при изменении значений одного из фильтров
-   * @private
-   */
-  private onFilterChange () {
-    this.$store.commit('statistics/recent_calls/filter/offset', 0)
-  }
-
-  /**
    * Срабатывает при поиске проектов
    * @param q
    * @private
    */
   private onAppAutocompleteProjectsSearch (q = '') {
     if (this.projects.findIndex((e) => e.name.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.$store.dispatch('statistics/recent_calls/filter/fetchProjects', {
+      this.$store.dispatch('statistics/recent_calls/filter/fetch_projects', {
         q
       })
     }
   }
 
   private onAppAutocompleteProjectsSearchFocus () {
-    if (this.projects.length === 0) { this.$store.dispatch('statistics/recent_calls/filter/fetchProjects', {}) }
+    if (this.projects.length === 0) { this.$store.dispatch('statistics/recent_calls/filter/fetch_projects', {}) }
   }
 
   private onAppAutocompleteStatusesSearch (q = '') {
     if (this.projects.findIndex((e) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.statusesLoading = true
-      this.$store.dispatch('statistics/recent_calls/filter/fetchStatuses', {
+      this.$store.dispatch('statistics/recent_calls/filter/fetch_statuses', {
         q
       }).finally(() => (this.statusesLoading = false))
     }
@@ -542,7 +439,7 @@ export default class RecentCallsFilters extends AppBase {
     }
     if (this.statuses.length === 0) {
       this.statusesLoading = true
-      this.$store.dispatch('statistics/recent_calls/filter/fetchStatuses', params)
+      this.$store.dispatch('statistics/recent_calls/filter/fetch_statuses', params)
         .finally(() => (this.statusesLoading = false))
     }
   }
@@ -575,7 +472,7 @@ export default class RecentCallsFilters extends AppBase {
 
     if (this.users.findIndex((e) => e.full_name.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.usersLoading = true
-      this.$store.dispatch('statistics/recent_calls/filter/fetchUsers', params)
+      this.$store.dispatch('statistics/recent_calls/filter/fetch_users', params)
         .finally(() => (this.usersLoading = false))
     }
   }
@@ -588,7 +485,7 @@ export default class RecentCallsFilters extends AppBase {
 
     if (this.users.length === 0) {
       this.usersLoading = true
-      this.$store.dispatch('statistics/recent_calls/filter/fetchUsers', params)
+      this.$store.dispatch('statistics/recent_calls/filter/fetch_users', params)
         .finally(() => (this.usersLoading = false))
     }
   }
@@ -599,13 +496,13 @@ export default class RecentCallsFilters extends AppBase {
    * @private
    */
   private onSearchTags (q = '') {
-    const params: Record<string, unknown> = { q }
+    const params = { q }
     const fetch = this
       .tags
       .findIndex((e) => e.name
         .toLowerCase()
         .indexOf((q || '')
-          .toLowerCase()) > -1) === -1 || this.tags.length === 0
+          .toLowerCase()) > -1 && e.id > 0) === -1 || this.tags.length === 0
 
     if (fetch) {
       this.tagsLoading = true
@@ -627,12 +524,6 @@ export default class RecentCallsFilters extends AppBase {
   private onContactCreatedAtBtnOkClick (value: string[]) {
     // @ts-expect-error: Contact created at
     return this.$refs.contactCreatedAtMenu?.save(value)
-  }
-
-  private fetchTimeZones () {
-    if (this.timezones.length === 0) {
-      this.$store.dispatch('statistics/recent_calls/filter/fetchTimeZones')
-    }
   }
   // endregion
 }

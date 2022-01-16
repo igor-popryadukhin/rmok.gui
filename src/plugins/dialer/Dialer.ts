@@ -1,12 +1,12 @@
 import { Timer } from './Timer'
-import JsSIP, { Utils as JsSIPUtils, UA } from 'jssip'
+import JsSIP, { Utils as JsSIPUtils, UA, URI } from 'jssip'
 import {
   ConnectingEvent,
   EndEvent,
   IncomingEvent,
   OutgoingEvent,
   RTCSession,
-  AnswerOptions
+  AnswerOptions, RTCPeerConnectionDeprecated
 } from 'jssip/lib/RTCSession'
 import {
   CallOptions,
@@ -17,13 +17,6 @@ import {
 } from 'jssip/lib/UA'
 import debug from 'debug'
 
-import {
-  EventHandlerAccepted,
-  EventHandlerConnecting,
-  EventHandlerEnded,
-  EventHandlerFailed,
-  EventHandlerProgress
-} from './types'
 import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
 
 function makeAudioElement (id?: string): HTMLAudioElement {
@@ -60,19 +53,6 @@ export default class Dialer {
   get sessionStartTime (): Date|null { return this._sessionStartTime }
   get sessionEndTime (): Date|null { return this._sessionEndTime }
   get sessionStopwatch (): string { return this._sessionStopwatch }
-
-  get onSessionConnecting (): EventHandlerConnecting { return this._onSessionConnecting }
-  set onSessionConnecting (value: EventHandlerConnecting) { this._onSessionConnecting = value }
-  get onSessionFailed (): EventHandlerFailed { return this._onSessionFailed }
-  /** Срабатывает, когда сеанс не может быть установлен. */
-  set onSessionFailed (value: EventHandlerFailed) { this._onSessionFailed = value }
-  get onSessionEnded (): EventHandlerEnded { return this._onSessionEnded }
-  set onSessionEnded (value: EventHandlerEnded) { this._onSessionEnded = value }
-  get onSessionAccepted (): EventHandlerAccepted { return this._onSessionAccepted }
-  set onSessionAccepted (value: EventHandlerAccepted) { this._onSessionAccepted = value }
-  get onSessionProgress (): EventHandlerProgress { return this._onSessionProgress }
-  set onSessionProgress (value: EventHandlerProgress) { this._onSessionProgress = value }
-
   get state (): DialerState { return this._state }
   get direction (): string {
     if (this._currentRTCSession?.status === 8) {
@@ -94,17 +74,6 @@ export default class Dialer {
   private _pcConfig?: RTCConfiguration = null;
   private _candidateReadyTimeoutId?: NodeJS.Timeout = null;
   private _candidateReadyTimeOut = 0;
-
-  private _onSessionConnecting?: EventHandlerConnecting
-  private _onSessionProgress?: EventHandlerProgress
-  private _onSessionAccepted?: EventHandlerAccepted
-  private _onSessionEnded?: EventHandlerEnded
-  /**
-   * Срабатывает, когда сеанс не может быть установлен.
-   * @private
-   */
-  private _onSessionFailed?: EventHandlerFailed
-  private _localClonedStream: any;
   private _currentRTCSession?: RTCSession = null;
 
   constructor () {
@@ -145,7 +114,12 @@ export default class Dialer {
 
     this._currentRTCSession = this._ua.call(number, {
       extraHeaders: [],
-      pcConfig: this._pcConfig,
+      pcConfig: {
+        iceServers: [],
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        rtcpMuxPolicy: 'negotiate'
+      }, // this._pcConfig,
       mediaConstraints: {
         audio: true, // Только аудио
         video: false
@@ -329,7 +303,7 @@ export default class Dialer {
     this._currentRTCSession = event.session
 
     if (this._candidateReadyTimeOut) {
-      this._currentRTCSession.on('icecandidate', (event) => {
+      event.session.on('icecandidate', (event) => {
         DialerDebug(event.candidate.candidate)
         if (this._candidateReadyTimeoutId != null) {
           clearTimeout(this._candidateReadyTimeoutId)
@@ -339,124 +313,48 @@ export default class Dialer {
         }, this._candidateReadyTimeOut)
       })
     }
-
-    // Запускается после добавления локального медиа потока RTCSession и
-    // до начала сбора ICE для начального запроса INVITE или передачи ответа «200 OK».
-    this._currentRTCSession.on('connecting', (event: ConnectingEvent) => {
-      // Тут мы подключаемся к микрофону и цепляем к нему поток, который пойдёт в астер
-      const peerconnection = this._currentRTCSession.connection
-
-      // @ts-expect-error: peerconnection.getLocalStreams()[0]
-      this._localClonedStream = peerconnection.getLocalStreams()[0]
-
-      peerconnection.addEventListener('addstream', (event) => {
-        // @ts-expect-error: this._remoteAudio.srcObject = event.stream
-        this._remoteAudio.srcObject = event.stream
+    if (event.session.direction === 'incoming') {
+      event.session.on('peerconnection', (event) => {
+        event.peerconnection.ontrack = (ev) => {
+          this._remoteAudio.srcObject = ev.streams[0]
+        }
       })
+    }
 
-      this.doSessionConnecting(this._currentRTCSession, event)
+    event.session.on('connecting', () => {
+      this._state = DialerState.CONNECTING
+      this.startRenderSessionStopwatch()
+
+      event.session.connection.ontrack = (te) => {
+        this._remoteAudio.srcObject = te.streams[0]
+      }
     })
 
     // Срабатывает при получении или генерации ответа класса 1XX SIP (> 100) на запрос INVITE
-    this._currentRTCSession.on('progress', (event: IncomingEvent | OutgoingEvent) => {
-      this.doSessionProgress(this._currentRTCSession, event)
+    event.session.on('progress', () => {
+      this._state = DialerState.PROGRESS
     })
 
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
-    this._currentRTCSession.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
-      this.doSessionAccepted(this._currentRTCSession, event)
+    event.session.on('accepted', () => {
+      this._state = DialerState.ACCEPTED
     })
 
     // Срабатывает, когда установленный вызов завершается.
-    this._currentRTCSession.on('ended', (event: EndEvent) => {
-      // Закрываю локальный MediaStream
-      JsSIPUtils.closeMediaStream(this._localClonedStream)
-      this.doSessionEnded(this._currentRTCSession, event)
+    event.session.on('ended', () => {
+      this._sessionEndTime = new Date()
+      this.stopRenderSessionStopwatch()
+
+      this._state = DialerState.IDLE
     })
 
     // Запускается, когда сеанс не может быть установлен.
-    this._currentRTCSession.on('failed', (event: EndEvent) => {
-      // Закрываю локальный MediaStream
-      JsSIPUtils.closeMediaStream(this._localClonedStream)
-      this.doSessionFailed(this._currentRTCSession, event)
+    event.session.on('failed', () => {
+      this._sessionEndTime = new Date()
+      this.stopRenderSessionStopwatch()
+
+      this._state = DialerState.IDLE
     })
-  }
-
-  private doSessionConnecting (session: RTCSession, event: ConnectingEvent) {
-    this._state = DialerState.CONNECTING
-    this.startRenderSessionStopwatch()
-
-    if (typeof this.onSessionConnecting === 'function') {
-      try {
-        this.onSessionConnecting(session, event)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  }
-
-  /**
-   * @param session
-   * @param event
-   * @private
-   */
-  private doSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
-    this._state = DialerState.PROGRESS
-
-    if (typeof this.onSessionProgress === 'function') {
-      try {
-        this.onSessionProgress(session, event)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  }
-
-  /**
-   *
-   * @param session
-   * @param event
-   * @private
-   */
-  private doSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
-    this._state = DialerState.ACCEPTED
-
-    if (typeof this.onSessionAccepted === 'function') {
-      try {
-        this.onSessionAccepted(session, event)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  }
-
-  private doSessionEnded (session: RTCSession, event: EndEvent) {
-    this._sessionEndTime = new Date()
-    this.stopRenderSessionStopwatch()
-    this._state = DialerState.IDLE
-
-    if (typeof this.onSessionEnded === 'function') {
-      try {
-        this.onSessionEnded(session, event)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  }
-
-  private doSessionFailed (session: RTCSession, event: EndEvent) {
-    this._sessionEndTime = new Date()
-    this.stopRenderSessionStopwatch()
-
-    this._state = DialerState.IDLE
-
-    if (typeof this.onSessionFailed === 'function') {
-      try {
-        this.onSessionFailed(session, event)
-      } catch (e) {
-        console.error(e)
-      }
-    }
   }
 
   /**

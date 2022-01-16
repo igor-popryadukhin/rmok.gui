@@ -69,37 +69,37 @@ export default class AutoDialerView extends Base {
       {
         title: 'Общее',
         to: {
-          name: 'auto_dialer_tab_main'
+          name: 'auto_dialer_view_tab_main'
         }
       },
       {
         title: 'Телефония',
         to: {
-          name: 'auto_dialer_tab_telephony'
+          name: 'auto_dialer_view_tab_telephony'
         }
       },
       {
         title: 'Настройки повторных звонков',
         to: {
-          name: 'auto_dialer_tab_repeat_calls_settings'
+          name: 'auto_dialer_view_tab_repeat_calls_settings'
         }
       },
       {
         title: 'Операторы',
         to: {
-          name: 'auto_dialer_tab_operators'
+          name: 'auto_dialer_view_tab_operators'
         }
       },
       {
         title: 'Расписание',
         to: {
-          name: 'auto_dialer_tab_schedule'
+          name: 'auto_dialer_view_tab_schedule'
         }
       },
       {
         title: 'Контакты',
         to: {
-          name: 'auto_dialer_tab_contacts'
+          name: 'auto_dialer_view_tab_contacts'
         }
       }
     ]
