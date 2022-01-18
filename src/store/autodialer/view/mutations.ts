@@ -7,6 +7,8 @@ export const mutations: MutationTree<State> = {
   mode (state, payload) { state.mode = payload },
   queue_name (state, payload) { state.queue_name = payload },
   description (state, payload) { state.description = payload },
+  project (state, payload) { state.project = payload },
+  summary (state, payload) { state.summary = payload },
 
   fill (state, payload) {
     state.id = payload.id
@@ -20,5 +22,6 @@ export const mutations: MutationTree<State> = {
     state.repeat_calls_settings_available_actions = payload.repeat_calls_settings_available_actions
     state.repeat_calls_settings = payload.repeat_calls_settings
     state.description = payload.description
+    state.project = payload.project
   }
 }

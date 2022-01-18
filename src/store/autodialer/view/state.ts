@@ -1,3 +1,5 @@
+import Project from '@/api/interfaces/Project'
+
 export interface State {
   id: number;
   name: string;
@@ -10,6 +12,8 @@ export interface State {
   repeat_calls_settings_available_actions: Array<Record<string, unknown>>;
   repeat_calls_settings: Array<Record<string, unknown>>;
   description?: string;
+  project?: Project;
+  summary?: Array<Record<string, unknown>>;
 }
 
 function state (): State {
@@ -24,7 +28,9 @@ function state (): State {
     maximum_attempts: 0,
     repeat_calls_settings_available_actions: [],
     repeat_calls_settings: [],
-    description: ''
+    description: '',
+    project: null,
+    summary: []
   }
 }
 

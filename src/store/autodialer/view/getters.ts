@@ -12,5 +12,7 @@ export const getters: GetterTree<State, RootState> = {
   max_calls_number (state: State) { return state.max_calls_number },
   maximum_attempts (state: State) { return state.maximum_attempts },
   repeat_calls_settings_available_actions (state: State) { return state.repeat_calls_settings_available_actions },
-  repeat_calls_settings (state: State) { return state.repeat_calls_settings }
+  repeat_calls_settings (state: State) { return state.repeat_calls_settings },
+  project (state: State) { return state.project },
+  summary (state: State) { return state.summary }
 }

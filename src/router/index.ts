@@ -105,7 +105,7 @@ const routes: RouteConfig[] = [
     },
     children: [
       {
-        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-main" */ '../views/AutoDialer/AutoDialerView/Main/Index.vue'),
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-main" */ '../views/AutoDialer/AutoDialerView/Main/Main.vue'),
         meta: {
           anonymous: true,
           layout: 'default',

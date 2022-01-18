@@ -31,9 +31,7 @@
         <app-loading />
       </div>
       <template v-else>
-        <keep-alive>
-          <router-view />
-        </keep-alive>
+        <router-view />
       </template>
     </v-sheet>
   </v-sheet>
