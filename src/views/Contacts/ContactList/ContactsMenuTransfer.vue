@@ -3,6 +3,7 @@
     v-model="menuVisible"
     :close-on-click="false"
     :close-on-content-click="false"
+    max-width="400"
     offset-y
     tile
     @keydown.esc="menuVisible = false"
@@ -15,22 +16,66 @@
       />
     </template>
     <v-card
-      min-width="350"
+      min-width="400"
       tile
       flat
     >
-      {{ contactsSelectedLength }}
+      <v-card-text class="px-3 pb-0">
+        <smart-autocomplete
+          v-model="projectId"
+          :label="$tc('Project')"
+          :api-query="(q) => { return { q } }"
+          api-end-point="/projects"
+          item-text="name"
+          item-value="id"
+          response-property="data"
+          store-module-name="projects-transfer-menu"
+          clearable
+        />
+      </v-card-text>
+
+      <v-card-text class="px-3 pt-1 pb-0">
+        <smart-autocomplete
+          v-model="userIds"
+          :error-messages="userIdsErrors"
+          :label="$tc('Responsible')"
+          :api-query="(q) => { return { q } }"
+          api-end-point="/users"
+          item-text="full_name"
+          item-value="id"
+          response-property="data"
+          store-module-name="users-transfer-menu"
+          clearable
+          multiple
+          @input="$v.projectId.$touch()"
+          @blur="$v.projectId.$touch()"
+        >
+          <template
+            #selection="{ item }"
+          >
+            <v-chip
+              class="extra-small-chip"
+              outlined
+              label
+              close
+              @click:close="userChipCloseClick(item.id)"
+            >
+              {{ item.full_name }}
+            </v-chip>
+          </template>
+        </smart-autocomplete>
+      </v-card-text>
 
       <!-- Действия -->
-      <v-card-text class="px-2 py-0">
+      <v-card-text class="px-3 py-0">
         <v-list dense>
           <v-list-item
-            :disabled="addingProcess || !autodialerId"
+            :disabled="$v.$invalid"
             dense
             link
-            @click="onAddClick"
+            @click="transfer"
           >
-            <v-list-item-title>{{ $tc('add', contactsListSelectedCount) }}</v-list-item-title>
+            <v-list-item-title>{{ $tc('transfer', contactsSelectedLength) }}</v-list-item-title>
           </v-list-item>
           <v-list-item
             :disabled="process"
@@ -48,112 +93,48 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import ContactTag from '@/api/interfaces/ContactTag'
 import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import debounce from '@/utils/debounce'
-import { AxiosResponse } from 'axios'
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
+import Vue from 'vue'
 import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import Vuelidate, { validationMixin } from 'vuelidate'
+import { required, minLength } from 'vuelidate/lib/validators'
+Vue.use(Vuelidate)
 
 @Component({
-  components: { AppLoading }
+  mixins: [validationMixin],
+  components: { SmartAutocomplete },
+  validations: {
+    userIds: { required, minLength: minLength(1) }
+  },
+  computed: {
+    userIdsErrors () {
+      const errors = []
+      if (!this.$v.userIds.$dirty) return errors
+      !this.$v.userIds.required && errors.push('Users is required.')
+      !this.$v.userIds.minLength && errors.push('Users is required.')
+      return errors.map((e) => this.$tc(e))
+    }
+  }
 })
 export default class ContactsMenuAddToAutodialer extends AppBase {
-  first = true
-  addingProcess = false
-  process = false
   menuVisible = false
-  textSearch = null
-  autodials = []
-  filtered = []
-  autodialerId = 0
-
-  get textSearchWords (): string[] {
-    return (this.textSearch || '')
-      .split(/\s+/s)
-      .filter(value => !!value)
-  }
+  projectId = 0
+  userIds = []
 
   get contactsSelectedLength () { return (this.$store.getters['contacts/list/items_selected'] || []).length }
   get contactsSelected () { return this.$store.getters['contacts/list/items_selected'] }
+  set contactsSelected (val) { this.$store.commit('contacts/list/items_selected', val) }
 
-  @Watch('textSearch')
-  textSearchWatchHandler (val: string|null) {
-    this.searchAutodialsInLocal(val || '')
+  private transfer () {
+    this.$v.$touch()
+    this.contactsSelected = []
   }
 
-  @Watch('menuVisible')
-  menuVisibleWatchHandler (val: boolean) {
-    if (val) {
-      this.searchAutodialsInLocal()
-    }
-  }
-
-  created () {
-    this.searchAutodialsInServer = debounce(this.searchAutodialsInServer, 350)
-    this.searchAutodialsInLocal = debounce(this.searchAutodialsInLocal, 350)
-  }
-
-  /**
-   * Поиск автодозвонов на сервере.
-   *
-   * @param q
-   * @private
-   */
-  private searchAutodialsInServer (q: string) {
-    this.process = true
-    this.$axios.get('/auto-dialers', { params: { q, count: 10 } })
-      .then((response: AxiosResponse) => {
-        if (response.status !== 200) {
-          throw new APIError(response?.data || response.statusText)
-        }
-
-        (response.data?.data || []).forEach((value) => {
-          if (this.autodials.findIndex((e) => e.id === value.id) === -1) {
-            this.autodials.push(value)
-          }
-        })
-
-        this.filtered = response.data?.data || []
-      }).finally(() => (this.process = false))
-  }
-
-  /**
-   * Поиск автодозвонов
-   *
-   * Сначала выполняется поиск в локальном хранилище, а после в удалённом.
-   * @param q
-   */
-  private searchAutodialsInLocal (q = '') {
-    const found = this.autodials.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1)
-
-    if (found.length === 0) {
-      this.searchAutodialsInServer(q)
-    } else {
-      this.filtered = found
-    }
-  }
-
-  /**
-   *
-   * @param text
-   * @param words
-   * @param tag
-   * @private
-   */
-  private highlight (text: string, words: string[], tag = 'span') {
-    let i
-    const len = words.length
-    let re
-    for (i = 0; i < len; i++) {
-      re = new RegExp(words[i], 'gis')
-      if (re.test(text)) {
-        text = text.replace(re, '<' + tag + ' class="highlight">$&</' + tag + '>')
-      }
-    }
-    return text
+  private userChipCloseClick (id: number) {
+    this.userIds = this.userIds.filter((value) => {
+      return value !== id
+    })
   }
 }
 </script>
@@ -167,7 +148,7 @@ export default class ContactsMenuAddToAutodialer extends AppBase {
 <i18n>
 {
   "ru": {
-    "add": "Нет контактов|Добавить {n} контакт|Добавить {n} контакта|Добавить {n} контактов"
+    "transfer": "Нет контактов|Передать {n} контакт|Передать {n} контакта|Передать {n} контактов"
   }
 }
 </i18n>
