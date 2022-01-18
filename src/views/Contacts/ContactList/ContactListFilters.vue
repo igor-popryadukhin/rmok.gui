@@ -1,280 +1,262 @@
 <template>
-  <v-sheet>
-    <div class="py-2">
-      <v-text-field
-        v-model="q"
-        :label="$t('Search')"
-        prepend-inner-icon="mdi-magnify"
-        clearable
-        outlined
-        dense
-        @change="onFilterChange"
-      />
+  <div class="py-2">
+    <v-text-field
+      v-model="q"
+      :label="$t('Search')"
+      prepend-inner-icon="mdi-magnify"
+      clearable
+      outlined
+      dense
+      @change="onFilterChange"
+    />
 
-      <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL'])"
-        v-model="projectId"
-        :options="projects"
-        :label="$tc('Project')"
-        :value="projectId"
-        item-text="name"
-        item-value="id"
-        clearable
-        @search="onAppAutocompleteProjectsSearch"
-        @focus="onAppAutocompleteProjectsSearchFocus"
-        @change="onFilterChange"
-        @mounted="$appDebug"
-      />
+    <smart-autocomplete
+      v-if="$isGranted(['CONTACTS_VIEW_ALL'])"
+      v-model="projectId"
+      :label="$tc('Project')"
+      :api-query="(q) => { return { q } }"
+      api-end-point="/projects"
+      item-text="name"
+      item-value="id"
+      response-property="data"
+      store-module-name="projects"
+      clearable
+    />
 
-      <app-autocomplete
-        v-model="statusIds"
-        :options="statuses"
-        :label="$tc('Result')"
-        :value="statusIds"
-        :disabled="!(projectId > 0)"
-        :loading="statusesLoading"
-        item-text="name"
-        item-value="id"
-        item-color="color"
-        clearable
-        multiple
-        @search="onAppAutocompleteStatusesSearch"
-        @focus="onAppAutocompleteStatusesFocus"
-        @change="onFilterChange"
+    <smart-autocomplete
+      v-model="statusIds"
+      :disabled="!projectId"
+      :label="$tc('Result')"
+      :filter="(item) => item.project.id === projectId"
+      :api-query="(q) => { return { q, project_id: projectId } }"
+      api-end-point="/statuses"
+      item-text="name"
+      item-value="id"
+      store-module-name="statuses"
+      clearable
+      multiple
+    >
+      <template
+        #item="{ item, on, attrs }"
       >
-        <template
-          #item="{ item, on, attrs }"
+        <v-list-item
+          v-bind="attrs"
+          :color="item.color"
+          :input-value="item.id"
+          v-on="on"
         >
-          <v-list-item
-            v-bind="attrs"
-            :color="item.color"
-            :input-value="item.id"
-            v-on="on"
-          >
-            {{ item.name }}
-          </v-list-item>
-        </template>
+          {{ item.name }}
+        </v-list-item>
+      </template>
 
-        <template
-          #selection="{ item }"
-        >
-          <v-chip
-            class="extra-small-chip"
-            :color="item.color"
-            outlined
-            label
-            close
-            x-small
-            @click:close="onAppAutocompleteStatusesClose(item.id)"
-          >
-            {{ item.name }}
-          </v-chip>
-        </template>
-      </app-autocomplete>
-
-      <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
-        v-model="userGroupId"
-        :options="userGroups"
-        :label="$tc('Group')"
-        :value="userGroupId"
-        :loading="userGroupsLoading"
-        item-text="name"
-        item-value="id"
-        clearable
-        @search="onSearchUsersGroups"
-        @focus="onAppAutocompleteUserGroupsFocus"
-        @change="onFilterChange"
-      />
-
-      <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
-        v-model="userId"
-        :options="users"
-        :label="$tc('Responsible')"
-        :loading="usersLoading"
-        item-text="full_name"
-        item-value="id"
-        clearable
-        @search="onSearchUsers"
-        @focus="onUsersFocus"
-        @change="onFilterChange"
-      />
-
-      <v-select
-        v-model="task"
-        clearable
-        :label="$tc('Tasks')"
-        :items="filterTasksItems"
-        outlined
-        dense
-        @change="onFilterChange"
-      />
-
-      <v-select
-        v-model="calling"
-        label="Прозвонено"
-        :items="callingOptions"
-        item-text="text"
-        item-value="value"
-        clearable
-        outlined
-        dense
-        @change="onFilterChange"
-      />
-
-      <app-autocomplete
-        v-model="tagIds"
-        :options="tags"
-        :label="$tc('Tags')"
-        :loading="tagsLoading"
-        item-text="name"
-        item-value="id"
-        item-color="color"
-        chips
-        deletable-chips
-        multiple
-        clearable
-        @search="onSearchTags"
-        @focus="onSearchTags()"
-        @change="onFilterChange"
+      <template
+        #selection="{ item }"
       >
-        <template
-          #item="{ item, on, attrs }"
+        <v-chip
+          class="extra-small-chip"
+          :color="item.color"
+          outlined
+          label
+          close
+          x-small
+          @click:close="onStatusChipClose(item.id)"
         >
-          <v-list-item
-            v-bind="attrs"
-            :color="item.color"
-            :input-value="item.id"
-            v-on="on"
-          >
-            {{ item.name }}
-          </v-list-item>
-        </template>
+          {{ item.name }}
+        </v-chip>
+      </template>
+    </smart-autocomplete>
 
-        <template
-          #selection="{ item }"
-        >
-          <v-chip
-            class="extra-small-chip"
-            :color="item.color"
-            outlined
-            label
-            close
-            x-small
-            @click:close="onTagsChipClose(item.id)"
-          >
-            {{ item.name }}
-          </v-chip>
-        </template>
-      </app-autocomplete>
+    <smart-autocomplete
+      v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
+      v-model="userGroupId"
+      :label="$tc('Group')"
+      :api-query="(q) => { return { q } }"
+      api-end-point="/groups"
+      item-text="name"
+      item-value="id"
+      response-property="data"
+      store-module-name="groups"
+      clearable
+    />
 
-      <app-autocomplete
-        v-model="timeZoneId"
-        :options="timezones"
-        :label="$tc('Time zone')"
-        item-text="name_local"
-        item-value="id"
-        clearable
-        @focus="fetchTimeZones"
-        @change="onFilterChange"
+    <smart-autocomplete
+      v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
+      v-model="userId"
+      :label="$tc('Responsible')"
+      :filter="(item) => item.project.id === projectId"
+      :api-query="(q) => { return {q, project_id: projectId} }"
+      api-end-point="/users"
+      item-text="full_name"
+      item-value="id"
+      response-property="data"
+      store-module-name="users"
+      clearable
+    />
+
+    <v-select
+      v-model="task"
+      clearable
+      :label="$tc('Tasks')"
+      :items="filterTasksItems"
+      outlined
+      dense
+      @change="onFilterChange"
+    />
+
+    <v-select
+      v-model="calling"
+      label="Прозвонено"
+      :items="callingOptions"
+      item-text="text"
+      item-value="value"
+      clearable
+      outlined
+      dense
+      @change="onFilterChange"
+    />
+
+    <smart-autocomplete
+      v-model="tagIds"
+      :label="$tc('Tags')"
+      :api-query="(q) => { return { q } }"
+      api-end-point="/contacts/tags"
+      item-color="color"
+      item-text="name"
+      item-value="id"
+      response-property="data"
+      store-module-name="tags"
+      clearable
+      multiple
+    >
+      <template
+        #item="{ item, on, attrs }"
       >
-        <template #item="{ item, attrs, on }">
-          <v-list-item
-            v-bind="attrs"
-            v-on="on"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ item.name_local }}</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text>
-                {{ item.offset_string }}
-              </v-list-item-action-text>
-            </v-list-item-action>
-          </v-list-item>
-        </template>
-      </app-autocomplete>
-
-      <v-menu
-        ref="contactCreatedAtMenu"
-        v-model="contactCreatedAtMenu"
-        :return-value.sync="contactCreatedAt"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        min-width="auto"
-        offset-y
-        offset-x
-        left
-      >
-        <template #activator="{ on, attrs }">
-          <v-text-field
-            :label="$tc('Date the contact was created')"
-            :value="dateRangeText"
-            multiple
-            dense
-            outlined
-            prepend-inner-icon="mdi-calendar"
-            readonly
-            clearable
-            v-bind="attrs"
-            v-on="on"
-            @click:clear="contactCreatedAt = []; contactCreatedAtDates = [];"
-          />
-        </template>
-        <v-date-picker
-          v-model="contactCreatedAtDates"
-          :first-day-of-week="1"
-          locale="ru"
-          flat
-          range
-          no-title
-          show-current
+        <v-list-item
+          v-bind="attrs"
+          :color="item.color"
+          :input-value="item.id"
+          v-on="on"
         >
-          <v-spacer />
-          <v-btn
-            text
-            color="primary"
-            small
-            @click="contactCreatedAtMenu = false"
-          >
-            {{ $tc('Cancel') }}
-          </v-btn>
-          <v-btn
-            text
-            color="primary"
-            small
-            @click="onContactCreatedAtBtnOkClick(contactCreatedAtDates)"
-          >
-            {{ $tc('Ok') }}
-          </v-btn>
-        </v-date-picker>
-      </v-menu>
-    </div>
-  </v-sheet>
+          {{ item.name }}
+        </v-list-item>
+      </template>
+
+      <template
+        #selection="{ item }"
+      >
+        <v-chip
+          class="extra-small-chip"
+          :color="item.color"
+          outlined
+          label
+          close
+          x-small
+          @click:close="onTagsChipClose(item.id)"
+        >
+          {{ item.name }}
+        </v-chip>
+      </template>
+    </smart-autocomplete>
+
+    <smart-autocomplete
+      v-model="timeZoneId"
+      :label="$tc('Time zone')"
+      api-end-point="/handbooks/timezones"
+      item-text="name_local"
+      item-value="id"
+      store-module-name="timezones"
+      clearable
+    >
+      <template #item="{ item, attrs, on }">
+        <v-list-item
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ item.name_local }}</v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-list-item-action-text>
+              {{ item.offset_string }}
+            </v-list-item-action-text>
+          </v-list-item-action>
+        </v-list-item>
+      </template>
+    </smart-autocomplete>
+
+    <v-menu
+      ref="contactCreatedAtMenu"
+      v-model="contactCreatedAtMenu"
+      :return-value.sync="contactCreatedAt"
+      :close-on-content-click="false"
+      transition="scale-transition"
+      min-width="auto"
+      offset-y
+      offset-x
+      left
+    >
+      <template #activator="{ on, attrs }">
+        <v-text-field
+          :label="$tc('Date the contact was created')"
+          :value="dateRangeText"
+          multiple
+          dense
+          outlined
+          prepend-inner-icon="mdi-calendar"
+          readonly
+          clearable
+          v-bind="attrs"
+          v-on="on"
+          @click:clear="contactCreatedAt = []; contactCreatedAtDates = [];"
+        />
+      </template>
+      <v-date-picker
+        v-model="contactCreatedAtDates"
+        :first-day-of-week="1"
+        locale="ru"
+        flat
+        range
+        no-title
+        show-current
+      >
+        <v-spacer />
+        <v-btn
+          text
+          color="primary"
+          small
+          @click="contactCreatedAtMenu = false"
+        >
+          {{ $tc('Cancel') }}
+        </v-btn>
+        <v-btn
+          text
+          color="primary"
+          small
+          @click="onContactCreatedAtBtnOkClick(contactCreatedAtDates)"
+        >
+          {{ $tc('Ok') }}
+        </v-btn>
+      </v-date-picker>
+    </v-menu>
+  </div>
 </template>
 
 <script lang="ts">
-import ContactTag from '@/api/interfaces/ContactTag'
 import AppBase from '@/AppBase'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
-import { TimeZone } from '@/store/contacts/list/filter/state'
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
 import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactListFilters>({
-  components: { AppMenuDatePicker, AppAutocomplete }
+  components: { SmartAutocomplete, AppMenuDatePicker, AppAutocomplete }
 })
 export default class ContactListFilters extends AppBase {
   // region Данные
   contactCreatedAtMenu = false
   contactCreatedAtDates = []
-  statusesLoading = false
-  userGroupsLoading = false
-  usersLoading = false
-  tagsLoading = false
   // endregion
 
   /** Текущий проект пользователя */
@@ -378,31 +360,6 @@ export default class ContactListFilters extends AppBase {
   // endregion Параметры запроса
 
   // region Данные для заполнения фильтров
-  get projects (): Array<Record<string, unknown>> { return this.$store.getters['contacts/list/filter/projects'] }
-
-  /** Статусы */
-  get statuses (): Array<Record<string, Record<string, unknown>>> {
-    if (!this.projectId) {
-      return []
-    }
-    return (this.$store.getters['contacts/list/filter/statuses'] as Array<Record<string, Record<string, unknown>>>)
-      .filter((e) => e.project.id === this.projectId)
-  }
-
-  /** Пользователи */
-  get users (): Array<Record<string, Record<string, unknown>>> {
-    if (this.projectId) {
-      return (this.$store.getters['contacts/list/filter/users'] || [])
-        .filter((e) => {
-          return e?.project?.id === this.projectId
-        })
-    }
-
-    return this.$store.getters['contacts/list/filter/users']
-  }
-
-  /** Группы пользователей */
-  get userGroups (): Array<Record<string, unknown>> { return this.$store.getters['contacts/list/filter/user_groups'] }
 
   get filterTasksItems () {
     return ['available', 'unavailable', 'overdue', 'not_overdue'].map((e) => {
@@ -424,40 +381,14 @@ export default class ContactListFilters extends AppBase {
       }
     })
   }
-
-  /** Теги */
-  get tags (): ContactTag[] {
-    const tags = this.$store.getters['contacts/list/filter/tags'] as Array<Record<string, unknown>>
-    return [].concat([
-      {
-        id: 0,
-        name: this.$tc('No tags'),
-        color: 'grey'
-      }
-    ], tags)
-  }
-
-  get timezones (): TimeZone[] {
-    return this.$store.getters['contacts/list/filter/timezones']
-  }
   // endregion
 
   // region Обработчики жизненного цикла
   created () {
     this.onFilterChange = debounce(this.onFilterChange, 350)
-    this.onSearchUsers = debounce(this.onSearchUsers, 500)
-    this.onSearchTags = debounce(this.onSearchTags, 500)
-    this.onAppAutocompleteProjectsSearch = debounce(this.onAppAutocompleteProjectsSearch, 500)
-    this.onAppAutocompleteStatusesSearch = debounce(this.onAppAutocompleteStatusesSearch, 500)
   }
 
   mounted () {
-    if (this.projectId > 0) { this.onAppAutocompleteProjectsSearchFocus() }
-    if (this.statusIds.length > 0) { this.onAppAutocompleteStatusesFocus() }
-    if (this.userGroupId > 0) { this.onAppAutocompleteUserGroupsFocus() }
-    if (this.tagIds.length > 0) { this.onSearchTags() }
-    if (this.timeZoneId > 0) { this.fetchTimeZones() }
-
     if (this.contactCreatedAt.length === 2) {
       this.contactCreatedAtDates = this.contactCreatedAt
     }
@@ -475,115 +406,6 @@ export default class ContactListFilters extends AppBase {
   }
 
   /**
-   * Срабатывает при поиске проектов
-   * @param q
-   * @private
-   */
-  private onAppAutocompleteProjectsSearch (q = '') {
-    if (this.projects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.$store.dispatch('contacts/list/filter/fetch_projects', {
-        q
-      })
-    }
-  }
-
-  private onAppAutocompleteProjectsSearchFocus () {
-    if (this.projects.length === 0) { this.$store.dispatch('contacts/list/filter/fetch_projects', {}) }
-  }
-
-  private onAppAutocompleteStatusesSearch (q = '') {
-    if (this.projects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.statusesLoading = true
-      this.$store.dispatch('contacts/list/filter/fetch_statuses', {
-        q
-      }).finally(() => (this.statusesLoading = false))
-    }
-  }
-
-  /**
-   * Срабатывает при фокусе на фильтр "Проект"
-   * @private
-   */
-  private onAppAutocompleteStatusesFocus () {
-    const params: Record<string, unknown> = {}
-    if (this.projectId > 0) {
-      params.project_id = this.projectId
-    }
-    if (this.statuses.length === 0) {
-      this.statusesLoading = true
-      this.$store.dispatch('contacts/list/filter/fetch_statuses', params)
-        .finally(() => (this.statusesLoading = false))
-    }
-  }
-
-  private onAppAutocompleteStatusesClose (id: number) {
-    this.$store.commit('contacts/list/filter/filter_offset', 0)
-    this.statusIds = this.statusIds.filter((value) => {
-      return value !== id
-    })
-  }
-
-  private onAppAutocompleteUserGroupsFocus () {
-    if (this.userGroups.length === 0) { this.$store.dispatch('contacts/list/filter/fetchUserGroups', {}) }
-  }
-
-  private onSearchUsersGroups (q = '') {
-    if (this.userGroups.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.userGroupsLoading = true
-      this.$store.dispatch('contacts/list/filter/fetchUserGroups', {
-        q
-      }).finally(() => (this.userGroupsLoading = false))
-    }
-  }
-
-  private onSearchUsers (q = '') {
-    const params: Record<string, unknown> = { q }
-    if (this.projectId > 0) {
-      params.project_id = this.projectId
-    }
-
-    if (this.users.findIndex((e: any) => e.full_name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.usersLoading = true
-      this.$store.dispatch('contacts/list/filter/fetch_users', params)
-        .finally(() => (this.usersLoading = false))
-    }
-  }
-
-  private onUsersFocus () {
-    const params: Record<string, unknown> = {}
-    if (this.projectId > 0) {
-      params.project_id = this.projectId
-    }
-
-    if (this.users.length === 0) {
-      this.usersLoading = true
-      this.$store.dispatch('contacts/list/filter/fetch_users', params)
-        .finally(() => (this.usersLoading = false))
-    }
-  }
-
-  /**
-   * Срабатывает при поиске тегов
-   * @param q
-   * @private
-   */
-  private onSearchTags (q = '') {
-    const params: Record<string, unknown> = { q }
-    const fetch = this
-      .tags
-      .findIndex((e) => e.name
-        .toLowerCase()
-        .indexOf((q || '')
-          .toLowerCase()) > -1) === -1 || this.tags.length === 0
-
-    if (fetch) {
-      this.tagsLoading = true
-      this.$store.dispatch('contacts/list/filter/fetchTags', params)
-        .finally(() => (this.tagsLoading = false))
-    }
-  }
-
-  /**
    * @param id
    * @private
    */
@@ -593,15 +415,19 @@ export default class ContactListFilters extends AppBase {
     })
   }
 
+  /**
+   * @param id
+   * @private
+   */
+  private onStatusChipClose (id: number) {
+    this.statusIds = this.statusIds.filter((value) => {
+      return value !== id
+    })
+  }
+
   private onContactCreatedAtBtnOkClick (value: string[]) {
     // @ts-expect-error: Contact created at
     return this.$refs.contactCreatedAtMenu?.save(value)
-  }
-
-  private fetchTimeZones () {
-    if (this.timezones.length === 0) {
-      this.$store.dispatch('contacts/list/filter/fetchTimeZones')
-    }
   }
   // endregion
 }

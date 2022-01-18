@@ -211,7 +211,7 @@ import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppTable from '@/components/AppTable/AppTable.vue'
 import ContactListFilters from '@/views/Contacts/ContactList/ContactListFilters.vue'
-import ContactListTools from '@/views/Contacts/ContactList/ContactListTools.vue'
+import ContactListTools from '@/views/Contacts/ContactList/ContactsTools.vue'
 import Component from 'vue-class-component'
 import { Prop } from 'vue-property-decorator'
 

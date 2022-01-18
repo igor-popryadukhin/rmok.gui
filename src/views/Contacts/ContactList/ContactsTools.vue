@@ -1,8 +1,5 @@
 <template>
-  <v-sheet
-    v-bind="vSheetAttrs"
-    class="d-flex"
-  >
+  <div class="d-flex">
     <v-btn
       v-if="!contactsIsSelected"
       small
@@ -14,7 +11,7 @@
     </v-btn>
 
     <v-btn
-      v-if="contactLoading"
+      v-if="contactsLoading"
       color="red"
       style="min-width: 100px"
       small
@@ -25,7 +22,7 @@
       {{ $tc('Cancel') }}
     </v-btn>
     <v-btn
-      v-else
+      v-else-if="!contactsIsSelected"
       style="min-width: 100px"
       small
       tile
@@ -35,24 +32,36 @@
       {{ $tc('Refresh') }}
     </v-btn>
 
-    <v-btn
-      v-if="contactsIsSelected && $isGranted('CONTACTS_DELETE')"
-      small
-      tile
-      text
-      @click="onBtnDeleteClick"
+    <app-confirm-dialog
+      text="Хотите удалить?"
+      @click:confirm="onBtnDeleteClick"
     >
-      {{ $tc('Delete') }}
-    </v-btn>
-    <v-btn
-      v-if="contactsIsSelected && $isGranted('CONTACTS_TRANSFER')"
-      small
-      tile
-      text
-      @click="onBtnTransferContactsClick"
-    >
-      {{ $tc('Transfer contacts') }}
-    </v-btn>
+      <template #activator="{ on }">
+        <v-btn
+          v-if="contactsIsSelected && $isGranted('CONTACTS_DELETE')"
+          small
+          tile
+          text
+          v-on="on"
+        >
+          {{ $tc('Delete') }}
+        </v-btn>
+      </template>
+    </app-confirm-dialog>
+
+    <contacts-menu-transfer v-if="contactsIsSelected && $isGranted('CONTACTS_TRANSFER')">
+      <template #activator="{ on }">
+        <v-btn
+          small
+          tile
+          text
+          v-on="on"
+          @click="onBtnTransferContactsClick"
+        >
+          {{ $tc('Transfer contacts') }}
+        </v-btn>
+      </template>
+    </contacts-menu-transfer>
 
     <!-- Добавление в автодозвон -->
     <template v-if="contactsIsSelected && $isGranted('AUTODIALER_MANAGEMENT')">
@@ -148,29 +157,30 @@
       <v-icon>mdi-filter-outline</v-icon>
       {{ $tc('Filter') }}
     </v-btn>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
 import AppBase from '@/AppBase'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
+import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import Component from 'vue-class-component'
-import { Emit, Prop } from 'vue-property-decorator'
+import { Emit } from 'vue-property-decorator'
 
 @Component({
   components: {
+    AppConfirmDialog,
     AppBtnSorting,
     AppPagination,
+    ContactsMenuTransfer: () => import('./ContactsMenuTransfer.vue'),
     ContactsAssignTags: () => import('./ContactsAssignTags.vue'),
     ContactListMenuImport: () => import('./ContactListMenuImport.vue'),
     ContactListMenuExport: () => import('./ContactListMenuExport.vue'),
     ContactsMenuAddToAutodialer: () => import('./ContactsMenuAddToAutodialer.vue')
   }
 })
-export default class ContactListTools extends AppBase {
-  @Prop({ default: false }) readonly outlined: boolean
-
+export default class ContactsTools extends AppBase {
   @Emit('btn:click:add-to-autodialer')
   emitBtnAddToAutodialer () {
     return undefined
@@ -181,12 +191,8 @@ export default class ContactListTools extends AppBase {
     return this.$store.getters['contacts/list/items_selected'].length > 0
   }
 
-  get vSheetAttrs () {
-    const attrs: Record<string, string|number|boolean|object> = {
-      outlined: this.outlined
-    }
-
-    return attrs
+  get contactsLoading (): boolean {
+    return this.$store.getters['contacts/list/loading']
   }
 
   get offset (): number {
@@ -198,7 +204,7 @@ export default class ContactListTools extends AppBase {
   }
 
   get contactsPerPage () { return this.$store.getters['contacts/list/per_page'] }
-  get contactsTotal () { return this.$store.getters['contacts/list/total'] }
+  get contactsTotal () { return this.$store.getters['contacts/list/items_total'] }
 
   get sorting (): Record<string, unknown> {
     return {

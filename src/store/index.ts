@@ -116,7 +116,6 @@ const store = new Vuex.Store({
         'contacts.params',
         'contacts.view.settings',
         'contacts.view.unsaved_call',
-        'contacts.list.filter',
         'statistic_recent_call.filter',
         'statistics.recent_calls.filter',
         'system.route'

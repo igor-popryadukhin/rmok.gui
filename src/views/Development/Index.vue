@@ -20,16 +20,26 @@
         <v-divider :key="`v-divider-${key}`" />
       </template>
     </v-list>
+
+    <smart-autocomplete
+      :filter="(q, e) => e.name.indexOf(q) > -1"
+      item-text="name"
+      item-value="id"
+      api-end-point="/projects"
+      store-module-name="projects"
+    />
   </v-sheet>
 </template>
 
 <script lang="ts">
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
 import Component from 'vue-class-component'
 import Base from './Base'
 import { Watch } from 'vue-property-decorator'
 import * as Bowser from 'bowser'
-
-@Component
+@Component({
+  components: { SmartAutocomplete }
+})
 export default class AutoDialerView extends Base {
   get infoItems () {
     const browser = Bowser.parse(window.navigator.userAgent)

@@ -1,46 +1,122 @@
 <template>
-  <v-sheet>
-    <v-row>
-      <v-col>
-        <contact-list-tools
-          class="mb-2"
-          @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
-        />
-        <v-divider />
-        <!-- Контакт лист -->
-        <contact-list
-          :loading="contactLoading"
-          :height="heightContactList"
-          overlay
-        />
-        <!-- Контакт лист -->
+  <div>
+    <contacts-tools
+      class="mb-2"
+      @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
+    />
 
-        <app-navigation-drawer v-model="filterPanelVisible">
-          <contact-list-filters />
-        </app-navigation-drawer>
-      </v-col>
-    </v-row>
-  </v-sheet>
+    <app-divider />
+
+    <!-- Контакт лист -->
+    <v-data-table
+      v-model="contactsSelected"
+      item-key="id"
+      selectable-key="id"
+      height="calc(100vh - 120px)"
+      :item-class="() => 'contacts-item'"
+      :headers="contactsHeaders"
+      :items="contacts"
+      :server-items-length="contactsTotal"
+      :items-per-page="100"
+      :loading="contactsLoading"
+      fixed-header
+      hide-default-footer
+      show-select
+      dense
+    >
+      <template #progress>
+        {{ '' }}
+      </template>
+      <template #no-data>
+        <div
+          class="d-flex align-center justify-center grey--text"
+          style="height: calc(100vh - 550px)"
+        >
+          Отсутствуют данные
+        </div>
+      </template>
+      <template #loading>
+        <div
+          class="d-flex align-center justify-center grey--text"
+          style="height: calc(100vh - 160px)"
+        >
+          <app-loading />
+        </div>
+      </template>
+      <template #[`item.name`]="{ item }">
+        <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
+          {{ item.name }}
+        </router-link>
+      </template>
+      <template #[`item.status`]="{ item }">
+        <template v-if="typeof item.status === 'object'">
+          <v-chip
+            :color="item.status.color"
+            label
+            x-small
+            outlined
+          >
+            {{ item.status.name }}
+          </v-chip>
+        </template>
+        <template v-else>
+          —
+        </template>
+      </template>
+    </v-data-table>
+    <!-- Контакт лист -->
+    <app-divider />
+
+    <app-info-line
+      v-if="contactsSelectedLength > 0"
+      :top="50"
+      :height="45"
+      :width="400"
+      background-color="#3a70d4"
+    >
+      <div class="d-flex align-center justify-space-between fill-height ">
+        <span class="white--text">{{ $tc('selected_elements', contactsSelectedLength) }}</span>
+        <v-btn
+          class="white--text"
+          style="font-size: 12px"
+          small
+          tile
+          text
+          @click="contactsSelected = []"
+        >
+          {{ $tc('Cancel') }}
+        </v-btn>
+      </div>
+    </app-info-line>
+
+    <app-navigation-drawer v-model="filterPanelVisible">
+      <contact-list-filters />
+    </app-navigation-drawer>
+  </div>
 </template>
 
 <script lang="ts">
 import Contact from '@/api/interfaces/Contact'
 import AppBase from '@/AppBase'
+import AppInfoLine from '@/components/AppInfoLine/AppInfoLine.vue'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppTable from '@/components/AppTable/AppTable.vue'
 import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 import { Watch } from 'vue-property-decorator'
-import ContactListTools from './ContactListTools.vue'
+import ContactsTools from './ContactsTools.vue'
 
 // eslint-disable-next-line no-use-before-define
 @Component<Contacts>({
   components: {
+    AppInfoLine,
+    AppLoading,
     ContactsTransferDialog: () => import('./ContactsTransferDialog.vue'),
     AppNavigationDrawer: () => import('@/components/AppNavigationDrawer/AppNavigationDrawer.vue'),
     ContactListFilters: () => import('./ContactListFilters.vue'),
     ContactList: () => import('./ContactList.vue'),
     AppTable,
-    ContactListTools
+    ContactsTools
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
@@ -51,10 +127,62 @@ import ContactListTools from './ContactListTools.vue'
   }
 })
 export default class Contacts extends AppBase {
-  // Вычисляемая высота списка контактов
-  get heightContactList () {
-    return this.screenHeight - 112
+  get contactsHeaders () {
+    return [
+      {
+        text: 'Контакт',
+        align: 'start',
+        sortable: false,
+        value: 'name'
+      },
+      {
+        text: 'Статус',
+        align: 'center',
+        sortable: false,
+        value: 'status'
+      },
+      {
+        text: 'Ответственный',
+        align: 'start',
+        sortable: false,
+        value: 'owner'
+      },
+      {
+        text: 'Проект',
+        align: 'start',
+        sortable: false,
+        value: 'project'
+      },
+      {
+        text: 'Дата последнего вызова',
+        align: 'center',
+        sortable: false,
+        value: 'last_call_at'
+      }
+    ]
   }
+
+  get contacts () {
+    return (this.$store.getters['contacts/list/items'] || [])
+      .map((e) => {
+        return {
+          id: e.id,
+          name: e.name,
+          status: e?.last_status || '—',
+          owner: e?.owner?.full_name || '—',
+          project: e?.project?.name || '—',
+          last_call_at: e?.last_call_at ? this.$dayjs(e?.last_call_at).format('DD.MM.YYYY HH:mm') : ''
+        }
+      })
+  }
+
+  get contactsTotal (): number { return this.$store.getters['contacts/list/items_total'] }
+
+  get contactsSelectedLength (): number { return (this.$store.getters['contacts/list/items_selected'] || []).length }
+  get contactsSelected () { return (this.$store.getters['contacts/list/items_selected'] || []) }
+  set contactsSelected (val) { this.$store.commit('contacts/list/items_selected', val) }
+
+  get contactsLoading (): boolean { return this.$store.getters['contacts/list/loading'] }
 
   // Все параметры фильтров
   get filterAll () {
@@ -109,14 +237,17 @@ export default class Contacts extends AppBase {
 
 </script>
 
-<style lang="scss" scoped>
-.navigation-drawer-button {
-  top: 10px;
-  left: 10px;
-  height: 50px;
-  width: 100px;
-  position: absolute;
-  background-color: #3a70d4;
+<style lang="scss">
+.contacts-item td {
+  white-space: nowrap !important;
+}
+
+.contacts-item td {
+  height: 25px !important;
+}
+
+.contacts-item td:nth-child(2) {
+  width: 100%;
 }
 </style>
 

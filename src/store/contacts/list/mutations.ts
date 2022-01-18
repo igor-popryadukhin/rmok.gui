@@ -3,8 +3,8 @@ import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<ContactListState> = {
   loading (state: ContactListState, payload) { state.loading = payload },
-  total (state: ContactListState, payload) { state.total = payload },
   items (state: ContactListState, payload) { state.items = payload },
+  items_total (state: ContactListState, payload) { state.items_total = payload },
   items_selected (state: ContactListState, payload) { state.items_selected = payload },
   selected_all (state: ContactListState, payload) { state.selected_all = payload },
 
