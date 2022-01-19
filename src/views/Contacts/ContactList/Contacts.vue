@@ -19,6 +19,7 @@
       :server-items-length="contactsTotal"
       :items-per-page="100"
       :loading="contactsLoading"
+      calculate-widths
       fixed-header
       hide-default-footer
       show-select
@@ -72,6 +73,7 @@
       :top="50"
       :height="45"
       :width="400"
+      z-index="2"
       background-color="#3a70d4"
     >
       <div class="d-flex align-center justify-space-between fill-height ">

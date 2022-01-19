@@ -63,14 +63,12 @@ export default class SmartAutocomplete extends Vue {
   @Prop({ default: false }) readonly hideDetails!: boolean
   @Prop({ default: false }) readonly disabled!: boolean
   @Prop({ default: () => [] }) readonly errorMessages!: string[]
-  @Prop({
-    default: () => () => { return true }
-  }) readonly filter!: CallableFunction
+  @Prop({ default: (item: any) => { return true } }) readonly filter!: CallableFunction
 
   @Prop({ default: null, required: true }) readonly apiEndPoint!: string
   @Prop({ default: null, required: true }) readonly storeModuleName!: string
   @Prop({ default: null }) readonly responseProperty!: string|null
-  @Prop({ default: {} }) readonly apiQuery!: any
+  @Prop({ default: () => () => null }) readonly apiQuery!: any
 
   @VModel() vModel: number|object
 
@@ -79,8 +77,12 @@ export default class SmartAutocomplete extends Vue {
   loading = false
 
   get options (): Array<Record<string, unknown>> {
+    if (typeof this.filter === 'function') {
+      return (this.$store.getters[this.storeModulePath + '/options'] || [])
+        .filter(this.filter)
+    }
+
     return (this.$store.getters[this.storeModulePath + '/options'] || [])
-      .filter(this.filter)
   }
 
   set options (val) { this.$store.commit(this.storeModulePath + '/options', val) }

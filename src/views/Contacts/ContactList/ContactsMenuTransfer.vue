@@ -39,7 +39,8 @@
           v-model="userIds"
           :error-messages="userIdsErrors"
           :label="$tc('Responsible')"
-          :api-query="(q) => { return { q } }"
+          :filter="usersQueryFilter"
+          :api-query="usersQuery"
           api-end-point="/users"
           item-text="full_name"
           item-value="id"
@@ -47,8 +48,8 @@
           store-module-name="users-transfer-menu"
           clearable
           multiple
-          @input="$v.projectId.$touch()"
-          @blur="$v.projectId.$touch()"
+          @input="$v.userIds.$touch()"
+          @blur="$v.userIds.$touch()"
         >
           <template
             #selection="{ item }"
@@ -66,11 +67,13 @@
         </smart-autocomplete>
       </v-card-text>
 
+      <v-divider class="my-2 mx-3" />
+
       <!-- Действия -->
       <v-card-text class="px-3 py-0">
         <v-list dense>
           <v-list-item
-            :disabled="$v.$invalid"
+            :disabled="$v.$invalid || process"
             dense
             link
             @click="transfer"
@@ -118,23 +121,57 @@ Vue.use(Vuelidate)
   }
 })
 export default class ContactsMenuAddToAutodialer extends AppBase {
+  process = false
   menuVisible = false
   projectId = 0
   userIds = []
 
   get contactsSelectedLength () { return (this.$store.getters['contacts/list/items_selected'] || []).length }
-  get contactsSelected () { return this.$store.getters['contacts/list/items_selected'] }
+  get contactsSelected () { return (this.$store.getters['contacts/list/items_selected'] || []) }
   set contactsSelected (val) { this.$store.commit('contacts/list/items_selected', val) }
 
+  /**
+   * Совершает передачу контактов
+   * @private
+   */
   private transfer () {
-    this.$v.$touch()
-    this.contactsSelected = []
+    this.menuVisible = false
+    this.process = true
+    this.$axios.post('/contacts/transfer', {
+      contact_ids: this.contactsSelected.map((e) => e.id),
+      destination_user_ids: this.userIds,
+      ...(this.projectId > 0 ? { destination_project_id: this.projectId } : {})
+    }).then((response) => {
+      if (response.status !== 202) {
+        throw new Error(response.statusText)
+      }
+
+      this.$toast.success('Accepted')
+
+      this.contactsSelected = []
+    }).catch((reason: Error) => {
+      this.$toast.error(reason.message)
+    }).finally(() => (this.process = false))
   }
 
   private userChipCloseClick (id: number) {
     this.userIds = this.userIds.filter((value) => {
       return value !== id
     })
+  }
+
+  private usersQuery (q) {
+    if (this.projectId) {
+      return { q, project_id: this.projectId }
+    }
+    return { q }
+  }
+
+  private usersQueryFilter (item: any) {
+    if (item?.project?.id) {
+      return item.project.id === this.projectId
+    }
+    return true
   }
 }
 </script>

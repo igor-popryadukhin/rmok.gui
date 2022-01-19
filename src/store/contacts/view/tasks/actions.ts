@@ -1,15 +1,15 @@
 import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
+import { ActionTree } from 'vuex'
 import { ContactsViewTasksState } from './state'
 import { AxiosResponse } from 'axios'
 import { $axios } from '@/plugins/axios'
 
 const actions: ActionTree<ContactsViewTasksState, RootState> = {
-  fetch: ({ commit, rootGetters }: ActionContext<ContactsViewTasksState, RootState>) => {
+  fetch: ({ commit }, payload) => {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => (commit('items_fetching', true)), 0)
 
-      $axios.get('/tasks', { params: { id: rootGetters.routeParams.contact_id } })
+      $axios.get(`/contacts/${payload}/tasks`, { params: { state: 'pending' } })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
             throw new Error(response.statusText)

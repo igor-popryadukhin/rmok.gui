@@ -150,7 +150,7 @@ export default class ContactsViewTasks extends AppBase {
   }
 
   private fetchTasks () {
-    this.$store.dispatch('contacts/view/tasks/fetch')
+    this.$store.dispatch('contacts/view/tasks/fetch', this.$route.params.id)
   }
 
   private taskTypeDisplay (type: string) {

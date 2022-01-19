@@ -8,7 +8,6 @@
         item-text="name"
         item-value="id"
         response-property="data"
-        store-module-name="projects"
       />
 
       <smart-autocomplete
@@ -18,7 +17,6 @@
         item-text="full_name"
         item-value="id"
         response-property="data"
-        store-module-name="users"
       />
     </div>
   </v-sheet>

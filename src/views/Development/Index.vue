@@ -26,7 +26,6 @@
       item-text="name"
       item-value="id"
       api-end-point="/projects"
-      store-module-name="projects"
     />
   </v-sheet>
 </template>

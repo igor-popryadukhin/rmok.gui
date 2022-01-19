@@ -20,10 +20,12 @@ export default class AppInfoLine extends Vue {
   @Prop({ default: () => 50 }) readonly height!: number
   @Prop({ default: () => 400 }) readonly width!: number
   @Prop({ default: () => 1 }) readonly opacity!: number
+  @Prop({ default: () => 1 }) readonly zIndex!: number
   @Prop({ default: () => 'white' }) readonly backgroundColor!: number
 
   get cssVars () {
     return {
+      '--z-index': this.zIndex,
       '--background-color': this.backgroundColor,
       '--height': this.height + 'px',
       '--width': this.width + 'px',
@@ -46,7 +48,7 @@ export default class AppInfoLine extends Vue {
   top: var(--position-top);
   left: 0;
   background-color: transparent;
-  z-index: 100;
+  z-index: var(--z-index);
 }
 
 .view-info-line {
@@ -58,6 +60,6 @@ export default class AppInfoLine extends Vue {
   padding: 10px;
   border-radius: 2px;
   user-select: none;
-  z-index: 100;
+  z-index: var(--z-index);
 }
 </style>
