@@ -177,7 +177,7 @@ export default class ContactsMenuAddToAutodialer extends AppBase {
     } else {
       request.filter = {
         // На основе идентификаторов контактов
-        ids: this.contactsListItemsSelected
+        ids: (this.contactsListItemsSelected || []).map((e) => e.id)
       }
     }
 
