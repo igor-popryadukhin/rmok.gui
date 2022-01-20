@@ -1143,7 +1143,7 @@ export default class DefaultLayout extends AppBase {
 
     // Если входящий
     if (session.direction === 'incoming') {
-      session.data.target = session.remote_identity.uri.user // Номер входящего
+      session.data.target = session.remote_identity.display_name || session.remote_identity.uri.user // Номер входящего
 
       debugDialerEvent('Входящий: %s', session.data.target)
 
