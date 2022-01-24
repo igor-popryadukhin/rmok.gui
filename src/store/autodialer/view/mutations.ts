@@ -19,8 +19,8 @@ export const mutations: MutationTree<State> = {
     state.pickup_timeout = payload.pickup_timeout
     state.max_calls_number = payload.max_calls_number
     state.maximum_attempts = payload.maximum_attempts
-    state.repeat_calls_settings_available_actions = payload.repeat_calls_settings_available_actions
-    state.repeat_calls_settings = payload.repeat_calls_settings
+    state.calls_processing_rules_actions = payload.calls_processing_rules_actions
+    state.calls_processing_rules = payload.calls_processing_rules
     state.description = payload.description
     state.project = payload.project
   }

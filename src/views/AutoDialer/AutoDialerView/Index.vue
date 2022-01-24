@@ -84,7 +84,7 @@ export default class AutoDialerView extends Base {
       {
         title: 'Настройки повторных звонков',
         to: {
-          name: 'auto_dialer_view_tab_repeat_calls_settings'
+          name: 'auto_dialer_view_tab_calls_processing_rules'
         }
       },
       {

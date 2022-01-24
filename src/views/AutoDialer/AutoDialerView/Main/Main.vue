@@ -2,7 +2,6 @@
   <div class="autodialer-main-page d-flex flex-nowrap">
     <div
       class="fill-height overflow-y-auto"
-      style="width: 280px"
     >
       <!-- Наименование -->
       <div class="mb-1 mt-1">

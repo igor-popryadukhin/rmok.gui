@@ -154,7 +154,7 @@ import { AxiosResponse } from 'axios'
 import { Watch } from 'vue-property-decorator'
 
 // eslint-disable-next-line no-use-before-define
-@Component<Index>({
+@Component<CallsProcessingRules>({
   components: { AppLoading },
   beforeRouteLeave (to, from, next) {
     if (this.isChanged) {
@@ -168,7 +168,7 @@ import { Watch } from 'vue-property-decorator'
     }
   }
 })
-export default class Index extends AppBase {
+export default class CallsProcessingRules extends AppBase {
   processSave = false
   isChanged = false
   availableStatuses = []
@@ -179,11 +179,11 @@ export default class Index extends AppBase {
    * Возможные варианты действий
    */
   get repeatCallsSettingsAvailableActions () {
-    return this.$store.getters['autodialer/view/repeat_calls_settings_available_actions']
+    return this.$store.getters['autodialer/view/calls_processing_rules_actions']
   }
 
   get repeatCallSettings () {
-    return this.$store.getters['autodialer/view/repeat_calls_settings']
+    return this.$store.getters['autodialer/view/calls_processing_rules']
   }
 
   @Watch('isChanged')
@@ -219,7 +219,7 @@ export default class Index extends AppBase {
     this.processSave = true
     $axios.patch(`/auto-dialers/${this.$route.params.id}`, {
       maximum_attempts: this.maximumAttempts,
-      repeat_calls_settings: this.statuses.map((e: Record<string, unknown>) => {
+      calls_processing_rules: this.statuses.map((e: Record<string, unknown>) => {
         return {
           id: e.id,
           action: e.action,

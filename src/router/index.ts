@@ -151,14 +151,14 @@ const routes: RouteConfig[] = [
         path: 'schedule'
       },
       {
-        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-repeat-call-settings" */ '../views/AutoDialer/AutoDialerView/RepeatСallSettings/Index.vue'),
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-calls-processing-rules" */ '../views/AutoDialer/AutoDialerView/CallsProcessingRules/CallsProcessingRules.vue'),
         meta: {
           anonymous: true,
           layout: 'default',
           middleware: []
         },
-        name: 'auto_dialer_view_tab_repeat_calls_settings',
-        path: 'repeat-call-settings'
+        name: 'auto_dialer_view_tab_calls_processing_rules',
+        path: 'calls-processing-rules'
       },
       {
         component: () => import(/* webpackChunkName: "auto-dialer-view-tab-telephony" */ '../views/AutoDialer/AutoDialerView/Telephony/Index.vue'),

@@ -9,8 +9,8 @@ export interface State {
   pickup_timeout: number;
   max_calls_number: number;
   maximum_attempts: number;
-  repeat_calls_settings_available_actions: Array<Record<string, unknown>>;
-  repeat_calls_settings: Array<Record<string, unknown>>;
+  calls_processing_rules_actions: Array<Record<string, unknown>>;
+  calls_processing_rules: Array<Record<string, unknown>>;
   description?: string;
   project?: Project;
   summary?: Array<Record<string, unknown>>;
@@ -26,8 +26,8 @@ function state (): State {
     pickup_timeout: 0,
     max_calls_number: 0,
     maximum_attempts: 0,
-    repeat_calls_settings_available_actions: [],
-    repeat_calls_settings: [],
+    calls_processing_rules_actions: [],
+    calls_processing_rules: [],
     description: '',
     project: null,
     summary: []
