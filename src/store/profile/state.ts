@@ -16,7 +16,7 @@ export interface ProfileState {
   login: string;
   email?: string;
   phone?: string;
-  status?: string;
+  status: 'normal' | 'dnd' | 'away';
   mode?: string;
   contacts_count?: number;
   tz?: TimeZone;
@@ -50,7 +50,7 @@ function state (): ProfileState {
     full_name: '',
     abbreviation: '',
     phone: '',
-    status: '',
+    status: 'normal',
     mode: '',
     tz: null,
     userpic: '',

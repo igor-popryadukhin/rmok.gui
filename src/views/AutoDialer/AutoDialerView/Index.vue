@@ -6,7 +6,6 @@
       height="35"
       show-arrows
       optional
-      hide-slider
       style="margin-bottom: 5px"
     >
       <v-tab
@@ -19,7 +18,7 @@
     </v-tabs>
 
     <v-sheet
-      :height="height"
+      height="calc(100vh - 115px)"
       class="pa-3"
       style="overflow-y: auto"
       outlined
@@ -68,6 +67,12 @@ export default class AutoDialerView extends Base {
         title: 'Общее',
         to: {
           name: 'auto_dialer_view_tab_main'
+        }
+      },
+      {
+        title: 'Журнал',
+        to: {
+          name: 'auto_dialer_view_tab_journal'
         }
       },
       {
@@ -134,6 +139,11 @@ export default class AutoDialerView extends Base {
       this.sse.addEventListener('autodialer-worker-stats', (event: Event) => {
         if (event instanceof MessageEvent) {
           this.$root.$emit('sse-autodialer-worker-stats', JSON.parse(event.data))
+        }
+      })
+      this.sse.addEventListener('autodialer-worker-agents', (event: Event) => {
+        if (event instanceof MessageEvent) {
+          this.$root.$emit('sse-autodialer-worker-agents', JSON.parse(event.data))
         }
       })
     }

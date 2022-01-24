@@ -1,147 +1,166 @@
 <template>
-  <div>
-    <div class="d-flex flex-row mb-5">
-      <div
-        class="d-flex flex-column mr-5"
-        style="width: 350px"
-      >
-        <!-- Наименование -->
-        <div class="mb-1">
-          <v-text-field
-            v-model="autodialerName"
-            label="Название"
-            dense
+  <div class="autodialer-main-page d-flex flex-nowrap">
+    <div
+      class="fill-height overflow-y-auto"
+      style="width: 280px"
+    >
+      <!-- Наименование -->
+      <div class="mb-1 mt-1">
+        <v-text-field
+          v-model="autodialerName"
+          label="Название"
+          dense
+          outlined
+        />
+      </div>
+      <!-- Наименование -->
+
+      <!-- Описание -->
+      <div class="mb-1">
+        <v-textarea
+          v-model="autodialerDescription"
+          :label="$tc('Description')"
+          rows="3"
+          dense
+          outlined
+        />
+      </div>
+      <!-- Описание -->
+
+      <!-- Проект -->
+      <div class="mb-1">
+        <app-autocomplete
+          v-model="autodialerProjectId"
+          :options="projects"
+          :label="$tc('Project')"
+          :loading="projectsFetching"
+          item-text="name"
+          item-value="id"
+          clearable
+          @search="searchProjects"
+          @focus="searchProjects()"
+        />
+      </div>
+      <!-- Проект -->
+
+      <!-- Режим -->
+      <div class="mb-1">
+        <v-select
+          v-model="autodialerMode"
+          :items="autodialerModeOptions"
+          label="Режим"
+          dense
+          outlined
+        />
+      </div>
+      <!-- Режим -->
+
+      <div class="d-flex flex-row mb-1">
+        <div
+          class="mr-1"
+          style="width: 50%"
+        >
+          <v-btn
+            v-if="autodialerStatus === 'ready'"
+            :loading="processStartingOrStopping"
+            color="primary"
             outlined
-          />
-        </div>
-        <!-- Наименование -->
-
-        <!-- Описание -->
-        <div class="mb-1">
-          <v-textarea
-            v-model="autodialerDescription"
-            :label="$tc('Description')"
-            rows="3"
-            dense
-            outlined
-          />
-        </div>
-        <!-- Описание -->
-
-        <!-- Проект -->
-        <div class="mb-1">
-          <app-autocomplete
-            v-model="autodialerProjectId"
-            :options="projects"
-            :label="$tc('Project')"
-            :loading="projectsFetching"
-            item-text="name"
-            item-value="id"
-            clearable
-            @search="searchProjects"
-            @focus="searchProjects()"
-          />
-        </div>
-        <!-- Проект -->
-
-        <!-- Режим -->
-        <div class="mb-1">
-          <v-select
-            v-model="autodialerMode"
-            :items="autodialerModeOptions"
-            label="Режим"
-            dense
-            outlined
-          />
-        </div>
-        <!-- Режим -->
-
-        <div class="d-flex flex-row grow mb-1">
-          <div
-            class="mr-1"
-            style="width: 50%"
+            tile
+            block
+            small
+            @click="onBtnStartClick"
           >
-            <v-btn
-              v-if="autodialerStatus === 'ready'"
-              :loading="processStartingOrStopping"
-              color="primary"
-              outlined
-              tile
-              block
-              @click="onBtnStartClick"
-            >
-              {{ $tc('Start') }}
-            </v-btn>
-            <v-btn
-              v-else-if="autodialerStatus === 'process'"
-              :loading="processStartingOrStopping"
-              color="red"
-              outlined
-              tile
-              block
-              @click="onBtnStopClick"
-            >
-              {{ $tc('Stop') }}
-            </v-btn>
-            <v-btn
-              v-else
-              color="primary"
-              outlined
-              tile
-              disabled
-              block
-            >
-              {{ $tc('Start') }}
-            </v-btn>
-          </div>
-          <div
-            class="ml-1"
-            style="width: 50%"
+            {{ $tc('Start') }}
+          </v-btn>
+          <v-btn
+            v-else-if="autodialerStatus === 'process'"
+            :loading="processStartingOrStopping"
+            color="red"
+            outlined
+            tile
+            block
+            small
+            @click="onBtnStopClick"
           >
-            <v-btn
-              color="primary"
-              :loading="processApply"
-              :disabled="autodialerStatus === 'process'"
-              outlined
-              tile
-              block
-              @click="onBtnSaveClick"
-            >
-              {{ $tc('Save') }}
-            </v-btn>
-          </div>
+            {{ $tc('Stop') }}
+          </v-btn>
+          <v-btn
+            v-else
+            color="primary"
+            outlined
+            tile
+            disabled
+            block
+            small
+          >
+            {{ $tc('Start') }}
+          </v-btn>
+        </div>
+        <div
+          class="ml-1"
+          style="width: 50%"
+        >
+          <v-btn
+            color="primary"
+            :loading="processApply"
+            :disabled="autodialerStatus === 'process'"
+            outlined
+            tile
+            block
+            small
+            @click="onBtnSaveClick"
+          >
+            {{ $tc('Save') }}
+          </v-btn>
         </div>
       </div>
+    </div>
+    <v-divider
+      class="mx-2"
+      vertical
+    />
+    <div
+      class="d-flex flex-row  mt-1"
+      style="width: 100%"
+    >
       <div
-        class="d-flex align-self-start justify-start flex-wrap"
-        style="width: 100%"
+        class="d-flex flex-wrap flex-row align-content-start overflow-auto"
+        style="height: calc(100vh - 145px); width: 100%"
       >
         <template v-for="(item, itemIndex) in autodialerSummary">
           <v-card
             :key="'v-card-' + itemIndex"
             class="mr-2 mb-2"
-            width="200"
-            height="150"
+            min-width="150"
+            max-width="250"
+            height="100"
             flat
             outlined
             tile
           >
             <div class="d-flex justify-center align-center fill-height pa-2">
               <div class="d-flex flex-column flex-nowrap">
-                <v-icon size="32">
+                <v-icon size="24">
                   {{ item.icon }}
                 </v-icon>
                 <span class="text-h6 text-center mb-n2 ">
                   <template v-if="typeof item.value === 'number'">
                     <app-count-up
                       :end-val="item.value"
+                      style="font-size: 16px"
                     />
                   </template>
-                  <template v-else>
+                  <template
+                    v-else
+                    style="font-size: 16px"
+                  >
                     {{ item.value }}
                   </template>
                 </span>
-                <span class="text-subtitle-2 text-center grey--text">
+                <span
+                  class="text-center grey--text"
+                  style="font-size: 12px"
+                >
                   {{ item.title }}
                 </span>
               </div>
@@ -152,28 +171,37 @@
           <v-card
             :key="'v-card-worker-status' + itemIndex"
             class="mr-2 mb-2"
-            width="200"
-            height="150"
+            width="150"
+            height="100"
             flat
             outlined
             tile
           >
             <div class="d-flex justify-center align-center fill-height pa-2">
               <div class="d-flex flex-column flex-nowrap">
-                <v-icon size="32">
+                <v-icon size="24">
                   {{ item.icon }}
                 </v-icon>
-                <span class="text-h6 text-center mb-n2 ">
+                <span
+                  class="text-h6 text-center mb-n2 "
+                >
                   <template v-if="typeof item.value === 'number'">
                     <app-count-up
                       :end-val="item.value"
+                      style="font-size: 16px"
                     />
                   </template>
-                  <template v-else>
+                  <template
+                    v-else
+                    style="font-size: 16px"
+                  >
                     {{ item.value }}
                   </template>
                 </span>
-                <span class="text-subtitle-2 text-center grey--text">
+                <span
+                  class="text-center grey--text"
+                  style="font-size: 12px"
+                >
                   {{ item.title }}
                 </span>
               </div>
@@ -181,16 +209,94 @@
           </v-card>
         </template>
       </div>
+      <v-divider
+        class="mx-2"
+        vertical
+      />
+      <div
+        class="overflow-y-auto"
+        style="height: calc(100vh - 145px); width: 500px;"
+      >
+        <div
+          v-if="workerAgents.length === 0"
+          class="d-flex align-center justify-center fill-height"
+        >
+          <span class="grey--text">
+            {{ $tc('Empty') }}
+          </span>
+        </div>
+        <div
+          class="overflow-y-auto"
+        >
+          <v-list class="py-0">
+            <template v-for="(item) in workerAgents">
+              <v-list-item :key="'v-list-item-' + item.login">
+                <v-list-item-avatar
+                  width="25"
+                >
+                  <v-icon
+                    v-if="item.status === 'in_use'"
+                    size="24"
+                  >
+                    mdi-phone-in-talk-outline
+                  </v-icon>
+                  <v-icon
+                    v-else-if="item.paused"
+                    size="24"
+                  >
+                    mdi-phone-paused-outline
+                  </v-icon>
+                  <v-icon
+                    v-else-if="item.status === 'not_inuse'"
+                    size="24"
+                  >
+                    mdi-phone-check-outline
+                  </v-icon>
+                  <v-icon v-else-if="['ringing', 'ring_in_use'].includes(item.status)">
+                    mdi-phone-ring-outline
+                  </v-icon>
+                  <v-icon
+                    v-else-if="item.status === 'unavailable'"
+                    size="24"
+                  >
+                    mdi-phone-minus-outline
+                  </v-icon>
+                  <v-icon
+                    v-else
+                    size="24"
+                  >
+                    mdi-cube-outline
+                  </v-icon>
+                </v-list-item-avatar>
+
+                <v-list-item-content>
+                  <v-list-item-title class="d-flex justify-space-between">
+                    <span style="font-size: 14px">{{ item.user_name }}</span>
+                    <span
+                      class="grey--text"
+                      style="font-size: 11px"
+                    >{{ $dayjs(item.last_call_at * 1000).format('DD.MM.YYYY HH:mm:ss') }}</span>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    @{{ item.login }}
+                  </v-list-item-subtitle>
+                  <!--                <div-->
+                  <!--                  class="d-flex align-center"-->
+                  <!--                  style="height: 16px; "-->
+                  <!--                >-->
+                  <!--                  - -->
+                  <!--                </div>-->
+                </v-list-item-content>
+                <!--              <v-list-item-action>-->
+                <!--                <v-list-item-action-text>{{ $dayjs(item.last_call_at * 1000).format('DD.MM.YYYY HH:mm:ss') }}</v-list-item-action-text>-->
+                <!--              </v-list-item-action>-->
+              </v-list-item>
+              <v-divider :key="'v-list-item-divider-' + item.login" />
+            </template>
+          </v-list>
+        </div>
+      </div>
     </div>
-    <v-row>
-      <v-col>
-        <h4>Журнал действий и событий</h4>
-        <journal
-          :height="450"
-          outlined
-        />
-      </v-col>
-    </v-row>
   </div>
 </template>
 
@@ -199,15 +305,25 @@ import APIError from '@/api/classes/APIError'
 import Project from '@/api/interfaces/Project'
 import AppBase from '@/AppBase'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppSummary from '@/components/AppSummary/AppSummary.vue'
 import { AxiosResponse } from 'axios'
 import Component from 'vue-class-component'
-import Journal from './Journal.vue'
+
+interface Agent {
+  user_name: string;
+  login: string;
+  in_call: boolean;
+  paused: boolean;
+  status: 'not_inuse' | 'inuse' | 'busy' | 'invalid' | 'unavailable' | 'ringing' | 'ring_in_use' | 'on_hold';
+  last_call_at: number;
+  last_pause: number;
+}
 
 @Component({
-  components: { AppCountUp, AppAutocomplete, AppSummary, AppLoading, Journal }
+  components: { AppBlockResize, AppCountUp, AppAutocomplete, AppSummary, AppLoading }
 })
 export default class Main extends AppBase {
   timerIds = []
@@ -219,6 +335,7 @@ export default class Main extends AppBase {
   ];
 
   workerStatus = []
+  workerAgents = []
   projectsFetching = false
   projects = []
 
@@ -265,6 +382,7 @@ export default class Main extends AppBase {
 
   public created () {
     this.$root.$on('sse-autodialer-worker-stats', this.onSSEAutodialerWorkerStats)
+    this.$root.$on('sse-autodialer-worker-agents', this.onSSEAutodialerWorkerAgents)
 
     this.fetchSummary()
     this.timerIds.push(setInterval(() => {
@@ -276,11 +394,20 @@ export default class Main extends AppBase {
 
   public beforeDestroy () {
     this.$root.$off('sse-autodialer-worker-stats', this.onSSEAutodialerWorkerStats)
+    this.$root.$off('sse-autodialer-worker-agents', this.onSSEAutodialerWorkerAgents)
     this.timerIds.map(clearInterval)
   }
 
   private onSSEAutodialerWorkerStats (data: Array<Record<string, unknown>>) {
     this.workerStatus = data
+  }
+
+  private onSSEAutodialerWorkerAgents (data: Agent[]) {
+    this.workerAgents = (data || []).sort((a, b) => {
+      if (['not_inuse', 'ringing', 'in_use'].includes(a.status)) { return -1 }
+
+      return 1
+    })
   }
 
   /**
@@ -372,6 +499,22 @@ export default class Main extends AppBase {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.autodialer-main-page {
+  height: 100%;
+}
 </style>
+
+<i18n>
+{
+  "ru": {
+    "Paused": "Приостановлен",
+    "agent_status": {
+      "not_inuse" : "Ожидает",
+      "ringing" : "Входящий вызов",
+      "in_use" : "Разговаривает"
+    }
+
+  }
+}
+</i18n>

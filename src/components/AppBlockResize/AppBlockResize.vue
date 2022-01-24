@@ -19,7 +19,7 @@ import { Prop, PropSync, Ref } from 'vue-property-decorator'
 
 @Component
 export default class AppBlockResize extends Vue {
-  @PropSync('width', { default: () => 400 }) syncWidth: number
+  @PropSync('width', { default: () => 280 }) syncWidth: number
   @Prop({ default: () => 280 }) readonly minWidth: number
   @Prop({ default: () => 0 }) readonly maxWidth: number
 

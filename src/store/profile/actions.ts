@@ -95,8 +95,19 @@ const actions: ActionTree<ProfileState, RootState> = {
       })
   },
 
-  set_status (ctx: ActionContext<ProfileState, RootState>, payload): Promise<void> {
-    return new Account().setStatus(payload)
+  set_status ({ commit }, payload): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      $axios.get(`/account/status/${payload}`)
+        .then((response: AxiosResponse) => {
+          if (![204, 200].includes(response.status)) {
+            throw new APIError(response.data)
+          }
+
+          commit('status', payload)
+
+          resolve()
+        }).catch(reject)
+    })
   }
 }
 

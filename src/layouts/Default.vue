@@ -282,26 +282,27 @@
                 v-on="on"
               >
                 <v-icon
-                  v-if="profile.status === 'available'"
+                  v-if="profile.status === 'normal'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-check-circle-outline
                 </v-icon>
                 <v-icon
-                  v-else-if="profile.status === 'do_not_disturb'"
+                  v-else-if="profile.status === 'dnd'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-minus-circle-outline
                 </v-icon>
                 <v-icon
-                  v-else-if="profile.status === 'coffee_break'"
+                  v-else-if="profile.status === 'away'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-pause-circle-outline
                 </v-icon>
+
                 {{ profile.first_name || profile.email || profile.login }}
                 <!-- Подключен и зарегистрирован -->
                 <span
@@ -321,10 +322,7 @@
               </v-btn>
             </template>
             <v-card>
-              <v-card-text
-                v-if="profile.project"
-                class="px-0 py-0"
-              >
+              <v-card-text class="px-0 py-0">
                 <v-list>
                   <v-list-item>
                     <v-list-item-avatar class="primary">
@@ -379,9 +377,9 @@
                 >
                   <v-list-item-group :value="profile.status">
                     <v-list-item
-                      value="available"
+                      value="normal"
                       link
-                      @click="onStatusListItemClick('available')"
+                      @click="onStatusListItemClick('normal')"
                     >
                       <v-list-item-icon>
                         <v-icon>
@@ -393,9 +391,9 @@
                       </v-list-item-content>
                     </v-list-item>
                     <v-list-item
-                      value="do_not_disturb"
+                      value="dnd"
                       link
-                      @click="onStatusListItemClick('do_not_disturb')"
+                      @click="onStatusListItemClick('dnd')"
                     >
                       <v-list-item-icon>
                         <v-icon>
@@ -407,9 +405,9 @@
                       </v-list-item-content>
                     </v-list-item>
                     <v-list-item
-                      value="coffee_break"
+                      value="away"
                       link
-                      @click="onStatusListItemClick('coffee_break')"
+                      @click="onStatusListItemClick('away')"
                     >
                       <v-list-item-icon>
                         <v-icon>
@@ -1024,6 +1022,10 @@ export default class DefaultLayout extends AppBase {
     debugDialer('Dialer initialize...')
     // Обработчики событий телефонии.
 
+    if (this.$dialer.isConnected()) {
+      this.$dialer.disconnect()
+    }
+
     this.$dialer.off('newRTCSession', this.onNewRTCSession)
 
     // RTC Config
@@ -1070,10 +1072,8 @@ export default class DefaultLayout extends AppBase {
     this.$dialer.on('newRTCSession', this.onNewRTCSession)
 
     // Подключение в зависимости от состояния статуса пользователя.
-    if (['available', 'do_not_disturb'].includes(this.profile.status)) {
-      if (!this.$dialer.isConnected()) {
-        this.$dialer.connect()
-      }
+    if (this.profile.status !== 'away') {
+      this.$dialer.connect()
     }
   }
 
@@ -1205,6 +1205,48 @@ export default class DefaultLayout extends AppBase {
 
     setTimeout(() => (this.stopAudio()), 500)
 
+    /// ///////////////////////////////////////////////////////
+    if (session.direction === 'incoming') {
+      session.data.contact_id = this.contactIncomingId
+      session.data.contact_name = this.contactIncomingContactName
+    }
+
+    // Данные для сохранения истории
+    const historyData: Record<string, number | string | null> = {
+      cause: event.cause,
+      direction: session.direction,
+      originator: event.originator,
+      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
+      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
+      type: 'call',
+      audio_record_id: session.data.call_id,
+      target: session.data.target
+    }
+
+    // Если есть время разговора
+    if ((session.start_time) && (session.end_time)) {
+      historyData.start_timestamp = session.start_time.getTime() / 1000
+      historyData.end_timestamp = session.end_time.getTime() / 1000
+    }
+
+    // Сохраняю историю звонка
+    this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
+      .then((response: AxiosResponse) => {
+        if ([200, 201].includes(response.status)) {
+          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
+          this.$store.commit('contacts/view/unsaved_call/data_call_id', session.data.call_id)
+          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
+          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
+        } else {
+          throw new APIError(response.data)
+        }
+      }).catch((reason: Error) => {
+        this.$toast.error(reason.message)
+      })
+    /// ///////////////////////////////////////////////////////
+
     this.onSessionFinality(session, event)
 
     this.$root.$emit('dialer-session-ended', session, event)
@@ -1303,46 +1345,6 @@ export default class DefaultLayout extends AppBase {
    */
   private onSessionFinality (session: RTCSession, event: EndEvent) {
     this.$store.dispatch('account/busy_state', false)
-
-    if (session.direction === 'incoming') {
-      session.data.contact_id = this.contactIncomingId
-      session.data.contact_name = this.contactIncomingContactName
-    }
-
-    // Данные для сохранения истории
-    const historyData: Record<string, number | string | null> = {
-      cause: event.cause,
-      direction: session.direction,
-      originator: event.originator,
-      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
-      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
-      type: 'call',
-      audio_record_id: session.data.call_id,
-      target: session.data.target
-    }
-
-    // Если есть время разговора
-    if ((session.start_time) && (session.end_time)) {
-      historyData.start_timestamp = session.start_time.getTime() / 1000
-      historyData.end_timestamp = session.end_time.getTime() / 1000
-    }
-
-    // Сохраняю историю звонка
-    this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
-      .then((response: AxiosResponse) => {
-        if ([200, 201].includes(response.status)) {
-          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
-          this.$store.commit('contacts/view/unsaved_call/data_call_id', session.data.call_id)
-          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
-          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
-        } else {
-          throw new APIError(response.data)
-        }
-      }).catch((reason: Error) => {
-        this.$toast.error(reason.message)
-      })
   }
   // DIALER EVENTS
 
@@ -1459,24 +1461,7 @@ export default class DefaultLayout extends AppBase {
    * Срабатывает когда нажали на элемент статуса.
    * @param status
    */
-  private onStatusListItemClick (status: string) {
-    switch (status) {
-      case 'do_not_disturb':
-      case 'available': {
-        if (!this.$dialer.isConnected()) {
-          this.$dialer.connect()
-        }
-        break
-      }
-
-      case 'coffee_break': {
-        if (this.$dialer.isConnected()) {
-          this.$dialer.disconnect()
-        }
-        break
-      }
-    }
-
+  private onStatusListItemClick (status: 'normal' | 'dnd' | 'away') {
     this.$store.dispatch('profile/set_status', status)
   }
 

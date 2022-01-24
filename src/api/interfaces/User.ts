@@ -29,6 +29,6 @@ export default interface User {
   permissions?: Array<Record<string, unknown>>;
   country?: Country;
   tz?: TimeZone;
-  status?: string;
+  status?: 'normal' | 'dnd' | 'away';
   mode?: string;
 }

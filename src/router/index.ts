@@ -115,6 +115,12 @@ const routes: RouteConfig[] = [
         path: 'main'
       },
       {
+        component: () => import(/* webpackChunkName: "auto-dialer-view-tab-journal" */ '../views/AutoDialer/AutoDialerView/Journal/Journal.vue'),
+        meta: { anonymous: true, layout: 'default', middleware: [] },
+        name: 'auto_dialer_view_tab_journal',
+        path: 'journal'
+      },
+      {
         component: () => import(/* webpackChunkName: "auto-dialer-view-tab-contacts" */ '../views/AutoDialer/AutoDialerView/Contacts/Contacts.vue'),
         meta: {
           anonymous: true,

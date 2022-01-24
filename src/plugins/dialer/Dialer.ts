@@ -13,7 +13,7 @@ import {
   ConnectedEvent,
   IncomingRTCSessionEvent,
   OutgoingRTCSessionEvent,
-  RegisteredEvent, UnRegisteredEvent, UAConfiguration
+  RegisteredEvent, UnRegisteredEvent, UAConfiguration, UnRegisterOptions
 } from 'jssip/lib/UA'
 import debug from 'debug'
 
@@ -155,6 +155,13 @@ export default class Dialer {
     if (this._ua) {
       DialerDebug('Registration...')
       this._ua.register()
+    }
+  }
+
+  public unregister (options?: UnRegisterOptions): void {
+    if (this._ua) {
+      DialerDebug('Unregister...')
+      this._ua.unregister(options)
     }
   }
 

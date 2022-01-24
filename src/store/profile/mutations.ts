@@ -8,6 +8,7 @@ const mutations: MutationTree<ProfileState> = {
   middle_name (state, payload) { state.middle_name = payload },
   login (state, payload) { state.login = payload },
   email (state, payload) { state.email = payload },
+  status (state, payload) { state.status = payload },
   pbx_configuration_credentials (state, payload) { state.pbx_configuration.credentials = payload },
   pbx_configuration_rtc_configuration (state, payload) { state.pbx_configuration.rtc_configuration = payload },
   pbx_configuration_rtc_configuration_ice_servers (state, payload) { state.pbx_configuration.rtc_configuration.ice_servers = payload },

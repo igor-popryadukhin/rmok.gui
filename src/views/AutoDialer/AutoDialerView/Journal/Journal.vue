@@ -1,9 +1,5 @@
 <template>
-  <v-sheet
-    :height="height"
-    class="pa-1"
-    outlined
-  >
+  <div>
     <template v-if="processLoading">
       <div
         class="d-flex fill-height align-center justify-center"
@@ -15,7 +11,6 @@
     </template>
     <template v-else>
       <v-simple-table
-        :height="height - 10"
         class="contact-list"
         fixed-header
         dense
@@ -66,7 +61,7 @@
         </template>
       </v-simple-table>
     </template>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
@@ -74,9 +69,7 @@ import Component from 'vue-class-component'
 import Base from '../Base'
 import AppTable from '@/components/AppTable/AppTable.vue'
 import { mapGetters } from 'vuex'
-import debounce from '@/utils/debounce'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import { Prop } from 'vue-property-decorator'
 
 @Component({
   components: { AppLoading, AppTable },
@@ -87,7 +80,6 @@ import { Prop } from 'vue-property-decorator'
   }
 })
 export default class Journal extends Base {
-  @Prop({ default: 200 }) readonly height: number;
   processLoading = true
 
   get items (): Array<Record<string, unknown>> {
