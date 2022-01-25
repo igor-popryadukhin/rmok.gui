@@ -14,6 +14,7 @@ const mutations: MutationTree<ContactsViewState> = {
   contact_project_scenario (state, payload) { state.contact_project_scenario = payload },
   contact_scenario_id (state, payload) { state.contact_scenario_id = payload },
   contact_scenario_content (state, payload) { state.contact_scenario_content = payload },
+  contact_details (state, payload) { state.contact_details = payload },
   contact_phones (state, payload) { state.contact_phones = payload },
   contact_emails (state, payload) { state.contact_emails = payload },
   contact_default_phone_number (state, payload) { state.contact_default_phone_number = payload },

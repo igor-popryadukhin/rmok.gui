@@ -1,3 +1,4 @@
+import ContactDetail from '@/api/interfaces/ContactDetail'
 import User from './User'
 import ContactTag from './ContactTag'
 import ContactEmail from './ContactEmail'
@@ -20,6 +21,7 @@ export default interface Contact {
   owner?: User;
   emails?: ContactEmail[];
   phones?: ContactPhone[];
+  contact_details?: ContactDetail[];
   tags?: ContactTag[]
   created_at: number;
   notes?: string;

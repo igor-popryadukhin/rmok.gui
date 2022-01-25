@@ -1,3 +1,4 @@
+import ContactDetail from '@/api/interfaces/ContactDetail'
 import ContactEmail from '@/api/interfaces/ContactEmail'
 import ContactPhone from '@/api/interfaces/ContactPhone'
 import ContactTag from '@/api/interfaces/ContactTag'
@@ -16,6 +17,7 @@ export interface ContactsViewState {
   contact_project_scenario: string;
   contact_scenario_id: number;
   contact_scenario_content: string;
+  contact_details: ContactDetail[];
   contact_phones: ContactPhone[];
   contact_emails: ContactEmail[];
   contact_default_phone_number: string;
@@ -39,6 +41,7 @@ export function contactsViewState (): ContactsViewState {
     contact_project_scenario: '',
     contact_scenario_id: 0,
     contact_scenario_content: '',
+    contact_details: [],
     contact_phones: [],
     contact_emails: [],
     contact_default_phone_number: '',

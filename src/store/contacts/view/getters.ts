@@ -15,6 +15,7 @@ const getters: GetterTree<ContactsViewState, RootState> = {
   contact_project_scenario (state) { return state.contact_project_scenario },
   contact_scenario_id (state) { return state.contact_scenario_id },
   contact_scenario_content (state) { return state.contact_scenario_content },
+  contact_details (state) { return state.contact_details },
   contact_phones (state) { return state.contact_phones },
   contact_emails (state) { return state.contact_emails },
   contact_default_phone_number (state) { return state.contact_default_phone_number },

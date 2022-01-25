@@ -85,27 +85,14 @@ export default class ContactListMenuImport extends AppBase {
           const formData = new FormData()
           formData.append('file', new Blob([file], { type: file.type }))
 
-          this.$root.$emit('main-process-dialog-update', {
-            message: this.$tc('Uploading a file to the server...'),
-            progress: 0
-          })
           $axios.post('/contacts/import', formData, {
-            maxBodyLength: 5 * 1024 * 1024, // 5 MB
-            onUploadProgress: (progressEvent: any) => {
-              this.$root.$emit('main-process-dialog-update', {
-                message: `${progressEvent.total} / ${progressEvent.loaded}`,
-                progress: Math.floor((progressEvent.loaded * 100) / progressEvent.total)
-              })
-            }
+            maxBodyLength: 5 * 1024 * 1024 // 5 MB
           }).then((response: AxiosResponse) => {
-            if (response.status === 202) {
-              this.$root.$emit('main-process-dialog-show', {
-                message: this.$tc('Please stand by...'),
-                progress: 0
-              })
+            if (response.status === 200) {
+              this.$toast.success('Contacts successfully imported')
+              this.$store.dispatch('contacts/list/fetch')
             }
           }).catch((e: Error) => {
-            this.$root.$emit('main-process-dialog-hide')
             this.$toast.error(e.message)
           })
         }

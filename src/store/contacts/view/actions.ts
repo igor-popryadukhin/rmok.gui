@@ -35,6 +35,7 @@ const actions: ActionTree<ContactsViewState, RootState> = {
           commit('contact_scenario_id', response.data?.scenario?.id || 0)
           commit('contact_scenario_content', response.data?.scenario?.content || '')
 
+          commit('contact_details', response.data?.contact_details || [])
           commit('contact_phones', response.data?.phones || [])
           commit('contact_emails', response.data?.emails || [])
           commit('contact_default_phone_number', response.data?.default_phone?.raw || '')

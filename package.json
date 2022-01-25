@@ -10,6 +10,7 @@
     "test": "npm run codeceptjs"
   },
   "dependencies": {
+    "@mdi/font": "^6.5.95",
     "@xstate/vue": "^0.3.0",
     "apexcharts": "^3.22.1",
     "bowser": "^2.11.0",
