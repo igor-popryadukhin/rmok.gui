@@ -184,60 +184,21 @@
       </template>
     </smart-autocomplete>
 
-    <v-menu
-      ref="contactCreatedAtMenu"
-      v-model="contactCreatedAtMenu"
-      :return-value.sync="contactCreatedAt"
-      :close-on-content-click="false"
-      transition="scale-transition"
-      min-width="auto"
-      offset-y
-      offset-x
-      left
+    <app-menu-date-picker
+      v-model="contactCreatedAt"
+      range
     >
-      <template #activator="{ on, attrs }">
+      <template #activator="{ on, text }">
         <v-text-field
           :label="$tc('Date the contact was created')"
-          :value="dateRangeText"
-          multiple
+          :value="text"
+          readonly
           dense
           outlined
-          prepend-inner-icon="mdi-calendar"
-          readonly
-          clearable
-          v-bind="attrs"
           v-on="on"
-          @click:clear="contactCreatedAt = []; contactCreatedAtDates = [];"
         />
       </template>
-      <v-date-picker
-        v-model="contactCreatedAtDates"
-        :first-day-of-week="1"
-        locale="ru"
-        flat
-        range
-        no-title
-        show-current
-      >
-        <v-spacer />
-        <v-btn
-          text
-          color="primary"
-          small
-          @click="contactCreatedAtMenu = false"
-        >
-          {{ $tc('Cancel') }}
-        </v-btn>
-        <v-btn
-          text
-          color="primary"
-          small
-          @click="onContactCreatedAtBtnOkClick(contactCreatedAtDates)"
-        >
-          {{ $tc('Ok') }}
-        </v-btn>
-      </v-date-picker>
-    </v-menu>
+    </app-menu-date-picker>
   </div>
 </template>
 
@@ -254,38 +215,8 @@ import Component from 'vue-class-component'
   components: { SmartAutocomplete, AppMenuDatePicker, AppAutocomplete }
 })
 export default class ContactListFilters extends AppBase {
-  // region Данные
-  contactCreatedAtMenu = false
-  contactCreatedAtDates = []
-  // endregion
-
   /** Текущий проект пользователя */
   get profileProjectId (): number { return this.$store.getters['profile/project/id'] }
-
-  get dateRangeText (): string {
-    if (Array.isArray(this.contactCreatedAt) && this.contactCreatedAt.length === 2) {
-      let contactCreatedAtStart = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
-      let contactCreatedAtEnd = this.$dayjs(this.contactCreatedAt[1], 'YYYY-MM-DD')
-
-      contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
-      contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
-
-      if (contactCreatedAtStart.toDate() > contactCreatedAtEnd.toDate()) {
-        return contactCreatedAtEnd.format('DD.MM.YYYY') + ' - ' + contactCreatedAtStart.format('DD.MM.YYYY')
-      } else {
-        return contactCreatedAtStart.format('DD.MM.YYYY') + ' - ' + contactCreatedAtEnd.format('DD.MM.YYYY')
-      }
-    } else if (Array.isArray(this.contactCreatedAt) && this.contactCreatedAt.length === 1) {
-      let contactCreatedAtStart = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
-      let contactCreatedAtEnd = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
-
-      contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
-      contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
-
-      return contactCreatedAtStart.format('DD.MM.YYYY') + ' - ' + contactCreatedAtEnd.format('DD.MM.YYYY')
-    }
-    return ''
-  }
 
   // region Параметры запроса
   get q (): string|null { return this.$store.getters['contacts/list/filter/filter_q'] }
@@ -350,11 +281,18 @@ export default class ContactListFilters extends AppBase {
   }
 
   get contactCreatedAt (): string[] {
-    return this.$store.getters['contacts/list/filter/filter_contact_created_at']
+    const dates = String(this.$store.getters['contacts/list/filter/filter_contact_created_at'] || '')
+      .split('|')
+    if (dates.length === 2) {
+      return dates
+    }
+    return []
   }
 
   set contactCreatedAt (val: string[]) {
-    this.$store.commit('contacts/list/filter/filter_contact_created_at', val)
+    if (Array.isArray(val) && val.length === 2) {
+      this.$store.commit('contacts/list/filter/filter_contact_created_at', val.join('|'))
+    }
   }
 
   // endregion Параметры запроса
@@ -388,11 +326,6 @@ export default class ContactListFilters extends AppBase {
     this.onFilterChange = debounce(this.onFilterChange, 350)
   }
 
-  mounted () {
-    if (this.contactCreatedAt.length === 2) {
-      this.contactCreatedAtDates = this.contactCreatedAt
-    }
-  }
   // endregion
 
   // region Вспомогательные метод и обработчики
