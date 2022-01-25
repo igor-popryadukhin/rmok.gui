@@ -197,6 +197,7 @@
           outlined
           clearable
           v-on="on"
+          @click:clear="contactCreatedAt = []"
         />
       </template>
     </app-menu-date-picker>
@@ -293,6 +294,8 @@ export default class ContactListFilters extends AppBase {
   set contactCreatedAt (val: string[]) {
     if (Array.isArray(val) && val.length === 2) {
       this.$store.commit('contacts/list/filter/filter_contact_created_at', val.join('|'))
+    } else if (Array.isArray(val) && val.length === 0) {
+      this.$store.commit('contacts/list/filter/filter_contact_created_at', '')
     }
   }
 

@@ -41,37 +41,6 @@ export interface Role {
 
 export class Account {
   /**
-   * Возвращает информацию о текущем аккаунте.
-   */
-  public getProfile (): Promise<User> {
-    return new Promise<User>((resolve, reject) => {
-      $axios.get('/account/profile')
-        .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            return resolve(response.data)
-          }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
-  }
-
-  /**
-   * Выход из системы.
-   */
-  public logout (): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      $axios.get('/account/logout')
-        .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            return resolve()
-          }
-
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
-  }
-
-  /**
    * Редактирует информацию текущего профиля.
    */
   public updateProfile (data: Record<string, unknown>): Promise<any> {
@@ -82,35 +51,6 @@ export class Account {
             return resolve(response.data)
           }
           reject(response.data)
-        }).catch(reject)
-    })
-  }
-
-  public isRole (role: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      $axios.get(`/account/roles/is/${role}`)
-        .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            return resolve(response.data.result)
-          }
-          resolve(false)
-        }).catch(reject)
-    })
-  }
-
-  /**
-   * Установить статус пользователю
-   *
-   * @param status
-   */
-  public setStatus (status: UserStatus): Promise<any> {
-    return new Promise((resolve, reject) => {
-      $axios.get(`/account/status/${status}`)
-        .then((response: AxiosResponse) => {
-          if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
-          }
-          throw new Error(response.data)
         }).catch(reject)
     })
   }

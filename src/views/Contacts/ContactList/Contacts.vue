@@ -5,7 +5,14 @@
       @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
     />
 
-    <app-divider />
+    <v-progress-linear
+      v-if="contactsLoading"
+      height="4"
+      indeterminate
+    />
+    <app-divider
+      v-else
+    />
 
     <!-- Контакт лист -->
     <v-data-table

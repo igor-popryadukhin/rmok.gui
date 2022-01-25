@@ -112,21 +112,9 @@ export default class Login extends AppBase {
     password: ''
   };
 
-  errorMessage = '';
   isError = false;
   processAuthorization = false;
   processMessage = '';
-
-  created () {
-    this.$store.dispatch('contacts/flush')
-    this.$store.dispatch('contacts/params/flush') // Сброс состояния параметров фильтров контакт листа.
-    this.$store.dispatch('contacts_new/flush')
-    this.$store.dispatch('statistic_recent_call/pie/flush')
-    this.$store.dispatch('statistic_recent_call/flush')
-    this.$store.dispatch('statistic_recent_call/filter/flush')
-    this.$store.dispatch('statistic_all_call/filter/flush')
-    this.$store.dispatch('users_edit/sessions/flush')
-  }
 
   login (login: string, password: string) {
     const browser = Bowser.parse(window.navigator.userAgent)

@@ -169,32 +169,21 @@ export default class ContactsMenuAddToAutodialer extends AppBase {
   }
 
   private onAddClick () {
-    const request: Record<string, unknown> = {}
-
-    if (this.contactsListSelectedAll) {
-      // На основе фильтров
-      request.filter = this.contactFilter
-    } else {
-      request.filter = {
-        // На основе идентификаторов контактов
-        ids: (this.contactsListItemsSelected || []).map((e) => e.id)
-      }
-    }
-
     this.addingProcess = true
-    this.$axios.post(`/auto-dialers/${this.autodialerId}/add-contacts`, request)
-      .then((response: AxiosResponse) => {
-        if (![200, 202].includes(response.status)) {
-          throw new APIError(response?.data)
-        }
+    this.$axios.post(`/auto-dialers/${this.autodialerId}/add-contacts`, {
+      contact_ids: (this.contactsListItemsSelected || []).map((e) => e.id)
+    }).then((response: AxiosResponse) => {
+      if (![200, 202].includes(response.status)) {
+        throw new APIError(response?.data)
+      }
 
-        this.$store.dispatch('contacts/list/unselect_all')
-      }).catch((reason: Error) => {
-        this.$toast.error(reason.message)
-      }).finally(() => {
-        this.addingProcess = false
-        this.menuVisible = false
-      })
+      this.$store.dispatch('contacts/list/unselect_all')
+    }).catch((reason: Error) => {
+      this.$toast.error(reason.message)
+    }).finally(() => {
+      this.addingProcess = false
+      this.menuVisible = false
+    })
   }
 
   /**

@@ -1,10 +1,24 @@
 <template>
-  <hr class="app-divider">
+  <hr
+    class="app-divider"
+    :style="cssVars"
+  >
 </template>
 
-<script>
-export default {
-  name: 'AppDivider'
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Prop } from 'vue-property-decorator'
+
+@Component
+export default class AppDivider extends Vue {
+  @Prop({ default: () => 3 }) readonly thickness: number
+
+  get cssVars () {
+    return {
+      '--thickness': this.thickness + 'px'
+    }
+  }
 }
 </script>
 
@@ -16,7 +30,7 @@ export default {
   height: 0px;
   max-height: 0px;
   border: solid;
-  border-width: thin 0px 2px 0px;
+  border-width: thin 0px var(--thickness) 0px;
   transition: inherit;
   color: #3a70d4;
 }

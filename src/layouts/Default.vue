@@ -576,35 +576,7 @@ export default class DefaultLayout extends AppBase {
   showRouterView = false
   audio = makeAudioElement()
   audioPlayed = false
-  accountMenuItems = [
-    {
-      attrs: {
-        dense: true,
-        to: {
-          name: 'settings_profile'
-        }
-      },
-      icon: {
-        attrs: {},
-        name: 'mdi-account'
-      },
-      title: 'Profile'
-    },
-    {
-      attrs: {
-        dense: true
-      },
-      icon: {
-        attrs: {},
-        name: 'mdi-exit-run'
-      },
-      on: {
-        click: () => this.$router.replace({ name: 'login' })
-      },
-      title: 'Exit'
-    }
-  ]
-
+  eventSource = null
   dialog = false
   drawer = true
   notificationShakeProcess = false
@@ -629,6 +601,48 @@ export default class DefaultLayout extends AppBase {
 
   get contactIncomingId () { return this.$store.state.contact_incoming.id }
   get contactIncomingContactName () { return this.$store.state.contact_incoming.contact_name }
+
+  get accountMenuItems () {
+    return [
+      {
+        attrs: {
+          dense: true,
+          to: {
+            name: 'settings_profile'
+          }
+        },
+        icon: {
+          attrs: {},
+          name: 'mdi-account'
+        },
+        title: 'Profile'
+      },
+      {
+        attrs: {
+          dense: true
+        },
+        icon: {
+          attrs: {},
+          name: 'mdi-exit-run'
+        },
+        on: {
+          click: () => {
+            if (this.$dialer.isConnected()) { this.$dialer.disconnect() }
+
+            if (this.eventSource instanceof EventSource) {
+              this.eventSource.close()
+            }
+
+            // Очищение локального хранилища
+            this.$store.dispatch('contacts/list/flush')
+
+            this.$router.replace({ name: 'login' })
+          }
+        },
+        title: 'Exit'
+      }
+    ]
+  }
 
   get mainMenu () {
     return [
@@ -950,8 +964,6 @@ export default class DefaultLayout extends AppBase {
   public created () {
     this.onContainerResize = debounce(this.onContainerResize, 500)
 
-    this.$store.dispatch('account/busy_state', false)
-
     this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow)
     this.$root.$on('main-process-dialog-update', this.onMainProcessDialogUpdate)
     this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide)
@@ -987,7 +999,14 @@ export default class DefaultLayout extends AppBase {
         setTimeout(() => (this.showRouterView = true), 300)
         this.sseInitialize()
 
-        if (this.profilePBXCredentials.login) { this.dialerInitialize() }
+        if (this.profilePBXCredentials.login) {
+          this.dialerInitialize()
+
+          if (this.profile.status === 'normal') {
+            // Отменяю паузу во всех очередях
+            this.$axios.put('/account/dnd/false')
+          }
+        }
 
         if (!this.profile.tz) {
           this.$axios.patch('/account/profile', {
@@ -1192,6 +1211,11 @@ export default class DefaultLayout extends AppBase {
     this.$root.$emit('dialer-session-accepted', session, event)
 
     debugDialerEvent('Accepted %o %o', session, event)
+
+    // Оператор уходит на паузу, входящие поступать не будут.
+    this.$axios.put('/account/dnd/true', {
+      reason: 'speak'
+    })
   }
 
   /**
@@ -1204,48 +1228,6 @@ export default class DefaultLayout extends AppBase {
     this.$toast.dismiss('incoming-dialog')
 
     setTimeout(() => (this.stopAudio()), 500)
-
-    /// ///////////////////////////////////////////////////////
-    if (session.direction === 'incoming') {
-      session.data.contact_id = this.contactIncomingId
-      session.data.contact_name = this.contactIncomingContactName
-    }
-
-    // Данные для сохранения истории
-    const historyData: Record<string, number | string | null> = {
-      cause: event.cause,
-      direction: session.direction,
-      originator: event.originator,
-      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
-      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
-      type: 'call',
-      audio_record_id: session.data.call_id,
-      target: session.data.target
-    }
-
-    // Если есть время разговора
-    if ((session.start_time) && (session.end_time)) {
-      historyData.start_timestamp = session.start_time.getTime() / 1000
-      historyData.end_timestamp = session.end_time.getTime() / 1000
-    }
-
-    // Сохраняю историю звонка
-    this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
-      .then((response: AxiosResponse) => {
-        if ([200, 201].includes(response.status)) {
-          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
-          this.$store.commit('contacts/view/unsaved_call/data_call_id', session.data.call_id)
-          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
-          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
-        } else {
-          throw new APIError(response.data)
-        }
-      }).catch((reason: Error) => {
-        this.$toast.error(reason.message)
-      })
-    /// ///////////////////////////////////////////////////////
 
     this.onSessionFinality(session, event)
 
@@ -1344,7 +1326,47 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private onSessionFinality (session: RTCSession, event: EndEvent) {
-    this.$store.dispatch('account/busy_state', false)
+    /// ///////////////////////////////////////////////////////
+    if (session.direction === 'incoming') {
+      session.data.contact_id = this.contactIncomingId
+      session.data.contact_name = this.contactIncomingContactName
+    }
+
+    // Данные для сохранения истории
+    const historyData: Record<string, number | string | null> = {
+      cause: event.cause,
+      direction: session.direction,
+      originator: event.originator,
+      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
+      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
+      type: 'call',
+      audio_record_id: session.data.call_id,
+      target: session.data.target
+    }
+
+    // Если есть время разговора
+    if ((session.start_time) && (session.end_time)) {
+      historyData.start_timestamp = session.start_time.getTime() / 1000
+      historyData.end_timestamp = session.end_time.getTime() / 1000
+    }
+
+    // Сохраняю историю звонка
+    this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
+      .then((response: AxiosResponse) => {
+        if ([200, 201].includes(response.status)) {
+          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
+          this.$store.commit('contacts/view/unsaved_call/data_call_id', session.data.call_id)
+          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
+          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
+        } else {
+          throw new APIError(response.data)
+        }
+      }).catch((reason: Error) => {
+        this.$toast.error(reason.message)
+      })
+    /// ///////////////////////////////////////////////////////
   }
   // DIALER EVENTS
 
@@ -1363,11 +1385,11 @@ export default class DefaultLayout extends AppBase {
         url.searchParams.append('topic', `${window.origin}/administration`)
       }
 
-      const eventSource = new EventSource(url, {
+      this.eventSource = new EventSource(url, {
         withCredentials: true
       })
 
-      eventSource.addEventListener('event', (event: Event) => {
+      this.eventSource.addEventListener('event', (event: Event) => {
         if (event instanceof MessageEvent) {
           const obj: SSEMessage = JSON.parse(event.data)
 
@@ -1379,7 +1401,7 @@ export default class DefaultLayout extends AppBase {
       })
 
       // Системные уведомления.
-      eventSource.addEventListener('system-notification', (event: Event) => {
+      this.eventSource.addEventListener('system-notification', (event: Event) => {
         if (event instanceof MessageEvent) {
           const obj = JSON.parse(event.data) as Notification
           appDebug.extend('SSE').extend('SYSTEM-NOTIFICATION')('%o', obj)
@@ -1401,7 +1423,7 @@ export default class DefaultLayout extends AppBase {
       })
 
       // SSE типа message
-      eventSource.onmessage = (event) => {
+      this.eventSource.onmessage = (event) => {
         // Emit в корневой экземпляр
         this.$root.$emit('root-sse-message', event.data)
       }

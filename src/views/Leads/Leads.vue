@@ -3,7 +3,7 @@
     <!-- Лиды и задачи -->
     <div class="leads-page__tools">
       <v-btn
-        :loading="itemsFetching"
+        :disabled="itemsFetching"
         small
         tile
         text
@@ -13,7 +13,14 @@
       </v-btn>
     </div>
 
-    <app-divider class="mb-1" />
+    <v-progress-linear
+      v-if="itemsFetching"
+      height="4"
+      indeterminate
+    />
+    <app-divider
+      v-else
+    />
 
     <template v-if="itemsFetching && items.length === 0">
       <div class="d-flex align-center justify-center fill-height">

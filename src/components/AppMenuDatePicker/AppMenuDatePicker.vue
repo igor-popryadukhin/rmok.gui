@@ -4,6 +4,7 @@
     v-model="menuVisible"
     :close-on-content-click="false"
     transition="scale-transition"
+    offset-y
     left
     min-width="auto"
   >
@@ -66,7 +67,7 @@ export default class AppMenuDatePicker extends Vue {
     } else if (typeof this.dates === 'string') {
       return dayjs(this.dates, this.isoFormat).format(this.format)
     }
-    return '-'
+    return '__.__.__'
   }
 
   @Watch('dates')

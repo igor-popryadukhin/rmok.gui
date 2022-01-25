@@ -77,7 +77,7 @@
             outlined
             tile
             x-small
-            @click="onBtnCallClick(contactDefaultPhoneNumber)"
+            @click="onBtnCallClick(contactDefault)"
           >
             {{ $tc('Call') }}
           </v-btn>
@@ -89,100 +89,109 @@
           </span>
         </div>
 
-        <v-divider class="mb-2" />
+        <v-divider />
 
         <v-list
+          class="py-0"
           dense
           tile
         >
           <!-- Контактные данные -->
-
-          <v-list-item
-            v-for="(item, itemIndex) in contactDetails"
-            :key="`v-list-item-${itemIndex}`"
-            ripple
-            link
-            selectable
-          >
-            <v-list-item-avatar>
-              <v-icon
-                v-if="item.type === 'phone'"
-                color="primary"
-              >
-                mdi-phone
-              </v-icon>
-              <v-icon
-                v-else-if="item.type === 'skype'"
-                color="primary"
-              >
-                mdi-skype
-              </v-icon>
-              <v-icon
-                v-else-if="item.type === 'email'"
-                color="primary"
-              >
-                mdi-email-outline
-              </v-icon>
-              <v-icon
-                v-else-if="item.type === 'whatsapp'"
-                color="primary"
-              >
-                mdi-whatsapp
-              </v-icon>
-              <v-icon
-                v-else
-                color="primary"
-              >
-                mdi-chat-outline
-              </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title v-if="item.type === 'phone'">
-                {{ formatPhoneNumber(item.value) }}
-              </v-list-item-title>
-              <v-list-item-title v-else>
-                {{ item.value }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ item.label || $tc('No label') }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-btn
-                v-if="item.type === 'phone'"
-                color="green"
-                icon
-                small
-                @click="onBtnCallClick(item.value)"
-              >
-                <v-icon small>
+          <v-skeleton-loader
+            v-if="contactFetching"
+            type="list-item-avatar-two-line"
+            max-height="61"
+          />
+          <template v-else>
+            <v-list-item
+              v-for="(item, itemIndex) in contactDetails"
+              :key="`v-list-item-${itemIndex}`"
+              color="red"
+              ripple
+              link
+              selectable
+            >
+              <v-list-item-avatar>
+                <v-icon
+                  v-if="item.type === 'phone'"
+                  color="primary"
+                >
                   mdi-phone
                 </v-icon>
-              </v-btn>
-              <v-btn
-                v-else-if="item.type === 'email'"
-                color="green"
-                icon
-                small
-              >
-                <v-icon small>
+                <v-icon
+                  v-else-if="item.type === 'skype'"
+                  color="primary"
+                >
+                  mdi-skype
+                </v-icon>
+                <v-icon
+                  v-else-if="item.type === 'email'"
+                  color="primary"
+                >
                   mdi-email-outline
                 </v-icon>
-              </v-btn>
-              <v-btn
-                v-else
-                color="green"
-                icon
-                small
-              >
-                <v-icon small>
+                <v-icon
+                  v-else-if="item.type === 'whatsapp'"
+                  color="primary"
+                >
+                  mdi-whatsapp
+                </v-icon>
+                <v-icon
+                  v-else
+                  color="primary"
+                >
                   mdi-chat-outline
                 </v-icon>
-              </v-btn>
-            </v-list-item-action>
-          </v-list-item>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title v-if="item.type === 'phone'">
+                  {{ formatPhoneNumber(item.value) }}
+                </v-list-item-title>
+                <v-list-item-title v-else>
+                  {{ item.value }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ item.label || $tc('No label') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-btn
+                  v-if="item.type === 'phone'"
+                  color="green"
+                  icon
+                  small
+                  @click="onBtnCallClick(item)"
+                >
+                  <v-icon small>
+                    mdi-phone
+                  </v-icon>
+                </v-btn>
+                <v-btn
+                  v-else-if="item.type === 'email'"
+                  color="green"
+                  icon
+                  small
+                >
+                  <v-icon small>
+                    mdi-email-outline
+                  </v-icon>
+                </v-btn>
+                <v-btn
+                  v-else
+                  color="green"
+                  icon
+                  small
+                >
+                  <v-icon small>
+                    mdi-chat-outline
+                  </v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </template>
+          <!-- Контактные данные -->
 
-          <v-divider class="mt-5" />
+          <v-divider />
 
           <!-- Геолокация -->
           <v-skeleton-loader
@@ -192,6 +201,7 @@
           />
           <v-list-item
             v-else-if="contactCity || contactRegion"
+            link
           >
             <v-list-item-avatar size="30">
               <v-icon color="primary">
@@ -216,6 +226,7 @@
           />
           <v-list-item
             v-else-if="contactTZ"
+            link
           >
             <v-list-item-avatar size="30">
               <v-icon color="primary">
@@ -240,6 +251,7 @@
           />
           <v-list-item
             v-else
+            link
           >
             <v-list-item-avatar size="30">
               <v-icon color="primary">
@@ -265,6 +277,7 @@
             />
             <v-list-item
               v-else
+              link
             >
               <v-list-item-avatar size="30">
                 <v-icon color="primary">
@@ -288,6 +301,7 @@
           />
           <v-list-item
             v-else-if="contactProjectId"
+            link
           >
             <v-list-item-avatar size="30">
               <v-icon color="primary">
@@ -588,9 +602,7 @@ export default class ContactsView extends AppBase {
   get contactProjectId (): number { return this.$store.getters['contacts/view/contact_project_id'] }
   get contactProjectName (): string { return this.$store.getters['contacts/view/contact_project_name'] }
   get contactDetails (): ContactDetail[] { return this.$store.getters['contacts/view/contact_details'] }
-  get contactPhones (): ContactPhone[] { return this.$store.getters['contacts/view/contact_phones'] }
-  get contactEmails (): ContactEmail[] { return this.$store.getters['contacts/view/contact_emails'] }
-  get contactDefaultPhoneNumber (): string { return this.$store.getters['contacts/view/contact_default_phone_number'] }
+  get contactDefault (): ContactDetail|null { return this.$store.getters['contacts/view/contact_details_default'] }
   get contactTZ (): string { return this.$store.getters['contacts/view/contact_tz'] }
   get contactCreatedAt (): string { return this.$store.getters['contacts/view/contact_created_at'] }
   get contactCity (): string { return this.$store.getters['contacts/view/contact_city'] }
@@ -625,19 +637,27 @@ export default class ContactsView extends AppBase {
   /**
    * Совершает вызов.
    *
-   * @param target
-   * @private
+   * @param phone
    */
-  private onBtnCallClick (target: string) {
-    const session = this.$dialer.call(target)
+  private onBtnCallClick (phone: ContactDetail) {
+    if (phone.type !== 'phone') {
+      return this.$toast.error('Not a phone number!')
+    }
+
+    const session = this.$dialer.call(phone.value)
 
     session.data.contact_id = this.$route.params.id
     session.data.contact_name = this.contactName
-    session.data.target = target
+    session.data.target = phone.value
   }
 
   private onBtnSaveClick () {
-    if (this.isUnsavedCallStatusId > 0) { this.$store.dispatch('contacts/view/unsaved_call/save') } else {
+    if (this.isUnsavedCallStatusId > 0) {
+      // Оператор сможет принимать вызовы.
+      this.$axios.put('/account/dnd/false')
+
+      this.$store.dispatch('contacts/view/unsaved_call/save')
+    } else {
       this.$toast.warning('Пожалуйста, выберите статус')
       this.$router.push({
         name: 'contacts_view_status',
