@@ -48,7 +48,7 @@ export default class AppMenuDatePicker extends Vue {
 
   isoFormat = 'YYYY-MM-DD'
   menuVisible = false
-  dates = []
+  dates = null
 
   get textDisplay () {
     if (Array.isArray(this.dates)) {
@@ -95,7 +95,7 @@ export default class AppMenuDatePicker extends Vue {
       this.datesVModel.forEach((e) => {
         this.dates.push(dayjs(e, this.format).format(this.isoFormat))
       })
-    } else {
+    } else if (typeof this.dates === 'string') {
       this.dates = dayjs(this.dates, this.format).format(this.isoFormat)
     }
   }

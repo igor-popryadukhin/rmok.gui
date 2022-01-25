@@ -116,7 +116,6 @@ import ContactsTools from './ContactsTools.vue'
     ContactsTransferDialog: () => import('./ContactsTransferDialog.vue'),
     AppNavigationDrawer: () => import('@/components/AppNavigationDrawer/AppNavigationDrawer.vue'),
     ContactListFilters: () => import('./ContactListFilters.vue'),
-    ContactList: () => import('./ContactList.vue'),
     AppTable,
     ContactsTools
   },

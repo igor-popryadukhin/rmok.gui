@@ -29,6 +29,7 @@
           dense
           clearable
           hide-details
+          outlined
         />
       </v-card-text>
       <!-- Поиск тегов -->
@@ -140,7 +141,7 @@ import { Watch } from 'vue-property-decorator'
 @Component({
   components: { AppLoading }
 })
-export default class ContactsAssignTags extends AppBase {
+export default class ContactsMenuAssignTags extends AppBase {
   first = true
   assignProcess = false
   processOfCreation = false
@@ -157,9 +158,8 @@ export default class ContactsAssignTags extends AppBase {
       .filter(value => !!value)
   }
 
-  get contactsListSelectedAll (): boolean { return this.$store.getters['contacts/list/selected_all'] }
-  get contactsListSelectedCount () { return this.$store.getters['contacts/list/selected_count'] }
-  get contactsListItemsSelected () { return this.$store.getters['contacts/list/items_selected'] }
+  get contactsListSelectedCount () { return (this.$store.getters['contacts/list/selected_count'] || []) }
+  get contactsListItemsSelected () { return this.$store.getters['contacts/list/items_selected'] || [] }
   get contactFilter () {
     const params: Record<string, unknown> = this.$store.getters['contacts/list/filter/all']
 
@@ -191,32 +191,24 @@ export default class ContactsAssignTags extends AppBase {
   private onAssignTagClick () {
     const request: Record<string, unknown> = {}
 
-    if (this.contactsListSelectedAll) {
-      // На основе фильтров
-      request.params = this.contactFilter
-    } else {
-      request.params = {
-        // На основе идентификаторов контактов
-        ids: this.contactsListItemsSelected
-      }
-    }
-
     request.tag_ids = this.selected
 
     this.assignProcess = true
-    this.$axios.post('/contacts/tags/set', request)
-      .then((response: AxiosResponse) => {
-        if (![200, 202].includes(response.status)) {
-          throw new APIError(response?.data)
-        }
-
-        this.$store.dispatch('contacts/list/unselect_all')
-      }).catch((reason: Error) => {
-        this.$toast.error(reason.message)
-      }).finally(() => {
-        this.assignProcess = false
-        this.menuVisible = false
-      })
+    this.$axios.post('/contacts/tags/set', {
+      contact_ids: this.contactsListItemsSelected.map((e) => e.id),
+      tag_ids: this.selected
+    }).then((response: AxiosResponse) => {
+      if (![200, 202].includes(response.status)) {
+        throw new APIError(response?.data)
+      }
+      this.$toast.success('Tags assigned')
+      this.$store.commit('contacts/list/items_selected', [])
+    }).catch((reason: Error) => {
+      this.$toast.error(reason.message)
+    }).finally(() => {
+      this.assignProcess = false
+      this.menuVisible = false
+    })
   }
 
   /**

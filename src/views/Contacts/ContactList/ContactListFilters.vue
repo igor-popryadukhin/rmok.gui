@@ -195,6 +195,7 @@
           readonly
           dense
           outlined
+          clearable
           v-on="on"
         />
       </template>

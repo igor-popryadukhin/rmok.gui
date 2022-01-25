@@ -119,7 +119,7 @@
 
     <!-- Установка тегов -->
     <template v-if="contactsIsSelected && $isGranted('CONTACTS_ASSIGN_TAGS')">
-      <contacts-assign-tags>
+      <contacts-menu-assign-tags>
         <template #activator="{ attrs, on }">
           <v-btn
             v-bind="attrs"
@@ -131,7 +131,7 @@
             {{ $tc('Set tags') }}
           </v-btn>
         </template>
-      </contacts-assign-tags>
+      </contacts-menu-assign-tags>
     </template>
     <!-- Установка тегов -->
 
@@ -174,7 +174,7 @@ import { Emit } from 'vue-property-decorator'
     AppBtnSorting,
     AppPagination,
     ContactsMenuTransfer: () => import('./ContactsMenuTransfer.vue'),
-    ContactsAssignTags: () => import('./ContactsAssignTags.vue'),
+    ContactsMenuAssignTags: () => import('./ContactsMenuAssignTags.vue'),
     ContactListMenuImport: () => import('./ContactListMenuImport.vue'),
     ContactListMenuExport: () => import('./ContactListMenuExport.vue'),
     ContactsMenuAddToAutodialer: () => import('./ContactsMenuAddToAutodialer.vue')
