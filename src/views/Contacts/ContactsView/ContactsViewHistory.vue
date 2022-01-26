@@ -1,5 +1,5 @@
 <template>
-  <v-sheet height="100%">
+  <div style="height: 100%">
     <template v-if="historyItemsFetching && historyItems.length === 0">
       <div class="d-flex align-center justify-center fill-height">
         <app-loading />
@@ -105,10 +105,16 @@
             <v-list-item-content>
               <v-list-item-title>
                 <span
+                  v-if="item.type === 'call'"
                   class="mr-2 black--text"
-                  style="letter-spacing: 1.2px; font-weight: 500;"
                 >
-                  {{ item.target || '—' }}
+                  {{ formatPhoneNumber(item.target) }}
+                </span>
+                <span
+                  v-else
+                  class="mr-2 black--text"
+                >
+                  {{ item.target }}
                 </span>
               </v-list-item-title>
               <div class="d-flex justify-start">
@@ -199,7 +205,7 @@
         </template>
       </v-list>
     </template>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
@@ -208,6 +214,7 @@ import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import debounce from '@/utils/debounce'
+import parsePhoneNumber from 'libphonenumber-js'
 import Component from 'vue-class-component'
 
 // eslint-disable-next-line no-use-before-define
@@ -248,6 +255,20 @@ export default class ContactsViewHistory extends AppBase {
 
   private fetchHistory () {
     this.$store.dispatch('contacts/view/history/fetch', this.$route.params.id)
+  }
+
+  /**
+   *
+   * @param phone
+   * @private
+   */
+  private formatPhoneNumber (phone: string) {
+    const phoneNumber = parsePhoneNumber(phone, 'RU')
+    if (phoneNumber) {
+      return phoneNumber.formatNational()
+    }
+
+    return 'Не верный формат'
   }
 }
 
