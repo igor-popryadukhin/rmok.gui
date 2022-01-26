@@ -584,23 +584,25 @@ export default class DefaultLayout extends AppBase {
   degradation = false
   dialerIsInitialize = false
 
-  // Вычисляемые свойства
-
-  // Системные уведомления
+  // region Системные уведомления
   get notificationsVisible () { return this.$store.getters['notifications/visible'] }
   set notificationsVisible (value: boolean) { this.$store.commit('notifications/visible', value) }
   get notificationsCount () { return this.$store.getters['notifications/count'] }
   set notificationsCount (value: number) { this.$store.commit('notifications/count', value) }
   get notificationsItems (): Notification[] { return this.$store.getters['notifications/items'] }
   set notificationsItems (value: Notification[]) { this.$store.commit('notifications/items', value) }
-  // Системные уведомления
+  // endregion
 
+  // region Профиль
   get profile (): ProfileState { return this.$store.state.profile }
   get profilePBXCredentials (): Credentials { return this.$store.getters['profile/pbx_configuration_credentials'] }
   get profileRTCConfiguration (): RTCConfiguration { return this.$store.getters['profile/pbx_configuration_rtc_configuration'] }
+  // endregion
 
-  get contactIncomingId () { return this.$store.state.contact_incoming.id }
-  get contactIncomingContactName () { return this.$store.state.contact_incoming.contact_name }
+  // region Входящий вызов
+  get contactIncomingId (): number { return this.$store.getters['contacts/incoming/contact_id'] }
+  get contactIncomingContactName (): string { return this.$store.getters['contacts/incoming/contact_name'] }
+  // endregion
 
   get accountMenuItems () {
     return [
@@ -1131,10 +1133,6 @@ export default class DefaultLayout extends AppBase {
     // Call-ID – идентификатор вызова.
     newRTCSession.session.data.call_id = newRTCSession.request.getHeader('Call-ID')
 
-    if (newRTCSession.session.direction === 'incoming') {
-      this.playAudio('/sounds/ringing2.mp3', true) // Проигрываю мелодию входящего вызова.
-    }
-
     this.$ifvisible.wakeup()
   }
 
@@ -1167,31 +1165,36 @@ export default class DefaultLayout extends AppBase {
       debugDialerEvent('Входящий: %s', session.data.target)
 
       // Загружаю информацию о контакте с сервера.
-      this.$store.dispatch('contact_incoming/get_by_phone_number', session.data.target)
-      this.$store.commit('contact_incoming/contact_name', session.data.target)
+      this.$store
+        .dispatch('contacts/incoming/fetch_by_phone_number', session.data.target)
+        .then(() => {
+          // Проигрываю мелодию входящего вызова.
+          this.playAudio('/sounds/ringing2.mp3', true)
 
-      // Показать диалог входящего.
-      this.$toast({
-        component: AppIncomingCallDialog,
-        props: {
-          // Будет вычислять новое значение без обновления всего состояния
-          display: () => this.contactIncomingContactName
-        },
-        listeners: {
-          answer: this.onIncomingDialogAnswerClick,
-          hangup: this.onIncomingDialogHangupClick
-        }
-      }, {
-        id: 'incoming-dialog',
-        icon: false,
-        timeout: 0,
-        closeButton: false,
-        closeOnClick: false,
-        toastClassName: 'app-incoming-call-dialog',
-        bodyClassName: '',
-        position: POSITION.TOP_CENTER,
-        draggable: false
-      })
+          // Показать диалог входящего.
+          this.$toast({
+            component: AppIncomingCallDialog,
+            props: {
+              display: () => this.contactIncomingContactName
+            },
+            listeners: {
+              'click:btn:answer': this.onIncomingDialogAnswerClick,
+              'click:btn:hangup': this.onIncomingDialogHangupClick
+            }
+          }, {
+            id: 'incoming-dialog',
+            icon: false,
+            timeout: 0,
+            closeButton: false,
+            closeOnClick: false,
+            toastClassName: 'app-incoming-call-dialog',
+            bodyClassName: '',
+            position: POSITION.TOP_CENTER,
+            draggable: false
+          })
+        }).catch(() => {
+          this.$dialer.hangUp()
+        })
     }
 
     debugDialerEvent('Progress %o %o', session, event)
@@ -1491,6 +1494,7 @@ export default class DefaultLayout extends AppBase {
    * Срабатывает когда нажали на кнопку отклонить вызов.
    */
   private onIncomingDialogHangupClick () {
+    this.$store.dispatch('contacts/incoming/flush')
     this.$toast.dismiss('incoming-dialog')
     this.$dialer.hangUp()
   }

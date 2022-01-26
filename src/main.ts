@@ -30,18 +30,20 @@ import '@/plugins/vuetify-dialog'
 import '@/plugins/html-audio-element'
 import '@/plugins/vue-meta'
 import '@/plugins/dayjs'
+import '@/plugins/audio'
 
 import CleanLayout from '@/layouts/Clean.vue'
 
 // layouts
-Vue.component('Default', () => import(/* webpackPreload: true */ './layouts/Default.vue'))
+Vue.component('Default', () => import(/* webpackPreload: true */ '@/layouts/Default.vue'))
 Vue.component('Clean', CleanLayout)
-Vue.component('Help', () => import(/* webpackPreload: true */ './layouts/Help.vue'))
+Vue.component('Help', () => import(/* webpackPreload: true */ '@/layouts/Help.vue'))
 
-Vue.component('AppDivider', () => import(/* webpackPreload: true */ './components/AppDivider/AppDivider.vue'))
+Vue.component('AppTooltip', () => import(/* webpackPreload: true */ '@/components/AppTooltip/AppTooltip.vue'))
+Vue.component('AppDivider', () => import(/* webpackPreload: true */ '@/components/AppDivider/AppDivider.vue'))
 Vue.component('AppTools', () => import(/* webpackPreload: true */ './components/AppTools/AppTools.vue'))
-Vue.component('AppToolsRight', () => import(/* webpackPreload: true */ './components/AppTools/AppToolsRight.vue'))
-Vue.component('AppToolsLeft', () => import(/* webpackPreload: true */ './components/AppTools/AppToolsLeft.vue'))
+Vue.component('AppToolsRight', () => import(/* webpackPreload: true */ '@/components/AppTools/AppToolsRight.vue'))
+Vue.component('AppToolsLeft', () => import(/* webpackPreload: true */ '@/components/AppTools/AppToolsLeft.vue'))
 
 Vue.config.productionTip = false
 

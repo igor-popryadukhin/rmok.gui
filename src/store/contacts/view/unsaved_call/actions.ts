@@ -6,7 +6,7 @@ import { ActionTree } from 'vuex'
 import { UnsavedCallState } from './state'
 
 const actions: ActionTree<UnsavedCallState, RootState> = {
-  save ({ commit, state, dispatch }) {
+  persist ({ commit, state, dispatch }) {
     commit('persists', true)
 
     return new Promise<void>((resolve) => {

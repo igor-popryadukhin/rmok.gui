@@ -30,6 +30,21 @@ module.exports = {
         include: [ // Use `Rule.include` to specify the files of locale messages to be pre-compiled
           path.resolve(__dirname, 'src/locales')
         ]
+      },
+      {
+        test: /\.(png|jpg|gif)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192
+            }
+          }
+        ]
+      },
+      {
+        test: /\.(mp3?|ogg)$/,
+        loader: 'url-loader'
       }
     ]
   },

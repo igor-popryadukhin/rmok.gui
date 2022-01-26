@@ -17,14 +17,14 @@
         <button
           v-ripple
           class="button button__hangup"
-          @click="$emit('hangup')"
+          @click="clickBtnHangup"
         >
           <i class="mdi mdi-phone-hangup" />
         </button>
         <button
           v-ripple
           class="button button__answer"
-          @click="$emit('answer')"
+          @click="clickBtnAnswer"
         >
           <i class="mdi mdi-phone" />
         </button>
@@ -35,11 +35,21 @@
 
 <script lang="ts">
 import Component from 'vue-class-component'
-import { Prop, Vue } from 'vue-property-decorator'
+import { Emit, Prop, Vue } from 'vue-property-decorator'
 
 @Component
 export default class AppIncomingCallDialog extends Vue {
   @Prop({ default: () => () => '' }) readonly display: CallableFunction
+
+  @Emit('click:btn:answer')
+  clickBtnAnswer () {
+    return undefined
+  }
+
+  @Emit('click:btn:hangup')
+  clickBtnHangup () {
+    return undefined
+  }
 }
 </script>
 

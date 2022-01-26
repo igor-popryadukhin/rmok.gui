@@ -1,4 +1,7 @@
+import APIError from '@/api/classes/APIError'
+import { $axios } from '@/plugins/axios'
 import { RootState } from '@/store'
+import { AxiosResponse } from 'axios'
 import { ActionTree } from 'vuex'
 import { State } from './state'
 import { Contacts } from '@/api/Contacts'

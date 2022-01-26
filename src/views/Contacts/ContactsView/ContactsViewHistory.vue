@@ -103,20 +103,25 @@
               </v-tooltip>
             </v-list-item-avatar>
             <v-list-item-content>
-              <v-list-item-title>
-                <span
-                  v-if="item.type === 'call'"
-                  class="mr-2 black--text"
-                >
-                  {{ formatPhoneNumber(item.target) }}
-                </span>
-                <span
-                  v-else
-                  class="mr-2 black--text"
-                >
-                  {{ item.target }}
-                </span>
-              </v-list-item-title>
+              <div class="d-flex align-center justify-space-between">
+                <div class="font-weight-medium subtitle-2">
+                  <span
+                    v-if="item.type === 'call'"
+                    class="mr-2 black--text"
+                  >
+                    {{ formatPhoneNumber(item.target) }}
+                  </span>
+                  <span
+                    v-else
+                    class="mr-2 black--text"
+                  >
+                    {{ item.target }}
+                  </span>
+                </div>
+                <div class="text-caption grey--text">
+                  {{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH.mm') }}
+                </div>
+              </div>
               <div class="d-flex justify-start">
                 <div>
                   <v-list-item-subtitle>
@@ -150,26 +155,15 @@
                     </span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
-                    <v-tooltip
+                    <v-chip
                       v-if="item.status"
-                      open-delay="500"
-                      color="primary"
-                      bottom
+                      :color="item.status.color"
+                      label
+                      outlined
+                      x-small
                     >
-                      <template #activator="{on, attrs}">
-                        <v-chip
-                          v-bind="attrs"
-                          :color="item.status.color"
-                          label
-                          outlined
-                          x-small
-                          v-on="on"
-                        >
-                          {{ item.status.name }}
-                        </v-chip>
-                      </template>
-                      <span>{{ $tc('Click on an item to change') }}</span>
-                    </v-tooltip>
+                      {{ item.status.name }}
+                    </v-chip>
                     <v-chip
                       v-else
                       label
@@ -180,22 +174,34 @@
                     </v-chip>
                   </v-list-item-subtitle>
                 </div>
+                <div class="align-self-end ml-auto">
+                  <v-btn
+                    icon
+                    small
+                    @click="onBtnItemEditClick(item)"
+                  >
+                    <v-icon>mdi-pencil-box-outline</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    small
+                  >
+                    <v-icon>mdi-play-circle-outline</v-icon>
+                  </v-btn>
+                </div>
               </div>
             </v-list-item-content>
-            <v-list-item-action>
-              <v-list-item-action-text
-                v-text="$dayjs(item.created_at * 1000).format('DD.MM.YYYY HH.mm')"
-              />
-              <div class="d-flex flex-wrap">
-                <v-btn
-                  :key="`v-list-item-action-play-${index}`"
-                  icon
-                  small
-                >
-                  <v-icon>mdi-play</v-icon>
-                </v-btn>
-              </div>
-            </v-list-item-action>
+            <!--            <v-list-item-action>-->
+            <!--              <div class="d-flex flex-wrap">-->
+            <!--                <v-btn-->
+            <!--                  :key="`v-list-item-action-play-${index}`"-->
+            <!--                  icon-->
+            <!--                  small-->
+            <!--                >-->
+            <!--                  <v-icon>mdi-play</v-icon>-->
+            <!--                </v-btn>-->
+            <!--              </div>-->
+            <!--            </v-list-item-action>-->
           </v-list-item>
 
           <v-divider
@@ -210,7 +216,9 @@
 
 <script lang="ts">
 import ContactHistory from '@/api/interfaces/ContactHistory'
+import StatusGroup from '@/api/interfaces/StatusGroup'
 import AppBase from '@/AppBase'
+import AppContactHistoryEdit from '@/components/AppContactHistoryEdit/AppContactHistoryEdit.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import debounce from '@/utils/debounce'
@@ -235,6 +243,10 @@ export default class ContactsViewHistory extends AppBase {
     return this.$store.getters['contacts/view/history/items']
   }
 
+  get statuses (): StatusGroup[] {
+    return this.$store.getters['contacts/view/contact_project_statuses']
+  }
+
   public created () {
     this.fetchHistory = debounce(this.fetchHistory, 500)
 
@@ -255,6 +267,35 @@ export default class ContactsViewHistory extends AppBase {
 
   private fetchHistory () {
     this.$store.dispatch('contacts/view/history/fetch', this.$route.params.id)
+  }
+
+  private async onBtnItemEditClick (item) {
+    const statuses = []
+    this.statuses.forEach((e1) => {
+      e1.children.forEach((e2) => {
+        statuses.push({
+          ...e2,
+          color: e1.color
+        })
+      })
+    })
+    const dialog = await this.$dialog.show(AppContactHistoryEdit, {
+      waitForResult: false,
+      overlayOpacity: 0.1,
+      showClose: false,
+      statusId: item.status?.id || 0,
+      comment: item.comment || '',
+      statuses
+    })
+
+    // @ts-expect-error: dialog.vmd.$on
+    dialog.vmd.$on('click:btn:save', ({ status_id, comment }) => {
+      dialog.close()
+
+      this.$axios.patch(`/contacts/history/${item.id}`, { status_id, comment })
+    })
+    // @ts-expect-error: dialog.vmd.$on
+    dialog.vmd.$on('click:btn:cancel', dialog.close)
   }
 
   /**

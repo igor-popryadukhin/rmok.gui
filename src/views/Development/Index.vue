@@ -20,13 +20,6 @@
         <v-divider :key="`v-divider-${key}`" />
       </template>
     </v-list>
-
-    <smart-autocomplete
-      :filter="(q, e) => e.name.indexOf(q) > -1"
-      item-text="name"
-      item-value="id"
-      api-end-point="/projects"
-    />
   </v-sheet>
 </template>
 

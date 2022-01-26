@@ -56,31 +56,52 @@
           </app-task-dialog-edit>
 
           <v-spacer />
-          <v-btn
-            v-if="['connecting', 'progress', 'accepted'].includes($dialer.state)"
-            class="mr-0"
-            color="error"
-            text
-            outlined
-            tile
-            x-small
-            @click="$dialer.hangUp()"
-          >
-            {{ $tc('Hang up') }}
-          </v-btn>
-          <v-btn
-            v-else
-            :disabled="!$dialer.isConnected() && !$dialer.isRegistered() || contactFetching || isUnsavedCall"
-            class="mr-0"
-            color="primary"
-            text
-            outlined
-            tile
-            x-small
-            @click="onBtnCallClick(contactDefault)"
-          >
-            {{ $tc('Call') }}
-          </v-btn>
+
+          <template v-if="['connecting', 'progress', 'accepted'].includes($dialer.state)">
+            <app-tooltip>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  class="mr-0"
+                  color="error"
+                  text
+                  outlined
+                  tile
+                  x-small
+                  v-bind="attrs"
+                  @click="$dialer.hangUp()"
+                  v-on="on"
+                >
+                  {{ $tc('Hang up') }}
+                </v-btn>
+              </template>
+              <span>
+                {{ $tc('Click to hang up') }}
+              </span>
+            </app-tooltip>
+          </template>
+          <template v-else>
+            <app-tooltip>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  :disabled="!allowDialing"
+                  class="mr-0"
+                  color="primary"
+                  text
+                  outlined
+                  tile
+                  x-small
+                  v-bind="attrs"
+                  @click="onBtnCallClick(contactDefault)"
+                  v-on="on"
+                >
+                  {{ $tc('Call') }}
+                </v-btn>
+              </template>
+              <span>
+                {{ $tc('Click to make a call') }}
+              </span>
+            </app-tooltip>
+          </template>
         </div>
 
         <div class="">
@@ -145,27 +166,114 @@
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title v-if="item.type === 'phone'">
-                  {{ formatPhoneNumber(item.value) }}
+                  <app-tooltip>
+                    <template #activator="{ on, attrs }">
+                      <span
+                        v-bind="attrs"
+                        v-on="on"
+                      >{{ formatPhoneNumber(item.value) }}</span>
+                    </template>
+                    <span>
+                      {{ formatPhoneNumber(item.value) }}
+                    </span>
+                  </app-tooltip>
                 </v-list-item-title>
                 <v-list-item-title v-else>
-                  {{ item.value }}
+                  <app-tooltip>
+                    <template #activator="{ on, attrs }">
+                      <span
+                        v-bind="attrs"
+                        v-on="on"
+                      >{{ item.value }}</span>
+                    </template>
+                    <span>
+                      {{ item.value }}
+                    </span>
+                  </app-tooltip>
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ item.label || $tc('No label') }}
                 </v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
-                <v-btn
-                  v-if="item.type === 'phone'"
-                  color="green"
-                  icon
-                  small
-                  @click="onBtnCallClick(item)"
-                >
-                  <v-icon small>
-                    mdi-phone
-                  </v-icon>
-                </v-btn>
+                <template v-if="item.type === 'phone'">
+                  <div
+                    class="d-flex flex-row justify-space-between"
+                    style="width: 60px;"
+                  >
+                    <app-tooltip>
+                      <template #activator="{ on, attrs }">
+                        <v-btn
+                          color="#ff9800"
+                          icon
+                          small
+                          v-bind="attrs"
+                          @click="onBtnPhoneNumberDefaultClick(item)"
+                          v-on="on"
+                        >
+                          <v-icon
+                            v-if="item.id === contactDefault.id"
+                            small
+                          >
+                            mdi-star
+                          </v-icon>
+                          <v-icon
+                            v-else
+                            small
+                          >
+                            mdi-star-outline
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>
+                        {{ $tc('Click to make default number') }}
+                      </span>
+                    </app-tooltip>
+                    <template v-if="item.id !== callerID">
+                      <app-tooltip>
+                        <template #activator="{ on, attrs }">
+                          <v-btn
+                            :disabled="!allowDialing"
+                            color="primary"
+                            icon
+                            small
+                            v-bind="attrs"
+                            @click="onBtnCallClick(item)"
+                            v-on="on"
+                          >
+                            <v-icon small>
+                              mdi-phone-dial-outline
+                            </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>
+                          {{ $tc('Click to make a call') }}
+                        </span>
+                      </app-tooltip>
+                    </template>
+                    <template v-else>
+                      <app-tooltip>
+                        <template #activator="{ on, attrs }">
+                          <v-btn
+                            color="red"
+                            icon
+                            small
+                            v-bind="attrs"
+                            @click="$dialer.hangUp()"
+                            v-on="on"
+                          >
+                            <v-icon small>
+                              mdi-phone-hangup-outline
+                            </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>
+                          {{ $tc('Click to hang up') }}
+                        </span>
+                      </app-tooltip>
+                    </template>
+                  </div>
+                </template>
                 <v-btn
                   v-else-if="item.type === 'email'"
                   color="green"
@@ -450,9 +558,8 @@
 </template>
 
 <script lang="ts">
+import APIError from '@/api/classes/APIError'
 import ContactDetail from '@/api/interfaces/ContactDetail'
-import ContactEmail from '@/api/interfaces/ContactEmail'
-import ContactPhone from '@/api/interfaces/ContactPhone'
 import ContactTag from '@/api/interfaces/ContactTag'
 import AppBase from '@/AppBase'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
@@ -504,6 +611,8 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
   }
 })
 export default class ContactsView extends AppBase {
+  /** Идентификатор звонящего номера */
+  callerID = 0
   tick = 0
   contactTimeTick = 0
   taskDialogVisible = false
@@ -615,6 +724,14 @@ export default class ContactsView extends AppBase {
   get isUnsavedCall (): boolean { return this.$store.getters['contacts/view/unsaved_call/unsaved'] }
   get isUnsavedCallStatusId (): number { return this.$store.getters['contacts/view/unsaved_call/data_status_id'] }
 
+  /** Состояние активности кнопки вызова */
+  get allowDialing (): boolean {
+    return this.$dialer.isConnected() &&
+      this.$dialer.isRegistered() &&
+      !this.contactFetching &&
+      !this.isUnsavedCall
+  }
+
   @Watch('isUnsavedCall')
   isUnsavedCallWatchHandler (val: boolean) {
     if (val) {
@@ -632,6 +749,16 @@ export default class ContactsView extends AppBase {
 
   public created () {
     setInterval(() => (this.contactTimeTick++), 1000)
+
+    this.$root.$on('dialer-session-finality', this.onDialerSessionFinality)
+  }
+
+  public beforeDestroy () {
+    this.$root.$off('dialer-session-finality', this.onDialerSessionFinality)
+  }
+
+  private onDialerSessionFinality () {
+    this.callerID = 0
   }
 
   /**
@@ -640,6 +767,8 @@ export default class ContactsView extends AppBase {
    * @param phone
    */
   private onBtnCallClick (phone: ContactDetail) {
+    this.$audio.play('/sounds/tick.mp3')
+
     if (phone.type !== 'phone') {
       return this.$toast.error('Not a phone number!')
     }
@@ -649,6 +778,24 @@ export default class ContactsView extends AppBase {
     session.data.contact_id = this.$route.params.id
     session.data.contact_name = this.contactName
     session.data.target = phone.value
+
+    this.callerID = phone.id
+  }
+
+  private onBtnPhoneNumberDefaultClick (item: ContactDetail) {
+    if (item.type === 'phone' && item.id !== this.contactDefault.id) {
+      this.$store.commit('contacts/view/contact_details_default', item)
+      this.$axios.patch(`/contacts/${this.$route.params.id}`, {
+        default_phone_id: item.id
+      }).then((response) => {
+        if (![200, 204].includes(response.status)) {
+          throw new APIError(response.data)
+        }
+        this.$toast.success('Changes accepted')
+      }).catch((reason: Error) => {
+        this.$toast.error(reason.message)
+      })
+    }
   }
 
   private onBtnSaveClick () {
@@ -656,7 +803,7 @@ export default class ContactsView extends AppBase {
       // Оператор сможет принимать вызовы.
       this.$axios.put('/account/dnd/false')
 
-      this.$store.dispatch('contacts/view/unsaved_call/save')
+      this.$store.dispatch('contacts/view/unsaved_call/persist')
     } else {
       this.$toast.warning('Пожалуйста, выберите статус')
       this.$router.push({
@@ -718,6 +865,9 @@ export default class ContactsView extends AppBase {
 <i18n>
 {
   "ru": {
+    "Click to make a call": "Нажмите, чтобы позвонить",
+    "Click to hang up": "Нажмите, чтобы повесить трубку",
+    "Click to make default number": "Нажмите, чтобы сделать номером по умолчанию",
     "delete_confirmation_1": "<b>Удалить {n} контакт?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
     "delete_confirmation_2": "<b>Удалить {n} контакта?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
     "delete_confirmation_3": "<b>Удалить {n} контактов?</b>&nbsp;Удалённые контакты можно восстановить течение 31 дня.",
