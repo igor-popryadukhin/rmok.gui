@@ -31,6 +31,7 @@ import '@/plugins/html-audio-element'
 import '@/plugins/vue-meta'
 import '@/plugins/dayjs'
 import '@/plugins/audio'
+import '@/plugins/ws'
 
 import CleanLayout from '@/layouts/Clean.vue'
 

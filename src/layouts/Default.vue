@@ -544,7 +544,6 @@ import Component from 'vue-class-component'
 import { Ref } from 'vue-property-decorator'
 import { POSITION } from 'vue-toastification'
 import SSEEvents from './SSEEvents'
-import WS from './WS'
 
 const appDebug = debug('APP')
 const debugDialer = appDebug.extend('DIALER')
@@ -552,7 +551,7 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
 
 // eslint-disable-next-line no-use-before-define
 @Component<DefaultLayout>({
-  mixins: [WS, SSEEvents],
+  mixins: [SSEEvents],
   components: { AppLoading },
   computed: {
     navigation_drawer_mini: {
@@ -1015,6 +1014,9 @@ export default class DefaultLayout extends AppBase {
             tz: dayjs.tz.guess()
           })
         }
+
+        this.$ws.cbToken = () => this.$cookie.get('access_token')
+        this.$ws.connect()
       })
 
     this.$store.dispatch('notifications/fetch')
