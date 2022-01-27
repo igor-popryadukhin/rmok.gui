@@ -183,8 +183,10 @@
                     <v-icon>mdi-pencil-box-outline</v-icon>
                   </v-btn>
                   <v-btn
+                    disabled
                     icon
                     small
+                    @click="onBtnItemPlayClick(item)"
                   >
                     <v-icon>mdi-play-circle-outline</v-icon>
                   </v-btn>
@@ -296,6 +298,13 @@ export default class ContactsViewHistory extends AppBase {
     })
     // @ts-expect-error: dialog.vmd.$on
     dialog.vmd.$on('click:btn:cancel', dialog.close)
+  }
+
+  private async onBtnItemPlayClick (item) {
+    // this.$root.$emit('on-audio-player-show', {
+    //   src: `${process.env.VUE_APP_API}/contacts/history/${item.id}/audio`,
+    //   author: `${item.owner.full_name} / ${item.contact.full_name}`
+    // })
   }
 
   /**

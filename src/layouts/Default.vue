@@ -1520,8 +1520,7 @@ export default class DefaultLayout extends AppBase {
    * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
    */
   private ifVisibleIdleHandler () {
-    // this.degradation = true
-    this.$store.commit('app_state/page', 'sex')
+    // this.degradation = trues
   }
 
   /**
