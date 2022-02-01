@@ -599,7 +599,7 @@
     "users_edit": "Редактирование пользователя",
     "users_list": "@:Users",
     "users_new": "@:Create a new user",
-    "contacts_view_chat": "Чат Телеграм"
+    "contacts_view_chat": "Чат"
   },
   "rule_email": "Адрес электронной почты не соответствует требованиям",
   "rule_invalid_email": "Неверный адрес электронной почты!",

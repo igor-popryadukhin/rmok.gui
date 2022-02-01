@@ -7,6 +7,7 @@ import mutations from './mutations'
 import history from './history'
 import settings from './settings'
 import tasks from './tasks'
+import messages from './messages'
 import unsaved_call from './unsaved_call'
 
 const module: Module<ContactsViewState, RootState> = {
@@ -16,6 +17,7 @@ const module: Module<ContactsViewState, RootState> = {
   namespaced: true,
   state,
   modules: {
+    messages,
     history,
     tasks,
     settings,

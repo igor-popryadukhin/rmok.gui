@@ -226,7 +226,7 @@ const routes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "contacts-view-chat" */ '../views/Contacts/ContactsView/ContactsViewChat.vue'),
         meta: { layout: 'default', middleware: [] },
         name: 'contacts_view_chat',
-        path: 'chat/:chat_id'
+        path: 'chat'
       }
     ],
     meta: { layout: 'default', middleware: [] }
@@ -657,6 +657,34 @@ const routes: RouteConfig[] = [
     children: [],
     component: () => import(/* webpackChunkName: "scenarios-view" */ '../views/Scenarios/ScenariosView.vue'),
     meta: { layout: 'default', middleware: [] }
+  },
+  {
+    name: 'integrations',
+    path: '/integrations',
+    component: () => import(/* webpackChunkName: "integrations" */ '../views/Integrations/Integrations.vue'),
+    meta: { layout: 'default', middleware: [] },
+    children: []
+  },
+  {
+    name: 'integrations_whats_app',
+    path: '/integrations/whats-app',
+    component: () => import(/* webpackChunkName: "integrations-whats-app" */ '../views/Integrations/IntegrationsWhatsApp.vue'),
+    meta: { layout: 'default', middleware: [] },
+    children: []
+  },
+  {
+    name: 'integrations_instagram',
+    path: '/integrations/instagram',
+    component: () => import(/* webpackChunkName: "integrations-instagram" */ '../views/Integrations/IntegrationsInstagram.vue'),
+    meta: { layout: 'default', middleware: [] },
+    children: []
+  },
+  {
+    name: 'integrations_telegram',
+    path: '/integrations/telegram',
+    component: () => import(/* webpackChunkName: "integrations-telegram" */ '../views/Integrations/IntegrationsTelegram.vue'),
+    meta: { layout: 'default', middleware: [] },
+    children: []
   }
 ]
 

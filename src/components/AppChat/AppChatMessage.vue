@@ -1,7 +1,7 @@
 <template>
   <div class="app-chat-message">
     <div
-      class="row"
+      class="row mb-2"
       :class="{ 'reverse': sent }"
     >
       <div>
@@ -30,7 +30,9 @@
               </slot>
             </div>
             <div class="app-chat-message-stamp">
-              {{ dateTime }}
+              <span style="margin-right: 5px">
+                {{ dateTime }}
+              </span>
               <slot name="statusIcons">
                 <template v-if="status === 'sent'">
                   <v-icon
@@ -106,7 +108,7 @@ export default class AppChatMessage extends Vue {
 .app-chat-message-text {
   background: currentColor;
   line-height: 1.2;
-  padding: 8px;
+  padding: 5px 10px 5px 10px;
   position: relative;
   word-break: break-word;
 }
@@ -117,7 +119,7 @@ export default class AppChatMessage extends Vue {
 
 .app-chat-message-text--sent {
   border-radius: 4px 4px 0 4px;
-  color: #c3d8ff;
+  color: #e0e0e0;
 }
 
 .app-chat-message-text:last-child:before {
@@ -140,7 +142,10 @@ export default class AppChatMessage extends Vue {
 }
 
 .app-chat-message-text:last-child .app-chat-message-stamp {
-  display: block;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
 }
 
 .app-chat-message-stamp {
@@ -153,7 +158,7 @@ export default class AppChatMessage extends Vue {
 
 .app-chat-message-text--received {
   border-radius: 4px 4px 4px 0;
-  color: #c3d8ff;
+  color: #e0e0e0;
 }
 
 .app-chat-message-text--received:last-child:before {

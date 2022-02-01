@@ -1,7 +1,5 @@
 <template>
-  <v-sheet
-    height="100%"
-  >
+  <div class="chat-page">
     <div class="d-flex flex-row justify-space-between py-2">
       <div class="d-flex align-center">
         <v-text-field
@@ -32,134 +30,126 @@
         </v-btn>
       </div>
     </div>
-    <app-chat>
-      <template v-for="item in messages">
-        <app-chat-message
-          :key="item.id"
-          :name="item.user"
-          :text="item.text"
-          :sent="item.direction"
-          :date-time="item.created_at"
-          :status="item.status"
-        />
-      </template>
-    </app-chat>
-    <div class="app-chat-message-send-tool">
-      <v-btn
-        icon
-        color="primary"
-        @click="onAttachMediaFiles"
+    <div
+      ref="messageBox"
+      class="chat-page__box overflow-y-auto pa-5"
+    >
+      <div
+        v-if="messagesFetching && messages.length === 0"
+        class="d-flex align-center justify-center fill-height"
       >
-        <v-icon>mdi-paperclip</v-icon>
-      </v-btn>
-      <v-text-field
-        append-icon="mdi-text-box-plus"
+        <app-loading message="Загрузка сообщений..." />
+      </div>
+      <template v-else>
+        <transition-group
+          name="fade"
+          type="animation"
+          duration="1"
+          appear
+        >
+          <app-chat-message
+            v-for="item in messages"
+            :key="'app-chat-message-' + item.id"
+            :name="item.owner_name"
+            :text="item.text"
+            :sent="item.direction"
+            :date-time="$dayjs(item.created_at).format('HH:mm')"
+            :status="item.status"
+          />
+        </transition-group>
+        <div ref="messageAnchor" />
+      </template>
+    </div>
+    <div class="chat-page__bottom-control">
+      <v-textarea
+        v-model="text"
         class="mr-2"
         placeholder="Написать сообщение..."
-        outlined
-        dense
         hide-details="auto"
-        @click:append="onSelectTemplateMessage"
-      />
-      <v-btn
-        color="primary"
-        text
-        outlined
-        tile
-        @click="sendMessage"
+        autofocus
+        flat
+        auto-grow
+        row-height="2"
+        @keydown.enter.prevent="onSendEnter"
       >
-        {{ $tc('Отправить') }}
-      </v-btn>
+        <template #prepend>
+          <v-btn
+            icon
+            color="primary"
+            @click="onAttachMediaFiles"
+          >
+            <v-icon>mdi-paperclip</v-icon>
+          </v-btn>
+        </template>
+        <template #append>
+          <v-btn
+            icon
+            color="primary"
+          >
+            <v-icon>mdi-emoticon-happy-outline</v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            color="primary"
+          >
+            <v-icon>mdi-send-outline</v-icon>
+          </v-btn>
+        </template>
+      </v-textarea>
     </div>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
 import AppBase from '@/AppBase'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
 import AppChat from '@/components/AppChat/AppChat.vue'
 import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
+import { Ref, Watch } from 'vue-property-decorator'
 
 @Component({
-  components: { AppChatMessage, AppChat }
+  components: { AppLoading, AppChatMessage, AppChat },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.$store.dispatch('contacts/view/messages/fetch', {
+        contact_id: to.params.id
+      })
+    })
+  }
 })
 export default class ContactsViewChat extends AppBase {
-  // Fake data
-  get messages () {
-    return [
-      {
-        id: 1,
-        text: 'Здравствуйте, Галина!',
-        direction: true,
-        created_at: '05.01.2022 14:25:48',
-        user: 'Милана Проценко',
-        status: 'sent' // отправлено
-      },
-      {
-        id: 2,
-        text: 'Халва — это кредитная или дебетовая карта?',
-        direction: false,
-        created_at: '05.01.2022 14:26:08',
-        user: 'Большаковa Галина',
-        status: 'delivered' // доставлен
-      },
-      {
-        id: 3,
-        text: '«Халва» — это карта с двойной пользой: можнo покупать в рассрочку, можно хранить свои деньги, расплачиваться ими, зарабатывать кэшбэк и получать проценты на остаток.',
-        direction: true,
-        created_at: '05.01.2022 14:26:08',
-        user: 'Милана Проценко',
-        status: 'read' // прочитано
-      },
-      {
-        id: 4,
-        text: 'Здравствуйте, Галина!',
-        direction: true,
-        created_at: '05.01.2022 14:25:48',
-        user: 'Милана Проценко',
-        status: 'read'
-      },
-      {
-        id: 5,
-        text: 'Халва — это кредитная или дебетовая карта?',
-        direction: false,
-        created_at: '05.01.2022 14:26:08',
-        user: 'Большаковa Галина',
-        status: 'read'
-      },
-      {
-        id: 6,
-        text: '«Халва» — это карта с двойной пользой: можнo покупать в рассрочку, можно хранить свои деньги, расплачиваться ими, зарабатывать кэшбэк и получать проценты на остаток.',
-        direction: true,
-        created_at: '05.01.2022 14:26:08',
-        user: 'Милана Проценко',
-        status: 'read'
-      },
-      {
-        id: 7,
-        text: 'Здравствуйте, Галина!',
-        direction: true,
-        created_at: '05.01.2022 14:25:48',
-        user: 'Милана Проценко',
-        status: 'read'
-      },
-      {
-        id: 8,
-        text: 'Халва — это кредитная или дебетовая карта?',
-        direction: false,
-        created_at: '05.01.2022 14:26:08',
-        user: 'Большаковa Галина',
-        status: 'read'
-      },
-      {
-        id: 9,
-        text: '«Халва» — это карта с двойной пользой: можнo покупать в рассрочку, можно хранить свои деньги, расплачиваться ими, зарабатывать кэшбэк и получать проценты на остаток.',
-        direction: true,
-        created_at: '05.01.2022 14:26:08',
-        user: 'Милана Проценко',
-        status: 'read'
-      }
-    ]
+  @Ref('messageBox') readonly messageBox!: HTMLElement
+  @Ref('messageAnchor') readonly messageAnchor!: HTMLElement
+
+  text = null
+
+  get messagesFetching () { return this.$store.getters['contacts/view/messages/items_fetching'] }
+  get messages () { return this.$store.getters['contacts/view/messages/items'] }
+
+  @Watch('messages')
+  messagesWatch () {
+    setTimeout(() => {
+      // this.messageAnchor.scrollIntoView({
+      //   behavior: 'smooth',
+      //   block: 'end',
+      //   inline: 'nearest'
+      // })
+    }, 0)
+  }
+
+  public created () {
+    this.$root.$on('sse-messenger-message', this.onSSEMessengerMessage)
+  }
+
+  public beforeDestroy () {
+    this.$root.$off('sse-messenger-message', this.onSSEMessengerMessage)
+  }
+
+  private onSSEMessengerMessage () {
+    this.$store.dispatch('contacts/view/messages/fetch', {
+      contact_id: this.$route.params.id
+    })
   }
 
   /**
@@ -183,7 +173,15 @@ export default class ContactsViewChat extends AppBase {
    * @protected
    */
   protected sendMessage () {
-    // Some code
+    this.$axios.post('/chat/messages', {
+      contact_id: this.$route.params.id,
+      text: this.text
+    })
+    this.text = null
+  }
+
+  private onSendEnter () {
+    this.sendMessage()
   }
 
   /**
@@ -206,14 +204,24 @@ export default class ContactsViewChat extends AppBase {
 </script>
 
 <style lang="scss" scoped>
-.app-chat-message-send-tool {
-  box-sizing: border-box;
+.chat-page {
+  height: calc(100vh - 120px);
   display: flex;
-  align-items: center;
-  bottom: 0;
-  height: 4.9rem;
-  width: 100%;
-  background-color: #fff;
-  box-shadow: 0 -5px 10px -5px rgba(0,0,0,.2);
+  flex-direction: column;
+}
+
+.chat-page__top-control {
+
+}
+
+.chat-page__box {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+}
+
+.chat-page__bottom-control {
+  box-sizing: border-box;
 }
 </style>

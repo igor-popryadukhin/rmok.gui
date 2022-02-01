@@ -12,7 +12,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { Prop, PropSync, Ref } from 'vue-property-decorator'
+import { Prop } from 'vue-property-decorator'
 
 @Component
 export default class AppBlockResize extends Vue {
@@ -34,8 +34,6 @@ export default class AppBlockResize extends Vue {
 
 .app-chat-container {
   box-sizing: border-box;
-  height: calc(100vh - 266px);
-  overflow-y: auto;
   padding: 10px;
 }
 </style>

@@ -817,34 +817,34 @@ export default class DefaultLayout extends AppBase {
         icon: 'mdi-chart-arc',
         list_item: {}
       },
-      {
-        title: 'Integrations',
-        active: false,
-        icon: 'mdi-api',
-        visible: this.$isGranted('SECTION_INTEGRATIONS'),
-        children: [
-          {
-            title: 'Integration of contacts',
-            attrs: {
-              to: {
-                name: 'integrations_contacts'
-              }
-            },
-            icon: '',
-            visible: true
-          },
-          {
-            title: 'Project Integration Settings',
-            attrs: {
-              to: {
-                name: 'itegrationset_list'
-              }
-            },
-            icon: 'mdi-arrow-decision-outline',
-            visible: true
-          }
-        ]
-      },
+      // {
+      //   title: 'Integrations',
+      //   active: false,
+      //   icon: 'mdi-api',
+      //   visible: true,
+      //   children: [
+      //     {
+      //       title: 'Integration of contacts',
+      //       attrs: {
+      //         to: {
+      //           name: 'integrations_contacts'
+      //         }
+      //       },
+      //       icon: '',
+      //       visible: true
+      //     },
+      //     {
+      //       title: 'Project Integration Settings',
+      //       attrs: {
+      //         to: {
+      //           name: 'itegrationset_list'
+      //         }
+      //       },
+      //       icon: 'mdi-arrow-decision-outline',
+      //       visible: true
+      //     }
+      //   ]
+      // },
       { divider: true },
       {
         active: false,
@@ -930,13 +930,13 @@ export default class DefaultLayout extends AppBase {
             visible: true
           },
           {
-            attrs: {},
-            on: {
-              click: () => {
-                new Calls().communicationQualityDownload()
+            attrs: {
+              to: {
+                name: 'integrations'
               }
             },
-            title: 'Скачать результаты опроса качества связи',
+            title: 'Integrations',
+            icon: 'mdi-api',
             visible: true
           }
         ],
