@@ -1,9 +1,9 @@
 <template>
   <v-tooltip
+    :bottom="bottom"
     open-delay="1200"
     close-delay="500"
     max-width="300"
-    bottom
   >
     <template #activator="{ on, attrs }">
       <slot
@@ -20,9 +20,12 @@
 
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import { Prop } from 'vue-property-decorator'
 
 @Component
-export default class AppTooltip extends Vue {}
+export default class AppTooltip extends Vue {
+  @Prop({ default: () => true }) readonly bottom!: boolean
+}
 </script>
 
 <style scoped>

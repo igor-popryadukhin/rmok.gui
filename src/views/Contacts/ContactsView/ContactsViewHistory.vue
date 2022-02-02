@@ -20,8 +20,23 @@
           >
             <v-list-item-avatar>
               <!-- Incoming call -->
-              <v-tooltip
-                v-if="item.type === 'call' && item.direction === 'incoming'"
+              <app-tooltip
+                v-if="item.autodialer"
+              >
+                <template #activator="{ on, attrs }">
+                  <v-icon
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    mdi-robot
+                  </v-icon>
+                </template>
+                <span>{{ $tc('Robot caller') }}</span>
+              </app-tooltip>
+
+              <!-- Incoming call -->
+              <app-tooltip
+                v-else-if="item.type === 'call' && item.direction === 'incoming'"
                 bottom
               >
                 <template #activator="{ on, attrs }">
@@ -33,10 +48,10 @@
                   </v-icon>
                 </template>
                 <span>{{ $tc('Incoming call') }}</span>
-              </v-tooltip>
+              </app-tooltip>
 
               <!-- Incoming call canceled -->
-              <v-tooltip
+              <app-tooltip
                 v-else-if="item.type === 'call' && item.direction === 'incoming_canceled'"
                 bottom
               >
@@ -50,10 +65,10 @@
                   </v-icon>
                 </template>
                 <span>{{ $tc('Incoming call canceled') }}</span>
-              </v-tooltip>
+              </app-tooltip>
 
               <!-- Outgoing call -->
-              <v-tooltip
+              <app-tooltip
                 v-else-if="item.type === 'call' && item.direction === 'outgoing'"
                 bottom
               >
@@ -66,10 +81,10 @@
                   </v-icon>
                 </template>
                 <span>{{ $tc('Outgoing call') }}</span>
-              </v-tooltip>
+              </app-tooltip>
 
               <!-- Outgoing call canceled -->
-              <v-tooltip
+              <app-tooltip
                 v-else-if="item.type === 'call' && item.direction === 'outgoing_canceled'"
                 bottom
               >
@@ -83,10 +98,10 @@
                   </v-icon>
                 </template>
                 <span>{{ $tc('Outgoing call canceled') }}</span>
-              </v-tooltip>
+              </app-tooltip>
 
               <!-- Missed -->
-              <v-tooltip
+              <app-tooltip
                 v-else-if="item.type === 'call' && item.direction === 'missed'"
                 bottom
               >
@@ -100,7 +115,7 @@
                   </v-icon>
                 </template>
                 <span>{{ $tc('Missed call') }}</span>
-              </v-tooltip>
+              </app-tooltip>
             </v-list-item-avatar>
             <v-list-item-content>
               <div class="d-flex align-center justify-space-between">
@@ -127,10 +142,10 @@
                   <v-list-item-subtitle>
                     <span class="grey--text">{{ $tc('Duration') }}:</span>
                   </v-list-item-subtitle>
-                  <v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.owner">
                     <span class="grey--text">{{ $tc('Manager') }}:</span>
                   </v-list-item-subtitle>
-                  <v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.comment">
                     <span class="grey--text">{{ $tc('Comment') }}:</span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
@@ -141,17 +156,12 @@
                   <v-list-item-subtitle>
                     <span class="black--text">{{ secondsToHmsDigital(item.call_duration) }}</span>
                   </v-list-item-subtitle>
-                  <v-list-item-subtitle>
-                    <template v-if="item.owner">
-                      <span class="black--text">{{ item.owner.full_name }}</span>
-                    </template>
-                    <template v-else>
-                      —
-                    </template>
+                  <v-list-item-subtitle v-if="item.owner">
+                    <span class="black--text">{{ item.owner.full_name }}</span>
                   </v-list-item-subtitle>
-                  <v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.comment">
                     <span class="black--text">
-                      {{ item.comment || '—' }}
+                      {{ item.comment }}
                     </span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle>
