@@ -96,7 +96,7 @@ import { Route } from 'vue-router/types/router'
 
 @Component({
   beforeRouteEnter (to: Route, from: Route, next) {
-    next(vm => {
+    next((vm) => {
       // Если перешли на страницу авторизации.
       // Следует отключиться от телефонии.
       if (vm.$dialer.isConnected()) {

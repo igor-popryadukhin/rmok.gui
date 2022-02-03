@@ -40,7 +40,7 @@ export default {
   },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size) / 2
+      const size = parseInt(this.size, 10) / 2
       return {
         transform: 'scale(' + (size / 75) + ')'
       }

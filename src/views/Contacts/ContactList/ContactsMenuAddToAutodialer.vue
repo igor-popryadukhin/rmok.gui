@@ -134,7 +134,7 @@ export default class ContactsMenuAddToAutodialer extends AppBase {
   get textSearchWords (): string[] {
     return (this.textSearch || '')
       .split(/\s+/s)
-      .filter(value => !!value)
+      .filter((value) => !!value)
   }
 
   get contactsListSelectedAll (): boolean { return this.$store.getters['contacts/list/selected_all'] }

@@ -205,7 +205,6 @@
 </template>
 
 <script lang="ts">
-
 import { GroupInterface } from '@/api/Groups'
 import Reports from '@/api/Statistics'
 import { UserInterface } from '@/api/Users'

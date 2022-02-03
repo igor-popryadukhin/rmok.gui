@@ -109,7 +109,7 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
     AppLoading
   },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.$store.dispatch('contacts/view/tasks/fetch', to.params.id)
     })
   }

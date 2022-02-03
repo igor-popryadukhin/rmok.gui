@@ -171,7 +171,7 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 @Component({
   components: { AppPaginator, AppNavigationDrawer, AppTable, AppLoading },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.$store.dispatch('users/list/fetch')
     })
   }

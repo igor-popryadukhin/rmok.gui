@@ -65,7 +65,7 @@ export default class SmartAutocomplete extends Vue {
   @Prop({ default: false }) readonly disabled!: boolean
   @Prop({ default: () => [] }) readonly errorMessages!: string[]
   @Prop({ default: () => [] }) readonly successMessages!: string[]
-  @Prop({ default: (item: any) => { return true } }) readonly filter!: CallableFunction
+  @Prop({ default: (item: any) => true }) readonly filter!: CallableFunction
 
   @Prop({ default: null, required: true }) readonly apiEndPoint!: string
   @Prop({ default: null, required: true }) readonly storeModuleName!: string

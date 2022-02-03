@@ -41,7 +41,7 @@ export default {
       }
     },
     outerWidth () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return this.calcWidth(size)
     },
     styles () {

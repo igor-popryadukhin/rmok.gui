@@ -127,7 +127,7 @@ import ContactsTools from './ContactsTools.vue'
     ContactsTools
   },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       if ((vm.$store.getters['contacts/list/items'] as Array<Contact>).length === 0) {
         vm.$store.dispatch('contacts/list/fetch')
       }

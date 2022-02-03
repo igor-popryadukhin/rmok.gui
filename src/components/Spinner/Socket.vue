@@ -207,7 +207,7 @@ export default {
   },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         transform: 'scale(' + (size / 220) + ')'
       }

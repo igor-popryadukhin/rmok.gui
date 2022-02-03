@@ -250,7 +250,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
     new ProjectIntegrationSettings()
       .getById(+to.params.id)
       .then(async (response: ProfileInterface) => {
-        next(vm => {
+        next((vm) => {
           vm.profile.name = response.name
           vm.profile.external_project_id = response.external_project_id
           vm.profile.main_tag = response.main_tag

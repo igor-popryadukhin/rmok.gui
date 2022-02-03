@@ -32,7 +32,7 @@ export default {
       }
     },
     styles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         height: this.size,
         transform: 'scale(' + (size / 75) + ')',

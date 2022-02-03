@@ -111,7 +111,7 @@ import { Ref, Watch } from 'vue-property-decorator'
 @Component({
   components: { AppLoading, AppChatMessage, AppChat },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.$store.dispatch('contacts/view/messages/fetch', {
         contact_id: to.params.id
       })
@@ -156,7 +156,7 @@ export default class ContactsViewChat extends AppBase {
    * Закрываем диалог
    * @protected
    */
-  protected onCloseChatClick () {
+  private onCloseChatClick () {
     // Some code
   }
 
@@ -164,7 +164,7 @@ export default class ContactsViewChat extends AppBase {
    * Передаем диалог другому оператору
    * @protected
    */
-  protected onChangeOwnerClick () {
+  private onChangeOwnerClick () {
     // Some code
   }
 
@@ -172,7 +172,7 @@ export default class ContactsViewChat extends AppBase {
    * Отправить сообщение
    * @protected
    */
-  protected sendMessage () {
+  private sendMessage () {
     this.$axios.post('/chat/messages', {
       contact_id: this.$route.params.id,
       text: this.text
@@ -188,7 +188,7 @@ export default class ContactsViewChat extends AppBase {
    * Прикрепляем медиа файлы
    * @protected
    */
-  protected onAttachMediaFiles () {
+  private onAttachMediaFiles () {
     // Some code
   }
 
@@ -196,7 +196,7 @@ export default class ContactsViewChat extends AppBase {
    * Выбрать шаблон сообщения
    * @protected
    */
-  protected onSelectTemplateMessage () {
+  private onSelectTemplateMessage () {
     // Some code
   }
 }

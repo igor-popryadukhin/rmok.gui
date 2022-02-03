@@ -92,7 +92,7 @@ import { Prop } from 'vue-property-decorator'
 @Component<TasksList>({
   components: { AppLoading },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.$store.dispatch(to.path.substring(1) + '/list/fetch')
     })
   },

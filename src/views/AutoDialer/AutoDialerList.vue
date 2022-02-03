@@ -220,7 +220,7 @@ export default class AutoDialerList extends Vue {
       .catch((e: Error) => {
         this.$toast.error(this.$tc(e.message))
       }).finally(() => {
-        const index = this.processItemAction.findIndex(value => value === item.id)
+        const index = this.processItemAction.findIndex((value) => value === item.id)
         if (index > -1) {
           this.processItemAction.splice(index, 1)
         }
@@ -238,7 +238,7 @@ export default class AutoDialerList extends Vue {
       .catch((e: Error) => {
         this.$toast.error(this.$tc(e.message))
       }).finally(() => {
-        const index = this.processItemAction.findIndex(value => value === item.id)
+        const index = this.processItemAction.findIndex((value) => value === item.id)
         if (index > -1) {
           this.processItemAction.splice(index, 1)
         }

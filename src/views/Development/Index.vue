@@ -50,14 +50,14 @@ export default class AutoDialerView extends Base {
           browser.platform.type,
           browser.platform.vendor,
           browser.platform.model
-        ].filter(e => e).join(', ')
+        ].filter((e) => e).join(', ')
       },
       {
         title: 'Engine',
         value: [
           browser.engine.name,
           browser.engine.version
-        ].filter(e => e).join(' ')
+        ].filter((e) => e).join(' ')
       },
       {
         title: 'Unique identifier for the tab',

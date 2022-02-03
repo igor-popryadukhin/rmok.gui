@@ -30,14 +30,14 @@ export default {
   },
   computed: {
     diamondStyle () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         height: size / 4 + 'px',
         width: size / 4 + 'px'
       }
     },
     styles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         height: size / 4 + 'px',
         width: this.size

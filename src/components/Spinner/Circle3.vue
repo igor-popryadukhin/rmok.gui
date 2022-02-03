@@ -12,7 +12,7 @@ export default {
     },
     dotSize: {
       default () {
-        const size = parseInt(this.size)
+        const size = parseInt(this.size, 10)
         return size / 3 + 1
       }
     },
@@ -22,7 +22,7 @@ export default {
   },
   computed: {
     styles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       const halfSize = size / 3
       return {
         border: '0px solid ' + this.background,

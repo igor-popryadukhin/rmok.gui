@@ -112,7 +112,7 @@ export default class AppScheduleWeek extends Vue {
   @Watch('schedule', { deep: true })
   valueWatchHandler (val) {
     if (val) {
-      this.matrix = this.matrix.map(value => {
+      this.matrix = this.matrix.map((value) => {
         value.selected = false
         return value
       })
@@ -168,7 +168,7 @@ export default class AppScheduleWeek extends Vue {
     }
 
     const schedule = this.schedule.map((e) => ({ ...e }))
-    this.matrix = this.matrix.map(value => {
+    this.matrix = this.matrix.map((value) => {
       value.selected = false
       return value
     })
@@ -183,7 +183,7 @@ export default class AppScheduleWeek extends Vue {
 
   private onMouseUpCtrl (itemDay: any, event: MouseEvent) {
     event.preventDefault()
-    this.matrix = this.matrix.map(value => {
+    this.matrix = this.matrix.map((value) => {
       if (itemDay.d === value.schedule.day) { value.selected = false }
       return value
     })

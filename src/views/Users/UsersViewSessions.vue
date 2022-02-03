@@ -75,7 +75,7 @@ import AppTable from '@/components/AppTable/AppTable.vue'
 @Component<UsersViewSessions>({
   components: { AppTable, AppLoading },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       if (vm.sessions.length === 0) {
         vm.loading = true
         vm.$store.dispatch('users/view/sessions/fetch')

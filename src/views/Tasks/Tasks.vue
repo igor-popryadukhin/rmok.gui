@@ -79,7 +79,7 @@ import TasksFilters from './TasksFilters.vue'
 @Component<Tasks>({
   components: { AppAutocomplete, TasksFilters, AppNavigationDrawer, AppBtnToggleDate },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.calculateTasksCount()
     })
   }

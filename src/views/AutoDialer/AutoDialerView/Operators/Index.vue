@@ -226,11 +226,11 @@ export default class Index extends AppBase {
         if (response.status === 200) {
           if (this.avUsersCached.length === 0) {
             // Сработает один раз!
-            this.avUsersCached = (response.data.data || []).map(value => value)
+            this.avUsersCached = (response.data.data || []).map((value) => value)
             filterItems(q)
           } else {
             for (const item of (response.data.data || [])) {
-              if (this.avUsersCached.findIndex(value => value.id === item.id) === -1) {
+              if (this.avUsersCached.findIndex((value) => value.id === item.id) === -1) {
                 this.avUsersCached.push(Object.assign({}, item))
               }
             }

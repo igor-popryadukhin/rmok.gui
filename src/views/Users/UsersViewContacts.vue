@@ -11,7 +11,6 @@
 </template>
 
 <script lang="ts">
-
 import AppBase from '@/AppBase'
 import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue'
 import ProjectsItems from '@/views/Projects/ProjectsItems.vue'

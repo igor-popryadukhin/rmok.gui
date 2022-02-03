@@ -1412,7 +1412,7 @@ export default class DefaultLayout extends AppBase {
           appDebug.extend('SSE').extend('SYSTEM-NOTIFICATION')('%o', obj)
 
           const notifications = this.notificationsItems.map((value) => value)
-          if (notifications.findIndex(value => value.id === obj.id) === -1) {
+          if (notifications.findIndex((value) => value.id === obj.id) === -1) {
             notifications.unshift(obj)
             this.notificationsItems = notifications
             this.notificationsCount++

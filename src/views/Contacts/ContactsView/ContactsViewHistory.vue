@@ -241,7 +241,7 @@ import Component from 'vue-class-component'
 @Component<ContactsViewHistory>({
   components: { AppLoading },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.$store.dispatch('contacts/view/history/fetch', to.params.id)
     })
   }

@@ -175,7 +175,6 @@
 </template>
 
 <script lang="ts">
-
 import { GroupInterface } from '@/api/Groups'
 import Statistics from '@/api/Statistics'
 import { ContactTagInterface } from '@/api/Schemas/ContactInterface'
@@ -386,7 +385,7 @@ export default (Vue as VueConstructor<VInterface>).extend({
     // Восстановление фильтра тегов после перезагрузки
     if (this.$routerQuery.hasQuery('tag_ids')) {
       const tag_ids = this.$routerQuery.getQuery('tag_ids').split(',')
-      this.$data.filter.tags = tag_ids.map(value => +value)
+      this.$data.filter.tags = tag_ids.map((value) => +value)
     }
 
     // Инициализирую слежку за состоянием фильтров после того как будут проинициализированы все фильтры

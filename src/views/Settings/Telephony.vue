@@ -282,7 +282,6 @@
 </template>
 
 <script lang="ts">
-
 import APIError from '@/api/classes/APIError'
 import PBXConfiguration, { Credentials, RTCConfiguration, RTCIceServer } from '@/api/interfaces/PBXConfiguration'
 import AppBase from '@/AppBase'

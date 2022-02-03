@@ -138,7 +138,7 @@ export default class ContactsTransferDialog extends AppBase {
   }
 
   private onAppAutocompleteUsersChipCloseClick (userId: number) {
-    this.userIds = this.userIds.filter(id => id !== userId)
+    this.userIds = this.userIds.filter((id) => id !== userId)
   }
 
   private onSearchUsers (q = '') {

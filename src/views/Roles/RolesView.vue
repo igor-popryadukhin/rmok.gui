@@ -80,7 +80,7 @@ Vue.use(Vuelidate)
   components: { AppLoading },
   mixins: [rules, validationMixin],
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       loadLanguageAsync('ru', 'messages')
       vm.$store.dispatch('roles/edit/fetch')
         .catch((reason: Error) => {

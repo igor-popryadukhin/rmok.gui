@@ -282,7 +282,6 @@
 </template>
 
 <script lang="ts">
-
 import APIError from '@/api/classes/APIError'
 import PBXConfiguration, { Credentials, RTCConfiguration, RTCIceServer } from '@/api/interfaces/PBXConfiguration'
 import AppBase from '@/AppBase'
@@ -477,7 +476,7 @@ export default class UsersViewTelephony extends AppBase {
    *
    * @param index
    */
-  deleteICEServer (index: number) {
+  private deleteICEServer (index: number) {
     // eslint-disable-next-line no-undef
     const iceServers = JSON.parse(JSON.stringify(this.rtcICEServers)) as RTCIceServer[]
 

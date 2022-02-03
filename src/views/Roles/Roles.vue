@@ -93,7 +93,7 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 @Component({
   components: { AppLoading },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.$store.dispatch('roles/fetch')
     })
   }

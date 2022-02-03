@@ -216,7 +216,7 @@ import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
 @Component<Contacts>({
   components: { AppConfirmDialog, AppPaginator, AppLoading },
   beforeRouteEnter (to, from, next) {
-    next(vm => {
+    next((vm) => {
       vm.itemsFetching = true
       vm.$store.dispatch('autodialer/view/calls/fetch', to.params.id).finally(() => (vm.itemsFetching = false))
     })
