@@ -5,16 +5,14 @@ import { ActionContext, ActionTree } from 'vuex'
 import { UserListState } from './state'
 
 const actions: ActionTree<UserListState, RootState> = {
-  fetch: ({ commit }: ActionContext<UserListState, RootState>) => {
+  fetch: ({ commit, state }) => {
     return new Promise<void>((resolve) => {
-      const query: Record<string, Record<string, unknown>> = {}
-
       commit('items_fetching', true)
       $axios.get('/users', {
-        params: query
+        params: Object.assign(state.filter_query, { count: state.items_per_page })
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          commit('total', response.data?.meta?.count || 0)
+          commit('items_total', response.data?.meta?.count || 0)
           commit('items', response.data?.data || [])
           resolve()
         }

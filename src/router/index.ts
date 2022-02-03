@@ -266,65 +266,13 @@ const routes: RouteConfig[] = [
     name: 'users',
     path: '/users',
     component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/Users.vue'),
-    meta: { layout: 'default', middleware: [] },
-    children: [
-      // {
-      //   component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/List.vue'),
-      //   meta: {
-      //     anonymous: true,
-      //     layout: 'default',
-      //     middleware: []
-      //   },
-      //   name: 'users_list',
-      //   path: ''
-      // },
-      // {
-      //   component: () => import(/* webpackChunkName: "users-create" */ '../views/Users/UserCreate.vue'),
-      //   meta: { layout: 'default', middleware: [] },
-      //   name: 'users_create',
-      //   path: 'create'
-      // },
-      // {
-      //   path: ':user_id',
-      //   component: () => import(/* webpackChunkName: "users-edit" */ '../views/Users/UserEdit.vue'),
-      //   children: [
-      //     {
-      //       component: () => import(/* webpackChunkName: "users-edit-main" */ '../views/Users/UserEditMain.vue'),
-      //       meta: { layout: 'default', middleware: [] },
-      //       name: 'users_edit_main',
-      //       path: 'main'
-      //     },
-      //     {
-      //       component: () => import(/* webpackChunkName: "users-edit-telephony" */ '../views/Users/UserEditTelephony.vue'),
-      //       meta: { layout: 'default', middleware: [] },
-      //       name: 'users_edit_telephony',
-      //       path: 'telephony'
-      //     },
-      //     {
-      //       component: () => import(/* webpackChunkName: "users-edit-schedule" */ '../views/Users/UserEditSchedule.vue'),
-      //       meta: { layout: 'default', middleware: [], anonymous: true },
-      //       name: 'users_edit_schedule',
-      //       path: 'schedule'
-      //     },
-      //     {
-      //       component: () => import(/* webpackChunkName: "users-edit-capabilities" */ '../views/Users/UserCapabilities.vue'),
-      //       meta: { layout: 'default', middleware: [], anonymous: true },
-      //       name: 'users_edit_capabilities',
-      //       path: 'capabilities'
-      //     },
-      //     {
-      //       component: () => import(/* webpackChunkName: "users-edit-sessions" */ '../views/Users/UserSessions.vue'),
-      //       meta: { layout: 'default', middleware: [], anonymous: true },
-      //       name: 'users_edit_sessions',
-      //       path: 'sessions'
-      //     }
-      //   ],
-      //   meta: {
-      //     layout: 'default',
-      //     middleware: []
-      //   }
-      // }
-    ]
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    name: 'users_create',
+    path: '/users/create',
+    component: () => import(/* webpackChunkName: "users-create" */ '../views/Users/UsersCreate.vue'),
+    meta: { layout: 'default', middleware: [] }
   },
   {
     name: 'users_view',

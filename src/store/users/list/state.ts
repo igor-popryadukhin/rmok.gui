@@ -1,16 +1,18 @@
 import User from '@/api/interfaces/User'
 
 export interface UserListState {
-  per_page: number;
-  total: number;
+  filter_query: Record<string, unknown>;
+  items_per_page: number;
+  items_total: number;
   items_fetching: boolean;
   items: User[];
 }
 
 export function defaultState (): UserListState {
   return {
-    per_page: 50,
-    total: 0,
+    filter_query: {},
+    items_per_page: 50,
+    items_total: 0,
     items_fetching: false,
     items: []
   }

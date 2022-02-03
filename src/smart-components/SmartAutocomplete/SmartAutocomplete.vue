@@ -2,6 +2,7 @@
   <v-autocomplete
     v-model="vModel"
     :error-messages="errorMessages"
+    :success-messages="successMessages"
     :search-input.sync="query"
     :items="options"
     :item-text="itemText"
@@ -63,6 +64,7 @@ export default class SmartAutocomplete extends Vue {
   @Prop({ default: false }) readonly hideDetails!: boolean
   @Prop({ default: false }) readonly disabled!: boolean
   @Prop({ default: () => [] }) readonly errorMessages!: string[]
+  @Prop({ default: () => [] }) readonly successMessages!: string[]
   @Prop({ default: (item: any) => { return true } }) readonly filter!: CallableFunction
 
   @Prop({ default: null, required: true }) readonly apiEndPoint!: string

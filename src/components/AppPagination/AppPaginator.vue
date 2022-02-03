@@ -90,6 +90,7 @@ export default class AppPaginator extends Vue {
   private onBtnLeftClick () {
     this.page--
     this.offset = Math.ceil(this.page * this.perPage) - +this.perPage
+    this.onBtnClick()
     return {
       page: this.page,
       offset: this.offset
@@ -100,6 +101,15 @@ export default class AppPaginator extends Vue {
   private onBtnRightClick () {
     this.page++
     this.offset = Math.ceil(this.page * this.perPage) - +this.perPage
+    this.onBtnClick()
+    return {
+      page: this.page,
+      offset: this.offset
+    }
+  }
+
+  @Emit('click:btn')
+  private onBtnClick () {
     return {
       page: this.page,
       offset: this.offset

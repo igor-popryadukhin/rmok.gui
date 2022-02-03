@@ -9,6 +9,7 @@
         class="d-flex grow mb-1"
       >
         <v-btn
+          :to="{ name: 'users_create' }"
           text
           tile
           small
@@ -28,9 +29,10 @@
       <v-divider />
 
       <div
-        class="d-flex align-center py-4"
+        class="d-flex align-center py-1"
       >
         <v-text-field
+          v-model="filterQ"
           :label="$t('Search')"
           prepend-inner-icon="mdi-magnify"
           style="max-width: 250px"
@@ -38,14 +40,40 @@
           outlined
           dense
           hide-details
+          @input="onFilterChange"
+        />
+        <v-spacer />
+        <app-paginator
+          v-model="filterOffset"
+          :count="itemsTotal"
+          :per-page="itemsPerPage"
+          :disabled="itemsFetching"
+          @click:btn="onFilterChange"
         />
       </div>
     </div>
 
-    <app-divider />
+    <app-divider :loading="itemsFetching && items.length > 0" />
 
     <div class="users-page__list">
-      <v-list class="mb-16">
+      <div
+        v-if="itemsFetching && items.length === 0"
+        class="d-flex align-center justify-center fill-height"
+      >
+        <app-loading />
+      </div>
+      <div
+        v-else-if="items.length === 0"
+        class="d-flex align-center justify-center fill-height"
+      >
+        <span class="grey--text">
+          {{ $tc('Nothing found.') }}
+        </span>
+      </div>
+      <v-list
+        v-else
+        class="mb-16"
+      >
         <template v-for="item in items">
           <v-list-item
             :key="'v-list-item-' + item.id"
@@ -134,12 +162,14 @@
 import User from '@/api/interfaces/User'
 import AppBase from '@/AppBase'
 import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
 import AppTable from '@/components/AppTable/AppTable.vue'
+import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 @Component({
-  components: { AppNavigationDrawer, AppTable, AppLoading },
+  components: { AppPaginator, AppNavigationDrawer, AppTable, AppLoading },
   beforeRouteEnter (to, from, next) {
     next(vm => {
       vm.$store.dispatch('users/list/fetch')
@@ -148,10 +178,30 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 })
 export default class Users extends AppBase {
   get itemsFetching (): boolean { return this.$store.getters['users/list/items_fetching'] }
+  get itemsTotal (): number { return this.$store.getters['users/list/items_total'] }
+  get itemsPerPage (): number { return this.$store.getters['users/list/items_per_page'] }
   get items (): User[] { return this.$store.getters['users/list/items'] }
 
-  async onBtnAddClick () {
-    // TODO: Add
+  get filterOffset (): number { return this.$store.getters['users/list/filter_query']?.offset || 0 }
+  set filterOffset (val: number) {
+    const obj = JSON.parse(JSON.stringify(this.$store.getters['users/list/filter_query']))
+    obj.offset = val
+    this.$store.commit('users/list/filter_query', obj)
+  }
+
+  get filterQ (): string { return this.$store.getters['users/list/filter_query']?.q || '' }
+  set filterQ (val: string) {
+    const obj = JSON.parse(JSON.stringify(this.$store.getters['users/list/filter_query']))
+    obj.q = val
+    this.$store.commit('users/list/filter_query', obj)
+  }
+
+  public created () {
+    this.onFilterChange = debounce(this.onFilterChange, 350)
+  }
+
+  private onFilterChange () {
+    this.$store.dispatch('users/list/fetch')
   }
 
   private onBtnRefreshClick () {
@@ -166,7 +216,7 @@ export default class Users extends AppBase {
 }
 
 .users-page__tools {
-  height: 100px;
+  height: 77px;
   //display: flex;
   //flex-wrap: nowrap;
   //align-content: center;
@@ -178,9 +228,9 @@ export default class Users extends AppBase {
 }
 
 .users-page__list {
-  height: calc(100% - 100px);
-  height: -moz-calc(100% - 100px);
-  height: -webkit-calc(100% - 100px);
+  height: calc(100% - 77px);
+  height: -moz-calc(100% - 77px);
+  height: -webkit-calc(100% - 77px);
 
   overflow: auto;
 }
