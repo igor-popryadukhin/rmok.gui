@@ -11,6 +11,7 @@ export interface UsersViewState {
   user_last_name: string;
   user_middle_name: string;
   user_login: string;
+  user_password: string|null;
   user_group: UserGroup|null;
   user_role: Role|null;
   user_project: Project|null;
@@ -27,6 +28,7 @@ export function defaultState (): UsersViewState {
     user_last_name: '',
     user_middle_name: '',
     user_login: '',
+    user_password: null,
     user_group: null,
     user_role: null,
     user_project: null,

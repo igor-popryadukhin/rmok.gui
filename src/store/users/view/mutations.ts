@@ -6,6 +6,7 @@ const mutations: MutationTree<UsersViewState> = {
   user_last_name (state: UsersViewState, payload) { state.user_last_name = payload },
   user_middle_name (state: UsersViewState, payload) { state.user_middle_name = payload },
   user_login (state: UsersViewState, payload) { state.user_login = payload },
+  user_password (state: UsersViewState, payload) { state.user_password = payload },
   user_group (state: UsersViewState, payload) { state.user_group = payload },
   user_role (state: UsersViewState, payload) { state.user_role = payload },
   user_project (state: UsersViewState, payload) { state.user_project = payload },
