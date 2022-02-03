@@ -52,6 +52,10 @@ loadLanguageAsync('ru', 'main').then()
 
 const $app: Vue = new Vue({
   i18n,
+  created () {
+    const html = document.documentElement
+    html.setAttribute('lang', 'ru')
+  },
   render: (h) => h(App),
   router,
   store,
