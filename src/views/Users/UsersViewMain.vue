@@ -11,7 +11,7 @@
           dense
           outlined
           flat
-          @change="onChange"
+          @input="onChange"
         />
 
         <v-text-field
@@ -20,7 +20,7 @@
           dense
           outlined
           flat
-          @change="onChange"
+          @input="onChange"
         />
 
         <v-text-field
@@ -29,7 +29,7 @@
           dense
           outlined
           flat
-          @change="onChange"
+          @input="onChange"
         />
       </div>
 
@@ -41,7 +41,7 @@
           dense
           outlined
           flat
-          @change="onChange"
+          @input="onChange"
         />
 
         <v-text-field
@@ -90,17 +90,22 @@
       </div>
 
       <div class="mb-5">
-        <v-select
-          v-model="groupId"
-          :label="$tc('Group')"
+        <smart-autocomplete
+          v-model="groups"
+          :label="$tc('Groups')"
+          :api-query="(q) => { return { q } }"
           :items="groups"
+          api-end-point="/groups"
           item-text="name"
           item-value="id"
-          dense
-          outlined
-          flat
-          @change="onChange"
+          response-property="data"
+          store-module-name="groups"
+          return-object
+          multiple
+          clearable
+          @input="onChange"
         />
+
         <v-select
           v-model="roleId"
           :label="$tc('Role')"
@@ -110,7 +115,7 @@
           dense
           outlined
           flat
-          @change="onChange"
+          @input="onChange"
         />
         <v-select
           v-model="projectId"
@@ -121,7 +126,7 @@
           dense
           outlined
           flat
-          @change="onChange"
+          @input="onChange"
         />
       </div>
 
@@ -153,6 +158,7 @@ import UserGroup from '@/api/interfaces/UserGroup'
 import AppBase from '@/AppBase'
 import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue'
 import { $axios } from '@/plugins/axios'
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
 import { generatePassword } from '@/utils/utils'
 import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
 import ProjectsTools from '@/views/Projects/ProjectsTools.vue'
@@ -161,11 +167,10 @@ import Component from 'vue-class-component'
 
 // eslint-disable-next-line no-use-before-define
 @Component<UsersViewMain>({
-  components: { AppPellEditor, ProjectsTools, ProjectsItems },
+  components: { SmartAutocomplete, AppPellEditor, ProjectsTools, ProjectsItems },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
       if ((vm.$store.getters['roles/items'] as Role[]).length === 0) { vm.$store.dispatch('roles/fetch') }
-      if ((vm.$store.getters['groups/list/items'] as UserGroup[]).length === 0) { vm.$store.dispatch('groups/list/fetch') }
     })
   }
 })
@@ -206,18 +211,14 @@ export default class UsersViewMain extends AppBase {
     }
   }
 
-  get groupId (): number { return (this.$store.getters['users/view/user_group'] as UserGroup)?.id || 0 }
-  set groupId (val: number) {
-    const obj = this.groups.find((e) => e.id === val)
-    if (obj) {
-      this.$store.commit('users/view/user_group', { ...obj })
-    }
+  get groups (): UserGroup[] { return this.$store.getters['users/view/user_groups'] }
+  set groups (val: UserGroup[]) {
+    this.$store.commit('users/view/user_groups', val)
   }
   // Forms
 
   get roles (): Role[] { return this.$store.getters['roles/items'] }
   get projects (): Project[] { return this.$store.getters['users/view/user_projects'] }
-  get groups (): UserGroup[] { return this.$store.getters['groups/list/items'] as UserGroup[] || [] }
 
   public mounted () {
     setTimeout(() => (this.isChanged = false), 1000)
@@ -236,10 +237,10 @@ export default class UsersViewMain extends AppBase {
     requestData.first_name = this.firstName
     requestData.last_name = this.lastName
     requestData.middle_name = this.middleName
+    requestData.group_ids = this.groups.map((e) => e.id)
 
     // Опционально!
     if (this.roleId) { requestData.role_id = this.roleId }
-    if (this.groupId) { requestData.group_id = this.groupId }
     if (this.projectId) { requestData.project_id = this.projectId }
     if (this.password) { requestData.password = this.password }
 

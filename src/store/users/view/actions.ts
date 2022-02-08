@@ -23,7 +23,7 @@ const actions: ActionTree<UsersViewState, RootState> = {
         commit('user_last_name', response.data?.last_name || '')
         commit('user_middle_name', response.data?.middle_name || '')
         commit('user_login', response.data?.login || '')
-        commit('user_group', response.data?.group || null)
+        commit('user_groups', response.data?.groups || [])
         commit('user_role', response.data?.role || null)
         commit('user_project', response.data?.project || null)
         commit('user_projects', response.data?.projects || null)

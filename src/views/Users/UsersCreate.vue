@@ -1,155 +1,154 @@
 <template>
-  <v-sheet>
-    <v-container
-      class="mt-5"
-      style="max-width: 500px"
-    >
-      <div class="mb-5">
-        <v-text-field
-          v-model="request.first_name"
-          :label="$tc('First name')"
-          :error-messages="validatorErrors('first_name', true)"
-          :success-messages="validatorSuccess('first_name')"
-          dense
-          outlined
-          flat
-        />
+  <v-container
+    class="mt-5"
+    style="max-width: 500px"
+  >
+    <div class="mb-5">
+      <v-text-field
+        v-model="request.first_name"
+        :label="$tc('First name')"
+        :error-messages="validatorErrors('first_name', true)"
+        :success-messages="validatorSuccess('first_name')"
+        dense
+        outlined
+        flat
+      />
 
-        <v-text-field
-          v-model="request.last_name"
-          :label="$tc('Last name')"
-          :error-messages="validatorErrors('last_name', true)"
-          :success-messages="validatorSuccess('last_name')"
-          dense
-          outlined
-          flat
-        />
+      <v-text-field
+        v-model="request.last_name"
+        :label="$tc('Last name')"
+        :error-messages="validatorErrors('last_name', true)"
+        :success-messages="validatorSuccess('last_name')"
+        dense
+        outlined
+        flat
+      />
 
-        <v-text-field
-          v-model="request.middle_name"
-          :label="$tc('Middle name')"
-          :error-messages="validatorErrors('middle_name')"
-          :success-messages="validatorSuccess('middle_name')"
-          dense
-          outlined
-          flat
-        />
-      </div>
+      <v-text-field
+        v-model="request.middle_name"
+        :label="$tc('Middle name')"
+        :error-messages="validatorErrors('middle_name')"
+        :success-messages="validatorSuccess('middle_name')"
+        dense
+        outlined
+        flat
+      />
+    </div>
 
-      <div class="mb-5">
-        <v-text-field
-          v-model="request.login"
-          :label="$tc('Login')"
-          :error-messages="validatorErrors('login', true)"
-          :success-messages="validatorSuccess('login')"
-          dense
-          outlined
-          flat
-        />
+    <div class="mb-5">
+      <v-text-field
+        v-model="request.login"
+        :label="$tc('Login')"
+        :error-messages="validatorErrors('login', true)"
+        :success-messages="validatorSuccess('login')"
+        dense
+        outlined
+        flat
+      />
 
-        <v-text-field
-          v-model="request.password"
-          :label="$tc('Password')"
-          :error-messages="validatorErrors('password', true)"
-          :success-messages="validatorSuccess('password')"
-          :type="passwordVisible ? 'text' : 'password'"
-          prepend-inner-icon="mdi-form-textbox-password"
-          autocomplete="new-password"
-          dense
-          outlined
-          flat
-        >
-          <template #append>
-            <v-btn
-              icon
+      <v-text-field
+        v-model="request.password"
+        :label="$tc('Password')"
+        :error-messages="validatorErrors('password', true)"
+        :success-messages="validatorSuccess('password')"
+        :type="passwordVisible ? 'text' : 'password'"
+        prepend-inner-icon="mdi-form-textbox-password"
+        autocomplete="new-password"
+        dense
+        outlined
+        flat
+      >
+        <template #append>
+          <v-btn
+            icon
+            small
+            @click="generatePassword"
+          >
+            <v-icon small>
+              mdi-auto-fix
+            </v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            small
+            @click="passwordVisible = !passwordVisible"
+          >
+            <v-icon
+              v-if="passwordVisible"
               small
-              @click="generatePassword"
             >
-              <v-icon small>
-                mdi-auto-fix
-              </v-icon>
-            </v-btn>
-            <v-btn
-              icon
+              mdi-eye-outline
+            </v-icon>
+            <v-icon
+              v-else
               small
-              @click="passwordVisible = !passwordVisible"
             >
-              <v-icon
-                v-if="passwordVisible"
-                small
-              >
-                mdi-eye-outline
-              </v-icon>
-              <v-icon
-                v-else
-                small
-              >
-                mdi-eye-off-outline
-              </v-icon>
-            </v-btn>
-          </template>
-        </v-text-field>
-      </div>
+              mdi-eye-off-outline
+            </v-icon>
+          </v-btn>
+        </template>
+      </v-text-field>
+    </div>
 
-      <div class="mb-5">
-        <smart-autocomplete
-          v-model="request.group_id"
-          :label="$tc('Group')"
-          :api-query="(q) => { return { q } }"
-          :error-messages="validatorErrors('group_id')"
-          :success-messages="validatorSuccess('group_id')"
-          api-end-point="/groups"
-          item-text="name"
-          item-value="id"
-          response-property="data"
-          store-module-name="groups"
-          clearable
-        />
+    <div class="mb-5">
+      <smart-autocomplete
+        v-model="request.group_ids"
+        :label="$tc('Group')"
+        :api-query="(q) => { return { q } }"
+        :error-messages="validatorErrors('group_ids')"
+        :success-messages="validatorSuccess('group_ids')"
+        api-end-point="/groups"
+        item-text="name"
+        item-value="id"
+        response-property="data"
+        store-module-name="groups"
+        multiple
+        clearable
+      />
 
-        <smart-autocomplete
-          v-model="request.role_id"
-          :label="$tc('Role')"
-          :error-messages="validatorErrors('role_id', true)"
-          :success-messages="validatorSuccess('role_id')"
-          api-end-point="/roles"
-          item-text="name"
-          item-value="id"
-          response-property="data"
-          store-module-name="roles"
-          clearable
-        />
+      <smart-autocomplete
+        v-model="request.role_id"
+        :label="$tc('Role')"
+        :error-messages="validatorErrors('role_id', true)"
+        :success-messages="validatorSuccess('role_id')"
+        api-end-point="/roles"
+        item-text="name"
+        item-value="id"
+        response-property="data"
+        store-module-name="roles"
+        clearable
+      />
 
-        <smart-autocomplete
-          v-model="request.country_id"
-          :label="$tc('Country')"
-          :error-messages="validatorErrors('country_id')"
-          :success-messages="validatorSuccess('country_id')"
-          api-end-point="/database/countries"
-          item-text="name"
-          item-value="id"
-          store-module-name="countries"
-          clearable
-        />
-      </div>
+      <smart-autocomplete
+        v-model="request.country_id"
+        :label="$tc('Country')"
+        :error-messages="validatorErrors('country_id')"
+        :success-messages="validatorSuccess('country_id')"
+        api-end-point="/database/countries"
+        item-text="name"
+        item-value="id"
+        store-module-name="countries"
+        clearable
+      />
+    </div>
 
-      <v-divider class="mb-2" />
+    <v-divider class="mb-2" />
 
-      <div class="mb-5">
-        <v-btn
-          :loading="conservationProcess"
-          :disabled="validatorIsInvalid"
-          tile
-          text
-          outlined
-          @click="userCreate"
-        >
-          {{ $tc('Create') }}
-        </v-btn>
-      </div>
+    <div class="mb-5">
+      <v-btn
+        :loading="conservationProcess"
+        :disabled="validatorIsInvalid"
+        tile
+        text
+        outlined
+        @click="userCreate"
+      >
+        {{ $tc('Create') }}
+      </v-btn>
+    </div>
 
-      <div class="mb-16" />
-    </v-container>
-  </v-sheet>
+    <div class="mb-16" />
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -191,7 +190,7 @@ export default class UsersCreate extends AppBase {
     login: null,
     password: null,
     role_id: null,
-    group_id: null,
+    group_ids: null,
     country_id: null
   }
 

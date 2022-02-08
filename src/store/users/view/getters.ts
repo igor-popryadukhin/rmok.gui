@@ -8,7 +8,7 @@ const getters: GetterTree<UsersViewState, RootState> = {
   user_middle_name (state: UsersViewState) { return state.user_middle_name },
   user_login (state: UsersViewState) { return state.user_login },
   user_password (state: UsersViewState) { return state.user_password },
-  user_group (state: UsersViewState) { return state.user_group },
+  user_groups (state: UsersViewState) { return state.user_groups },
   user_role (state: UsersViewState) { return state.user_role },
   user_project (state: UsersViewState) { return state.user_project },
   user_projects (state: UsersViewState) { return state.user_projects },

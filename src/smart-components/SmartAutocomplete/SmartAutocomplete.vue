@@ -55,6 +55,7 @@ export default class SmartAutocomplete extends Vue {
   @Prop({ default: 'text' }) readonly itemText!: string
   @Prop({ default: 'value' }) readonly itemValue!: string
   @Prop({ default: null }) readonly itemColor!: string
+  @Prop({ default: () => [] }) readonly items!: any[]
   @Prop({ default: null }) readonly label!: string
   @Prop({ default: false }) readonly clearable!: boolean
   @Prop({ default: false }) readonly multiple!: boolean
@@ -94,6 +95,16 @@ export default class SmartAutocomplete extends Vue {
     this.searchInServer(val)
   }
 
+  @Watch('items')
+  itemsWatchHandler (items: any[]) {
+    this.optionsSynchronize(items)
+  }
+
+  @Watch('vModel')
+  vModelWatchHandler (val: any[]|any) {
+    this.$emit('change', val)
+  }
+
   public created () {
     this.searchInServer = debounce(this.searchInServer, 450)
 
@@ -108,6 +119,8 @@ export default class SmartAutocomplete extends Vue {
         mutations: { options (state, payload) { state.options = payload } }
       })
     }
+
+    this.optionsSynchronize(this.items)
   }
 
   /**
@@ -116,7 +129,7 @@ export default class SmartAutocomplete extends Vue {
    * @private
    */
   private searchInServer (q = '') {
-    if (q === '' && this.options.length) {
+    if (!q && this.options.length) {
       return
     }
 
@@ -156,6 +169,22 @@ export default class SmartAutocomplete extends Vue {
 
         this.options = options
       }).finally(() => (this.loading = false))
+  }
+
+  /**
+   *
+   * @param items
+   * @private
+   */
+  private optionsSynchronize(items: any[]) {
+    const options = JSON.parse(JSON.stringify(this.options)) as Array<Record<string, unknown>>
+    items
+      .forEach((e1) => {
+        if (options.findIndex((e2) => e2[this.itemValue] === e1[this.itemValue]) === -1) {
+          options.push(e1)
+        }
+      })
+    this.options = options
   }
 }
 </script>

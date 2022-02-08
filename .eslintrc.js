@@ -7,7 +7,6 @@ module.exports = {
 
   extends: [
     'plugin:vue/recommended',
-    '@vue/standard',
     '@vue/typescript/recommended'
   ],
 
@@ -27,44 +26,7 @@ module.exports = {
 
   root: true,
 
-  rules: {
-    '@typescript-eslint/naming-convention': [
-      'error',
-      {
-        format: [
-          'camelCase',
-          'strictCamelCase',
-          'PascalCase',
-          'StrictPascalCase',
-          'snake_case',
-          'UPPER_CASE'
-        ],
-        leadingUnderscore: 'allow',
-        selector: 'default',
-        trailingUnderscore: 'allow'
-      }
-    ],
-    camelcase: 'off',
-    indent: ['error', 2, {
-      FunctionDeclaration: {
-        body: 1,
-        parameters: 2
-      },
-      ImportDeclaration: 1,
-      MemberExpression: 1,
-      ObjectExpression: 1,
-      SwitchCase: 1,
-      VariableDeclarator: {
-        const: 3,
-        let: 2,
-        var: 2
-      }
-    }],
-    'no-console': 'off',
-    'no-control-regex': 'off',
-    'no-debugger': 'off'
-    // 'sort-keys-fix/sort-keys-fix': 'warn'
-  },
+  rules: {},
 
   overrides: [
     {

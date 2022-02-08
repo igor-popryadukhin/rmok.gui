@@ -30,7 +30,6 @@ export default class Ws {
           secure: true,
           transports: ['websocket', 'polling'],
           auth: (cb) => {
-            // eslint-disable-next-line standard/no-callback-literal
             cb({
               token: typeof this.cbToken === 'function' ? this.cbToken() : ''
             })

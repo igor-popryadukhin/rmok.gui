@@ -12,7 +12,7 @@ export interface UsersViewState {
   user_middle_name: string;
   user_login: string;
   user_password: string|null;
-  user_group: UserGroup|null;
+  user_groups: UserGroup[];
   user_role: Role|null;
   user_project: Project|null;
   user_projects: Project[];
@@ -29,7 +29,7 @@ export function defaultState (): UsersViewState {
     user_middle_name: '',
     user_login: '',
     user_password: null,
-    user_group: null,
+    user_groups: [],
     user_role: null,
     user_project: null,
     user_projects: null,
