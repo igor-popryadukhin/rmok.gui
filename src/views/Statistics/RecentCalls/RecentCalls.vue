@@ -6,9 +6,27 @@
       class="pa-3"
       outlined
     >
+      <!--      <v-banner-->
+      <!--        class="d-flex flex-row justify-space-between mb-2"-->
+      <!--        color="primary"-->
+      <!--        dark-->
+      <!--      >-->
+      <!--        <div>-->
+      <!--          Отчёт показывает только последние звонки клиентам.-->
+      <!--          Если клиенту звонили несколько раз, то будет показан результат последнего звонка.-->
+      <!--          По данным в отчёте оценивайте качество базы и контролируйте, чем завершилась работа с клиентом.-->
+      <!--        </div>-->
+      <!--        <div>-->
+      <!--          <v-btn icon>-->
+      <!--            <v-icon>-->
+      <!--              mdi-close-->
+      <!--            </v-icon>-->
+      <!--          </v-btn>-->
+      <!--        </div>-->
+      <!--      </v-banner>-->
       <v-row class="mb-5">
         <v-col>
-          <v-sheet
+          <div
             class="d-flex flex-wrap align-start justify-start mb-sm-2 mb-md-2"
           >
             <!-- Статистическая сводка -->
@@ -33,7 +51,7 @@
               :height="130"
             />
             <!-- Статистическая сводка -->
-          </v-sheet>
+          </div>
           <v-divider v-if="['sm', 'md'].includes($vuetify.breakpoint.name)" />
         </v-col>
         <v-col
@@ -73,17 +91,17 @@
         />
       </div>
 
-      <v-divider class="mb-2" />
+      <app-divider :loading="historyFetching && historyItems.length > 0" />
 
       <div
-        v-if="isFetchStatistic && items.length === 0"
+        v-if="isFetchStatistic && historyItems.length === 0"
         class="d-flex align-center justify-center"
         :style="{height: `${height}px`}"
       >
         <app-loading />
       </div>
       <div
-        v-else-if="items.length === 0"
+        v-else-if="historyItems.length === 0"
         class="d-flex align-center justify-center"
         :style="{height: `${height}px`}"
       >
@@ -126,7 +144,7 @@
             </tr>
           </thead>
           <tbody>
-            <template v-for="(item, key) in items">
+            <template v-for="(item, key) in historyItems">
               <tr
                 :key="key"
               >
@@ -142,7 +160,7 @@
                 <!-- Имя контакта -->
                 <td class="column-client text-no-wrap">
                   <router-link :to="{ name: 'contacts_view', params: {id: item.contact.id}}">
-                    {{ item.contact.full_name }}
+                    {{ item.contact.name }}
                   </router-link>
                 </td>
                 <!-- Имя контакта -->
@@ -181,7 +199,7 @@
                 <!-- Менеджер -->
                 <td class="column-manager text-no-wrap">
                   <template v-if="item.owner">
-                    {{ item.owner.full_name }}
+                    {{ item.owner.name }}
                   </template>
                   <template v-else>
                     —
@@ -217,17 +235,17 @@
 
 <script lang="ts">
 import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
-import RecentCallsFilters from '@/views/Statistics/RecentCalls/RecentCallsFilters.vue'
-import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import AppCountUp from '@/components/AppCountup/AppCountup.vue'
-import AppSummary from '@/components/AppSummary/AppSummary.vue'
-import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
 import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
+import AppSummary from '@/components/AppSummary/AppSummary.vue'
+import debounce from '@/utils/debounce'
+import RecentCallsFilters from '@/views/Statistics/RecentCalls/RecentCallsFilters.vue'
 import RecentCallsTools from '@/views/Statistics/RecentCalls/RecentCallsTools.vue'
+import Component from 'vue-class-component'
 
 // eslint-disable-next-line no-use-before-define
 @Component<RecentCalls>({
@@ -251,32 +269,72 @@ export default class RecentCalls extends AppBase {
     return 600
   }
 
-  get items (): Array<Record<string, unknown>> { return this.$store.getters['statistics/recent_calls/history'] }
+  get filterPanelVisible () {
+    return this.$store.getters['statistics/recent_calls/filter/panel_visible']
+  }
 
-  get filterPanelVisible () { return this.$store.getters['statistics/recent_calls/filter/panel_visible'] }
-  set filterPanelVisible (value: boolean) { this.$store.commit('statistics/recent_calls/filter/panel_visible', value) }
+  set filterPanelVisible (value: boolean) {
+    this.$store.commit('statistics/recent_calls/filter/panel_visible', value)
+  }
 
   // Данные круговой диаграммы
-  get pieLabels () { return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_labels'])) }
-  get pieColors () { return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_colors'])) }
-  get pieSeries () { return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_series'])) }
+  get pieLabels () {
+    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_labels']))
+  }
+
+  get pieColors () {
+    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_colors']))
+  }
+
+  get pieSeries () {
+    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_series']))
+  }
 
   // Данные круговой диаграмм
-  get historyFetching () { return this.$store.getters['statistics/recent_calls/history_fetching'] }
+  get historyFetching () {
+    return this.$store.getters['statistics/recent_calls/history_fetching']
+  }
+
   // Количество прозвоненных клиентов в соответствии установленными параметрами фильтров
-  get historyCount () { return this.$store.getters['statistics/recent_calls/history_count'] }
+  get historyCount () {
+    return this.$store.getters['statistics/recent_calls/history_count']
+  }
 
-  get totalCalls () { return this.$store.getters['statistics/recent_calls/total_calls'] }
-  get totalCallsFetching (): boolean { return this.$store.getters['statistics/recent_calls/total_calls_fetching'] }
+  get historyItems (): Array<Record<string, unknown>> {
+    return this.$store.getters['statistics/recent_calls/history']
+  }
 
-  get filterOffset () { return this.$store.getters['statistics/recent_calls/filter/offset'] }
-  set filterOffset (val: number) { this.$store.commit('statistics/recent_calls/filter/offset', val) }
+  get totalCalls () {
+    return this.$store.getters['statistics/recent_calls/total_calls']
+  }
 
-  get orderBy () { return this.$store.getters['statistics/recent_calls/filter/order_by'] }
-  set orderBy (val: string) { this.$store.commit('statistics/recent_calls/filter/order_by', val) }
+  get totalCallsFetching (): boolean {
+    return this.$store.getters['statistics/recent_calls/total_calls_fetching']
+  }
 
-  get orderDirection () { return this.$store.getters['statistics/recent_calls/filter/order_direction'] }
-  set orderDirection (val: string) { this.$store.commit('statistics/recent_calls/filter/order_direction', val) }
+  get filterOffset () {
+    return this.$store.getters['statistics/recent_calls/filter/offset']
+  }
+
+  set filterOffset (val: number) {
+    this.$store.commit('statistics/recent_calls/filter/offset', val)
+  }
+
+  get orderBy () {
+    return this.$store.getters['statistics/recent_calls/filter/order_by']
+  }
+
+  set orderBy (val: string) {
+    this.$store.commit('statistics/recent_calls/filter/order_by', val)
+  }
+
+  get orderDirection () {
+    return this.$store.getters['statistics/recent_calls/filter/order_direction']
+  }
+
+  set orderDirection (val: string) {
+    this.$store.commit('statistics/recent_calls/filter/order_direction', val)
+  }
 
   get appBtnSorting () {
     return {
@@ -285,7 +343,10 @@ export default class RecentCalls extends AppBase {
     }
   }
 
-  set appBtnSorting ({ order_by, order_direction }) {
+  set appBtnSorting ({
+    order_by,
+    order_direction
+  }) {
     this.orderBy = order_by
     this.orderDirection = order_direction
   }
@@ -310,10 +371,15 @@ export default class RecentCalls extends AppBase {
 
   private async fetchStatistic () {
     this.isFetchStatistic = true
-    await this.$store.dispatch('statistics/recent_calls/fetch_total_calls')
-    await this.$store.dispatch('statistics/recent_calls/fetch_pie')
-    await this.$store.dispatch('statistics/recent_calls/fetch_history')
-    this.isFetchStatistic = false
+    Promise.all(
+      [
+        this.$store.dispatch('statistics/recent_calls/fetch_total_calls'),
+        this.$store.dispatch('statistics/recent_calls/fetch_pie'),
+        this.$store.dispatch('statistics/recent_calls/fetch_history')
+      ]
+    ).finally(() => {
+      this.isFetchStatistic = false
+    })
   }
 
   private fetchStatisticHistory () {
@@ -329,31 +395,44 @@ export default class RecentCalls extends AppBase {
 
 <style lang="scss">
 
-.simple-table {}
-.simple-table thead th {}
-.simple-table tr {}
+.simple-table {
+}
+
+.simple-table thead th {
+}
+
+.simple-table tr {
+}
+
 .simple-table tr td {
   height: 25px !important;
   font-size: 12px !important;
 }
+
 .column-datetime {
   width: 10px;
 }
+
 .column-client {
   width: auto;
 }
+
 .column-status-result {
   width: 10px;
 }
+
 .column-comment {
   width: 10px;
 }
+
 .column-duration {
   width: 10px;
 }
+
 .column-manager {
   width: 10px;
 }
+
 .column-action {
   width: 10px;
 }
