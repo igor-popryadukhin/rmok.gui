@@ -186,7 +186,7 @@
 
                 <!-- Комментарий -->
                 <td class="column-comment text-no-wrap">
-                  {{ $string.truncate(item.comment, 20) }}
+                  {{ $string.truncate(item.comment || '', 20) }}
                 </td>
                 <!-- Комментарий -->
 
