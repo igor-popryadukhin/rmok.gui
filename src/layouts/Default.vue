@@ -1219,7 +1219,7 @@ export default class DefaultLayout extends AppBase {
 
     // Оператор уходит на паузу, входящие поступать не будут.
     this.$axios.put('/account/dnd/true', {
-      reason: 'speak'
+      reason: 'Post-processing after call completion'
     })
   }
 
