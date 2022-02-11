@@ -83,7 +83,7 @@
       v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
       v-model="userId"
       :label="$tc('Responsible')"
-      :filter="(item) => item.project.id === projectId"
+      :filter="(item) => item.project && item.project.id === projectId"
       :api-query="(q) => { return {q, project_id: projectId} }"
       api-end-point="/users"
       item-text="full_name"
@@ -104,7 +104,7 @@
     />
 
     <v-select
-      v-model="calling"
+      v-model="called"
       label="Прозвонено"
       :items="callingOptions"
       item-text="text"
@@ -218,7 +218,7 @@ import Component from 'vue-class-component'
 })
 export default class ContactListFilters extends AppBase {
   /** Текущий проект пользователя */
-  get profileProjectId (): number { return this.$store.getters['profile/project/id'] }
+  get profileProjectId (): number { return this.$store.getters['profile/project']?.id || 0 }
 
   // region Параметры запроса
   get q (): string|null { return this.$store.getters['contacts/list/filter/filter_q'] }
@@ -262,9 +262,9 @@ export default class ContactListFilters extends AppBase {
 
   set task (val: string) { this.$store.commit('contacts/list/filter/filter_task', val) }
 
-  get calling (): string { return this.$store.getters['contacts/list/filter/filter_calling'] }
+  get called (): string { return this.$store.getters['contacts/list/filter/filter_called'] }
 
-  set calling (val: string) { this.$store.commit('contacts/list/filter/filter_calling', val) }
+  set called (val: string) { this.$store.commit('contacts/list/filter/filter_called', val) }
 
   get tagIds (): number[] {
     return this.$store.getters['contacts/list/filter/filter_tag_ids']

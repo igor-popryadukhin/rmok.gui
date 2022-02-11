@@ -5,13 +5,8 @@
       @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
     />
 
-    <v-progress-linear
-      v-if="contactsLoading"
-      height="4"
-      indeterminate
-    />
     <app-divider
-      v-else
+      :loading="contactsLoading && contacts.length"
     />
 
     <!-- Контакт лист -->
@@ -51,9 +46,9 @@
           <app-loading />
         </div>
       </template>
-      <template #[`item.name`]="{ item }">
+      <template #[`item.full_name`]="{ item }">
         <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
-          {{ item.name }}
+          {{ item.full_name }}
         </router-link>
       </template>
       <template #[`item.status`]="{ item }">
@@ -141,7 +136,7 @@ export default class Contacts extends AppBase {
         text: 'Контакт',
         align: 'start',
         sortable: false,
-        value: 'name'
+        value: 'full_name'
       },
       {
         text: 'Статус',
@@ -175,8 +170,8 @@ export default class Contacts extends AppBase {
       .map((e) => {
         return {
           id: e.id,
-          name: e.name,
-          status: e?.last_status || '—',
+          full_name: e.full_name,
+          status: e?.status || '—',
           owner: e?.owner?.full_name || '—',
           project: e?.project?.name || '—',
           last_call_at: e?.last_call_at ? this.$dayjs(e?.last_call_at).format('DD.MM.YYYY HH:mm') : ''

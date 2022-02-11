@@ -41,22 +41,15 @@
         <app-loading message="Загрузка сообщений..." />
       </div>
       <template v-else>
-        <transition-group
-          name="fade"
-          type="animation"
-          duration="1"
-          appear
-        >
-          <app-chat-message
-            v-for="item in messages"
-            :key="'app-chat-message-' + item.id"
-            :name="item.owner_name"
-            :text="item.text"
-            :sent="item.direction"
-            :date-time="$dayjs(item.created_at).format('HH:mm')"
-            :status="item.status"
-          />
-        </transition-group>
+        <app-chat-message
+          v-for="item in messages"
+          :key="'app-chat-message-' + item.id"
+          :name="item.owner_name"
+          :text="item.text"
+          :sent="item.direction"
+          :date-time="$dayjs(item.created_at).format('HH:mm')"
+          :status="item.status"
+        />
         <div ref="messageAnchor" />
       </template>
     </div>
@@ -97,6 +90,14 @@
         </template>
       </v-textarea>
     </div>
+    <div
+      v-if="disabled"
+      class="chat-page__disabled d-flex align-center justify-center"
+    >
+      <span class="white--text">
+        Functional is disabled
+      </span>
+    </div>
   </div>
 </template>
 
@@ -106,19 +107,23 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
 import AppChat from '@/components/AppChat/AppChat.vue'
 import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
-import { Ref, Watch } from 'vue-property-decorator'
+import { Prop, Ref, Watch } from 'vue-property-decorator'
 
-@Component({
+@Component<ContactsViewChat>({
   components: { AppLoading, AppChatMessage, AppChat },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.$store.dispatch('contacts/view/messages/fetch', {
-        contact_id: to.params.id
-      })
+      if (!vm.disabled) {
+        vm.$store.dispatch('contacts/view/messages/fetch', {
+          contact_id: to.params.id
+        })
+      }
     })
   }
 })
 export default class ContactsViewChat extends AppBase {
+  @Prop({ default: () => false }) readonly disabled!: boolean
+
   @Ref('messageBox') readonly messageBox!: HTMLElement
   @Ref('messageAnchor') readonly messageAnchor!: HTMLElement
 
@@ -206,6 +211,7 @@ export default class ContactsViewChat extends AppBase {
 <style lang="scss" scoped>
 .chat-page {
   height: calc(100vh - 120px);
+  width: inherit;
   display: flex;
   flex-direction: column;
 }
@@ -223,5 +229,16 @@ export default class ContactsViewChat extends AppBase {
 
 .chat-page__bottom-control {
   box-sizing: border-box;
+}
+
+.chat-page__disabled {
+  display: block;
+  position: absolute;
+  height: inherit;
+  width: inherit;
+  opacity: 0.3;
+  background-color: #000000;
+  border-radius: 4px;
+  user-select: none;
 }
 </style>

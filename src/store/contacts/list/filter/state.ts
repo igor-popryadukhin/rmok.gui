@@ -47,7 +47,7 @@ export interface State {
   filter_user_group_id: number;
   filter_tag_ids: number[];
   filter_contact_created_at: string;
-  filter_calling: null | 'yes' | 'no';
+  filter_called: null | 'yes' | 'no';
   filter_offset: number;
   filter_task: string|null;
   filter_timezone_id: number|null;
@@ -74,7 +74,7 @@ export function defaultState (): State {
     filter_user_group_id: 0,
     filter_tag_ids: [],
     filter_contact_created_at: '',
-    filter_calling: null,
+    filter_called: null,
     filter_offset: 0,
     filter_task: '',
     filter_timezone_id: null,

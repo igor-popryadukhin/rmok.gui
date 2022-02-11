@@ -16,7 +16,8 @@ const getters: GetterTree<ProfileState, RootState> = {
   pbx_configuration (state: ProfileState) { return state.pbx_configuration },
   pbx_configuration_credentials (state: ProfileState) { return state.pbx_configuration.credentials },
   pbx_configuration_rtc_configuration (state: ProfileState) { return state.pbx_configuration.rtc_configuration },
-  pbx_configuration_rtc_configuration_ice_servers (state: ProfileState) { return state.pbx_configuration?.rtc_configuration?.ice_servers || [] }
+  pbx_configuration_rtc_configuration_ice_servers (state: ProfileState) { return state.pbx_configuration?.rtc_configuration?.ice_servers || [] },
+  project (state: ProfileState) { return state.project }
 }
 
 export default getters

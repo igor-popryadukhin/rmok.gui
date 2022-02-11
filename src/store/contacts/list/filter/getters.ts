@@ -22,7 +22,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   filter_user_group_id (state: State) { return state.filter_user_group_id },
   filter_tag_ids (state: State) { return state.filter_tag_ids },
   filter_contact_created_at (state: State) { return state.filter_contact_created_at },
-  filter_calling (state: State) { return state.filter_calling },
+  filter_called (state: State) { return state.filter_called },
   filter_offset (state: State) { return state.filter_offset || 0 },
   filter_task (state) { return state.filter_task },
   filter_timezone_id (state: State) { return state.filter_timezone_id },
@@ -59,8 +59,8 @@ const getters: GetterTree<State, RootState> & Getters = {
       obj.task = state.filter_task
     }
 
-    if (state.filter_calling) {
-      obj.calling = state.filter_calling
+    if (state.filter_called) {
+      obj.called = state.filter_called
     }
 
     if ((state.filter_tag_ids || []).length) {

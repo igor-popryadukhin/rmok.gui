@@ -50,8 +50,6 @@
           :type="passwordVisible ? 'text' : 'password'"
           prepend-inner-icon="mdi-form-textbox-password"
           autocomplete="new-password"
-          placeholder="✸✸✸✸✸✸✸"
-          persistent-placeholder
           dense
           outlined
           flat

@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="d-flex flex-nowrap">
+  <div class="d-flex flex-nowrap">
     <app-block-resize
       :width.sync="settingsLeftWidth"
       :min-width="280"
@@ -531,7 +531,7 @@
               <v-icon left>
                 {{ tab.icon }}
               </v-icon>
-              {{ $tc(`route.${tab.name}`) }}
+              {{ $tc(`tabs.${tab.name}`) }}
               <v-spacer />
             </v-tab>
           </template>
@@ -554,7 +554,7 @@
         </keep-alive>
       </v-sheet>
     </div>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
@@ -673,11 +673,14 @@ export default class ContactsView extends AppBase {
         }
       },
       {
-        name: 'contacts_view_chat',
+        name: 'contacts_view_messages',
         icon: 'mdi-facebook-messenger',
-        visible: false,
+        visible: true,
+        props: {
+          disabled: true
+        },
         to: {
-          name: 'contacts_view_chat'
+          name: 'contacts_view_messages'
         }
       }
     ]
@@ -862,6 +865,13 @@ export default class ContactsView extends AppBase {
 <i18n>
 {
   "ru": {
+    "tabs": {
+      "contacts_view_status": "Статусы",
+      "contacts_view_scenario": "Сценарий",
+      "contacts_view_history": "История",
+      "contacts_view_tasks": "Задачи",
+      "contacts_view_messages": "Сообщения"
+    },
     "Click to make a call": "Нажмите, чтобы позвонить",
     "Click to hang up": "Нажмите, чтобы повесить трубку",
     "Click to make default number": "Нажмите, чтобы сделать номером по умолчанию",

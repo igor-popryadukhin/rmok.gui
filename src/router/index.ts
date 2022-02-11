@@ -223,10 +223,10 @@ const routes: RouteConfig[] = [
         path: 'status'
       },
       {
-        component: () => import(/* webpackChunkName: "contacts-view-chat" */ '../views/Contacts/ContactsView/ContactsViewChat.vue'),
+        component: () => import(/* webpackChunkName: "contacts-view-messages" */ '../views/Contacts/ContactsView/ContactsViewMessages.vue'),
         meta: { layout: 'default', middleware: [] },
-        name: 'contacts_view_chat',
-        path: 'chat'
+        name: 'contacts_view_messages',
+        path: 'messages'
       }
     ],
     meta: { layout: 'default', middleware: [] }
