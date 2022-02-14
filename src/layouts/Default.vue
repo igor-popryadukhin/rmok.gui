@@ -518,6 +518,13 @@
       </v-card>
     </v-dialog>
     <!-- </editor-fold> -->
+
+    <app-audio-player
+      :visible.sync="audioPlayer.visible"
+      :src="audioPlayer.src"
+      :volume="1"
+      :author="audioPlayer.author"
+    />
   </v-app>
 </template>
 
@@ -551,7 +558,10 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
 // eslint-disable-next-line no-use-before-define
 @Component<DefaultLayout>({
   mixins: [SSEEvents],
-  components: { AppLoading },
+  components: {
+    AppLoading,
+    AppAudioPlayer: () => import(/* webpackChunkName: "audio-layer" */'@/components/AppAudioPlayer/AppAudioPlayer.vue')
+  },
   computed: {
     navigation_drawer_mini: {
       get () {
@@ -581,6 +591,11 @@ export default class DefaultLayout extends AppBase {
   timerId = 0
   degradation = false
   dialerIsInitialize = false
+  audioPlayer = {
+    visible: false,
+    src: '',
+    author: ''
+  }
 
   // region Системные уведомления
   get notificationsVisible () { return this.$store.getters['notifications/visible'] }
@@ -967,6 +982,8 @@ export default class DefaultLayout extends AppBase {
     this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow)
     this.$root.$on('main-process-dialog-update', this.onMainProcessDialogUpdate)
     this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide)
+    this.$root.$on('audio-player-show', this.onAudioPlayerShow)
+    this.$root.$on('audio-player-hide', this.onAudioPlayerHide)
 
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
 
@@ -1036,6 +1053,9 @@ export default class DefaultLayout extends AppBase {
     this.$root.$off('main-process-dialog-show', this.onMainProcessDialogShow)
     this.$root.$off('main-process-dialog-update', this.onMainProcessDialogUpdate)
     this.$root.$off('main-process-dialog-hide', this.onMainProcessDialogHide)
+
+    this.$root.$off('audio-player-show', this.onAudioPlayerShow)
+    this.$root.$off('audio-player-hide', this.onAudioPlayerHide)
 
     clearInterval(this.timerId)
   }
@@ -1593,6 +1613,20 @@ export default class DefaultLayout extends AppBase {
    */
   private onContainerResize () {
     this.$store.commit('settings/container_width', this.container.clientWidth)
+  }
+
+  private onAudioPlayerShow ({ src, author }) {
+    this.audioPlayer.visible = false
+    setTimeout(() => {
+      this.audioPlayer.src = src
+      this.audioPlayer.visible = true
+      this.audioPlayer.author = author
+      this.$audio.play('/sounds/gain_12_normal.mp3')
+    }, 300)
+  }
+
+  private onAudioPlayerHide () {
+    this.audioPlayer.visible = false
   }
 }
 </script>

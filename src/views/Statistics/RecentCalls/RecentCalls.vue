@@ -204,6 +204,7 @@
                     <v-btn
                       icon
                       x-small
+                      @click="playAudioRecord(item)"
                     >
                       <v-icon>mdi-play</v-icon>
                     </v-btn>
@@ -373,6 +374,18 @@ export default class RecentCalls extends AppBase {
   private onFilterChange () {
     this.$store.commit('statistics/recent_calls/filter/offset', 0)
     this.fetchStatistic()
+  }
+
+  /**
+   *
+   * @param id Идентификатор истории
+   * @private
+   */
+  private playAudioRecord (item) {
+    this.$root.$emit('audio-player-show', {
+      src: `${process.env.VUE_APP_API}/contacts/history/audio/${item.audio_record_id}`,
+      author: `${item.owner.name} / ${item.contact.name}`
+    })
   }
 }
 </script>

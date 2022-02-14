@@ -193,7 +193,6 @@
                     <v-icon>mdi-pencil-box-outline</v-icon>
                   </v-btn>
                   <v-btn
-                    disabled
                     icon
                     small
                     @click="onBtnItemPlayClick(item)"
@@ -311,10 +310,10 @@ export default class ContactsViewHistory extends AppBase {
   }
 
   private async onBtnItemPlayClick (item) {
-    // this.$root.$emit('on-audio-player-show', {
-    //   src: `${process.env.VUE_APP_API}/contacts/history/${item.id}/audio`,
-    //   author: `${item.owner.full_name} / ${item.contact.full_name}`
-    // })
+    this.$root.$emit('audio-player-show', {
+      src: `${process.env.VUE_APP_API}/contacts/history/audio/${item.audio_recording_id}`,
+      author: `${item.owner.name} / ${item.contact.name}`
+    })
   }
 
   /**

@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
     <v-bottom-sheet
-      v-model="showing"
+      v-model="visibleSync"
       :max-width="breakpointWidth"
       hide-overlay
       no-click-animation
@@ -137,282 +137,198 @@
 </template>
 
 <script lang="ts">
-import { makeAudioElement, debounce } from './utils'
 import Vue from 'vue'
+import Component from 'vue-class-component'
+import { Prop, PropSync, Watch } from 'vue-property-decorator'
 
-interface Data {
-  src: string;
-  stateSpeed: 'x1' | 'x2' | 'x3',
-  stateSpeedIcon: string;
-  audioPlayer: HTMLAudioElement;
-  author: string;
-  audioPlayerVolume: number;
-  showing: boolean;
-  progress: number;
-  duration: number;
-  paused: boolean;
-  playbackRate: number;
-  volumeChange: (value: number) => void;
-  processDownloading: boolean;
-  displayString: string;
-}
+@Component
+export default class AppAudioPlayer extends Vue {
+  @Prop({ required: true }) readonly src!: string
+  @Prop({ default: () => 1 }) readonly volume!: number
+  @Prop({ default: () => true }) readonly autoCloseAfterEndPlay!: boolean
+  @Prop({ default: () => '' }) readonly author!: string
+  @PropSync('visible', { default: () => true }) visibleSync!: boolean
 
-interface Methods {
-  [key: string]: any;
-}
+  stateSpeed = 'x1'
+  stateSpeedIcon = 'mdi-numeric-1-circle-outline'
+  audioPlayer = new Audio()
+  audioPlayerVolume = 1
+  progress = 0
+  paused = true
+  playbackRate = 1.0
+  processDownloading = false
+  displayString = ''
 
-interface Computed {
-  breakpointWidth: string;
-  [key: string]: any;
-}
+  get breakpointWidth () {
+    switch (this.$vuetify.breakpoint.name) {
+      case 'xs':
+        return '100%'
+      case 'sm':
+        return '100%'
+      case 'md':
+        return '70%'
+      case 'lg':
+        return '60%'
+      case 'xl':
+        return '50%'
 
-interface Props{
-  autoCloseAfterEndPlay: boolean;
-  audioElementInstance?: HTMLAudioElement;
-  [key: string]: any;
-}
-
-export default Vue.extend<Data, Methods, Computed, Props>({
-  name: 'AppAudioPlayer',
-
-  props: {
-    autoCloseAfterEndPlay: {
-      type: Boolean,
-      default: () => false
-    },
-
-    volume: {
-      type: Number,
-      default: () => 1
-    },
-
-    audioElementInstance: {
-      type: HTMLAudioElement,
-      required: true,
-      validator: function (value: unknown) {
-        return value instanceof HTMLAudioElement
-      }
+      default:
+        return '100%'
     }
-  },
-
-  data (): Data {
-    return {
-      src: '',
-      stateSpeed: 'x1',
-      stateSpeedIcon: 'mdi-numeric-1-circle-outline',
-      audioPlayer: makeAudioElement(),
-      author: '',
-      showing: false,
-      audioPlayerVolume: 1,
-      progress: 0,
-      duration: 0,
-      paused: true,
-      playbackRate: 1.0,
-      volumeChange: debounce((value: number) => {
-        this.$emit('update:volume', value)
-      }, 250),
-      processDownloading: false,
-      displayString: ''
-    }
-  },
-
-  computed: {
-
-    breakpointWidth () {
-      switch (this.$vuetify.breakpoint.name) {
-        case 'xs':
-          return '100%'
-        case 'sm':
-          return '100%'
-        case 'md':
-          return '70%'
-        case 'lg':
-          return '60%'
-        case 'xl':
-          return '50%'
-
-        default: return '100%'
-      }
-    },
-
-    isShowing () {
-      return this.showing
-    }
-  },
-
-  watch: {
-    // Внешнее изменение громкости
-    volume (value: number) {
-      this.audioPlayerVolume = value
-    },
-
-    // Внутреннее изменение громкости
-    audioPlayerVolume (value: number) {
-      this.audioPlayer.volume = value
-      this.volumeChange(value)
-    }
-  },
-
-  created () {
-    this.audioPlayerVolume = this.volume
-  },
-
-  mounted () {
-    this.initializePlayer()
-  },
-
-  methods: {
-    tc (name: string) {
-      return this?.$tc(name) || name
-    },
-
-    backward () {
-      this.audioPlayer.currentTime = 0.0
-    },
-
-    play (options?: { src?: string; author?: string }) {
-      this.setSpeedNormal()
-
-      if (options?.src) {
-        this.src = options.src
-        this.audioPlayer.src = options.src
-      }
-
-      if (options?.author) {
-        this.author = options?.author
-      }
-
-      this.paused = false
-      this.audioPlayer.play()
-    },
-
-    pause () {
-      this.paused = true
-      this.audioPlayer.pause()
-    },
-
-    stop () {
-      this.audioPlayer.pause()
-      this.progress = 0.0
-      this.audioPlayer.currentTime = 0.0
-      this.paused = this.audioPlayer.paused
-    },
-
-    show () {
-      this.showing = true
-    },
-
-    hide () {
-      this.showing = false
-    },
-
-    close () {
-      this.stop()
-      this.hide()
-    },
-
-    setMediaData (options: unknown & { author: string; src: string }) {
-      this.stop()
-      this.author = options?.author || ''
-      this.src = options?.src || ''
-      this.audioPlayer.src = options?.src || ''
-    },
-
-    /**
-     * При клике установить позицию
-     * @param progress
-     */
-    onProgressClick (progress: number) {
-      this.audioPlayer.currentTime = (progress * this.audioPlayer.duration) / 100
-    },
-
-    onSpeedClick () {
-      switch (this.stateSpeed) {
-        case 'x1': {
-          this.audioPlayer.playbackRate = 1.5
-          this.stateSpeed = 'x2'
-          this.stateSpeedIcon = 'mdi-numeric-2-circle-outline'
-          break
-        }
-
-        case 'x2': {
-          this.audioPlayer.playbackRate = 2.0
-          this.stateSpeed = 'x3'
-          this.stateSpeedIcon = 'mdi-numeric-3-circle-outline'
-          break
-        }
-
-        case 'x3': {
-          this.audioPlayer.playbackRate = 1.0
-          this.stateSpeed = 'x1'
-          this.stateSpeedIcon = 'mdi-numeric-1-circle-outline'
-          break
-        }
-      }
-    },
-
-    setSpeedNormal () {
-      this.audioPlayer.playbackRate = 1.0
-      this.stateSpeed = 'x1'
-      this.stateSpeedIcon = 'mdi-numeric-1-circle-outline'
-    },
-
-    initializePlayer () {
-      this.audioPlayer = this.audioElementInstance as HTMLAudioElement
-      this.audioPlayer.currentTime = 0.0
-      this.audioPlayer.src = ''
-      this.audioPlayer.loop = false
-      this.audioPlayer.volume = this.audioPlayerVolume
-
-      this.audioPlayer.onloadstart = (e: Event) => {
-        this.displayString = this.$tc('Loading media...')
-        this.processDownloading = true
-      }
-
-      this.audioPlayer.onloadeddata = (e: Event) => {
-        this.displayString = '00:00:00 / 00:00:00'
-        this.processDownloading = false
-      }
-
-      // Прогресс
-      this.audioPlayer.ontimeupdate = () => {
-        this.progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100
-        this.displayString = `${this.durationHms(this.duration)} / ${this.durationHms(this.progress)}`
-      }
-
-      // Начали играть
-      this.audioPlayer.onplaying = () => {
-        this.duration = this.audioPlayer.duration
-      }
-
-      // Конец
-      this.audioPlayer.onended = () => {
-        this.paused = this.audioPlayer.paused
-        this.audioPlayer.currentTime = 0.0
-        this.progress = 0
-
-        if (this.autoCloseAfterEndPlay) {
-          setTimeout(() => {
-            this.showing = false
-          }, 1500)
-        }
-      }
-
-      this.audioPlayer.onerror = () => {
-        this.displayString = this.$tc('Media loading error')
-      }
-    },
-
-    durationHms (seconds: number) {
-      const h: number = Math.floor(seconds / 3600)
-      const m: number = Math.floor(seconds % 3600 / 60)
-      const s: number = Math.floor(seconds % 3600 % 60)
-
-      return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00')
-    }
-
   }
-})
+
+  get isShowing () {
+    return this.visibleSync
+  }
+
+  @Watch('volume')
+  volumeWatch (value: number) {
+    this.audioPlayerVolume = value
+  }
+
+  @Watch('visibleSync')
+  srcVolumeWatch (value: boolean) {
+    if (value) {
+      this.play()
+    }
+  }
+
+  public created () {
+    this.audioPlayerVolume = this.volume
+  }
+
+  public mounted () {
+    this.initializePlayer()
+  }
+
+  private tc (name: string) {
+    return this?.$tc(name) || name
+  }
+
+  private backward () {
+    this.audioPlayer.currentTime = 0.0
+  }
+
+  private play () {
+    this.setSpeedNormal()
+    this.audioPlayer.src = this.src
+    this.paused = false
+    this.audioPlayer.play()
+  }
+
+  private pause () {
+    this.paused = true
+    this.audioPlayer.pause()
+  }
+
+  private stop () {
+    this.audioPlayer.pause()
+    this.progress = 0.0
+    this.audioPlayer.currentTime = 0.0
+    this.paused = this.audioPlayer.paused
+  }
+
+  private show () {
+    this.visibleSync = true
+  }
+
+  private hide () {
+    this.visibleSync = false
+  }
+
+  private close () {
+    this.stop()
+    this.hide()
+  }
+
+  /**
+   * При клике установить позицию
+   * @param progress
+   */
+  private onProgressClick (progress: number) {
+    this.audioPlayer.currentTime = (progress * this.audioPlayer.duration) / 100
+  }
+
+  private onSpeedClick () {
+    switch (this.stateSpeed) {
+      case 'x1': {
+        this.audioPlayer.playbackRate = 1.5
+        this.stateSpeed = 'x2'
+        this.stateSpeedIcon = 'mdi-numeric-2-circle-outline'
+        break
+      }
+
+      case 'x2': {
+        this.audioPlayer.playbackRate = 2.0
+        this.stateSpeed = 'x3'
+        this.stateSpeedIcon = 'mdi-numeric-3-circle-outline'
+        break
+      }
+
+      case 'x3': {
+        this.audioPlayer.playbackRate = 1.0
+        this.stateSpeed = 'x1'
+        this.stateSpeedIcon = 'mdi-numeric-1-circle-outline'
+        break
+      }
+    }
+  }
+
+  private setSpeedNormal () {
+    this.audioPlayer.playbackRate = 1.0
+    this.stateSpeed = 'x1'
+    this.stateSpeedIcon = 'mdi-numeric-1-circle-outline'
+  }
+
+  private initializePlayer () {
+    this.audioPlayer.currentTime = 0.0
+    this.audioPlayer.src = this.src
+    this.audioPlayer.loop = false
+    this.audioPlayer.volume = this.audioPlayerVolume
+    this.audioPlayer.autoplay = false
+
+    this.audioPlayer.onloadstart = () => {
+      this.displayString = this.$tc('Loading media...')
+      this.processDownloading = true
+    }
+
+    this.audioPlayer.onloadeddata = () => {
+      this.displayString = '00:00:00 / 00:00:00'
+      this.processDownloading = false
+    }
+
+    // Прогресс
+    this.audioPlayer.ontimeupdate = (s) => {
+      this.progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100
+      this.displayString = `${this.durationHms(this.audioPlayer.currentTime)} / ${ this.durationHms(this.audioPlayer.duration)}`
+    }
+
+    // Конец
+    this.audioPlayer.onended = () => {
+      this.paused = this.audioPlayer.paused
+      this.audioPlayer.currentTime = 0.0
+      this.progress = 0
+
+      if (this.autoCloseAfterEndPlay) {
+        setTimeout(() => {
+          this.visibleSync = false
+        }, 1500)
+      }
+    }
+
+    this.audioPlayer.onerror = () => {
+      this.displayString = this.$tc('Media loading error')
+    }
+  }
+
+  private durationHms (seconds: number) {
+    const h: number = Math.floor(seconds / 3600)
+    const m: number = Math.floor(seconds % 3600 / 60)
+    const s: number = Math.floor(seconds % 3600 % 60)
+
+    return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00')
+  }
+}
 </script>
 
 <style scoped>
@@ -421,7 +337,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
 <i18n>
 {
-  "ru" :{
+  "ru": {
     "Loading media...": "Загрузка медиа...",
     "Media loading error": "Ошибка загрузки медиа"
   }
