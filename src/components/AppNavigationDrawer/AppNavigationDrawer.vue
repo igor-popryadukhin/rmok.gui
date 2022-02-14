@@ -3,7 +3,7 @@
     v-model="panelVisible"
     :mobile-breakpoint="0"
     :right="right"
-    width="400"
+    :width="width"
     absolute
     temporary
     hide-overlay
@@ -25,6 +25,8 @@ import { Prop, VModel } from 'vue-property-decorator'
 
 @Component
 export default class AppNavigationDrawer extends Vue {
+  @Prop({ type: Number, default: () => 400 }) width!: number|string
+  @Prop({ type: [Number, String], default: () => '100%' }) height!: number|string
   @Prop({ type: Boolean, default: () => true }) right!: boolean
   @VModel({ type: Boolean, default: () => false }) panelVisible!: boolean
 }

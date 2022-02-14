@@ -136,12 +136,13 @@ export default class AppBlockResize extends Vue {
 }
 
 .resize {
-  background-color: rgba(125, 125, 125, 0.98);
+  background-color: #3a70d4;
   cursor: ew-resize;
   position: absolute;
   top: 0;
   right: 0;
   height: 100%;
-  width: 2px;
+  width: 3px;
+  opacity: 0.6;
 }
 </style>

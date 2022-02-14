@@ -1,4 +1,5 @@
 import { RootState } from '@/store'
+import settings from './settings'
 import { Module } from 'vuex'
 import state, { State } from './state'
 import getters from './getters'
@@ -13,6 +14,7 @@ export const recent_calls: Module<State, RootState> = {
   namespaced: true,
   state,
   modules: {
-    filter
+    filter,
+    settings
   }
 }

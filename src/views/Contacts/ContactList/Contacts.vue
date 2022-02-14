@@ -10,63 +10,70 @@
     />
 
     <!-- Контакт лист -->
-    <v-data-table
-      v-model="contactsSelected"
-      item-key="id"
-      selectable-key="id"
-      height="calc(100vh - 120px)"
-      :item-class="() => 'contacts-item'"
-      :headers="contactsHeaders"
-      :items="contacts"
-      :server-items-length="contactsTotal"
-      :items-per-page="100"
-      :loading="contactsLoading"
-      calculate-widths
-      fixed-header
-      hide-default-footer
-      show-select
-      dense
-    >
-      <template #progress>
-        {{ '' }}
-      </template>
-      <template #no-data>
-        <div
-          class="d-flex align-center justify-center grey--text"
-          style="height: calc(100vh - 550px)"
+    <div class="d-flex flex-nowrap">
+      <app-block-resize :width.sync="settingsFilterWidth">
+        <contact-list-filters />
+      </app-block-resize>
+      <div class="grow pl-2">
+        <v-data-table
+          v-model="contactsSelected"
+          item-key="id"
+          selectable-key="id"
+          height="calc(100vh - 120px)"
+          :item-class="() => 'contacts-item'"
+          :headers="contactsHeaders"
+          :items="contacts"
+          :server-items-length="contactsTotal"
+          :items-per-page="100"
+          :loading="contactsLoading"
+          calculate-widths
+          fixed-header
+          hide-default-footer
+          show-select
+          dense
         >
-          Отсутствуют данные
-        </div>
-      </template>
-      <template #loading>
-        <div
-          class="d-flex align-center justify-center grey--text"
-          style="height: calc(100vh - 160px)"
-        >
-          <app-loading />
-        </div>
-      </template>
-      <template #[`item.full_name`]="{ item }">
-        <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
-          {{ item.full_name }}
-        </router-link>
-      </template>
-      <template #[`item.status`]="{ item }">
-        <template v-if="typeof item.status === 'object'">
-          <v-chip
-            :color="item.status.color"
-            label
-            x-small
-            outlined
-          >
-            {{ item.status.name }}
-          </v-chip>
-        </template>
-        <template v-else>
-          —
-        </template>
-      </template>
-    </v-data-table>
+          <template #progress>
+            {{ '' }}
+          </template>
+          <template #no-data>
+            <div
+              class="d-flex align-center justify-center grey--text"
+              style="height: calc(100vh - 550px)"
+            >
+              Отсутствуют данные
+            </div>
+          </template>
+          <template #loading>
+            <div
+              class="d-flex align-center justify-center grey--text"
+              style="height: calc(100vh - 160px)"
+            >
+              <app-loading />
+            </div>
+          </template>
+          <template #[`item.full_name`]="{ item }">
+            <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
+              {{ item.full_name }}
+            </router-link>
+          </template>
+          <template #[`item.status`]="{ item }">
+            <template v-if="typeof item.status === 'object'">
+              <v-chip
+                :color="item.status.color"
+                label
+                x-small
+                outlined
+              >
+                {{ item.status.name }}
+              </v-chip>
+            </template>
+            <template v-else>
+              —
+            </template>
+          </template>
+        </v-data-table>
+      </div>
+    </div>
     <!-- Контакт лист -->
     <app-divider />
 
@@ -93,15 +100,18 @@
       </div>
     </app-info-line>
 
-    <app-navigation-drawer v-model="filterPanelVisible">
-      <contact-list-filters />
-    </app-navigation-drawer>
+    <!--    <app-navigation-drawer-->
+    <!--      v-model="filterPanelVisible"-->
+    <!--    >-->
+    <!--      <contact-list-filters />-->
+    <!--    </app-navigation-drawer>-->
   </div>
 </template>
 
 <script lang="ts">
 import Contact from '@/api/interfaces/Contact'
 import AppBase from '@/AppBase'
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppInfoLine from '@/components/AppInfoLine/AppInfoLine.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppTable from '@/components/AppTable/AppTable.vue'
@@ -113,6 +123,7 @@ import ContactsTools from './ContactsTools.vue'
 // eslint-disable-next-line no-use-before-define
 @Component<Contacts>({
   components: {
+    AppBlockResize,
     AppInfoLine,
     AppLoading,
     ContactsTransferDialog: () => import('./ContactsTransferDialog.vue'),
@@ -130,6 +141,9 @@ import ContactsTools from './ContactsTools.vue'
   }
 })
 export default class Contacts extends AppBase {
+  get settingsFilterWidth (): number { return this.$store.getters['contacts/list/settings/filter_width'] }
+  set settingsFilterWidth (val: number) { this.$store.commit('contacts/list/settings/filter_width', val) }
+
   get contactsHeaders () {
     return [
       {

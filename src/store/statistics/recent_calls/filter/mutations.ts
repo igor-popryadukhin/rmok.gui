@@ -22,7 +22,6 @@ const mutations: MutationTree<State> = {
   order_by (state: State, payload) { state.order_by = payload },
   order_direction (state: State, payload) { state.order_direction = payload },
   /// //////////////////////////////////////////////////////////////////////////
-  panel_visible (state: State, payload) { state.panel_visible = payload },
 
   flush (state: State) { Object.assign(state, defaultState()) }
 }

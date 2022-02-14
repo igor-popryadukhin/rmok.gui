@@ -1,29 +1,6 @@
 <template>
   <div class="d-flex flex-nowrap align-center justify-space-between mb-2">
     <div class="d-flex flex-nowrap align-center">
-      <v-btn
-        v-if="!refreshLoading"
-        min-width="100"
-        text
-        tile
-        small
-        @click="onBtnRefreshClick"
-      >
-        {{ $tc('Refresh') }}
-      </v-btn>
-      <v-btn
-        v-else
-        min-width="100"
-        color="red"
-        text
-        tile
-        small
-        @click="onBtnLoadCancel"
-      >
-        {{ $tc('Cancel') }}
-      </v-btn>
-    </div>
-    <div class="d-flex flex-nowrap align-center">
       <app-btn-toggle-date
         v-model="filterPeriod"
         :items="dateRangeCollection"
@@ -59,23 +36,15 @@
           </v-menu>
         </template>
       </app-btn-toggle-date>
-      <v-btn
-        small
-        text
-        tile
-        @click="filterPanelVisible = !filterPanelVisible"
-      >
-        <v-icon>mdi-filter-outline</v-icon>
-        {{ $tc('Filter') }}
-      </v-btn>
     </div>
+    <div class="d-flex flex-nowrap align-center" />
   </div>
 </template>
 
 <script lang="ts">
 import AppBase from '@/AppBase'
-import Component from 'vue-class-component'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
+import Component from 'vue-class-component'
 import { Watch } from 'vue-property-decorator'
 
 @Component({
@@ -84,9 +53,6 @@ import { Watch } from 'vue-property-decorator'
 export default class RecentCallsTools extends AppBase {
   isoFormat = 'YYYY-MM-DDTHH:mm:ss'
   customPeriod = null
-
-  get filterPanelVisible () { return this.$store.getters['statistics/recent_calls/filter/panel_visible'] }
-  set filterPanelVisible (value: boolean) { this.$store.commit('statistics/recent_calls/filter/panel_visible', value) }
 
   get filterPeriod () {
     const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0)

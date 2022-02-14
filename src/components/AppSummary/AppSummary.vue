@@ -1,42 +1,40 @@
 <template>
-  <div
-    class="app-summary"
-    :style="{ 'width': width + 'px', 'height': height + 'px' }"
+  <v-card
+    :width="width"
+    :height="height"
+    class="mr-2 mb-2"
+    flat
+    outlined
+    tile
   >
-    <div
-      class="d-flex flex-column align-center"
-    >
-      <v-avatar
-        size="40"
-        :style="{ 'background-color': color + '36'}"
-      >
-        <v-progress-circular
-          v-if="loading"
-          :color="color + '70'"
-          size="40"
-          indeterminate
-        />
-        <v-icon
-          v-else
-          :color="color"
-        >
+    <div class="d-flex justify-center align-center fill-height pa-2">
+      <div class="d-flex flex-column flex-nowrap">
+        <v-icon size="24">
           {{ icon }}
         </v-icon>
-      </v-avatar>
-      <p class="text-h6 text-center mb-n2">
-        <app-count-up
-          v-if="typeof value === 'number'"
-          :end-val="value"
-        />
-        <template v-else>
-          {{ value }}
-        </template>
-      </p>
-      <p class="text-subtitle-2 text-center text-no-wrap grey--text">
-        {{ text }}
-      </p>
+        <span class="text-h6 text-center mb-n2 ">
+          <template v-if="typeof value === 'number'">
+            <app-count-up
+              :end-val="value"
+              style="font-size: 16px"
+            />
+          </template>
+          <template
+            v-else
+            style="font-size: 16px"
+          >
+            {{ value }}
+          </template>
+        </span>
+        <span
+          class="text-center grey--text text-wrap"
+          style="font-size: 12px"
+        >
+          {{ text }}
+        </span>
+      </div>
     </div>
-  </div>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -52,8 +50,8 @@ import { Prop } from 'vue-property-decorator'
 })
 export default class AppSummary extends Vue {
   @Prop({ default: false }) readonly loading: boolean
-  @Prop({ default: 200 }) readonly width: number
-  @Prop({ default: 200 }) readonly height: number
+  @Prop({ default: 150 }) readonly width: number
+  @Prop({ default: 250 }) readonly height: number
   @Prop({ default: 'grey' }) readonly color: string
   @Prop({ default: 0 }) readonly value: string|number
   @Prop({ default: '' }) readonly text: string

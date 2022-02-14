@@ -522,7 +522,6 @@
 </template>
 
 <script lang="ts">
-import { Calls } from '@/api/Calls'
 import APIError from '@/api/classes/APIError'
 import Notification from '@/api/interfaces/Notification'
 import { Credentials, RTCConfiguration } from '@/api/interfaces/PBXConfiguration'

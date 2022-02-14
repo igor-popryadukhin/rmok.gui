@@ -53,7 +53,6 @@ export interface State {
   order_by: string|null;
   order_direction: 'asc' | 'desc';
   /// /////////////////////////////////
-  panel_visible: boolean;
 }
 
 export function defaultState (): State {
@@ -76,9 +75,8 @@ export function defaultState (): State {
     offset: 0,
 
     order_by: 'created_at',
-    order_direction: 'desc',
+    order_direction: 'desc'
     /// /////////////////////////////////
-    panel_visible: true
   }
 }
 

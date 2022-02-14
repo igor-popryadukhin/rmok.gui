@@ -114,10 +114,12 @@ const store = new Vuex.Store({
         'filters',
         'symfony',
         'contacts.params',
+        'contacts.list.settings',
         'contacts.view.settings',
         'contacts.view.unsaved_call',
         'statistic_recent_call.filter',
         'statistics.recent_calls.filter',
+        'statistics.recent_calls.settings',
         'system.route'
       ],
       storage: {

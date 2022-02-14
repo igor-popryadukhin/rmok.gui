@@ -219,15 +219,15 @@
 </template>
 
 <script lang="ts">
+import ContactTag from '@/api/interfaces/ContactTag'
 import Project from '@/api/interfaces/Project'
 import User from '@/api/interfaces/User'
 import UserGroup from '@/api/interfaces/UserGroup'
-import Component from 'vue-class-component'
-import debounce from '@/utils/debounce'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import ContactTag from '@/api/interfaces/ContactTag'
-import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import AppBase from '@/AppBase'
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
+import debounce from '@/utils/debounce'
+import Component from 'vue-class-component'
 import { Emit } from 'vue-property-decorator'
 
 // eslint-disable-next-line no-use-before-define

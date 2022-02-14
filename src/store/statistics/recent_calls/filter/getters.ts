@@ -27,8 +27,6 @@ const getters: GetterTree<State, RootState> & Getters = {
 
   order_by (state: State) { return state.order_by },
   order_direction (state: State) { return state.order_direction },
-
-  panel_visible (state: State) { return state.panel_visible },
   /// //////////////////////////////////////////////////////////////////////////
   all (state: State) {
     const obj: Record<string, unknown> = {}
