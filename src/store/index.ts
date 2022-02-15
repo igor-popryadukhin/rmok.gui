@@ -1,3 +1,4 @@
+import StorageInterface from '@/store/StorageInterface'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
@@ -28,6 +29,8 @@ import { account } from './account'
 import { notifications } from './notifications'
 import { roles } from './roles'
 import { statistics } from './statistics'
+import LocalStorage from './LocalStorage'
+import SessionStorage from './SessionStorage'
 
 Vue.use(Vuex)
 
@@ -38,22 +41,6 @@ const vuexDebugPersistedState = vuexDebug.extend('PERSISTED-STATE')
 const vuexDebugPersistedStateGet = vuexDebugPersistedState.extend('GET')
 const vuexDebugPersistedStateSet = vuexDebugPersistedState.extend('SET')
 const vuexDebugPersistedStateRemove = vuexDebugPersistedState.extend('REMOVE')
-
-const get = (key: string) => {
-  const value = localStorage.getItem(key)
-  vuexDebugPersistedStateGet('%s [%o]', key, value)
-  return value
-}
-
-const set = debounce((key: string, value: string) => {
-  vuexDebugPersistedStateSet('%s [%o]', key, value)
-  localStorage.setItem(key, value)
-}, 1000)
-
-const remove = (key: string) => {
-  vuexDebugPersistedStateRemove(key)
-  localStorage.removeItem(key)
-}
 
 export interface RootState {
   root: number;
@@ -104,6 +91,7 @@ const store = new Vuex.Store({
   },
 
   plugins: [
+    // Постоянное хранение
     createPersistedState({
       key: window.origin,
       paths: [
@@ -120,13 +108,19 @@ const store = new Vuex.Store({
         'statistic_recent_call.filter',
         'statistics.recent_calls.filter',
         'statistics.recent_calls.settings',
+        'statistics.calls_count.settings',
         'system.route'
       ],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
+      storage: new LocalStorage()
+    }),
+
+    // Хранение в рамках сессии
+    createPersistedState({
+      key: window.origin,
+      paths: [
+        'statistics.calls_count.filter'
+      ],
+      storage: new SessionStorage()
     })
   ]
 })

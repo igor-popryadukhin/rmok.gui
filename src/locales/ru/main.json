@@ -187,6 +187,7 @@
   "Import": "Импортировать",
   "Import from CSV": "Импорт из CSV",
   "Import from Excel": "Импорт из Excel",
+  "Incoming calls": "Входящие вызовы",
   "Integration of contacts": "Интеграция контактов",
   "Integration settings": "Настройки интеграции",
   "Integrations": "Интеграции",
@@ -220,6 +221,7 @@
   "Members available for integration": "Пользователи, доступные для интеграции",
   "Middle name": "Отчество",
   "Minimum length INN 9 characters": "Минимальная длина ИНН 9 символов",
+  "Missed calls": "Пропущенные вызовы",
   "Mode": "Режим",
   "More": "Ещё",
   "My country is not on the list": "Моей страны нет в списке",
@@ -249,6 +251,7 @@
   "Organizations": "Организации",
   "Other": "Другое",
   "Outgoing call testing": "Тестирование исходящего звонка",
+  "Outgoing calls": "Исходящие вызовы",
   "Overdue tasks": "Просроченные задачи",
   "PBX access password": "Пароль доступа к АТС",
   "PBX connection parameters": "Параметры подключения к АТС",
@@ -656,5 +659,6 @@
   "unknown_number": "Неизвестный номер",
   "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети",
   "video": "Видео",
-  "yes": "Да"
+  "yes": "Да",
+  "Call types": "Типы вызовов"
 }

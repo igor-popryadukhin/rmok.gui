@@ -800,7 +800,7 @@ export default class DefaultLayout extends AppBase {
           {
             attrs: {
               to: {
-                name: 'statistics_call_count'
+                name: 'statistics_calls_count'
               }
             },
             icon: '',

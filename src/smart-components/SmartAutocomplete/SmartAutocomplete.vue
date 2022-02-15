@@ -8,7 +8,6 @@
     :item-text="itemText"
     :item-value="itemValue"
     :item-color="itemColor"
-    :return-object="returnObject"
     :label="label"
     :clearable="clearable"
     :multiple="multiple"
@@ -19,6 +18,7 @@
     :small-chips="chips"
     :hide-details="hideDetails"
     color="primary"
+    return-object
     hide-selected
     outlined
     dense
@@ -59,7 +59,6 @@ export default class SmartAutocomplete extends Vue {
   @Prop({ default: null }) readonly label!: string
   @Prop({ default: false }) readonly clearable!: boolean
   @Prop({ default: false }) readonly multiple!: boolean
-  @Prop({ default: false }) readonly returnObject!: boolean
   @Prop({ default: false }) readonly chips!: boolean
   @Prop({ default: false }) readonly deletableChips!: boolean
   @Prop({ default: false }) readonly hideDetails!: boolean

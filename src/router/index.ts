@@ -546,44 +546,13 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [] }
   },
   {
-    children: [
-      // {
-      //   component: () => import(/* webpackChunkName: "statistics-all-calls" */ '../views/Statistics/AllCalls.vue'),
-      //   meta: {
-      //     layout: 'default',
-      //     middleware: []
-      //   },
-      //   name: 'statistics_all_calls',
-      //   path: 'all-calls'
-      // },
-      // {
-      //   component: () => import(/* webpackChunkName: "statistics-call-count" */ '../views/Statistics/CallCount.vue'),
-      //   meta: {
-      //     layout: 'default',
-      //     middleware: []
-      //   },
-      //   name: 'statistics_call_count',
-      //   path: 'call-count'
-      // },
-      // {
-      //   component: () => import(/* webpackChunkName: "statistics-activity" */ '../views/Statistics/Activity.vue'),
-      //   meta: {
-      //     layout: 'default',
-      //     middleware: []
-      //   },
-      //   name: 'statistics_activity',
-      //   path: 'activity'
-      // },
-      // {
-      //   component: () => import(/* webpackChunkName: "statistics-unauthorized-breaks" */ '../views/Statistics/UnauthorizedBreaks.vue'),
-      //   meta: {
-      //     layout: 'default',
-      //     middleware: []
-      //   },
-      //   name: 'statistics_unauthorized_breaks',
-      //   path: 'unauthorized-breaks'
-      // }
-    ],
+    name: 'statistics_calls_count',
+    path: '/statistics/calls-count',
+    component: () => import(/* webpackChunkName: "statistics-call-count" */ '../views/Statistics/CallsCount/CallsCount.vue'),
+    meta: { layout: 'default', middleware: [] }
+  },
+  {
+    children: [],
     component: () => import(/* webpackChunkName: "statistics" */ '../views/Statistics/Layout.vue'),
     meta: {
       layout: 'default',
