@@ -28,6 +28,7 @@ import { account } from './account'
 import { notifications } from './notifications'
 import { roles } from './roles'
 import { statistics } from './statistics'
+import chats from './chats'
 
 Vue.use(Vuex)
 
@@ -94,7 +95,8 @@ const store = new Vuex.Store({
     statistic_all_call,
     autodialer,
     statistic_activity,
-    scenarios
+    scenarios,
+    chats
   },
 
   mutations: {},

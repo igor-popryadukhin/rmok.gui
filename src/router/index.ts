@@ -609,28 +609,14 @@ const routes: RouteConfig[] = [
   {
     name: 'integrations',
     path: '/integrations',
-    component: () => import(/* webpackChunkName: "integrations" */ '../views/Integrations/Integrations.vue'),
+    component: () => import(/* webpackChunkName: "integrations" */ '../views/Chats/Integrations/Integrations.vue'),
     meta: { layout: 'default', middleware: [] },
     children: []
   },
   {
-    name: 'integrations_whats_app',
-    path: '/integrations/whats-app',
-    component: () => import(/* webpackChunkName: "integrations-whats-app" */ '../views/Integrations/IntegrationsWhatsApp.vue'),
-    meta: { layout: 'default', middleware: [] },
-    children: []
-  },
-  {
-    name: 'integrations_instagram',
-    path: '/integrations/instagram',
-    component: () => import(/* webpackChunkName: "integrations-instagram" */ '../views/Integrations/IntegrationsInstagram.vue'),
-    meta: { layout: 'default', middleware: [] },
-    children: []
-  },
-  {
-    name: 'integrations_telegram',
-    path: '/integrations/telegram',
-    component: () => import(/* webpackChunkName: "integrations-telegram" */ '../views/Integrations/IntegrationsTelegram.vue'),
+    name: 'integrations_view',
+    path: '/integrations/:id',
+    component: () => import(/* webpackChunkName: "integrations-view" */ '../views/Chats/Integrations/IntegrationsView.vue'),
     meta: { layout: 'default', middleware: [] },
     children: []
   }
