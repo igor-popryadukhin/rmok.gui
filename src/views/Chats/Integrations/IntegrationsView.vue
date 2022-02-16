@@ -1,12 +1,12 @@
 <template>
   <v-sheet>
-    <template v-if="fetching && accountPhone === ''">
+    <template v-if="fetching">
       <div class="d-flex align-center justify-center fill-height">
         <app-loading />
       </div>
     </template>
     <template v-else>
-      <template v-if="messengers.name === 'Telegram'">
+      <template v-if="currentMessengers.name === 'Telegram'">
         <v-alert
           border="top"
           colored-border
@@ -56,7 +56,8 @@
           </div>
         </v-container>
       </template>
-      <template v-if="messengers.name === 'WhatsApp'">
+
+      <template v-if="currentMessengers.name === 'WhatsApp'">
         <v-container
           class="mt-5"
           style="max-width: 500px"
@@ -74,7 +75,8 @@
           />
         </v-container>
       </template>
-      <template v-if="messengers.name === 'Instagram'">
+
+      <template v-if="currentMessengers.name === 'Instagram'">
         <v-container
           class="mt-5"
           style="max-width: 500px"
@@ -103,7 +105,7 @@
             tile
             text
             outlined
-            @click="onBtnSaveClick"
+            @click="integrationId ? onBtnChangeClick() : onBtnSaveClick()"
           >
             {{ $tc('Save change') }}
           </v-btn>
@@ -152,10 +154,12 @@ export default class IntegrationsView extends Vue {
   get apiHash () { return this.$store.getters['chats/integrations/api_hash'] }
   set apiHash (val: string) { this.$store.commit('chats/integrations/api_hash', val) }
 
-  /// get messenger () { return this.$store.getters['chats/integrations/messenger'] }
 
-  // Доступные мессенджеры из справочника
-  get messengers () { return this.$store.getters['chats/messengers/items'] }
+  // Текущий мессенджер по ID роута
+  get currentMessengers () { return this.$store.state.chats.messengers.items.find((v) => v.id === this.$route.params.id) }
+
+  // ID записи настроек интеграции
+  get integrationId () { return this.$store.state.chats.integrations.id }
 
   /**
    * Создаем новые параметры для подключения к API
@@ -167,8 +171,9 @@ export default class IntegrationsView extends Vue {
 
     requestData.phone = this.accountPhone
 
+    // Необязательные параметры например для WhatsApp не задаются
     if (this.apiId) { requestData.api_id = this.apiId }
-    if (this.apiHash) { requestData.api_id = this.apiHash }
+    if (this.apiHash) { requestData.api_hash = this.apiHash }
 
     this.$axios
       .post(`/integrations/${this.$route.params.id}`, requestData)
@@ -176,7 +181,6 @@ export default class IntegrationsView extends Vue {
       if (response.status !== 200) {
         throw new APIError(response.data)
       }
-
       this.$toast.success('Changes accepted')
     }).catch((reason: Error | APIError) => {
       if (reason instanceof APIError) {
@@ -195,14 +199,38 @@ export default class IntegrationsView extends Vue {
    */
   private onBtnChangeClick () {
     // Change params
+    const requestData: Record<string, unknown> = {}
+
+    requestData.phone = this.accountPhone
+
+    // Необязательные параметры например для WhatApp не задаются
+    if (this.apiId) { requestData.api_id = this.apiId }
+    if (this.apiHash) { requestData.api_hash = this.apiHash }
+
+    this.$axios
+      .patch(`/integrations/${this.$route.params.id}`, requestData)
+      .then((response) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+        this.$toast.success('Changes accepted')
+      }).catch((reason: Error | APIError) => {
+      if (reason instanceof APIError) {
+        reason.errors.forEach((e) => {
+          this.$toast.error(e.message)
+        })
+      } else {
+        this.$toast.error(reason.message)
+      }
+    }).finally(() => (this.saveProcess = false))
   }
 
   /**
-   * Старт сессии API
+   * Старт сессии API и переход на страницу верификации
    * @private
    */
   private onBtnSessionStartClick () {
-    // Change params
+    // TODO: Реализовать как будет внешний сервис
   }
 
   /**
@@ -210,7 +238,7 @@ export default class IntegrationsView extends Vue {
    * @private
    */
   private onBtnSessionStopClick () {
-    // Change params
+    // TODO: Реализовать как будет внешний сервис
   }
 
   /**
@@ -218,7 +246,7 @@ export default class IntegrationsView extends Vue {
    * @private
    */
   private onBtnSessionDeleteClick () {
-    // Change params
+    // TODO: Реализовать как будет внешний сервис
   }
 }
 </script>

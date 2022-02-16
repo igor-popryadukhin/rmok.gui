@@ -21,6 +21,7 @@ const actions: ActionTree<State, RootState> = {
             throw new APIError(response.data)
           }
 
+          commit('id', response.data?.id || null)
           commit('account_phone', response.data?.account_phone || null)
           commit('api_id', response.data?.api_id || null)
           commit('api_hash', response.data?.api_hash || null)
