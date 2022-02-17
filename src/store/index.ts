@@ -31,6 +31,7 @@ import { roles } from './roles'
 import { statistics } from './statistics'
 import LocalStorage from './LocalStorage'
 import SessionStorage from './SessionStorage'
+import chats from './chats'
 
 Vue.use(Vuex)
 
@@ -81,7 +82,8 @@ const store = new Vuex.Store({
     statistic_all_call,
     autodialer,
     statistic_activity,
-    scenarios
+    scenarios,
+    chats
   },
 
   mutations: {},
