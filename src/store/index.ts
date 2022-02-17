@@ -1,4 +1,3 @@
-import StorageInterface from '@/store/StorageInterface'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
@@ -38,10 +37,6 @@ Vue.use(Vuex)
 const vuexDebug = debug('VUEX')
 const vuexDebugActions = vuexDebug.extend('ACTION')
 const vuexDebugMutations = vuexDebug.extend('MUTATION')
-const vuexDebugPersistedState = vuexDebug.extend('PERSISTED-STATE')
-const vuexDebugPersistedStateGet = vuexDebugPersistedState.extend('GET')
-const vuexDebugPersistedStateSet = vuexDebugPersistedState.extend('SET')
-const vuexDebugPersistedStateRemove = vuexDebugPersistedState.extend('REMOVE')
 
 export interface RootState {
   root: number;
@@ -136,11 +131,3 @@ store.subscribe((ap, rs) => {
 })
 
 export default store
-
-function debounce (fn: CallableFunction, delay: number) {
-  let timeoutId = 0 as any
-  return (...args: any[]) => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn(...args), delay)
-  }
-}
