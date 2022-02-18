@@ -2,12 +2,12 @@
   <div class="app-chat-message">
     <div
       class="row mb-2"
-      :class="{ 'reverse': sent }"
+      :class="{ 'reverse': out }"
     >
       <div>
         <div
           class="app-chat-message-name"
-          :class="{ 'app-chat-message-name-sent': sent }"
+          :class="{ 'app-chat-message-name-out': out }"
         >
           <slot
             name="user"
@@ -18,7 +18,7 @@
         </div>
         <div
           class="app-chat-message-text"
-          :class="sent ? 'app-chat-message-text--sent' : 'app-chat-message-text--received'"
+          :class="out ? 'app-chat-message-text--out' : 'app-chat-message-text--received'"
         >
           <div class="app-chat-message-text-content">
             <div>
@@ -34,7 +34,7 @@
                 {{ dateTime }}
               </span>
               <slot name="statusIcons">
-                <template v-if="status === 'sent'">
+                <template v-if="status === 'out'">
                   <v-icon
                     style="font-size: 18px;"
                   >
@@ -82,7 +82,7 @@ export default class AppChatMessage extends Vue {
     }
   }) status!: string
 
-  @Prop({ default: () => false }) sent!: boolean
+  @Prop({ default: () => false }) out!: boolean
 }
 </script>
 
@@ -113,11 +113,11 @@ export default class AppChatMessage extends Vue {
   word-break: break-word;
 }
 
-.app-chat-message-name-sent {
+.app-chat-message-name-out {
   text-align: right;
 }
 
-.app-chat-message-text--sent {
+.app-chat-message-text--out {
   border-radius: 4px 4px 0 4px;
   color: #e0e0e0;
 }
@@ -129,7 +129,7 @@ export default class AppChatMessage extends Vue {
   position: absolute;
   width: 0;
 }
-.app-chat-message-text--sent:last-child:before {
+.app-chat-message-text--out:last-child:before {
   border-bottom: 8px solid;
   border-left: 0 solid #0000;
   border-right: 8px solid #0000;

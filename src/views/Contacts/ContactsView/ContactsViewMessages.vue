@@ -30,10 +30,7 @@
         </v-btn>
       </div>
     </div>
-    <div
-      ref="messageBox"
-      class="chat-page__box overflow-y-auto pa-5"
-    >
+    <div class="chat-page__box overflow-y-auto pa-5">
       <div
         v-if="messagesFetching && messages.length === 0"
         class="d-flex align-center justify-center fill-height"
@@ -44,13 +41,13 @@
         <app-chat-message
           v-for="item in messages"
           :key="'app-chat-message-' + item.id"
-          :name="item.owner_name"
+          class="mx-2"
+          :name="item.out ? item.owner_name : item.contact_name"
           :text="item.text"
-          :sent="item.direction"
+          :out="item.out"
           :date-time="$dayjs(item.created_at).format('HH:mm')"
           :status="item.status"
         />
-        <div ref="messageAnchor" />
       </template>
     </div>
     <div class="chat-page__bottom-control">
@@ -107,7 +104,7 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
 import AppChat from '@/components/AppChat/AppChat.vue'
 import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
-import { Prop, Ref, Watch } from 'vue-property-decorator'
+import { Prop } from 'vue-property-decorator'
 
 @Component<ContactsViewChat>({
   components: { AppLoading, AppChatMessage, AppChat },
@@ -124,24 +121,10 @@ import { Prop, Ref, Watch } from 'vue-property-decorator'
 export default class ContactsViewChat extends AppBase {
   @Prop({ default: () => false }) readonly disabled!: boolean
 
-  @Ref('messageBox') readonly messageBox!: HTMLElement
-  @Ref('messageAnchor') readonly messageAnchor!: HTMLElement
-
   text = null
 
   get messagesFetching () { return this.$store.getters['contacts/view/messages/items_fetching'] }
   get messages () { return this.$store.getters['contacts/view/messages/items'] }
-
-  @Watch('messages')
-  messagesWatch () {
-    setTimeout(() => {
-      // this.messageAnchor.scrollIntoView({
-      //   behavior: 'smooth',
-      //   block: 'end',
-      //   inline: 'nearest'
-      // })
-    }, 0)
-  }
 
   public created () {
     this.$root.$on('sse-messenger-message', this.onSSEMessengerMessage)
