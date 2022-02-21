@@ -52,6 +52,7 @@
   "By the number of calls": "По количеству вызовов",
   "Call": "Позвонить",
   "Call duration": "Длительность звонка",
+  "Call types": "Типы вызовов",
   "Calls": "Вызовы",
   "Cancel": "Отмена",
   "Cancel selection": "Отменить выбор",
@@ -281,6 +282,7 @@
   "Projects": "Проекты",
   "Quantity": "Количество",
   "Queue": "Очередь",
+  "Queue number": "Номер очереди",
   "Random color": "Случайный цвет",
   "Range": "Интервал",
   "Rate the quality of the connection": "Оцените качество связи",
@@ -659,6 +661,5 @@
   "unknown_number": "Неизвестный номер",
   "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети",
   "video": "Видео",
-  "yes": "Да",
-  "Call types": "Типы вызовов"
+  "yes": "Да"
 }

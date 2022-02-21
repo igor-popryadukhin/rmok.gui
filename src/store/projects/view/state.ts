@@ -7,6 +7,7 @@ export interface ProjectsViewState {
   project_description: string;
   project_scenario: string;
   project_statuses: Status[];
+  project_queue_number: string|null;
 }
 
 export function defaultState (): ProjectsViewState {
@@ -16,7 +17,8 @@ export function defaultState (): ProjectsViewState {
     project_name: '',
     project_description: '',
     project_scenario: '',
-    project_statuses: []
+    project_statuses: [],
+    project_queue_number: null
   }
 }
 

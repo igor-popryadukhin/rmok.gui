@@ -24,6 +24,17 @@
         />
       </div>
 
+      <div class="mb-3">
+        <v-text-field
+          v-model="queueNumber"
+          :label="$tc('Queue number')"
+          clearable
+          dense
+          outlined
+          flat
+        />
+      </div>
+
       <div class="mb-4">
         <h4 class="grey--text mb-1">
           {{ $tc('Scenario') }}
@@ -72,13 +83,16 @@ export default class ProjectsViewMain extends AppBase {
   set description (val: string) { this.$store.commit('projects/view/project_description', val) }
   get scenario () { return this.$store.getters['projects/view/project_scenario'] }
   set scenario (val: string) { this.$store.commit('projects/view/project_scenario', val) }
+  get queueNumber (): string|null { return this.$store.getters['projects/view/project_queue_number'] }
+  set queueNumber (val: string|null) { this.$store.commit('projects/view/project_queue_number', val) }
 
   private projectSave () {
     this.conservationProcess = true
     this.$axios.patch(`/projects/${this.$route.params.id}`, {
       name: this.name,
       description: this.description,
-      scenario: this.scenario
+      scenario: this.scenario,
+      queue_number: this.queueNumber || ''
     }).then((response) => {
       if (response.status !== 200) {
         throw new APIError(response.data)
