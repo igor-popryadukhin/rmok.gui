@@ -767,6 +767,14 @@ export default class ContactsView extends AppBase {
    * @param phone
    */
   private onBtnCallClick (phone: ContactDetail) {
+
+    // Если вкладка не сценарий, то переходим
+    if (this.$route.name !== 'contacts_view_scenario') {
+      this.$router.push({
+        name: 'contacts_view_scenario'
+      })
+    }
+
     this.$audio.play('/sounds/tick.mp3')
 
     if (phone.type !== 'phone') {

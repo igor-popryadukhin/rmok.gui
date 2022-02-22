@@ -195,7 +195,7 @@ const routes: RouteConfig[] = [
   {
     name: 'contacts_view',
     path: '/contacts/:id',
-    redirect: { name: 'contacts_view_scenario' },
+    redirect: { name: 'contacts_view_history' },
     component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/ContactsView/ContactsView.vue'),
     children: [
       {
