@@ -578,17 +578,31 @@ const routes: RouteConfig[] = [
   {
     name: 'integrations',
     path: '/integrations',
-    component: () => import(/* webpackChunkName: "integrations" */ '../views/Chats/Integrations/Integrations.vue'),
+    component: () => import(/* webpackChunkName: "integrations" */ '../views/Integrations/Integrations.vue'),
     meta: { layout: 'default', middleware: [] },
     children: []
   },
   {
-    name: 'integrations_view',
-    path: '/integrations/:id',
-    component: () => import(/* webpackChunkName: "integrations-view" */ '../views/Chats/Integrations/IntegrationsView.vue'),
+    name: 'integrations_whatsapp',
+    path: '/integrations/whatsapp',
+    component: () => import(/* webpackChunkName: "integrations-whatsapp" */ '../views/Integrations/Whatsapp/Whatsapp.vue'),
     meta: { layout: 'default', middleware: [] },
     children: []
   }
+  // {
+  //   name: 'integrations',
+  //   path: '/integrations',
+  //   component: () => import(/* webpackChunkName: "integrations" */ '../views/Chats/Integrations/Integrations.vue'),
+  //   meta: { layout: 'default', middleware: [] },
+  //   children: []
+  // },
+  // {
+  //   name: 'integrations_view',
+  //   path: '/integrations/:id',
+  //   component: () => import(/* webpackChunkName: "integrations-view" */ '../views/Chats/Integrations/IntegrationsView.vue'),
+  //   meta: { layout: 'default', middleware: [] },
+  //   children: []
+  // }
 ]
 
 // Symfony profiler

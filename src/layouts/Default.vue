@@ -944,11 +944,7 @@ export default class DefaultLayout extends AppBase {
             visible: true
           },
           {
-            attrs: {
-              to: {
-                name: 'integrations'
-              }
-            },
+            attrs: { to: { name: 'integrations' } },
             title: 'Integrations',
             icon: 'mdi-api',
             visible: true

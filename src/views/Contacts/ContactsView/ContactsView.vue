@@ -622,6 +622,7 @@ export default class ContactsView extends AppBase {
     dateTime: dayjs().format(dateTimeFormat),
     description: ''
   }
+  eventSource: EventSource|null = null
 
   get tab () { return this.$route.path }
   set tab (value: string) { this.$appDebug('Tab: %s', value) }
@@ -753,8 +754,13 @@ export default class ContactsView extends AppBase {
     this.$root.$on('dialer-session-finality', this.onDialerSessionFinality)
   }
 
+  public mounted () {
+    this.sseOpen()
+  }
+
   public beforeDestroy () {
     this.$root.$off('dialer-session-finality', this.onDialerSessionFinality)
+    this.sseClose()
   }
 
   private onDialerSessionFinality () {
@@ -852,6 +858,43 @@ export default class ContactsView extends AppBase {
     }
 
     return 'Не верный формат'
+  }
+
+  /**
+   * Открывает соединение SSE.
+   * @private
+   */
+  private sseOpen () {
+    if ('VUE_APP_SSE' in process.env) {
+      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
+
+      // Темы для подписок
+      url.searchParams.append('topic', `contacts/${this.$route.params.id}/messages`)
+
+      this.eventSource = new EventSource(url, {
+        withCredentials: true
+      })
+
+      this.eventSource.addEventListener("messenger:message", this.onSSENewMessage)
+    }
+  }
+
+  /**
+   * Закрывает соединение SSE.
+   *
+   * @private
+   */
+  private sseClose () {
+    if (this.eventSource instanceof EventSource) {
+      this.eventSource.removeEventListener("messenger:message", this.onSSENewMessage)
+      this.eventSource.close()
+    }
+  }
+
+  private onSSENewMessage (event: MessageEvent<string> | Event) {
+    if (event instanceof MessageEvent) {
+      this.$root.$emit("messenger:message", JSON.parse(event.data))
+    }
   }
 }
 

@@ -106,6 +106,11 @@ import AppChat from '@/components/AppChat/AppChat.vue'
 import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
 import { Prop } from 'vue-property-decorator'
 
+interface SSEMessengerMessage {
+  id: number;
+  out: boolean;
+}
+
 @Component<ContactsViewChat>({
   components: { AppLoading, AppChatMessage, AppChat },
   beforeRouteEnter (to, from, next) {
@@ -127,16 +132,20 @@ export default class ContactsViewChat extends AppBase {
   get messages () { return this.$store.getters['contacts/view/messages/items'] }
 
   public created () {
-    this.$root.$on('sse-messenger-message', this.onSSEMessengerMessage)
+    this.$root.$on('messenger:message', this.onSSEMessengerMessage)
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse-messenger-message', this.onSSEMessengerMessage)
+    this.$root.$off('messenger:message', this.onSSEMessengerMessage)
   }
 
-  private onSSEMessengerMessage () {
+  private onSSEMessengerMessage (data: SSEMessengerMessage) {
     this.$store.dispatch('contacts/view/messages/fetch', {
       contact_id: this.$route.params.id
+    }).finally(() => {
+      if (data.out === false) {
+        this.$audio.play('/sounds/messenger/message-1.mp3')
+      }
     })
   }
 
@@ -164,6 +173,8 @@ export default class ContactsViewChat extends AppBase {
     this.$axios.post('/chat/messages', {
       contact_id: this.$route.params.id,
       text: this.text
+    }).finally(() => {
+      this.$audio.play('/sounds/messenger/sentmessage-1.mp3')
     })
     this.text = null
   }
@@ -177,14 +188,6 @@ export default class ContactsViewChat extends AppBase {
    * @protected
    */
   private onAttachMediaFiles () {
-    // Some code
-  }
-
-  /**
-   * Выбрать шаблон сообщения
-   * @protected
-   */
-  private onSelectTemplateMessage () {
     // Some code
   }
 }
