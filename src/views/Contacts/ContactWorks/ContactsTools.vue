@@ -1,16 +1,6 @@
 <template>
   <div class="d-flex">
     <v-btn
-      v-if="!contactsIsSelected"
-      small
-      tile
-      text
-      @click="onBtnAddClick"
-    >
-      {{ $tc('Add') }}
-    </v-btn>
-
-    <v-btn
       v-if="contactsLoading"
       color="red"
       style="min-width: 100px"
@@ -32,22 +22,6 @@
       {{ $tc('Refresh') }}
     </v-btn>
 
-    <app-confirm-dialog
-      text="Хотите удалить?"
-      @click:confirm="onBtnDeleteClick"
-    >
-      <template #activator="{ on }">
-        <v-btn
-          v-if="contactsIsSelected && $isGranted('CONTACTS_DELETE')"
-          small
-          tile
-          text
-          v-on="on"
-        >
-          {{ $tc('Delete') }}
-        </v-btn>
-      </template>
-    </app-confirm-dialog>
     <v-spacer />
     <app-pagination
       v-model="offset"
@@ -76,14 +50,12 @@
 <script lang="ts">
 import AppBase from '@/AppBase'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
-import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue'
 import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import Component from 'vue-class-component'
 import { Emit } from 'vue-property-decorator'
 
 @Component({
   components: {
-    AppConfirmDialog,
     AppBtnSorting,
     AppPagination,
   }
@@ -163,20 +135,12 @@ export default class ContactsTools extends AppBase {
     this.$store.commit('contacts/list/filter/filter_panel_visible', val)
   }
 
-  private onBtnAddClick () {
-    this.$store.commit('contacts/create/dialog_visible', true)
-  }
-
   private onBtnRefreshClick () {
     this.$store.dispatch('contacts/list_works/fetch')
   }
 
   private onBtnCancelClick () {
     this.$store.dispatch('contacts/list/cancelFetch')
-  }
-
-  private onBtnDeleteClick () {
-    // TODO: Handler
   }
 }
 </script>

@@ -134,8 +134,8 @@ import ContactsTools from './ContactsTools.vue'
   }
 })
 export default class ContactsWorks extends AppBase {
-  get settingsFilterWidth (): number { return this.$store.getters['contacts/list/settings/filter_width'] }
-  set settingsFilterWidth (val: number) { this.$store.commit('contacts/list/settings/filter_width', val) }
+  get settingsFilterWidth (): number { return this.$store.getters['contacts/list_works/settings/filter_width'] }
+  set settingsFilterWidth (val: number) { this.$store.commit('contacts/list_works/settings/filter_width', val) }
 
   get contactsHeaders () {
     return [
