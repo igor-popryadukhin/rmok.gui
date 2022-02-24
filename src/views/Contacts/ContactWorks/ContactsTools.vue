@@ -48,19 +48,6 @@
         </v-btn>
       </template>
     </app-confirm-dialog>
-
-
-
-    <!-- Добавление в автодозвон -->
-
-    <!-- Импорт -->
-
-
-    <!-- Экспорт -->
-
-
-    <!-- Установка тегов -->
-
     <v-spacer />
     <app-pagination
       v-model="offset"
@@ -190,14 +177,6 @@ export default class ContactsTools extends AppBase {
 
   private onBtnDeleteClick () {
     // TODO: Handler
-  }
-
-  private onBtnTransferContactsClick () {
-    this.$store.dispatch('contacts/transfer_dialog/show')
-  }
-
-  private onBtnImportClick (val: string) {
-    this.$store.dispatch('contacts/transfer_dialog/show')
   }
 }
 </script>

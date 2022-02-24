@@ -20,6 +20,6 @@ export function defaultState (): ContactListState {
   }
 }
 
-const state = defaultState()
+const state = defaultState
 
 export default state
