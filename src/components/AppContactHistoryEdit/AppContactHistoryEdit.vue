@@ -3,7 +3,7 @@
     tile
     flat
   >
-    <v-card-title>Edit</v-card-title>
+    <v-card-title>{{ $tc('Edit') }}</v-card-title>
     <div class="px-4">
       <v-select
         v-model="innerStatusId"
