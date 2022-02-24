@@ -705,11 +705,28 @@ export default class DefaultLayout extends AppBase {
       {
         title: 'Contacts',
         icon: 'mdi-contacts',
-        list_item: {
-          to: {
-            name: 'contacts'
+        children: [
+          {
+            attrs: {
+              to: {
+                name: 'contacts'
+              }
+            },
+            icon: '',
+            title: 'All Contacts',
+            visible: true
+          },
+          {
+            attrs: {
+              to: {
+                name: 'contacts_works'
+              }
+            },
+            icon: '',
+            title: 'Contacts at work',
+            visible: true
           }
-        },
+        ],
         visible: true
       },
       {
