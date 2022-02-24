@@ -306,7 +306,7 @@ export default class ContactsViewHistory extends AppBase {
       this.$axios.patch(`/contacts/history/${item.id}`, { status_id, comment })
     })
     // @ts-expect-error: dialog.vmd.$on
-    dialog.vmd.$on('click:btn:cancel', dialog.close)
+    dialog.vmd.$on('click:btn:cancel', () => { dialog.close() })
   }
 
   private async onBtnItemPlayClick (item) {
