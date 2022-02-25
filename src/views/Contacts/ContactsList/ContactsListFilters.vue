@@ -26,7 +26,7 @@
 
     <smart-autocomplete
       v-model="statuses"
-      :disabled="!project && !statuses.length > 0"
+      :disabled="!project"
       :label="$tc('Result')"
       :api-query="(q) => { return { ...Object.assign({}, q ? { q } : {}) } }"
       :items="statuses ? statuses : []"
