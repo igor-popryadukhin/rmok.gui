@@ -11,15 +11,15 @@ const mutations: MutationTree<State> = {
   /// //////////////////////////////////////////////////////////////////////////
   filter_q (state: State, payload) { state.filter_q = payload },
   filter_project (state: State, payload) { state.filter_project = payload },
-  filter_status_ids (state: State, payload) { state.filter_status_ids = payload },
-  filter_owner_id (state: State, payload) { state.filter_owner_id = payload },
-  filter_user_group_id (state: State, payload) { state.filter_user_group_id = payload },
-  filter_tag_ids (state: State, payload) { state.filter_tag_ids = payload },
+  filter_statuses (state: State, payload) { state.filter_statuses = payload },
+  filter_owner (state: State, payload) { state.filter_owner = payload },
+  filter_user_group (state: State, payload) { state.filter_user_group = payload },
+  filter_tags (state: State, payload) { state.filter_tags = payload },
   filter_contact_created_at (state: State, payload) { state.filter_contact_created_at = payload },
   filter_called (state: State, payload) { state.filter_called = payload },
   filter_offset (state: State, payload) { state.filter_offset = payload },
   filter_task (state, payload) { state.filter_task = payload },
-  filter_timezone_id (state: State, payload) { state.filter_timezone_id = payload },
+  filter_timezone (state: State, payload) { state.filter_timezone = payload },
 
   order_by (state: State, payload) { state.order_by = payload },
   order_direction (state: State, payload) { state.order_direction = payload }

@@ -42,15 +42,15 @@ export interface State {
   /// /////////////////////////////////
   filter_q: string|null;
   filter_project: Project|null;
-  filter_status_ids: number[];
-  filter_owner_id: number;
-  filter_user_group_id: number;
-  filter_tag_ids: number[];
+  filter_statuses: Status[]|null;
+  filter_owner: User|null;
+  filter_user_group: UserGroup|null;
+  filter_tags: Tag[]|null;
   filter_contact_created_at: string;
   filter_called: null | 'yes' | 'no';
   filter_offset: number;
   filter_task: string|null;
-  filter_timezone_id: number|null;
+  filter_timezone: TimeZone|null;
 
   order_by: string|null;
   order_direction: 'asc' | 'desc';
@@ -68,15 +68,15 @@ export function defaultState (): State {
     /// /////////////////////////////////
     filter_q: '',
     filter_project: null,
-    filter_status_ids: [],
-    filter_owner_id: 0,
-    filter_user_group_id: 0,
-    filter_tag_ids: [],
+    filter_statuses: null,
+    filter_owner: null,
+    filter_user_group: null,
+    filter_tags: null,
     filter_contact_created_at: '',
     filter_called: null,
     filter_offset: 0,
     filter_task: '',
-    filter_timezone_id: null,
+    filter_timezone: null,
 
     order_by: '',
     order_direction: 'asc'
