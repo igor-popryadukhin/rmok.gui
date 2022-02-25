@@ -10,7 +10,7 @@ const mutations: MutationTree<State> = {
   timezones (state: State, payload) { state.timezones = payload },
   /// //////////////////////////////////////////////////////////////////////////
   filter_q (state: State, payload) { state.filter_q = payload },
-  filter_project_id (state: State, payload) { state.filter_project_id = payload },
+  filter_project (state: State, payload) { state.filter_project = payload },
   filter_status_ids (state: State, payload) { state.filter_status_ids = payload },
   filter_owner_id (state: State, payload) { state.filter_owner_id = payload },
   filter_user_group_id (state: State, payload) { state.filter_user_group_id = payload },
@@ -22,9 +22,8 @@ const mutations: MutationTree<State> = {
   filter_timezone_id (state: State, payload) { state.filter_timezone_id = payload },
 
   order_by (state: State, payload) { state.order_by = payload },
-  order_direction (state: State, payload) { state.order_direction = payload },
+  order_direction (state: State, payload) { state.order_direction = payload }
   /// //////////////////////////////////////////////////////////////////////////
-  filter_panel_visible (state: State, payload) { state.filter_panel_visible = payload }
 }
 
 export default mutations

@@ -41,7 +41,7 @@ export interface State {
   timezones: TimeZone[];
   /// /////////////////////////////////
   filter_q: string|null;
-  filter_project_id: number;
+  filter_project: Project|null;
   filter_status_ids: number[];
   filter_owner_id: number;
   filter_user_group_id: number;
@@ -55,7 +55,6 @@ export interface State {
   order_by: string|null;
   order_direction: 'asc' | 'desc';
   /// /////////////////////////////////
-  filter_panel_visible: boolean;
 }
 
 export function defaultState (): State {
@@ -68,7 +67,7 @@ export function defaultState (): State {
     timezones: [],
     /// /////////////////////////////////
     filter_q: '',
-    filter_project_id: 0,
+    filter_project: null,
     filter_status_ids: [],
     filter_owner_id: 0,
     filter_user_group_id: 0,
@@ -80,10 +79,9 @@ export function defaultState (): State {
     filter_timezone_id: null,
 
     order_by: '',
-    order_direction: 'asc',
+    order_direction: 'asc'
     /// /////////////////////////////////
-    filter_panel_visible: true
   }
 }
 
-export const state = defaultState()
+export const state = defaultState

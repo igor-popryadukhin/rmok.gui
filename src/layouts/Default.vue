@@ -719,7 +719,7 @@ export default class DefaultLayout extends AppBase {
           {
             attrs: {
               to: {
-                name: 'contacts_works'
+                name: 'contacts_in_works'
               }
             },
             icon: '',

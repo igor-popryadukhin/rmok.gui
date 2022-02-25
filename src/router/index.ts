@@ -187,15 +187,15 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [] }
   },
   {
-    name: 'contacts_works',
-    path: '/contacts-works',
-    component: () => import(/* webpackChunkName: "contacts-works" */ '../views/Contacts/ContactWorks/ContactsWorks.vue'),
+    name: 'contacts_in_works',
+    path: '/contacts-in-work',
+    component: () => import(/* webpackChunkName: "contacts-in-work" */ '../views/Contacts/ContactsInWork/ContactsInWork.vue'),
     meta: { layout: 'default', middleware: [] }
   },
   {
     name: 'contacts',
     path: '/contacts',
-    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/ContactList/Contacts.vue'),
+    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/ContactsList/ContactsList.vue'),
     meta: { layout: 'default', middleware: [] }
   },
   {

@@ -1,13 +1,13 @@
 import { RootState } from '@/store'
 import { ActionContext, ActionTree } from 'vuex'
-import { ContactListState } from './state'
+import { ContactsListState } from './state'
 import axios, { AxiosResponse, CancelTokenSource } from 'axios'
 import { $axios } from '@/plugins/axios'
 
 const cancelTokenSources: CancelTokenSource[] = []
 
-const actions: ActionTree<ContactListState, RootState> = {
-  fetch: ({ commit, state, getters }: ActionContext<ContactListState, RootState>) => {
+const actions: ActionTree<ContactsListState, RootState> = {
+  fetch: ({ commit, state, getters }: ActionContext<ContactsListState, RootState>) => {
     const len = cancelTokenSources.length
     for (let i = 0; i < len; i++) {
       cancelTokenSources.pop()?.cancel()

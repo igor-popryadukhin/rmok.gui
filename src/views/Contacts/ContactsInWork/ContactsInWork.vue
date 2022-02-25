@@ -1,6 +1,6 @@
 <template>
   <div>
-    <contacts-tools
+    <contacts-works-tools
       class="mb-2"
       @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
     />
@@ -112,30 +112,29 @@ import AppTable from '@/components/AppTable/AppTable.vue'
 import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 import { Watch } from 'vue-property-decorator'
-import ContactsTools from './ContactsTools.vue'
+import ContactsInWorkTools from './ContactsInWorkTools.vue'
 
 // eslint-disable-next-line no-use-before-define
-@Component<ContactsWorks>({
+@Component<ContactsInWork>({
   components: {
     AppBlockResize,
     AppInfoLine,
     AppLoading,
-    AppNavigationDrawer: () => import('@/components/AppNavigationDrawer/AppNavigationDrawer.vue'),
-    ContactListFilters: () => import('./ContactsWorksFilters.vue'),
+    ContactsListFilters: () => import('./ContactsInWorkFilters.vue'),
     AppTable,
-    ContactsTools
+    ContactsInWorkTools
   },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      if ((vm.$store.getters['contacts/list_works/items'] as Array<Contact>).length === 0) {
-         vm.$store.dispatch('contacts/list_works/fetch')
+      if ((vm.$store.getters['contacts/list_in_works/items'] as Array<Contact>).length === 0) {
+         vm.$store.dispatch('contacts/list_in_works/fetch')
       }
     })
   }
 })
-export default class ContactsWorks extends AppBase {
-  get settingsFilterWidth (): number { return this.$store.getters['contacts/list_works/settings/filter_width'] }
-  set settingsFilterWidth (val: number) { this.$store.commit('contacts/list_works/settings/filter_width', val) }
+export default class ContactsInWork extends AppBase {
+  get settingsFilterWidth (): number { return this.$store.getters['contacts/list_in_works/settings/filter_width'] }
+  set settingsFilterWidth (val: number) { this.$store.commit('contacts/list_in_works/settings/filter_width', val) }
 
   get contactsHeaders () {
     return [
@@ -185,7 +184,7 @@ export default class ContactsWorks extends AppBase {
   }
 
   get contacts () {
-    return (this.$store.getters['contacts/list_works/items'] || [])
+    return (this.$store.getters['contacts/list_in_works/items'] || [])
       .map((e) => {
         return {
           id: e.id,
@@ -198,17 +197,17 @@ export default class ContactsWorks extends AppBase {
       })
   }
 
-  get contactsTotal (): number { return this.$store.getters['contacts/list_works/items_total'] }
+  get contactsTotal (): number { return this.$store.getters['contacts/list_in_works/items_total'] }
 
-  get contactsSelectedLength (): number { return (this.$store.getters['contacts/list_works/items_selected'] || []).length }
-  get contactsSelected () { return (this.$store.getters['contacts/list_works/items_selected'] || []) }
-  set contactsSelected (val) { this.$store.commit('contacts/list_works/items_selected', val) }
+  get contactsSelectedLength (): number { return (this.$store.getters['contacts/list_in_works/items_selected'] || []).length }
+  get contactsSelected () { return (this.$store.getters['contacts/list_in_works/items_selected'] || []) }
+  set contactsSelected (val) { this.$store.commit('contacts/list_in_works/items_selected', val) }
 
-  get contactsLoading (): boolean { return this.$store.getters['contacts/list_works/loading'] }
+  get contactsLoading (): boolean { return this.$store.getters['contacts/list_in_works/loading'] }
 
   // Все параметры фильтров
   get filterAll () {
-    return this.$store.getters['contacts/list_works/filter/all']
+    return this.$store.getters['contacts/list_in_works/filter/all']
   }
 
   // Здесь отслеживаем все параметры фильтров в одном месте.
@@ -232,7 +231,7 @@ export default class ContactsWorks extends AppBase {
    * @private
    */
   private onFilterChange () {
-    this.$store.dispatch('contacts/list_works/fetch')
+    this.$store.dispatch('contacts/list_in_works/fetch')
   }
 
   private onToolsBtnAddToAutodialer () {

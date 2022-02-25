@@ -9,7 +9,7 @@ import create from './create'
 import view from './view'
 import incoming from './incoming'
 import { transfer_dialog } from './transfer_dialog'
-import list_works from './list_works'
+import list_in_works from './list_in_works'
 
 const module: Module<ContactsState, RootState> = {
   actions,
@@ -23,7 +23,7 @@ const module: Module<ContactsState, RootState> = {
     incoming,
     transfer_dialog,
     create,
-    list_works
+    list_in_works
   }
 }
 

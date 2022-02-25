@@ -12,9 +12,10 @@
 
     <smart-autocomplete
       v-if="$isGranted(['CONTACTS_VIEW_ALL'])"
-      v-model="projectId"
+      v-model="project"
       :label="$tc('Project')"
       :api-query="(q) => { return { q } }"
+      :items="project ? [project] : []"
       api-end-point="/projects"
       item-text="name"
       item-value="id"
@@ -25,10 +26,9 @@
 
     <smart-autocomplete
       v-model="statusIds"
-      :disabled="!projectId"
+      :disabled="!project"
       :label="$tc('Result')"
-      :filter="(item) => item.project.id == projectId"
-      :api-query="(q) => { return { ...Object.assign({}, q ? { q } : {}), project_id: projectId } }"
+      :api-query="(q) => { return { ...Object.assign({}, q ? { q } : {}) } }"
       api-end-point="/statuses"
       item-text="name"
       item-value="id"
@@ -83,8 +83,8 @@
       v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
       v-model="userId"
       :label="$tc('Responsible')"
-      :filter="(item) => item.project && item.project.id === projectId"
-      :api-query="(q) => { return {q, project_id: projectId} }"
+      :filter="(item) => item.project && item.project.id === project"
+      :api-query="(q) => { return { q } }"
       api-end-point="/users"
       item-text="full_name"
       item-value="id"
@@ -213,77 +213,70 @@ import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 
 // eslint-disable-next-line no-use-before-define
-@Component<ContactsWorksFilters>({
+@Component<ContactsListFilters>({
   components: { SmartAutocomplete, AppMenuDatePicker, AppAutocomplete }
 })
-export default class ContactsWorksFilters extends AppBase {
-  /** Текущий проект пользователя */
-  get profileProjectId (): number { return this.$store.getters['profile/project']?.id || 0 }
+export default class ContactsListFilters extends AppBase {
 
   // region Параметры запроса
-  get q (): string|null { return this.$store.getters['contacts/list_works/filter/filter_q'] }
+  get q (): string|null { return this.$store.getters['contacts/list/filter/filter_q'] }
 
-  set q (val: string|null) { this.$store.commit('contacts/list_works/filter/filter_q', val) }
+  set q (val: string|null) { this.$store.commit('contacts/list/filter/filter_q', val) }
 
-  get projectId (): number|null {
-    return this.$store.getters['contacts/list_works/filter/filter_project_id'] ||
-      this.profileProjectId
+  get project () {
+    return this.$store.getters['contacts/list/filter/filter_project']
   }
 
-  set projectId (val: number) {
-    this.$store.commit('contacts/list_works/filter/filter_project_id', val)
-
-    // Сброс состояния связанных фильтров
-    this.$store.commit('contacts/list_works/filter/filter_owner_id', 0)
-    this.$store.commit('contacts/list_works/filter/filter_status_ids', [])
+  set project (val) {
+    this.$store.commit('contacts/list/filter/filter_project', val)
   }
 
   get statusIds (): number[] {
-    return this.$store.getters['contacts/list_works/filter/filter_status_ids']
+    return this.$store.getters['contacts/list/filter/filter_status_ids']
   }
 
   set statusIds (val: string|number|(string|number)[]) {
-    this.$store.commit('contacts/list_works/filter/filter_status_ids', val)
+    this.$store.commit('contacts/list/filter/filter_status_ids', val)
   }
 
-  get userGroupId (): number|null { return this.$store.getters['contacts/list_works/filter/filter_user_group_id'] }
+  get userGroupId (): number|null { return this.$store.getters['contacts/list/filter/filter_user_group_id'] }
 
   set userGroupId (val: string|number) {
-    this.$store.commit('contacts/list_works/filter/filter_user_group_id', val)
+    this.$store.commit('contacts/list/filter/filter_user_group_id', val)
   }
 
-  get userId (): number|null { return this.$store.getters['contacts/list_works/filter/filter_owner_id'] }
+  get userId (): number|null { return this.$store.getters['contacts/list/filter/filter_owner_id'] }
 
   set userId (val: string|number) {
-    this.$store.commit('contacts/list_works/filter/filter_owner_id', val)
+    this.$store.commit('contacts/list/filter/filter_owner_id', val)
   }
 
-  get task (): string { return this.$store.getters['contacts/list_works/filter/filter_task'] }
+  get task (): string { return this.$store.getters['contacts/list/filter/filter_task'] }
 
-  set task (val: string) { this.$store.commit('contacts/list_works/filter/filter_task', val) }
+  set task (val: string) { this.$store.commit('contacts/list/filter/filter_task', val) }
 
-  get called (): string { return this.$store.getters['contacts/list_works/filter/filter_called'] }
+  get called (): string { return this.$store.getters['contacts/list/filter/filter_called'] }
 
-  set called (val: string) { this.$store.commit('contacts/list_works/filter/filter_called', val) }
+  set called (val: string) { this.$store.commit('contacts/list/filter/filter_called', val) }
 
   get tagIds (): number[] {
-    return this.$store.getters['contacts/list_works/filter/filter_tag_ids']
+    return this.$store.getters['contacts/list/filter/filter_tag_ids']
   }
 
   set tagIds (val: number[]) {
-    this.$store.commit('contacts/list_works/filter/filter_tag_ids', val)
+    this.$store.commit('contacts/list/filter/filter_tag_ids', val)
   }
 
   get timeZoneId (): number {
-    return this.$store.getters['contacts/list_works/filter/filter_timezone_id']
+    return this.$store.getters['contacts/list/filter/filter_timezone_id']
   }
 
   set timeZoneId (val: number) {
-    this.$store.commit('contacts/list_works/filter/filter_timezone_id', val)
+    this.$store.commit('contacts/list/filter/filter_timezone_id', val)
   }
 
   get contactCreatedAt (): string[] {
-    const dates = String(this.$store.getters['contacts/list_works/filter/filter_contact_created_at'] || '')
+    const dates = String(this.$store.getters['contacts/list/filter/filter_contact_created_at'] || '')
       .split('|')
     if (dates.length === 2) {
       return dates
@@ -293,9 +286,9 @@ export default class ContactsWorksFilters extends AppBase {
 
   set contactCreatedAt (val: string[]) {
     if (Array.isArray(val) && val.length === 2) {
-      this.$store.commit('contacts/list_works/filter/filter_contact_created_at', val.join('|'))
+      this.$store.commit('contacts/list/filter/filter_contact_created_at', val.join('|'))
     } else if (Array.isArray(val) && val.length === 0) {
-      this.$store.commit('contacts/list_works/filter/filter_contact_created_at', '')
+      this.$store.commit('contacts/list/filter/filter_contact_created_at', '')
     }
   }
 
@@ -339,7 +332,7 @@ export default class ContactsWorksFilters extends AppBase {
    * @private
    */
   private onFilterChange () {
-    this.$store.commit('contacts/list_works/filter/filter_offset', 0)
+    this.$store.commit('contacts/list/filter/filter_offset', 0)
   }
 
   /**

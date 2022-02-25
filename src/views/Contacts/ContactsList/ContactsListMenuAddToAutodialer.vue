@@ -121,7 +121,7 @@ import { Watch } from 'vue-property-decorator'
 @Component({
   components: { AppLoading }
 })
-export default class ContactsMenuAddToAutodialer extends AppBase {
+export default class ContactsListMenuAddToAutodialer extends AppBase {
   first = true
   addingProcess = false
   process = false

@@ -1,13 +1,13 @@
 import { RootState } from '@/store'
 import { ActionContext, ActionTree } from 'vuex'
-import { ContactListState } from './state'
+import { ContactsListState } from './state'
 import axios, { AxiosResponse, CancelTokenSource } from 'axios'
 import { $axios } from '@/plugins/axios'
 
 const cancelTokenSources: CancelTokenSource[] = []
 
-const actions: ActionTree<ContactListState, RootState> = {
-  fetch: ({ commit, state, getters }: ActionContext<ContactListState, RootState>) => {
+const actions: ActionTree<ContactsListState, RootState> = {
+  fetch: ({ commit, state, getters }: ActionContext<ContactsListState, RootState>) => {
     const len = cancelTokenSources.length
     for (let i = 0; i < len; i++) {
       cancelTokenSources.pop()?.cancel()
@@ -36,7 +36,7 @@ const actions: ActionTree<ContactListState, RootState> = {
     })
   },
 
-  add_to_autodialer: ({ state, getters }: ActionContext<ContactListState, RootState>, id: number) => {
+  add_to_autodialer: ({ state, getters }: ActionContext<ContactsListState, RootState>, id: number) => {
     const filter_contacts: Record<string, string|number|Array<string|number>> = getters['filter/all']
 
     if ('count' in filter_contacts) { delete filter_contacts.count }

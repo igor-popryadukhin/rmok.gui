@@ -49,7 +49,7 @@
       </template>
     </app-confirm-dialog>
 
-    <contacts-menu-transfer v-if="contactsIsSelected && $isGranted('CONTACTS_TRANSFER')">
+    <contacts-list-menu-transfer v-if="contactsIsSelected && $isGranted('CONTACTS_TRANSFER')">
       <template #activator="{ on }">
         <v-btn
           small
@@ -61,11 +61,11 @@
           {{ $tc('Transfer contacts') }}
         </v-btn>
       </template>
-    </contacts-menu-transfer>
+    </contacts-list-menu-transfer>
 
     <!-- Добавление в автодозвон -->
     <template v-if="contactsIsSelected && $isGranted('AUTODIALER_MANAGEMENT')">
-      <contacts-menu-add-to-autodialer>
+      <contacts-list-menu-add-to-autodialer>
         <template #activator="{ attrs, on }">
           <v-btn
             v-bind="attrs"
@@ -77,13 +77,13 @@
             {{ $tc('Add to autodial') }}
           </v-btn>
         </template>
-      </contacts-menu-add-to-autodialer>
+      </contacts-list-menu-add-to-autodialer>
     </template>
     <!-- Добавление в автодозвон -->
 
     <!-- Импорт -->
     <template v-if="!contactsIsSelected && $isGranted('CONTACTS_IMPORT')">
-      <contact-list-menu-import>
+      <contacts-list-menu-import>
         <template #activator="{ attrs, on }">
           <v-btn
             v-bind="attrs"
@@ -95,13 +95,13 @@
             {{ $tc('Import') }}
           </v-btn>
         </template>
-      </contact-list-menu-import>
+      </contacts-list-menu-import>
     </template>
     <!-- Импорт -->
 
     <!-- Экспорт -->
     <template v-if="contactsIsSelected && $isGranted('CONTACTS_EXPORT')">
-      <contact-list-menu-export>
+      <contacts-list-menu-export>
         <template #activator="{ attrs, on }">
           <v-btn
             v-bind="attrs"
@@ -113,13 +113,13 @@
             {{ $tc('Export') }}
           </v-btn>
         </template>
-      </contact-list-menu-export>
+      </contacts-list-menu-export>
     </template>
     <!-- Экспорт -->
 
     <!-- Установка тегов -->
     <template v-if="contactsIsSelected && $isGranted('CONTACTS_ASSIGN_TAGS')">
-      <contacts-menu-assign-tags>
+      <contacts-list-menu-assign-tags>
         <template #activator="{ attrs, on }">
           <v-btn
             v-bind="attrs"
@@ -131,7 +131,7 @@
             {{ $tc('Set tags') }}
           </v-btn>
         </template>
-      </contacts-menu-assign-tags>
+      </contacts-list-menu-assign-tags>
     </template>
     <!-- Установка тегов -->
 
@@ -147,16 +147,6 @@
       :items="sortingOptions"
       item-text="name"
     />
-    <v-btn
-      class="ml-1"
-      small
-      tile
-      text
-      @click="filterPanelVisible = !filterPanelVisible"
-    >
-      <v-icon>mdi-filter-outline</v-icon>
-      {{ $tc('Filter') }}
-    </v-btn>
   </div>
 </template>
 
@@ -173,11 +163,11 @@ import { Emit } from 'vue-property-decorator'
     AppConfirmDialog,
     AppBtnSorting,
     AppPagination,
-    ContactsMenuTransfer: () => import('./ContactsMenuTransfer.vue'),
-    ContactsMenuAssignTags: () => import('./ContactsMenuAssignTags.vue'),
-    ContactListMenuImport: () => import('./ContactListMenuImport.vue'),
-    ContactListMenuExport: () => import('./ContactListMenuExport.vue'),
-    ContactsMenuAddToAutodialer: () => import('./ContactsMenuAddToAutodialer.vue')
+    ContactsListMenuTransfer: () => import('./ContactsListMenuTransfer.vue'),
+    ContactsListMenuAssignTags: () => import('./ContactsListMenuAssignTags.vue'),
+    ContactsListMenuImport: () => import('./ContactsListMenuImport.vue'),
+    ContactsListMenuExport: () => import('./ContactsListMenuExport.vue'),
+    ContactsListMenuAddToAutodialer: () => import('./ContactsListMenuAddToAutodialer.vue')
   }
 })
 export default class ContactsTools extends AppBase {
@@ -247,14 +237,6 @@ export default class ContactsTools extends AppBase {
     ]
   }
 
-  get filterPanelVisible (): boolean {
-    return this.$store.getters['contacts/list/filter/filter_panel_visible']
-  }
-
-  set filterPanelVisible (val: boolean) {
-    this.$store.commit('contacts/list/filter/filter_panel_visible', val)
-  }
-
   private onBtnAddClick () {
     this.$store.commit('contacts/create/dialog_visible', true)
   }
@@ -275,7 +257,7 @@ export default class ContactsTools extends AppBase {
     this.$store.dispatch('contacts/transfer_dialog/show')
   }
 
-  private onBtnImportClick (val: string) {
+  private onBtnImportClick () {
     this.$store.dispatch('contacts/transfer_dialog/show')
   }
 }

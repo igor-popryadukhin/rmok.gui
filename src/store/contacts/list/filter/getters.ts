@@ -16,7 +16,7 @@ const getters: GetterTree<State, RootState> & Getters = {
   timezones (state: State) { return state.timezones },
   /// //////////////////////////////////////////////////////////////////////////
   filter_q (state: State) { return state.filter_q },
-  filter_project_id (state: State) { return state.filter_project_id },
+  filter_project (state: State) { return state.filter_project },
   filter_status_ids (state: State) { return state.filter_status_ids },
   filter_owner_id (state: State) { return state.filter_owner_id },
   filter_user_group_id (state: State) { return state.filter_user_group_id },
@@ -29,8 +29,6 @@ const getters: GetterTree<State, RootState> & Getters = {
 
   order_by (state: State) { return state.order_by },
   order_direction (state: State) { return state.order_direction },
-
-  filter_panel_visible (state: State) { return state.filter_panel_visible },
   /// //////////////////////////////////////////////////////////////////////////
   all (state: State) {
     const obj: Record<string, unknown> = {}
@@ -39,8 +37,8 @@ const getters: GetterTree<State, RootState> & Getters = {
       obj.q = state.filter_q
     }
 
-    if (state.filter_project_id) {
-      obj.project_id = state.filter_project_id
+    if (state.filter_project) {
+      obj.project_id = state.filter_project.id
     }
 
     if ((state.filter_status_ids || []).length) {

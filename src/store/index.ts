@@ -100,6 +100,7 @@ const store = new Vuex.Store({
         'symfony',
         'contacts.params',
         'contacts.list.settings',
+        'contacts.list_in_work.settings',
         'contacts.view.settings',
         'contacts.view.unsaved_call',
         'statistic_recent_call.filter',
@@ -115,6 +116,8 @@ const store = new Vuex.Store({
     createPersistedState({
       key: window.origin,
       paths: [
+        'contacts.list.filter',
+        'contacts.list_in_work.filter',
         'statistics.calls_count.filter'
       ],
       storage: new SessionStorage()

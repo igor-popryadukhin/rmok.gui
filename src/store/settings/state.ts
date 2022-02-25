@@ -17,7 +17,7 @@ interface DateTimeFormatInterface {
   long_time: string;
 }
 
-interface ContactListInterface {
+interface ContactsListInterface {
   /** Количество элементов на страницу */
   count_per_page: number;
 }
@@ -28,7 +28,7 @@ interface TooltipInterface {
 }
 
 export interface SettingsStateInterface {
-  contact_list: ContactListInterface,
+  contact_list: ContactsListInterface,
   navigation_drawer: NavigationDrawerInterface;
   container_width: number;
   audio_player: AudioPlayerInterface;

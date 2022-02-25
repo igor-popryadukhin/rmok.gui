@@ -1,6 +1,6 @@
 import Contact from '@/api/interfaces/Contact'
 
-export interface ContactListState {
+export interface ContactsListState {
   loading: boolean;
   per_page: number;
   items: Contact[];
@@ -9,7 +9,7 @@ export interface ContactListState {
   selected_all: boolean;
 }
 
-export function defaultState (): ContactListState {
+export function defaultState (): ContactsListState {
   return {
     loading: false,
     per_page: 100,

@@ -54,13 +54,13 @@ import AppPagination from '@/components/AppPagination/AppPaginator.vue'
 import Component from 'vue-class-component'
 import { Emit } from 'vue-property-decorator'
 
-@Component({
+@Component<ContactsInWorkTools>({
   components: {
     AppBtnSorting,
     AppPagination,
   }
 })
-export default class ContactsTools extends AppBase {
+export default class ContactsInWorkTools extends AppBase {
   @Emit('btn:click:add-to-autodialer')
   emitBtnAddToAutodialer () {
     return undefined

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <contacts-tools
+    <contacts-list-tools
       class="mb-2"
       @btn:click:add-to-autodialer="onToolsBtnAddToAutodialer"
     />
@@ -10,16 +10,16 @@
     />
 
     <!-- Контакт лист -->
-    <div class="d-flex flex-nowrap">
+    <div class="d-flex flex-nowrap py-1">
       <app-block-resize :width.sync="settingsFilterWidth">
-        <contact-list-filters />
+        <contacts-list-filters />
       </app-block-resize>
       <div class="grow pl-2">
         <v-data-table
           v-model="contactsSelected"
           item-key="id"
           selectable-key="id"
-          height="calc(100vh - 120px)"
+          height="calc(100vh - 130px)"
           :item-class="() => 'contacts-item'"
           :headers="contactsHeaders"
           :items="contacts"
@@ -99,12 +99,6 @@
         </v-btn>
       </div>
     </app-info-line>
-
-    <!--    <app-navigation-drawer-->
-    <!--      v-model="filterPanelVisible"-->
-    <!--    >-->
-    <!--      <contact-list-filters />-->
-    <!--    </app-navigation-drawer>-->
   </div>
 </template>
 
@@ -118,19 +112,17 @@ import AppTable from '@/components/AppTable/AppTable.vue'
 import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 import { Watch } from 'vue-property-decorator'
-import ContactsTools from './ContactsTools.vue'
 
 // eslint-disable-next-line no-use-before-define
-@Component<Contacts>({
+@Component<ContactsList>({
   components: {
     AppBlockResize,
     AppInfoLine,
     AppLoading,
-    ContactsTransferDialog: () => import('./ContactsTransferDialog.vue'),
-    AppNavigationDrawer: () => import('@/components/AppNavigationDrawer/AppNavigationDrawer.vue'),
-    ContactListFilters: () => import('./ContactListFilters.vue'),
     AppTable,
-    ContactsTools
+    ContactsListTransferDialog: () => import('./ContactsListTransferDialog.vue'),
+    ContactsListFilters: () => import('./ContactsListFilters.vue'),
+    ContactsListTools: () => import('./ContactsListTools.vue'),
   },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
@@ -140,7 +132,7 @@ import ContactsTools from './ContactsTools.vue'
     })
   }
 })
-export default class Contacts extends AppBase {
+export default class ContactsList extends AppBase {
   get settingsFilterWidth (): number { return this.$store.getters['contacts/list/settings/filter_width'] }
   set settingsFilterWidth (val: number) { this.$store.commit('contacts/list/settings/filter_width', val) }
 

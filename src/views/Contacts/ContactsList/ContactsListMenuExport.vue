@@ -44,7 +44,7 @@ import Component from 'vue-class-component'
 @Component({
   components: { AppLoading }
 })
-export default class ContactListMenuImport extends AppBase {
+export default class ContactsListMenuImport extends AppBase {
   get menuItems () {
     // "xls", "xlsx", "ods", "csv", "html", "tcpdf", "dompdf", "mpdf"
     return [
