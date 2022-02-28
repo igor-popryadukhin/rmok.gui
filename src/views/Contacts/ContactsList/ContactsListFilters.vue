@@ -25,10 +25,11 @@
     />
 
     <smart-autocomplete
-      v-model="statusIds"
+      v-model="statuses"
       :disabled="!project"
       :label="$tc('Result')"
       :api-query="(q) => { return { ...Object.assign({}, q ? { q } : {}) } }"
+      :items="statuses ? statuses : []"
       api-end-point="/statuses"
       item-text="name"
       item-value="id"
@@ -68,9 +69,10 @@
 
     <smart-autocomplete
       v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
-      v-model="userGroupId"
+      v-model="userGroup"
       :label="$tc('Group')"
       :api-query="(q) => { return { q } }"
+      :items="userGroup ? [userGroup] : []"
       api-end-point="/groups"
       item-text="name"
       item-value="id"
@@ -81,10 +83,11 @@
 
     <smart-autocomplete
       v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
-      v-model="userId"
+      v-model="user"
       :label="$tc('Responsible')"
-      :filter="(item) => item.project && item.project.id === project"
+      :filter="(item) => item.project && item.project.id === project.id"
       :api-query="(q) => { return { q } }"
+      :items="user ? [user] : []"
       api-end-point="/users"
       item-text="full_name"
       item-value="id"
@@ -116,9 +119,10 @@
     />
 
     <smart-autocomplete
-      v-model="tagIds"
+      v-model="tags"
       :label="$tc('Tags')"
       :api-query="(q) => { return { q } }"
+      :items="tags ? tags : []"
       api-end-point="/contacts/tags"
       item-color="color"
       item-text="name"
@@ -159,9 +163,10 @@
     </smart-autocomplete>
 
     <smart-autocomplete
-      v-model="timeZoneId"
+      v-model="timeZone"
       :label="$tc('Time zone')"
       api-end-point="/handbooks/timezones"
+      :items="timeZone ? [timeZone] : []"
       item-text="name_local"
       item-value="id"
       store-module-name="timezones"
@@ -219,61 +224,32 @@ import Component from 'vue-class-component'
 export default class ContactsListFilters extends AppBase {
 
   // region Параметры запроса
-  get q (): string|null { return this.$store.getters['contacts/list/filter/filter_q'] }
+  get q () { return this.$store.getters['contacts/list/filter/filter_q'] }
+  set q (val) { this.$store.commit('contacts/list/filter/filter_q', val) }
 
-  set q (val: string|null) { this.$store.commit('contacts/list/filter/filter_q', val) }
+  get project () { return this.$store.getters['contacts/list/filter/filter_project'] }
+  set project (val) { this.$store.commit('contacts/list/filter/filter_project', val) }
 
-  get project () {
-    return this.$store.getters['contacts/list/filter/filter_project']
-  }
+  get statuses () { return this.$store.getters['contacts/list/filter/filter_statuses'] }
+  set statuses (val) { this.$store.commit('contacts/list/filter/filter_statuses', val) }
 
-  set project (val) {
-    this.$store.commit('contacts/list/filter/filter_project', val)
-  }
+  get userGroup () { return this.$store.getters['contacts/list/filter/filter_user_group'] }
+  set userGroup (val) { this.$store.commit('contacts/list/filter/filter_user_group', val) }
 
-  get statusIds (): number[] {
-    return this.$store.getters['contacts/list/filter/filter_status_ids']
-  }
-
-  set statusIds (val: string|number|(string|number)[]) {
-    this.$store.commit('contacts/list/filter/filter_status_ids', val)
-  }
-
-  get userGroupId (): number|null { return this.$store.getters['contacts/list/filter/filter_user_group_id'] }
-
-  set userGroupId (val: string|number) {
-    this.$store.commit('contacts/list/filter/filter_user_group_id', val)
-  }
-
-  get userId (): number|null { return this.$store.getters['contacts/list/filter/filter_owner_id'] }
-
-  set userId (val: string|number) {
-    this.$store.commit('contacts/list/filter/filter_owner_id', val)
-  }
+  get user () { return this.$store.getters['contacts/list/filter/filter_owner'] }
+  set user (val) { this.$store.commit('contacts/list/filter/filter_owner', val) }
 
   get task (): string { return this.$store.getters['contacts/list/filter/filter_task'] }
-
   set task (val: string) { this.$store.commit('contacts/list/filter/filter_task', val) }
 
   get called (): string { return this.$store.getters['contacts/list/filter/filter_called'] }
-
   set called (val: string) { this.$store.commit('contacts/list/filter/filter_called', val) }
 
-  get tagIds (): number[] {
-    return this.$store.getters['contacts/list/filter/filter_tag_ids']
-  }
+  get tags () { return this.$store.getters['contacts/list/filter/filter_tags'] }
+  set tags (val) { this.$store.commit('contacts/list/filter/filter_tags', val) }
 
-  set tagIds (val: number[]) {
-    this.$store.commit('contacts/list/filter/filter_tag_ids', val)
-  }
-
-  get timeZoneId (): number {
-    return this.$store.getters['contacts/list/filter/filter_timezone_id']
-  }
-
-  set timeZoneId (val: number) {
-    this.$store.commit('contacts/list/filter/filter_timezone_id', val)
-  }
+  get timeZone () { return this.$store.getters['contacts/list/filter/filter_timezone'] }
+  set timeZone (val) { this.$store.commit('contacts/list/filter/filter_timezone', val) }
 
   get contactCreatedAt (): string[] {
     const dates = String(this.$store.getters['contacts/list/filter/filter_contact_created_at'] || '')
@@ -340,8 +316,8 @@ export default class ContactsListFilters extends AppBase {
    * @private
    */
   private onTagsChipClose (id: number) {
-    this.tagIds = this.tagIds.filter((value) => {
-      return value !== id
+    this.tags = this.tags.filter((value) => {
+      return value.id !== id
     })
   }
 
@@ -350,8 +326,8 @@ export default class ContactsListFilters extends AppBase {
    * @private
    */
   private onStatusChipClose (id: number) {
-    this.statusIds = this.statusIds.filter((value) => {
-      return value !== id
+    this.statuses = this.statuses.filter((value) => {
+      return value.id !== id
     })
   }
 

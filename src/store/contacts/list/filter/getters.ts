@@ -3,7 +3,6 @@ import { State, Tag } from './state'
 import { GetterTree } from 'vuex'
 
 export interface Getters {
-  filter_tag_ids (state: State): number[]
   tags (state: State): Tag[]
 }
 
@@ -17,15 +16,15 @@ const getters: GetterTree<State, RootState> & Getters = {
   /// //////////////////////////////////////////////////////////////////////////
   filter_q (state: State) { return state.filter_q },
   filter_project (state: State) { return state.filter_project },
-  filter_status_ids (state: State) { return state.filter_status_ids },
-  filter_owner_id (state: State) { return state.filter_owner_id },
-  filter_user_group_id (state: State) { return state.filter_user_group_id },
-  filter_tag_ids (state: State) { return state.filter_tag_ids },
+  filter_statuses (state: State) { return state.filter_statuses },
+  filter_owner (state: State) { return state.filter_owner },
+  filter_user_group (state: State) { return state.filter_user_group },
+  filter_tags (state: State) { return state.filter_tags },
   filter_contact_created_at (state: State) { return state.filter_contact_created_at },
   filter_called (state: State) { return state.filter_called },
   filter_offset (state: State) { return state.filter_offset || 0 },
   filter_task (state) { return state.filter_task },
-  filter_timezone_id (state: State) { return state.filter_timezone_id },
+  filter_timezone (state: State) { return state.filter_timezone },
 
   order_by (state: State) { return state.order_by },
   order_direction (state: State) { return state.order_direction },
@@ -41,16 +40,16 @@ const getters: GetterTree<State, RootState> & Getters = {
       obj.project_id = state.filter_project.id
     }
 
-    if ((state.filter_status_ids || []).length) {
-      obj.status_ids = state.filter_status_ids
+    if (state.filter_statuses && state.filter_statuses.length) {
+      obj.status_ids = state.filter_statuses.map((e) => e.id)
     }
 
-    if (state.filter_user_group_id) {
-      obj.user_group_id = state.filter_user_group_id
+    if (state.filter_user_group) {
+      obj.user_group_id = state.filter_user_group.id
     }
 
-    if (state.filter_owner_id) {
-      obj.owner_id = state.filter_owner_id
+    if (state.filter_owner) {
+      obj.owner_id = state.filter_owner.id
     }
 
     if (state.filter_task) {
@@ -61,12 +60,12 @@ const getters: GetterTree<State, RootState> & Getters = {
       obj.called = state.filter_called
     }
 
-    if ((state.filter_tag_ids || []).length) {
-      obj.tag_ids = state.filter_tag_ids
+    if (state.filter_tags && state.filter_tags.length) {
+      obj.tag_ids = state.filter_tags.map((e) => e.id)
     }
 
-    if (state.filter_timezone_id) {
-      obj.timezone_id = state.filter_timezone_id
+    if (state.filter_timezone) {
+      obj.timezone_id = state.filter_timezone.id
     }
 
     if (state.filter_contact_created_at) {
