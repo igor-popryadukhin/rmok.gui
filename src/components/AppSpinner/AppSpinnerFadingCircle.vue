@@ -26,7 +26,7 @@ import { Prop } from 'vue-property-decorator'
 @Component
 export default class AppSpinnerFadingCircle extends Vue {
   @Prop({ default: '#767676FF' }) readonly color: string
-  @Prop({ default: 18 }) readonly size: number | string
+  @Prop({ default: 40 }) readonly size: number | string
 
   get style () {
     return {
@@ -39,7 +39,7 @@ export default class AppSpinnerFadingCircle extends Vue {
 
 <style lang="scss" scoped>
 .sk-fading-circle {
-  margin: 100px auto;
+  margin: 10px auto;
   width: var(--size);
   height: var(--size);
   position: relative;
@@ -59,7 +59,7 @@ export default class AppSpinnerFadingCircle extends Vue {
   margin: 0 auto;
   width: 15%;
   height: 15%;
-  background-color: var(--bgColor);
+  background-color: #76a2f4;
   border-radius: 100%;
   -webkit-animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
   animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;

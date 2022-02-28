@@ -18,6 +18,8 @@ const mutations: MutationTree<ContactsViewState> = {
   contact_region (state, payload) { state.contact_region = payload },
   contact_tz (state, payload) { state.contact_tz = payload },
   contact_created_at (state, payload) { state.contact_created_at = payload },
+  messenger_available (state, payload) { state.messenger_available = payload },
+  messenger (state, payload) { state.messenger = payload },
 
   /** Сброс состояния */
   flush (state) {

@@ -12,6 +12,6 @@ export function defaultState (): ContactsViewMessagesState {
   }
 }
 
-const state = defaultState()
+const state = defaultState
 
 export default state

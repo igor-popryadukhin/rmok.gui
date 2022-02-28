@@ -9,443 +9,415 @@
         :height="heightThisPage - 60"
         class="overflow-y-auto fill-height"
       >
-        <div class="mb-1">
-          <v-tooltip
-            open-delay="1300"
-            bottom
-          >
-            <template #activator="{ on, attrs }">
-              <span
-                v-bind="attrs"
-                class="text-truncate"
-                style="font-weight: 500"
-                v-on="on"
-              >
-                {{ contactName || '+0 000 000-00-00' }}
-              </span>
-            </template>
-            <span>{{ contactName || '+0 000 000-00-00' }}</span>
-          </v-tooltip>
-        </div>
-
-        <v-divider class="mb-2" />
-
-        <div class="d-flex align-center mb-3">
-          <app-task-dialog-edit
-            v-model="taskDialogVisible"
-            :dialog-title="$tc('Create a new task')"
-            display-format-date="DD.MM.YYYY"
-            :type.sync="taskDialog.type"
-            :date-time.sync="taskDialog.dateTime"
-            :description.sync="taskDialog.description"
-            @action:ok:click="onBtnAddTaskClick"
-          >
-            <template #activator="{ attrs, on }">
-              <v-btn
-                v-bind="attrs"
-                color="primary"
-                x-small
-                text
-                outlined
-                tile
-                v-on="on"
-              >
-                {{ $tc('Add task') }}
-              </v-btn>
-            </template>
-          </app-task-dialog-edit>
-
-          <v-spacer />
-
-          <template v-if="['connecting', 'progress', 'accepted'].includes($dialer.state)">
-            <app-tooltip>
-              <template #activator="{ on, attrs }">
-                <v-btn
-                  class="mr-0"
-                  color="error"
-                  text
-                  outlined
-                  tile
-                  x-small
-                  v-bind="attrs"
-                  @click="$dialer.hangUp()"
-                  v-on="on"
-                >
-                  {{ $tc('Hang up') }}
-                </v-btn>
-              </template>
-              <span>
-                {{ $tc('Click to hang up') }}
-              </span>
-            </app-tooltip>
-          </template>
-          <template v-else>
-            <app-tooltip>
-              <template #activator="{ on, attrs }">
-                <v-btn
-                  :disabled="!allowDialing"
-                  class="mr-0"
-                  color="primary"
-                  text
-                  outlined
-                  tile
-                  x-small
-                  v-bind="attrs"
-                  @click="onBtnCallClick(contactDefault)"
-                  v-on="on"
-                >
-                  {{ $tc('Call') }}
-                </v-btn>
-              </template>
-              <span>
-                {{ $tc('Click to make a call') }}
-              </span>
-            </app-tooltip>
-          </template>
-        </div>
-
-        <div class="">
-          <span>
-            {{ $dialer.sessionStopwatch }}
-          </span>
-        </div>
-
-        <v-divider />
-
-        <v-list
-          class="py-0"
-          dense
-          tile
-        >
-          <!-- Контактные данные -->
-          <v-skeleton-loader
-            v-if="contactFetching"
-            type="list-item-avatar-two-line"
-            max-height="61"
-          />
-          <template v-else>
-            <v-list-item
-              v-for="(item, itemIndex) in contactDetails"
-              :key="`v-list-item-${itemIndex}`"
-              color="red"
-              ripple
-              link
-              selectable
+        <template v-if="contactFetching && !contactName">
+          <div class="d-flex justify-center align-start py-10">
+            <app-loading />
+          </div>
+        </template>
+        <template v-else>
+          <div class="mb-1">
+            <v-tooltip
+              open-delay="1300"
+              bottom
             >
-              <v-list-item-avatar>
-                <v-icon
-                  v-if="item.type === 'phone'"
-                  color="primary"
+              <template #activator="{ on, attrs }">
+                <span
+                  v-bind="attrs"
+                  class="text-truncate"
+                  style="font-weight: 500"
+                  v-on="on"
                 >
-                  mdi-phone
-                </v-icon>
-                <v-icon
-                  v-else-if="item.type === 'skype'"
+                  {{ contactName || '+0 000 000-00-00' }}
+                </span>
+              </template>
+              <span>{{ contactName || '+0 000 000-00-00' }}</span>
+            </v-tooltip>
+          </div>
+
+          <v-divider class="mb-2" />
+
+          <div class="d-flex align-center mb-3">
+            <app-task-dialog-edit
+              v-model="taskDialogVisible"
+              :dialog-title="$tc('Create a new task')"
+              display-format-date="DD.MM.YYYY"
+              :type.sync="taskDialog.type"
+              :date-time.sync="taskDialog.dateTime"
+              :description.sync="taskDialog.description"
+              @action:ok:click="onBtnAddTaskClick"
+            >
+              <template #activator="{ attrs, on }">
+                <v-btn
+                  v-bind="attrs"
                   color="primary"
+                  x-small
+                  text
+                  outlined
+                  tile
+                  v-on="on"
                 >
-                  mdi-skype
-                </v-icon>
-                <v-icon
-                  v-else-if="item.type === 'email'"
-                  color="primary"
-                >
-                  mdi-email-outline
-                </v-icon>
-                <v-icon
-                  v-else-if="item.type === 'whatsapp'"
-                  color="primary"
-                >
-                  mdi-whatsapp
-                </v-icon>
-                <v-icon
-                  v-else
-                  color="primary"
-                >
-                  mdi-chat-outline
-                </v-icon>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title v-if="item.type === 'phone'">
-                  <app-tooltip>
-                    <template #activator="{ on, attrs }">
-                      <span
-                        v-bind="attrs"
-                        v-on="on"
-                      >{{ formatPhoneNumber(item.value) }}</span>
-                    </template>
-                    <span>
-                      {{ formatPhoneNumber(item.value) }}
-                    </span>
-                  </app-tooltip>
-                </v-list-item-title>
-                <v-list-item-title v-else>
-                  <app-tooltip>
-                    <template #activator="{ on, attrs }">
-                      <span
-                        v-bind="attrs"
-                        v-on="on"
-                      >{{ item.value }}</span>
-                    </template>
-                    <span>
-                      {{ item.value }}
-                    </span>
-                  </app-tooltip>
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ item.label || $tc('No label') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <template v-if="item.type === 'phone'">
-                  <div
-                    class="d-flex flex-row justify-space-between"
-                    style="width: 60px;"
+                  {{ $tc('Add task') }}
+                </v-btn>
+              </template>
+            </app-task-dialog-edit>
+
+            <v-spacer />
+
+            <template v-if="['connecting', 'progress', 'accepted'].includes($dialer.state)">
+              <app-tooltip>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    class="mr-0"
+                    color="error"
+                    text
+                    outlined
+                    tile
+                    x-small
+                    v-bind="attrs"
+                    @click="$dialer.hangUp()"
+                    v-on="on"
                   >
+                    {{ $tc('Hang up') }}
+                  </v-btn>
+                </template>
+                <span>
+                  {{ $tc('Click to hang up') }}
+                </span>
+              </app-tooltip>
+            </template>
+            <template v-else>
+              <app-tooltip>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    :disabled="!allowDialing"
+                    class="mr-0"
+                    color="primary"
+                    text
+                    outlined
+                    tile
+                    x-small
+                    v-bind="attrs"
+                    @click="onBtnCallClick(contactDefault)"
+                    v-on="on"
+                  >
+                    {{ $tc('Call') }}
+                  </v-btn>
+                </template>
+                <span>
+                  {{ $tc('Click to make a call') }}
+                </span>
+              </app-tooltip>
+            </template>
+          </div>
+
+          <div class="">
+            <span>
+              {{ $dialer.sessionStopwatch }}
+            </span>
+          </div>
+
+          <v-divider />
+
+          <v-list
+            class="py-0"
+            dense
+            tile
+          >
+            <!-- Контактные данные -->
+            <template>
+              <v-list-item
+                v-for="(item, itemIndex) in contactDetails"
+                :key="`v-list-item-${itemIndex}`"
+                color="red"
+                ripple
+                link
+                selectable
+              >
+                <v-list-item-avatar>
+                  <v-icon
+                    v-if="item.type === 'phone'"
+                    color="primary"
+                  >
+                    mdi-phone
+                  </v-icon>
+                  <v-icon
+                    v-else-if="item.type === 'skype'"
+                    color="primary"
+                  >
+                    mdi-skype
+                  </v-icon>
+                  <v-icon
+                    v-else-if="item.type === 'email'"
+                    color="primary"
+                  >
+                    mdi-email-outline
+                  </v-icon>
+                  <v-icon
+                    v-else-if="item.type === 'whatsapp'"
+                    color="primary"
+                  >
+                    mdi-whatsapp
+                  </v-icon>
+                  <v-icon
+                    v-else
+                    color="primary"
+                  >
+                    mdi-chat-outline
+                  </v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title v-if="item.type === 'phone'">
+                    <app-tooltip>
+                      <template #activator="{ on, attrs }">
+                        <span
+                          v-bind="attrs"
+                          v-on="on"
+                        >{{ formatPhoneNumber(item.value) }}</span>
+                      </template>
+                      <span>
+                        {{ formatPhoneNumber(item.value) }}
+                      </span>
+                    </app-tooltip>
+                  </v-list-item-title>
+                  <v-list-item-title v-else>
+                    <app-tooltip>
+                      <template #activator="{ on, attrs }">
+                        <span
+                          v-bind="attrs"
+                          v-on="on"
+                        >{{ item.value }}</span>
+                      </template>
+                      <span>
+                        {{ item.value }}
+                      </span>
+                    </app-tooltip>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ item.label || $tc('No label') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <template v-if="item.type === 'phone'">
+                    <div
+                      class="d-flex flex-row justify-space-between"
+                      style="width: 60px;"
+                    >
+                      <app-tooltip>
+                        <template #activator="{ on, attrs }">
+                          <v-btn
+                            color="#ff9800"
+                            icon
+                            small
+                            v-bind="attrs"
+                            @click="onBtnPhoneNumberDefaultClick(item)"
+                            v-on="on"
+                          >
+                            <v-icon
+                              v-if="item.id === contactDefault.id"
+                              small
+                            >
+                              mdi-star
+                            </v-icon>
+                            <v-icon
+                              v-else
+                              small
+                            >
+                              mdi-star-outline
+                            </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>
+                          {{ $tc('Click to make default number') }}
+                        </span>
+                      </app-tooltip>
+                      <template v-if="item.id !== callerID">
+                        <app-tooltip>
+                          <template #activator="{ on, attrs }">
+                            <v-btn
+                              :disabled="!allowDialing"
+                              color="primary"
+                              icon
+                              small
+                              v-bind="attrs"
+                              @click="onBtnCallClick(item)"
+                              v-on="on"
+                            >
+                              <v-icon small>
+                                mdi-phone-dial-outline
+                              </v-icon>
+                            </v-btn>
+                          </template>
+                          <span>
+                            {{ $tc('Click to make a call') }}
+                          </span>
+                        </app-tooltip>
+                      </template>
+                      <template v-else>
+                        <app-tooltip>
+                          <template #activator="{ on, attrs }">
+                            <v-btn
+                              color="red"
+                              icon
+                              small
+                              v-bind="attrs"
+                              @click="$dialer.hangUp()"
+                              v-on="on"
+                            >
+                              <v-icon small>
+                                mdi-phone-hangup-outline
+                              </v-icon>
+                            </v-btn>
+                          </template>
+                          <span>
+                            {{ $tc('Click to hang up') }}
+                          </span>
+                        </app-tooltip>
+                      </template>
+                    </div>
+                  </template>
+                  <template v-else>
                     <app-tooltip>
                       <template #activator="{ on, attrs }">
                         <v-btn
-                          color="#ff9800"
+                          v-bind="attrs"
+                          :loading="channelSetProcess.includes(item.id)"
+                          color="primary"
                           icon
                           small
-                          v-bind="attrs"
-                          @click="onBtnPhoneNumberDefaultClick(item)"
                           v-on="on"
+                          @click="onBtnContactDetailsItemClick(item)"
                         >
-                          <v-icon
-                            v-if="item.id === contactDefault.id"
-                            small
-                          >
-                            mdi-star
-                          </v-icon>
-                          <v-icon
-                            v-else
-                            small
-                          >
-                            mdi-star-outline
+                          <v-icon small>
+                            mdi-chat-outline
                           </v-icon>
                         </v-btn>
                       </template>
                       <span>
-                        {{ $tc('Click to make default number') }}
+                        {{ $tc('Click to write a message') }}
                       </span>
                     </app-tooltip>
-                    <template v-if="item.id !== callerID">
-                      <app-tooltip>
-                        <template #activator="{ on, attrs }">
-                          <v-btn
-                            :disabled="!allowDialing"
-                            color="primary"
-                            icon
-                            small
-                            v-bind="attrs"
-                            @click="onBtnCallClick(item)"
-                            v-on="on"
-                          >
-                            <v-icon small>
-                              mdi-phone-dial-outline
-                            </v-icon>
-                          </v-btn>
-                        </template>
-                        <span>
-                          {{ $tc('Click to make a call') }}
-                        </span>
-                      </app-tooltip>
-                    </template>
-                    <template v-else>
-                      <app-tooltip>
-                        <template #activator="{ on, attrs }">
-                          <v-btn
-                            color="red"
-                            icon
-                            small
-                            v-bind="attrs"
-                            @click="$dialer.hangUp()"
-                            v-on="on"
-                          >
-                            <v-icon small>
-                              mdi-phone-hangup-outline
-                            </v-icon>
-                          </v-btn>
-                        </template>
-                        <span>
-                          {{ $tc('Click to hang up') }}
-                        </span>
-                      </app-tooltip>
-                    </template>
-                  </div>
-                </template>
-                <v-btn
-                  v-else-if="item.type === 'email'"
-                  color="green"
-                  icon
-                  small
-                >
-                  <v-icon small>
-                    mdi-email-outline
-                  </v-icon>
-                </v-btn>
-                <v-btn
-                  v-else
-                  color="green"
-                  icon
-                  small
-                >
-                  <v-icon small>
-                    mdi-chat-outline
-                  </v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
-          </template>
-          <!-- Контактные данные -->
+                  </template>
+                </v-list-item-action>
+              </v-list-item>
+            </template>
+            <!-- Контактные данные -->
 
-          <v-divider />
+            <v-divider />
 
-          <!-- Геолокация -->
-          <v-skeleton-loader
-            v-if="contactFetching"
-            type="list-item-avatar-two-line"
-            max-height="61"
-          />
-          <v-list-item
-            v-else-if="contactCity || contactRegion"
-            link
-          >
-            <v-list-item-avatar size="30">
-              <v-icon color="primary">
-                mdi-map-marker
-              </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title>
-                {{ contactCity }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ contactRegion }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-
-          <!-- Текущее время контакта -->
-          <v-skeleton-loader
-            v-if="contactFetching"
-            type="list-item-avatar-two-line"
-            max-height="61"
-          />
-          <v-list-item
-            v-else-if="contactTZ"
-            link
-          >
-            <v-list-item-avatar size="30">
-              <v-icon color="primary">
-                {{ contactTimeIcon }}
-              </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title :key="contactTimeTick">
-                {{ $dayjs().tz(contactTZ).format(`DD.MM.YYYY HH:mm:ss (Z)`) }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ $tc('Client\'s current time') }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-
-          <!-- Дата создания контакта -->
-          <v-skeleton-loader
-            v-if="contactFetching"
-            type="list-item-avatar-two-line"
-            max-height="61"
-          />
-          <v-list-item
-            v-else
-            link
-          >
-            <v-list-item-avatar size="30">
-              <v-icon color="primary">
-                mdi-clock
-              </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title>
-                {{ $dayjs(contactCreatedAt).format('DD.MM.YYYY HH:mm') }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ $tc('Date the contact was created') }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-
-          <!-- Владелец контакта -->
-          <template v-if="contactOwnerId">
-            <v-skeleton-loader
-              v-if="contactFetching"
-              type="list-item-avatar-two-line"
-              max-height="61"
-            />
+            <!-- Геолокация -->
             <v-list-item
-              v-else
+              v-if="contactCity || contactRegion"
               link
             >
               <v-list-item-avatar size="30">
                 <v-icon color="primary">
-                  mdi-account
+                  mdi-map-marker
                 </v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title>{{ contactOwnerFullName }}</v-list-item-title>
+                <v-list-item-title>
+                  {{ contactCity }}
+                </v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ $tc('Responsible') }}
+                  {{ contactRegion }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
-          </template>
 
-          <!-- Проект -->
-          <v-skeleton-loader
-            v-if="contactFetching"
-            type="list-item-avatar-two-line"
-            max-height="61"
-          />
-          <v-list-item
-            v-else-if="contactProjectId"
-            link
-          >
-            <v-list-item-avatar size="30">
-              <v-icon color="primary">
-                mdi-projector-screen
-              </v-icon>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title>{{ contactProjectName }}</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ $tc('Project') }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+            <!-- Текущее время контакта -->
+            <v-list-item
+              v-if="contactTZ"
+              link
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">
+                  {{ contactTimeIcon }}
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title :key="contactTimeTick">
+                  {{ $dayjs().tz(contactTZ).format(`DD.MM.YYYY HH:mm:ss (Z)`) }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Client\'s current time') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
 
-        <!-- Теги -->
-        <template v-if="contactTags.length">
-          <div class="pa-0">
-            <v-divider />
-          </div>
-          <div class="px-0 ">
-            <v-chip-group>
-              <v-chip
-                v-for="(item, key) in contactTags"
-                :key="key"
-                :color="item.color"
-                label
-                small
-                outlined
+            <!-- Дата создания контакта -->
+            <v-list-item link>
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">
+                  mdi-clock
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $dayjs(contactCreatedAt).format('DD.MM.YYYY HH:mm') }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Date the contact was created') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <!-- Владелец контакта -->
+            <template v-if="contactOwnerId">
+              <v-list-item
+                link
               >
-                {{ item.name }}
-              </v-chip>
-            </v-chip-group>
-          </div>
+                <v-list-item-avatar size="30">
+                  <v-icon color="primary">
+                    mdi-account
+                  </v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>{{ contactOwnerFullName }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $tc('Responsible') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+
+            <!-- Проект -->
+            <v-list-item link>
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">
+                  mdi-projector-screen
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contactProjectName }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Project') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+          <!-- Теги -->
+          <template v-if="contactTags.length">
+            <div class="pa-0">
+              <v-divider />
+            </div>
+            <div class="px-0 ">
+              <v-chip-group>
+                <v-chip
+                  v-for="(item, key) in contactTags"
+                  :key="key"
+                  :color="item.color"
+                  label
+                  small
+                  outlined
+                >
+                  {{ item.name }}
+                </v-chip>
+              </v-chip-group>
+            </div>
+          </template>
+          <!-- Теги -->
         </template>
-        <!-- Теги -->
       </v-sheet>
       <v-sheet
         height="60"
@@ -566,9 +538,9 @@ import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppTaskDialogEdit from '@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'
 import dayjs from '@/plugins/dayjs'
-import { Watch } from 'vue-property-decorator'
-import Component from 'vue-class-component'
 import parsePhoneNumber from 'libphonenumber-js'
+import Component from 'vue-class-component'
+import { Watch } from 'vue-property-decorator'
 
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 
@@ -622,10 +594,16 @@ export default class ContactsView extends AppBase {
     dateTime: dayjs().format(dateTimeFormat),
     description: ''
   }
-  eventSource: EventSource|null = null
+  eventSource: EventSource | null = null
+  channelSetProcess = []
 
-  get tab () { return this.$route.path }
-  set tab (value: string) { this.$appDebug('Tab: %s', value) }
+  get tab () {
+    return this.$route.path
+  }
+
+  set tab (value: string) {
+    this.$appDebug('Tab: %s', value)
+  }
 
   get tabs () {
     return [
@@ -675,8 +653,8 @@ export default class ContactsView extends AppBase {
       },
       {
         name: 'contacts_view_messages',
-        icon: 'mdi-facebook-messenger',
-        visible: true,
+        icon: 'mdi-chat-outline',
+        visible: this.messengerAvailable,
         props: {
           disabled: true
         },
@@ -684,46 +662,102 @@ export default class ContactsView extends AppBase {
           name: 'contacts_view_messages'
         }
       }
-    ]
+    ].filter((e) => e.visible)
   }
 
   get heightThisPage () {
     return this.screenHeight - 75
   }
 
+  get settingsLeftWidth (): number {
+    return this.$store.getters['contacts/view/settings/left_width']
+  }
+
+  set settingsLeftWidth (val: number) {
+    if (val > 279) {
+      this.$store.commit('contacts/view/settings/left_width', val)
+    }
+  }
+
+  get rightWidth (): number {
+    return this.containerWidth - this.settingsLeftWidth - 35
+  }
+
+  get settingsRightWidth (): number {
+    return this.$store.getters['contacts/view/settings/right_width']
+  }
+
+  set settingsRightWidth (val: number) {
+    this.$store.commit('contacts/view/settings/right_width', val)
+  }
+
   get contactFetching (): boolean {
     return this.$store.getters['contacts/view/fetching']
   }
 
-  get settingsLeftWidth (): number { return this.$store.getters['contacts/view/settings/left_width'] }
-  set settingsLeftWidth (val: number) {
-    if (val > 279) { this.$store.commit('contacts/view/settings/left_width', val) }
+  get contactName () {
+    return this.$store.getters['contacts/view/contact_name']
   }
 
-  get rightWidth (): number { return this.containerWidth - this.settingsLeftWidth - 35 }
+  get contactTags (): ContactTag[] {
+    return this.$store.getters['contacts/view/contact_tags']
+  }
 
-  get settingsRightWidth (): number { return this.$store.getters['contacts/view/settings/right_width'] }
-  set settingsRightWidth (val: number) { this.$store.commit('contacts/view/settings/right_width', val) }
+  get contactOwnerId (): number {
+    return this.$store.getters['contacts/view/contact_owner_id']
+  }
 
-  get contactName () { return this.$store.getters['contacts/view/contact_name'] }
-  get contactTags (): ContactTag[] { return this.$store.getters['contacts/view/contact_tags'] }
-  get contactOwnerId (): number { return this.$store.getters['contacts/view/contact_owner_id'] }
-  get contactOwnerFullName (): string { return this.$store.getters['contacts/view/contact_owner_full_name'] }
-  get contactProjectId (): number { return this.$store.getters['contacts/view/contact_project_id'] }
-  get contactProjectName (): string { return this.$store.getters['contacts/view/contact_project_name'] }
-  get contactDetails (): ContactDetail[] { return this.$store.getters['contacts/view/contact_details'] }
-  get contactDefault (): ContactDetail|null { return this.$store.getters['contacts/view/contact_details_default'] }
-  get contactTZ (): string { return this.$store.getters['contacts/view/contact_tz'] }
-  get contactCreatedAt (): string { return this.$store.getters['contacts/view/contact_created_at'] }
-  get contactCity (): string { return this.$store.getters['contacts/view/contact_city'] }
-  get contactRegion (): string { return this.$store.getters['contacts/view/contact_region'] }
+  get contactOwnerFullName (): string {
+    return this.$store.getters['contacts/view/contact_owner_full_name']
+  }
+
+  get contactProjectId (): number {
+    return this.$store.getters['contacts/view/contact_project_id']
+  }
+
+  get contactProjectName (): string {
+    return this.$store.getters['contacts/view/contact_project_name']
+  }
+
+  get contactDetails (): ContactDetail[] {
+    return this.$store.getters['contacts/view/contact_details']
+  }
+
+  get contactDefault (): ContactDetail | null {
+    return this.$store.getters['contacts/view/contact_details_default']
+  }
+
+  get contactTZ (): string {
+    return this.$store.getters['contacts/view/contact_tz']
+  }
+
+  get contactCreatedAt (): string {
+    return this.$store.getters['contacts/view/contact_created_at']
+  }
+
+  get contactCity (): string {
+    return this.$store.getters['contacts/view/contact_city']
+  }
+
+  get contactRegion (): string {
+    return this.$store.getters['contacts/view/contact_region']
+  }
+
   get contactTimeIcon (): string {
     return 'mdi-clock-time-nine-outline'
   }
 
-  get unsavedCallPersists (): boolean { return this.$store.getters['contacts/view/unsaved_call/persists'] }
-  get isUnsavedCall (): boolean { return this.$store.getters['contacts/view/unsaved_call/unsaved'] }
-  get isUnsavedCallStatusId (): number { return this.$store.getters['contacts/view/unsaved_call/data_status_id'] }
+  get unsavedCallPersists (): boolean {
+    return this.$store.getters['contacts/view/unsaved_call/persists']
+  }
+
+  get isUnsavedCall (): boolean {
+    return this.$store.getters['contacts/view/unsaved_call/unsaved']
+  }
+
+  get isUnsavedCallStatusId (): number {
+    return this.$store.getters['contacts/view/unsaved_call/data_status_id']
+  }
 
   /** Состояние активности кнопки вызова */
   get allowDialing (): boolean {
@@ -731,6 +765,10 @@ export default class ContactsView extends AppBase {
       this.$dialer.isRegistered() &&
       !this.contactFetching &&
       !this.isUnsavedCall
+  }
+
+  get messengerAvailable (): boolean {
+    return this.$store.getters['contacts/view/messenger_available']
   }
 
   @Watch('isUnsavedCall')
@@ -848,6 +886,39 @@ export default class ContactsView extends AppBase {
 
   /**
    *
+   * @param item
+   * @private
+   */
+  private onBtnContactDetailsItemClick (item: ContactDetail) {
+    switch (item.type) {
+      case 'telegram':
+      case 'whatsapp': {
+        this.channelSetProcess.push(item.id)
+        this.$axios.get(`/contacts/channels/${item.id}`)
+          .then((response) => {
+            if ([200, 204].includes(response.status)) {
+              this.$toast.success('Канал установлен')
+              this.$store.dispatch('contacts/view/fetch', this.$route.params.id)
+
+              if (this.$route.name !== 'contacts_view_messages') {
+                this.$router.push({
+                  name: 'contacts_view_messages'
+                })
+              }
+            }
+          }).finally(() => {
+          const index = this.channelSetProcess.findIndex((value) => value === item.id)
+          if (index > -1) {
+            this.channelSetProcess.splice(index, 1)
+          }
+        })
+        break
+      }
+    }
+  }
+
+  /**
+   *
    * @param phone
    * @private
    */
@@ -875,7 +946,7 @@ export default class ContactsView extends AppBase {
         withCredentials: true
       })
 
-      this.eventSource.addEventListener("messenger:message", this.onSSENewMessage)
+      this.eventSource.addEventListener('messenger:message', this.onSSENewMessage)
     }
   }
 
@@ -886,14 +957,14 @@ export default class ContactsView extends AppBase {
    */
   private sseClose () {
     if (this.eventSource instanceof EventSource) {
-      this.eventSource.removeEventListener("messenger:message", this.onSSENewMessage)
+      this.eventSource.removeEventListener('messenger:message', this.onSSENewMessage)
       this.eventSource.close()
     }
   }
 
   private onSSENewMessage (event: MessageEvent<string> | Event) {
     if (event instanceof MessageEvent) {
-      this.$root.$emit("messenger:message", JSON.parse(event.data))
+      this.$root.$emit('messenger:message', JSON.parse(event.data))
     }
   }
 }
@@ -901,11 +972,16 @@ export default class ContactsView extends AppBase {
 </script>
 
 <style lang="scss" scoped>
-.tabs {}
-.tabs__tab {}
+.tabs {
+}
+
+.tabs__tab {
+}
+
 .tab-color--red {
   color: #f57474;
 }
+
 .text-truncate {
   white-space: nowrap;
   overflow: hidden;

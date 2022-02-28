@@ -18,6 +18,7 @@
   "Add to autodial": "Добавить в автодозвон",
   "Address": "Адрес",
   "All": "Все",
+  "All Contacts": "Все контакты",
   "All chains selected ({n}) on the page.": "Выбраны все цепочки ({n}) на странице.",
   "All information  will be deleted permanently.": "Вся информация будет безвозвратно удалена",
   "All information about the group and information associated with it will be deleted permanently.": "Вся информация о группе и связанная с ней информация, удалятся без возможности восстановления.",
@@ -52,6 +53,7 @@
   "By the number of calls": "По количеству вызовов",
   "Call": "Позвонить",
   "Call duration": "Длительность звонка",
+  "Call types": "Типы вызовов",
   "Calls": "Вызовы",
   "Cancel": "Отмена",
   "Cancel selection": "Отменить выбор",
@@ -73,6 +75,7 @@
   "Click the add button to add the participant to the project.": "Нажмите кнопку добавить, что бы добавить участника в проект.",
   "Click the remove button to remove a member from the project.": "Нажмите кнопку удалить, что бы удалить участника из проекта.",
   "Click to add a new group": "Нажмите что бы добавить новую группу",
+  "Click to write a message": "Нажмите, чтобы написать сообщение",
   "Client": "Клиент",
   "Client's current time": "Текущее время клиента",
   "Close": "Закрыть",
@@ -85,6 +88,7 @@
   "Contact not found.": "Контакт не найден.",
   "Contact updated": "Контакт обновлен",
   "Contacts": "Контакты",
+  "Contacts at work": "Контакты в работе",
   "Contacts not transferred | {n} contact transferred | {n} contact transferred | {n} contacts transferred": "Контакты не переданы | Передан {n} контакт | Передано {n} контакта | Передано {n} контактов",
   "ContactsFilters": {
     "Tasks": {
@@ -659,8 +663,5 @@
   "unknown_number": "Неизвестный номер",
   "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети",
   "video": "Видео",
-  "yes": "Да",
-  "Call types": "Типы вызовов",
-  "Contacts at work": "Контакты в работе",
-  "All Contacts": "Все контакты"
+  "yes": "Да"
 }

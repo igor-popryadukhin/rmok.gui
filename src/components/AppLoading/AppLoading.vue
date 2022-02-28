@@ -2,25 +2,23 @@
   <div
     class="app-loading--wrap"
   >
+    <div style="width: 250px">
+      <app-spinner-fading-circle :size="45" />
+    </div>
     <div class="message">
       {{ $tc(message) }}
-    </div>
-    <div style="width: 250px">
-      <v-progress-linear
-        :color="$vuetify.theme.currentTheme.primary"
-        indeterminate
-        height="6"
-      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import AppSpinnerFadingCircle from '@/components/AppSpinner/AppSpinnerFadingCircle.vue'
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { Prop } from 'vue-property-decorator'
-
-@Component
+@Component({
+  components: { AppSpinnerFadingCircle }
+})
 export default class AppLoading extends Vue {
   @Prop({ default: 'Loading content...' }) readonly message: string
 }

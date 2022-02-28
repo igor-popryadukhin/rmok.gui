@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import 'vue-class-component/hooks' // import hooks type to enable auto-complete
 import App from '@/App.vue'
-import router from '@/router'
-import store from '@/store'
+import $router from '@/router'
+import $store from '@/store'
 import '@/directives'
 // @see https://stackoverflow.com/questions/52122011/failed-to-execute-postmessage-on-window-googletagmanager
 import './fix.postMessage'
@@ -57,8 +57,8 @@ const $app: Vue = new Vue({
     html.setAttribute('lang', 'ru')
   },
   render: (h) => h(App),
-  router,
-  store,
+  router: $router,
+  store: $store,
   vuetify
 }).$mount('#app')
 

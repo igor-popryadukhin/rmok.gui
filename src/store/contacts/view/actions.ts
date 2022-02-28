@@ -7,11 +7,12 @@ import { $axios } from '@/plugins/axios'
 
 const actions: ActionTree<ContactsViewState, RootState> = {
   fetch: ({ commit }, payload) => {
-    commit('flush')
+    commit('messages/flush')
+    commit('tasks/flush')
     commit('history/flush')
 
     return new Promise<number>((resolve, reject) => {
-      setTimeout(() => (commit('fetching', true)), 0)
+      commit('fetching', true)
 
       $axios.get(`/contacts/${payload}`)
         .then((response: AxiosResponse) => {
@@ -32,6 +33,9 @@ const actions: ActionTree<ContactsViewState, RootState> = {
             commit('contact_project_scenario', response.data?.project?.scenario || '')
           }
 
+          commit('messenger_available', !!response.data?.messenger_available)
+          commit('messenger', response.data?.messenger)
+
           commit('contact_details', response.data?.contact_details || [])
           commit('contact_details_default', response.data?.contact_details_default || null)
           commit('contact_city', response.data?.city || '')
@@ -40,7 +44,9 @@ const actions: ActionTree<ContactsViewState, RootState> = {
           commit('contact_created_at', response.data?.created_at || '')
 
           resolve(response.data?.id)
-        }).catch(reject).finally(() => (commit('fetching', false)))
+        })
+        .catch(reject)
+        .finally(() => (commit('fetching', false)))
     })
   },
 

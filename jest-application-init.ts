@@ -2,7 +2,7 @@ import Vuetify from 'vuetify'
 import colors from 'vuetify/es5/util/colors'
 
 import App from './src/App.vue'
-import router from './src/router'
+import $router from './src/router'
 import VueI18n from 'vue-i18n'
 
 const defaultTheme = {
@@ -10,7 +10,7 @@ const defaultTheme = {
 }
 
 function applicationInit (VueInstance) {
-  VueInstance.router = router
+  VueInstance.router = $router
   VueInstance.i18n = new VueI18n(VueInstance)
   VueInstance.config.productionTip = false
   return VueInstance

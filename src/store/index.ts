@@ -39,14 +39,16 @@ const vuexDebugActions = vuexDebug.extend('ACTION')
 const vuexDebugMutations = vuexDebug.extend('MUTATION')
 
 export interface RootState {
-  root: number;
+  bootstrap_process: boolean;
+  is_logged_in: boolean;
 }
 
-const store = new Vuex.Store({
+const $store = new Vuex.Store({
   strict: true,
   state (): RootState {
     return {
-      root: 0
+      bootstrap_process: true, // Процесс начальной загрузки
+      is_logged_in: false // Состояние авторизации
     }
   },
 
@@ -81,10 +83,15 @@ const store = new Vuex.Store({
     chats
   },
 
-  mutations: {},
+  mutations: {
+    bootstrap_process (state, payload) { state.bootstrap_process = payload },
+    is_logged_in (state, payload) { state.is_logged_in = payload }
+  },
 
   getters: {
-    routeParams: () => Object.assign({}, $app.$route.params)
+    routeParams: () => Object.assign({}, $app.$route.params),
+    bootstrap_process: (state) => state.bootstrap_process,
+    is_logged_in: (state) => state.is_logged_in
   },
 
   plugins: [
@@ -125,12 +132,12 @@ const store = new Vuex.Store({
   ]
 })
 
-store.subscribeAction((ap, rs) => {
+$store.subscribeAction((ap, rs) => {
   vuexDebugActions('%o %o', ap, rs)
 })
 
-store.subscribe((ap, rs) => {
+$store.subscribe((ap, rs) => {
   vuexDebugMutations('%o %o', ap, rs)
 })
 
-export default store
+export default $store

@@ -3,6 +3,8 @@ import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import { NavigationGuardNext } from 'vue-router/types/router'
 import { Store } from 'vuex'
+import $store from '@/store'
+import bootstrap from '@/middleware/bootstrap'
 
 Vue.use(VueRouter)
 
@@ -16,11 +18,7 @@ VueRouter.prototype.push = function push (location) {
 const routes: RouteConfig[] = [
   {
     component: Home,
-    meta: {
-      layout: 'default',
-      middleware: [],
-      title: 'documents'
-    },
+    meta: { layout: 'default', middleware: [bootstrap], title: 'documents' },
     name: 'home',
     path: '/'
   },
@@ -36,11 +34,7 @@ const routes: RouteConfig[] = [
   },
   {
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-    meta: {
-      layout: 'clean',
-      middleware: [],
-      title: 'documents'
-    },
+    meta: { layout: 'clean', middleware: [bootstrap], title: 'documents' },
     name: 'about',
     path: '/about'
   },
@@ -48,7 +42,7 @@ const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "help" */ '../views/Help/Help.vue'),
     meta: {
       layout: 'help',
-      middleware: []
+      middleware: [bootstrap]
     },
     name: 'help',
     path: '/help'
@@ -73,6 +67,15 @@ const routes: RouteConfig[] = [
     name: 'access_denied',
     path: '/access-denied'
   },
+  {
+    component: () => import(/* webpackChunkName: "error" */ '../views/Error.vue'),
+    meta: {
+      layout: 'clean',
+      middleware: []
+    },
+    name: 'error',
+    path: '/error'
+  },
 
   {
     path: '/auto-dialer',
@@ -82,14 +85,14 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'auto_dialer_params',
         path: ''
       }
     ],
     component: () => import(/* webpackChunkName: "auto-dialer" */ '../views/AutoDialer/Layout.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'auto_dialer_view',
@@ -101,7 +104,7 @@ const routes: RouteConfig[] = [
     meta: {
       anonymous: true,
       layout: 'default',
-      middleware: []
+      middleware: [bootstrap]
     },
     children: [
       {
@@ -109,14 +112,14 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'auto_dialer_view_tab_main',
         path: 'main'
       },
       {
         component: () => import(/* webpackChunkName: "auto-dialer-view-tab-journal" */ '../views/AutoDialer/AutoDialerView/Journal/Journal.vue'),
-        meta: { anonymous: true, layout: 'default', middleware: [] },
+        meta: { anonymous: true, layout: 'default', middleware: [bootstrap] },
         name: 'auto_dialer_view_tab_journal',
         path: 'journal'
       },
@@ -125,7 +128,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'auto_dialer_view_tab_contacts',
         path: 'contacts'
@@ -135,7 +138,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'auto_dialer_view_tab_operators',
         path: 'operators'
@@ -145,7 +148,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'auto_dialer_view_tab_schedule',
         path: 'schedule'
@@ -155,7 +158,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'auto_dialer_view_tab_calls_processing_rules',
         path: 'calls-processing-rules'
@@ -165,7 +168,7 @@ const routes: RouteConfig[] = [
         meta: {
           anonymous: true,
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'auto_dialer_view_tab_telephony',
         path: 'telephony'
@@ -177,26 +180,26 @@ const routes: RouteConfig[] = [
     path: '/roles',
     component: () => import(/* webpackChunkName: "roles" */ '../views/Roles/Roles.vue'),
     children: [],
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'roles_view',
     path: '/roles/:id',
     component: () => import(/* webpackChunkName: "roles-view" */ '../views/Roles/RolesView.vue'),
     children: [],
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'contacts_in_works',
     path: '/contacts-in-work',
     component: () => import(/* webpackChunkName: "contacts-in-work" */ '../views/Contacts/ContactsInWork/ContactsInWork.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'contacts',
     path: '/contacts',
     component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/ContactsList/ContactsList.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'contacts_view',
@@ -208,40 +211,40 @@ const routes: RouteConfig[] = [
         name: 'contacts_view_scenario',
         path: 'scenario',
         component: () => import(/* webpackChunkName: "contacts-view-scenario" */ '../views/Contacts/ContactsView/ContactsViewScenario.vue'),
-        meta: { layout: 'default', middleware: [] }
+        meta: { layout: 'default', middleware: [bootstrap] }
       },
       {
         component: () => import(/* webpackChunkName: "contacts-view-history" */ '../views/Contacts/ContactsView/ContactsViewHistory.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'contacts_view_history',
         path: 'history'
       },
       {
         component: () => import(/* webpackChunkName: "contacts-view-tasks" */ '../views/Contacts/ContactsView/ContactsViewTasks.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'contacts_view_tasks',
         path: 'tasks'
       },
       {
         component: () => import(/* webpackChunkName: "contacts-view-status" */ '../views/Contacts/ContactsView/ContactsViewStatus.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'contacts_view_status',
         path: 'status'
       },
       {
         component: () => import(/* webpackChunkName: "contacts-view-messages" */ '../views/Contacts/ContactsView/ContactsViewMessages.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'contacts_view_messages',
         path: 'messages'
       }
     ],
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'leads',
     path: '/leads',
     component: () => import(/* webpackChunkName: "leads" */ '../views/Leads/Leads.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'queue',
@@ -249,7 +252,7 @@ const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "queue-leads" */ '../views/QueueLeads/List.vue'),
     meta: {
       layout: 'default',
-      middleware: []
+      middleware: [bootstrap]
     }
   },
   {
@@ -262,23 +265,23 @@ const routes: RouteConfig[] = [
         name: 'tasks_list',
         path: ':id',
         component: () => import(/* webpackChunkName: "tasks-list" */ '../views/Tasks/TasksList.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         props: true
       }
     ],
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'users',
     path: '/users',
     component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/Users.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'users_create',
     path: '/users/create',
     component: () => import(/* webpackChunkName: "users-create" */ '../views/Users/UsersCreate.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'users_view',
@@ -288,36 +291,36 @@ const routes: RouteConfig[] = [
     children: [
       {
         component: () => import(/* webpackChunkName: "users-view-main" */ '../views/Users/UsersViewMain.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'users_view_main',
         path: 'main'
       },
       {
         component: () => import(/* webpackChunkName: "users-view-telephony" */ '../views/Users/UsersViewTelephony.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'users_view_telephony',
         path: 'telephony'
       },
       {
         component: () => import(/* webpackChunkName: "users-view-contacts" */ '../views/Users/UsersViewContacts.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'users_view_contacts',
         path: 'contacts'
       },
       {
         component: () => import(/* webpackChunkName: "users-view-sessions" */ '../views/Users/UsersViewSessions.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'users_view_sessions',
         path: 'sessions'
       },
       {
         component: () => import(/* webpackChunkName: "users-view-schedule" */ '../views/Users/UsersViewSchedule.vue'),
-        meta: { layout: 'default', middleware: [] },
+        meta: { layout: 'default', middleware: [bootstrap] },
         name: 'users_view_schedule',
         path: 'schedule'
       }
     ],
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   // {
   //   children: [
@@ -326,7 +329,7 @@ const routes: RouteConfig[] = [
   //       meta: {
   //         anonymous: true,
   //         layout: 'default',
-  //         middleware: []
+  //         middleware: [auth]
   //       },
   //       name: 'groups_list',
   //       path: ''
@@ -335,7 +338,7 @@ const routes: RouteConfig[] = [
   //       component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/New.vue'),
   //       meta: {
   //         layout: 'default',
-  //         middleware: []
+  //         middleware: [auth]
   //       },
   //       name: 'groups_new',
   //       path: 'new'
@@ -344,7 +347,7 @@ const routes: RouteConfig[] = [
   //       component: () => import(/* webpackChunkName: "groups-new" */ '../views/Groups/Edit.vue'),
   //       meta: {
   //         layout: 'default',
-  //         middleware: []
+  //         middleware: [auth]
   //       },
   //       name: 'groups_edit',
   //       path: ':id'
@@ -353,7 +356,7 @@ const routes: RouteConfig[] = [
   //   component: () => import(/* webpackChunkName: "groups-list" */ '../views/Users/Layout.vue'),
   //   meta: {
   //     layout: 'default',
-  //     middleware: []
+  //     middleware: [auth]
   //   },
   //   path: '/groups'
   // },
@@ -365,7 +368,7 @@ const routes: RouteConfig[] = [
   //       meta: {
   //         icon: '',
   //         layout: 'default',
-  //         middleware: []
+  //         middleware: [auth]
   //       },
   //       name: 'integrations_contacts',
   //       path: 'contacts'
@@ -377,7 +380,7 @@ const routes: RouteConfig[] = [
   //           meta: {
   //             anonymous: true,
   //             layout: 'default',
-  //             middleware: []
+  //             middleware: [auth]
   //           },
   //           name: 'itegrationset_list',
   //           path: ''
@@ -386,7 +389,7 @@ const routes: RouteConfig[] = [
   //           component: () => import(/* webpackChunkName: "itegrationset-new" */ '../views/Integrations/IntegrationSettings/New.vue'),
   //           meta: {
   //             layout: 'default',
-  //             middleware: []
+  //             middleware: [auth]
   //           },
   //           name: 'itegrationset_new',
   //           path: 'new'
@@ -395,7 +398,7 @@ const routes: RouteConfig[] = [
   //           component: () => import(/* webpackChunkName: "itegrationset-edit" */ '../views/Integrations/IntegrationSettings/Edit.vue'),
   //           meta: {
   //             layout: 'default',
-  //             middleware: []
+  //             middleware: [auth]
   //           },
   //           name: 'itegrationset_edit',
   //           path: ':id'
@@ -404,14 +407,14 @@ const routes: RouteConfig[] = [
   //       component: () => import(/* webpackChunkName: "itegrationset-list" */ '../views/Integrations/IntegrationSettings/Layout.vue'),
   //       meta: {
   //         layout: 'default',
-  //         middleware: []
+  //         middleware: [auth]
   //       },
   //       path: 'itegrationset'
   //     }
   //   ],
   //   meta: {
   //     layout: 'default',
-  //     middleware: []
+  //     middleware: [auth]
   //   },
   //   name: 'integrations',
   //   path: '/integrations'
@@ -422,7 +425,7 @@ const routes: RouteConfig[] = [
     component: () => import(/* webpackChunkName: "settings-layout" */ '../views/Settings/Layout.vue'),
     meta: {
       layout: 'default',
-      middleware: []
+      middleware: [bootstrap]
     },
     children: [
       {
@@ -430,7 +433,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-account-circle-outline',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_profile',
         path: 'profile'
@@ -440,7 +443,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-account-circle-outline',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_contacts',
         path: 'contacts'
@@ -450,7 +453,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-translate',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_regional',
         path: 'regional'
@@ -460,7 +463,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-history',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_journal',
         path: 'journal'
@@ -470,7 +473,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-history',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_telephony',
         path: 'telephony'
@@ -480,7 +483,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-security',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_security',
         path: 'security'
@@ -490,7 +493,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-flask',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_for_developer',
         path: 'developers'
@@ -500,7 +503,7 @@ const routes: RouteConfig[] = [
         meta: {
           icon: 'mdi-cog',
           layout: 'default',
-          middleware: []
+          middleware: [bootstrap]
         },
         name: 'settings_system',
         path: 'system'
@@ -512,7 +515,7 @@ const routes: RouteConfig[] = [
     path: '/projects',
     component: () => import(/* webpackChunkName: "projects" */ '../views/Projects/Projects.vue'),
     children: [],
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'projects_view',
@@ -525,44 +528,44 @@ const routes: RouteConfig[] = [
         path: 'main',
         component: () => import(/* webpackChunkName: "projects-view-main" */ '../views/Projects/ProjectsViewMain.vue'),
         children: [],
-        meta: { layout: 'default', middleware: [] }
+        meta: { layout: 'default', middleware: [bootstrap] }
       },
       {
         name: 'projects_view_people',
         path: 'people',
         component: () => import(/* webpackChunkName: "projects-view-people" */ '../views/Projects/ProjectsViewPeople.vue'),
         children: [],
-        meta: { layout: 'default', middleware: [] }
+        meta: { layout: 'default', middleware: [bootstrap] }
       },
       {
         name: 'projects_view_statuses',
         path: 'statuses',
         component: () => import(/* webpackChunkName: "projects-view-people" */ '../views/Projects/ProjectsViewStatuses.vue'),
         children: [],
-        meta: { layout: 'default', middleware: [] }
+        meta: { layout: 'default', middleware: [bootstrap] }
       }
     ],
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
 
   {
     name: 'statistics_recent_calls',
     path: '/statistics/recent-calls',
     component: () => import(/* webpackChunkName: "statistics-recent-calls" */ '../views/Statistics/RecentCalls/RecentCalls.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'statistics_calls_count',
     path: '/statistics/calls-count',
     component: () => import(/* webpackChunkName: "statistics-call-count" */ '../views/Statistics/CallsCount/CallsCount.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     children: [],
     component: () => import(/* webpackChunkName: "statistics" */ '../views/Statistics/Layout.vue'),
     meta: {
       layout: 'default',
-      middleware: []
+      middleware: [bootstrap]
     },
     name: 'statistics',
     path: '/statistics'
@@ -572,41 +575,41 @@ const routes: RouteConfig[] = [
     path: '/scenarios',
     children: [],
     component: () => import(/* webpackChunkName: "scenarios" */ '../views/Scenarios/Scenarios.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'scenarios_view',
     path: '/scenarios/:id',
     children: [],
     component: () => import(/* webpackChunkName: "scenarios-view" */ '../views/Scenarios/ScenariosView.vue'),
-    meta: { layout: 'default', middleware: [] }
+    meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'integrations',
     path: '/integrations',
     component: () => import(/* webpackChunkName: "integrations" */ '../views/Integrations/Integrations.vue'),
-    meta: { layout: 'default', middleware: [] },
+    meta: { layout: 'default', middleware: [bootstrap] },
     children: []
   },
   {
     name: 'integrations_whatsapp',
     path: '/integrations/whatsapp',
     component: () => import(/* webpackChunkName: "integrations-whatsapp" */ '../views/Integrations/Whatsapp/Whatsapp.vue'),
-    meta: { layout: 'default', middleware: [] },
+    meta: { layout: 'default', middleware: [bootstrap] },
     children: []
   }
   // {
   //   name: 'integrations',
   //   path: '/integrations',
   //   component: () => import(/* webpackChunkName: "integrations" */ '../views/Chats/Integrations/Integrations.vue'),
-  //   meta: { layout: 'default', middleware: [] },
+  //   meta: { layout: 'default', middleware: [auth] },
   //   children: []
   // },
   // {
   //   name: 'integrations_view',
   //   path: '/integrations/:id',
   //   component: () => import(/* webpackChunkName: "integrations-view" */ '../views/Chats/Integrations/IntegrationsView.vue'),
-  //   meta: { layout: 'default', middleware: [] },
+  //   meta: { layout: 'default', middleware: [auth] },
   //   children: []
   // }
 ]
@@ -617,7 +620,7 @@ if (process.env.NODE_ENV === 'development') {
     component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/SymfonyProfiler.vue'),
     meta: {
       layout: 'clean',
-      middleware: [],
+      middleware: [bootstrap],
       title: 'Symfony profiler'
     },
     name: 'symfony_profiler',
@@ -627,7 +630,7 @@ if (process.env.NODE_ENV === 'development') {
     component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/Development/Index.vue'),
     meta: {
       layout: 'default',
-      middleware: [],
+      middleware: [bootstrap],
       title: 'Only for developers'
     },
     name: 'development',
@@ -635,7 +638,7 @@ if (process.env.NODE_ENV === 'development') {
   })
 }
 
-const router = new VueRouter({
+const $router = new VueRouter({
   base: process.env.BASE_URL,
   mode: 'history',
   routes,
@@ -668,7 +671,7 @@ export interface MiddlewareContextInterface {
   store?: Store<any>
 }
 
-router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
+$router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   if (!to.meta.middleware) {
     return next()
   }
@@ -679,6 +682,7 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
 
   const middleware = to.meta.middleware
   const context: MiddlewareContextInterface = {
+    store: $store,
     from,
     next,
     to
@@ -688,4 +692,4 @@ router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   })
 })
 
-export default router
+export default $router

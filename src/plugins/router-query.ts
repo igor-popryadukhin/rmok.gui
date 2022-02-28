@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { VueRouter } from 'vue-router/types/router'
-import router from '@/router'
+import $router from '@/router'
 
 export class RouterQuery {
   private _vueRouter: VueRouter
@@ -77,7 +77,7 @@ export class RouterQuery {
   }
 }
 
-const routerQuery: RouterQuery = new RouterQuery(router)
+const routerQuery: RouterQuery = new RouterQuery($router)
 
 // tslint:disable-next-line:max-classes-per-file
 class RouterQueryPlugin {

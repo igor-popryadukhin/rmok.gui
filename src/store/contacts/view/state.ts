@@ -1,6 +1,7 @@
 import ContactDetail from '@/api/interfaces/ContactDetail'
 import ContactTag from '@/api/interfaces/ContactTag'
 import StatusGroup from '@/api/interfaces/StatusGroup'
+import Messenger from '@/interfaces/Messenger'
 
 export interface ContactsViewState {
   fetching: boolean;
@@ -19,6 +20,8 @@ export interface ContactsViewState {
   contact_region: string;
   contact_tz: string;
   contact_created_at: string;
+  messenger_available: boolean;
+  messenger: Messenger|null;
 }
 
 export function contactsViewState (): ContactsViewState {
@@ -38,10 +41,14 @@ export function contactsViewState (): ContactsViewState {
     contact_city: '',
     contact_region: '',
     contact_tz: '',
-    contact_created_at: ''
+    contact_created_at: '',
+
+    // Мессенджер
+    messenger_available: false,
+    messenger: null
   }
 }
 
-const state = contactsViewState()
+const state = contactsViewState
 
 export default state

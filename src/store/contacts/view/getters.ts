@@ -18,7 +18,9 @@ const getters: GetterTree<ContactsViewState, RootState> = {
   contact_city (state) { return state.contact_city },
   contact_region (state) { return state.contact_region },
   contact_tz (state) { return state.contact_tz },
-  contact_created_at (state) { return state.contact_created_at }
+  contact_created_at (state) { return state.contact_created_at },
+  messenger_available (state) { return state.messenger_available },
+  messenger (state) { return state.messenger }
 }
 
 export default getters

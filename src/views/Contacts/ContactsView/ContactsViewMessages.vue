@@ -53,8 +53,8 @@
     <div class="chat-page__bottom-control">
       <v-textarea
         v-model="text"
+        :placeholder="writeAMessageTo"
         class="mr-2"
-        placeholder="Написать сообщение..."
         hide-details="auto"
         autofocus
         flat
@@ -88,7 +88,7 @@
       </v-textarea>
     </div>
     <div
-      v-if="disabled"
+      v-if="!messengerAvailable"
       class="chat-page__disabled d-flex align-center justify-center"
     >
       <span class="white--text">
@@ -100,36 +100,53 @@
 
 <script lang="ts">
 import AppBase from '@/AppBase'
+import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Component from 'vue-class-component'
-import AppChat from '@/components/AppChat/AppChat.vue'
-import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
-import { Prop } from 'vue-property-decorator'
 
 interface SSEMessengerMessage {
   id: number;
   out: boolean;
 }
 
-@Component<ContactsViewChat>({
-  components: { AppLoading, AppChatMessage, AppChat },
+@Component<ContactsViewMessages>({
+  components: {
+    AppLoading,
+    AppChatMessage
+  },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      if (!vm.disabled) {
-        vm.$store.dispatch('contacts/view/messages/fetch', {
-          contact_id: to.params.id
-        })
-      }
+      vm.$store.dispatch('contacts/view/messages/fetch', {
+        contact_id: to.params.id
+      })
     })
   }
 })
-export default class ContactsViewChat extends AppBase {
-  @Prop({ default: () => false }) readonly disabled!: boolean
-
+export default class ContactsViewMessages extends AppBase {
   text = null
 
-  get messagesFetching () { return this.$store.getters['contacts/view/messages/items_fetching'] }
-  get messages () { return this.$store.getters['contacts/view/messages/items'] }
+  get messagesFetching () {
+    return this.$store.getters['contacts/view/messages/items_fetching']
+  }
+
+  get messages () {
+    return this.$store.getters['contacts/view/messages/items']
+  }
+
+  get messengerAvailable (): boolean {
+    return this.$store.getters['contacts/view/messenger_available']
+  }
+
+  get messenger () {
+    return this.$store.getters['contacts/view/messenger']
+  }
+
+  get writeAMessageTo  (): string {
+    if (this.messengerAvailable) {
+      return this.$t('write_a_message_to', { text: this.messenger.name }).toString()
+    }
+    return ''
+  }
 
   public created () {
     this.$root.$on('messenger:message', this.onSSEMessengerMessage)
@@ -228,3 +245,11 @@ export default class ContactsViewChat extends AppBase {
   user-select: none;
 }
 </style>
+
+<i18n>
+{
+  "ru": {
+    "write_a_message_to": "Написать сообщение в {text}"
+  }
+}
+</i18n>

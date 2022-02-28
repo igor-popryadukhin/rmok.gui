@@ -1,18 +1,5 @@
 <template>
-  <v-app v-if="profileLoading">
-    <v-main>
-      <v-container
-        class="d-flex align-center fill-height justify-center"
-        fluid
-      >
-        <div style="max-width: 450px">
-          <app-loading message="Loading..." />
-        </div>
-      </v-container>
-    </v-main>
-  </v-app>
   <v-app
-    v-else
     id="inspire"
   >
     <!-- Nav drawer -->
@@ -478,7 +465,7 @@
         fluid
       >
         <v-fade-transition>
-          <router-view v-show="showRouterView" />
+          <router-view />
         </v-fade-transition>
       </v-container>
     </v-main>
@@ -580,8 +567,6 @@ export default class DefaultLayout extends AppBase {
     progress: 0
   }
 
-  profileLoading = true
-  showRouterView = false
   audio = makeAudioElement()
   audioPlayed = false
   eventSource = null
@@ -1022,32 +1007,25 @@ export default class DefaultLayout extends AppBase {
   }
 
   public mounted () {
-    this.$store.dispatch('profile/fetch')
-      .then(() => {
-        this.profileLoading = false
-        // Что бы не наблюдать построение элементов, покажем их через 300 ms
-        setTimeout(() => (this.showRouterView = true), 300)
-        this.sseInitialize()
+    this.sseInitialize()
 
-        if (this.profilePBXCredentials.login) {
-          this.dialerInitialize()
+    if (this.profilePBXCredentials.login) {
+      this.dialerInitialize()
 
-          if (this.profile.status === 'normal') {
-            // Отменяю паузу во всех очередях
-            this.$axios.put('/account/dnd/false')
-          }
-        }
+      if (this.profile.status === 'normal') {
+        // Отменяю паузу во всех очередях
+        this.$axios.put('/account/dnd/false')
+      }
+    }
 
-        if (!this.profile.tz) {
-          this.$axios.patch('/account/profile', {
-            tz: dayjs.tz.guess()
-          })
-        }
-
-        this.$ws.cbToken = () => this.$cookie.get('access_token')
-        this.$ws.connect()
+    if (!this.profile.tz) {
+      this.$axios.patch('/account/profile', {
+        tz: dayjs.tz.guess()
       })
+    }
 
+    this.$ws.cbToken = () => this.$cookie.get('access_token')
+    this.$ws.connect()
     this.$store.dispatch('notifications/fetch')
 
     this.audio.onplay = () => {
