@@ -2,7 +2,7 @@ import { State } from './state'
 import { MutationTree } from 'vuex'
 
 const mutations: MutationTree<State> = {
-  visible (state, payload) { state.visible = payload }
+  filter_width (state: State, payload) { state.filter_width = payload }
 }
 
 export default mutations

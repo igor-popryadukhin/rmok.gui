@@ -1,6 +1,6 @@
 {
   "name": "RMOK-GUI",
-  "version": "v2.0.2",
+  "version": "v2.0.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --host 0.0.0.0 --port 3000",

@@ -4,6 +4,7 @@ import { GetterTree } from 'vuex'
 
 const getters: GetterTree<ContactsViewState, RootState> = {
   fetching (state) { return state.fetching },
+
   contact_id (state) { return state.contact_id },
   contact_name (state) { return state.contact_name },
   contact_first_name (state) { return state.contact_first_name },
@@ -18,10 +19,9 @@ const getters: GetterTree<ContactsViewState, RootState> = {
   contact_project_scenario (state) { return state.contact_project_scenario },
   contact_details (state) { return state.contact_details },
   contact_details_default (state) { return state.contact_details_default },
-  contact_city (state) { return state.contact_city },
-  contact_region (state) { return state.contact_region },
   contact_tz (state) { return state.contact_tz },
   contact_created_at (state) { return state.contact_created_at },
+  contact_location (state) { return state.contact_location },
   messenger_available (state) { return state.messenger_available },
   messenger (state) { return state.messenger }
 }

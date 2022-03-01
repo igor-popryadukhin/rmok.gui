@@ -7,10 +7,6 @@ import { $axios } from '@/plugins/axios'
 
 const actions: ActionTree<ContactsViewState, RootState> = {
   fetch: ({ commit }, payload) => {
-    commit('messages/flush')
-    commit('tasks/flush')
-    commit('history/flush')
-
     return new Promise<number>((resolve, reject) => {
       commit('fetching', true)
 
@@ -41,10 +37,12 @@ const actions: ActionTree<ContactsViewState, RootState> = {
 
           commit('contact_details', response.data?.contact_details || [])
           commit('contact_details_default', response.data?.contact_details_default || null)
-          commit('contact_city', response.data?.city || '')
-          commit('contact_region', response.data?.region || '')
           commit('contact_tz', response.data?.tz || '')
           commit('contact_created_at', response.data?.created_at || '')
+
+          if (response.data?.location) {
+            commit('contact_location', response.data?.location)
+          }
 
           resolve(response.data?.id)
         })

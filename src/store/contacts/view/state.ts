@@ -1,10 +1,12 @@
 import ContactDetail from '@/api/interfaces/ContactDetail'
 import ContactTag from '@/api/interfaces/ContactTag'
+import Location from '@/api/interfaces/Location'
 import StatusGroup from '@/api/interfaces/StatusGroup'
 import Messenger from '@/interfaces/Messenger'
 
 export interface ContactsViewState {
   fetching: boolean;
+  // Данные контакта
   contact_id: number;
   contact_name: string;
   contact_first_name: string;
@@ -19,10 +21,9 @@ export interface ContactsViewState {
   contact_project_scenario: string;
   contact_details: ContactDetail[];
   contact_details_default: ContactDetail|null;
-  contact_city: string;
-  contact_region: string;
   contact_tz: string;
   contact_created_at: string;
+  contact_location: Location;
   messenger_available: boolean;
   messenger: Messenger|null;
 }
@@ -30,6 +31,7 @@ export interface ContactsViewState {
 export function contactsViewState (): ContactsViewState {
   return {
     fetching: false,
+    // Данные контакта
     contact_id: 0,
     contact_name: '',
     contact_first_name: '',
@@ -44,10 +46,12 @@ export function contactsViewState (): ContactsViewState {
     contact_project_scenario: '',
     contact_details: [],
     contact_details_default: null,
-    contact_city: '',
-    contact_region: '',
     contact_tz: '',
     contact_created_at: '',
+    contact_location: {
+      city: '—',
+      region: '—'
+    },
 
     // Мессенджер
     messenger_available: false,

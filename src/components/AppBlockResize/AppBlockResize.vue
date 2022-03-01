@@ -132,7 +132,7 @@ export default class AppBlockResize extends Vue {
 <style lang="scss" scoped>
 .main {
   position: relative;
-  padding-right: 10px;
+  padding-right: 12px;
 }
 
 .resize {

@@ -5,8 +5,8 @@
       :min-width="280"
       :max-width="500"
     >
-      <v-sheet
-        :height="heightThisPage - 60"
+      <div
+        style="height: calc(100vh - 135px)"
         class="overflow-y-auto fill-height"
       >
         <template v-if="contactFetching && !contactName">
@@ -60,7 +60,7 @@
             </app-contact-name-popup-editor>
           </div>
 
-          <v-divider class="mb-2" />
+          <app-divider class="mb-2" />
 
           <div class="d-flex align-center mb-3">
             <app-task-dialog-edit
@@ -137,7 +137,7 @@
           </div>
 
           <div class="">
-            <span>
+            <span style="font-family: monospace, sans-serif;">
               {{ $dialer.sessionStopwatch }}
             </span>
           </div>
@@ -392,7 +392,6 @@
 
             <!-- Геолокация -->
             <v-list-item
-              v-if="contactCity || contactRegion"
               link
               @mouseenter="editContactLocationButtonVisible = true"
               @mouseleave="editContactLocationButtonVisible = false"
@@ -404,16 +403,16 @@
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title>
-                  {{ contactCity }}
+                  {{ contactLocation.city }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ contactRegion }}
+                  {{ contactLocation.region }}
                 </v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
                 <app-contact-location-popup-editor
-                  :city="contactCity"
-                  :region="contactRegion"
+                  :city="contactLocation.city"
+                  :region="contactLocation.region"
                   @click:btn:save="onAppContactLocationPopupEditorSaveClick"
                 >
                   <template #activator="{ on }">
@@ -528,10 +527,10 @@
           </template>
           <!-- Теги -->
         </template>
-      </v-sheet>
-      <v-sheet
-        height="60"
+      </div>
+      <div
         class="d-flex align-center"
+        style="height: 60px"
       >
         <v-btn
           color="primary"
@@ -546,7 +545,7 @@
         >
           {{ $tc('Save') }}
         </v-btn>
-      </v-sheet>
+      </div>
     </app-block-resize>
     <div
       class="pl-2 grow"
@@ -556,9 +555,10 @@
         :key="`v-tabs-${tick}`"
         v-model="tab"
         class="tabs"
-        height="35"
+        height="28"
         show-arrows
         optional
+        hide-slider
       >
         <template v-for="(tab, tabIndex) in tabs">
           <template v-if="tab.contextMenu && tab.contextMenu.length">
@@ -624,7 +624,7 @@
         </template>
       </v-tabs>
 
-      <v-divider class="mb-1" />
+      <app-divider class="mb-2" />
 
       <v-sheet
         class="overflow-auto"
@@ -643,19 +643,22 @@
 import APIError from '@/api/classes/APIError'
 import ContactDetail from '@/api/interfaces/ContactDetail'
 import ContactTag from '@/api/interfaces/ContactTag'
+import Location from '@/api/interfaces/Location'
 import AppBase from '@/AppBase'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
+import AppDigitalNumber from '@/components/AppDigitalNumber/AppDigitalNumber.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import dayjs from '@/plugins/dayjs'
 import parsePhoneNumber from 'libphonenumber-js'
 import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import { Prop, Watch } from 'vue-property-decorator'
 
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsView>({
   components: {
+    AppDigitalNumber,
     AppBlockResize,
     AppLoading,
     AppContactLocationPopupEditor: () => import(
@@ -681,9 +684,10 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
   },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.$store.dispatch('contacts/view/fetch', to.params.id)
+      vm.$store.dispatch('contacts/view/fetch', vm.id)
     })
   },
+
   beforeRouteUpdate (to, from, next) {
     this.tick++
 
@@ -711,6 +715,8 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
   }
 })
 export default class ContactsView extends AppBase {
+  @Prop({ required: true }) readonly id!: number
+
   /** Идентификатор звонящего номера */
   callerID = 0
   tick = 0
@@ -878,12 +884,8 @@ export default class ContactsView extends AppBase {
     return this.$store.getters['contacts/view/contact_created_at']
   }
 
-  get contactCity (): string {
-    return this.$store.getters['contacts/view/contact_city']
-  }
-
-  get contactRegion (): string {
-    return this.$store.getters['contacts/view/contact_region']
+  get contactLocation (): Location {
+    return this.$store.getters['contacts/view/contact_location']
   }
 
   get contactTimeIcon (): string {

@@ -205,6 +205,9 @@ const routes: RouteConfig[] = [
     name: 'contacts_view',
     path: '/contacts/:id',
     redirect: { name: 'contacts_view_history' },
+    props: (route) => ({
+      id: +route.params.id // Идентификатор контакта
+    }),
     component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/ContactsView/ContactsView.vue'),
     children: [
       {
@@ -552,6 +555,12 @@ const routes: RouteConfig[] = [
     name: 'statistics_recent_calls',
     path: '/statistics/recent-calls',
     component: () => import(/* webpackChunkName: "statistics-recent-calls" */ '../views/Statistics/RecentCalls/RecentCalls.vue'),
+    meta: { layout: 'default', middleware: [bootstrap] }
+  },
+  {
+    name: 'statistics_all_calls',
+    path: '/statistics/all-calls',
+    component: () => import(/* webpackChunkName: "statistics-all-calls" */ '../views/Statistics/AllCalls/AllCalls.vue'),
     meta: { layout: 'default', middleware: [bootstrap] }
   },
   {

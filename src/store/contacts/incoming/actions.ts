@@ -9,12 +9,10 @@ const actions: ActionTree<ContactsIncomingState, RootState> = {
    * @param commit
    * @param payload
    */
-  fetch_by_phone_number: ({ commit }, payload) => {
-    commit('flush')
+  find_by_phone_number: ({ commit }, payload) => {
+    commit('fetching', true)
 
-    return new Promise<void>((resolve, reject) => {
-      commit('fetching', true)
-
+    return new Promise<number>((resolve, reject) => {
       $axios.get(`/contacts/by-number/${payload}`)
         .then((response) => {
           if (response.status !== 200) {
@@ -23,14 +21,33 @@ const actions: ActionTree<ContactsIncomingState, RootState> = {
 
           commit('contact_id', response.data?.id)
           commit('contact_name', response.data?.contact_name)
+          commit('contact_first_name', response.data?.first_name)
+          commit('contact_last_name', response.data?.last_name)
+          commit('contact_middle_name', response.data?.middle_name)
+          commit('contact_tags', response.data?.tags)
+          commit('contact_owner_id', response.data?.owner?.id || 0)
+          commit('contact_owner_full_name', response.data?.owner?.full_name || '')
 
+          if (response.data?.project?.id) {
+            commit('contact_project_id', response.data?.project?.id || 0)
+            commit('contact_project_name', response.data?.project?.name || '')
+            commit('contact_project_statuses', response.data?.project?.statuses || [])
+            commit('contact_project_scenario', response.data?.project?.scenario || '')
+          }
+
+          commit('messenger_available', !!response.data?.messenger_available)
+          commit('messenger', response.data?.messenger)
+
+          commit('contact_details', response.data?.contact_details || [])
+          commit('contact_details_default', response.data?.contact_details_default || null)
           commit('contact_city', response.data?.city || '')
           commit('contact_region', response.data?.region || '')
           commit('contact_tz', response.data?.tz || '')
           commit('contact_created_at', response.data?.created_at || '')
 
-          setTimeout(() => (resolve()), 0)
-        }).catch(reject)
+          resolve(response.data?.id)
+        })
+        .catch(reject)
         .finally(() => (commit('fetching', false)))
     })
   },
