@@ -464,9 +464,7 @@
         class="main-container"
         fluid
       >
-        <v-fade-transition>
-          <router-view />
-        </v-fade-transition>
+        <router-view />
       </v-container>
     </v-main>
     <div
@@ -598,8 +596,12 @@ export default class DefaultLayout extends AppBase {
   // endregion
 
   // region Входящий вызов
-  get contactIncomingId (): number { return this.$store.getters['contacts/incoming/contact_id'] }
-  get contactIncomingContactName (): string { return this.$store.getters['contacts/incoming/contact_name'] }
+  get contactIncomingId (): number {
+    return this.$store.getters['contacts/incoming/contact_id']
+  }
+  get contactIncomingContactName (): string {
+    return this.$store.getters['contacts/incoming/contact_name']
+  }
   // endregion
 
   get accountMenuItems () {
@@ -1102,7 +1104,7 @@ export default class DefaultLayout extends AppBase {
       uri: `sip:${login}@${host}`,
       candidateReadyTimeOut: this.profileRTCConfiguration.candidate_ready_timeout
     })
-    this.$dialer.on('newRTCSession', this.onNewRTCSession)
+    this.$dialer.on('newRTCSession', this.onNewRTCSession.bind(this))
 
     // Подключение в зависимости от состояния статуса пользователя.
     if (this.profile.status !== 'away') {
@@ -1167,7 +1169,7 @@ export default class DefaultLayout extends AppBase {
    * @param session
    * @param event
    */
-  private onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
+  private async onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
     this.$root.$emit('dialer-session-progress', session, event)
 
     // Если входящий
@@ -1177,8 +1179,7 @@ export default class DefaultLayout extends AppBase {
       debugDialerEvent('Входящий: %s', session.data.target)
 
       // Загружаю информацию о контакте с сервера.
-      this.$store
-        .dispatch('contacts/incoming/fetch_by_phone_number', session.data.target)
+      this.$store.dispatch('contacts/incoming/find_by_phone_number', session.data.target)
         .then(() => {
           // Проигрываю мелодию входящего вызова.
           this.playAudio('/sounds/ringing2.mp3', true)
@@ -1204,8 +1205,6 @@ export default class DefaultLayout extends AppBase {
             position: POSITION.TOP_CENTER,
             draggable: false
           })
-        }).catch(() => {
-          this.$dialer.hangUp()
         })
     }
 

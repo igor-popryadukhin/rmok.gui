@@ -1,6 +1,56 @@
 <template>
   <v-sheet class="projects-view-people">
     <div
+      class="projects-view-people__tools d-flex align-center"
+    >
+      <app-autocomplete
+        v-model="availablePeopleSelected"
+        :options="filteredPeople"
+        :loading="availablePeopleFetching"
+        item-text="full_name"
+        item-value="id"
+        class="mr-2"
+        clearable
+        multiple
+        hide-details
+        @search="onSearchPeople"
+        @focus="onSearchPeopleFocus"
+      >
+        <template #selection="{ item, attrs, selected }">
+          <v-chip
+            v-bind="attrs"
+            :input-value="selected"
+            color="primary"
+            close
+            small
+            label
+            outlined
+            @click:close="onPeopleSelectedRemove(item)"
+          >
+            <v-avatar
+              size="16"
+              left
+            >
+              <v-img
+                sizes="16,24,48,64,128"
+                :src="item.userpic || '/images/default-avatar.jpg'"
+              />
+            </v-avatar>
+            {{ item.full_name }}
+          </v-chip>
+        </template>
+      </app-autocomplete>
+      <v-btn
+        :loading="processAdd"
+        height="40"
+        text
+        tile
+        @click="onBtnAddPeopleClick"
+      >
+        {{ $tc('Add') }}
+      </v-btn>
+    </div>
+    <div
       v-if="fetching && items.length === 0"
       class="d-flex align-center justify-center fill-height"
     >
@@ -16,70 +66,21 @@
       v-else
       class="projects-view-people__box"
     >
-      <div
-        class="projects-view-people__tools d-flex align-center"
-      >
-        <app-autocomplete
-          v-model="availablePeopleSelected"
-          :options="filteredPeople"
-          :loading="availablePeopleFetching"
-          item-text="full_name"
-          item-value="id"
-          class="mr-2"
-          clearable
-          multiple
-          hide-details
-          @search="onSearchPeople"
-          @focus="onSearchPeopleFocus"
-        >
-          <template #selection="{ item, attrs, selected }">
-            <v-chip
-              v-bind="attrs"
-              :input-value="selected"
-              color="primary"
-              close
-              small
-              label
-              outlined
-              @click:close="onPeopleSelectedRemove(item)"
-            >
-              <v-avatar
-                size="16"
-                left
-              >
-                <v-img
-                  sizes="16,24,48,64,128"
-                  src="/images/default-avatar.png"
-                />
-              </v-avatar>
-              {{ item.full_name }}
-            </v-chip>
-          </template>
-        </app-autocomplete>
-        <v-btn
-          :loading="processAdd"
-          height="40"
-          text
-          tile
-          @click="onBtnAddPeopleClick"
-        >
-          {{ $tc('Add') }}
-        </v-btn>
-      </div>
       <div class="projects-view-people__list">
         <v-list dense>
           <template v-for="(item, itemKey) in items">
             <v-list-item :key="`v-list-item-${itemKey}`">
               <v-list-item-avatar>
-                <v-img :src="item.userpic || 'images/default-avatar.png'" />
-                <v-badge
-                  v-show="item.online"
-                  offset-y="16"
-                  offset-x="13"
-                  color="#38ff00"
-                  dot
-                  bordered
-                />
+                <v-img :src="item.userpic || '/images/default-avatar.jpg'">
+                  <v-badge
+                    v-show="item.online"
+                    offset-y="16"
+                    offset-x="13"
+                    color="#38ff00"
+                    dot
+                    bordered
+                  />
+                </v-img>
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title>{{ item.full_name }}</v-list-item-title>

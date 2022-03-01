@@ -1,10 +1,9 @@
 import { RootState } from '@/store'
 import { State } from './state'
-
 import { GetterTree } from 'vuex'
 
 const getters: GetterTree<State, RootState> = {
-  visible (state: State) { return state.visible }
+  filter_width (state: State) { return state.filter_width }
 }
 
 export default getters

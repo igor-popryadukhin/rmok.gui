@@ -18,8 +18,6 @@ import statistic_all_call from './statistic_all_call'
 import autodialer from './autodialer'
 import scenarios from './scenarios'
 import unsaved_call from './unsaved_call'
-import contact from './contact'
-import incoming_dialog from './incoming_dialog'
 import statistic_activity from './statistic_activity'
 import { database } from './database'
 import debug from 'debug'
@@ -45,6 +43,7 @@ export interface RootState {
 
 const $store = new Vuex.Store({
   strict: true,
+
   state (): RootState {
     return {
       bootstrap_process: true, // Процесс начальной загрузки
@@ -68,10 +67,7 @@ const $store = new Vuex.Store({
     groups,
     users,
     unsaved_call,
-    incoming_dialog,
-    contact_view: contact,
-    contact_incoming: contact,
-    contact_outgoing: contact,
+    // contact_view: contact,
     contacts,
     leads,
     statistics,
