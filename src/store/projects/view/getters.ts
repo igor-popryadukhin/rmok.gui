@@ -7,6 +7,7 @@ const getters: GetterTree<ProjectsViewState, RootState> = {
   project_description (state: ProjectsViewState) { return state.project_description },
   project_scenario (state: ProjectsViewState) { return state.project_scenario },
   project_statuses (state: ProjectsViewState) { return state.project_statuses },
+  project_queue_number (state: ProjectsViewState) { return state.project_queue_number },
 
   fetching (state: ProjectsViewState) { return state.fetching }
 }

@@ -22,6 +22,7 @@ const actions: ActionTree<ProjectsViewState, RootState> = {
         commit('project_description', response.data?.description || '')
         commit('project_scenario', response.data?.scenario || '')
         commit('project_statuses', response.data?.statuses || [])
+        commit('project_queue_number', response.data?.queue_number || null)
 
         resolve()
       }).finally(() => (commit('fetching', false)))
