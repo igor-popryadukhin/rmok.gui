@@ -7,6 +7,9 @@ export interface ContactsViewState {
   fetching: boolean;
   contact_id: number;
   contact_name: string;
+  contact_first_name: string;
+  contact_last_name: string;
+  contact_middle_name: string;
   contact_tags: ContactTag[];
   contact_owner_id: number;
   contact_owner_full_name: string;
@@ -29,6 +32,9 @@ export function contactsViewState (): ContactsViewState {
     fetching: false,
     contact_id: 0,
     contact_name: '',
+    contact_first_name: '',
+    contact_last_name: '',
+    contact_middle_name: '',
     contact_tags: [],
     contact_owner_id: 0,
     contact_owner_full_name: '',
