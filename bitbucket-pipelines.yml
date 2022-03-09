@@ -1,8 +1,9 @@
 pipelines:
   branches:
-    develop:
+    release/*:
       - step:
           name: "Build for review"
+          trigger: automatic
           runs-on:
             - self.hosted
             - dev
@@ -34,37 +35,49 @@ pipelines:
                 MODE: "command"
                 DEBUG: "false"
 
-    release/*:
-      - step:
-          name: "Build for production"
-          trigger: manual
-          runs-on:
-            - self.hosted
-            - prod
-          artifacts:
-            - dist
-          script:
-            - echo $PROD_VUE_ENV_REVIEW | base64 -di > ./.env
-            # Доставка исходного кода на сервер
-            - pipe: atlassian/rsync-deploy:0.7.0
-              variables:
-                USER: $PROD_SSH_USER
-                SERVER: $PROD_SSH_SERVER
-                REMOTE_PATH: "~/tmp/rmok.gui"
-                LOCAL_PATH: "."
-                EXTRA_ARGS: "--delete"
-              # Сборка/настройка проекта
-            - pipe: atlassian/ssh-run:0.4.0
-              variables:
-                SSH_USER: $PROD_SSH_USER
-                SERVER: $PROD_SSH_SERVER
-                COMMAND: "cd ~/tmp/rmok.gui && npm install --no-progress && npm run build"
-                MODE: "command"
-                DEBUG: "false"
-            - pipe: atlassian/ssh-run:0.4.0
-              variables:
-                SSH_USER: $PROD_SSH_USER
-                SERVER: $PROD_SSH_SERVER
-                COMMAND: "rsync -rq --delete ~/tmp/rmok.gui/dist/. ~/www/rmok.gui"
-                MODE: "command"
-                DEBUG: "false"
+  tags:
+    v*:
+     - step:
+         name: "Deployment for production"
+         runs-on:
+           - self.hosted
+           - prod
+         artifacts:
+           - dist
+         script:
+           - echo $PROD_VUE_ENV_REVIEW | base64 -di > ./.env
+           # Создание каталога в котором будет производиться сборка
+           - pipe: atlassian/ssh-run:0.4.0
+             variables:
+               SSH_USER: $PROD_SSH_USER
+               SERVER: $PROD_SSH_SERVER
+               COMMAND: "[ -d ~/tmp/rmok.gui ] || mkdir -p ~/tmp/rmok.gui"
+               MODE: "command"
+           # Создание каталога для результата сборки
+           - pipe: atlassian/ssh-run:0.4.0
+             variables:
+               SSH_USER: $PROD_SSH_USER
+               SERVER: $PROD_SSH_SERVER
+               COMMAND: "[ -d ~/www/rmok.gui ] || mkdir -p ~/www/rmok.gui"
+               MODE: "command"
+           # Доставка исходного кода на сервер для сборки
+           - pipe: atlassian/rsync-deploy:0.7.0
+             variables:
+               USER: $PROD_SSH_USER
+               SERVER: $PROD_SSH_SERVER
+               REMOTE_PATH: "~/tmp/rmok.gui"
+               LOCAL_PATH: "."
+               EXTRA_ARGS: "--delete"
+             # Сборка/настройка проекта
+           - pipe: atlassian/ssh-run:0.4.0
+             variables:
+               SSH_USER: $PROD_SSH_USER
+               SERVER: $PROD_SSH_SERVER
+               COMMAND: "cd ~/tmp/rmok.gui && npm install --no-progress && npm run build"
+               MODE: "command"
+           - pipe: atlassian/ssh-run:0.4.0
+             variables:
+               SSH_USER: $PROD_SSH_USER
+               SERVER: $PROD_SSH_SERVER
+               COMMAND: "rsync -rq --delete ~/tmp/rmok.gui/dist/. ~/www/rmok.gui"
+               MODE: "command"
