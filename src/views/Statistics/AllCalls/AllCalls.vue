@@ -1,18 +1,14 @@
 <template>
   <div class="all-calls-page">
-    <all-calls-tools />
-    <app-divider />
+    <all-calls-tools class="all-calls-page__tools" />
+    <app-divider :loading="itemsFetching" />
     <div class="all-calls-page__box">
-      <app-block-resize
-        :width.sync="settingsFilterWidth"
-        :max-width="450"
-        class="all-calls-page__filter"
-      >
+      <div class="all-calls-page__filter">
         <all-calls-filters
           @click:btn:refresh="fetchStatistic"
           @filter:change="onFilterChange"
         />
-      </app-block-resize>
+      </div>
       <div class="all-calls-page__statistic">
         <div class="d-flex mb-2">
           <app-btn-sorting
@@ -25,43 +21,27 @@
           <v-spacer />
           <app-paginator
             v-model="filterOffset"
-            :count="historyCount"
+            :count="itemsCount"
             :per-page="50"
             @click:btn:left="fetchStatisticHistory"
             @click:btn:right="fetchStatisticHistory"
           />
         </div>
-
-        <app-divider :loading="historyFetching && historyItems.length > 0" />
-
-        <div
-          v-if="isFetchStatistic && historyItems.length === 0"
-          class="d-flex align-center justify-center"
-          :style="{height: `${height}px`}"
-        >
-          <app-loading />
-        </div>
-        <div
-          v-else-if="historyItems.length === 0"
-          class="d-flex align-center justify-center"
-          :style="{height: `${height}px`}"
-        >
-          <span class="grey--text">{{ $tc('No data') }}</span>
-        </div>
+        <v-divider />
         <v-data-table
+          id="v-datatable"
           item-key="id"
           selectable-key="id"
-          height="calc(100vh - 130px)"
-          :item-class="() => 'contacts-item'"
+          :item-class="() => 'v-data-table-item'"
           :headers="contactsHeaders"
-          :items="historyItems"
-          :server-items-length="historyCount"
-          :items-per-page="100"
-          :loading="historyFetching"
+          :items="items"
+          :server-items-length="itemsCount"
+          :items-per-page="50"
+          :loading="itemsFetching"
+          height="calc(100vh - 207px)"
           calculate-widths
           fixed-header
           hide-default-footer
-          show-select
           dense
         >
           <template #progress>
@@ -69,27 +49,39 @@
           </template>
           <template #no-data>
             <div
-              class="d-flex align-center justify-center grey--text"
-              style="height: calc(100vh - 550px)"
+              class="d-flex align-center justify-center"
+              style="height: calc(100vh - 267px);"
             >
-              {{ $tc('Missing data') }}
+              {{ $tc('No data for the selected period') }}
             </div>
           </template>
           <template #loading>
             <div
               class="d-flex align-center justify-center grey--text"
-              style="height: calc(100vh - 160px)"
+              style="height: calc(100vh - 267px);"
             >
               <app-loading />
             </div>
           </template>
-          <template #[`item.full_name`]="{ item }">
-            <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
-              {{ item.full_name }}
+          <template #[`item.contact`]="{ item }">
+            <router-link :to="{ name: 'contacts_view', params: { id: item.contact.id } }">
+              {{ item.contact.name }}
             </router-link>
           </template>
+          <template #[`item.comment`]="{ item }">
+            <app-tooltip>
+              <template #activator="{ on }">
+                <span v-on="on">
+                  {{ item.comment.short }}
+                </span>
+              </template>
+              <span>
+                {{ item.comment.long }}
+              </span>
+            </app-tooltip>
+          </template>
           <template #[`item.status`]="{ item }">
-            <template v-if="typeof item.status === 'object'">
+            <template v-if="item.status">
               <v-chip
                 :color="item.status.color"
                 label
@@ -103,10 +95,23 @@
               —
             </template>
           </template>
+          <template #[`item.manager`]="{ item }">
+            <template v-if="typeof item.manager === 'object'">
+              {{ item.manager.name }}
+            </template>
+          </template>
+          <template #[`item.actions`]="{ item }">
+            <v-btn
+              icon
+              x-small
+              @click="playAudioRecord(item)"
+            >
+              <v-icon>mdi-play</v-icon>
+            </v-btn>
+          </template>
         </v-data-table>
       </div>
     </div>
-    <app-divider />
   </div>
 </template>
 
@@ -115,13 +120,12 @@ import AppBase from '@/AppBase'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
-import AppSummary from '@/components/AppSummary/AppSummary.vue'
 import debounce from '@/utils/debounce'
-import AllCallsFilters from '@/views/Statistics/AllCalls/AllCallsFilters.vue'
-import AllCallsTools from '@/views/Statistics/AllCalls/AllCallsTools.vue'
+import AllCallsFilters from './AllCallsFilters.vue'
+import AllCallsTools from './AllCallsTools.vue'
 
 import Component from 'vue-class-component'
 
@@ -134,7 +138,6 @@ import Component from 'vue-class-component'
     AppLoading,
     AppPaginator,
     AppBtnSorting,
-    AppSummary,
     AppCountUp,
     AppBtnToggleDate
   }
@@ -142,80 +145,91 @@ import Component from 'vue-class-component'
 export default class AllCalls extends AppBase {
   isFetchStatistic = false
 
-  get height (): number {
-    return 700
-  }
-
   get settingsFilterWidth (): number { return this.$store.getters['statistics/all_calls/settings/filter_width'] }
   set settingsFilterWidth (val: number) { this.$store.commit('statistics/all_calls/settings/filter_width', val) }
 
-  get historyFetching () {
-    return this.$store.getters['statistics/all_calls/history_fetching']
+  get itemsFetching () {
+    return this.$store.getters['statistics/all_calls/items_fetching']
   }
 
-  // Количество прозвоненных клиентов в соответствии установленными параметрами фильтров
-  get historyCount () {
-    return this.$store.getters['statistics/all_calls/history_count']
+  /**
+   * Количество прозвоненных клиентов в соответствии установленными параметрами фильтров
+   */
+  get itemsCount (): number {
+    return this.$store.getters['statistics/all_calls/items_count'] || 0
   }
 
+  /**
+   * Заголовок таблицы
+   */
   get contactsHeaders () {
     return [
       {
         text: 'Date time',
-        align: 'start',
+        align: '',
         sortable: false,
         value: 'created_at'
       },
-      // {
-      //   text: 'Customer',
-      //   align: 'center',
-      //   sortable: false,
-      //   value: 'contact'
-      // },
-      // {
-      //   text: 'Result',
-      //   align: 'center',
-      //   sortable: false,
-      //   value: 'status'
-      // },
-      // {
-      //   text: 'Comment',
-      //   align: 'center',
-      //   sortable: false,
-      //   value: 'comment'
-      // },
-      // {
-      //   text: 'Duration',
-      //   align: 'start',
-      //   sortable: false,
-      //   value: 'call_duration'
-      // },
-      // {
-      //   text: 'Manager',
-      //   align: 'start',
-      //   sortable: false,
-      //   value: 'manager'
-      // }
+      {
+        text: 'Customer',
+        align: '',
+        sortable: false,
+        value: 'contact'
+      },
+      {
+        text: 'Result',
+        align: '',
+        sortable: false,
+        value: 'status'
+      },
+      {
+        text: 'Comment',
+        align: '',
+        sortable: false,
+        value: 'comment'
+      },
+      {
+        text: 'Duration',
+        align: '',
+        sortable: false,
+        value: 'call_duration'
+      },
+      {
+        text: 'Manager',
+        align: '',
+        sortable: false,
+        value: 'manager'
+      },
+      {
+        text: '',
+        align: '',
+        sortable: false,
+        value: 'actions'
+      }
     ]
   }
 
-  get historyItems () {
-    type K = string
+  get items () {
+    type K = 'created_at'
+      |'manager'
+      |'contact'
+      |'status'
+      |'comment'
+      |'call_duration'
+      |'audio_record_id'
     type T = number|string|object
-    return (this.$store.getters['statistics/all_calls/history'] as Array<Record<K, T>>)
+    return (this.$store.getters['statistics/all_calls/items'] as Array<Record<K, T>>)
     .map((e) => {
       return {
-        created_at: this.$dayjs(e.created_at).format('DD.MM.YYYY')
+        created_at: this.$dayjs(e.created_at).format('DD.MM.YYYY HH:mm'),
+        contact: e.contact,
+        status: e.status,
+        comment: e.comment,
+        manager: e.manager,
+        call_duration: e.call_duration,
+        audio_record_id: e.audio_record_id
       }
     })
-  }
-
-  get totalCalls () {
-    return this.$store.getters['statistics/all_calls/total_calls']
-  }
-
-  get totalCallsFetching (): boolean {
-    return this.$store.getters['statistics/all_calls/total_calls_fetching']
   }
 
   get filterOffset () {
@@ -259,11 +273,18 @@ export default class AllCalls extends AppBase {
 
   // Возможные варианты сортировки
   get sortingOptions () {
-    return ['created_at', 'contact', 'result', 'comment', 'call_duration', 'session_duration', 'manager'].map((e) => ({
-      name: this.$t(`statistics.all_calls.sorting_options.${e}`),
+    return [
+      'created_at',
+      'contact',
+      'result',
+      'comment',
+      'call_duration',
+      'session_duration',
+      'manager'
+    ].map((e) => ({
+      name: this.$t(`sorting_options.${e}`),
       order_by: e,
-      order_direction: 'asc',
-      visible: true
+      order_direction: 'asc'
     }))
   }
 
@@ -288,6 +309,10 @@ export default class AllCalls extends AppBase {
     this.$store.dispatch('statistics/all_calls/fetch')
   }
 
+  /**
+   * Срабатывает при изменении параметров фильтров
+   * @private
+   */
   private onFilterChange () {
     this.$store.commit('statistics/all_calls/filter/offset', 0)
     this.fetchStatistic()
@@ -295,13 +320,13 @@ export default class AllCalls extends AppBase {
 
   /**
    *
-   * @param id Идентификатор истории
    * @private
+   * @param item
    */
-  private playAudioRecord (item) {
+  private playAudioRecord (item: any) {
     this.$root.$emit('audio-player-show', {
       src: `${process.env.VUE_APP_API}/contacts/history/audio/${item.audio_record_id}`,
-      author: `${item.owner.name} / ${item.contact.name}`
+      author: `${item.manager.name} / ${item.contact.name}`
     })
   }
 }
@@ -309,19 +334,91 @@ export default class AllCalls extends AppBase {
 
 <style lang="scss">
 
-.all-calls-page {
-  height: calc(100vh - 130px);
+#v-datatable {
+  table {
+    thead {
+      tr {
+        th:not(:first-child) {
+          padding-left: 5px !important;
+          padding-right: 5px !important;
+        }
+      }
+    }
+  }
 }
+
+.v-data-table-item {
+  td {
+    height: 25px !important;
+  }
+
+  td:not(:first-child) {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    height: 25px !important;
+  }
+
+  td:nth-child(1) {
+    text-align: left;
+    width: 1px;
+    white-space: nowrap;
+    font-size: 12px !important;
+  }
+
+  td:nth-child(2) {
+    text-align: left;
+    white-space: nowrap;
+    width: 100%;
+    font-size: 12px !important;
+  }
+
+  td:nth-child(3) {
+    text-align: left;
+    white-space: nowrap;
+    font-size: 12px !important;
+  }
+
+  td:nth-child(4) {
+    text-align: left;
+    white-space: nowrap;
+    font-size: 12px !important;
+  }
+
+  td:nth-child(5) {
+    text-align: left;
+    white-space: nowrap;
+    font-size: 12px !important;
+  }
+
+  td:nth-child(6) {
+    text-align: left;
+    white-space: nowrap;
+    font-size: 12px !important;
+  }
+
+  td:nth-child(7) {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+}
+
+.all-calls-page {
+  height: calc(100vh - 111px);
+  overflow-y: auto;
+}
+
+.all-calls-page__tools {}
 
 .all-calls-page__box {
   display: flex;
-  flex-wrap: nowrap;
-  height: inherit;
-  margin: 5px 0 5px 0;
+  height: calc(100vh - 150px);
+  margin: 0;
 }
 
 .all-calls-page__filter {
-  height: inherit;
+  height: calc(100vh - 150px);
+  width: 255px;
+  padding-right: 5px;
   overflow-y: auto;
 }
 
@@ -332,46 +429,20 @@ export default class AllCalls extends AppBase {
   overflow: auto;
   padding: 10px;
 }
-
-.simple-table {
-}
-
-.simple-table thead th {
-}
-
-.simple-table tr {
-}
-
-.simple-table tr td {
-  height: 25px !important;
-  font-size: 12px !important;
-}
-
-.column-datetime {
-  width: 10px;
-}
-
-.column-client {
-  width: auto;
-}
-
-.column-status-result {
-  width: 10px;
-}
-
-.column-comment {
-  width: 10px;
-}
-
-.column-duration {
-  width: 10px;
-}
-
-.column-manager {
-  width: 10px;
-}
-
-.column-action {
-  width: 10px;
-}
 </style>
+
+<i18n>
+{
+  "ru": {
+    "sorting_options": {
+      "created_at": "По дате совершения звонка",
+      "contact": "По клиенту",
+      "result": "По результату",
+      "comment": "По комментарию",
+      "call_duration": "По длительности звонка",
+      "session_duration": "По длительности сессии",
+      "manager": "По менеджеру"
+    }
+  }
+}
+</i18n>

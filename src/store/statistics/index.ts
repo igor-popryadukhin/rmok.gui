@@ -7,6 +7,7 @@ import { State, state } from './state'
 import { recent_calls } from './recent_calls'
 import calls_count from './calls_count'
 import all_calls from './all_calls'
+import manager_employment from './manager_employment'
 
 export const statistics: Module<State, RootState> = {
   namespaced: true,
@@ -15,6 +16,7 @@ export const statistics: Module<State, RootState> = {
   getters,
   mutations,
   modules: {
+    manager_employment,
     recent_calls,
     all_calls,
     calls_count

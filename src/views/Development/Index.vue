@@ -62,6 +62,10 @@ export default class AutoDialerView extends Base {
       {
         title: 'Unique identifier for the tab',
         value: sessionStorage.tabID || '-'
+      },
+      {
+        title: 'WS',
+        value: this.$ws.connected ? 'Connected' : 'Disconnected'
       }
     ]
   }

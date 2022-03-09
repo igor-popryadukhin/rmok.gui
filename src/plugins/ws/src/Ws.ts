@@ -23,12 +23,12 @@ export default class Ws {
     import(/* webpackChunkName: "chunk-socket.io-client" */'socket.io-client')
       .then(({ io }) => {
         wsDebug('Инициализация...')
-        this._socket = io(process.env.VUE_APP_WS, {
+        this._socket = io(process.env.VUE_APP_MS_WS_ENDPOINT, {
           path: '/ws',
           autoConnect: false,
           reconnection: true,
           secure: true,
-          transports: ['websocket', 'polling'],
+          transports: ['websocket'],
           auth: (cb) => {
             cb({
               token: typeof this.cbToken === 'function' ? this.cbToken() : ''
@@ -58,7 +58,19 @@ export default class Ws {
     this._socket.disconnect()
   }
 
-  public send (data) {
-    this._socket.send(data)
+  public emit (name: string, ...args) {
+    this._socket.emit(name, ...args)
+  }
+
+  public send (...args) {
+    this._socket.send(...args)
+  }
+
+  public on (name: string, handle: CallableFunction) {
+    this._socket.on(name, handle)
+  }
+
+  public off (name: string, handle: CallableFunction) {
+    this._socket.on(name, handle)
   }
 }

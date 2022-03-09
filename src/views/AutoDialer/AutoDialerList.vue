@@ -1,5 +1,5 @@
 <template>
-  <v-sheet>
+  <div>
     <div class="d-flex justify-space-between">
       <div>
         <v-btn
@@ -159,7 +159,7 @@
         </template>
       </v-simple-table>
     </template>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">

@@ -1,6 +1,6 @@
 <template>
   <div class="recent-calls-page">
-    <calls-count-tools />
+    <calls-count-tools class="mb-1" />
     <app-divider />
     <div class="recent-calls-page__box">
       <app-block-resize
@@ -32,7 +32,7 @@ import AppBase from '@/AppBase'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
 import AppSummary from '@/components/AppSummary/AppSummary.vue'

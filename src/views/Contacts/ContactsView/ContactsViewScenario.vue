@@ -1,5 +1,8 @@
 <template>
-  <v-sheet height="100%">
+  <div
+    class="fill-height overflow-auto"
+    style="max-width: 850px"
+  >
     <template v-if="scenario">
       <div
         v-html="scenario"
@@ -13,7 +16,7 @@
         Сценарий не установлен
       </div>
     </template>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">

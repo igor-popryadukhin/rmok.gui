@@ -36,6 +36,7 @@ const mutations: MutationTree<ProfileState> = {
     state.permissions = payload.permissions
     state.project = payload.project
     state.role = payload.role
+    state.roles = payload.roles
 
     if (payload?.pbx_configuration?.rtc_configuration) {
       state.pbx_configuration.rtc_configuration = payload.pbx_configuration.rtc_configuration

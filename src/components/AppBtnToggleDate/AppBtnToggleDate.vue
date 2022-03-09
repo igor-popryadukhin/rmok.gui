@@ -1,6 +1,7 @@
 <template>
   <v-btn-toggle
     v-model="itemValue"
+    class="ma-0"
     group
     dense
   >
@@ -20,6 +21,7 @@
                 v-bind="attrs"
                 :key="key"
                 :value="item.value"
+                class="ma-0"
                 small
                 v-on="on"
               >
@@ -33,6 +35,7 @@
           <v-btn
             :key="key"
             :value="item.value"
+            class="ma-0"
             small
           >
             {{ item.title }}
@@ -51,8 +54,7 @@ import Component from 'vue-class-component'
 
 @Component
 export default class AppBtnToggleDate extends Vue {
-  @Prop({ required: true, default: () => [] })
-    readonly items: Array<Record<string, unknown>>
+  @Prop({ required: true, default: () => [] }) readonly items: Array<Record<string, unknown>>
 
   @ModelSync('value', 'change', {
     type: [String, Number],

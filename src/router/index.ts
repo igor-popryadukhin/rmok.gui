@@ -8,6 +8,22 @@ import bootstrap from '@/middleware/bootstrap'
 
 Vue.use(VueRouter)
 
+function isGranted (value: string | string[]): boolean {
+  if (Array.isArray(value)) {
+    let granted = false
+
+    for (const role1 of $store.getters['profile/roles']) {
+      for (const role2 of value) {
+        if (!granted) {
+          granted = role1 === role2
+        }
+      }
+    }
+
+    return granted
+  }
+}
+
 const originPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push (location) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -92,7 +108,14 @@ const routes: RouteConfig[] = [
       }
     ],
     component: () => import(/* webpackChunkName: "auto-dialer" */ '../views/AutoDialer/Layout.vue'),
-    meta: { layout: 'default', middleware: [bootstrap] }
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   {
     name: 'auto_dialer_view',
@@ -173,21 +196,14 @@ const routes: RouteConfig[] = [
         name: 'auto_dialer_view_tab_telephony',
         path: 'telephony'
       }
-    ]
-  },
-  {
-    name: 'roles',
-    path: '/roles',
-    component: () => import(/* webpackChunkName: "roles" */ '../views/Roles/Roles.vue'),
-    children: [],
-    meta: { layout: 'default', middleware: [bootstrap] }
-  },
-  {
-    name: 'roles_view',
-    path: '/roles/:id',
-    component: () => import(/* webpackChunkName: "roles-view" */ '../views/Roles/RolesView.vue'),
-    children: [],
-    meta: { layout: 'default', middleware: [bootstrap] }
+    ],
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   {
     name: 'contacts_in_works',
@@ -196,18 +212,21 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
-    name: 'contacts',
-    path: '/contacts',
-    component: () => import(/* webpackChunkName: "contacts" */ '../views/Contacts/ContactsList/ContactsList.vue'),
+    name: 'contacts_all',
+    path: '/contacts-all',
+    component: () => import(/* webpackChunkName: "contacts-all" */ '../views/Contacts/ContactsAll/ContactsAll.vue'),
+    meta: { layout: 'default', middleware: [bootstrap] }
+  },
+  {
+    name: 'contacts_new',
+    path: '/contacts-new',
+    component: () => import(/* webpackChunkName: "contacts-new" */ '../views/Contacts/ContactsNew/ContactsNew.vue'),
     meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
     name: 'contacts_view',
     path: '/contacts/:id',
     redirect: { name: 'contacts_view_history' },
-    props: (route) => ({
-      id: +route.params.id // Идентификатор контакта
-    }),
     component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/ContactsView/ContactsView.vue'),
     children: [
       {
@@ -244,9 +263,17 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
-    name: 'leads',
-    path: '/leads',
-    component: () => import(/* webpackChunkName: "leads" */ '../views/Leads/Leads.vue'),
+    name: 'contacts_view_not_found',
+    path: '/contacts/:id/not-found',
+    component: () => import(/* webpackChunkName: "contacts-view-not-found" */ '../views/Contacts/ContactsView/ContactsViewNotFound.vue'),
+    children: [],
+    meta: { layout: 'default', middleware: [bootstrap] }
+  },
+  {
+    name: 'contacts_view_error',
+    path: '/contacts/:id/error',
+    component: () => import(/* webpackChunkName: "contacts-view-error" */ '../views/Contacts/ContactsView/ContactsViewError.vue'),
+    children: [],
     meta: { layout: 'default', middleware: [bootstrap] }
   },
   {
@@ -278,13 +305,27 @@ const routes: RouteConfig[] = [
     name: 'users',
     path: '/users',
     component: () => import(/* webpackChunkName: "users-list" */ '../views/Users/Users.vue'),
-    meta: { layout: 'default', middleware: [bootstrap] }
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   {
     name: 'users_create',
     path: '/users/create',
     component: () => import(/* webpackChunkName: "users-create" */ '../views/Users/UsersCreate.vue'),
-    meta: { layout: 'default', middleware: [bootstrap] }
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   {
     name: 'users_view',
@@ -323,7 +364,14 @@ const routes: RouteConfig[] = [
         path: 'schedule'
       }
     ],
-    meta: { layout: 'default', middleware: [bootstrap] }
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   // {
   //   children: [
@@ -518,7 +566,14 @@ const routes: RouteConfig[] = [
     path: '/projects',
     component: () => import(/* webpackChunkName: "projects" */ '../views/Projects/Projects.vue'),
     children: [],
-    meta: { layout: 'default', middleware: [bootstrap] }
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   {
     name: 'projects_view',
@@ -548,7 +603,14 @@ const routes: RouteConfig[] = [
         meta: { layout: 'default', middleware: [bootstrap] }
       }
     ],
-    meta: { layout: 'default', middleware: [bootstrap] }
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
 
   {
@@ -567,17 +629,27 @@ const routes: RouteConfig[] = [
     name: 'statistics_calls_count',
     path: '/statistics/calls-count',
     component: () => import(/* webpackChunkName: "statistics-call-count" */ '../views/Statistics/CallsCount/CallsCount.vue'),
-    meta: { layout: 'default', middleware: [bootstrap] }
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   {
-    children: [],
-    component: () => import(/* webpackChunkName: "statistics" */ '../views/Statistics/Layout.vue'),
-    meta: {
-      layout: 'default',
-      middleware: [bootstrap]
-    },
-    name: 'statistics',
-    path: '/statistics'
+    name: 'manager_employment',
+    path: '/statistics/manager-employment',
+    component: () => import(/* webpackChunkName: "statistics-manager-employment" */ '../views/Statistics/ManagerEmployment/ManagerEmployment.vue'),
+    meta: { layout: 'default', middleware: [bootstrap] },
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   },
   {
     name: 'scenarios',
@@ -605,7 +677,14 @@ const routes: RouteConfig[] = [
     path: '/integrations/whatsapp',
     component: () => import(/* webpackChunkName: "integrations-whatsapp" */ '../views/Integrations/Whatsapp/Whatsapp.vue'),
     meta: { layout: 'default', middleware: [bootstrap] },
-    children: []
+    children: [],
+    beforeEnter (to, from, next) {
+      if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
+        next()
+      } else {
+        next({ name: 'access_denied' })
+      }
+    }
   }
   // {
   //   name: 'integrations',

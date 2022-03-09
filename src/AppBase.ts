@@ -1,6 +1,15 @@
+import { Credentials, RTCConfiguration } from '@/api/interfaces/PBXConfiguration'
+import { ProfileState } from '@/store/profile/state'
 import Vue from 'vue'
+import { version } from '../package.json'
 
 export default class AppBase extends Vue {
+  currentUserStatus = null
+
+  get $profile (): ProfileState { return this.$store.state.profile }
+  get $profilePBXCredentials (): Credentials { return this.$store.getters['profile/pbx_configuration_credentials'] }
+  get $profileRTCConfiguration (): RTCConfiguration { return this.$store.getters['profile/pbx_configuration_rtc_configuration'] }
+
   /**
    * Уникальный идентификатор вкладки
    */
@@ -10,6 +19,10 @@ export default class AppBase extends Vue {
 
   get $isDev (): boolean {
     return process.env.NODE_ENV === 'development'
+  }
+
+  get projectVersion () {
+    return version
   }
 
   /**
@@ -26,10 +39,8 @@ export default class AppBase extends Vue {
     return this.$vuetify.breakpoint.width
   }
 
-  get accountPermissions () {
-    return (this.$store.getters['profile/permissions'] || [])
-      .filter((value) => value.granted)
-      .map((value) => value.id)
+  get accountRoles () {
+    return this.$store.getters['profile/roles']
   }
 
   get navigationDrawerWidth (): number { return this.$store.getters['settings/navigation_drawer_width'] }
@@ -41,11 +52,10 @@ export default class AppBase extends Vue {
    * @param value
    */
   public $isGranted (value: string | string[]): boolean {
-    const rolesAvailable: string[] = this.accountPermissions
     if (Array.isArray(value)) {
       let granted = false
 
-      for (const role1 of rolesAvailable) {
+      for (const role1 of this.accountRoles) {
         for (const role2 of value) {
           if (!granted) {
             granted = role1 === role2
@@ -56,7 +66,7 @@ export default class AppBase extends Vue {
       return granted
     }
 
-    return rolesAvailable.includes(value)
+    return this.accountRoles.includes(value)
   }
 
   /**
@@ -84,5 +94,20 @@ export default class AppBase extends Vue {
 
   public $confirmBeforeunloadFlush (): void {
     window.onbeforeunload = null
+  }
+
+  public userStatusUpdate (status: string) {
+    if (status === this.currentUserStatus) {
+      return
+    }
+
+    this.currentUserStatus = status
+
+    if (this.$ws.connected && !this.$isGranted(['ROLE_ADMIN', 'ROLE_CCM', 'ROLE_TEAM_LEADER'])) {
+      this.$ws.emit('user:status_changed', {
+        status,
+        datetime: this.$dayjs().toISOString()
+      })
+    }
   }
 }

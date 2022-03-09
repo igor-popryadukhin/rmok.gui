@@ -125,7 +125,7 @@ export default class Whatsapp extends Vue {
   }
 
   hostDevice = []
-  eventSource = new EventSource(`${process.env.VUE_APP_WHATSAPP_MS_API}/application/state`)
+  eventSource = new EventSource(`${process.env.VUE_APP_MS_WHATSAPP_ENDPOINT}/application/state`)
   eventSourceData = null
 
   public mounted () {
@@ -206,11 +206,11 @@ export default class Whatsapp extends Vue {
   }
 
   private whatsappEnable () {
-    this.$axios.get(`${process.env.VUE_APP_WHATSAPP_MS_API}/application/start`)
+    this.$axios.get(`${process.env.VUE_APP_MS_WHATSAPP_ENDPOINT}/application/start`)
   }
 
   private whatsappDisable () {
-    this.$axios.get(`${process.env.VUE_APP_WHATSAPP_MS_API}/application/stop`)
+    this.$axios.get(`${process.env.VUE_APP_MS_WHATSAPP_ENDPOINT}/application/stop`)
   }
 
   private whatsappQRCodeUpdate (qr: string) {

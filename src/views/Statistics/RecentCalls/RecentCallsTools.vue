@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-nowrap align-center justify-space-between mb-2">
+  <div class="d-flex flex-nowrap align-center justify-space-between">
     <div class="d-flex flex-nowrap align-center">
       <app-btn-toggle-date
         v-model="filterPeriod"
@@ -17,7 +17,7 @@
             <template #activator="{ on, attrs }">
               <v-btn
                 small
-                value="sex"
+                class="ma-0"
                 v-bind="attrs"
                 v-on="on"
               >
@@ -51,18 +51,18 @@ import { Watch } from 'vue-property-decorator'
   components: { AppBtnToggleDate }
 })
 export default class RecentCallsTools extends AppBase {
-  isoFormat = 'YYYY-MM-DDTHH:mm:ss'
+  isoFormat = 'YYYY-MM-DD'
   customPeriod = null
 
   get filterPeriod () {
-    const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0)
-    const dtB = this.$dayjs().set('h', 23).set('m', 59).set('s', 59).set('millisecond', 0)
+    const dtA = this.$dayjs()
+    const dtB = this.$dayjs()
 
     return this.$store.getters['statistics/recent_calls/filter/period'] || `${dtA.format(this.isoFormat)}|${dtB.format(this.isoFormat)}`
   }
 
   set filterPeriod (val: string) {
-    if (/\d{4}-\d{2}-\d{2}\d{2}:\d{2}:\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/s.test(val)) {
+    if (/\d{4}-\d{2}-\d{2}\|\d{4}-\d{2}-\d{2}/s.test(val)) {
       this.customPeriod = []
       this.$store.commit('statistics/recent_calls/filter/period', val)
     }
@@ -79,8 +79,8 @@ export default class RecentCallsTools extends AppBase {
 
   // Возможные варианты диапазонов
   get dateRangeCollection () {
-    const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0)
-    const dtB = this.$dayjs().set('h', 23).set('m', 59).set('s', 59).set('millisecond', 0)
+    const dtA = this.$dayjs()
+    const dtB = this.$dayjs()
 
     return [
       {
@@ -128,9 +128,9 @@ export default class RecentCallsTools extends AppBase {
       const d1 = this.$dayjs(val[0], 'YYYY-MM-DD')
       const d2 = this.$dayjs(val[1], 'YYYY-MM-DD')
       if (d1.diff(d2, 'day') >= 0) {
-        this.$store.commit('statistics/recent_calls/filter/period', `${val[1]}T00:00:00|${val[0]}T23:59:59`)
+        this.$store.commit('statistics/recent_calls/filter/period', `${val[1]}|${val[0]}`)
       } else {
-        this.$store.commit('statistics/recent_calls/filter/period', `${val[0]}T00:00:00|${val[1]}T23:59:59`)
+        this.$store.commit('statistics/recent_calls/filter/period', `${val[0]}|${val[1]}`)
       }
     }
   }

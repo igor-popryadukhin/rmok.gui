@@ -2,12 +2,7 @@ import { RootState } from '@/store'
 import { State, Tag } from './state'
 import { GetterTree } from 'vuex'
 
-export interface Getters {
-  tag_ids (state: State): number[]
-  tags (state: State): Tag[]
-}
-
-const getters: GetterTree<State, RootState> & Getters = {
+const getters: GetterTree<State, RootState> = {
   projects (state: State) { return state.projects },
   statuses (state: State) { return state.statuses },
   users (state: State) { return state.users },

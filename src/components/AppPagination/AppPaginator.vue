@@ -9,11 +9,25 @@
         :count="count"
         :offset="offset"
       >
-        <div
-          class="mr-2"
-          style="padding: 4px; font-size: 13px; user-select: none"
-        >
-          <app-count-up :end-val="offsetStart" /> — <app-count-up :end-val="offsetEnd" /> {{ $tc('From').toLowerCase() }} <app-count-up :end-val="count" />
+        <div style="font-size: 13px; user-select: none">
+          <app-count-up
+            :end-val="offsetEnd"
+            class="d-flex flex-nowrap"
+          >
+            <template #before>
+              <app-count-up
+                :end-val="offsetStart"
+              /><span class="px-1">—</span>
+            </template>
+            <template #after>
+              <span class="px-1">
+                {{ $tc('From').toUpperCase() }}
+              </span>
+              <app-count-up
+                :end-val="count"
+              />
+            </template>
+          </app-count-up>
         </div>
       </slot>
     </div>
@@ -38,7 +52,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import Component from 'vue-class-component'
 import { Prop, Emit, Watch, VModel } from 'vue-property-decorator'
 

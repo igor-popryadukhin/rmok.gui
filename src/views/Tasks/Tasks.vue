@@ -1,5 +1,5 @@
 <template>
-  <v-sheet :height="heightThisPage">
+  <div class="tasks-page">
     <v-sheet
       class="d-flex flex-nowrap grow"
       height="35"
@@ -61,14 +61,13 @@
         </v-sheet>
       </v-col>
     </v-row>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
-import SSEMessage from '@/interfaces/SSEMessage'
 import { tasks } from '@/store/tasks'
 import TasksBase from '@/views/Tasks/TasksBase'
 
@@ -77,7 +76,12 @@ import TasksFilters from './TasksFilters.vue'
 
 // eslint-disable-next-line no-use-before-define
 @Component<Tasks>({
-  components: { AppAutocomplete, TasksFilters, AppNavigationDrawer, AppBtnToggleDate },
+  components: {
+    AppAutocomplete,
+    TasksFilters,
+    AppNavigationDrawer,
+    AppBtnToggleDate
+  },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
       vm.calculateTasksCount()
@@ -85,15 +89,11 @@ import TasksFilters from './TasksFilters.vue'
   }
 })
 export default class Tasks extends TasksBase {
-  isoFormat = 'YYYY-MM-DDTHH:mm'
-
-  get heightThisPage () {
-    return this.screenHeight - 115
-  }
+  isoFormat = 'YYYY-MM-DD'
 
   get tabs () {
-    const from = this.$dayjs().local().set('h', 0).set('minute', 0).set('seconds', 0).set('millisecond', 0)
-    const to = this.$dayjs().local().set('h', 23).set('minute', 59).set('seconds', 59).set('millisecond', 0)
+    const from = this.$dayjs().local()
+    const to = this.$dayjs().local()
     return [
       {
         id: 'for-next-day',
@@ -170,12 +170,7 @@ export default class Tasks extends TasksBase {
   }
 
   public created () {
-    this.$root.$on('sse-tasks-count', this.onSSETasksCount)
     this.initializeVuexModules()
-  }
-
-  public beforeDestroy () {
-    this.$root.$off('sse-tasks-count', this.onSSETasksCount)
   }
 
   private initializeVuexModules () {
@@ -192,10 +187,10 @@ export default class Tasks extends TasksBase {
     })
   }
 
-  private onSSETasksCount (message: SSEMessage) {
-    this.$store.commit('tasks/pending_items', message.payload || [])
-  }
-
+  /**
+   *
+   * @private
+   */
   private calculateTasksCount () {
     const request = []
     this.tabs.forEach((tab) => {
@@ -209,7 +204,7 @@ export default class Tasks extends TasksBase {
       }
     })
 
-    this.$axios.post('/tasks/count/calculate', request)
+    this.$store.dispatch('tasks/calculate', request)
   }
 
   private tabTaskCount (id: string) {
@@ -219,6 +214,9 @@ export default class Tasks extends TasksBase {
 </script>
 
 <style lang="scss" scoped>
+.tasks-page {
+  height: calc(100vh - 145px);
+}
 
 .tools-right {
   display: flex;

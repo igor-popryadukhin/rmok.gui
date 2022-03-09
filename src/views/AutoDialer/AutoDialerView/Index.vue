@@ -1,12 +1,13 @@
 <template>
-  <v-sheet>
+  <div class="auto-dialer-view-page">
     <v-tabs
       v-model="tab"
       color="primary"
       height="35"
+      style="margin-bottom: 5px"
+      hide-slider
       show-arrows
       optional
-      style="margin-bottom: 5px"
     >
       <v-tab
         v-for="(item, key) in tabs"
@@ -17,12 +18,7 @@
       </v-tab>
     </v-tabs>
 
-    <v-sheet
-      height="calc(100vh - 115px)"
-      class="pa-3"
-      style="overflow-y: auto"
-      outlined
-    >
+    <div class="auto-dialer-view-page__content">
       <div
         v-if="loading"
         class="d-flex fill-height align-center justify-center"
@@ -32,8 +28,8 @@
       <template v-else>
         <router-view />
       </template>
-    </v-sheet>
-  </v-sheet>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -157,6 +153,13 @@ export default class AutoDialerView extends Base {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.auto-dialer-view-page {
 
+}
+
+.auto-dialer-view-page__content {
+  height: calc(100vh - 150px);
+  overflow: auto;
+}
 </style>

@@ -1,29 +1,17 @@
 import { RootState } from '@/store'
-import { State, Tag } from './state'
+import { State } from './state'
 import { GetterTree } from 'vuex'
 
-export interface Getters {
-  tag_ids (state: State): number[]
-  tags (state: State): Tag[]
-}
-
-const getters: GetterTree<State, RootState> & Getters = {
-  projects (state: State) { return state.projects },
-  statuses (state: State) { return state.statuses },
-  users (state: State) { return state.users },
-  user_groups (state: State) { return state.user_groups },
-  tags (state: State) { return state.tags },
-  timezones (state: State) { return state.timezones },
-  /// //////////////////////////////////////////////////////////////////////////
+const getters: GetterTree<State, RootState> = {
   period (state: State) { return state.period },
-  q (state: State) { return state.q },
-  project_id (state: State) { return state.project_id },
-  status_ids (state: State) { return state.status_ids },
-  owner_id (state: State) { return state.owner_id },
-  user_group_id (state: State) { return state.user_group_id },
-  tag_ids (state: State) { return state.tag_ids },
+  project (state: State) { return state.project },
+  statuses (state: State) { return state.statuses },
+  owner (state: State) { return state.owner },
+  user_group (state: State) { return state.user_group },
+  tags (state: State) { return state.tags },
   contact_created_at (state: State) { return state.contact_created_at },
   offset (state: State) { return state.offset || 0 },
+  timezone (state: State) { return state.timezone },
 
   order_by (state: State) { return state.order_by },
   order_direction (state: State) { return state.order_direction },
@@ -35,24 +23,28 @@ const getters: GetterTree<State, RootState> & Getters = {
       obj.period = state.period
     }
 
-    if (state.project_id) {
-      obj.project_id = state.project_id
+    if (state.project) {
+      obj.project_id = state.project.id
     }
 
-    if ((state.status_ids || []).length) {
-      obj.status_ids = state.status_ids
+    if (Array.isArray(state.statuses) && state.statuses.length) {
+      obj.status_ids = state.statuses.map((e) => e.id)
     }
 
-    if (state.user_group_id) {
-      obj.user_group_id = state.user_group_id
+    if (state.user_group) {
+      obj.user_group_id = state.user_group.id
     }
 
-    if (state.owner_id) {
-      obj.owner_id = state.owner_id
+    if (state.owner) {
+      obj.owner_id = state.owner.id
     }
 
-    if ((state.tag_ids || []).length) {
-      obj.tag_ids = state.tag_ids
+    if (Array.isArray(state.tags) && state.tags.length) {
+      obj.tag_ids = state.tags.map((e) => e.id)
+    }
+
+    if (state.timezone) {
+      obj.timezone_id = state.timezone.id
     }
 
     if (state.contact_created_at) {

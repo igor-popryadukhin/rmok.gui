@@ -21,6 +21,7 @@ const mutations: MutationTree<ContactsViewState> = {
   contact_tz (state, payload) { state.contact_tz = payload },
   contact_created_at (state, payload) { state.contact_created_at = payload },
   contact_location (state, payload) { state.contact_location = payload },
+  contact_allow_call (state, payload) { state.contact_allow_call = payload },
   messenger_available (state, payload) { state.messenger_available = payload },
   messenger (state, payload) { state.messenger = payload },
 

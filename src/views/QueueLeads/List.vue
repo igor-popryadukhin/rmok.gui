@@ -132,7 +132,7 @@
 </template>
 
 <script lang="ts">
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import Vue from 'vue'
 import { Contacts } from '@/api/Contacts'

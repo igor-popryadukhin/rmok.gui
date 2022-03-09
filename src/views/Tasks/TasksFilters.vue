@@ -116,14 +116,14 @@ export default class TasksFilters extends TasksBase {
 
   set filterCustomPlannedFor (val: string[]) {
     if (val.length === 1) {
-      this.$store.commit('tasks/custom/list/filter/filter_planned_for', `${val[0]}T00:00`)
+      this.$store.commit('tasks/custom/list/filter/filter_planned_for', `${val[0]}`)
     } else if (val.length === 2) {
       const d1 = this.$dayjs(val[0], 'YYYY-MM-DD')
       const d2 = this.$dayjs(val[1], 'YYYY-MM-DD')
       if (d1.diff(d2, 'day') >= 0) {
-        this.$store.commit('tasks/custom/list/filter/filter_planned_for', `${val[1]}T00:00|${val[0]}T23:59`)
+        this.$store.commit('tasks/custom/list/filter/filter_planned_for', `${val[1]}|${val[0]}`)
       } else {
-        this.$store.commit('tasks/custom/list/filter/filter_planned_for', `${val[0]}T00:00|${val[1]}T23:59`)
+        this.$store.commit('tasks/custom/list/filter/filter_planned_for', `${val[0]}|${val[1]}`)
       }
     }
   }
@@ -162,8 +162,8 @@ export default class TasksFilters extends TasksBase {
     if (typeof q === 'string') {
       const params: Record<string, unknown> = { q }
 
-      if (this.$store.getters['profile/project/id']) {
-        params.project_id = this.$store.getters['profile/project/id']
+      if (this.$store.getters['profile/current_project/id']) {
+        params.project_id = this.$store.getters['profile/current_project/id']
       }
 
       if (this.statuses.findIndex((e) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
@@ -178,8 +178,8 @@ export default class TasksFilters extends TasksBase {
   private onAppAutocompleteStatusesFocus () {
     const params: Record<string, unknown> = {}
 
-    if (this.$store.getters['profile/project/id']) {
-      params.project_id = this.$store.getters['profile/project/id']
+    if (this.$store.getters['profile/current_project/id']) {
+      params.project_id = this.$store.getters['profile/current_project/id']
     }
 
     if (this.statuses.length === 0) {

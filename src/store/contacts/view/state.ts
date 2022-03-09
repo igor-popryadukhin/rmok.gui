@@ -24,6 +24,7 @@ export interface ContactsViewState {
   contact_tz: string;
   contact_created_at: string;
   contact_location: Location;
+  contact_allow_call: boolean;
   messenger_available: boolean;
   messenger: Messenger|null;
 }
@@ -52,6 +53,7 @@ export function contactsViewState (): ContactsViewState {
       city: '—',
       region: '—'
     },
+    contact_allow_call:  false,
 
     // Мессенджер
     messenger_available: false,

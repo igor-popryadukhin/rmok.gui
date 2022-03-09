@@ -6,7 +6,6 @@
     <v-navigation-drawer
       ref="navigationDrawer"
       v-model="drawer"
-      v-resize="onNavigationDrawerResize"
       :mini-variant="navigation_drawer_mini"
       class="background--drawer"
       permanent
@@ -18,8 +17,8 @@
           <v-list-item-title class="text-h6">
             RMOK
           </v-list-item-title>
-          <v-list-item-subtitle v-if="profile.role">
-            {{ profile.role.name }}
+          <v-list-item-subtitle v-if="$profile.role">
+            {{ $profile.role.name }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -29,108 +28,111 @@
         <template
           v-for="(mainMenuItem, mainMenuIndex) in mainMenu"
         >
-          <v-list-group
-            v-if="mainMenuItem.children"
-            :key="mainMenuIndex"
-            v-model="mainMenuItem.active"
-            no-action
-            color="white"
-          >
-            <template #activator>
-              <v-list-item-icon>
-                <v-icon v-text="mainMenuItem.icon" />
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $tc(mainMenuItem.title) }}</v-list-item-title>
-              </v-list-item-content>
-            </template>
+          <template v-if="mainMenuItem.children">
+            <v-list-group
+              :key="mainMenuIndex"
+              v-model="mainMenuItem.open"
+              color="white"
+              no-action
+              @click="navigation_drawer_mini = false"
+            >
+              <template #activator>
+                <v-list-item-icon>
+                  <v-icon v-text="mainMenuItem.icon" />
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>{{ $tc(mainMenuItem.title) }}</v-list-item-title>
+                </v-list-item-content>
+              </template>
 
-            <template v-for="(mainMenuItemChildren, mainMenuItemChildrenIndex) in mainMenuItem.children">
-              <v-list-item
-                v-if="mainMenuItemChildren.visible"
-                v-bind="mainMenuItemChildren.attrs"
-                :key="`child-${mainMenuItemChildrenIndex}`"
-                link
-                v-on="mainMenuItemChildren.on"
-              >
-                <v-tooltip
-                  open-delay="500"
-                  color="primary"
-                  right
-                  nudge-right="8"
+              <template v-for="(mainMenuItemChildren, mainMenuItemChildrenIndex) in mainMenuItem.children">
+                <v-list-item
+                  v-if="mainMenuItemChildren.visible"
+                  v-bind="mainMenuItemChildren.attrs"
+                  :key="`child-${mainMenuItemChildrenIndex}`"
+                  link
+                  v-on="mainMenuItemChildren.on"
                 >
-                  <template #activator="{ on, attrs }">
+                  <v-tooltip
+                    open-delay="500"
+                    color="primary"
+                    right
+                    nudge-right="8"
+                  >
+                    <template #activator="{ on, attrs }">
+                      <v-list-item-title
+                        v-bind="attrs"
+                        v-on="on"
+                      >
+                        {{ $tc(mainMenuItemChildren.title) }}
+                      </v-list-item-title>
+                    </template>
+                    <span>{{ $tc(mainMenuItemChildren.title) }}</span>
+                  </v-tooltip>
+                  <v-list-item-icon>
+                    <v-icon v-text="mainMenuItemChildren.icon" />
+                  </v-list-item-icon>
+                </v-list-item>
+              </template>
+            </v-list-group>
+          </template>
+
+          <template v-else-if="mainMenuItem.divider">
+            <v-divider :key="mainMenuIndex" />
+          </template>
+
+          <template v-else>
+            <v-list-item
+              :key="`main-menu-list-item-${mainMenuIndex}`"
+              v-bind="mainMenuItem.list_item"
+              link
+              @click="navigation_drawer_mini = false"
+            >
+              <v-tooltip
+                open-delay="500"
+                color="primary"
+                right
+                nudge-right="8"
+              >
+                <template #activator="{ on, attrs }">
+                  <v-list-item-icon
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-icon>
+                      {{ mainMenuItem.icon }}
+                    </v-icon>
+                  </v-list-item-icon>
+
+                  <v-list-item-content>
                     <v-list-item-title
                       v-bind="attrs"
                       v-on="on"
                     >
-                      {{ $tc(mainMenuItemChildren.title) }}
+                      {{ $tc(mainMenuItem.title) }}
                     </v-list-item-title>
-                  </template>
-                  <span>{{ $tc(mainMenuItemChildren.title) }}</span>
-                </v-tooltip>
-                <v-list-item-icon>
-                  <v-icon v-text="mainMenuItemChildren.icon" />
-                </v-list-item-icon>
-              </v-list-item>
-            </template>
-          </v-list-group>
+                  </v-list-item-content>
+                </template>
+                <span>{{ $tc(mainMenuItem.title) }}</span>
+              </v-tooltip>
 
-          <v-divider
-            v-else-if="mainMenuItem.divider"
-            :key="mainMenuIndex"
-          />
-
-          <v-list-item
-            v-else
-            :key="`main-menu-list-item-${mainMenuIndex}`"
-            v-bind="mainMenuItem.list_item"
-            link
-          >
-            <v-tooltip
-              open-delay="500"
-              color="primary"
-              right
-              nudge-right="8"
-            >
-              <template #activator="{ on, attrs }">
-                <v-list-item-icon
-                  v-bind="attrs"
-                  v-on="on"
+              <v-list-item-action>
+                <template v-if="mainMenuItem.badge">
+                  <v-badge
+                    v-show="mainMenuItem.badge.visible"
+                    v-bind="mainMenuItem.badge"
+                    inline
+                  />
+                </template>
+                <v-list-item-action-text
+                  v-if="mainMenuItem.new"
+                  style="color: #ffeb3b"
                 >
-                  <v-icon>
-                    {{ mainMenuItem.icon }}
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    {{ $tc(mainMenuItem.title) }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </template>
-              <span>{{ $tc(mainMenuItem.title) }}</span>
-            </v-tooltip>
-
-            <v-list-item-action>
-              <template v-if="mainMenuItem.badge">
-                <v-badge
-                  v-show="mainMenuItem.badge.visible"
-                  v-bind="mainMenuItem.badge"
-                  inline
-                />
-              </template>
-              <v-list-item-action-text
-                v-if="mainMenuItem.new"
-                style="color: #ffeb3b"
-              >
-                NEW
-              </v-list-item-action-text>
-            </v-list-item-action>
-          </v-list-item>
+                  NEW
+                </v-list-item-action-text>
+              </v-list-item-action>
+            </v-list-item>
+          </template>
         </template>
       </v-list>
 
@@ -269,28 +271,28 @@
                 v-on="on"
               >
                 <v-icon
-                  v-if="profile.status === 'normal'"
+                  v-if="$profile.status === 'normal'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-check-circle-outline
                 </v-icon>
                 <v-icon
-                  v-else-if="profile.status === 'dnd'"
+                  v-else-if="$profile.status === 'dnd'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-minus-circle-outline
                 </v-icon>
                 <v-icon
-                  v-else-if="profile.status === 'away'"
+                  v-else-if="$profile.status === 'away'"
                   size="20"
                   class="mr-2"
                 >
                   mdi-pause-circle-outline
                 </v-icon>
 
-                {{ profile.first_name || profile.email || profile.login }}
+                {{ $profile.first_name || $profile.email || $profile.login }}
                 <!-- Подключен и зарегистрирован -->
                 <span
                   v-if="$dialer.isConnected() && $dialer.isRegistered()"
@@ -314,7 +316,7 @@
                   <v-list-item>
                     <v-list-item-avatar class="primary">
                       <span style="color: white">
-                        {{ profile.abbreviation }}
+                        {{ $profile.abbreviation }}
                       </span>
                     </v-list-item-avatar>
                   </v-list-item>
@@ -322,27 +324,27 @@
                   <v-list-item>
                     <v-list-item-content>
                       <v-list-item-title class="text-h6">
-                        {{ profile.full_name }}
+                        {{ $profile.full_name }}
                       </v-list-item-title>
-                      <v-list-item-subtitle v-if="profile.group">
-                        @{{ profile.login }} ({{ profile.group.name }})
+                      <v-list-item-subtitle v-if="$profile.group">
+                        @{{ $profile.login }} ({{ $profile.group.name }})
                       </v-list-item-subtitle>
                       <v-list-item-subtitle v-else>
-                        @{{ profile.login }}
+                        @{{ $profile.login }}
                       </v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
 
                   <!-- Проект -->
                   <v-list-item
-                    v-if="profile.project"
+                    v-if="$profile.project"
                     link
                   >
                     <v-list-item-content>
                       <v-list-item-title>
                         {{ $tc('Current project') }}
                       </v-list-item-title>
-                      <v-list-item-subtitle>{{ profile.project.name }}</v-list-item-subtitle>
+                      <v-list-item-subtitle>{{ $profile.project.name }}</v-list-item-subtitle>
                     </v-list-item-content>
 
                     <!-- Смена проекта TODO: Реализовать обработчик/механизм смены проекта-->
@@ -354,7 +356,7 @@
                   <!-- Проект -->
                 </v-list>
               </v-card-text>
-              <v-divider v-if="profile.project" />
+              <v-divider v-if="$profile.project" />
               <!-- Статусы -->
               <v-card-text class="px-0 py-0">
                 <v-list
@@ -362,7 +364,7 @@
                   tile
                   dense
                 >
-                  <v-list-item-group :value="profile.status">
+                  <v-list-item-group :value="$profile.status">
                     <v-list-item
                       value="normal"
                       link
@@ -457,15 +459,41 @@
     </v-app-bar>
 
     <!-- Main -->
-    <v-main>
+    <v-main :style="cssVars">
       <v-container
-        ref="container"
-        v-resize="onContainerResize"
-        class="main-container"
+        class="v-container-main"
         fluid
       >
         <router-view />
+        <v-fade-transition>
+          <div
+            v-if="disablePage"
+            class="router-view-loading d-flex align-center justify-center"
+          >
+            <app-loading />
+          </div>
+        </v-fade-transition>
       </v-container>
+      <v-divider />
+      <v-footer
+        height="35px"
+        class="footer d-flex align-center justify-space-between"
+        color="white"
+      >
+        <div
+          class="grey--text"
+          style="font-size: 12px"
+        >
+          {{ $t('version', { version: projectVersion }) }}
+        </div>
+        <v-spacer />
+        <div
+          class="grey--text"
+          style="font-size: 12px"
+        >
+          © Голосовые технологии
+        </div>
+      </v-footer>
     </v-main>
     <div
       v-if="degradation"
@@ -516,15 +544,12 @@
 <script lang="ts">
 import APIError from '@/api/classes/APIError'
 import Notification from '@/api/interfaces/Notification'
-import { Credentials, RTCConfiguration } from '@/api/interfaces/PBXConfiguration'
 import AppBase from '@/AppBase'
 import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import SSEMessage from '@/interfaces/SSEMessage'
 import VNavigationDrawer from '@/interfaces/VNavigationDrawer'
-import { ProfileState } from '@/store/profile/state'
 import { sleep } from '@/Utils'
-import debounce from '@/utils/debounce'
 import { makeAudioElement } from '@/utils/utils'
 import { AxiosResponse } from 'axios'
 import dayjs from 'dayjs'
@@ -564,7 +589,8 @@ export default class DefaultLayout extends AppBase {
     message: '',
     progress: 0
   }
-
+  disablePageId = null
+  disablePage = false
   audio = makeAudioElement()
   audioPlayed = false
   eventSource = null
@@ -581,18 +607,13 @@ export default class DefaultLayout extends AppBase {
   }
 
   // region Системные уведомления
+
   get notificationsVisible () { return this.$store.getters['notifications/visible'] }
   set notificationsVisible (value: boolean) { this.$store.commit('notifications/visible', value) }
   get notificationsCount () { return this.$store.getters['notifications/count'] }
   set notificationsCount (value: number) { this.$store.commit('notifications/count', value) }
   get notificationsItems (): Notification[] { return this.$store.getters['notifications/items'] }
   set notificationsItems (value: Notification[]) { this.$store.commit('notifications/items', value) }
-  // endregion
-
-  // region Профиль
-  get profile (): ProfileState { return this.$store.state.profile }
-  get profilePBXCredentials (): Credentials { return this.$store.getters['profile/pbx_configuration_credentials'] }
-  get profileRTCConfiguration (): RTCConfiguration { return this.$store.getters['profile/pbx_configuration_rtc_configuration'] }
   // endregion
 
   // region Входящий вызов
@@ -630,6 +651,7 @@ export default class DefaultLayout extends AppBase {
         on: {
           click: () => {
             if (this.$dialer.isConnected()) { this.$dialer.disconnect() }
+            if (this.$ws.connected) { this.$ws.disconnect() }
 
             if (this.eventSource instanceof EventSource) {
               this.eventSource.close()
@@ -649,21 +671,6 @@ export default class DefaultLayout extends AppBase {
   get mainMenu () {
     return [
       {
-        title: 'Новые',
-        icon: 'mdi-phone-dial',
-        list_item: {
-          to: {
-            name: 'leads'
-          }
-        },
-        badge: {
-          content: 0,
-          visible: false,
-          color: '#ff5722'
-        },
-        visible: true
-      },
-      {
         title: 'Очередь',
         icon: 'mdi-human-queue',
         list_item: {
@@ -672,7 +679,50 @@ export default class DefaultLayout extends AppBase {
           }
         },
         new: true,
-        visible: [17, 82, 274].includes(this.profile.id)
+        visible: false
+      },
+      {
+        title: 'Contacts',
+        icon: 'mdi-contacts',
+        children: [
+          {
+            attrs: {
+              to: {
+                name: 'contacts_new'
+              }
+            },
+            icon: '',
+            title: 'Новые',
+            badge: {
+              content: 1,
+              visible: false,
+              color: '#ff5722'
+            },
+            visible: true
+          },
+          {
+            attrs: {
+              to: {
+                name: 'contacts_all'
+              }
+            },
+            icon: '',
+            title: 'All Contacts',
+            visible: true
+          },
+          {
+            attrs: {
+              to: {
+                name: 'contacts_in_works'
+              }
+            },
+            icon: '',
+            title: 'Contacts at work',
+            visible: false
+          }
+        ],
+        visible: true,
+        open: /^\/contacts/.test(this.$route.path)
       },
       {
         title: 'Tasks',
@@ -690,53 +740,6 @@ export default class DefaultLayout extends AppBase {
         visible: true
       },
       {
-        title: 'Contacts',
-        icon: 'mdi-contacts',
-        children: [
-          {
-            attrs: {
-              to: {
-                name: 'contacts'
-              }
-            },
-            icon: '',
-            title: 'All Contacts',
-            visible: true
-          },
-          {
-            attrs: {
-              to: {
-                name: 'contacts_in_works'
-              }
-            },
-            icon: '',
-            title: 'Contacts at work',
-            visible: true
-          }
-        ],
-        visible: true
-      },
-      {
-        title: 'Roles',
-        icon: 'mdi-puzzle',
-        list_item: {
-          to: {
-            name: 'roles'
-          }
-        },
-        visible: this.$isGranted('ROLE_MANAGEMENT')
-      },
-      // {
-      //   title: 'Groups',
-      //   icon: 'mdi-account-group',
-      //   list_item: {
-      //     to: {
-      //       name: 'groups_list'
-      //     }
-      //   },
-      //   visible: this.$isGranted('USER_GROUP_MANAGEMENT')
-      // },
-      {
         title: 'Users',
         icon: 'mdi-account-multiple-outline',
         list_item: {
@@ -744,7 +747,7 @@ export default class DefaultLayout extends AppBase {
             name: 'users'
           }
         },
-        visible: this.$isGranted(['USER_MANAGEMENT'])
+        visible: this.$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])
       },
       {
         title: 'Projects',
@@ -754,7 +757,7 @@ export default class DefaultLayout extends AppBase {
             name: 'projects'
           }
         },
-        visible: this.$isGranted(['PROJECTS_MANAGEMENT'])
+        visible: this.$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])
       },
       {
         title: 'Auto dialer',
@@ -764,22 +767,12 @@ export default class DefaultLayout extends AppBase {
             name: 'auto_dialer_params'
           }
         },
-        visible: this.$isGranted('AUTODIALER_MANAGEMENT')
-      },
-      {
-        title: 'Scenarios',
-        icon: 'mdi-script-text',
-        list_item: {
-          to: {
-            name: 'scenarios'
-          }
-        },
-        visible: false// this.$isGranted('SCENARIO_MANAGEMENT')
+        visible: this.$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])
       },
       {
         title: 'Statistic',
-        active: false,
         visible: true,
+        open: /^\/statistic/.test(this.$route.path),
         children: [
           {
             attrs: {
@@ -799,7 +792,7 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'Statistics for all calls',
-            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_ALL_CALLS'])
+            visible: true
           },
           {
             attrs: {
@@ -809,17 +802,17 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'By the number of calls',
-            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_CALL_COUNT'])
+            visible: this.$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])
           },
           {
             attrs: {
               to: {
-                name: 'statistics_activity'
+                name: 'manager_employment'
               }
             },
             icon: '',
             title: 'Employment of employees',
-            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_ACTIVITY'])
+            visible: this.$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])
           },
           {
             attrs: {
@@ -829,7 +822,7 @@ export default class DefaultLayout extends AppBase {
             },
             icon: '',
             title: 'Unauthorized breaks',
-            visible: this.$isGranted(['ROLE_ADMIN', 'STATISTICS_UNAUTHORIZED_BREAKS'])
+            visible: false
           }
         ],
         icon: 'mdi-chart-arc',
@@ -865,7 +858,6 @@ export default class DefaultLayout extends AppBase {
       // },
       { divider: true },
       {
-        active: false,
         children: [
           {
             title: 'Profile',
@@ -925,7 +917,7 @@ export default class DefaultLayout extends AppBase {
               }
             },
             icon: 'mdi-flask',
-            visible: this.$isGranted('section.dev_tools')
+            visible: this.$isGranted(['ROLE_ADMIN'])
           },
           {
             title: 'Regional settings',
@@ -951,12 +943,13 @@ export default class DefaultLayout extends AppBase {
             attrs: { to: { name: 'integrations' } },
             title: 'Integrations',
             icon: 'mdi-api',
-            visible: true
+            visible: this.$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])
           }
         ],
         icon: 'mdi-cog-outline',
         title: 'Settings',
-        visible: true
+        visible: true,
+        open: /^\/settings/.test(this.$route.path)
       },
       {
         active: false,
@@ -970,15 +963,25 @@ export default class DefaultLayout extends AppBase {
         visible: process.env.NODE_ENV === 'development'
       }
     ].filter((e) => e.visible)
+      .map((e) => {
+        if (Array.isArray(e.children)) {
+          e.children = e.children.filter((e1) => e1.visible)
+        }
+        return e
+      })
   }
-  // Вычисляемые свойства
+
+  get cssVars () {
+    return {
+      '--page-calculated-height': `${this.screenHeight - 86}px`
+    }
+  }
 
   @Ref('navigationDrawer') readonly navigationDrawer: VNavigationDrawer
-  @Ref('container') readonly container: HTMLElement
 
   public created () {
-    this.onContainerResize = debounce(this.onContainerResize, 500)
-
+    this.$root.$on('router-before-each', this.onRouterBeforeEach)
+    this.$root.$on('router-after-each', this.onRouterAfterEach)
     this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow)
     this.$root.$on('main-process-dialog-update', this.onMainProcessDialogUpdate)
     this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide)
@@ -987,10 +990,11 @@ export default class DefaultLayout extends AppBase {
 
     this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
 
-    // Событие сработает когда пользователь не будет активен в течении 60 секунд
     this.$ifvisible.setIdleDuration(120)
     this.$ifvisible.on('idle', this.ifVisibleIdleHandler)
     this.$ifvisible.on('wakeup', this.ifVisibleWakeupHandler)
+    this.$ifvisible.on('blur', this.ifVisibleBlurHandler)
+    this.$ifvisible.on('focus', this.ifVisibleFocusHandler)
 
     navigator
       .mediaDevices
@@ -1011,23 +1015,28 @@ export default class DefaultLayout extends AppBase {
   public mounted () {
     this.sseInitialize()
 
-    if (this.profilePBXCredentials.login) {
+    this.$ws.cbToken = () => this.$cookie.get('access_token')
+    this.$ws.connect()
+
+    if (this.$profilePBXCredentials.login) {
       this.dialerInitialize()
 
-      if (this.profile.status === 'normal') {
+      if (this.$profile.status === 'normal') {
         // Отменяю паузу во всех очередях
         this.$axios.put('/account/dnd/false')
       }
     }
 
-    if (!this.profile.tz) {
+    setTimeout(() => {
+      this.userStatusUpdate(this.$profile.status)
+    }, 500)
+
+    if (!this.$profile.tz) {
       this.$axios.patch('/account/profile', {
         tz: dayjs.tz.guess()
       })
     }
 
-    this.$ws.cbToken = () => this.$cookie.get('access_token')
-    this.$ws.connect()
     this.$store.dispatch('notifications/fetch')
 
     this.audio.onplay = () => {
@@ -1039,9 +1048,13 @@ export default class DefaultLayout extends AppBase {
   }
 
   public beforeDestroy () {
+    this.$root.$off('router-before-each', this.onRouterBeforeEach)
+    this.$root.$off('router-after-each', this.onRouterAfterEach)
     this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
     this.$ifvisible.off('idle', this.ifVisibleIdleHandler)
     this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler)
+    this.$ifvisible.off('blur', this.ifVisibleBlurHandler)
+    this.$ifvisible.off('focus', this.ifVisibleFocusHandler)
 
     this.$root.$off('main-process-dialog-show', this.onMainProcessDialogShow)
     this.$root.$off('main-process-dialog-update', this.onMainProcessDialogUpdate)
@@ -1065,7 +1078,7 @@ export default class DefaultLayout extends AppBase {
 
     // RTC Config
     this.$dialer.pcConfig = {
-      iceServers: this.profileRTCConfiguration.ice_servers
+      iceServers: this.$profileRTCConfiguration.ice_servers
         .map((value) => {
           if (value.credential) {
             return {
@@ -1080,34 +1093,34 @@ export default class DefaultLayout extends AppBase {
           }
         }),
 
-      bundlePolicy: this.profileRTCConfiguration.bundle_policy,
-      iceCandidatePoolSize: this.profileRTCConfiguration.ice_candidate_pool_size,
-      iceTransportPolicy: this.profileRTCConfiguration.ice_transport_policy
+      bundlePolicy: this.$profileRTCConfiguration.bundle_policy,
+      iceCandidatePoolSize: this.$profileRTCConfiguration.ice_candidate_pool_size,
+      iceTransportPolicy: this.$profileRTCConfiguration.ice_transport_policy
     }
 
-    if (this.profileRTCConfiguration.rtcp_mux_policy) {
-      this.$dialer.pcConfig.rtcpMuxPolicy = this.profileRTCConfiguration.rtcp_mux_policy
+    if (this.$profileRTCConfiguration.rtcp_mux_policy) {
+      this.$dialer.pcConfig.rtcpMuxPolicy = this.$profileRTCConfiguration.rtcp_mux_policy
     }
 
     debugDialer('pcConfig: %o', this.$dialer.pcConfig)
 
-    const schema = this.profilePBXCredentials.schema
-    const host = this.profilePBXCredentials.server
-    const port = this.profilePBXCredentials.port
-    const login = this.profilePBXCredentials.login
-    const password = this.profilePBXCredentials.password
+    const schema = this.$profilePBXCredentials.schema
+    const host = this.$profilePBXCredentials.server
+    const port = this.$profilePBXCredentials.port
+    const login = this.$profilePBXCredentials.login
+    const password = this.$profilePBXCredentials.password
 
     this.$dialer.configure(`${schema}://${host}:${port}/ws`, {
-      display_name: this.profile.full_name,
+      display_name: this.$profile.full_name,
       password: password,
       realm: host,
       uri: `sip:${login}@${host}`,
-      candidateReadyTimeOut: this.profileRTCConfiguration.candidate_ready_timeout
+      candidateReadyTimeOut: this.$profileRTCConfiguration.candidate_ready_timeout
     })
     this.$dialer.on('newRTCSession', this.onNewRTCSession.bind(this))
 
     // Подключение в зависимости от состояния статуса пользователя.
-    if (this.profile.status !== 'away') {
+    if (this.$profile.status !== 'away') {
       this.$dialer.connect()
     }
   }
@@ -1121,26 +1134,33 @@ export default class DefaultLayout extends AppBase {
 
     // Обработчик прогресса вызова
     newRTCSession.session.on('connecting', (event) => {
+      if (newRTCSession.session.direction === 'outgoing') {
+        this.userStatusUpdate('outgoing_ringing')
+      }
       this.onSessionConnecting(newRTCSession.session, event)
     })
 
     // Обработчик прогресса вызова
     newRTCSession.session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
+      this.userStatusUpdate(`${newRTCSession.session.direction}_ringing`)
       this.onSessionProgress(newRTCSession.session, event)
     })
 
     // Обработчик принятия вызова
     newRTCSession.session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
+      this.userStatusUpdate('speaks')
       this.onSessionAccepted(newRTCSession.session, event)
     })
 
     // Обработчик ошибок
     newRTCSession.session.on('failed', (event: EndEvent) => {
+      this.userStatusUpdate('wrap_up')
       this.onSessionFailed(newRTCSession.session, event)
     })
 
     // Обработчик завершения
     newRTCSession.session.on('ended', (event: EndEvent) => {
+      this.userStatusUpdate('wrap_up')
       this.onSessionEnded(newRTCSession.session, event)
     })
 
@@ -1158,7 +1178,7 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private onSessionConnecting (session: RTCSession, event) {
-    this.$root.$emit('dialer-session-connection', session, event)
+    this.$root.$emit('dialer:session:connection', session, event)
 
     debugDialerEvent('Connecting %o %o', session, event)
   }
@@ -1170,7 +1190,7 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private async onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
-    this.$root.$emit('dialer-session-progress', session, event)
+    this.$root.$emit('dialer:session:progress', session, event)
 
     // Если входящий
     if (session.direction === 'incoming') {
@@ -1222,7 +1242,7 @@ export default class DefaultLayout extends AppBase {
 
     setTimeout(() => (this.stopAudio()), 500)
 
-    this.$root.$emit('dialer-session-accepted', session, event)
+    this.$root.$emit('dialer:session:accepted', session, event)
 
     debugDialerEvent('Accepted %o %o', session, event)
 
@@ -1245,8 +1265,8 @@ export default class DefaultLayout extends AppBase {
 
     this.onSessionFinality(session, event)
 
-    this.$root.$emit('dialer-session-ended', session, event)
-    this.$root.$emit('dialer-session-finality', session, event) // Финальный
+    this.$root.$emit('dialer:session:ended', session, event)
+    this.$root.$emit('dialer:session:finality', session, event) // Финальный
 
     debugDialerEvent('Ended %o %o', session, event)
   }
@@ -1263,8 +1283,8 @@ export default class DefaultLayout extends AppBase {
     setTimeout(() => (this.stopAudio()), 500)
 
     this.onSessionFinality(session, event)
-    this.$root.$emit('dialer-session-failed', session, event)
-    this.$root.$emit('dialer-session-finality', session, event)
+    this.$root.$emit('dialer:session:failed', session, event)
+    this.$root.$emit('dialer:session:finality', session, event)
 
     debugDialerEvent('Failed %o %o', session, event)
 
@@ -1392,8 +1412,8 @@ export default class DefaultLayout extends AppBase {
       const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
 
       // Темы для подписок
-      url.searchParams.append('topic', `${window.origin}/users/${this.profile.id}/event`)
-      url.searchParams.append('topic', `${window.origin}/users/${this.profile.id}/${this.$currentTabID}/event`)
+      url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
+      url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/${this.$currentTabID}/event`)
 
       if (this.$isGranted(['ROLE_ADMIN'])) {
         url.searchParams.append('topic', `${window.origin}/administration`)
@@ -1498,6 +1518,7 @@ export default class DefaultLayout extends AppBase {
    * @param status
    */
   private onStatusListItemClick (status: 'normal' | 'dnd' | 'away') {
+    this.userStatusUpdate(status)
     this.$store.dispatch('profile/set_status', status)
   }
 
@@ -1529,7 +1550,7 @@ export default class DefaultLayout extends AppBase {
    * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
    */
   private ifVisibleIdleHandler () {
-    // this.degradation = trues
+    this.degradation = true
   }
 
   /**
@@ -1587,24 +1608,6 @@ export default class DefaultLayout extends AppBase {
     this.progressDialog.progress = 0
   }
 
-  /**
-   * Срабатывает, когда изменяется размер v-navigation-drawer
-   *
-   * @private
-   */
-  private onNavigationDrawerResize () {
-    this.$store.commit('settings/navigation_drawer_width', this.navigationDrawer.computedWidth)
-  }
-
-  /**
-   * Срабатывает, когда изменяется размер основного контейнера
-   *
-   * @private
-   */
-  private onContainerResize () {
-    this.$store.commit('settings/container_width', this.container.clientWidth)
-  }
-
   private onAudioPlayerShow ({ src, author }) {
     this.audioPlayer.visible = false
     setTimeout(() => {
@@ -1618,17 +1621,44 @@ export default class DefaultLayout extends AppBase {
   private onAudioPlayerHide () {
     this.audioPlayer.visible = false
   }
+
+  private onRouterBeforeEach () {
+    this.disablePageId = setTimeout(() => {
+      this.disablePage = true
+    }, 200)
+  }
+
+  private onRouterAfterEach () {
+   clearTimeout(this.disablePageId)
+    this.disablePage = false
+  }
+
+  private ifVisibleFocusHandler () {
+    console.error('Method ifVisibleFocusHandler not implemented.')
+  }
+
+  private ifVisibleBlurHandler() {
+    console.error('Method ifVisibleFocusHandler not implemented.')
+  }
 }
 </script>
 
 <style lang="scss">
 
-.main-container {
-  height: calc(100vh - 50px);
-  height: -moz-calc(100vh - 50px);
-  height: -webkit-calc(100vh - 50px);
-  height: calc(100vh - 50px);
+.v-container-main {
+  height: var(--page-calculated-height);
   overflow: auto;
+}
+
+.router-view-loading {
+  display: block;
+  background-color: #ffffff78;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: inherit;
+  width: 100%;
+  z-index: 2;
 }
 
 .tool-bar {
@@ -1654,7 +1684,7 @@ export default class DefaultLayout extends AppBase {
   z-index: 999;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(2px);
 }
 
 .dialer-indicator {

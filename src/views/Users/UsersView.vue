@@ -1,5 +1,5 @@
 <template>
-  <v-sheet :height="getThisPageHeight">
+  <div style="height: calc(100vh - 145px)">
     <div
       class="d-flex flex-nowrap grow"
       style="height: 35px"
@@ -39,7 +39,7 @@
         </keep-alive>
       </template>
     </div>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">

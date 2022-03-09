@@ -114,14 +114,6 @@ export default class UsersViewMain extends AppBase {
   get login () { return this.$store.getters['profile/login'] }
   set login (val: string) { this.$store.commit('profile', val) }
 
-  get roleId (): number { return (this.$store.getters['users/view/user_role'] as Role)?.id || 0 }
-  set roleId (val: number) {
-    const role = this.roles.find((e) => e.id === val)
-    if (role) {
-      this.$store.commit('users/view/user_role', { ...role })
-    }
-  }
-
   get projectId (): number { return (this.$store.getters['users/view/user_project'] as Project)?.id || 0 }
   set projectId (val: number) {
     const obj = this.projects.find((e) => e.id === val)
@@ -160,11 +152,6 @@ export default class UsersViewMain extends AppBase {
     requestData.first_name = this.firstName
     requestData.last_name = this.lastName
     requestData.middle_name = this.middleName
-
-    // Опционально!
-    if (this.roleId) { requestData.role_id = this.roleId }
-    if (this.groupId) { requestData.group_id = this.groupId }
-    if (this.projectId) { requestData.project_id = this.projectId }
 
     $axios.patch(`/users/${this.$route.params.id}`, requestData)
       .then((response: AxiosResponse) => {
