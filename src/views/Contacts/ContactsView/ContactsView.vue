@@ -115,7 +115,7 @@
               <app-tooltip>
                 <template #activator="{ on, attrs }">
                   <v-btn
-                    :disabled="!allowDialing"
+                    :disabled="!allowDialing || !contactAllowCall"
                     class="mr-0"
                     color="primary"
                     text
@@ -288,7 +288,7 @@
                       <app-tooltip>
                         <template #activator="{ on, attrs }">
                           <v-btn
-                            :disabled="!allowDialing"
+                            :disabled="!allowDialing || !contactAllowCall"
                             color="primary"
                             icon
                             small
@@ -719,11 +719,13 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
     }
 
     if (answer) {
-      this.$store.dispatch('contacts/view/unsaved_call/flush')
-      this.$store.dispatch('contacts/view/flush')
-      this.$store.dispatch('contacts/view/history/flush')
-      this.$store.dispatch('contacts/view/tasks/flush')
-      this.$store.dispatch('contacts/view/messages/flush')
+      setTimeout(() => {
+        this.$store.dispatch('contacts/view/unsaved_call/flush')
+        this.$store.dispatch('contacts/view/flush')
+        this.$store.dispatch('contacts/view/history/flush')
+        this.$store.dispatch('contacts/view/tasks/flush')
+        this.$store.dispatch('contacts/view/messages/flush')
+      }, 0)
       next()
     } else {
       next(false)
@@ -903,6 +905,10 @@ export default class ContactsView extends AppBase {
     return this.$store.getters['contacts/view/contact_location']
   }
 
+  get contactAllowCall (): boolean {
+    return this.$store.getters['contacts/view/contact_allow_call']
+  }
+
   get contactTimeIcon (): string {
     return 'mdi-clock-time-nine-outline'
   }
@@ -971,6 +977,11 @@ export default class ContactsView extends AppBase {
    * @param phone
    */
   private onBtnCallClick (phone: ContactDetail) {
+
+    if (!this.contactProjectId) {
+      return this.$toast.warning('Запрещено совершать вызов ко')
+    }
+
 
     // Если вкладка не сценарий, то переходим
     if (this.$route.name !== 'contacts_view_scenario') {
