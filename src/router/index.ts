@@ -205,9 +205,6 @@ const routes: RouteConfig[] = [
     name: 'contacts_view',
     path: '/contacts/:id',
     redirect: { name: 'contacts_view_history' },
-    props: (route) => ({
-      id: +route.params.id // Идентификатор контакта
-    }),
     component: () => import(/* webpackChunkName: "contacts-view" */ '../views/Contacts/ContactsView/ContactsView.vue'),
     children: [
       {
@@ -241,6 +238,20 @@ const routes: RouteConfig[] = [
         path: 'messages'
       }
     ],
+    meta: { layout: 'default', middleware: [bootstrap] }
+  },
+  {
+    name: 'contacts_view_not_found',
+    path: '/contacts/:id/not-found',
+    component: () => import(/* webpackChunkName: "contacts-view-not-found" */ '../views/Contacts/ContactsView/ContactsViewNotFound.vue'),
+    children: [],
+    meta: { layout: 'default', middleware: [bootstrap] }
+  },
+  {
+    name: 'contacts_view_error',
+    path: '/contacts/:id/error',
+    component: () => import(/* webpackChunkName: "contacts-view-error" */ '../views/Contacts/ContactsView/ContactsViewError.vue'),
+    children: [],
     meta: { layout: 'default', middleware: [bootstrap] }
   },
   {

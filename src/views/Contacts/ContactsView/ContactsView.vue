@@ -471,26 +471,28 @@
             </v-list-item>
 
             <!-- Владелец контакта -->
-            <template v-if="contactOwnerId">
-              <v-list-item
-                link
-              >
-                <v-list-item-avatar size="30">
-                  <v-icon color="primary">
-                    mdi-account
-                  </v-icon>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title>{{ contactOwnerFullName }}</v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ $tc('Responsible') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
+            <v-list-item
+              v-if="contactOwnerId"
+              link
+            >
+              <v-list-item-avatar size="30">
+                <v-icon color="primary">
+                  mdi-account
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contactOwnerFullName }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Responsible') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
 
             <!-- Проект -->
-            <v-list-item link>
+            <v-list-item
+              v-if="contactProjectId"
+              link
+            >
               <v-list-item-avatar size="30">
                 <v-icon color="primary">
                   mdi-projector-screen
@@ -649,9 +651,10 @@ import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppDigitalNumber from '@/components/AppDigitalNumber/AppDigitalNumber.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import dayjs from '@/plugins/dayjs'
+import $store from '@/store'
 import parsePhoneNumber from 'libphonenumber-js'
 import Component from 'vue-class-component'
-import { Prop, Watch } from 'vue-property-decorator'
+import { Watch } from 'vue-property-decorator'
 
 const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 
@@ -683,11 +686,20 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
       )
   },
   beforeRouteEnter (to, from, next) {
-    next((vm) => {
-      vm.$store.dispatch('contacts/view/fetch', vm.id)
-    })
+    $store
+      .dispatch('contacts/view/fetch', to.params.id)
+      .then(() => {
+        next()
+      }).catch((reason: Error) => {
+        if (reason instanceof APIError && reason.error_code === 'not_found') {
+          // Контакт не удалось найти по причине его отсутствия
+          next({ name: 'contacts_view_not_found', params: {  id: to.params.id} })
+        } else {
+          // Другие причины
+          next({ name: 'contacts_view_error', params: {  id: to.params.id} })
+        }
+      })
   },
-
   beforeRouteUpdate (to, from, next) {
     this.tick++
 
@@ -708,6 +720,10 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 
     if (answer) {
       this.$store.dispatch('contacts/view/unsaved_call/flush')
+      this.$store.dispatch('contacts/view/flush')
+      this.$store.dispatch('contacts/view/history/flush')
+      this.$store.dispatch('contacts/view/tasks/flush')
+      this.$store.dispatch('contacts/view/messages/flush')
       next()
     } else {
       next(false)
@@ -715,7 +731,6 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
   }
 })
 export default class ContactsView extends AppBase {
-  @Prop({ required: true }) readonly id!: number
 
   /** Идентификатор звонящего номера */
   callerID = 0
