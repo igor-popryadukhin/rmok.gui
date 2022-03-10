@@ -1,216 +1,192 @@
 <template>
-  <div>
-    <div class="py-2">
-      <!-- Проект -->
-      <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL'])"
-        v-model="projectId"
-        :options="projects"
-        :label="$tc('Project')"
-        :value="projectId"
-        item-text="name"
-        item-value="id"
-        clearable
-        @search="onAppAutocompleteProjectsSearch"
-        @focus="onAppAutocompleteProjectsSearchFocus"
-        @change="filterChangeEmit"
-      />
-      <!-- Проект -->
+  <div class="py-2">
+    <smart-autocomplete
+      v-model="project"
+      :label="$tc('Project')"
+      :api-query="(q) => { return { q } }"
+      :items="project ? [project] : []"
+      api-end-point="/projects"
+      item-text="name"
+      item-value="id"
+      response-property="data"
+      store-module-name="projects"
+      clearable
+      @change="onFilterChange"
+    />
 
-      <!-- Результат/статус -->
-      <app-autocomplete
-        v-model="statusIds"
-        :options="statuses"
-        :label="$tc('Result')"
-        :value="statusIds"
-        :disabled="!(projectId > 0)"
-        :loading="statusesLoading"
-        item-text="name"
-        item-value="id"
-        item-color="color"
-        clearable
-        multiple
-        @search="onAppAutocompleteStatusesSearch"
-        @focus="onAppAutocompleteStatusesFocus"
-        @change="filterChangeEmit"
+    <smart-autocomplete
+      v-model="statuses"
+      :disabled="!project"
+      :label="$tc('Result')"
+      :api-query="(q) => { return { ...Object.assign(!!q ? { q } : {}, {...(!!project ? { project_id: project.id } : {})}) } }"
+      :items="!!statuses ? statuses : []"
+      :filter="(item) => !!item.project && !!project && item.project.id === project.id"
+      api-end-point="/statuses"
+      item-text="name"
+      item-value="id"
+      store-module-name="statuses"
+      clearable
+      multiple
+      @change="onFilterChange"
+    >
+      <template
+        #item="{ item, on, attrs }"
       >
-        <template
-          #item="{ item, on, attrs }"
+        <v-list-item
+          v-bind="attrs"
+          :color="item.color"
+          :input-value="item.id"
+          v-on="on"
         >
-          <v-list-item
-            v-bind="attrs"
-            :color="item.color"
-            :input-value="item.id"
-            v-on="on"
-          >
-            {{ item.name }}
-          </v-list-item>
-        </template>
+          {{ item.name }}
+        </v-list-item>
+      </template>
 
-        <template
-          #selection="{ item }"
-        >
-          <v-chip
-            class="extra-small-chip"
-            :color="item.color"
-            outlined
-            label
-            close
-            x-small
-            @click:close="onAppAutocompleteStatusesClose(item.id)"
-          >
-            {{ item.name }}
-          </v-chip>
-        </template>
-      </app-autocomplete>
-      <!-- Результат/статус -->
-
-      <!-- Группа -->
-      <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
-        v-model="userGroupId"
-        :options="userGroups"
-        :label="$tc('Group')"
-        :value="userGroupId"
-        :loading="userGroupsLoading"
-        item-text="name"
-        item-value="id"
-        clearable
-        @search="onSearchUsersGroups"
-        @focus="onAppAutocompleteUserGroupsFocus"
-        @change="filterChangeEmit"
-      />
-      <!-- Группа -->
-
-      <!-- Ответственный -->
-      <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
-        v-model="userId"
-        :options="users"
-        :label="$tc('Responsible')"
-        :loading="usersLoading"
-        item-text="full_name"
-        item-value="id"
-        clearable
-        @search="onSearchUsers"
-        @focus="onUsersFocus"
-        @change="filterChangeEmit"
-      />
-      <!-- Ответственный -->
-
-      <!-- Теги -->
-      <app-autocomplete
-        v-model="tagIds"
-        :options="tags"
-        :label="$tc('Tags')"
-        :loading="tagsLoading"
-        item-text="name"
-        item-value="id"
-        item-color="color"
-        chips
-        deletable-chips
-        multiple
-        clearable
-        @search="onSearchTags"
-        @focus="onSearchTags()"
-        @change="filterChangeEmit"
+      <template
+        #selection="{ item }"
       >
-        <template
-          #item="{ item, on, attrs }"
+        <v-chip
+          class="extra-small-chip"
+          :color="item.color"
+          outlined
+          label
+          close
+          x-small
+          @click:close="onStatusChipClose(item.id)"
         >
-          <v-list-item
-            v-bind="attrs"
-            :color="item.color"
-            :input-value="item.id"
-            v-on="on"
-          >
-            {{ item.name }}
-          </v-list-item>
-        </template>
+          {{ item.name }}
+        </v-chip>
+      </template>
+    </smart-autocomplete>
 
-        <template
-          #selection="{ item }"
-        >
-          <v-chip
-            class="extra-small-chip"
-            :color="item.color"
-            outlined
-            label
-            close
-            x-small
-            @click:close="onTagsChipClose(item.id)"
-          >
-            {{ item.name }}
-          </v-chip>
-        </template>
-      </app-autocomplete>
-      <!-- Теги -->
+    <smart-autocomplete
+      v-model="userGroup"
+      :label="$tc('Group')"
+      :api-query="(q) => { return { q } }"
+      :items="userGroup ? [userGroup] : []"
+      api-end-point="/groups"
+      item-text="name"
+      item-value="id"
+      response-property="data"
+      store-module-name="groups"
+      clearable
+      @change="onFilterChange"
+    />
 
-      <!-- Дата и время создания контакта -->
-      <v-menu
-        ref="contactCreatedAtMenu"
-        v-model="contactCreatedAtMenu"
-        :return-value.sync="contactCreatedAt"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        min-width="auto"
-        offset-y
-        offset-x
-        left
+    <smart-autocomplete
+      v-model="owner"
+      :label="$tc('Responsible')"
+      :api-query="(q) => { return { ...Object.assign(!!q ? { q } : {}, {...(!!project ? { project_id: project.id } : {})}) } }"
+      :items="owner ? [owner] : []"
+      api-end-point="/users"
+      item-text="full_name"
+      item-value="id"
+      response-property="data"
+      store-module-name="users"
+      clearable
+      @change="onFilterChange"
+    />
+
+    <smart-autocomplete
+      v-model="tags"
+      :label="$tc('Tags')"
+      :api-query="(q) => { return { q } }"
+      :items="tags ? tags : []"
+      api-end-point="/contacts/tags"
+      item-color="color"
+      item-text="name"
+      item-value="id"
+      response-property="data"
+      store-module-name="tags"
+      clearable
+      multiple
+      @change="onFilterChange"
+    >
+      <template
+        #item="{ item, on, attrs }"
       >
-        <template #activator="{ on, attrs }">
-          <v-text-field
-            :label="$tc('Date the contact was created')"
-            :value="dateRangeText"
-            multiple
-            dense
-            outlined
-            prepend-inner-icon="mdi-calendar"
-            readonly
-            clearable
-            v-bind="attrs"
-            v-on="on"
-            @click:clear="contactCreatedAt = []; contactCreatedAtDates = [];"
-          />
-        </template>
-        <v-date-picker
-          v-model="contactCreatedAtDates"
-          :first-day-of-week="1"
-          locale="ru"
-          flat
-          range
-          no-title
-          show-current
+        <v-list-item
+          v-bind="attrs"
+          :color="item.color"
+          :input-value="item.id"
+          v-on="on"
         >
-          <v-spacer />
-          <v-btn
-            text
-            color="primary"
-            small
-            @click="contactCreatedAtMenu = false"
-          >
-            {{ $tc('Cancel') }}
-          </v-btn>
-          <v-btn
-            text
-            color="primary"
-            small
-            @click="onContactCreatedAtBtnOkClick(contactCreatedAtDates)"
-          >
-            {{ $tc('Ok') }}
-          </v-btn>
-        </v-date-picker>
-      </v-menu>
-      <!-- Дата и время создания контакта -->
-    </div>
+          {{ item.name }}
+        </v-list-item>
+      </template>
+
+      <template
+        #selection="{ item }"
+      >
+        <v-chip
+          class="extra-small-chip"
+          :color="item.color"
+          outlined
+          label
+          close
+          x-small
+          @click:close="onTagsChipClose(item.id)"
+        >
+          {{ item.name }}
+        </v-chip>
+      </template>
+    </smart-autocomplete>
+
+    <smart-autocomplete
+      v-model="timeZone"
+      :label="$tc('Time zone')"
+      api-end-point="/handbooks/timezones"
+      :items="timeZone ? [timeZone] : []"
+      item-text="name_local"
+      item-value="id"
+      store-module-name="timezones"
+      clearable
+      @change="onFilterChange"
+    >
+      <template #item="{ item, attrs, on }">
+        <v-list-item
+          v-bind="attrs"
+          v-on="on"
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ item.name_local }}</v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-list-item-action-text>
+              {{ item.offset_string }}
+            </v-list-item-action-text>
+          </v-list-item-action>
+        </v-list-item>
+      </template>
+    </smart-autocomplete>
+
+    <app-menu-date-picker
+      v-model="contactCreatedAt"
+      range
+      format="YYYY-MM-DD"
+      display-format="DD.MM.YYYY"
+    >
+      <template #activator="{ on, text }">
+        <v-text-field
+          :label="$tc('Date the contact was created')"
+          :value="text"
+          readonly
+          dense
+          outlined
+          clearable
+          v-on="on"
+          @click:clear="contactCreatedAt = []"
+        />
+      </template>
+    </app-menu-date-picker>
     <v-divider />
     <div class="py-2">
       <v-btn
-        :loading="refreshLoading"
+        :loading="itemsFetching"
         block
         text
         tile
-        @click="clickBtnRefresh"
+        @click="onBtnRefresh"
       >
         {{ $tc('Refresh') }}
       </v-btn>
@@ -219,296 +195,87 @@
 </template>
 
 <script lang="ts">
-import ContactTag from '@/api/interfaces/ContactTag'
-import Project from '@/api/interfaces/Project'
-import User from '@/api/interfaces/User'
-import UserGroup from '@/api/interfaces/UserGroup'
 import AppBase from '@/AppBase'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
 import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
-import { Emit } from 'vue-property-decorator'
+import { Watch } from 'vue-property-decorator'
 
 // eslint-disable-next-line no-use-before-define
 @Component<AllCallsFilters>({
-  components: { AppMenuDatePicker, AppAutocomplete }
+  components: { SmartAutocomplete, AppMenuDatePicker, AppAutocomplete }
 })
 export default class AllCallsFilters extends AppBase {
-  // region Данные
-  contactCreatedAtMenu = false
-  contactCreatedAtDates = []
-  statusesLoading = false
-  userGroupsLoading = false
-  usersLoading = false
-  tagsLoading = false
-  // endregion
-
-  @Emit('click:btn:refresh')
-  private clickBtnRefresh () {
-    return undefined
-  }
-
-  @Emit('filter:change')
-  private filterChangeEmit () {
-    return undefined
-  }
-
-  /** Текущий проект пользователя */
-  get profileProjectId (): number { return this.$store.getters['profile/project/id'] }
-
-  get dateRangeText (): string {
-    if (Array.isArray(this.contactCreatedAt) && this.contactCreatedAt.length === 2) {
-      let contactCreatedAtStart = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
-      let contactCreatedAtEnd = this.$dayjs(this.contactCreatedAt[1], 'YYYY-MM-DD')
-
-      contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
-      contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
-
-      if (contactCreatedAtStart.toDate() > contactCreatedAtEnd.toDate()) {
-        return contactCreatedAtEnd.format('DD.MM.YYYY') + ' - ' + contactCreatedAtStart.format('DD.MM.YYYY')
-      } else {
-        return contactCreatedAtStart.format('DD.MM.YYYY') + ' - ' + contactCreatedAtEnd.format('DD.MM.YYYY')
-      }
-    } else if (Array.isArray(this.contactCreatedAt) && this.contactCreatedAt.length === 1) {
-      let contactCreatedAtStart = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
-      let contactCreatedAtEnd = this.$dayjs(this.contactCreatedAt[0], 'YYYY-MM-DD')
-
-      contactCreatedAtStart = contactCreatedAtStart.set('hour', 0).set('minute', 0).set('second', 0)
-      contactCreatedAtEnd = contactCreatedAtEnd.set('hour', 23).set('minute', 59).set('second', 59)
-
-      return contactCreatedAtStart.format('DD.MM.YYYY') + ' - ' + contactCreatedAtEnd.format('DD.MM.YYYY')
-    }
-    return ''
-  }
-
-  get refreshLoading () {
-    return this.$store.getters['statistics/all_calls/history_fetching']
-  }
 
   // region Параметры запроса
+  get q () { return this.$store.getters['statistics/all_calls/filter/q'] }
+  set q (val) { this.$store.commit('statistics/all_calls/filter/q', val) }
 
-  get projectId (): number|null {
-    return this.$store.getters['statistics/all_calls/filter/project_id'] ||
-      this.profileProjectId
+  get project () { return this.$store.getters['statistics/all_calls/filter/project'] }
+  set project (val) {
+    this.$store.commit('statistics/all_calls/filter/project', val)
+    this.$store.commit('statistics/all_calls/filter/statuses', [])
   }
 
-  set projectId (val: number) {
-    this.$store.commit('statistics/all_calls/filter/project_id', val)
+  get statuses () { return this.$store.getters['statistics/all_calls/filter/statuses'] }
+  set statuses (val) { this.$store.commit('statistics/all_calls/filter/statuses', val) }
 
-    // Сброс состояния связанных фильтров
-    this.$store.commit('statistics/all_calls/filter/owner_id', 0)
-    this.$store.commit('statistics/all_calls/filter/status_ids', [])
+  get userGroup () { return this.$store.getters['statistics/all_calls/filter/user_group'] }
+  set userGroup (val) {
+    this.$store.commit('statistics/all_calls/filter/user_group', val)
+    this.$store.commit('statistics/all_calls/filter/owner', null)
   }
 
-  get statusIds (): number[] {
-    return this.$store.getters['statistics/all_calls/filter/status_ids']
-  }
+  get owner () { return this.$store.getters['statistics/all_calls/filter/owner'] }
+  set owner (val) { this.$store.commit('statistics/all_calls/filter/owner', val) }
 
-  set statusIds (val: number[]) {
-    this.$store.commit('statistics/all_calls/filter/status_ids', val)
-  }
+  get tags () { return this.$store.getters['statistics/all_calls/filter/tags'] }
+  set tags (val) { this.$store.commit('statistics/all_calls/filter/tags', val) }
 
-  get userGroupId (): number|null { return this.$store.getters['statistics/all_calls/filter/user_group_id'] }
-
-  set userGroupId (val: string|number) {
-    this.$store.commit('statistics/all_calls/filter/user_group_id', val)
-  }
-
-  get userId (): number|null { return this.$store.getters['statistics/all_calls/filter/owner_id'] }
-
-  set userId (val: string|number) {
-    this.$store.commit('statistics/all_calls/filter/owner_id', val)
-  }
-
-  get tagIds (): number[] {
-    return this.$store.getters['statistics/all_calls/filter/tag_ids']
-  }
-
-  set tagIds (val: number[]) {
-    this.$store.commit('statistics/all_calls/filter/tag_ids', val)
-  }
+  get timeZone () { return this.$store.getters['statistics/all_calls/filter/timezone'] }
+  set timeZone (val) { this.$store.commit('statistics/all_calls/filter/timezone', val) }
 
   get contactCreatedAt (): string[] {
-    return this.$store.getters['statistics/all_calls/filter/contact_created_at']
+    const dates = String(this.$store.getters['statistics/all_calls/filter/contact_created_at'] || '')
+      .split('|')
+    if (dates.length === 2) {
+      return dates
+    }
+    return []
   }
 
   set contactCreatedAt (val: string[]) {
-    this.$store.commit('statistics/all_calls/filter/contact_created_at', val)
-  }
-
-  // endregion Параметры запроса
-
-  // region Данные для заполнения фильтров
-  get projects (): Project[] { return this.$store.getters['statistics/all_calls/filter/projects'] }
-
-  /** Статусы */
-  get statuses (): Array<Record<string, unknown>> {
-    if (!this.projectId) {
-      return []
-    }
-    return (this.$store.getters['statistics/all_calls/filter/statuses'] as Array<Record<string, Record<string, unknown>>>)
-      .filter((e) => e.project?.id === this.projectId)
-  }
-
-  /** Пользователи */
-  get users (): User[] {
-    if (this.projectId) {
-      return (this.$store.getters['statistics/all_calls/filter/users'] || [])
-        .filter((e) => {
-          return e?.project?.id === this.projectId
-        })
-    }
-
-    return this.$store.getters['statistics/all_calls/filter/users']
-  }
-
-  /** Группы пользователей */
-  get userGroups (): UserGroup[] { return this.$store.getters['statistics/all_calls/filter/user_groups'] }
-
-  /** Теги */
-  get tags (): ContactTag[] {
-    const tags = this.$store.getters['statistics/all_calls/filter/tags'] as Array<Record<string, unknown>>
-    return [].concat([
-      {
-        id: 0,
-        name: this.$tc('No tags'),
-        color: 'grey'
-      }
-    ], tags)
-  }
-  // endregion
-
-  // region Обработчики жизненного цикла
-  created () {
-    this.filterChangeEmit = debounce(this.filterChangeEmit, 350)
-    this.onSearchUsers = debounce(this.onSearchUsers, 500)
-    this.onSearchTags = debounce(this.onSearchTags, 500)
-    this.onAppAutocompleteProjectsSearch = debounce(this.onAppAutocompleteProjectsSearch, 500)
-    this.onAppAutocompleteStatusesSearch = debounce(this.onAppAutocompleteStatusesSearch, 500)
-  }
-
-  mounted () {
-    if (this.projectId > 0) { this.onAppAutocompleteProjectsSearchFocus() }
-    if (this.statusIds.length > 0) { this.onAppAutocompleteStatusesFocus() }
-    if (this.userGroupId > 0) { this.onAppAutocompleteUserGroupsFocus() }
-    if (this.tagIds.length > 0) { this.onSearchTags() }
-
-    if (this.contactCreatedAt.length === 2) {
-      this.contactCreatedAtDates = this.contactCreatedAt
-    }
-  }
-  // endregion
-
-  // region Вспомогательные метод и обработчики
-
-  /**
-   * Срабатывает при поиске проектов
-   * @param q
-   * @private
-   */
-  private onAppAutocompleteProjectsSearch (q = '') {
-    if (this.projects.findIndex((e) => e.name.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.$store.dispatch('statistics/all_calls/filter/fetch_projects', {
-        q
-      })
+    if (Array.isArray(val) && val.length === 2) {
+      this.$store.commit('statistics/all_calls/filter/contact_created_at', val.join('|'))
+    } else if (Array.isArray(val) && val.length === 0) {
+      this.$store.commit('statistics/all_calls/filter/contact_created_at', null)
     }
   }
 
-  private onAppAutocompleteProjectsSearchFocus () {
-    if (this.projects.length === 0) { this.$store.dispatch('statistics/all_calls/filter/fetch_projects', {}) }
+  get itemsFetching (): boolean { return this.$store.getters['statistics/all_calls/items_fetching'] }
+
+  @Watch('contactCreatedAt')
+  contactCreatedAtWatch() {
+    this.onFilterChange()
   }
 
-  private onAppAutocompleteStatusesSearch (q = '') {
-    if (this.projects.findIndex((e) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.statusesLoading = true
-      this.$store.dispatch('statistics/all_calls/filter/fetch_statuses', {
-        q
-      }).finally(() => (this.statusesLoading = false))
-    }
+  public created () {
+    this.onFilterChange = debounce(this.onFilterChange, 350)
   }
 
   /**
-   * Срабатывает при фокусе на фильтр "Проект"
+   * Срабатывает при изменении значений одного из фильтров
    * @private
    */
-  private onAppAutocompleteStatusesFocus () {
-    const params: Record<string, unknown> = {}
-    if (this.projectId > 0) {
-      params.project_id = this.projectId
-    }
-    if (this.statuses.length === 0) {
-      this.statusesLoading = true
-      this.$store.dispatch('statistics/all_calls/filter/fetch_statuses', params)
-        .finally(() => (this.statusesLoading = false))
-    }
-  }
-
-  private onAppAutocompleteStatusesClose (id: number) {
+  private onFilterChange () {
+    this.$store.dispatch('statistics/all_calls/fetch')
     this.$store.commit('statistics/all_calls/filter/offset', 0)
-    this.statusIds = this.statusIds.filter((value) => {
-      return value !== id
-    })
   }
 
-  private onAppAutocompleteUserGroupsFocus () {
-    if (this.userGroups.length === 0) { this.$store.dispatch('statistics/all_calls/filter/fetchUserGroups', {}) }
-  }
-
-  private onSearchUsersGroups (q = '') {
-    if (this.userGroups.findIndex((e) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.userGroupsLoading = true
-      this.$store.dispatch('statistics/all_calls/filter/fetchUserGroups', {
-        q
-      }).finally(() => (this.userGroupsLoading = false))
-    }
-  }
-
-  private onSearchUsers (q = '') {
-    const params: Record<string, unknown> = { q }
-    if (this.projectId > 0) {
-      params.project_id = this.projectId
-    }
-
-    if (this.users.findIndex((e) => e.full_name.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.usersLoading = true
-      this.$store.dispatch('statistics/all_calls/filter/fetch_users', params)
-        .finally(() => (this.usersLoading = false))
-    }
-  }
-
-  private onUsersFocus () {
-    const params: Record<string, unknown> = {}
-    if (this.projectId > 0) {
-      params.project_id = this.projectId
-    }
-
-    if (this.users.length === 0) {
-      this.usersLoading = true
-      this.$store.dispatch('statistics/all_calls/filter/fetch_users', params)
-        .finally(() => (this.usersLoading = false))
-    }
-  }
-
-  /**
-   * Срабатывает при поиске тегов
-   * @param q
-   * @private
-   */
-  private onSearchTags (q = '') {
-    const params = { q }
-    const fetch = this
-      .tags
-      .findIndex((e) => e.name
-        .toLowerCase()
-        .indexOf((q || '')
-          .toLowerCase()) > -1 && e.id > 0) === -1 || this.tags.length === 0
-
-    if (fetch) {
-      this.tagsLoading = true
-      this.$store.dispatch('statistics/all_calls/filter/fetchTags', params)
-        .finally(() => (this.tagsLoading = false))
-    }
+  private onBtnRefresh () {
+    this.$store.dispatch('statistics/all_calls/fetch')
   }
 
   /**
@@ -516,16 +283,20 @@ export default class AllCallsFilters extends AppBase {
    * @private
    */
   private onTagsChipClose (id: number) {
-    this.tagIds = this.tagIds.filter((value) => {
-      return value !== id
+    this.tags = this.tags.filter((value) => {
+      return value.id !== id
     })
   }
 
-  private onContactCreatedAtBtnOkClick (value: string[]) {
-    // @ts-expect-error: Contact created at
-    return this.$refs.contactCreatedAtMenu?.save(value)
+  /**
+   * @param id
+   * @private
+   */
+  private onStatusChipClose (id: number) {
+    this.statuses = this.statuses.filter((value) => {
+      return value.id !== id
+    })
   }
-  // endregion
 }
 </script>
 

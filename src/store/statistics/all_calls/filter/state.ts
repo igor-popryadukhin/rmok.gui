@@ -1,54 +1,21 @@
+import ContactTag from '@/api/interfaces/ContactTag'
+import Project from '@/api/interfaces/Project'
 import Status from '@/api/interfaces/Status'
-
-export interface Group {
-  id: number;
-  name: string;
-  color: string;
-}
-
-export interface Project {
-  id: number;
-  name: string;
-}
-
-interface UserGroup {
-  id: number;
-  name: string;
-}
-
-interface User {
-  id: number;
-  full_name: string;
-}
-
-export interface Tag {
-  id: number;
-  name: string;
-  color: string;
-}
-
-export interface TimeZone {
-  id: number;
-  name: string;
-}
+import TimeZone from '@/api/interfaces/TimeZone'
+import User from '@/api/interfaces/User'
+import UserGroup from '@/api/interfaces/UserGroup'
 
 export interface State {
-  projects: Project[];
-  statuses: Status[];
-  users: User[];
-  user_groups: UserGroup[];
-  tags: Tag[];
-  timezones: TimeZone[];
   /// /////////////////////////////////
-  period: string;
-  q: string|null;
-  project_id: number;
-  status_ids: number[];
-  owner_id: number;
-  user_group_id: number;
-  tag_ids: number[];
-  contact_created_at: string;
+  period: string|null;
+  project: Project|null;
+  statuses: Status[]|null;
+  owner: User|null;
+  user_group: UserGroup|null;
+  tags: ContactTag[];
+  contact_created_at: string|null;
   offset: number;
+  timezone: TimeZone|null;
 
   order_by: string|null;
   order_direction: 'asc' | 'desc';
@@ -57,25 +24,19 @@ export interface State {
 
 export function defaultState (): State {
   return {
-    projects: [],
-    statuses: [],
-    users: [],
-    user_groups: [],
-    tags: [],
-    timezones: [],
     /// /////////////////////////////////
     period: null,
-    q: '',
-    project_id: 0,
-    status_ids: [],
-    owner_id: 0,
-    user_group_id: 0,
-    tag_ids: [],
-    contact_created_at: '',
+    project: null,
+    statuses: null,
+    owner: null,
+    user_group: null,
+    tags: null,
+    contact_created_at: null,
     offset: 0,
+    timezone: null,
 
-    order_by: 'created_at',
-    order_direction: 'desc'
+    order_by: '',
+    order_direction: 'asc'
     /// /////////////////////////////////
   }
 }

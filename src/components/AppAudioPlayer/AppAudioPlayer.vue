@@ -58,18 +58,16 @@
                 top
               >
                 <template #activator="{ on, attrs }">
-                  <template>
-                    <v-slider
-                      v-model="audioPlayerVolume"
-                      v-bind="attrs"
-                      :max="1"
-                      :min="0"
-                      :step="0.01"
-                      style="min-width: 150px"
-                      prepend-icon="mdi-volume-high"
-                      v-on="on"
-                    />
-                  </template>
+                  <v-slider
+                    v-model="audioPlayerVolume"
+                    v-bind="attrs"
+                    :max="1"
+                    :min="0"
+                    :step="0.001"
+                    style="min-width: 150px"
+                    prepend-icon="mdi-volume-high"
+                    v-on="on"
+                  />
                 </template>
                 <span>{{ tc('Audio file playback speed') }}</span>
               </v-tooltip>
@@ -144,9 +142,9 @@ import { Prop, PropSync, Watch } from 'vue-property-decorator'
 @Component
 export default class AppAudioPlayer extends Vue {
   @Prop({ required: true }) readonly src!: string
-  @Prop({ default: () => 1 }) readonly volume!: number
   @Prop({ default: () => true }) readonly autoCloseAfterEndPlay!: boolean
   @Prop({ default: () => '' }) readonly author!: string
+  @PropSync('volume', { default: () => true }) volumeSync!: number
   @PropSync('visible', { default: () => true }) visibleSync!: boolean
 
   stateSpeed = 'x1'
@@ -177,13 +175,15 @@ export default class AppAudioPlayer extends Vue {
     }
   }
 
-  get isShowing () {
-    return this.visibleSync
+  @Watch('volumeSync')
+  volumeSyncWatch (value: number) {
+    this.audioPlayerVolume = value
   }
 
-  @Watch('volume')
-  volumeWatch (value: number) {
-    this.audioPlayerVolume = value
+  @Watch('audioPlayerVolume')
+  audioPlayerVolumeWatch (value: number) {
+    this.volumeSync = value
+    this.audioPlayer.volume = value
   }
 
   @Watch('visibleSync')
@@ -194,7 +194,7 @@ export default class AppAudioPlayer extends Vue {
   }
 
   public created () {
-    this.audioPlayerVolume = this.volume
+    this.audioPlayerVolume = this.volumeSync
   }
 
   public mounted () {

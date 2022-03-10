@@ -1,43 +1,40 @@
 <template>
-  <div class="d-flex flex-nowrap align-center justify-space-between mb-2">
-    <div class="d-flex flex-nowrap align-center">
-      <app-btn-toggle-date
-        v-model="filterPeriod"
-        :items="dateRangeCollection"
-        class="mr-5"
-      >
-        <template #item-append>
-          <v-menu
-            :close-on-content-click="false"
-            transition="scale-transition"
-            min-width="auto"
-            offset-y
-            left
-          >
-            <template #activator="{ on, attrs }">
-              <v-btn
-                small
-                value="sex"
-                v-bind="attrs"
-                v-on="on"
-              >
-                {{ customPeriodDisplay || $tc('Customizable') }}
-              </v-btn>
-            </template>
-            <v-date-picker
-              v-model="customPeriod"
-              :first-day-of-week="1"
-              locale="ru"
-              flat
-              range
-              no-title
-              show-current
-            />
-          </v-menu>
-        </template>
-      </app-btn-toggle-date>
-    </div>
-    <div class="d-flex flex-nowrap align-center" />
+  <div class="d-flex flex-nowrap align-center">
+    <app-btn-toggle-date
+      v-model="filterPeriod"
+      :items="dateRangeCollection"
+      class="mr-5"
+    >
+      <template #item-append>
+        <v-menu
+          :close-on-content-click="false"
+          transition="scale-transition"
+          min-width="auto"
+          offset-y
+          left
+        >
+          <template #activator="{ on, attrs }">
+            <v-btn
+              small
+              value="sex"
+              v-bind="attrs"
+              v-on="on"
+            >
+              {{ customPeriodDisplay || $tc('Customizable') }}
+            </v-btn>
+          </template>
+          <v-date-picker
+            v-model="customPeriod"
+            :first-day-of-week="1"
+            locale="ru"
+            flat
+            range
+            no-title
+            show-current
+          />
+        </v-menu>
+      </template>
+    </app-btn-toggle-date>
   </div>
 </template>
 
@@ -55,8 +52,8 @@ export default class AllCallsTools extends AppBase {
   customPeriod = null
 
   get filterPeriod () {
-    const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0)
-    const dtB = this.$dayjs().set('h', 23).set('m', 59).set('s', 59).set('millisecond', 0)
+    const dtA = this.$dayjs()
+    const dtB = this.$dayjs()
 
     return this.$store.getters['statistics/all_calls/filter/period'] || `${dtA.format(this.isoFormat)}|${dtB.format(this.isoFormat)}`
   }
@@ -118,7 +115,6 @@ export default class AllCallsTools extends AppBase {
   @Watch('filterPeriod')
   filterPeriodWatchHandler () {
     this.$store.commit('statistics/all_calls/filter/offset', 0)
-    this.fetchStatistic()
   }
 
   @Watch('customPeriod')
@@ -143,20 +139,6 @@ export default class AllCallsTools extends AppBase {
         this.$dayjs(dates[1]).format('YYYY-MM-DD')
       ]
     }
-  }
-
-  private fetchStatistic () {
-    this.$store.dispatch('statistics/all_calls/fetch_total_calls')
-    this.$store.dispatch('statistics/all_calls/fetch_pie')
-    this.$store.dispatch('statistics/all_calls/fetch_history')
-  }
-
-  private onBtnRefreshClick () {
-    this.fetchStatistic()
-  }
-
-  private onBtnLoadCancel () {
-    this.$store.dispatch('statistics/all_calls/cancel_fetch_all')
   }
 }
 </script>

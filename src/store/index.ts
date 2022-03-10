@@ -96,7 +96,6 @@ const $store = new Vuex.Store({
       key: window.origin,
       paths: [
         'unsaved_call',
-        // 'profile',
         'database',
         'settings',
         'filters',
@@ -106,10 +105,9 @@ const $store = new Vuex.Store({
         'contacts.list_in_work.settings',
         'contacts.view.settings',
         'contacts.view.unsaved_call',
-        'statistic_recent_call.filter',
-        'statistics.recent_calls.filter',
         'statistics.recent_calls.settings',
         'statistics.calls_count.settings',
+        'statistics.all_calls.settings',
         'system.route'
       ],
       storage: new LocalStorage()
@@ -121,7 +119,9 @@ const $store = new Vuex.Store({
       paths: [
         'contacts.list.filter',
         'contacts.list_in_work.filter',
-        'statistics.calls_count.filter'
+        'statistics.all_calls.filter',
+        'statistics.calls_count.filter',
+        'statistics.recent_calls.filter'
       ],
       storage: new SessionStorage()
     })

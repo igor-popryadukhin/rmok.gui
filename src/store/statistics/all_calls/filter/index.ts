@@ -7,10 +7,10 @@ import { state, State } from './state'
 
 const module: Module<State, RootState> = {
   namespaced: true,
-  state,
   actions,
   getters,
-  mutations
+  mutations,
+  state
 }
 
 export default module
