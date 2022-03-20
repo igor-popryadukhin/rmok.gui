@@ -43,7 +43,7 @@ pipelines:
       # Update production!!!
       - step:
           name: "Update production!!!"
-          trigger: automatic
+          trigger: manual
           runs-on:
             - self.hosted
             - dev

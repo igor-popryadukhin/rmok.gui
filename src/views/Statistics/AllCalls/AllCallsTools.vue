@@ -16,7 +16,7 @@
           <template #activator="{ on, attrs }">
             <v-btn
               small
-              value="sex"
+              class="ma-0"
               v-bind="attrs"
               v-on="on"
             >

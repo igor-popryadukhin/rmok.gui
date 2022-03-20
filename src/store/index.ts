@@ -24,7 +24,6 @@ import debug from 'debug'
 import $app from '@/main'
 import { account } from './account'
 import { notifications } from './notifications'
-import { roles } from './roles'
 import { statistics } from './statistics'
 import LocalStorage from './LocalStorage'
 import SessionStorage from './SessionStorage'
@@ -53,7 +52,6 @@ const $store = new Vuex.Store({
 
   modules: {
     account,
-    roles,
     notifications,
     app_state,
     database,
@@ -67,7 +65,6 @@ const $store = new Vuex.Store({
     groups,
     users,
     unsaved_call,
-    // contact_view: contact,
     contacts,
     leads,
     statistics,
@@ -108,6 +105,7 @@ const $store = new Vuex.Store({
         'statistics.recent_calls.settings',
         'statistics.calls_count.settings',
         'statistics.all_calls.settings',
+        'statistics.manager_employment.settings',
         'system.route'
       ],
       storage: new LocalStorage()
@@ -121,7 +119,8 @@ const $store = new Vuex.Store({
         'contacts.list_in_work.filter',
         'statistics.all_calls.filter',
         'statistics.calls_count.filter',
-        'statistics.recent_calls.filter'
+        'statistics.recent_calls.filter',
+        'statistics.manager_employment.filter'
       ],
       storage: new SessionStorage()
     })

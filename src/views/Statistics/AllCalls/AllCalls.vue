@@ -38,7 +38,7 @@
           :server-items-length="itemsCount"
           :items-per-page="50"
           :loading="itemsFetching"
-          height="calc(100vh - 170px)"
+          height="calc(100vh - 207px)"
           calculate-widths
           fixed-header
           hide-default-footer
@@ -50,7 +50,7 @@
           <template #no-data>
             <div
               class="d-flex align-center justify-center"
-              style="height: calc(100vh - 202px);"
+              style="height: calc(100vh - 267px);"
             >
               {{ $tc('No data for the selected period') }}
             </div>
@@ -58,7 +58,7 @@
           <template #loading>
             <div
               class="d-flex align-center justify-center grey--text"
-              style="height: calc(100vh - 202px);"
+              style="height: calc(100vh - 267px);"
             >
               <app-loading />
             </div>
@@ -120,7 +120,7 @@ import AppBase from '@/AppBase'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
 import debounce from '@/utils/debounce'
@@ -403,7 +403,7 @@ export default class AllCalls extends AppBase {
 }
 
 .all-calls-page {
-  height: calc(100vh - 74px);
+  height: calc(100vh - 111px);
   overflow-y: auto;
 }
 
@@ -411,12 +411,12 @@ export default class AllCalls extends AppBase {
 
 .all-calls-page__box {
   display: flex;
-  height: calc(100vh - 113px);
+  height: calc(100vh - 150px);
   margin: 0;
 }
 
 .all-calls-page__filter {
-  height: calc(100vh - 113px);
+  height: calc(100vh - 150px);
   width: 255px;
   padding-right: 5px;
   overflow-y: auto;

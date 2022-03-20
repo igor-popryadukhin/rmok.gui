@@ -9,7 +9,7 @@
           text
           tile
           small
-          @click="$router.replace({ name: 'contacts' })"
+          @click="$router.replace({ name: 'contacts_all' })"
         >
           {{ $tc('To find') }}
         </v-btn>
