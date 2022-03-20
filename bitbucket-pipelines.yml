@@ -52,7 +52,7 @@ pipelines:
             - apt-get install -y jq
             - export VUE_PROJECT_VERSION="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
             - tmp_package=$(mktemp) && jq --arg version "$VUE_PROJECT_VERSION" '.version = $version' package.json > "$tmp_package" && mv "$tmp_package" package.json
-            - git commit -am "Release $VUE_PROJECT_VERSION [skip ci]"
+            - git commit -am "Release $VUE_PROJECT_VERSION"
             - git push
 
       # Create a tag
