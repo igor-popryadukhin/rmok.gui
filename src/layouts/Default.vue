@@ -484,7 +484,7 @@
           class="grey--text"
           style="font-size: 12px"
         >
-          {{ $t('version', { version: projectVersion }) }}
+          {{ $t('version', { version: $projectVersion }) }}
         </div>
         <v-spacer />
         <div

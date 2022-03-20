@@ -22,6 +22,7 @@
       v-else
       align="center"
       justify="center"
+      class="mb-5"
     >
       <v-col
         cols="12"
@@ -80,6 +81,26 @@
             </v-btn>
           </v-card-actions>
         </v-card>
+      </v-col>
+    </v-row>
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        cols="12"
+        sm="8"
+        md="4"
+        class="d-flex flex-columns justify-space-around"
+      >
+        <div style="font-size: 13px; font-family: Roboto, sans-serif">
+          <div class="text-center grey--text mb-2">
+            {{ $t('version', { version: $projectVersion }) }}
+          </div>
+          <div class="text-center grey--text">
+            {{ $dayjs().format('YYYY') }}  © Голосовые технологии
+          </div>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -170,3 +191,15 @@ export default class Login extends AppBase {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.app-version {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  padding: 5px 10px 5px 10px;
+  color: #bebebe;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+}
+</style>

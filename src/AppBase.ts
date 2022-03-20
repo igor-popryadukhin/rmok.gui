@@ -21,7 +21,7 @@ export default class AppBase extends Vue {
     return process.env.NODE_ENV === 'development'
   }
 
-  get projectVersion () {
+  get $projectVersion () {
     return version
   }
 
