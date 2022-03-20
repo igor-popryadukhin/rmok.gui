@@ -449,6 +449,7 @@
   "all_tasks_per_number": "Все задачи на {date} число",
   "author_name": "Автор: {name}",
   "billing": "Биллинг",
+  "build": "Сборка: {build}",
   "caution": "Внимание!",
   "change_password": "Изменить пароль",
   "close": "Закрыть",
@@ -667,6 +668,7 @@
   },
   "unknown_number": "Неизвестный номер",
   "users_total_online": "|{n} пользователь в сети|{n} пользователя в сети|{n} пользователей в сети",
+  "version": "Версия: {version}",
   "video": "Видео",
   "yes": "Да"
 }

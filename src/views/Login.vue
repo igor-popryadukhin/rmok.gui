@@ -147,7 +147,7 @@ export default class Login extends AppBase {
         await this.$store.dispatch('profile/fetch');
 
         setTimeout(() => {
-          this.$router.replace('/leads');
+          this.$router.replace('/');
         }, 1000);
 
         this.processMessage = this.$tc('Login successful!');

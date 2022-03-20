@@ -218,7 +218,7 @@ import Component from 'vue-class-component'
 })
 export default class ContactsInWorkFilters extends AppBase {
   /** Текущий проект пользователя */
-  get profileProjectId (): number { return this.$store.getters['profile/project']?.id || 0 }
+  get profileProjectId (): number { return this.$store.getters['profile/current_project']?.id || 0 }
 
   // region Параметры запроса
   get q (): string|null { return this.$store.getters['contacts/list_in_works/filter/filter_q'] }

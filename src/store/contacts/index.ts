@@ -4,7 +4,8 @@ import state, { ContactsState } from './state'
 import getters from './getters'
 import actions from './actions'
 import mutations from './mutations'
-import list from './list'
+import contacts_all from './contacts_all'
+import contacts_new from './contacts_new'
 import create from './create'
 import view from './view'
 import incoming from './incoming'
@@ -18,7 +19,8 @@ const module: Module<ContactsState, RootState> = {
   namespaced: true,
   state,
   modules: {
-    list,
+    contacts_all,
+    contacts_new,
     view,
     incoming,
     transfer_dialog,

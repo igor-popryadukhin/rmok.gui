@@ -3,7 +3,7 @@
     <div class="py-2">
       <!-- Проект -->
       <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL'])"
+        v-if="$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])"
         v-model="projectId"
         :options="projects"
         :label="$tc('Project')"
@@ -67,7 +67,7 @@
 
       <!-- Группа -->
       <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
+        v-if="$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])"
         v-model="userGroupId"
         :options="userGroups"
         :label="$tc('Group')"
@@ -84,7 +84,7 @@
 
       <!-- Ответственный -->
       <app-autocomplete
-        v-if="$isGranted(['CONTACTS_VIEW_ALL', 'CONTACTS_VIEW_ONLY_GROUP'])"
+        v-if="$isGranted(['ROLE_ADMIN', 'ROLE_CCM'])"
         v-model="userId"
         :options="users"
         :label="$tc('Responsible')"
@@ -255,7 +255,7 @@ export default class RecentCallsFilters extends AppBase {
   }
 
   /** Текущий проект пользователя */
-  get profileProjectId (): number { return this.$store.getters['profile/project/id'] }
+  get profileProjectId (): number { return this.$store.getters['profile/current_project/id'] }
 
   get dateRangeText (): string {
     if (Array.isArray(this.contactCreatedAt) && this.contactCreatedAt.length === 2) {

@@ -449,7 +449,7 @@
 </template>
 
 <script lang="ts">
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import Vue from 'vue'
 import VueApexCharts from 'vue-apexcharts'
 import { mapActions, mapGetters } from 'vuex'

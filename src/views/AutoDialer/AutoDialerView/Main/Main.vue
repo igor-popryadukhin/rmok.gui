@@ -124,7 +124,7 @@
     >
       <div
         class="d-flex flex-wrap flex-row align-content-start overflow-auto"
-        style="height: calc(100vh - 145px); width: 100%"
+        style="height: calc(100vh - 155px); width: 100%"
       >
         <template v-for="(item, itemIndex) in autodialerSummary">
           <v-card
@@ -214,7 +214,7 @@
       />
       <div
         class="overflow-y-auto"
-        style="height: calc(100vh - 145px); width: 500px;"
+        style="height: calc(100vh - 155px); width: 500px;"
       >
         <div
           v-if="workerAgents.length === 0"
@@ -305,7 +305,7 @@ import Project from '@/api/interfaces/Project'
 import AppBase from '@/AppBase'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppSummary from '@/components/AppSummary/AppSummary.vue'
 import { AxiosResponse } from 'axios'
@@ -499,9 +499,7 @@ export default class Main extends AppBase {
 </script>
 
 <style lang="scss" scoped>
-.autodialer-main-page {
-  height: 100%;
-}
+.autodialer-main-page {}
 </style>
 
 <i18n>

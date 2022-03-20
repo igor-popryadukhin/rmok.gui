@@ -5,7 +5,7 @@
   >
     <div class="mb-5">
       <v-text-field
-        v-model="request.first_name"
+        v-model="form.first_name"
         :label="$tc('First name')"
         :error-messages="validatorErrors('first_name', true)"
         :success-messages="validatorSuccess('first_name')"
@@ -15,7 +15,7 @@
       />
 
       <v-text-field
-        v-model="request.last_name"
+        v-model="form.last_name"
         :label="$tc('Last name')"
         :error-messages="validatorErrors('last_name', true)"
         :success-messages="validatorSuccess('last_name')"
@@ -25,7 +25,7 @@
       />
 
       <v-text-field
-        v-model="request.middle_name"
+        v-model="form.middle_name"
         :label="$tc('Middle name')"
         :error-messages="validatorErrors('middle_name')"
         :success-messages="validatorSuccess('middle_name')"
@@ -37,7 +37,7 @@
 
     <div class="mb-5">
       <v-text-field
-        v-model="request.login"
+        v-model="form.login"
         :label="$tc('Login')"
         :error-messages="validatorErrors('login', true)"
         :success-messages="validatorSuccess('login')"
@@ -47,7 +47,7 @@
       />
 
       <v-text-field
-        v-model="request.password"
+        v-model="form.password"
         :label="$tc('Password')"
         :error-messages="validatorErrors('password', true)"
         :success-messages="validatorSuccess('password')"
@@ -92,7 +92,7 @@
 
     <div class="mb-5">
       <smart-autocomplete
-        v-model="request.group_ids"
+        v-model="form.group_ids"
         :label="$tc('Group')"
         :api-query="(q) => { return { q } }"
         :error-messages="validatorErrors('group_ids')"
@@ -106,21 +106,19 @@
         clearable
       />
 
-      <smart-autocomplete
-        v-model="request.role_id"
+      <v-select
+        v-model="form.role"
         :label="$tc('Role')"
-        :error-messages="validatorErrors('role_id', true)"
-        :success-messages="validatorSuccess('role_id')"
-        api-end-point="/roles"
-        item-text="name"
-        item-value="id"
-        response-property="data"
-        store-module-name="roles"
-        clearable
+        :items="roles"
+        item-text="title"
+        item-value="value"
+        dense
+        outlined
+        flat
       />
 
       <smart-autocomplete
-        v-model="request.country_id"
+        v-model="form.country_id"
         :label="$tc('Country')"
         :error-messages="validatorErrors('country_id')"
         :success-messages="validatorSuccess('country_id')"
@@ -183,13 +181,13 @@ export default class UsersCreate extends AppBase {
   conservationProcess = false
   validator = []
   passwordVisible = false
-  request = {
+  form = {
     first_name: null,
     last_name: null,
     middle_name: null,
     login: null,
     password: null,
-    role_id: null,
+    role: null,
     group_ids: null,
     country_id: null
   }
@@ -198,8 +196,30 @@ export default class UsersCreate extends AppBase {
     return this.validator.length === 0 || this.validator.findIndex((e) => e.status === 'failure') > -1
   }
 
-  @Watch('request', { deep: true })
-  requestWatchHandler () {
+  // Справочники
+  get roles () {
+    return [
+      {
+        title: 'Администратор',
+        value: 'ROLE_ADMIN'
+      },
+      {
+        title: 'Руководитель колл-центра',
+        value: 'ROLE_CCM'
+      },
+      {
+        title: 'Руководитель группы',
+        value: 'ROLE_TEAM_LEADER'
+      },
+      {
+        title: 'Оператор',
+        value: 'ROLE_OPERATOR'
+      }
+    ]
+  }
+
+  @Watch('form', { deep: true })
+  formWatchHandler () {
     this.onChangeFields()
   }
 
@@ -210,7 +230,7 @@ export default class UsersCreate extends AppBase {
   private onChangeFields () {
     this.$axios
       .post('/users/create-validations',
-        { ...this.request }
+        { ...this.form }
       )
       .then((response: AxiosResponse) => {
         this.validator = response.data || []
@@ -238,9 +258,16 @@ export default class UsersCreate extends AppBase {
 
   private userCreate () {
     this.conservationProcess = true
-    const requestData: Record<string, unknown> = this.request
 
-    this.$axios.post('/users', requestData)
+    this.$axios.post('/users', {
+      first_name: this.form.first_name.trim(),
+      last_name: this.form.last_name.trim(),
+      ...(typeof this.form.middle_name === 'string' ? { middle_name: this.form.middle_name.trim() } : {}),
+      login: this.form.login,
+      password: this.form.password.trim(),
+      role: this.form.role,
+      ...(Array.isArray(this.form.group_ids) ? { group_ids: this.form.group_ids } : {})
+    })
       .then((response: AxiosResponse) => {
         if (response.status !== 201) {
           throw new APIError(response.data)
@@ -267,7 +294,7 @@ export default class UsersCreate extends AppBase {
 
   private generatePassword () {
     this.passwordVisible = true
-    this.request.password = generatePassword(8)
+    this.form.password = generatePassword(8)
   }
 }
 </script>

@@ -1,15 +1,30 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const packageJson = require('fs').readFileSync('./package.json')
+const version = JSON .parse(packageJson).version || 0
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const webpack = require('webpack')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
 
 module.exports = {
+  configureWebpack: {
+    plugins: [
+      new webpack.DefinePlugin({
+        'process.env': {
+          PROJECT_VERSION: '"' + version + '"'
+        }
+      })
+    ]
+  },
+
   chainWebpack: config => {
     config.plugins.delete('prefetch')
 
-    // config.plugin('VuetifyLoaderPlugin').tap(args => [{
-    //   match (originalTag, { kebabTag, camelTag, path, component }) {
-    //     if (kebabTag.startsWith('core-')) {
-    //       return [camelTag, `import ${camelTag} from '@/components/core/${camelTag.substring(4)}.vue'`]
-    //     }
-    //   }
-    // }])
+    config.plugin('fork-ts-checker').tap((args) => {
+      args[0].memoryLimit = 8192
+      return args
+    });
+
     config.module
       .rule('i18n')
       .resourceQuery(/blockType=i18n/)
@@ -31,7 +46,7 @@ module.exports = {
   },
 
   filenameHashing: true,
-  parallel: 2,
+  parallel: 4,
 
   pluginOptions: {},
 

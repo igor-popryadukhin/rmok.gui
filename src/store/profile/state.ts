@@ -28,6 +28,7 @@ export interface ProfileState {
   project: Project|null;
   group?: UserGroup;
   role?: Role;
+  roles?: Array<Record<string, 'ROLE_ADMIN'|'ROLE_CCM'|'ROLE_TEAM_LEADER'|'ROLE_OPERATOR'>>;
 }
 
 function state (): ProfileState {
@@ -76,7 +77,8 @@ function state (): ProfileState {
     permissions: [],
     project: null,
     group: null,
-    role: null
+    role: null,
+    roles: []
   }
 }
 

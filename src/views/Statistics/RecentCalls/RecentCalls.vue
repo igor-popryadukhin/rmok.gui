@@ -1,6 +1,6 @@
 <template>
   <div class="recent-calls-page">
-    <recent-calls-tools />
+    <recent-calls-tools class="mb-1" />
     <app-divider />
     <div class="recent-calls-page__box">
       <app-block-resize
@@ -14,55 +14,46 @@
         />
       </app-block-resize>
       <div class="recent-calls-page__statistic">
-        <v-row
-          class="mb-5"
-          no-gutters
-        >
-          <v-col>
-            <div
-              class="d-flex flex-wrap align-start justify-start mb-sm-2 mb-md-2"
+        <div class="d-flex justify-center mb-5">
+          <div class="text-center mr-8">
+            <h4
+              class="text-mono text-normal no-wrap"
+              style="font-size: 20px"
             >
-              <!-- Статистическая сводка -->
-              <app-summary
-                class="mr-3 mb-3"
-                text="Совершено вызовов"
-                color="#4caf50"
-                icon="mdi-phone-in-talk-outline"
-                :loading="totalCallsFetching"
-                :value="totalCalls"
-                :width="150"
-                :height="100"
-              />
-              <app-summary
-                class="mr-3 mb-3"
-                text="Всего клиентов прозвонено"
-                color="#3f51b5"
-                icon="mdi-account-group-outline"
-                :loading="historyFetching && filterOffset === 0"
-                :value="historyCount"
-                :width="150"
-                :height="100"
-              />
-              <!-- Статистическая сводка -->
-            </div>
-            <v-divider v-if="['sm', 'md'].includes($vuetify.breakpoint.name)" />
-          </v-col>
-          <v-col
-            cols="12"
-            xl="8"
-            lg="8"
-            md="12"
-            sm="12"
-          >
-            <app-chart-pie
-              :labels="pieLabels"
-              :colors="pieColors"
-              :series="pieSeries"
-              width="90%"
-              height="350px"
-            />
-          </v-col>
-        </v-row>
+              <app-count-up :end-val="totalCalls" />
+            </h4>
+            <p
+              class="grey--text"
+              style="font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace !important;"
+            >
+              Совершено вызовов
+            </p>
+          </div>
+          <div class="text-center">
+            <h4
+              class="text-mono text-normal no-wrap"
+              style="font-size: 20px"
+            >
+              <app-count-up :end-val="historyCount" />
+            </h4>
+            <p
+              class="grey--text"
+              style="font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace !important;"
+            >
+              Прозвонено клиентов
+            </p>
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <app-chart-pie
+            :labels="pieLabels"
+            :colors="pieColors"
+            :series="pieSeries"
+            width="100%"
+            height="350px"
+          />
+        </div>
 
         <v-divider class="mb-2" />
 
@@ -75,6 +66,16 @@
             @change="fetchStatisticHistory()"
           />
           <v-spacer />
+          <v-btn
+            class="mr-2"
+            tile
+            text
+            outlined
+            small
+            @click="$toast.info('Ведутся технические работы, выгрузка в файл временно не доступна!')"
+          >
+            Выгрузить в файл
+          </v-btn>
           <app-paginator
             v-model="filterOffset"
             :count="historyCount"
@@ -217,7 +218,6 @@
         </v-simple-table>
       </div>
     </div>
-    <app-divider />
   </div>
 </template>
 
@@ -226,11 +226,9 @@ import AppBase from '@/AppBase'
 import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
 import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
 import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
-import AppSummary from '@/components/AppSummary/AppSummary.vue'
 import debounce from '@/utils/debounce'
 import RecentCallsFilters from '@/views/Statistics/RecentCalls/RecentCallsFilters.vue'
 import RecentCallsTools from '@/views/Statistics/RecentCalls/RecentCallsTools.vue'
@@ -244,10 +242,8 @@ import Component from 'vue-class-component'
     RecentCallsTools,
     AppPaginator,
     AppBtnSorting,
-    AppSummary,
     AppCountUp,
     AppBtnToggleDate,
-    AppNavigationDrawer,
     RecentCallsFilters,
     AppChartPie: () => import('@/components/AppChartPie/AppChartPie.vue')
   }
@@ -393,7 +389,7 @@ export default class RecentCalls extends AppBase {
 <style lang="scss">
 
 .recent-calls-page {
-  height: calc(100vh - 130px);
+  height: calc(100vh - 155px);
 }
 
 .recent-calls-page__box {

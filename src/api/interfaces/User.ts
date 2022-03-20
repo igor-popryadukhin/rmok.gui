@@ -20,8 +20,8 @@ export default interface User {
   email: string;
   phone: string;
   group?: UserGroup;
-  role: Role; // TODO: Типизировать срочно!
-  roles: Role[];
+  role: Role;
+  roles: Array<Record<string, 'ROLE_ADMIN'|'ROLE_CCM'|'ROLE_TEAM_LEADER'|'ROLE_OPERATOR'>>;
   organization?: Organization;
   project?: Project;
   projects?: Project[];

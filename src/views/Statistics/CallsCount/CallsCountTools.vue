@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-nowrap align-center justify-space-between mb-2">
+  <div class="d-flex flex-nowrap align-center justify-space-between">
     <div class="d-flex flex-nowrap align-center">
       <app-btn-toggle-date
         v-model="filterPeriod"
@@ -17,7 +17,7 @@
             <template #activator="{ on, attrs }">
               <v-btn
                 small
-                value="sex"
+                class="ma-0"
                 v-bind="attrs"
                 v-on="on"
               >
