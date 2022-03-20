@@ -53,8 +53,23 @@ pipelines:
             - export VUE_PROJECT_VERSION="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
             - tmp_package=$(mktemp) && jq --arg version "$VUE_PROJECT_VERSION" '.version = $version' package.json > "$tmp_package" && mv "$tmp_package" package.json
             - git commit -am "Release $VUE_PROJECT_VERSION [skip ci]"
-            - git tag -a $VUE_PROJECT_VERSION -m "Release $VUE_PROJECT_VERSION"
+            - git push
+
+      # Create a tag
+      - step:
+          name: "Create a tag"
+          trigger: automatic
+          runs-on:
+            - self.hosted
+            - dev
+          script:
+            - apt-get update
+            - apt-get install -y jq
+            - git pull
+            - version=$(jq -r '.version' package.json)
+            - git tag -a $version -m "Release $version"
             - git push --tags
+
 
   tags:
     v*:
