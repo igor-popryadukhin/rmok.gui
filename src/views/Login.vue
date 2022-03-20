@@ -86,6 +86,7 @@
 </template>
 
 <script lang="ts">
+import $store from '@/store'
 import axios, { AxiosResponse } from 'axios'
 import AppBase from '@/AppBase'
 import Component from 'vue-class-component'
@@ -96,6 +97,7 @@ import { Route } from 'vue-router/types/router'
 
 @Component({
   beforeRouteEnter (to: Route, from: Route, next) {
+    $store.commit('bootstrap_process', false)
     next((vm) => {
       // Если перешли на страницу авторизации.
       // Следует отключиться от телефонии.
