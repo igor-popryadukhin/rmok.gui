@@ -7,7 +7,7 @@ pipelines:
           trigger: automatic
           runs-on:
             - self.hosted
-            - dev
+            - prod
           script:
             - apt-get update
             - apt-get install -y jq
@@ -17,9 +17,9 @@ pipelines:
             - git commit -am "Release $new_version [skip ci]"
             - git push
 
-      # Build
+      # Build for review
       - step:
-          name: "Build"
+          name: "Build for review"
           image: node:16.13.0
           trigger: automatic
           deployment: "Review"
@@ -28,7 +28,7 @@ pipelines:
             - node
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
@@ -42,15 +42,15 @@ pipelines:
             - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
             - npm run build
 
-      # Deploy
+      # Deploy for review
       - step:
-          name: "Deploy"
+          name: "Deploy for review"
           trigger: automatic
           caches:
             - pip
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
@@ -69,21 +69,17 @@ pipelines:
           trigger: manual
           runs-on:
             - self.hosted
-            - dev
+            - prod
           script:
             - apt-get update
             - apt-get install -y jq
             - git pull
             - version=$(jq -r '.version' package.json)
             - git tag -a $version -m "Release $version"
-            - git push --tags
 
-
-  tags:
-    v*:
-      # Build
+      # Build for production
       - step:
-          name: "Build"
+          name: "Build for production"
           image: node:16.13.0
           trigger: automatic
           deployment: "Production"
@@ -92,7 +88,7 @@ pipelines:
             - node
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
@@ -106,15 +102,15 @@ pipelines:
             - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
             - npm run build
 
-      # Deploy
+      # Deploy for production
       - step:
-          name: "Deploy"
+          name: "Deploy for production"
           trigger: automatic
           caches:
             - pip
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
