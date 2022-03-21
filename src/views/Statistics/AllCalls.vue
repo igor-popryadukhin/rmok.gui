@@ -895,7 +895,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     onBtnAudioRecordPlayClick (item: any) {
       this.$root.$emit('on-audio-player-show', {
-        src: `${process.env.VUE_APP_API}/contacts/history/${item.id}/audio`,
+        src: `${process.env.VUE_APP_API_ENDPOINT}/contacts/history/${item.id}/audio`,
         author: `${item.owner.full_name} / ${item.contact.full_name}`
       })
     },

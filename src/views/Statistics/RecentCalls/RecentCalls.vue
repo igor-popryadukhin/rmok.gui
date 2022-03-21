@@ -379,7 +379,7 @@ export default class RecentCalls extends AppBase {
    */
   private playAudioRecord (item) {
     this.$root.$emit('audio-player-show', {
-      src: `${process.env.VUE_APP_API}/contacts/history/audio/${item.audio_record_id}`,
+      src: `${process.env.VUE_APP_API_ENDPOINT}/contacts/history/audio/${item.audio_record_id}`,
       author: `${item.owner.name} / ${item.contact.name}`
     })
   }

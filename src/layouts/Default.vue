@@ -1408,8 +1408,8 @@ export default class DefaultLayout extends AppBase {
    * SSE Initialization
    */
   private sseInitialize () {
-    if ('VUE_APP_SSE' in process.env) {
-      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE)
+    if ('VUE_APP_SSE_ENDPOINT' in process.env) {
+      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT)
 
       // Темы для подписок
       url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)

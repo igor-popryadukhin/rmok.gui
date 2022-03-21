@@ -33,10 +33,14 @@ VueRouter.prototype.push = function push (location) {
 
 const routes: RouteConfig[] = [
   {
+    redirect: 'home',
+    path: '/'
+  },
+  {
     component: Home,
     meta: { layout: 'default', middleware: [bootstrap], title: 'documents' },
     name: 'home',
-    path: '/'
+    path: '/home'
   },
   {
     component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),

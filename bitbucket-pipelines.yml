@@ -1,34 +1,56 @@
 pipelines:
   branches:
     release/*:
-      # Build
+      # Up version
       - step:
-          name: "Build"
+          name: "Up version"
+          trigger: automatic
+          runs-on:
+            - self.hosted
+            - prod
+          script:
+            - apt-get update
+            - apt-get install -y jq
+            - old_version=$(jq -r '.version' package.json)
+            - new_version="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
+            - sed -i "s/$old_version/$new_version/g" ./package.json
+            - git commit -am "Release $new_version [skip ci]"
+            - git push
+
+      # Build for review
+      - step:
+          name: "Build for review"
           image: node:16.13.0
           trigger: automatic
+          deployment: "Review"
           caches:
             - pip
             - node
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
             - git pull
-            - echo $REVIEW_VUE_ENV | base64 -di > ./.env
             - npm install --no-progress
+            - echo "VUE_APP_I18N_LOCALE=ru" | tee ./.env
+            - echo "VUE_APP_I18N_FALLBACK_LOCALE=ru" | tee -a ./.env
+            - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
             - npm run build
 
-      # Deploy
+      # Deploy for review
       - step:
-          name: "Deploy"
+          name: "Deploy for review"
           trigger: automatic
           caches:
             - pip
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
@@ -39,6 +61,7 @@ pipelines:
                 REMOTE_PATH: "~/www/rmok.gui"
                 LOCAL_PATH: "./dist/"
                 EXTRA_ARGS: "--delete"
+                DEBUG: "false"
 
       # Update production!!!
       - step:
@@ -46,45 +69,48 @@ pipelines:
           trigger: manual
           runs-on:
             - self.hosted
-            - dev
+            - prod
           script:
             - apt-get update
             - apt-get install -y jq
-            - export VUE_PROJECT_VERSION="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
-            - tmp_package=$(mktemp) && jq --arg version "$VUE_PROJECT_VERSION" '.version = $version' package.json > "$tmp_package" && mv "$tmp_package" package.json
-            - git commit -am "Release $VUE_PROJECT_VERSION [skip ci]"
-            - git tag -a $VUE_PROJECT_VERSION -m "Release $VUE_PROJECT_VERSION"
-            - git push --tags
+            - git pull
+            - version=$(jq -r '.version' package.json)
+            - git tag -a $version -m "Release $version"
 
-  tags:
-    v*:
-      # Build
+      # Build for production
       - step:
-          name: "Build"
+          name: "Build for production"
           image: node:16.13.0
           trigger: automatic
+          deployment: "Production"
           caches:
             - pip
             - node
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
-            - echo $PROD_VUE_ENV | base64 -di > ./.env
+            - git pull
             - npm install --no-progress
+            - echo "VUE_APP_I18N_LOCALE=ru" | tee ./.env
+            - echo "VUE_APP_I18N_FALLBACK_LOCALE=ru" | tee -a ./.env
+            - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
             - npm run build
 
-      # Deploy
+      # Deploy for production
       - step:
-          name: "Deploy"
+          name: "Deploy for production"
           trigger: automatic
           caches:
             - pip
           runs-on:
             - self.hosted
-            - dev
+            - prod
           artifacts:
             - dist/**
           script:
@@ -95,3 +121,4 @@ pipelines:
                 REMOTE_PATH: "~/www/rmok.gui"
                 LOCAL_PATH: "./dist/"
                 EXTRA_ARGS: "--delete"
+                DEBUG: "false"
