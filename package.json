@@ -1,6 +1,6 @@
 {
   "name": "rmok.gui",
-  "version": "v2022.3.21.169",
+  "version": "v2022.3.21.175",
   "private": true,
   "lint-staged": {
     "*.{js,jsx,vue,ts,tsx}": [

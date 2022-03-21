@@ -14,7 +14,7 @@ pipelines:
             - old_version=$(jq -r '.version' package.json)
             - new_version="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
             - sed -i "s/$old_version/$new_version/g" ./package.json
-            - git commit -am "Release $new_version"
+            - git commit -am "Release $new_version [skip ci]"
             - git push
 
       # Build
@@ -34,12 +34,12 @@ pipelines:
           script:
             - git pull
             - npm install --no-progress
-            - cat << EOT >> ./.env
-              VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT
-              VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT
-              VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT
-              VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT
-              EOT
+            - echo "VUE_APP_I18N_LOCALE=ru" | tee ./.env
+            - echo "VUE_APP_I18N_FALLBACK_LOCALE=ru" | tee -a ./.env
+            - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
             - npm run build
 
       # Deploy
@@ -96,13 +96,14 @@ pipelines:
           artifacts:
             - dist/**
           script:
+            - git pull
             - npm install --no-progress
-            - cat << EOT >> ./.env
-              VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT
-              VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT
-              VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT
-              VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT
-              EOT
+            - echo "VUE_APP_I18N_LOCALE=ru" | tee ./.env
+            - echo "VUE_APP_I18N_FALLBACK_LOCALE=ru" | tee -a ./.env
+            - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
             - npm run build
 
       # Deploy
