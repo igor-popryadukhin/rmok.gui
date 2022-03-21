@@ -1,5 +1,9 @@
 <template>
   <v-container>
+    <div class="ua">
+      <div class="u" />
+      <div class="a" />
+    </div>
     <v-row
       v-if="processAuthorization"
       align="center"
@@ -9,10 +13,10 @@
         cols="12"
         sm="8"
         md="4"
+        style="height: 350px"
       >
         <div
-          class="d-flex align-center justify-center"
-          style="min-height: 100px"
+          class="d-flex align-center justify-center fill-height"
         >
           {{ processMessage }}
         </div>
@@ -22,65 +26,62 @@
       v-else
       align="center"
       justify="center"
-      class="mb-5"
     >
       <v-col
         cols="12"
         sm="8"
         md="4"
+        class="d-flex flex-column justify-center"
+        style="height: 350px"
       >
-        <v-card
-          tile
-          flat
+        <div
+          class="text-center text-h6 mb-5"
+          style="color: #00000099; font-family: Roboto, sans-serif"
         >
-          <v-toolbar
-            flat
-          >
-            <v-toolbar-title>{{ $t('login_to_the_system') }}</v-toolbar-title>
-            <v-spacer />
-          </v-toolbar>
-          <v-card-text>
-            <v-form>
-              <v-text-field
-                v-model="authorization.login"
-                :label="$tc('Login')"
-                name="login"
-                prepend-icon="mdi-account"
-                type="text"
-                @keyup.enter="login(authorization.login, authorization.password)"
-              />
+          {{ $t('login_to_the_system') }}
+        </div>
 
-              <v-text-field
-                v-model="authorization.password"
-                :label="$t('password')"
-                name="password"
-                prepend-icon="mdi-lock"
-                type="password"
-                @keyup.enter="login(authorization.login, authorization.password)"
-              />
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn
-              color="grey"
-              tile
-              text
-            >
-              {{ $t('Restore access') }}
-            </v-btn>
-            <v-btn
-              id="v-btn-sig-in"
-              color="black"
-              :loading="authorization.loading"
-              tile
-              text
-              @click="login(authorization.login, authorization.password)"
-            >
-              {{ $t('sign_in') }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+        <div>
+          <v-text-field
+            v-model="authorization.login"
+            :label="$tc('Login')"
+            name="login"
+            prepend-icon="mdi-account"
+            type="text"
+            @keyup.enter="login(authorization.login, authorization.password)"
+          />
+
+          <v-text-field
+            v-model="authorization.password"
+            :label="$t('Password')"
+            name="password"
+            prepend-icon="mdi-lock"
+            type="password"
+            @keyup.enter="login(authorization.login, authorization.password)"
+          />
+        </div>
+
+        <div class="d-flex justify-end">
+          <v-btn
+            color="grey"
+            small
+            tile
+            text
+          >
+            {{ $t('Restore access') }}
+          </v-btn>
+          <v-btn
+            id="v-btn-sig-in"
+            color="black"
+            :loading="authorization.loading"
+            small
+            tile
+            text
+            @click="login(authorization.login, authorization.password)"
+          >
+            {{ $t('sign_in') }}
+          </v-btn>
+        </div>
       </v-col>
     </v-row>
     <v-row
@@ -98,7 +99,10 @@
             {{ $t('version', { version: $projectVersion }) }}
           </div>
           <div class="text-center grey--text">
-            {{ $dayjs().format('YYYY') }}  © Голосовые технологии
+            © Голосовые технологии
+          </div>
+          <div class="text-center grey--text">
+            {{ $dayjs().format('YYYY') }}
           </div>
         </div>
       </v-col>
@@ -129,6 +133,9 @@ import { Route } from 'vue-router/types/router'
   }
 })
 export default class Login extends AppBase {
+  axiosInstance = axios.create({
+    baseURL: process.env.VUE_APP_API_ENDPOINT
+  })
   authorization = {
     loading: false,
     login: '',
@@ -139,14 +146,14 @@ export default class Login extends AppBase {
   processAuthorization = false;
   processMessage = '';
 
-  login (login: string, password: string) {
+  private login (login: string, password: string) {
     const browser = Bowser.parse(window.navigator.userAgent)
 
     this.processAuthorization = true
     this.isError = false
     this.authorization.loading = true
     this.processMessage = this.$tc('Authentication...')
-    axios.post(`${process.env.VUE_APP_API_ENDPOINT}/account/authorization`, {
+    this.axiosInstance.post(`${process.env.VUE_APP_API_ENDPOINT}/account/authorization`, {
       login,
       password,
       meta: {
@@ -159,7 +166,7 @@ export default class Login extends AppBase {
         this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 });
 
         // TODO: SSE JWT
-        this.$cookie.set('mercureAuthorization', 'eyJhbGciOiJIUzUxMiJ9.eyJtZXJjdXJlIjp7InN1YnNjcmliZSI6WyIqIl19fQ.DJkY462v8sDVWMdAlmpIjvac_NfXjLoh8nfLfdT6wb-4CN6Vth1qL0HY36U2QFowXsj6JzDQ58r0fOI-J-JSsA', {
+        this.$cookie.set('mercureAuthorization', this.$cookie.get('access_token'), {
           path: '/',
           'max-age': 86400
         });
@@ -187,21 +194,25 @@ export default class Login extends AppBase {
       }, 3000)
     })
   }
-
-  browser () {
-    //
-  }
 }
 </script>
 
 <style lang="scss" scoped>
-.app-version {
+.ua {
   position: absolute;
-  left: 0px;
-  bottom: 0px;
-  padding: 5px 10px 5px 10px;
-  color: #bebebe;
-  font-family: "Roboto", sans-serif;
-  font-size: 14px;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 3px;
+  .u {
+    height: 100%;
+    width: 100%;
+    background-color: #3a70d4;
+  }
+  .a {
+    height: 100%;
+    width: 100%;
+    background-color: #e1e12b;
+  }
 }
 </style>
