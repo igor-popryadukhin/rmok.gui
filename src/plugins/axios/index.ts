@@ -32,7 +32,7 @@ const httpRequestLog = debug('APP').extend('HTTP').extend('REQUEST')
 
 /* eslint-disable */
 const config = {
-  baseURL: process.env.VUE_APP_API,
+  baseURL: process.env.VUE_APP_API_ENDPOINT,
   timeout: 180000,
   withCredentials: true,
   validateStatus (status: number) {
@@ -83,7 +83,7 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
       if (cookie.has('refresh_token')) {
         console.log('%c%s', 'color: blue;', 'Обновление токена...')
         isRefreshTokenProcess = true
-        await axios.post(`${process.env.VUE_APP_API}/account/authorization/refresh-token`, {
+        await axios.post(`${process.env.VUE_APP_API_ENDPOINT}/account/authorization/refresh-token`, {
           refresh_token: cookie.get('refresh_token')
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {

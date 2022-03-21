@@ -1,13 +1,13 @@
 {
+  "name": "rmok.gui",
+  "version": "v2022.3.21.169",
+  "private": true,
   "lint-staged": {
     "*.{js,jsx,vue,ts,tsx}": [
       "vue-cli-service lint",
       "git add"
     ]
   },
-  "name": "RMOK-GUI",
-  "version": "v2022.3.21.169",
-  "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --host 0.0.0.0 --port 3000",
     "build": "vue-cli-service build",

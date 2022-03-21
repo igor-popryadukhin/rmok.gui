@@ -1,11 +1,28 @@
 pipelines:
   branches:
     release/*:
+      # Up version
+      - step:
+          name: "Up version"
+          trigger: automatic
+          runs-on:
+            - self.hosted
+            - dev
+          script:
+            - apt-get update
+            - apt-get install -y jq
+            - old_version=$(jq -r '.version' package.json)
+            - new_version="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
+            - sed -i "s/$old_version/$new_version/g" ./package.json
+            - git commit -am "Release $new_version"
+            - git push
+
       # Build
       - step:
           name: "Build"
           image: node:16.13.0
           trigger: automatic
+          deployment: "Review"
           caches:
             - pip
             - node
@@ -16,8 +33,13 @@ pipelines:
             - dist/**
           script:
             - git pull
-            - echo $REVIEW_VUE_ENV | base64 -di > ./.env
             - npm install --no-progress
+            - cat << EOT >> ./.env
+              VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT
+              VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT
+              VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT
+              VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT
+              EOT
             - npm run build
 
       # Deploy
@@ -39,26 +61,12 @@ pipelines:
                 REMOTE_PATH: "~/www/rmok.gui"
                 LOCAL_PATH: "./dist/"
                 EXTRA_ARGS: "--delete"
+                DEBUG: "false"
 
       # Update production!!!
       - step:
           name: "Update production!!!"
           trigger: manual
-          runs-on:
-            - self.hosted
-            - dev
-          script:
-            - apt-get update
-            - apt-get install -y jq
-            - export VUE_PROJECT_VERSION="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
-            - tmp_package=$(mktemp) && jq --arg version "$VUE_PROJECT_VERSION" '.version = $version' package.json > "$tmp_package" && mv "$tmp_package" package.json
-            - git commit -am "Release $VUE_PROJECT_VERSION"
-            - git push
-
-      # Create a tag
-      - step:
-          name: "Create a tag"
-          trigger: automatic
           runs-on:
             - self.hosted
             - dev
@@ -78,6 +86,7 @@ pipelines:
           name: "Build"
           image: node:16.13.0
           trigger: automatic
+          deployment: "Production"
           caches:
             - pip
             - node
@@ -87,8 +96,13 @@ pipelines:
           artifacts:
             - dist/**
           script:
-            - echo $PROD_VUE_ENV | base64 -di > ./.env
             - npm install --no-progress
+            - cat << EOT >> ./.env
+              VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT
+              VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT
+              VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT
+              VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT
+              EOT
             - npm run build
 
       # Deploy
@@ -110,3 +124,4 @@ pipelines:
                 REMOTE_PATH: "~/www/rmok.gui"
                 LOCAL_PATH: "./dist/"
                 EXTRA_ARGS: "--delete"
+                DEBUG: "false"

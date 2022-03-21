@@ -311,7 +311,7 @@ export default class ContactsViewHistory extends AppBase {
 
   private async onBtnItemPlayClick (item) {
     this.$root.$emit('audio-player-show', {
-      src: `${process.env.VUE_APP_API}/contacts/history/audio/${item.audio_recording_id}`,
+      src: `${process.env.VUE_APP_API_ENDPOINT}/contacts/history/audio/${item.audio_recording_id}`,
       author: `${item.owner.name} / ${item.contact.name}`
     })
   }

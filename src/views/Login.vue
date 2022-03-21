@@ -125,7 +125,7 @@ export default class Login extends AppBase {
     this.isError = false
     this.authorization.loading = true
     this.processMessage = this.$tc('Authentication...')
-    axios.post(`${process.env.VUE_APP_API}/account/authorization`, {
+    axios.post(`${process.env.VUE_APP_API_ENDPOINT}/account/authorization`, {
       login,
       password,
       meta: {

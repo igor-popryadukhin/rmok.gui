@@ -325,7 +325,7 @@ export default class AllCalls extends AppBase {
    */
   private playAudioRecord (item: any) {
     this.$root.$emit('audio-player-show', {
-      src: `${process.env.VUE_APP_API}/contacts/history/audio/${item.audio_record_id}`,
+      src: `${process.env.VUE_APP_API_ENDPOINT}/contacts/history/audio/${item.audio_record_id}`,
       author: `${item.manager.name} / ${item.contact.name}`
     })
   }
