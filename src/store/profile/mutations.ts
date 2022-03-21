@@ -18,7 +18,7 @@ const mutations: MutationTree<ProfileState> = {
    * @param state
    * @param payload
    */
-  fill (state, payload: User) {
+  fill (state, payload) {
     state.id = payload.id
     state.first_name = payload.first_name
     state.last_name = payload.last_name
@@ -37,6 +37,7 @@ const mutations: MutationTree<ProfileState> = {
     state.project = payload.project
     state.role = payload.role
     state.roles = payload.roles
+    state.tasks_pending_number = payload.tasks_pending_number
 
     if (payload?.pbx_configuration?.rtc_configuration) {
       state.pbx_configuration.rtc_configuration = payload.pbx_configuration.rtc_configuration

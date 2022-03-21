@@ -14,6 +14,7 @@ const getters: GetterTree<ProfileState, RootState> = {
   profile_tz (state: ProfileState) { return state.tz },
   permissions (state: ProfileState) { return state.permissions },
   roles (state: ProfileState) { return state.roles },
+  tasks_pending_number (state: ProfileState) { return state.tasks_pending_number },
   pbx_configuration (state: ProfileState) { return state.pbx_configuration },
   pbx_configuration_credentials (state: ProfileState) { return state.pbx_configuration.credentials },
   pbx_configuration_rtc_configuration (state: ProfileState) { return state.pbx_configuration.rtc_configuration },

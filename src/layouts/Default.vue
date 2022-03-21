@@ -103,7 +103,6 @@
                       {{ mainMenuItem.icon }}
                     </v-icon>
                   </v-list-item-icon>
-
                   <v-list-item-content>
                     <v-list-item-title
                       v-bind="attrs"
@@ -116,19 +115,9 @@
                 <span>{{ $tc(mainMenuItem.title) }}</span>
               </v-tooltip>
 
-              <v-list-item-action>
-                <template v-if="mainMenuItem.badge">
-                  <v-badge
-                    v-show="mainMenuItem.badge.visible"
-                    v-bind="mainMenuItem.badge"
-                    inline
-                  />
-                </template>
-                <v-list-item-action-text
-                  v-if="mainMenuItem.new"
-                  style="color: #ffeb3b"
-                >
-                  NEW
+              <v-list-item-action v-if="mainMenuItem.action_text">
+                <v-list-item-action-text>
+                  {{ mainMenuItem.action_text }}
                 </v-list-item-action-text>
               </v-list-item-action>
             </v-list-item>
@@ -732,11 +721,9 @@ export default class DefaultLayout extends AppBase {
             name: 'tasks'
           }
         },
-        // badge: {
-        //   content: 1 > 99 ? '99+' : 0,
-        //   visible: 2 > 0,
-        //   color: '#ff5722'
-        // },
+        ...(this.$profile.tasks_pending_number > 0 ? {
+          action_text: String(this.$profile.tasks_pending_number > 99 ? '99+' : this.$profile.tasks_pending_number)
+        }: {}),
         visible: true
       },
       {

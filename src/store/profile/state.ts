@@ -29,6 +29,7 @@ export interface ProfileState {
   group?: UserGroup;
   role?: Role;
   roles?: Array<Record<string, 'ROLE_ADMIN'|'ROLE_CCM'|'ROLE_TEAM_LEADER'|'ROLE_OPERATOR'>>;
+  tasks_pending_number?: number;
 }
 
 function state (): ProfileState {
@@ -78,7 +79,8 @@ function state (): ProfileState {
     project: null,
     group: null,
     role: null,
-    roles: []
+    roles: [],
+    tasks_pending_number: 0
   }
 }
 
