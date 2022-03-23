@@ -87,7 +87,7 @@ export default class Journal extends Base {
   }
 
   created () {
-    this.$root.$on('sse-autodialer-journal-change', this.onSSEJournalChange)
+    this.$root.$on('sse:autodialer:journal:change', this.onSSEJournalChange)
   }
 
   mounted () {
@@ -96,7 +96,7 @@ export default class Journal extends Base {
   }
 
   beforeDestroy () {
-    this.$root.$off('sse-autodialer-journal-change', this.onSSEJournalChange)
+    this.$root.$off('sse:autodialer:journal:change', this.onSSEJournalChange)
   }
 
   onSSEJournalChange (data: Record<string, unknown>) {

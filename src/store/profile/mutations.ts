@@ -20,6 +20,7 @@ const mutations: MutationTree<ProfileState> = {
    */
   fill (state, payload) {
     state.id = payload.id
+    state.uuid = payload.uuid
     state.first_name = payload.first_name
     state.last_name = payload.last_name
     state.middle_name = payload.middle_name

@@ -46,24 +46,10 @@ export default class AppConfirmDialog extends Vue {
 
   private activatorOnClick () {
     this.dialogComponent = () => new Promise((resolve) => {
-      return import(/* webpackChunkName: "app-confirm-dialog" */ './AppConfirmDialogTemplate.vue')
+      return import(/* webpackChunkName: "app-confirm-dialog-template" */ './AppConfirmDialogTemplate.vue')
         .then(resolve)
         .finally(() => (this.dialogVisible = true))
     })
   }
 }
 </script>
-
-<style lang="scss" scoped>
-
-</style>
-
-<i18n>
-{
-  "ru" : {
-    "Possible options, separated by commas: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302": "Возможные варианты через запятую: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302",
-    "ICE server": "ICE сервер",
-    "ICE servers": "ICE серверы"
-  }
-}
-</i18n>

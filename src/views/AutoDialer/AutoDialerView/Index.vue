@@ -129,17 +129,17 @@ export default class AutoDialerView extends Base {
 
       this.sse.addEventListener('autodialer-journal-change', (event: Event) => {
         if (event instanceof MessageEvent) {
-          this.$root.$emit('sse-autodialer-journal-change', JSON.parse(event.data))
+          this.$root.$emit('sse:autodialer:journal:change', JSON.parse(event.data))
         }
       })
-      this.sse.addEventListener('autodialer-worker-stats', (event: Event) => {
+      this.sse.addEventListener('autodialer:worker:stats', (event: Event) => {
         if (event instanceof MessageEvent) {
-          this.$root.$emit('sse-autodialer-worker-stats', JSON.parse(event.data))
+          this.$root.$emit('sse:autodialer:worker:stats', JSON.parse(event.data))
         }
       })
-      this.sse.addEventListener('autodialer-worker-agents', (event: Event) => {
+      this.sse.addEventListener('autodialer:worker:agents', (event: Event) => {
         if (event instanceof MessageEvent) {
-          this.$root.$emit('sse-autodialer-worker-agents', JSON.parse(event.data))
+          this.$root.$emit('sse:autodialer:worker:agents', JSON.parse(event.data))
         }
       })
     }

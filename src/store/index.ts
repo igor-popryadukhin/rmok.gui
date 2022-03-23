@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import app_state from './app_state'
 import projects from './projects'
-import { tasks } from './tasks'
 import settings from './settings'
 import filter from './filter'
 import symfony from './symfony'
@@ -28,6 +27,7 @@ import { statistics } from './statistics'
 import LocalStorage from './LocalStorage'
 import SessionStorage from './SessionStorage'
 import chats from './chats'
+import tasks from './tasks'
 
 Vue.use(Vuex)
 
@@ -61,7 +61,6 @@ const $store = new Vuex.Store({
     filter,
     symfony,
     system,
-    tasks,
     groups,
     users,
     unsaved_call,
@@ -73,7 +72,8 @@ const $store = new Vuex.Store({
     autodialer,
     statistic_activity,
     scenarios,
-    chats
+    chats,
+    tasks
   },
 
   mutations: {

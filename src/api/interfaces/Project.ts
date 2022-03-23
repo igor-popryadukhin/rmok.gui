@@ -1,5 +1,6 @@
+import Status from '@/api/interfaces/Status'
 import User from './User'
-import StatusGroup from './StatusGroup'
+
 
 export default interface Project {
   id: number;
@@ -7,7 +8,7 @@ export default interface Project {
   description: string;
   owner?: User;
   members?: User[];
-  statuses?: StatusGroup[];
+  statuses?: Status[];
   scenario?: string;
   created_at: number;
 }

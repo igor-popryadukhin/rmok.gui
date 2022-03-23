@@ -175,11 +175,11 @@ export default Vue.extend<Data, Methods, Computed>({
     this.loadContacts()
     this.SSEContactsQueueComputeProcess = debounce(this.SSEContactsQueueComputeProcess, 450)
 
-    this.$root.$on('sse-queue-compute-process', this.SSEContactsQueueComputeProcess)
+    this.$root.$on('sse:queue:compute:process', this.SSEContactsQueueComputeProcess)
   },
 
   beforeDestroy () {
-    this.$root.$off('sse-queue-compute-process', this.SSEContactsQueueComputeProcess)
+    this.$root.$off('sse:queue:compute:process', this.SSEContactsQueueComputeProcess)
   },
 
   methods: {

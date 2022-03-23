@@ -7,6 +7,7 @@ const getters: GetterTree<TasksListState, RootState> = {
   per_page (state: TasksListState) { return state.per_page },
   total (state: TasksListState) { return state.total },
   items (state: TasksListState) { return state.items },
+  items_total (state: TasksListState) { return state.items_total },
   items_fetching (state: TasksListState) { return state.items_fetching }
 }
 

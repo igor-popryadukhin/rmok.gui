@@ -8,14 +8,25 @@
       </div>
     </template>
     <template v-else-if="items.length === 0 && itemsFetching === false">
-      <div class="d-flex align-center justify-center fill-height">
-        <div class="grey--text">
+      <div class="d-flex flex-column align-center justify-center fill-height">
+        <div class="grey--text mb-2">
           {{ $tc('Task list is empty') }}
+        </div>
+        <div>
+          <v-btn
+            :disabled="itemsFetching"
+            tile
+            text
+            small
+            @click="fetchTasks"
+          >
+            {{ $tc('Refresh') }}
+          </v-btn>
         </div>
       </div>
     </template>
     <template v-else>
-      <v-list>
+      <v-list denses>
         <template v-for="(taskItem, taskIndex) in items">
           <v-divider
             v-if="taskIndex > 0"
@@ -25,30 +36,24 @@
             :key="`v-list-item-${taskIndex}`"
             link
             exact
+            dense
           >
             <v-list-item-content>
-              <v-list-item-title
-                :style="{ color: taskItem.expired ? 'red' : '' }"
-              >
-                {{ `${taskTypeDisplay(taskItem.type)} ${$dayjs(taskItem.planned_for).format(`DD MMMM, в dddd, в HH:mm a`)}` }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                <template v-if="taskItem.contact">
-                  <template v-if="taskItem.contact.status">
-                    <v-chip
-                      :color="taskItem.contact.status.color"
-                      class="mr-2"
-                      label
-                      outlined
-                      x-small
-                    >
-                      {{ taskItem.contact.status.name }}
-                    </v-chip>
-                  </template>
-                  <span>
-                    {{ taskItem.description }}
-                  </span>
+              <app-tooltip>
+                <template #activator="{ on }">
+                  <v-list-item-title
+                    :style="{ color: taskItem.expired ? 'red' : '' }"
+                    v-on="on"
+                  >
+                    {{ `${taskTypeDisplay(taskItem.type)} ${$dayjs(taskItem.planned_for).format('DD MMMM, в dddd, в HH:mm a')}` }}
+                  </v-list-item-title>
                 </template>
+                <span>
+                  {{ `${taskTypeDisplay(taskItem.type)} ${$dayjs(taskItem.planned_for).format('YYYY год DD MMMM, в dddd, в HH:mm a')}` }}
+                </span>
+              </app-tooltip>
+              <v-list-item-subtitle>
+                {{ taskItem.description }}
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
@@ -63,16 +68,26 @@
                   icon
                   @click.stop="onBtnTaskItemEditClick(taskItem.id)"
                 >
-                  <v-icon>mdi-pencil-box-multiple-outline</v-icon>
+                  <v-icon small>
+                    mdi-pencil-box-multiple-outline
+                  </v-icon>
                 </v-btn>
-                <v-btn
-                  :loading="tasksCloseProcessIds.indexOf(taskItem.id) > -1"
-                  small
-                  icon
-                  @click.stop="onBtnTaskItemCloseClick(taskItem.id)"
+
+                <app-confirm-dialog
+                  :text="$tc('Are you sure you want to close the task?')"
+                  @click:confirm="onBtnTaskItemCloseClick(taskItem.id)"
                 >
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
+                  <template #activator="{ on }">
+                    <v-btn
+                      :loading="tasksCloseProcessIds.indexOf(taskItem.id) > -1"
+                      small
+                      icon
+                      @click.stop="on.click()"
+                    >
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </template>
+                </app-confirm-dialog>
               </div>
             </v-list-item-action>
           </v-list-item>
@@ -97,6 +112,7 @@ import Task from '@/api/interfaces/Task'
 import AppBase from '@/AppBase'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import dayjs from '@/plugins/dayjs'
+import $store from '@/store'
 import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 
@@ -105,13 +121,23 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsViewTasks>({
   components: {
-    AppTaskDialogEdit: () => import('@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'),
+    AppTaskDialogEdit: () => import(
+      /* webpackChunkName: "app-task-dialog-edit" */
+      '@/components/AppTaskDialogEdit/AppTaskDialogEdit.vue'
+      ),
+    AppConfirmDialog: () => import(
+      /* webpackChunkName: "app-confirm-dialog" */
+      '@/components/AppConfirmDialog/AppConfirmDialog.vue'
+      ),
     AppLoading
   },
   beforeRouteEnter (to, from, next) {
-    next((vm) => {
-      vm.$store.dispatch('contacts/view/tasks/fetch', to.params.id)
-    })
+    $store.dispatch('contacts/view/tasks/fetch', to.params.id)
+    .finally(() => (next()))
+  },
+  beforeRouteUpdate (to, from, next) {
+    $store.dispatch('contacts/view/tasks/fetch', to.params.id)
+      .finally(() => (next()))
   }
 })
 export default class ContactsViewTasks extends AppBase {
@@ -134,15 +160,12 @@ export default class ContactsViewTasks extends AppBase {
   }
 
   public created () {
-    this.$store.commit('contacts/view/tasks/items', [])
-    this.$store.commit('contacts/view/tasks/items_count', 0)
-    this.fetchTasks = debounce(this.fetchTasks, 1000)
-
-    this.$root.$on('sse-tasks-changed', this.onSSETasksChanged)
+    this.onSSETasksChanged = debounce(this.onSSETasksChanged, 3000)
+    this.$root.$on('sse:tasks:changed', this.onSSETasksChanged)
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse-tasks-changed', this.onSSETasksChanged)
+    this.$root.$off('sse:tasks:changed', this.onSSETasksChanged)
   }
 
   private onSSETasksChanged () {
@@ -187,30 +210,13 @@ export default class ContactsViewTasks extends AppBase {
   }
 
   private onBtnTaskItemCloseClick (id: number) {
-    this.$dialog.confirm({
-      title: this.$tc('Confirmation request'),
-      text: this.$tc('Are you sure you want to close the task?'),
-      showClose: false,
-      actions: {
-        false: this.$tc('Cancel'),
-        true: this.$tc('Yes')
-      }
-    }).then((asnwer: boolean) => {
-      if (asnwer) {
-        this.tasksCloseProcessIds.push(id)
-        this.$axios.get(`/tasks/${id}/done`)
-          .then((response) => {
-            if (response.status === 200) {
-              this.$toast.success('The task is closed')
-            }
-          }).finally(() => {
-            const taskIndex = this.items.findIndex((e) => e.id === id)
-            if (taskIndex > -1) {
-              this.items.splice(taskIndex, 1)
-            }
-          })
-      }
-    })
+    this.tasksCloseProcessIds.push(id)
+    this.$axios.get(`/tasks/${id}/done`)
+      .then((response) => {
+        if (response.status === 200) {
+          this.$toast.success('The task is closed')
+        }
+      })
   }
 }
 

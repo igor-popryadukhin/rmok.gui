@@ -1,9 +1,6 @@
 <template>
   <div class="tasks-page">
-    <v-sheet
-      class="d-flex flex-nowrap grow"
-      height="35"
-    >
+    <div class="tasks-page__tabs">
       <v-tabs
         height="35"
         hide-slider
@@ -13,13 +10,10 @@
             :key="`v-tab-${tabIndex}`"
             :to="tab.to"
           >
-            {{ tab.title }}
-            <v-badge
+            {{ tab.title }} <span
               v-if="tab.count"
-              :content="tab.count > 99 ? '99+' : tab.count"
-              color="red"
-              inline
-            />
+              class="ml-2"
+            >[{{ tab.count > 99 ? '99+' : tab.count }}]</span>
           </v-tab>
           <v-divider
             v-if="tabIndex < tabs.length -1"
@@ -28,39 +22,55 @@
           />
         </template>
       </v-tabs>
-    </v-sheet>
-
-    <app-divider class="my-1" />
-
-    <v-row
-      no-gutters
-      style="height: inherit"
-    >
-      <v-col
-        style="height: inherit"
-      >
-        <v-sheet
-          class="overflow-auto"
-          style="height: inherit"
-        >
-          <keep-alive>
-            <router-view />
-          </keep-alive>
-        </v-sheet>
-      </v-col>
-      <v-divider vertical />
-      <v-col
-        cols="3"
-        style="height: inherit"
-      >
-        <v-sheet
-          class="overflow-auto"
-          style="height: inherit"
-        >
-          <tasks-filters />
-        </v-sheet>
-      </v-col>
-    </v-row>
+    </div>
+    <v-divider class="mb-2" />
+    <div class="tasks-page__box">
+      <div class="tasks-page__filters">
+        <div class="overflow-y-auto py-2">
+          <div class="mb-5">
+            <v-text-field
+              v-model="filterQ"
+              :label="$tc('Search')"
+              prepend-inner-icon="mdi-magnify"
+              outlined
+              dense
+              hide-details
+            />
+          </div>
+          <div class="mb-5">
+            <v-select
+              v-model="filterStatusId"
+              :label="$tc('Status')"
+              :items="statuses"
+              item-text="name"
+              item-value="id"
+              item-color="color"
+              outlined
+              dense
+              hide-details
+              clearable
+            />
+          </div>
+        </div>
+        <div class="mt-auto">
+          <v-btn
+            :disabled="itemsFetching"
+            color="primary"
+            tile
+            block
+            text
+            @click="onBtnSearchClick"
+          >
+            {{ $tc('Search') }}
+          </v-btn>
+        </div>
+      </div>
+      <div class="tasks-page__list">
+        <keep-alive>
+          <router-view />
+        </keep-alive>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -68,17 +78,15 @@
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
 import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
-import { tasks } from '@/store/tasks'
-import TasksBase from '@/views/Tasks/TasksBase'
-
+import debounce from '@/utils/debounce'
+import { tasks } from './store'
+import Base from './Base'
 import Component from 'vue-class-component'
-import TasksFilters from './TasksFilters.vue'
 
 // eslint-disable-next-line no-use-before-define
 @Component<Tasks>({
   components: {
     AppAutocomplete,
-    TasksFilters,
     AppNavigationDrawer,
     AppBtnToggleDate
   },
@@ -88,12 +96,33 @@ import TasksFilters from './TasksFilters.vue'
     })
   }
 })
-export default class Tasks extends TasksBase {
-  isoFormat = 'YYYY-MM-DD'
+export default class Tasks extends Base {
+  get filterQ () {
+    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_q`]
+  }
+  set filterQ (value: string) {
+    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_q`, value)
+  }
+
+  get filterStatusId () {
+    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_status_id`]
+  }
+  set filterStatusId (value: number) {
+    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_status_id`, value)
+  }
 
   get tabs () {
-    const from = this.$dayjs().local()
-    const to = this.$dayjs().local()
+    const {
+      $route,
+      $store,
+      $dayjs,
+      getVuexModuleNamespace
+    } = this
+
+    const from = $dayjs().local()
+    const to = $dayjs().local()
+    const isoFormat = 'YYYY-MM-DD'
+
     return [
       {
         id: 'for-next-day',
@@ -104,7 +133,7 @@ export default class Tasks extends TasksBase {
           params: { id: 'for-next-day' }
         },
         params: {
-          planned_for: `${from.add(1, 'day').format(this.isoFormat)}|${to.add(1, 'day').format(this.isoFormat)}`
+          planned_for: `${from.add(1, 'day').format(isoFormat)}|${to.add(1, 'day').format(isoFormat)}`
         }
       },
       {
@@ -116,7 +145,7 @@ export default class Tasks extends TasksBase {
           params: { id: 'for-today' }
         },
         params: {
-          planned_for: `${from.format(this.isoFormat)}|${to.format(this.isoFormat)}`
+          planned_for: `${from.format(isoFormat)}|${to.format(isoFormat)}`
         }
       },
       {
@@ -128,7 +157,7 @@ export default class Tasks extends TasksBase {
           params: { id: 'yesterday' }
         },
         params: {
-          planned_for: `${from.subtract(1, 'day').format(this.isoFormat)}|${to.subtract(1, 'day').format(this.isoFormat)}`
+          planned_for: `${from.subtract(1, 'day').format(isoFormat)}|${to.subtract(1, 'day').format(isoFormat)}`
         }
       },
       {
@@ -140,48 +169,61 @@ export default class Tasks extends TasksBase {
           params: { id: 'day-before-yesterday' }
         },
         params: {
-          planned_for: `${from.subtract(2, 'day').format(this.isoFormat)}|${to.subtract(2, 'day').format(this.isoFormat)}`
+          planned_for: `${from.subtract(2, 'day').format(isoFormat)}|${to.subtract(2, 'day').format(isoFormat)}`
         }
       },
       {
         id: 'custom',
-        title: this.customDisplay,
+        get title () {
+          const arr = String($store.getters[`${getVuexModuleNamespace($route)}/list/filter/planned_for`] || '')
+            .split('|')
+          if (arr.length === 2) {
+            const from = $dayjs(arr[0], 'YYYY-MM-DD').format('DD.MM.YYYY')
+            const to = $dayjs(arr[1], 'YYYY-MM-DD').format('DD.MM.YYYY')
+            return `с ${from} по ${to}`
+          } else {
+            return 'Настраиваемый'
+          }
+        },
         to: {
           name: 'tasks_list',
           params: { id: 'custom' }
         },
         menu: {
-          visible: false
+          visible: true
         }
       }
     ]
   }
 
-  get customDisplay () {
-    const arr = String(this.$store.getters['tasks/custom/list/filter/planned_for'] || '')
-      .split('|')
-    if (arr.length === 2) {
-      const from = this.$dayjs(arr[0], 'YYYY-MM-DD').format('DD.MM.YYYY')
-      const to = this.$dayjs(arr[1], 'YYYY-MM-DD').format('DD.MM.YYYY')
-      return `с ${from} по ${to}`
-    } else {
-      return 'Настраиваемый'
-    }
+  get statuses () {
+    return this.$profile?.project?.statuses || []
   }
 
   public created () {
     this.initializeVuexModules()
+    this.onSSETasksChanged = debounce(this.onSSETasksChanged, 10000)
+    this.$root.$on('sse:tasks:changed', this.onSSETasksChanged)
+  }
+
+  public beforeDestroy () {
+    this.$root.$off('sse:tasks:changed', this.onSSETasksChanged)
+  }
+
+  private onSSETasksChanged () {
+    this.calculateTasksCount()
+    this.fetchTasks()
   }
 
   private initializeVuexModules () {
     // Регистрация модулей vuex
     this.tabs.forEach((tab) => {
-      const path = ['tasks', tab.to.params.id]
+      const path = `tasks_${tab.to.params.id}`
       if (!this.$store.hasModule(path)) {
         this.$store.registerModule(path, tasks)
 
         if ('params' in tab && 'planned_for' in tab.params) {
-          this.$store.commit(`tasks/${tab.to.params.id}/list/filter/filter_planned_for`, tab.params.planned_for)
+          this.$store.commit(`${path}/list/filter/filter_planned_for`, tab.params.planned_for)
         }
       }
     })
@@ -204,37 +246,56 @@ export default class Tasks extends TasksBase {
       }
     })
 
-    this.$store.dispatch('tasks/calculate', request)
+   this.$store.dispatch('tasks/calculate', request)
   }
 
   private tabTaskCount (id: string) {
     return (this.$store.getters['tasks/pending_items'] || []).find((e) => e.id === id)?.count || 0
+  }
+
+  private onBtnSearchClick() {
+    this.calculateTasksCount()
+    this.fetchTasks()
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .tasks-page {
-  height: calc(100vh - 145px);
-}
-
-.tools-right {
   display: flex;
-  margin-right: 10px;
+  flex-direction: column;
+  height: var(--page-calculated-height2);
+  overflow: auto;
 }
 
-.task-toolbar {
-  flex: none !important;
-  box-shadow: none !important;
+.tasks-page__tabs {
+  background-color: #ff8866;
+  height: 35px;
+}
 
-  &-extension {
-    display: flex;
-    flex-flow: column;
-  }
+.tasks-page__box {
+  display: flex;
+  flex-direction: row;
+  height: calc(var(--page-calculated-height2) - 45px);
+}
 
-  &-extension small {
-    font-size: 12px;
-    color: #848484;
-  }
+.tasks-page__filters {
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+  max-width: 250px;
+  overflow: auto;
+  border-right: #0000001f solid 1px;
+  height: 100%;
+  padding-right: 5px;
+  margin-right: 5px;
+}
+
+.tasks-page__list {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  flex-grow: 1;
+  height: 100%;
 }
 </style>

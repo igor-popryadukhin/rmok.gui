@@ -496,7 +496,7 @@
 
             <!-- Проект -->
             <v-list-item
-              v-if="contactProjectId"
+              :disabled="!contactProject"
               link
             >
               <v-list-item-avatar size="30">
@@ -508,6 +508,25 @@
                 <v-list-item-title>{{ contactProjectName }}</v-list-item-title>
                 <v-list-item-subtitle>
                   {{ $tc('Project') }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <!-- Проект -->
+            <v-list-item
+              v-if="contactLastStatus"
+              :color="contactLastStatus.color"
+              link
+            >
+              <v-list-item-avatar size="30">
+                <v-icon :color="contactLastStatus.color">
+                  mdi-state-machine
+                </v-icon>
+              </v-list-item-avatar>
+              <v-list-item-content>
+                <v-list-item-title>{{ contactLastStatus.name }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $tc('Current result') }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -691,7 +710,9 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
     $store
       .dispatch('contacts/view/fetch', to.params.id)
       .then(() => {
-        next()
+        next((vm) => {
+          vm.route_from_full_path = from.fullPath
+        })
       }).catch((reason: Error) => {
         if (reason instanceof APIError && reason.error_code === 'not_found') {
           // Контакт не удалось найти по причине его отсутствия
@@ -713,7 +734,7 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
       next()
     }
   },
-  beforeRouteLeave (to, from, next) {
+  async beforeRouteLeave (to, from, next) {
     let answer = true
 
     if (this.isUnsavedCall) {
@@ -721,15 +742,14 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
     }
 
     if (answer) {
-      this.userStatusUpdate('normal')
+      this.userStatusUpdate(this.$profile.status)
       setTimeout(() => {
         this.$store.dispatch('contacts/view/unsaved_call/flush')
-        this.$store.dispatch('contacts/view/flush')
         this.$store.dispatch('contacts/view/history/flush')
         this.$store.dispatch('contacts/view/tasks/flush')
         this.$store.dispatch('contacts/view/messages/flush')
       }, 0)
-      next()
+      await next()
     } else {
       next(false)
     }
@@ -737,6 +757,8 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
 })
 export default class ContactsView extends AppBase {
 
+  /** Откуда пришёл */
+  route_from_full_path = null
   /** Идентификатор звонящего номера */
   callerID = 0
   tick = 0
@@ -880,12 +902,12 @@ export default class ContactsView extends AppBase {
     return this.$store.getters['contacts/view/contact_owner_full_name']
   }
 
-  get contactProjectId (): number {
-    return this.$store.getters['contacts/view/contact_project_id']
+  get contactProject () {
+    return this.$store.getters['contacts/view/contact_project']
   }
 
   get contactProjectName (): string {
-    return this.$store.getters['contacts/view/contact_project_name']
+    return this.$store.getters['contacts/view/contact_project_name'] || 'Проект не установлен'
   }
 
   get contactDetails (): ContactDetail[] {
@@ -928,6 +950,10 @@ export default class ContactsView extends AppBase {
     return this.$store.getters['contacts/view/unsaved_call/data_status_id']
   }
 
+  get contactLastStatus(): null|Record<'id', number> & Record<'name', string> & Record<'color', string> {
+    return this.$store.getters['contacts/view/contact_last_status']
+  }
+
   /** Состояние активности кнопки вызова */
   get allowDialing (): boolean {
     return this.$dialer.isConnected() &&
@@ -958,6 +984,7 @@ export default class ContactsView extends AppBase {
   public created () {
     setInterval(() => (this.contactTimeTick++), 1000)
 
+    this.$root.$on('sse:contact:updated', this.onSSEContactUpdated)
     this.$root.$on('dialer:session:accepted', this.onDialerSessionAccepted)
     this.$root.$on('dialer:session:finality', this.onDialerSessionFinality)
   }
@@ -967,9 +994,14 @@ export default class ContactsView extends AppBase {
   }
 
   public beforeDestroy () {
+    this.$root.$off('sse:contact:updated', this.onSSEContactUpdated)
     this.$root.$off('dialer:session:accepted', this.onDialerSessionAccepted)
     this.$root.$off('dialer:session:finality', this.onDialerSessionFinality)
     this.sseClose()
+  }
+
+  private onSSEContactUpdated () {
+    this.$store.dispatch('contacts/view/fetch', this.$route.params.id)
   }
 
   private onDialerSessionAccepted () {
@@ -987,10 +1019,9 @@ export default class ContactsView extends AppBase {
    */
   private onBtnCallClick (phone: ContactDetail) {
 
-    if (!this.contactProjectId) {
+    if (!this.contactProject) {
       return this.$toast.warning('Запрещено совершать вызов ко')
     }
-
 
     // Если вкладка не сценарий, то переходим
     if (this.$route.name !== 'contacts_view_scenario') {
@@ -1033,12 +1064,20 @@ export default class ContactsView extends AppBase {
   private onBtnSaveClick () {
     if (this.isUnsavedCallStatusId > 0) {
 
-      this.userStatusUpdate('normal')
+      this.userStatusUpdate(this.$profile.status)
 
       // Оператор сможет принимать вызовы.
       this.$axios.put('/account/dnd/false')
 
       this.$store.dispatch('contacts/view/unsaved_call/persist')
+        .finally(() => {
+          setTimeout(() => {
+            if (this.route_from_full_path) {
+              this.$router.push(this.route_from_full_path)
+              this.route_from_full_path = null
+            }
+          }, 2000)
+        })
     } else {
       this.$toast.warning('Пожалуйста, выберите статус')
       this.$router.push({
@@ -1115,7 +1154,6 @@ export default class ContactsView extends AppBase {
       if (![200, 204].includes(response.status)) {
         throw new APIError(response.data)
       }
-      this.$store.dispatch('contacts/view/fetch', this.$route.params.id)
       this.$toast.success('Changes accepted')
     }).catch((reason: Error) => {
       this.$toast.error(reason.message)
@@ -1137,7 +1175,6 @@ export default class ContactsView extends AppBase {
       if (![200, 204].includes(response.status)) {
         throw new APIError(response.data)
       }
-      this.$store.dispatch('contacts/view/fetch', this.$route.params.id)
       this.$toast.success('Changes accepted')
     }).catch((reason: Error) => {
       this.$toast.error(reason.message)
@@ -1158,7 +1195,6 @@ export default class ContactsView extends AppBase {
       if (![200, 204].includes(response.status)) {
         throw new APIError(response.data)
       }
-      this.$store.dispatch('contacts/view/fetch', this.$route.params.id)
       this.$toast.success('Changes accepted')
     }).catch((reason: Error) => {
       this.$toast.error(reason.message)

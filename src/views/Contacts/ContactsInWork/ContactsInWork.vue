@@ -219,11 +219,11 @@ export default class ContactsInWork extends AppBase {
   created () {
     this.onFilterChange = debounce(this.onFilterChange, 350)
 
-    this.$root.$on('sse-contacts-transferred', this.onSSEContactsTransferred)
+    this.$root.$on('sse:contacts:transferred', this.onSSEContactsTransferred)
   }
 
   beforeDestroy () {
-    this.$root.$off('sse-contacts-transferred', this.onSSEContactsTransferred)
+    this.$root.$off('sse:contacts:transferred', this.onSSEContactsTransferred)
   }
 
   /**

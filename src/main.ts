@@ -63,12 +63,12 @@ const $app: Vue = new Vue({
 }).$mount('#app')
 
 $router.beforeEach((to, from, next) => {
-  $app.$root.$emit('router-before-each', { to, from })
+  $app.$root.$emit('router:before:each', { to, from })
   next()
 })
 
 $router.afterEach((to, from) => {
-  $app.$root.$emit('router-after-each', { to, from })
+  $app.$root.$emit('router:after:each', { to, from })
 })
 
 export default $app

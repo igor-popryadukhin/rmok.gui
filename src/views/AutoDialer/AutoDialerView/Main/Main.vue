@@ -380,8 +380,8 @@ export default class Main extends AppBase {
   }
 
   public created () {
-    this.$root.$on('sse-autodialer-worker-stats', this.onSSEAutodialerWorkerStats)
-    this.$root.$on('sse-autodialer-worker-agents', this.onSSEAutodialerWorkerAgents)
+    this.$root.$on('sse:autodialer:worker:stats', this.onSSEAutodialerWorkerStats)
+    this.$root.$on('sse:autodialer:worker:agents', this.onSSEAutodialerWorkerAgents)
 
     this.fetchSummary()
     this.timerIds.push(setInterval(() => {
@@ -392,8 +392,8 @@ export default class Main extends AppBase {
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse-autodialer-worker-stats', this.onSSEAutodialerWorkerStats)
-    this.$root.$off('sse-autodialer-worker-agents', this.onSSEAutodialerWorkerAgents)
+    this.$root.$off('sse:autodialer:worker:stats', this.onSSEAutodialerWorkerStats)
+    this.$root.$off('sse:autodialer:worker:agents', this.onSSEAutodialerWorkerAgents)
     this.timerIds.map(clearInterval)
   }
 

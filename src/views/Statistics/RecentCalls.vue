@@ -869,11 +869,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     this.fetchReports()
 
-    this.$root.$on('sse-report-created', this.onSSEReportCreated)
+    this.$root.$on('sse:report:created', this.onSSEReportCreated)
   },
 
   beforeDestroy () {
-    this.$root.$off('sse-report-created', this.onSSEReportCreated)
+    this.$root.$off('sse:report:created', this.onSSEReportCreated)
   },
 
   methods: {

@@ -5,15 +5,6 @@ import { AxiosResponse } from 'axios'
 
 @Component
 export default class SSEEvents extends AppBase {
-  public created () {
-    this.$root.$on('sse-contact-assign-tags', this.onSSEContactsAssignTagsSuccessFully)
-    this.$root.$on('sse-contacts-export-process', this.onSSEContactsExportProcess)
-  }
-
-  public beforeDestroy () {
-    this.$root.$off('sse-contact-assign-tags', this.onSSEContactsAssignTagsSuccessFully)
-    this.$root.$off('sse-contacts-export-process', this.onSSEContactsExportProcess)
-  }
 
   private onSSEContactsAssignTagsSuccessFully (message: SSEMessage) {
     switch (message.payload?.status) {

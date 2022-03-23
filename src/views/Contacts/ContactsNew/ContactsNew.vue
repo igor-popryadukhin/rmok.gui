@@ -75,14 +75,15 @@ import AppBase from '@/AppBase'
 import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
+import $store from '@/store'
 import Component from 'vue-class-component'
 
 @Component({
   components: { AppCountUp, AppPaginator, AppLoading },
   beforeRouteEnter (to, from, next) {
-    next((vm) => {
-      vm.$store.dispatch('contacts/contacts_new/fetch')
-    })
+    $store.dispatch('contacts/contacts_new/fetch')
+      .catch(() => (next()))
+      .finally(() => (next()))
   }
 })
 export default class ContactsNew extends AppBase {

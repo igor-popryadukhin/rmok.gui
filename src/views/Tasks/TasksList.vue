@@ -1,7 +1,6 @@
 <template>
-  <v-sheet
-    class="task-list"
-    height="100%"
+  <div
+    class="task-list fill-height"
   >
     <template v-if="items.length === 0 && itemsFetching">
       <div class="d-flex justify-center align-center fill-height">
@@ -18,7 +17,7 @@
       </div>
     </template>
     <template v-else>
-      <v-list>
+      <v-list dense>
         <template v-for="(taskItem, taskIndex) in items">
           <v-divider
             v-if="taskIndex > 0"
@@ -26,6 +25,7 @@
           />
           <v-list-item
             :key="`v-list-item-${taskIndex}`"
+            :disabled="tasksCloseProcessIds.indexOf(taskItem.id) > -1"
             link
             exact
             @click="onListItemClick(taskItem.id)"
@@ -39,73 +39,93 @@
               <v-list-item-subtitle>
                 <template v-if="taskItem.contact">
                   {{ taskItem.contact.full_name }}
+                  <template v-if="taskItem.contact">
+                    <template v-if="taskItem.contact.status">
+                      <span
+                        class="ml-1"
+                        :style="{ color: taskItem.contact.status.color }"
+                      >
+                        [ {{ taskItem.contact.status.name }} ]
+                      </span>
+                    </template>
+                  </template>
                 </template>
               </v-list-item-subtitle>
               <v-list-item-subtitle>
-                <template v-if="taskItem.contact">
-                  <template v-if="taskItem.contact.status">
-                    <v-chip
-                      :color="taskItem.contact.status.color"
-                      class="mr-2"
-                      label
-                      outlined
-                      x-small
-                    >
-                      {{ taskItem.contact.status.name }}
-                    </v-chip>
-                  </template>
-                  <span>
-                    {{ taskItem.description }}
-                  </span>
-                </template>
+                {{ taskItem.description }}
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
               <div class="d-inline-flex">
-                <v-btn
-                  :loading="tasksCloseProcessIds.indexOf(taskItem.id) > -1"
-                  small
-                  icon
-                  @click.stop="onBtnTaskItemCloseClick(taskItem.id)"
+                <app-confirm-dialog
+                  :text="$tc('Are you sure you want to close the task?')"
+                  @click:confirm="onBtnTaskItemCloseClick(taskItem.id)"
                 >
-                  <v-icon>mdi-close</v-icon>
-                </v-btn>
+                  <template #activator="{ on }">
+                    <v-btn
+                      small
+                      icon
+                      @click.stop="on.click()"
+                    >
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </template>
+                </app-confirm-dialog>
               </div>
             </v-list-item-action>
           </v-list-item>
         </template>
       </v-list>
+      <div class="d-flex justify-center grey--text text-caption">
+        <div>
+          {{ items.length }} / {{ itemsTotal }}
+        </div>
+      </div>
+      <div
+        v-if="itemsTotal >= 30"
+        v-intersect="onIntersect"
+        class="d-flex align-center justify-center"
+        style="height: 200px"
+      >
+        <app-loading v-if="isIntersecting && itemsFetching" />
+      </div>
     </template>
-  </v-sheet>
+  </div>
 </template>
 
 <script lang="ts">
 import Task from '@/api/interfaces/Task'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import debounce from '@/utils/debounce'
-import TasksBase from '@/views/Tasks/TasksBase'
+import Base from './Base'
 
 import Component from 'vue-class-component'
 import { Prop } from 'vue-property-decorator'
 
 // eslint-disable-next-line no-use-before-define
 @Component<TasksList>({
-  components: { AppLoading },
+  components: {
+    AppConfirmDialog: () => import(
+      /* webpackChunkName: "app-confirm-dialog" */
+      '@/components/AppConfirmDialog/AppConfirmDialog.vue'
+      ),
+    AppLoading
+  },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.$store.dispatch(to.path.substring(1) + '/list/fetch')
+      vm.$store.dispatch(vm.getVuexModuleNamespace(to) + '/list/fetch')
     })
   },
   beforeRouteUpdate (to, from, next) {
-    const isFetching = this.$store.getters[to.path.substring(1) + '/list/items_fetching']
-    const isEmpty = (this.$store.getters[to.path.substring(1) + '/list/items'] || []).length === 0
+    const isFetching = this.$store.getters[this.getVuexModuleNamespace(to) + '/list/items_fetching']
+    const isEmpty = (this.$store.getters[this.getVuexModuleNamespace(to) + '/list/items'] || []).length === 0
     if (isEmpty && !isFetching) {
-      this.$store.dispatch(to.path.substring(1) + '/list/fetch')
+      this.$store.dispatch(this.getVuexModuleNamespace(to) + '/list/fetch')
     }
     next()
   }
 })
-export default class TasksList extends TasksBase {
+export default class TasksList extends Base {
+  isIntersecting = false
   tasksCloseProcessIds = []
 
   @Prop() readonly id!: string
@@ -115,23 +135,10 @@ export default class TasksList extends TasksBase {
    * Задачи
    */
   get items (): Task[] {
-    return this.$store.getters[this.vuexModuleNamespace + '/list/items'] || []
+    return this.$store.getters[this.getVuexModuleNamespace(this.$route) + '/list/items'] || []
   }
-
-  /**
-   * Процесс получения задач
-   */
-  get itemsFetching (): boolean {
-    return this.$store.getters[this.vuexModuleNamespace + '/list/items_fetching']
-  }
-
-  public created () {
-    this.fetchTasks = debounce(this.fetchTasks, 3000)
-    this.$root.$on('sse-tasks-changed', this.onSSETasksChanged)
-  }
-
-  public beforeDestroy () {
-    this.$root.$off('sse-tasks-changed', this.onSSETasksChanged)
+  get itemsTotal (): number {
+    return this.$store.getters[this.getVuexModuleNamespace(this.$route) + '/list/items_total']
   }
 
   private onListItemClick (id: number) {
@@ -156,35 +163,26 @@ export default class TasksList extends TasksBase {
     }
   }
 
+  /**
+   *
+   * @param id
+   * @private
+   */
   private onBtnTaskItemCloseClick (id: number) {
-    this.$dialog.confirm({
-      title: this.$tc('Confirmation request'),
-      text: this.$tc('Are you sure you want to close the task?'),
-      showClose: false,
-      actions: {
-        false: this.$tc('Cancel'),
-        true: this.$tc('Yes')
-      }
-    }).then((asnwer: boolean) => {
-      if (asnwer) {
-        this.tasksCloseProcessIds.push(id)
-        this.$axios.get(`/tasks/${id}/done`)
-          .then((response) => {
-            if (response.status === 200) {
-              this.$toast.success('The task is closed')
-            }
-          }).finally(() => {
-            const processId = this.tasksCloseProcessIds.findIndex((e) => e === id)
-            if (processId > -1) {
-              this.tasksCloseProcessIds.splice(processId, 1)
-            }
-          })
-      }
-    })
+    this.tasksCloseProcessIds.push(id)
+    this.$axios.get(`/tasks/${id}/done`)
+      .then((response) => {
+        if (response.status === 200) {
+          this.$toast.success('The task is closed')
+        }
+      })
   }
 
-  private onSSETasksChanged () {
-    this.fetchTasks()
+  private onIntersect (entries, observer) {
+    this.isIntersecting = entries[0].isIntersecting
+    if (this.isIntersecting) {
+      this.fetchTasks(true)
+    }
   }
 }
 </script>

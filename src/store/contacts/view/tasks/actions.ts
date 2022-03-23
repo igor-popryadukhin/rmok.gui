@@ -7,7 +7,7 @@ import { $axios } from '@/plugins/axios'
 const actions: ActionTree<ContactsViewTasksState, RootState> = {
   fetch: ({ commit }, payload) => {
     return new Promise<void>((resolve, reject) => {
-      setTimeout(() => (commit('items_fetching', true)), 0)
+      commit('items_fetching', true)
 
       $axios.get(`/contacts/${payload}/tasks`, { params: { state: 'pending' } })
         .then((response: AxiosResponse) => {
@@ -19,7 +19,8 @@ const actions: ActionTree<ContactsViewTasksState, RootState> = {
           commit('items', response.data?.data || [])
 
           resolve()
-        }).catch(reject).finally(() => (commit('items_fetching', false)))
+        }).catch(reject)
+        .finally(() => (commit('items_fetching', false)))
     })
   },
 

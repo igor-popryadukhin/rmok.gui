@@ -7,6 +7,7 @@ import UserGroup from '@/api/interfaces/UserGroup'
 
 export interface ProfileState {
   id: number;
+  uuid: string;
   first_name: string;
   last_name: string;
   middle_name?: string;
@@ -45,6 +46,7 @@ function state (): ProfileState {
     email: '',
     first_name: '',
     id: 0,
+    uuid: null,
     last_login: 0,
     last_name: '',
     login: '',

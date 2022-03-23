@@ -202,17 +202,6 @@
                 </div>
               </div>
             </v-list-item-content>
-            <!--            <v-list-item-action>-->
-            <!--              <div class="d-flex flex-wrap">-->
-            <!--                <v-btn-->
-            <!--                  :key="`v-list-item-action-play-${index}`"-->
-            <!--                  icon-->
-            <!--                  small-->
-            <!--                >-->
-            <!--                  <v-icon>mdi-play</v-icon>-->
-            <!--                </v-btn>-->
-            <!--              </div>-->
-            <!--            </v-list-item-action>-->
           </v-list-item>
 
           <v-divider
@@ -231,6 +220,7 @@ import StatusGroup from '@/api/interfaces/StatusGroup'
 import AppBase from '@/AppBase'
 import AppContactHistoryEdit from '@/components/AppContactHistoryEdit/AppContactHistoryEdit.vue'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import $store from '@/store'
 import { secondsToHmsDigital } from '@/utils/datetime'
 import debounce from '@/utils/debounce'
 import parsePhoneNumber from 'libphonenumber-js'
@@ -240,9 +230,9 @@ import Component from 'vue-class-component'
 @Component<ContactsViewHistory>({
   components: { AppLoading },
   beforeRouteEnter (to, from, next) {
-    next((vm) => {
-      vm.$store.dispatch('contacts/view/history/fetch', to.params.id)
-    })
+    $store
+      .dispatch('contacts/view/history/fetch', to.params.id)
+      .finally(() => (next()))
   }
 })
 export default class ContactsViewHistory extends AppBase {
@@ -261,11 +251,11 @@ export default class ContactsViewHistory extends AppBase {
   public created () {
     this.fetchHistory = debounce(this.fetchHistory, 500)
 
-    this.$root.$on('sse-contact-history-changed', this.onSSEContactHistoryChanged)
+    this.$root.$on('sse:contact:history:changed', this.onSSEContactHistoryChanged)
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse-contact-history-changed', this.onSSEContactHistoryChanged)
+    this.$root.$off('sse:contact:history:changed', this.onSSEContactHistoryChanged)
   }
 
   private secondsToHmsDigital (s: number) {

@@ -6,8 +6,7 @@ const getters: GetterTree<State, RootState> = {
   filter_q (state: State) { return state.filter_q },
   filter_status_id (state: State) { return state.filter_status_id },
   filter_planned_for (state: State) { return state.filter_planned_for },
-
-  statuses (state: State) { return state.statuses },
+  filter_offset (state: State) { return state.filter_offset },
 
   all (state: State) {
     const obj: Record<string, unknown> = {}
@@ -22,6 +21,10 @@ const getters: GetterTree<State, RootState> = {
 
     if (state.filter_planned_for) {
       obj.planned_for = state.filter_planned_for
+    }
+
+    if (state.filter_offset) {
+      obj.offset = state.filter_offset
     }
 
     return obj

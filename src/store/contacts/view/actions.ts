@@ -25,8 +25,10 @@ const actions: ActionTree<ContactsViewState, RootState> = {
           commit('contact_owner_id', response.data?.owner?.id || 0)
           commit('contact_owner_full_name', response.data?.owner?.full_name || '')
           commit('contact_allow_call', response.data?.allow_call || false)
+          commit('contact_last_status', response.data?.last_status || null)
 
           if (response.data?.project?.id) {
+            commit('contact_project', response.data?.project || null)
             commit('contact_project_id', response.data?.project?.id || 0)
             commit('contact_project_name', response.data?.project?.name || '')
             commit('contact_project_statuses', response.data?.project?.statuses || [])

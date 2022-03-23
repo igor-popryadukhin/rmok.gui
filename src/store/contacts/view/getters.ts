@@ -13,6 +13,7 @@ const getters: GetterTree<ContactsViewState, RootState> = {
   contact_tags (state) { return state.contact_tags },
   contact_owner_id (state) { return state.contact_owner_id },
   contact_owner_full_name (state) { return state.contact_owner_full_name },
+  contact_project (state) { return state.contact_project },
   contact_project_id (state) { return state.contact_project_id },
   contact_project_name (state) { return state.contact_project_name },
   contact_project_statuses (state) { return state.contact_project_statuses },
@@ -23,6 +24,7 @@ const getters: GetterTree<ContactsViewState, RootState> = {
   contact_created_at (state) { return state.contact_created_at },
   contact_location (state) { return state.contact_location },
   contact_allow_call (state) { return state.contact_allow_call },
+  contact_last_status (state) { return state.contact_last_status },
   messenger_available (state) { return state.messenger_available },
   messenger (state) { return state.messenger }
 }

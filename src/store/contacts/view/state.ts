@@ -15,6 +15,7 @@ export interface ContactsViewState {
   contact_tags: ContactTag[];
   contact_owner_id: number;
   contact_owner_full_name: string;
+  contact_project: null| Record<'id', number> & Record<'name', string>;
   contact_project_id: number;
   contact_project_name: string;
   contact_project_statuses: StatusGroup[];
@@ -25,6 +26,7 @@ export interface ContactsViewState {
   contact_created_at: string;
   contact_location: Location;
   contact_allow_call: boolean;
+  contact_last_status: null|Record<'id', number> & Record<'name', string> & Record<'color', string>;
   messenger_available: boolean;
   messenger: Messenger|null;
 }
@@ -41,6 +43,7 @@ export function contactsViewState (): ContactsViewState {
     contact_tags: [],
     contact_owner_id: 0,
     contact_owner_full_name: '',
+    contact_project: null,
     contact_project_id: 0,
     contact_project_name: '',
     contact_project_statuses: [],
@@ -54,6 +57,7 @@ export function contactsViewState (): ContactsViewState {
       region: '—'
     },
     contact_allow_call:  false,
+    contact_last_status:  null,
 
     // Мессенджер
     messenger_available: false,

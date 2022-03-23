@@ -456,7 +456,7 @@
         <router-view />
         <v-fade-transition>
           <div
-            v-if="disablePage"
+            v-if="pageLoading"
             class="router-view-loading d-flex align-center justify-center"
           >
             <app-loading />
@@ -578,8 +578,8 @@ export default class DefaultLayout extends AppBase {
     message: '',
     progress: 0
   }
-  disablePageId = null
-  disablePage = false
+  pageLoadingId = null
+  pageLoading = false
   audio = makeAudioElement()
   audioPlayed = false
   eventSource = null
@@ -647,7 +647,10 @@ export default class DefaultLayout extends AppBase {
             }
 
             // Очищение локального хранилища
-            this.$store.dispatch('contacts/list/flush')
+            this.$store.dispatch('contacts/view/unsaved_call/flush')
+            this.$store.dispatch('contacts/view/history/flush')
+            this.$store.dispatch('contacts/view/tasks/flush')
+            this.$store.dispatch('contacts/view/messages/flush')
 
             this.$router.replace({ name: 'login' })
           }
@@ -960,24 +963,25 @@ export default class DefaultLayout extends AppBase {
 
   get cssVars () {
     return {
-      '--page-calculated-height': `${this.screenHeight - 86}px`
+      '--page-calculated-height': `${this.screenHeight - 86}px`,
+      '--page-calculated-height2': `${this.screenHeight - 110}px`
     }
   }
 
   @Ref('navigationDrawer') readonly navigationDrawer: VNavigationDrawer
 
   public created () {
-    this.$root.$on('router-before-each', this.onRouterBeforeEach)
-    this.$root.$on('router-after-each', this.onRouterAfterEach)
+    this.$root.$on('router:before:each', this.onRouterBeforeEach)
+    this.$root.$on('router:after:each', this.onRouterAfterEach)
     this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow)
     this.$root.$on('main-process-dialog-update', this.onMainProcessDialogUpdate)
     this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide)
     this.$root.$on('audio-player-show', this.onAudioPlayerShow)
     this.$root.$on('audio-player-hide', this.onAudioPlayerHide)
 
-    this.$root.$on('sse-profile-changed', this.onSSEProfileChanged)
+    this.$root.$on('sse:profile:changed', this.onSSEProfileChanged)
 
-    this.$ifvisible.setIdleDuration(120)
+    this.$ifvisible.setIdleDuration(300)
     this.$ifvisible.on('idle', this.ifVisibleIdleHandler)
     this.$ifvisible.on('wakeup', this.ifVisibleWakeupHandler)
     this.$ifvisible.on('blur', this.ifVisibleBlurHandler)
@@ -1035,9 +1039,9 @@ export default class DefaultLayout extends AppBase {
   }
 
   public beforeDestroy () {
-    this.$root.$off('router-before-each', this.onRouterBeforeEach)
-    this.$root.$off('router-after-each', this.onRouterAfterEach)
-    this.$root.$off('sse-profile-changed', this.onSSEProfileChanged)
+    this.$root.$off('router:before:each', this.onRouterBeforeEach)
+    this.$root.$off('router:after:each', this.onRouterAfterEach)
+    this.$root.$off('sse:profile:changed', this.onSSEProfileChanged)
     this.$ifvisible.off('idle', this.ifVisibleIdleHandler)
     this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler)
     this.$ifvisible.off('blur', this.ifVisibleBlurHandler)
@@ -1399,12 +1403,7 @@ export default class DefaultLayout extends AppBase {
       const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT)
 
       // Темы для подписок
-      url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/event`)
-      url.searchParams.append('topic', `${window.origin}/users/${this.$profile.id}/${this.$currentTabID}/event`)
-
-      if (this.$isGranted(['ROLE_ADMIN'])) {
-        url.searchParams.append('topic', `${window.origin}/administration`)
-      }
+      url.searchParams.append('topic', `user:${this.$profile.uuid}`)
 
       this.eventSource = new EventSource(url, {
         withCredentials: true
@@ -1417,7 +1416,7 @@ export default class DefaultLayout extends AppBase {
           appDebug.extend('SSE').extend('EVENT')('%o', obj)
 
           // Кидаем сообщение на корневую шину
-          this.$root.$emit('sse-' + obj.name, obj)
+          this.$root.$emit('sse:' + obj.name, obj)
         }
       })
 
@@ -1439,7 +1438,7 @@ export default class DefaultLayout extends AppBase {
             this.playAudio('/sounds/notifications/1.mp3')
           }
 
-          this.$root.$emit('sse-system-notification', obj)
+          this.$root.$emit('sse:system:notification', obj)
         }
       })
 
@@ -1610,14 +1609,14 @@ export default class DefaultLayout extends AppBase {
   }
 
   private onRouterBeforeEach () {
-    this.disablePageId = setTimeout(() => {
-      this.disablePage = true
+    this.pageLoadingId = setTimeout(() => {
+      this.pageLoading = true
     }, 200)
   }
 
   private onRouterAfterEach () {
-   clearTimeout(this.disablePageId)
-    this.disablePage = false
+   clearTimeout(this.pageLoadingId)
+    this.pageLoading = false
   }
 
   private ifVisibleFocusHandler () {
@@ -1625,7 +1624,7 @@ export default class DefaultLayout extends AppBase {
   }
 
   private ifVisibleBlurHandler() {
-    console.error('Method ifVisibleFocusHandler not implemented.')
+    console.error('Method ifVisibleBlurHandler not implemented.')
   }
 }
 </script>
@@ -1639,7 +1638,9 @@ export default class DefaultLayout extends AppBase {
 
 .router-view-loading {
   display: block;
-  background-color: #ffffff78;
+  background: rgb(255,255,255);
+  background: rgb(255,255,255);
+  background: radial-gradient(circle, rgba(255,255,255,0.6699054621848739) 30%, rgba(255,255,255,0.6194852941176471) 51%, rgba(255,255,255,0) 70%);
   position: absolute;
   top: 0;
   left: 0;
