@@ -167,7 +167,7 @@ export default class ContactsAllTransferDialog extends AppBase {
   "ru": {
     "Required field.": "Обязательное поле.",
     "Transferring contacts": "Передача контактов",
-    "Date the contact was created": "Дата создания контакта",
+    "Date of creation": "Дата создания",
     "Leave this field blank if you do not want to change the previous value.": "Оставьте поле пустым, если вы не хотите изменять предыдущее значение.",
     "Transfer contacts": "Передать контакты",
     "contact_selected": "Контакты не выбраны | Выбран {n} контакт | Выбрано {n} контакта | Выбрано {n} контактов"

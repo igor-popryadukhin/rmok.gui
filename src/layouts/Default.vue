@@ -159,6 +159,29 @@
       >
         <v-spacer />
         <v-toolbar-items>
+          <app-tooltip>
+            <template #activator="{ on }">
+              <v-btn
+                text
+                v-on="on"
+              >
+                <div
+                  class="d-flex flex-column"
+                  style="font-family: monospace, sans-serif; color: #bdd3ff"
+                >
+                  <div>
+                    {{ $dayjs().format('DD MMMM') }}
+                  </div>
+                  <div :key="shortTick">
+                    {{ $dayjs().format('HH:mm:ss') }}
+                  </div>
+                </div>
+              </v-btn>
+            </template>
+            <span>
+              {{ $tc('Current date and time') }}
+            </span>
+          </app-tooltip>
           <!-- Системные уведомления -->
           <v-menu
             v-model="notificationsVisible"
@@ -573,6 +596,7 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
   }
 })
 export default class DefaultLayout extends AppBase {
+  shortTick = 0
   progressDialog = {
     visible: false,
     message: '',
@@ -980,6 +1004,7 @@ export default class DefaultLayout extends AppBase {
     this.$root.$on('audio-player-hide', this.onAudioPlayerHide)
 
     this.$root.$on('sse:profile:changed', this.onSSEProfileChanged)
+    this.$root.$on('sse:tasks:changed', this.onSSETacksChange)
 
     this.$ifvisible.setIdleDuration(300)
     this.$ifvisible.on('idle', this.ifVisibleIdleHandler)
@@ -1000,6 +1025,10 @@ export default class DefaultLayout extends AppBase {
       if (['connecting', 'accepted', 'progress'].includes(this.$dialer.state)) {
         this.$ifvisible.wakeup()
       }
+    }, 1000)
+
+    setInterval(() => {
+      this.shortTick++
     }, 1000)
   }
 
@@ -1042,6 +1071,8 @@ export default class DefaultLayout extends AppBase {
     this.$root.$off('router:before:each', this.onRouterBeforeEach)
     this.$root.$off('router:after:each', this.onRouterAfterEach)
     this.$root.$off('sse:profile:changed', this.onSSEProfileChanged)
+    this.$root.$off('sse:tasks:changed', this.onSSETacksChange)
+
     this.$ifvisible.off('idle', this.ifVisibleIdleHandler)
     this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler)
     this.$ifvisible.off('blur', this.ifVisibleBlurHandler)
@@ -1617,6 +1648,13 @@ export default class DefaultLayout extends AppBase {
   private onRouterAfterEach () {
    clearTimeout(this.pageLoadingId)
     this.pageLoading = false
+  }
+
+  private onSSETacksChange () {
+    this.$axios.get('/tasks/count/pending')
+      .then((response) => {
+        this.$store.commit('profile/tasks_pending_number', response.data?.count || 0)
+    })
   }
 
   private ifVisibleFocusHandler () {

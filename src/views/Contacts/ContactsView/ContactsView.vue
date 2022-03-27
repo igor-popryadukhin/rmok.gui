@@ -445,21 +445,24 @@
               link
             >
               <v-list-item-avatar size="30">
-                <v-icon color="primary">
+                <v-icon
+                  :key="$dayjs().hour()"
+                  color="primary"
+                >
                   {{ contactTimeIcon }}
                 </v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title :key="contactTimeTick">
-                  {{ $dayjs().tz(contactTZ).format(`DD.MM.YYYY HH:mm:ss (Z)`) }}
+                  {{ $dayjs().tz(contactTZ).format('HH:mm:ss') }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ $tc('Client\'s current time') }}
+                  {{ $tc('The local time') }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
 
-            <!-- Дата создания контакта -->
+            <!-- Дата создания -->
             <v-list-item link>
               <v-list-item-avatar size="30">
                 <v-icon color="primary">
@@ -471,7 +474,7 @@
                   {{ $dayjs(contactCreatedAt).format('DD.MM.YYYY HH:mm') }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ $tc('Date the contact was created') }}
+                  {{ $tc('Date of creation') }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
@@ -576,7 +579,7 @@
     </app-block-resize>
     <div class="pl-2 flex-grow-1">
       <v-tabs
-        :key="`v-tabs-${tick}`"
+        :key="`v-tabs-${tabKey}`"
         v-model="tab"
         class="tabs"
         height="28"
@@ -714,17 +717,23 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
           vm.route_from_full_path = from.fullPath
         })
       }).catch((reason: Error) => {
-        if (reason instanceof APIError && reason.error_code === 'not_found') {
-          // Контакт не удалось найти по причине его отсутствия
-          next({ name: 'contacts_view_not_found', params: {  id: to.params.id} })
-        } else {
-          // Другие причины
-          next({ name: 'contacts_view_error', params: {  id: to.params.id} })
-        }
-      })
+      if (reason instanceof APIError && reason.error_code === 'not_found') {
+        // Контакт не удалось найти по причине его отсутствия
+        next({
+          name: 'contacts_view_not_found',
+          params: { id: to.params.id }
+        })
+      } else {
+        // Другие причины
+        next({
+          name: 'contacts_view_error',
+          params: { id: to.params.id }
+        })
+      }
+    })
   },
   beforeRouteUpdate (to, from, next) {
-    this.tick++
+    this.tabKey++
 
     if (to.params.id !== from.params.id) {
       this.$store
@@ -761,7 +770,7 @@ export default class ContactsView extends AppBase {
   route_from_full_path = null
   /** Идентификатор звонящего номера */
   callerID = 0
-  tick = 0
+  tabKey = 0
   contactTimeTick = 0
   taskDialogVisible = false
   taskDialog = {
@@ -935,7 +944,22 @@ export default class ContactsView extends AppBase {
   }
 
   get contactTimeIcon (): string {
-    return 'mdi-clock-time-nine-outline'
+    const times = {
+      1: 'one',
+      2: 'two',
+      3: 'three',
+      4: 'four',
+      5: 'five',
+      6: 'six',
+      7: 'seven',
+      8: 'eight',
+      9: 'nine',
+      10: 'ten',
+      11: 'eleven',
+      12: 'twelve',
+    }
+
+    return `mdi-clock-time-${times[this.$dayjs().tz(this.contactTZ).format('h')]}-outline`
   }
 
   get unsavedCallPersists (): boolean {
@@ -950,7 +974,7 @@ export default class ContactsView extends AppBase {
     return this.$store.getters['contacts/view/unsaved_call/data_status_id']
   }
 
-  get contactLastStatus(): null|Record<'id', number> & Record<'name', string> & Record<'color', string> {
+  get contactLastStatus (): null | Record<'id', number> & Record<'name', string> & Record<'color', string> {
     return this.$store.getters['contacts/view/contact_last_status']
   }
 
@@ -1018,10 +1042,13 @@ export default class ContactsView extends AppBase {
    * @param phone
    */
   private onBtnCallClick (phone: ContactDetail) {
+    this.closeAllTasks()
 
     if (!this.contactProject) {
       return this.$toast.warning('Запрещено совершать вызов ко')
     }
+
+    this.$store.commit('last_call_at', this.$dayjs().toISOString())
 
     // Если вкладка не сценарий, то переходим
     if (this.$route.name !== 'contacts_view_scenario') {
@@ -1201,6 +1228,12 @@ export default class ContactsView extends AppBase {
     })
   }
 
+  private onSSENewMessage (event: MessageEvent<string> | Event) {
+    if (event instanceof MessageEvent) {
+      this.$root.$emit('messenger:message', JSON.parse(event.data))
+    }
+  }
+
   /**
    *
    * @param phone
@@ -1246,10 +1279,8 @@ export default class ContactsView extends AppBase {
     }
   }
 
-  private onSSENewMessage (event: MessageEvent<string> | Event) {
-    if (event instanceof MessageEvent) {
-      this.$root.$emit('messenger:message', JSON.parse(event.data))
-    }
+  private closeAllTasks () {
+    this.$axios.get(`/contacts/${this.$route.params.id}/tasks/close-all`)
   }
 }
 

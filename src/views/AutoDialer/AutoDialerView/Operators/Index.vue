@@ -133,7 +133,7 @@
     <template v-else>
       <!-- Список -->
       <list
-        :key="`list-${tick}`"
+        :key="`list-${listKey}`"
         :height="listHeight"
       />
       <!-- Список -->
@@ -168,7 +168,7 @@ export default class Index extends AppBase {
   avUsersFiltered = [] // Отфильтрованные пользователи
 
   // Увеличивает значение при изменении размера компонента.
-  tick = 0
+  listKey = 0
 
   get operatorsTotal () { return this.$store.getters['autodialer/view/operators/total'] }
   get operatorsPerPage () { return this.$store.getters['autodialer/view/operators/per_page'] }
@@ -184,7 +184,7 @@ export default class Index extends AppBase {
   }
 
   get listHeight () {
-    const tick = this.tick
+    const listKey = this.listKey
     return this.$el.clientHeight - this.tools.clientHeight
   }
 
@@ -200,7 +200,7 @@ export default class Index extends AppBase {
   }
 
   private onThisResizable () {
-    this.tick++
+    this.listKey++
   }
 
   private findUsers (q = '') {

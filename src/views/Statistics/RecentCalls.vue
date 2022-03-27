@@ -115,7 +115,7 @@
           <app-menu-date-picker
             v-model="filterContactCreatedAt"
             :first-day-of-week="1"
-            :label="$tc('Date the contact was created')"
+            :label="$tc('Date of creation')"
             :disabled="processLoading"
             locale="ru"
             range

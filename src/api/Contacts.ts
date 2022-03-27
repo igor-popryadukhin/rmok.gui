@@ -61,7 +61,7 @@ export interface ContactsParamsFind {
    */
   user_group_id?: number;
   /**
-   * Дата создания контакта в формате **unixtime.**
+   * Дата создания в формате **unixtime.**
    *
    * ```js
    * const unixtime = new Date().getTime() / 1000

@@ -40,7 +40,7 @@
           <div class="mb-5">
             <v-select
               v-model="filterStatusId"
-              :label="$tc('Status')"
+              :label="$tc('Result')"
               :items="statuses"
               item-text="name"
               item-value="id"
@@ -49,6 +49,18 @@
               dense
               hide-details
               clearable
+            />
+          </div>
+          <div class="mb-5">
+            <v-select
+              v-model="filterState"
+              :label="$tc('Tasks state')"
+              :items="states"
+              item-text="title"
+              item-value="value"
+              outlined
+              dense
+              hide-details
             />
           </div>
         </div>
@@ -111,12 +123,19 @@ export default class Tasks extends Base {
     this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_status_id`, value)
   }
 
+  get filterState () {
+    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_state`]
+  }
+  set filterState (value: string) {
+    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_state`, value)
+  }
+
   get tabs () {
     const {
-      $route,
-      $store,
-      $dayjs,
-      getVuexModuleNamespace
+      // $route,
+      // $store,
+      $dayjs
+      // getVuexModuleNamespace
     } = this
 
     const from = $dayjs().local()
@@ -173,31 +192,69 @@ export default class Tasks extends Base {
         }
       },
       {
-        id: 'custom',
-        get title () {
-          const arr = String($store.getters[`${getVuexModuleNamespace($route)}/list/filter/planned_for`] || '')
-            .split('|')
-          if (arr.length === 2) {
-            const from = $dayjs(arr[0], 'YYYY-MM-DD').format('DD.MM.YYYY')
-            const to = $dayjs(arr[1], 'YYYY-MM-DD').format('DD.MM.YYYY')
-            return `с ${from} по ${to}`
-          } else {
-            return 'Настраиваемый'
-          }
-        },
+        id: 'month',
+        title: $dayjs().format('MMM'),
+        count: this.tabTaskCount('month'),
         to: {
           name: 'tasks_list',
-          params: { id: 'custom' }
+          params: { id: 'month' }
         },
-        menu: {
-          visible: true
+        params: {
+          planned_for: `${from.startOf('month').format(isoFormat)}|${to.endOf('month').format(isoFormat)}`
         }
-      }
+      },
+      {
+        id: 'per_year',
+        title: this.$tc('Per year'),
+        count: this.tabTaskCount('per_year'),
+        to: {
+          name: 'tasks_list',
+          params: { id: 'per_year' }
+        },
+        params: {
+          planned_for: `${from.startOf('year').format(isoFormat)}|${to.endOf('year').format(isoFormat)}`,
+          state: 'pending'
+        }
+      },
+      // {
+      //   id: 'custom',
+      //   get title () {
+      //     const arr = String($store.getters[`${getVuexModuleNamespace($route)}/list/filter/planned_for`] || '')
+      //       .split('|')
+      //     if (arr.length === 2) {
+      //       const from = $dayjs(arr[0], 'YYYY-MM-DD').format('DD.MM.YYYY')
+      //       const to = $dayjs(arr[1], 'YYYY-MM-DD').format('DD.MM.YYYY')
+      //       return `с ${from} по ${to}`
+      //     } else {
+      //       return 'Настраиваемый'
+      //     }
+      //   },
+      //   to: {
+      //     name: 'tasks_list',
+      //     params: { id: 'custom' }
+      //   },
+      //   menu: {
+      //     visible: true
+      //   }
+      // }
     ]
   }
 
   get statuses () {
     return this.$profile?.project?.statuses || []
+  }
+
+  get states () {
+    return [
+      {
+        title: this.$tc('task_pending'),
+        value: 'pending',
+      },
+      {
+        title: this.$tc('task_done'),
+        value: 'done',
+      }
+    ]
   }
 
   public created () {
@@ -246,14 +303,14 @@ export default class Tasks extends Base {
       }
     })
 
-   this.$store.dispatch('tasks/calculate', request)
+    this.$store.dispatch('tasks/calculate', request)
   }
 
   private tabTaskCount (id: string) {
     return (this.$store.getters['tasks/pending_items'] || []).find((e) => e.id === id)?.count || 0
   }
 
-  private onBtnSearchClick() {
+  private onBtnSearchClick () {
     this.calculateTasksCount()
     this.fetchTasks()
   }

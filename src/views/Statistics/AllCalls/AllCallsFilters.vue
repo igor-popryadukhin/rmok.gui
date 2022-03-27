@@ -168,7 +168,7 @@
     >
       <template #activator="{ on, text }">
         <v-text-field
-          :label="$tc('Date the contact was created')"
+          :label="$tc('Date of creation')"
           :value="text"
           readonly
           dense

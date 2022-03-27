@@ -167,7 +167,7 @@ export default class StatusesEditDialog extends AppBase {
 
   @Prop({ default: () => '' }) dialogTitle!: string
   @PropSync('name', { type: String }) nameSync!: string
-  @PropSync('actions', { type: Array }) actionsSync!: StatusAction[]
+  @PropSync('actions', { type: Array, default: () => [] }) actionsSync!: StatusAction[]
 
   @VModel({ default: () => false }) visible!: boolean
 

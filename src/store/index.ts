@@ -1,33 +1,28 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
-import app_state from './app_state'
 import projects from './projects'
 import settings from './settings'
-import filter from './filter'
 import symfony from './symfony'
 import system from './system'
 import profile from './profile'
 import groups from './groups'
 import users from './users'
 import contacts from './contacts'
-import leads from './leads'
 import statistic_recent_call from './statistic_recent_call'
 import statistic_all_call from './statistic_all_call'
 import autodialer from './autodialer'
 import scenarios from './scenarios'
 import unsaved_call from './unsaved_call'
 import statistic_activity from './statistic_activity'
-import { database } from './database'
 import debug from 'debug'
 import $app from '@/main'
-import { account } from './account'
 import { notifications } from './notifications'
 import { statistics } from './statistics'
-import LocalStorage from './LocalStorage'
-import SessionStorage from './SessionStorage'
 import chats from './chats'
 import tasks from './tasks'
+import LocalStorage from './LocalStorage'
+import SessionStorage from './SessionStorage'
 
 Vue.use(Vuex)
 
@@ -36,6 +31,7 @@ const vuexDebugActions = vuexDebug.extend('ACTION')
 const vuexDebugMutations = vuexDebug.extend('MUTATION')
 
 export interface RootState {
+  last_call_at: Date|null;
   bootstrap_process: boolean;
   is_logged_in: boolean;
 }
@@ -45,27 +41,23 @@ const $store = new Vuex.Store({
 
   state (): RootState {
     return {
+      last_call_at: null,
       bootstrap_process: true, // Процесс начальной загрузки
       is_logged_in: false // Состояние авторизации
     }
   },
 
   modules: {
-    account,
     notifications,
-    app_state,
-    database,
     profile,
     projects,
     settings,
-    filter,
     symfony,
     system,
     groups,
     users,
     unsaved_call,
     contacts,
-    leads,
     statistics,
     statistic_recent_call,
     statistic_all_call,
@@ -77,11 +69,13 @@ const $store = new Vuex.Store({
   },
 
   mutations: {
+    last_call_at (state, payload) { state.last_call_at = payload },
     bootstrap_process (state, payload) { state.bootstrap_process = payload },
     is_logged_in (state, payload) { state.is_logged_in = payload }
   },
 
   getters: {
+    last_call_at: (state) => state.last_call_at,
     routeParams: () => Object.assign({}, $app.$route.params),
     bootstrap_process: (state) => state.bootstrap_process,
     is_logged_in: (state) => state.is_logged_in

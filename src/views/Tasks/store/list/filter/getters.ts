@@ -5,6 +5,7 @@ import { GetterTree } from 'vuex'
 const getters: GetterTree<State, RootState> = {
   filter_q (state: State) { return state.filter_q },
   filter_status_id (state: State) { return state.filter_status_id },
+  filter_state (state: State) { return state.filter_state },
   filter_planned_for (state: State) { return state.filter_planned_for },
   filter_offset (state: State) { return state.filter_offset },
 
@@ -17,6 +18,10 @@ const getters: GetterTree<State, RootState> = {
 
     if (state.filter_status_id) {
       obj.status_id = state.filter_status_id
+    }
+
+    if (state.filter_state) {
+      obj.state = state.filter_state
     }
 
     if (state.filter_planned_for) {

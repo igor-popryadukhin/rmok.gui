@@ -41,7 +41,6 @@ import AppBase from '@/AppBase'
 import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
 import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
 import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import debounce from '@/utils/debounce'
 import Component from 'vue-class-component'
 import { Emit } from 'vue-property-decorator'
 
