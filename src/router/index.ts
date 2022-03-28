@@ -98,20 +98,9 @@ const routes: RouteConfig[] = [
   },
 
   {
+    name: 'auto_dialer_params',
     path: '/auto-dialer',
-    children: [
-      {
-        component: () => import(/* webpackChunkName: "auto-dialer-list" */ '../views/AutoDialer/AutoDialerList.vue'),
-        meta: {
-          anonymous: true,
-          layout: 'default',
-          middleware: [bootstrap]
-        },
-        name: 'auto_dialer_params',
-        path: ''
-      }
-    ],
-    component: () => import(/* webpackChunkName: "auto-dialer" */ '../views/AutoDialer/Layout.vue'),
+    component: () => import(/* webpackChunkName: "auto-dialer-list" */ '../views/AutoDialer/AutoDialerList.vue'),
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {

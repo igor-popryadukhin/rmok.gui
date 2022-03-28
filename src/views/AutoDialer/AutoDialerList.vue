@@ -1,19 +1,21 @@
 <template>
-  <div>
-    <div class="d-flex justify-space-between">
-      <div>
+  <div class="autodial">
+    <div class="autodial__tools">
+      <div class="buttons">
+        <auto-dialer-create-dialog @click:create="onAutoDialerCreateDialogCreate">
+          <template #activator="{ on }">
+            <v-btn
+              :disabled="autoDialerItemsFetching"
+              tile
+              text
+              v-on="on"
+            >
+              {{ $tc('Create') }}
+            </v-btn>
+          </template>
+        </auto-dialer-create-dialog>
         <v-btn
-          :disabled="processLoading"
-          small
-          tile
-          text
-          @click="onBtnAddClick"
-        >
-          {{ $tc('Create') }}
-        </v-btn>
-        <v-btn
-          :disabled="processLoading"
-          small
+          :disabled="autoDialerItemsFetching"
           tile
           text
           @click="onBtnRefreshClick"
@@ -22,121 +24,77 @@
         </v-btn>
       </div>
       <div>
-        <app-pagination
-          :per-page="50"
-          :count="autoDialerTotal"
+        <v-text-field
+          v-model="filterQ"
+          :placeholder="$tc('Search')"
+          :append-icon="!filterQ ? 'mdi-magnify' : ''"
+          style="max-width: 350px"
+          clearable
+          hide-details
+          dense
+          outlined
+          @input="onFilterChange"
         />
       </div>
     </div>
 
-    <v-divider class="my-2" />
+    <app-divider class="mb-1" />
 
-    <template v-if="processLoading && autoDialerParams.length === 0">
-      <div
-        class="d-flex align-center justify-center"
-        style="height: 500px"
-      >
-        <div class="pa-16 grey--text">
-          <app-loading />
-        </div>
-      </div>
-    </template>
-    <template v-else-if="autoDialerParams.length === 0">
-      <slot name="no-text">
+    <div class="autodial__list">
+      <template v-if="autoDialerItemsFetching && autoDialerItems.length === 0">
         <div
           class="d-flex align-center justify-center"
-          style="min-height: 500px"
+          style="height: 500px"
         >
           <div class="pa-16 grey--text">
-            {{ $tc('Empty') }}
+            <app-loading />
           </div>
         </div>
-      </slot>
-    </template>
-    <template v-else>
-      <v-simple-table dense>
-        <template #default>
-          <thead>
-            <tr>
-              <th
-                class="text-left"
-              >
-                {{ $tc('Name') }}
-              </th>
-              <th
-                class="text-left"
-              >
-                {{ $tc('Mode') }}
-              </th>
-              <th
-                class="text-left"
-              >
-                {{ $tc('Количество контактов') }}
-              </th>
-              <th
-                class="text-left"
-                style="width: 68%;"
-              >
-                {{ $tc('Процент завершённых') }}
-              </th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="item in autoDialerParams"
-              :key="'tr-' + item.id"
+      </template>
+      <template v-else-if="autoDialerItems.length === 0">
+        <slot name="no-text">
+          <div
+            class="d-flex align-center justify-center"
+            style="min-height: 500px"
+          >
+            <div class="pa-16 grey--text">
+              {{ $tc('Empty') }}
+            </div>
+          </div>
+        </slot>
+      </template>
+      <template v-else>
+        <v-list dense>
+          <template v-for="item in autoDialerItems">
+            <v-list-item
+              :key="'v-list-item-' + item.id"
+              link
+              dense
+              @click="$router.push({ name: 'auto_dialer_view', params: { id: item.id }})"
             >
-              <!-- Имя контакта -->
-              <td style="white-space: nowrap">
-                <router-link :to="{ name: 'auto_dialer_view', params: { id: item.id } }">
-                  {{ item.name }}
-                </router-link>
-              </td>
-              <!-- Имя контакта -->
-
-              <!-- Режим -->
-              <td>
-                <v-chip
-                  v-if="item.mode === 'predictive'"
-                  color="primary"
-                  label
-                  x-small
-                  outlined
-                >
-                  {{ $tc('Предиктивный') }}
-                </v-chip>
-                <v-chip
-                  v-else-if="item.mode === 'progressive'"
-                  color="primary"
-                  label
-                  x-small
-                  outlined
-                >
-                  {{ $tc('Прогрессивный') }}
-                </v-chip>
-              </td>
-              <!-- Режим -->
-              <!-- Количество контактов -->
-              <td>
-                {{ item.contacts_count }}
-              </td>
-              <!-- Количество контактов -->
-              <!-- Процент завершённых -->
-              <td>
-                {{ (item.percentage_completed_calls || 0.00).toFixed(2) }} %
-              </td>
-              <!-- Процент завершённых -->
-              <!-- Действия -->
-              <td>
+              <v-list-item-content>
+                <v-list-item-title>{{ item.name }} <span style="color: #3a70d4; margin-left: 5px">[ {{ item.project.name }} ]</span></v-list-item-title>
+                <v-list-item-subtitle class="subtitle1">
+                  <div class="d-flex">
+                    <div>
+                      {{ $t('mode_', { mode: $t(`mode.${item.mode}`).toString().toLowerCase() }) }}
+                    </div>
+                    <!--                    <div>-->
+                    <!--                      1 / 3-->
+                    <!--                    </div>-->
+                  </div>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
                 <v-btn
                   v-if="item.status === 'ready'"
                   :loading="processItemAction.includes(item.id)"
+                  color="primary"
                   icon
-                  x-small
-                  @click="onBtnItemPlayClick(item)"
+                  small
+                  @click.native.stop="onBtnItemPlayOrStopClick(item, 'start')"
                 >
-                  <v-icon>
+                  <v-icon small>
                     mdi-play
                   </v-icon>
                 </v-btn>
@@ -145,51 +103,104 @@
                   :loading="processItemAction.includes(item.id)"
                   color="red"
                   icon
-                  x-small
-                  @click="onBtnItemStopClick(item)"
+                  small
+                  @click.native.stop="onBtnItemPlayOrStopClick(item, 'stop')"
                 >
-                  <v-icon>
-                    mdi-stop
+                  <v-icon small>
+                    mdi-pause
                   </v-icon>
                 </v-btn>
-              </td>
-              <!-- Действия -->
-            </tr>
-          </tbody>
-        </template>
-      </v-simple-table>
-    </template>
+              </v-list-item-action>
+            </v-list-item>
+            <v-divider :key="'v-divider-' + item.id" />
+          </template>
+        </v-list>
+        <div class="d-flex justify-center grey--text text-caption">
+          <div>
+            {{ autoDialerItems.length }} / {{ autoDialerItemsTotal }}
+          </div>
+        </div>
+        <div
+          v-if="autoDialerItemsTotal >= 30"
+          v-intersect="onIntersect"
+          class="d-flex align-center justify-center"
+          style="min-height: 200px"
+        >
+          <app-loading v-if="isIntersecting && autoDialerItemsFetching" />
+          <v-btn
+            v-else
+            small
+            tile
+            text
+            @click="loadMore"
+          >
+            {{ $tc('Load more') }} ...
+          </v-btn>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import Vue from 'vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import APIError from '@/api/classes/APIError'
 import Autodialer from '@/api/interfaces/Autodialer'
-import AppDialogAutocomplete from '@/components/AppDialogAutocomplete/AppDialogAutocomplete.vue'
-import { $axios } from '@/plugins/axios'
+import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import AppPagination from '@/components/AppPagination/AppPaginator.vue'
+import AppTextField from '@/components/AppTextField/AppTextField.vue'
+import $store from '@/store'
 import debounce from '@/utils/debounce'
-import AutodialerParams from '@/api/AutodialerParams'
+import { AxiosResponse } from 'axios'
+import Vue from 'vue'
 import Component from 'vue-class-component'
 
 @Component({
   components: {
+    AppTextField,
+    AutoDialerCreateDialog: () => import(
+      /* webpackChunkName: "auto-dialer-create-dialog" */
+      '@/views/AutoDialer/AutoDialerCreateDialog.vue'
+      ),
     AppLoading,
     AppPagination
+  },
+  beforeRouteEnter (to, from, next) {
+    $store
+      .dispatch('autodialer/list/fetch')
+      .finally(() => (next()))
   }
 })
 export default class AutoDialerList extends Vue {
-  // This is data
-  processLoading = false
+  isIntersecting = false
   processItemAction = []
 
-  get autoDialerParams () { return this.$store.getters['autodialer/list/items'] }
-  get autoDialerTotal () { return this.$store.getters['autodialer/list/total'] }
+  get autoDialerItems () {
+    return this.$store.getters['autodialer/list/items']
+  }
+
+  get autoDialerItemsTotal () {
+    return this.$store.getters['autodialer/list/total']
+  }
+  get autoDialerItemsFetching () {
+    return this.$store.getters['autodialer/list/items_fetching']
+  }
 
   // Фильтры
-  get filterOffset (): number { return Number(this.$routerQuery.getQuery('offset')) || 0 }
-  set filterOffset (val: number) { this.$routerQuery.setQuery({ offset: val }) }
+  get filterQ (): string {
+    return this.$store.getters['autodialer/list/filter/filter_q']
+  }
+
+  set filterQ (val: string) {
+    this.$store.commit('autodialer/list/filter/filter_q', val)
+  }
+
+  get filterOffset (): number {
+    return Number(this.$routerQuery.getQuery('offset')) || 0
+  }
+
+  set filterOffset (val: number) {
+    this.$routerQuery.setQuery({ offset: val })
+  }
 
   get requestParameters () {
     return {
@@ -197,106 +208,144 @@ export default class AutoDialerList extends Vue {
     }
   }
 
-  mounted () {
-    this.fetch = debounce(this.fetch, 500)
-    this.fetch()
+  created () {
+    this.onFilterChange = debounce(this.onFilterChange, 350)
   }
 
-  fetch () {
-    this.processLoading = true
-    this.$store
-      .dispatch('autodialer/list/fetch', this.requestParameters)
-      .finally(() => (this.processLoading = false))
-  }
-
-  onBtnItemPlayClick (item: Autodialer) {
+  onBtnItemPlayOrStopClick (item: Autodialer, status: 'start'|'stop') {
     this.processItemAction.push(item.id)
-    new AutodialerParams()
-      .start(item.id)
-      .then(() => {
-        this.$toast.success(this.$tc('Autodial is starting'))
-        this.fetch()
-      })
-      .catch((e: Error) => {
-        this.$toast.error(this.$tc(e.message))
-      }).finally(() => {
-        const index = this.processItemAction.findIndex((value) => value === item.id)
-        if (index > -1) {
-          this.processItemAction.splice(index, 1)
+
+    this.$axios.get(`/auto-dialers/${item.id}/${status}`)
+      .then((response: AxiosResponse) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
         }
-      })
-  }
 
-  onBtnItemStopClick (item: Autodialer) {
-    this.processItemAction.push(item.id)
-    new AutodialerParams()
-      .stop(item.id)
-      .then(() => {
-        this.$toast.success(this.$tc('Autodial is stopping'))
-        this.fetch()
-      })
-      .catch((e: Error) => {
-        this.$toast.error(this.$tc(e.message))
-      }).finally(() => {
-        const index = this.processItemAction.findIndex((value) => value === item.id)
+        const items = JSON.parse(JSON.stringify(this.autoDialerItems)) as Array<any>
+        const index = items.findIndex((e) => e.id === item.id)
         if (index > -1) {
-          this.processItemAction.splice(index, 1)
+          items[index].status = status === 'start' ? 'process' : 'ready'
+          this.$store.commit('autodialer/list/items', items)
         }
-      })
-  }
 
-  async onBtnAddClick () {
-    const searchProjects = debounce((q: string, ready: CallableFunction) => {
-      $axios.get('/projects', { params: { q } })
-        .then((response) => {
-          ready(response.data.data)
-        })
-    }, 500)
+        if (status === 'start') {
+          this.$toast.success(this.$tc('Autodial is started'))
+        } else if (status === 'stop') {
+          this.$toast.success(this.$tc('Autodial is stopped'))
+        }
 
-    let projectId = 0
-    const instance = await this.$dialog.show(AppDialogAutocomplete, {
-      waitForResult: false,
-      showClose: false,
-      persistent: true,
-      //= ===============================
-      title: 'Создание нового "автообзвона"',
-      itemText: 'name',
-      itemValue: 'id',
-
-      onSearch: searchProjects,
-      onSelect: (id: number) => {
-        projectId = id
+      }).finally(() => {
+      const index = this.processItemAction.findIndex((value) => value === item.id)
+      if (index > -1) {
+        this.processItemAction.splice(index, 1)
       }
     })
-
-    // @ts-expect-error: Vue $on
-    instance.vmd.$on('ok', () => {
-      instance.close()
-      new AutodialerParams()
-        .create({ project_id: projectId })
-        .then((id: number) => {
-          this.$toast.success(this.$tc('Autodial has been successfully created'))
-          this.$router.push({
-            name: 'auto_dialer_view_tab_params',
-            params: {
-              id: String(id)
-            }
-          })
-        })
-        .catch((e: Error) => {
-          this.$toast.error(this.$tc(e.message))
-        })
-    })
-    // @ts-expect-error: Vue $on
-    instance.vmd.$on('cancel', () => (instance.close()))
   }
 
-  onBtnRefreshClick () {
-    this.fetch()
+  async onAutoDialerCreateDialogCreate (data: any) {
+    this.$axios.post('/auto-dialers', data)
+      .then((response: AxiosResponse) => {
+        if (response.status !== 201) {
+          throw new APIError(response.data)
+        }
+
+        this.$store.dispatch('autodialer/list/fetch')
+        this.$toast.success('Autodial created successfully')
+      })
+  }
+
+  private onBtnRefreshClick () {
+    this.$store.dispatch('autodialer/list/fetch')
+  }
+
+  private loadMore () {
+    this.$store.dispatch('autodialer/list/fetch', { append: true })
+  }
+
+  private onFilterChange () {
+    this.$store.dispatch('autodialer/list/fetch')
+  }
+
+  private onIntersect (entries) {
+    this.isIntersecting = entries[0].isIntersecting
+    if (this.isIntersecting) {
+      this.loadMore()
+    }
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.autodial {
+  display: flex;
+  flex-direction: column;
+  height: var(--page-calculated-height2);
+  overflow: auto;
+}
 
+.autodial__tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 5px 0;
+}
+
+.autodial__tools .buttons {
+  display: flex;
+  flex-direction: row;
+}
+
+//.autodial__tools .buttons:not(:last-child) {
+//  margin-right: 5px;
+//}
+
+.autodial__box {
+  display: flex;
+  flex-direction: row;
+  height: calc(var(--page-calculated-height2) - 35px);
+  padding-top: 5px;
+}
+
+.autodial__filters {
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+  max-width: 250px;
+  overflow: auto;
+  border-right: #0000001f solid 1px;
+  height: 100%;
+  padding-right: 5px;
+  margin-right: 5px;
+}
+
+.autodial__list {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.subtitle1 {
+  color: #9e9e9e !important;
+}
+
+.subtitle1 div:not(:last-child) {
+  margin-right: 10px;
+}
 </style>
+
+<i18n>
+{
+  "ru": {
+    "Autodial is started": "Автодозвон запущен",
+    "Autodial is stopped": "Автодозвон остановлен",
+    "Autodial created successfully": "Автодозвон успешно создан",
+    "mode_": "Режим: {mode}",
+    "mode": {
+      "progressive": "Прогрессивный",
+      "predictive": "Предиктивный"
+    }
+  }
+}
+</i18n>

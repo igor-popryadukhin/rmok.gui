@@ -474,6 +474,7 @@
     <v-main :style="cssVars">
       <v-container
         class="v-container-main"
+        style="padding: 8px"
         fluid
       >
         <router-view />

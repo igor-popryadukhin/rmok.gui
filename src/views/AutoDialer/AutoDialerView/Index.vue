@@ -19,31 +19,28 @@
     </v-tabs>
 
     <div class="auto-dialer-view-page__content">
-      <div
-        v-if="loading"
-        class="d-flex fill-height align-center justify-center"
-      >
-        <app-loading />
-      </div>
-      <template v-else>
-        <router-view />
-      </template>
+      <router-view />
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import $store from '@/store'
 import Component from 'vue-class-component'
 import Base from './Base'
 import AppLoading from '@/components/AppLoading/AppLoading.vue'
 
 // eslint-disable-next-line no-use-before-define
 @Component<AutoDialerView>({
-  components: { AppLoading }
+  components: { AppLoading },
+  beforeRouteEnter (to, from, next) {
+    $store
+      .dispatch('autodialer/view/fetch', to.params.id)
+      .finally(() => (next()))
+  }
 })
 export default class AutoDialerView extends Base {
   sse: EventSource|null = null
-  loading = true
 
   get height () {
     return this.screenHeight - 115
@@ -105,10 +102,6 @@ export default class AutoDialerView extends Base {
   }
 
   mounted () {
-    this.$store
-      .dispatch('autodialer/view/fetch', this.$route.params.id)
-      .finally(() => (this.loading = false))
-
     this.sseOpen()
   }
 

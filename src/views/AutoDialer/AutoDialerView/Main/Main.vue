@@ -322,21 +322,39 @@ interface Agent {
 }
 
 @Component({
-  components: { AppBlockResize, AppCountUp, AppAutocomplete, AppSummary, AppLoading }
+  components: {
+    AppBlockResize,
+    AppCountUp,
+    AppAutocomplete,
+    AppSummary,
+    AppLoading
+  }
 })
 export default class Main extends AppBase {
   timerIds = []
-  processStartingOrStopping = false;
-  processApply = false;
+  processStartingOrStopping = false
+  processApply = false
   autodialerModeOptions = [
-    { text: 'Предиктивный', value: 'predictive' },
-    { text: 'Прогрессивный', value: 'progressive' }
-  ];
+    {
+      text: 'Предиктивный',
+      value: 'predictive'
+    },
+    {
+      text: 'Прогрессивный',
+      value: 'progressive'
+    }
+  ]
 
   workerStatus = []
   workerAgents = []
   projectsFetching = false
   projects = []
+
+  form = {
+    name: '',
+    description: '',
+    mode: ''
+  }
 
   get autodialerSummary () {
     return this.$store.getters['autodialer/view/summary']
@@ -344,6 +362,10 @@ export default class Main extends AppBase {
 
   get autodialerName (): string {
     return this.$store.state.autodialer.view.name
+  }
+
+  set autodialerName (value: string) {
+    this.form.name = value
   }
 
   get autodialerStatus (): string {
@@ -355,7 +377,7 @@ export default class Main extends AppBase {
   }
 
   set autodialerMode (val: string) {
-    this.$store.commit('autodialer/view/mode', val)
+    this.form.mode = val
   }
 
   get autodialerDescription (): string {
@@ -363,7 +385,7 @@ export default class Main extends AppBase {
   }
 
   set autodialerDescription (val: string) {
-    this.$store.commit('autodialer/view/description', val)
+    this.form.description = val
   }
 
   get autodialerProjectId (): number {
@@ -376,7 +398,9 @@ export default class Main extends AppBase {
 
   set autodialerProjectId (val: number) {
     const project = this.projects.find((e) => e.id === val)
-    if (project) { this.$store.commit('autodialer/view/project', project) }
+    if (project) {
+      this.$store.commit('autodialer/view/project', project)
+    }
   }
 
   public created () {
@@ -403,7 +427,9 @@ export default class Main extends AppBase {
 
   private onSSEAutodialerWorkerAgents (data: Agent[]) {
     this.workerAgents = (data || []).sort((a, b) => {
-      if (['not_inuse', 'ringing', 'in_use'].includes(a.status)) { return -1 }
+      if (['not_inuse', 'ringing', 'in_use'].includes(a.status)) {
+        return -1
+      }
 
       return 1
     })
@@ -424,9 +450,9 @@ export default class Main extends AppBase {
           .dispatch('autodialer/view/fetch', this.$route.params.id)
           .finally(() => (this.processStartingOrStopping = false))
       }).catch((reason: Error) => {
-        this.processStartingOrStopping = false
-        this.$toast.error(reason.message)
-      })
+      this.processStartingOrStopping = false
+      this.$toast.error(reason.message)
+    })
   }
 
   /**
@@ -444,9 +470,9 @@ export default class Main extends AppBase {
           .dispatch('autodialer/view/fetch', this.$route.params.id)
           .finally(() => (this.processStartingOrStopping = false))
       }).catch((reason: Error) => {
-        this.processStartingOrStopping = false
-        this.$toast.error(reason.message)
-      })
+      this.processStartingOrStopping = false
+      this.$toast.error(reason.message)
+    })
   }
 
   private onBtnSaveClick () {
@@ -468,15 +494,15 @@ export default class Main extends AppBase {
   private onApplyChanges () {
     this.processApply = true
     this.$axios.patch(`/auto-dialers/${this.$route.params.id}`, {
-      project_id: this.autodialerProjectId,
-      mode: this.autodialerMode,
-      description: this.autodialerDescription
+      ...(this.form.name.length > 0) ? { name: this.form.name } : {},
+      ...(this.form.description.length > 0) ? { description: this.form.description } : {},
+      ...(this.form.mode.length > 0) ? { mode: this.form.mode } : {}
     }).then((response: AxiosResponse) => {
-      if (response.status !== 200) {
-        throw new APIError(response.data)
-      }
-      this.$toast.success('Changes accepted')
-    }).catch((reason) => {
+        if (response.status !== 200) {
+          throw new APIError(response.data)
+        }
+        this.$toast.success('Changes accepted')
+      }).catch((reason) => {
       this.$toast.error(reason.message)
     }).finally(() => (this.processApply = false))
   }
@@ -499,7 +525,8 @@ export default class Main extends AppBase {
 </script>
 
 <style lang="scss" scoped>
-.autodialer-main-page {}
+.autodialer-main-page {
+}
 </style>
 
 <i18n>
@@ -507,11 +534,10 @@ export default class Main extends AppBase {
   "ru": {
     "Paused": "Приостановлен",
     "agent_status": {
-      "not_inuse" : "Ожидает",
-      "ringing" : "Входящий вызов",
-      "in_use" : "Разговаривает"
+      "not_inuse": "Ожидает",
+      "ringing": "Входящий вызов",
+      "in_use": "Разговаривает"
     }
-
   }
 }
 </i18n>
