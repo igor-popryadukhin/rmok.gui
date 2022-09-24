@@ -6,21 +6,32 @@
           <template #activator="{ on }">
             <v-btn
               :disabled="autoDialerItemsFetching"
-              tile
-              text
+              :color="$vuetify.theme.currentTheme.primary"
+              icon
               v-on="on"
             >
-              {{ $tc('Create') }}
+              <app-tooltip>
+                <template #activator="{ on }">
+                  <v-icon v-on="on">
+                    mdi-plus
+                  </v-icon>
+                </template>
+                <span>
+                  {{ $tc('Click to create a new entry') }}
+                </span>
+              </app-tooltip>
             </v-btn>
           </template>
         </auto-dialer-create-dialog>
         <v-btn
           :disabled="autoDialerItemsFetching"
-          tile
-          text
+          :color="$vuetify.theme.currentTheme.primary"
+          icon
           @click="onBtnRefreshClick"
         >
-          {{ $tc('Refresh') }}
+          <v-icon>
+            mdi-refresh
+          </v-icon>
         </v-btn>
       </div>
       <div>

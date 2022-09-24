@@ -56,9 +56,9 @@ import { Emit, Prop, Watch } from 'vue-property-decorator'
 @Component
 export default class AppContactDetailsPopupMenuEditor extends Vue {
   @Prop({ type: Number, required: true }) readonly id!: number
-  @Prop({ type: String, required: true }) readonly type!: string
-  @Prop({ type: String, required: true }) readonly label!: string
-  @Prop({ type: String, required: true }) readonly value!: string
+  @Prop({ type: String, required: true }) readonly type!: string|null
+  @Prop({ type: String, required: true }) readonly label!: string|null
+  @Prop({ type: String, required: true }) readonly value!: string|null
 
   menuVisible = false
   oldForm = ''

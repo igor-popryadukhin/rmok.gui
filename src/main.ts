@@ -30,7 +30,7 @@ import '@/plugins/vue-meta'
 import '@/plugins/dayjs'
 import '@/plugins/audio'
 import '@/plugins/ws'
-import '@/plugins/devtools'
+// import '@/plugins/devtools'
 
 import CleanLayout from '@/layouts/Clean.vue'
 

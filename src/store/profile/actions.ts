@@ -23,6 +23,10 @@ const actions: ActionTree<ProfileState, RootState> = {
     })
   },
 
+  logout () {
+    return $axios.get('/account/logout')
+  },
+
   save_pbx_configuration_credentials ({ state }: ActionContext<ProfileState, RootState>): Promise<void> {
     return new Account()
       .updateProfile({

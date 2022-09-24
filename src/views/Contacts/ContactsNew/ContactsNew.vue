@@ -1,15 +1,25 @@
 <template>
   <div class="contacts-new__page">
     <div class="contacts-new__tools">
-      <v-btn
-        :disabled="itemsFetching"
-        small
-        tile
-        text
-        @click="onBtnRefreshClick"
-      >
-        {{ $tc('Refresh') }}
-      </v-btn>
+      <div class="buttons">
+        <v-btn
+          :loading="itemsFetching"
+          :color="$vuetify.theme.currentTheme.primary"
+          icon
+          @click="onBtnRefreshClick"
+        >
+          <app-tooltip>
+            <template #activator="{ on }">
+              <v-icon v-on="on">
+                mdi-refresh
+              </v-icon>
+            </template>
+            <span>
+              {{ $tc('Click to update') }}
+            </span>
+          </app-tooltip>
+        </v-btn>
+      </div>
       <v-spacer />
       <app-count-up
         :end-val="itemsTotal"
@@ -105,18 +115,27 @@ export default class ContactsNew extends AppBase {
 
 <style lang="scss" scoped>
 .contacts-new__page {
-  height: calc(100% - 15px);
-}
-
-.contacts-new__content {
-  height: inherit;
-  overflow-y: auto;
+  height: var(--page-calculated-height2);
 }
 
 .contacts-new__tools {
+  height: 35px;
   display: flex;
   align-items: center;
-  height: 36px;
+  justify-content: space-between;
+  padding: 0 0 5px 0;
+}
+
+.contacts-new__tools .buttons {
+  display: flex;
+  flex-direction: row;
+}
+
+
+.contacts-new__content {
+  height: calc(var(--page-calculated-height2) - 35px);
+  background-color: #f57474;
+  overflow-y: auto;
 }
 
 .contacts-total {

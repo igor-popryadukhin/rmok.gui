@@ -677,6 +677,11 @@ export default class DefaultLayout extends AppBase {
             this.$store.dispatch('contacts/view/tasks/flush')
             this.$store.dispatch('contacts/view/messages/flush')
 
+            this.$store.dispatch('profile/logout')
+
+            this.$cookie.delete('refresh_token')
+            this.$cookie.delete('access_token')
+
             this.$router.replace({ name: 'login' })
           }
         },
