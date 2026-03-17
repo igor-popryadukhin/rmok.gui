@@ -300,16 +300,16 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import Project from '@/api/interfaces/Project'
-import AppBase from '@/AppBase'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppSummary from '@/components/AppSummary/AppSummary.vue'
-import { AxiosResponse } from 'axios'
-import Component from 'vue-class-component'
+import APIError from '@/api/classes/APIError';
+import Project from '@/api/interfaces/Project';
+import AppBase from '@/AppBase';
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue';
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppSummary from '@/components/AppSummary/AppSummary.vue';
+import { AxiosResponse } from 'axios';
+import Component from 'vue-class-component';
 
 interface Agent {
   user_name: string;
@@ -357,168 +357,168 @@ export default class Main extends AppBase {
   }
 
   get autodialerSummary () {
-    return this.$store.getters['autodialer/view/summary']
+    return this.$store.getters['autodialer/view/summary'];
   }
 
   get autodialerName (): string {
-    return this.$store.state.autodialer.view.name
+    return this.$store.state.autodialer.view.name;
   }
 
   set autodialerName (value: string) {
-    this.form.name = value
+    this.form.name = value;
   }
 
   get autodialerStatus (): string {
-    return this.$store.state.autodialer.view.status
+    return this.$store.state.autodialer.view.status;
   }
 
   get autodialerMode (): string {
-    return this.$store.state.autodialer.view.mode
+    return this.$store.state.autodialer.view.mode;
   }
 
   set autodialerMode (val: string) {
-    this.form.mode = val
+    this.form.mode = val;
   }
 
   get autodialerDescription (): string {
-    return this.$store.state.autodialer.view.description
+    return this.$store.state.autodialer.view.description;
   }
 
   set autodialerDescription (val: string) {
-    this.form.description = val
+    this.form.description = val;
   }
 
   get autodialerProjectId (): number {
     if (this.projects.length === 0 && this.$store.state.autodialer.view.project?.id) {
-      this.searchProjects(this.$store.state.autodialer.view.project.name)
-      this.searchProjects('')
+      this.searchProjects(this.$store.state.autodialer.view.project.name);
+      this.searchProjects('');
     }
-    return this.$store.state.autodialer.view.project?.id || 0
+    return this.$store.state.autodialer.view.project?.id || 0;
   }
 
   set autodialerProjectId (val: number) {
-    const project = this.projects.find((e) => e.id === val)
+    const project = this.projects.find((e) => e.id === val);
     if (project) {
-      this.$store.commit('autodialer/view/project', project)
+      this.$store.commit('autodialer/view/project', project);
     }
   }
 
   public created () {
-    this.$root.$on('sse:autodialer:worker:stats', this.onSSEAutodialerWorkerStats)
-    this.$root.$on('sse:autodialer:worker:agents', this.onSSEAutodialerWorkerAgents)
+    this.$root.$on('sse:autodialer:worker:stats', this.onSSEAutodialerWorkerStats);
+    this.$root.$on('sse:autodialer:worker:agents', this.onSSEAutodialerWorkerAgents);
 
-    this.fetchSummary()
+    this.fetchSummary();
     this.timerIds.push(setInterval(() => {
       if (this.$route.name === 'auto_dialer_view_tab_main' && this.autodialerStatus === 'process') {
-        this.fetchSummary()
+        this.fetchSummary();
       }
-    }, 10000))
+    }, 10000));
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse:autodialer:worker:stats', this.onSSEAutodialerWorkerStats)
-    this.$root.$off('sse:autodialer:worker:agents', this.onSSEAutodialerWorkerAgents)
-    this.timerIds.map(clearInterval)
+    this.$root.$off('sse:autodialer:worker:stats', this.onSSEAutodialerWorkerStats);
+    this.$root.$off('sse:autodialer:worker:agents', this.onSSEAutodialerWorkerAgents);
+    this.timerIds.map(clearInterval);
   }
 
   private onSSEAutodialerWorkerStats (data: Array<Record<string, unknown>>) {
-    this.workerStatus = data
+    this.workerStatus = data;
   }
 
   private onSSEAutodialerWorkerAgents (data: Agent[]) {
     this.workerAgents = (data || []).sort((a, b) => {
       if (['not_inuse', 'ringing', 'in_use'].includes(a.status)) {
-        return -1
+        return -1;
       }
 
-      return 1
-    })
+      return 1;
+    });
   }
 
   /**
    * Срабатывает при нажатии на кнопку Start
    */
   private onBtnStartClick () {
-    this.processStartingOrStopping = true
+    this.processStartingOrStopping = true;
     this.$axios.get(`/auto-dialers/${this.$route.params.id}/start`)
       .then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Auto dialer activated')
+        this.$toast.success('Auto dialer activated');
         this.$store
           .dispatch('autodialer/view/fetch', this.$route.params.id)
-          .finally(() => (this.processStartingOrStopping = false))
+          .finally(() => (this.processStartingOrStopping = false));
       }).catch((reason: Error) => {
-      this.processStartingOrStopping = false
-      this.$toast.error(reason.message)
-    })
+      this.processStartingOrStopping = false;
+      this.$toast.error(reason.message);
+    });
   }
 
   /**
    * Срабатывает при нажатии на кнопку Stop
    */
   private onBtnStopClick () {
-    this.processStartingOrStopping = true
+    this.processStartingOrStopping = true;
     this.$axios.get(`/auto-dialers/${+this.$route.params.id}/stop`)
       .then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Auto dialer deactivated')
+        this.$toast.success('Auto dialer deactivated');
         this.$store
           .dispatch('autodialer/view/fetch', this.$route.params.id)
-          .finally(() => (this.processStartingOrStopping = false))
+          .finally(() => (this.processStartingOrStopping = false));
       }).catch((reason: Error) => {
-      this.processStartingOrStopping = false
-      this.$toast.error(reason.message)
-    })
+      this.processStartingOrStopping = false;
+      this.$toast.error(reason.message);
+    });
   }
 
   private onBtnSaveClick () {
-    this.onApplyChanges()
+    this.onApplyChanges();
   }
 
   private fetchSummary () {
     this.$axios.get(`/auto-dialers/${this.$route.params.id}/summary`)
       .then((response: AxiosResponse) => {
         if (response.status === 200) {
-          this.$store.commit('autodialer/view/summary', response.data)
+          this.$store.commit('autodialer/view/summary', response.data);
         }
-      })
+      });
   }
 
   /**
    * Срабатывает при нажатии на кнопку Apply
    */
   private onApplyChanges () {
-    this.processApply = true
+    this.processApply = true;
     this.$axios.patch(`/auto-dialers/${this.$route.params.id}`, {
       ...(this.form.name.length > 0) ? { name: this.form.name } : {},
       ...(this.form.description.length > 0) ? { description: this.form.description } : {},
       ...(this.form.mode.length > 0) ? { mode: this.form.mode } : {}
     }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Changes accepted')
+        this.$toast.success('Changes accepted');
       }).catch((reason) => {
-      this.$toast.error(reason.message)
-    }).finally(() => (this.processApply = false))
+      this.$toast.error(reason.message);
+    }).finally(() => (this.processApply = false));
   }
 
   private searchProjects (q = '') {
     if (this.projects.length === 0 || this.projects.findIndex((e: Project) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.projectsFetching = true
+      this.projectsFetching = true;
       this.$axios.get('/projects', { params: { q } })
         .then((response: AxiosResponse) => {
           (response.data?.data as Project[])
             .forEach((e1) => {
               if (this.projects.findIndex((e2) => e2.id === e1.id) === -1) {
-                this.projects.push(e1)
+                this.projects.push(e1);
               }
-            })
-        }).finally(() => (this.projectsFetching = false))
+            });
+        }).finally(() => (this.projectsFetching = false));
     }
   }
 }

@@ -44,9 +44,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, Emit, Watch, ModelSync } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, Emit, Watch, ModelSync } from 'vue-property-decorator';
 
 @Component
 export default class AppAutocomplete extends Vue {
@@ -68,30 +68,29 @@ export default class AppAutocomplete extends Vue {
   @ModelSync('value', 'change') readonly selectedValue: any
 
   query = null
-
   @Watch('query', {})
   onWatchQuery (val?: string) {
-    this.onSearch(val)
+    this.onSearch(val);
   }
 
   @Emit('search')
   onSearch (val: string) {
-    return val
+    return val;
   }
 
   @Emit('focus')
   onFocus (val: string) {
-    return val
+    return val;
   }
 
   @Emit('mounted')
   onMountedEmit () {
-    return undefined
+    return undefined;
   }
 
   @Emit('click:clear')
   onClickClear () {
-    this.query = null
+    this.query = null;
   }
 
   /**
@@ -99,13 +98,13 @@ export default class AppAutocomplete extends Vue {
    */
   removeChip (id: number) {
     if (Array.isArray(this.selectedValue)) {
-      const index = this.selectedValue.findIndex((e: number) => e === id)
-      if (index >= 0) this.selectedValue.splice(index, 1)
+      const index = this.selectedValue.findIndex((e: number) => e === id);
+      if (index >= 0) this.selectedValue.splice(index, 1);
     }
   }
 
   mounted () {
-    this.onMountedEmit()
+    this.onMountedEmit();
   }
 }
 </script>

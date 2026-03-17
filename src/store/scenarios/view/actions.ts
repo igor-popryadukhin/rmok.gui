@@ -1,9 +1,9 @@
-import APIError from '@/api/classes/APIError'
-import { $axios } from '@/plugins/axios'
-import { RootState } from '@/store'
-import { AxiosResponse } from 'axios'
-import { ActionTree } from 'vuex'
-import { ScenarioViewState } from './state'
+import APIError from '@/api/classes/APIError';
+import { $axios } from '@/plugins/axios';
+import { RootState } from '@/store';
+import { AxiosResponse } from 'axios';
+import { ActionTree } from 'vuex';
+import { ScenarioViewState } from './state';
 
 export const actions: ActionTree<ScenarioViewState, RootState> = {
 
@@ -18,11 +18,11 @@ export const actions: ActionTree<ScenarioViewState, RootState> = {
       $axios.get(`/scenarios/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          commit('fill', response.data)
-          resolve()
-        }).catch(reject)
-    })
+          commit('fill', response.data);
+          resolve();
+        }).catch(reject);
+    });
   }
-}
+};

@@ -12,9 +12,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppDivider extends Vue {
@@ -26,7 +26,7 @@ export default class AppDivider extends Vue {
     return {
       '--thickness': this.thickness + 'px',
       '--color': this.color
-    }
+    };
   }
 }
 </script>

@@ -1,10 +1,10 @@
-import TimeZone from './TimeZone'
-import Organization from './Organization'
-import Project from './Project'
-import Role from './Role'
-import UserGroup from './UserGroup'
-import Country from './Country'
-import PBXConfiguration from './PBXConfiguration'
+import TimeZone from './TimeZone';
+import Organization from './Organization';
+import Project from './Project';
+import Role from './Role';
+import UserGroup from './UserGroup';
+import Country from './Country';
+import PBXConfiguration from './PBXConfiguration';
 
 export default interface User {
   id: number;

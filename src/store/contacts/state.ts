@@ -1,4 +1,4 @@
-import Contact from '@/api/interfaces/Contact'
+import Contact from '@/api/interfaces/Contact';
 
 export interface ContactsState {
   process_loading: boolean;
@@ -17,9 +17,9 @@ export function defaultState (): ContactsState {
     items: [],
     selected: [],
     selected_all: false
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

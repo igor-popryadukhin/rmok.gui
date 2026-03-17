@@ -153,12 +153,12 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
-import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue'
-import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import Component from 'vue-class-component'
-import { Emit } from 'vue-property-decorator'
+import AppBase from '@/AppBase';
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue';
+import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue';
+import AppPagination from '@/components/AppPagination/AppPaginator.vue';
+import Component from 'vue-class-component';
+import { Emit } from 'vue-property-decorator';
 
 @Component({
   components: {
@@ -175,39 +175,39 @@ import { Emit } from 'vue-property-decorator'
 export default class ContactsAllTools extends AppBase {
   @Emit('btn:click:add-to-autodialer')
   emitBtnAddToAutodialer () {
-    return undefined
+    return undefined;
   }
 
   /** True - если есть выбранные контакты */
   get contactsIsSelected (): boolean {
-    return this.$store.getters['contacts/contacts_all/items_selected'].length > 0
+    return this.$store.getters['contacts/contacts_all/items_selected'].length > 0;
   }
 
   get contactsLoading (): boolean {
-    return this.$store.getters['contacts/contacts_all/loading']
+    return this.$store.getters['contacts/contacts_all/loading'];
   }
 
   get offset (): number {
-    return this.$store.getters['contacts/contacts_all/filter/filter_offset']
+    return this.$store.getters['contacts/contacts_all/filter/filter_offset'];
   }
 
   set offset (val: string|number) {
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', +val)
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', +val);
   }
 
-  get contactsPerPage () { return this.$store.getters['contacts/contacts_all/per_page'] }
-  get contactsTotal () { return this.$store.getters['contacts/contacts_all/items_total'] }
+  get contactsPerPage () { return this.$store.getters['contacts/contacts_all/per_page']; }
+  get contactsTotal () { return this.$store.getters['contacts/contacts_all/items_total']; }
 
   get sorting (): Record<string, unknown> {
     return {
       order_by: this.$store.getters['contacts/contacts_all/filter/order_by'],
       order_direction: this.$store.getters['contacts/contacts_all/filter/order_direction']
-    }
+    };
   }
 
   set sorting (val: Record<string, unknown>) {
-    this.$store.commit('contacts/contacts_all/filter/order_by', val?.order_by)
-    this.$store.commit('contacts/contacts_all/filter/order_direction', val?.order_direction)
+    this.$store.commit('contacts/contacts_all/filter/order_by', val?.order_by);
+    this.$store.commit('contacts/contacts_all/filter/order_direction', val?.order_direction);
   }
 
   get sortingOptions () {
@@ -236,19 +236,19 @@ export default class ContactsAllTools extends AppBase {
         order_direction: 'asc',
         visible: true
       }
-    ]
+    ];
   }
 
   private onBtnAddClick () {
-    this.$store.commit('contacts/create/dialog_visible', true)
+    this.$store.commit('contacts/create/dialog_visible', true);
   }
 
   private onBtnRefreshClick () {
-    this.$store.dispatch('contacts/contacts_all/fetch')
+    this.$store.dispatch('contacts/contacts_all/fetch');
   }
 
   private onBtnCancelClick () {
-    this.$store.dispatch('contacts/contacts_all/cancelFetch')
+    this.$store.dispatch('contacts/contacts_all/cancelFetch');
   }
 
   private onBtnDeleteClick () {
@@ -256,11 +256,11 @@ export default class ContactsAllTools extends AppBase {
   }
 
   private onBtnTransferContactsClick () {
-    this.$store.dispatch('contacts/transfer_dialog/show')
+    this.$store.dispatch('contacts/transfer_dialog/show');
   }
 
   private onBtnImportClick () {
-    this.$store.dispatch('contacts/transfer_dialog/show')
+    this.$store.dispatch('contacts/transfer_dialog/show');
   }
 }
 </script>

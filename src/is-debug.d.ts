@@ -1,6 +1,6 @@
 // 1. Обязательно импортируйте Vue перед объявлением расширенных типов
-import Vue from 'vue'
-import { JsSIP } from '@/jsSIP/plugin'
+import Vue from 'vue';
+import { JsSIP } from '@/jsSIP/plugin';
 
 // 2. Укажите файл с типами, которые вы хотите расширить
 //    Vue имеет тип конструктора в types/vue.d.ts

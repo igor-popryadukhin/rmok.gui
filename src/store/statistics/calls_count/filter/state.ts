@@ -1,6 +1,6 @@
-import Project from '@/api/interfaces/Project'
-import User from '@/api/interfaces/User'
-import UserGroup from '@/api/interfaces/UserGroup'
+import Project from '@/api/interfaces/Project';
+import User from '@/api/interfaces/User';
+import UserGroup from '@/api/interfaces/UserGroup';
 
 export interface State {
   /// /////////////////////////////////
@@ -19,7 +19,7 @@ export function defaultState (): State {
     users: [],
     user_group: null,
     call_types: []
-  }
+  };
 }
 
-export const state = defaultState
+export const state = defaultState;

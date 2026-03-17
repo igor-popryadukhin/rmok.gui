@@ -15,7 +15,7 @@ function state (): State {
     items_per_page: 50,
     items_count: 0,
     items: []
-  }
+  };
 }
 
-export default state
+export default state;

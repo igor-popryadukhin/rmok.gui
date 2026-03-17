@@ -12,9 +12,9 @@ export function defaultState (): State {
     labels: [],
     series: [],
     colors: []
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

@@ -17,9 +17,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppTable extends Vue {
@@ -31,26 +31,26 @@ export default class AppTable extends Vue {
   get vSheetAttrs () {
     const attrs: Record<string, string|number|boolean|object> = {
       outlined: this.outlined
-    }
+    };
 
     if (this.height) {
-      attrs.height = this.height
+      attrs.height = this.height;
     }
 
-    return attrs
+    return attrs;
   }
 
   get vSimpleTableAttrs () {
     const attrs: Record<string, string|number|boolean|object> = {
       dense: this.dense,
       fixedHeader: this.fixedHeader
-    }
+    };
 
     if (this.height) {
-      attrs.height = this.height - 2
+      attrs.height = this.height - 2;
     }
 
-    return attrs
+    return attrs;
   }
 }
 </script>

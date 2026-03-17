@@ -56,14 +56,14 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, PropSync, VModel } from 'vue-property-decorator'
-import Vuelidate, { validationMixin } from 'vuelidate'
-import { required, maxLength } from 'vuelidate/lib/validators'
+import AppBase from '@/AppBase';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, PropSync, VModel } from 'vue-property-decorator';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { required, maxLength } from 'vuelidate/lib/validators';
 
-Vue.use(Vuelidate)
+Vue.use(Vuelidate);
 
 // eslint-disable-next-line no-use-before-define
 @Component({
@@ -73,11 +73,15 @@ Vue.use(Vuelidate)
   },
   computed: {
     nameErrors () {
-      const errors = []
-      if (!this.$v.fieldNameSync.$dirty) return errors
-      !this.$v.fieldNameSync.maxLength && errors.push('Name must be at most 255 characters long')
-      !this.$v.fieldNameSync.required && errors.push('Name is required.')
-      return errors.map((e) => this.$tc(e))
+      const errors = [];
+      if (!this.$v.fieldNameSync.$dirty) return errors;
+      if (this.$v.fieldNameSync.maxLength) {
+        errors.push('Name must be at most 255 characters long');
+      }
+      if (this.$v.fieldNameSync.required) {
+        errors.push('Name is required.');
+      }
+      return errors.map((e) => this.$tc(e));
     }
   }
 })
@@ -89,27 +93,27 @@ export default class StatusesGroupEditDialog extends AppBase {
 
   @Emit('click:save')
   clickSaveEmit () {
-    this.visible = false
-    return undefined
+    this.visible = false;
+    return undefined;
   }
 
   @Emit('click:cancel')
   clickCancelEmit () {
-    this.visible = false
-    return undefined
+    this.visible = false;
+    return undefined;
   }
 
   private onBtnRandomColorClick () {
-    this.fieldColorSync = this.randomColor()
+    this.fieldColorSync = this.randomColor();
   }
 
   private randomColor (): string {
-    const letters = '0123456789ABCDEF'
-    let color = '#'
+    const letters = '0123456789ABCDEF';
+    let color = '#';
     for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)]
+      color += letters[Math.floor(Math.random() * 16)];
     }
-    return color
+    return color;
   }
 }
 </script>

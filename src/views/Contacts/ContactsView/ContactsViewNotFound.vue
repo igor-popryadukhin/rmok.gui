@@ -28,8 +28,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import Vue from 'vue';
+import Component from 'vue-class-component';
 
 @Component
 export default class ContactsViewNotFound extends Vue {
@@ -39,11 +39,11 @@ export default class ContactsViewNotFound extends Vue {
    * @private
    */
   private toRetry () {
-    this.retryLoading = true
+    this.retryLoading = true;
     this.$router.replace({
       name: 'contacts_view',
       params: this.$route.params
-    }).finally(() => (this.retryLoading = false))
+    }).finally(() => (this.retryLoading = false));
   }
 }
 </script>

@@ -1,7 +1,7 @@
-import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
-import { State } from './state'
-import Scenarios from '@/api/Scenarios'
+import { RootState } from '@/store';
+import { ActionContext, ActionTree } from 'vuex';
+import { State } from './state';
+import Scenarios from '@/api/Scenarios';
 
 const actions: ActionTree<State, RootState> = {
 
@@ -15,10 +15,10 @@ const actions: ActionTree<State, RootState> = {
     return new Scenarios()
       .get(params)
       .then((response) => {
-        ctx.commit('total', +response.meta?.count || 0)
-        ctx.commit('items', response.data)
-      })
+        ctx.commit('total', +response.meta?.count || 0);
+        ctx.commit('items', response.data);
+      });
   }
-}
+};
 
-export default actions
+export default actions;

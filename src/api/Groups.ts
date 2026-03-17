@@ -1,8 +1,8 @@
-import UserGroup from '@/api/interfaces/UserGroup'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import APIError from '@/api/classes/APIError'
+import UserGroup from '@/api/interfaces/UserGroup';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import APIError from '@/api/classes/APIError';
 
 export interface GroupResponsibleInterface {
   id: number;
@@ -43,11 +43,11 @@ export class Groups {
       $axios.get('/groups', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -61,11 +61,11 @@ export class Groups {
         params: Object.assign({}, { target_groups: ids }, params)
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          return resolve(response.data)
+          return resolve(response.data);
         }
-        throw new APIError(response.data)
-      }).catch(reject)
-    })
+        throw new APIError(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -77,11 +77,11 @@ export class Groups {
       $axios.post('/groups', data)
         .then((response: AxiosResponse) => {
           if ([200, 201].includes(response.status)) {
-            return resolve(response.data.id)
+            return resolve(response.data.id);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -94,11 +94,11 @@ export class Groups {
       $axios.patch(`/groups/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -110,11 +110,11 @@ export class Groups {
       $axios.delete(`/groups/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   public getById (id: number): Promise<GroupInterface> {
@@ -122,12 +122,12 @@ export class Groups {
       $axios.get(`/groups/${id}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 }
 
-export default Groups
+export default Groups;

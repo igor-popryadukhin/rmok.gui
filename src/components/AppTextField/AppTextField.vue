@@ -29,9 +29,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, VModel, Watch } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, VModel, Watch } from 'vue-property-decorator';
 
 @Component
 export default class AppTextField extends Vue {
@@ -45,8 +45,8 @@ export default class AppTextField extends Vue {
   @VModel({ default: () => null }) vModel!: string|null
 
   @Watch('text')
-  textWatch(value: string) {
-    this.vModel = value
+  textWatch (value: string) {
+    this.vModel = value;
   }
 
 }

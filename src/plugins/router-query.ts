@@ -1,12 +1,12 @@
-import Vue from 'vue'
-import { VueRouter } from 'vue-router/types/router'
-import $router from '@/router'
+import Vue from 'vue';
+import { VueRouter } from 'vue-router/types/router';
+import $router from '@/router';
 
 export class RouterQuery {
   private _vueRouter: VueRouter
 
   constructor (router: VueRouter) {
-    this._vueRouter = router
+    this._vueRouter = router;
   }
 
   /**
@@ -14,24 +14,24 @@ export class RouterQuery {
    */
   public setQuery (query: any): Promise<any> {
     return new Promise<void>((resolve) => {
-      const obj = Object.assign({}, this._vueRouter.currentRoute.query)
+      const obj = Object.assign({}, this._vueRouter.currentRoute.query);
 
       Object.keys(query).forEach((key: string) => {
-        const value = query[key]
+        const value = query[key];
         if (value) {
-          obj[key] = value
+          obj[key] = value;
         } else {
-          delete obj[key]
+          delete obj[key];
         }
-      })
+      });
 
       this._vueRouter.push({
         name: this._vueRouter.currentRoute.name || undefined,
         params: this._vueRouter.currentRoute.params,
         path: this._vueRouter.currentRoute.path,
         query: obj
-      }).catch().finally(resolve)
-    })
+      }).catch().finally(resolve);
+    });
   }
 
   /**
@@ -40,10 +40,10 @@ export class RouterQuery {
    */
   public getQuery (key: string, def?: string | number): string {
     if (key in this._vueRouter.currentRoute.query) {
-      const val: any = this._vueRouter.currentRoute.query[key]
-      return val
+      const val: any = this._vueRouter.currentRoute.query[key];
+      return val;
     } else {
-      return def as any
+      return def as any;
     }
   }
 
@@ -52,20 +52,20 @@ export class RouterQuery {
    */
   public removeQuery (names: string[]) {
     return new Promise<void>((resolve) => {
-      const obj = Object.assign({}, this._vueRouter.currentRoute.query)
+      const obj = Object.assign({}, this._vueRouter.currentRoute.query);
 
       names.forEach((key) => {
-        delete obj[key]
-      })
+        delete obj[key];
+      });
 
       this._vueRouter.push({
         params: this._vueRouter.currentRoute.params,
         path: this._vueRouter.currentRoute.path,
         query: obj
       }).catch((reason) => {
-        return false
-      }).finally(resolve)
-    })
+        return false;
+      }).finally(resolve);
+    });
   }
 
   /**
@@ -73,11 +73,11 @@ export class RouterQuery {
    * @param key
    */
   public hasQuery (key: string): boolean {
-    return key in this._vueRouter.currentRoute.query
+    return key in this._vueRouter.currentRoute.query;
   }
 }
 
-const routerQuery: RouterQuery = new RouterQuery($router)
+const routerQuery: RouterQuery = new RouterQuery($router);
 
 // tslint:disable-next-line:max-classes-per-file
 class RouterQueryPlugin {
@@ -85,11 +85,11 @@ class RouterQueryPlugin {
     Object.defineProperties(Vue.prototype, {
       $routerQuery: {
         get (): RouterQuery {
-          return routerQuery
+          return routerQuery;
         }
       }
-    })
+    });
   }
 }
 
-Vue.use(new RouterQueryPlugin())
+Vue.use(new RouterQueryPlugin());

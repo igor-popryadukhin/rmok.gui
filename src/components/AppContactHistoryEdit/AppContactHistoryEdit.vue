@@ -47,9 +47,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppContactHistoryEdit extends Vue {
@@ -65,17 +65,17 @@ export default class AppContactHistoryEdit extends Vue {
     return {
       status_id: this.innerStatusId,
       comment: this.innerComment
-    }
+    };
   }
 
   @Emit('click:btn:cancel')
   clickBtnCancel () {
-    return undefined
+    return undefined;
   }
 
   mounted () {
-    this.innerStatusId = this.statusId
-    this.innerComment = this.comment
+    this.innerStatusId = this.statusId;
+    this.innerComment = this.comment;
   }
 }
 </script>

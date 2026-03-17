@@ -229,15 +229,15 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import ContactsIntegrations from '@/api/ContactsIntegrations'
-import Projects from '@/api/Projects'
-import { UserInterface } from '@/api/Users'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import APIError from '@/api/classes/APIError';
+import ContactsIntegrations from '@/api/ContactsIntegrations';
+import Projects from '@/api/Projects';
+import { UserInterface } from '@/api/Users';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppSearchInput from '@/components/AppSearchInput/AppSearchInput.vue';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 @Component({
   components: { AppSearchInput, AppLoading }
 })
@@ -257,39 +257,39 @@ export default class List extends AppBase {
   userForJoin = null
 
   get projectSelectedId () {
-    return +this.$route.query?.project_id || -1
+    return +this.$route.query?.project_id || -1;
   }
 
   set projectSelectedId (val: number) {
-    this.$routerQuery.setQuery({ project_id: val })
+    this.$routerQuery.setQuery({ project_id: val });
   }
 
   get integrationSearch () {
     // TODO: Решить проблему
-    return ''
+    return '';
   }
 
   set integrationSearch (val: string) {
-    this.$routerQuery.setQuery({ q: val })
+    this.$routerQuery.setQuery({ q: val });
   }
 
   get integrationParams () {
-    const params = []
+    const params = [];
 
-    const integration = this.integrations.find(e => e.id === this.integrationId)
+    const integration = this.integrations.find(e => e.id === this.integrationId);
 
     if ('project_name' in integration) {
       params.push({
         title: this.$tc('Project'),
         value: integration.project_name
-      })
+      });
     }
 
     if ('user_name' in integration) {
       params.push({
         title: this.$tc('Participant'),
         value: integration.user_name
-      })
+      });
     }
 
     if ('limit' in integration) {
@@ -306,37 +306,37 @@ export default class List extends AppBase {
           },
           on: {
             change: (val: number) => {
-              integration.limit = +val
+              integration.limit = +val;
               new ContactsIntegrations()
                 .edit(integration.id, {
                   limit: val
                 }).then(() => {
-                  this.$toast.success(this.$tc('Changes accepted'))
-                })
+                  this.$toast.success(this.$tc('Changes accepted'));
+                });
             }
           }
         }
-      })
+      });
     }
 
     if ('is_active' in integration) {
       params.push({
         title: this.$tc('Status'),
         value: integration.is_active ? this.$tc('Active') : this.$tc('Not active')
-      })
+      });
     }
 
-    return params
+    return params;
   }
 
   get paramsForUsers () {
     return {
       project_id: this.projectSelectedId
-    }
+    };
   }
 
   get count () {
-    return this.$data.integrations?.length || 0
+    return this.$data.integrations?.length || 0;
   }
 
   @Watch('userForJoin')
@@ -345,35 +345,35 @@ export default class List extends AppBase {
       new ContactsIntegrations()
         .add(this.projectSelectedId, val?.id)
         .then(() => {
-          this.$toast.success(this.$tc('Changes accepted'))
-          this.fetchIntegrations(this.projectSelectedId)
+          this.$toast.success(this.$tc('Changes accepted'));
+          this.fetchIntegrations(this.projectSelectedId);
         })
         .catch((e: APIError) => {
           switch (e.error_code) {
             case 'integration_already_exists': {
-              this.$toast.warning(e.message)
-              break
+              this.$toast.warning(e.message);
+              break;
             }
             default: {
-              this.$toast.error(e.message)
+              this.$toast.error(e.message);
             }
           }
         }).finally(() => {
-          this.$data.switchChangeProcess = false
-        })
+          this.$data.switchChangeProcess = false;
+        });
 
       // Очищаю предыдущий выбор
       setTimeout(() => {
-        this.$data.userForJoin = null
-      }, 300)
+        this.$data.userForJoin = null;
+      }, 300);
     }
   }
 
   public async mounted () {
   // Сначала загружаю проекты
-    await this.fetchProjects()
+    await this.fetchProjects();
     if (this.projectSelectedId > -1) {
-      this.fetchIntegrations(this.projectSelectedId)
+      this.fetchIntegrations(this.projectSelectedId);
     }
   }
 
@@ -381,28 +381,28 @@ export default class List extends AppBase {
  * Загрузить с сервера доступные проекты
  */
   private fetchProjects () {
-    this.$data.projectsLoading = true
+    this.$data.projectsLoading = true;
     return new Projects()
       .find()
       .then((response) => {
-        this.$data.projectsTotal = response?.meta?.count || 0
-        this.$data.projects = response.data
-      }).finally(() => (this.$data.projectsLoading = false))
+        this.$data.projectsTotal = response?.meta?.count || 0;
+        this.$data.projects = response.data;
+      }).finally(() => (this.$data.projectsLoading = false));
   }
 
   /**
- * Загрузить с сервера параметры интеграций
- */
+   * Загрузить с сервера параметры интеграций
+   */
   private fetchIntegrations (project_id: number, params = {}) {
-    this.$data.integrationsLoading = true
+    this.$data.integrationsLoading = true;
     new ContactsIntegrations()
       .find(Object.assign(params, { project_id }))
       .then((response) => {
-        this.$data.integrationsTotal = response.meta?.count || 0
-        this.$data.integrations = response.data
+        this.$data.integrationsTotal = response.meta?.count || 0;
+        this.$data.integrations = response.data;
       }).finally(() => {
-        this.$data.integrationsLoading = false
-      })
+        this.$data.integrationsLoading = false;
+      });
   }
 
   /**
@@ -410,41 +410,40 @@ export default class List extends AppBase {
  */
   private onSearchChange (q?: string) {
     if (typeof q === 'string') {
-      this.fetchIntegrations(this.projectSelectedId, { q })
+      this.fetchIntegrations(this.projectSelectedId, { q });
     } else {
-      this.fetchIntegrations(this.projectSelectedId)
+      this.fetchIntegrations(this.projectSelectedId);
     }
   }
 
   /**
- * Событие, которое генерируется при нажатии на элемент списка проектов.
- *
- * @param id
- * @param event
- */
-  private onProjectListItemClick (id: number, event: Event) {
-    this.integrationSearch = ''
-    this.fetchIntegrations(id)
+   * Событие, которое генерируется при нажатии на элемент списка проектов.
+   *
+   * @param id
+   */
+  private onProjectListItemClick (id: number) {
+    this.integrationSearch = '';
+    this.fetchIntegrations(id);
   }
 
   /**
- * Событие, которое генерируется при изменении состояния активности интеграции.
- *
- * @param id
- * @param state
- */
+   * Событие, которое генерируется при изменении состояния активности интеграции.
+   *
+   * @param id
+   * @param state
+   */
   private onSwitchChange (id: number, state: boolean) {
-    this.$data.switchChangeProcess = true
+    this.$data.switchChangeProcess = true;
     new ContactsIntegrations()
       .setActive(id, state)
       .then(() => {
-        this.$toast.success(this.$tc('Changes accepted'))
+        this.$toast.success(this.$tc('Changes accepted'));
       })
       .catch((e: Error) => {
-        this.$toast.error(e.message)
+        this.$toast.error(e.message);
       }).finally(() => {
-        this.$data.switchChangeProcess = false
-      })
+        this.$data.switchChangeProcess = false;
+      });
   }
 }
 </script>

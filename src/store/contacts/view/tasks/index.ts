@@ -1,9 +1,9 @@
-import { RootState } from '@/store'
-import { Module } from 'vuex'
-import state, { ContactsViewTasksState } from './state'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
+import { RootState } from '@/store';
+import { Module } from 'vuex';
+import state, { ContactsViewTasksState } from './state';
+import getters from './getters';
+import actions from './actions';
+import mutations from './mutations';
 
 const module: Module<ContactsViewTasksState, RootState> = {
   actions,
@@ -11,6 +11,6 @@ const module: Module<ContactsViewTasksState, RootState> = {
   mutations,
   namespaced: true,
   state
-}
+};
 
-export default module
+export default module;

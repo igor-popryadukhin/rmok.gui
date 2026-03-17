@@ -15,7 +15,7 @@ function state (): State {
     port: 443,
     schema: 'wss',
     server: ''
-  }
+  };
 }
 
-export default state
+export default state;

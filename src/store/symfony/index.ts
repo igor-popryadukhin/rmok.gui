@@ -1,9 +1,9 @@
-import { RootState } from '@/store'
-import { Module } from 'vuex'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
-import state, { SymfonyStateInterface } from './state'
+import { RootState } from '@/store';
+import { Module } from 'vuex';
+import getters from './getters';
+import actions from './actions';
+import mutations from './mutations';
+import state, { SymfonyStateInterface } from './state';
 
 const symfony: Module<SymfonyStateInterface, RootState> = {
   actions,
@@ -11,6 +11,6 @@ const symfony: Module<SymfonyStateInterface, RootState> = {
   mutations,
   namespaced: true,
   state
-}
+};
 
-export default symfony
+export default symfony;

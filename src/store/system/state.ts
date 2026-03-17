@@ -6,7 +6,7 @@ export interface State {
 function state (): State {
   return {
     permissions: []
-  }
+  };
 }
 
-export default state
+export default state;

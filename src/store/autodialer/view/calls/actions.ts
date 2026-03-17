@@ -1,8 +1,8 @@
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { State } from './state'
-import { $axios } from '@/plugins/axios'
-import APIError from '@/api/classes/APIError'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { State } from './state';
+import { $axios } from '@/plugins/axios';
+import APIError from '@/api/classes/APIError';
 
 const actions: ActionTree<State, RootState> = {
 
@@ -21,14 +21,14 @@ const actions: ActionTree<State, RootState> = {
         }
       }).then((response) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         } else {
-          commit('items_total', response.data?.meta?.count || 0)
-          commit('items', response.data?.data || [])
-          resolve()
+          commit('items_total', response.data?.meta?.count || 0);
+          commit('items', response.data?.data || []);
+          resolve();
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   },
 
   /**
@@ -45,20 +45,20 @@ const actions: ActionTree<State, RootState> = {
         }
       }).then((response) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         } else {
-          commit('items_callers_total', response.data?.meta?.count || 0)
-          commit('items_callers', response.data?.data || [])
-          resolve()
+          commit('items_callers_total', response.data?.meta?.count || 0);
+          commit('items_callers', response.data?.data || []);
+          resolve();
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   },
 
   unselected_all_in_page: ({ commit }) => {
-    commit('items_selected', [])
+    commit('items_selected', []);
   }
 
-}
+};
 
-export default actions
+export default actions;

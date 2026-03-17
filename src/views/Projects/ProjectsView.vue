@@ -46,24 +46,24 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
-import ProjectsTools from '@/views/Projects/ProjectsTools.vue'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import ProjectsItems from '@/views/Projects/ProjectsItems.vue';
+import ProjectsTools from '@/views/Projects/ProjectsTools.vue';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ProjectsView>({
   components: { AppLoading, ProjectsTools, ProjectsItems },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.$store.dispatch('projects/view/fetch')
-    })
+      vm.$store.dispatch('projects/view/fetch');
+    });
   }
 })
 export default class ProjectsView extends AppBase {
-  get getThisPageHeight () { return this.screenHeight - 118 }
-  get fetching () { return this.$store.getters['projects/view/fetching'] }
+  get getThisPageHeight () { return this.screenHeight - 118; }
+  get fetching () { return this.$store.getters['projects/view/fetching']; }
   get tabs () {
     return [
       {
@@ -75,7 +75,7 @@ export default class ProjectsView extends AppBase {
       {
         title: 'Люди',
         to: {
-          name: 'projects_view_people'
+          name: 'projects_view_members'
         }
       },
       {
@@ -84,11 +84,11 @@ export default class ProjectsView extends AppBase {
           name: 'projects_view_statuses'
         }
       }
-    ]
+    ];
   }
 
   public beforeDestroy () {
-    this.$store.dispatch('projects/view/flush')
+    this.$store.dispatch('projects/view/flush');
   }
 }
 </script>

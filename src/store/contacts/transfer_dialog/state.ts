@@ -1,5 +1,5 @@
-import Project from '@/api/interfaces/Project'
-import User from '@/api/interfaces/User'
+import Project from '@/api/interfaces/Project';
+import User from '@/api/interfaces/User';
 
 export interface State {
   visible: boolean;
@@ -16,9 +16,9 @@ export function defaultState () {
     available_users: [],
     project_id: null,
     user_ids: []
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

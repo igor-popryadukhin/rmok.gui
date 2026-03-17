@@ -1,4 +1,4 @@
-import PBXConfig from '@/api/interfaces/PBXConfig'
+import PBXConfig from '@/api/interfaces/PBXConfig';
 
 interface NavigationDrawerInterface {
   mini: boolean;
@@ -79,7 +79,7 @@ function state (): SettingsStateInterface {
       port: 443
     },
     vue_keep_alive: true
-  }
+  };
 }
 
-export default state
+export default state;

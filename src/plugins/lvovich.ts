@@ -1,8 +1,8 @@
-import { getGender, incline } from 'lvovich'
-import { LvovichPersonT } from 'lvovich/lib/incline'
-import { DeclentionStrT } from 'lvovich/lib/inclineRules'
-import Vue from 'vue'
-import { FioT, GenderStrT } from 'lvovich/lib/gender'
+import { getGender, incline } from 'lvovich';
+import { LvovichPersonT } from 'lvovich/lib/incline';
+import { DeclentionStrT } from 'lvovich/lib/inclineRules';
+import Vue from 'vue';
+import { FioT, GenderStrT } from 'lvovich/lib/gender';
 
 export class Lvovich {
   /**
@@ -10,18 +10,18 @@ export class Lvovich {
    * @param declension
    */
   public incline (person: LvovichPersonT, declension?: DeclentionStrT): LvovichPersonT {
-    return incline(person, declension)
+    return incline(person, declension);
   }
 
   /**
    * @param fio
    */
   public getGender (fio: FioT): GenderStrT | null {
-    return getGender(fio)
+    return getGender(fio);
   }
 }
 
-const lvovich: Lvovich = new Lvovich()
+const lvovich: Lvovich = new Lvovich();
 
 // tslint:disable-next-line:max-classes-per-file
 class CookiePlugin {
@@ -29,11 +29,11 @@ class CookiePlugin {
     Object.defineProperties(Vue.prototype, {
       $lvovich: {
         get (): Lvovich {
-          return lvovich
+          return lvovich;
         }
       }
-    })
+    });
   }
 }
 
-Vue.use(new CookiePlugin())
+Vue.use(new CookiePlugin());

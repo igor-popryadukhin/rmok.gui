@@ -116,18 +116,18 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
-import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
-import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
-import debounce from '@/utils/debounce'
-import AllCallsFilters from './AllCallsFilters.vue'
-import AllCallsTools from './AllCallsTools.vue'
+import AppBase from '@/AppBase';
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue';
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue';
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue';
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue';
+import debounce from '@/utils/debounce';
+import AllCallsFilters from './AllCallsFilters.vue';
+import AllCallsTools from './AllCallsTools.vue';
 
-import Component from 'vue-class-component'
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<AllCalls>({
@@ -145,18 +145,18 @@ import Component from 'vue-class-component'
 export default class AllCalls extends AppBase {
   isFetchStatistic = false
 
-  get settingsFilterWidth (): number { return this.$store.getters['statistics/all_calls/settings/filter_width'] }
-  set settingsFilterWidth (val: number) { this.$store.commit('statistics/all_calls/settings/filter_width', val) }
+  get settingsFilterWidth (): number { return this.$store.getters['statistics/all_calls/settings/filter_width']; }
+  set settingsFilterWidth (val: number) { this.$store.commit('statistics/all_calls/settings/filter_width', val); }
 
   get itemsFetching () {
-    return this.$store.getters['statistics/all_calls/items_fetching']
+    return this.$store.getters['statistics/all_calls/items_fetching'];
   }
 
   /**
    * Количество прозвоненных клиентов в соответствии установленными параметрами фильтров
    */
   get itemsCount (): number {
-    return this.$store.getters['statistics/all_calls/items_count'] || 0
+    return this.$store.getters['statistics/all_calls/items_count'] || 0;
   }
 
   /**
@@ -206,7 +206,7 @@ export default class AllCalls extends AppBase {
         sortable: false,
         value: 'actions'
       }
-    ]
+    ];
   }
 
   get items () {
@@ -228,47 +228,47 @@ export default class AllCalls extends AppBase {
         manager: e.manager,
         call_duration: e.call_duration,
         audio_record_id: e.audio_record_id
-      }
-    })
+      };
+    });
   }
 
   get filterOffset () {
-    return this.$store.getters['statistics/all_calls/filter/offset']
+    return this.$store.getters['statistics/all_calls/filter/offset'];
   }
 
   set filterOffset (val: number) {
-    this.$store.commit('statistics/all_calls/filter/offset', val)
+    this.$store.commit('statistics/all_calls/filter/offset', val);
   }
 
   get orderBy () {
-    return this.$store.getters['statistics/all_calls/filter/order_by']
+    return this.$store.getters['statistics/all_calls/filter/order_by'];
   }
 
   set orderBy (val: string) {
-    this.$store.commit('statistics/all_calls/filter/order_by', val)
+    this.$store.commit('statistics/all_calls/filter/order_by', val);
   }
 
   get orderDirection () {
-    return this.$store.getters['statistics/all_calls/filter/order_direction']
+    return this.$store.getters['statistics/all_calls/filter/order_direction'];
   }
 
   set orderDirection (val: string) {
-    this.$store.commit('statistics/all_calls/filter/order_direction', val)
+    this.$store.commit('statistics/all_calls/filter/order_direction', val);
   }
 
   get appBtnSorting () {
     return {
       order_by: this.orderBy,
       order_direction: this.orderDirection
-    }
+    };
   }
 
   set appBtnSorting ({
     order_by,
     order_direction
   }) {
-    this.orderBy = order_by
-    this.orderDirection = order_direction
+    this.orderBy = order_by;
+    this.orderDirection = order_direction;
   }
 
   // Возможные варианты сортировки
@@ -279,34 +279,33 @@ export default class AllCalls extends AppBase {
       'result',
       'comment',
       'call_duration',
-      'session_duration',
       'manager'
     ].map((e) => ({
       name: this.$t(`sorting_options.${e}`),
       order_by: e,
       order_direction: 'asc'
-    }))
+    }));
   }
 
   public created () {
-    this.fetchStatisticHistory = debounce(this.fetchStatisticHistory, 350)
+    this.fetchStatisticHistory = debounce(this.fetchStatisticHistory, 350);
   }
 
   public mounted () {
-    this.fetchStatistic()
+    this.fetchStatistic();
   }
 
   private async fetchStatistic () {
-    this.isFetchStatistic = true
+    this.isFetchStatistic = true;
     Promise.all(
       [
         this.$store.dispatch('statistics/all_calls/fetch')
       ]
-    ).finally(() => (this.isFetchStatistic = false))
+    ).finally(() => (this.isFetchStatistic = false));
   }
 
   private fetchStatisticHistory () {
-    this.$store.dispatch('statistics/all_calls/fetch')
+    this.$store.dispatch('statistics/all_calls/fetch');
   }
 
   /**
@@ -314,8 +313,8 @@ export default class AllCalls extends AppBase {
    * @private
    */
   private onFilterChange () {
-    this.$store.commit('statistics/all_calls/filter/offset', 0)
-    this.fetchStatistic()
+    this.$store.commit('statistics/all_calls/filter/offset', 0);
+    this.fetchStatistic();
   }
 
   /**
@@ -327,7 +326,7 @@ export default class AllCalls extends AppBase {
     this.$root.$emit('audio-player-show', {
       src: `${process.env.VUE_APP_API_ENDPOINT}/contacts/history/audio/${item.audio_record_id}`,
       author: `${item.manager.name} / ${item.contact.name}`
-    })
+    });
   }
 }
 </script>
@@ -440,7 +439,6 @@ export default class AllCalls extends AppBase {
       "result": "По результату",
       "comment": "По комментарию",
       "call_duration": "По длительности звонка",
-      "session_duration": "По длительности сессии",
       "manager": "По менеджеру"
     }
   }

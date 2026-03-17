@@ -1,10 +1,10 @@
-import APIError from '@/api/classes/APIError'
-import { $axios } from '@/plugins/axios'
-import { RootState } from '@/store'
-import { AxiosResponse } from 'axios'
-import { ActionTree } from 'vuex'
-import { State } from './state'
-import { Contacts } from '@/api/Contacts'
+import APIError from '@/api/classes/APIError';
+import { $axios } from '@/plugins/axios';
+import { RootState } from '@/store';
+import { AxiosResponse } from 'axios';
+import { ActionTree } from 'vuex';
+import { State } from './state';
+import { Contacts } from '@/api/Contacts';
 
 const actions: ActionTree<State, RootState> = {
   /**
@@ -19,10 +19,10 @@ const actions: ActionTree<State, RootState> = {
       new Contacts()
         .getById(id)
         .then((response) => {
-          save(commit, state, response)
-          resolve()
-        })
-    })
+          save(commit, state, response);
+          resolve();
+        });
+    });
   },
 
   /**
@@ -37,23 +37,23 @@ const actions: ActionTree<State, RootState> = {
       new Contacts()
         .getByPhoneNumber(number)
         .then((response) => {
-          save(commit, state, response)
-          resolve()
-        })
-    })
+          save(commit, state, response);
+          resolve();
+        });
+    });
   },
 
   reset_state: ({ commit }) => {
-    commit('reset_state')
+    commit('reset_state');
   }
-}
+};
 
 function save (commit, state, payload) {
   for (const name in payload) {
     if (Object.hasOwnProperty.call(payload, name) && Object.hasOwnProperty.call(state, name)) {
-      commit(name, payload[name])
+      commit(name, payload[name]);
     }
   }
 }
 
-export default actions
+export default actions;

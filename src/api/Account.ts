@@ -1,10 +1,10 @@
-import APIError from '@/api/classes/APIError'
-import User from '@/api/interfaces/User'
-import Country from '@/api/Schemas/Country'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import { OrganizationInterface } from '@/api/Organizations'
-import { PermissionGroupInterface } from '@/api/Permissions'
+import APIError from '@/api/classes/APIError';
+import User from '@/api/interfaces/User';
+import Country from '@/api/Schemas/Country';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import { OrganizationInterface } from '@/api/Organizations';
+import { PermissionGroupInterface } from '@/api/Permissions';
 
 export enum UserStatus {
   AVAILABLE = 'available',
@@ -48,12 +48,12 @@ export class Account {
       $axios.patch('/account/profile', data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 }
 
-export default Account
+export default Account;

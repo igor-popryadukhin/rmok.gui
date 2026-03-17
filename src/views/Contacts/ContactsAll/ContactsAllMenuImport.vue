@@ -34,11 +34,11 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import Component from 'vue-class-component';
 
 @Component({
   components: { AppLoading }
@@ -60,19 +60,19 @@ export default class ContactsAllMenuImport extends AppBase {
         icon_color: 'green',
         format: 'excel'
       }
-    ]
+    ];
   }
 
   private onMenuItemClick (format: string) {
-    let accept = ''
+    let accept = '';
     switch (format) {
       case 'csv': {
-        accept = '.csv'
-        break
+        accept = '.csv';
+        break;
       }
       case 'excel': {
-        accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
-        break
+        accept = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel';
+        break;
       }
     }
 
@@ -82,21 +82,21 @@ export default class ContactsAllMenuImport extends AppBase {
         multiple: false
       }).then((file) => {
         if (file instanceof File) {
-          const formData = new FormData()
-          formData.append('file', new Blob([file], { type: file.type }))
+          const formData = new FormData();
+          formData.append('file', new Blob([file], { type: file.type }));
 
           $axios.post('/contacts/import', formData, {
             maxBodyLength: 5 * 1024 * 1024 // 5 MB
           }).then((response: AxiosResponse) => {
             if (response.status === 200) {
-              this.$toast.success('Contacts successfully imported')
-              this.$store.dispatch('contacts/contacts_all/fetch')
+              this.$toast.success('Contacts successfully imported');
+              this.$store.dispatch('contacts/contacts_all/fetch');
             }
           }).catch((e: Error) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         }
-      })
+      });
   }
 }
 </script>

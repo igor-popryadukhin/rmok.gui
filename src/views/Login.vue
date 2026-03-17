@@ -29,8 +29,10 @@
     >
       <v-col
         cols="12"
-        sm="8"
+        sm="6"
         md="4"
+        lg="3"
+        xl="2"
         class="d-flex flex-column justify-center"
         style="height: 350px"
       >
@@ -63,7 +65,7 @@
 
         <div class="d-flex justify-end">
           <v-btn
-            color="grey"
+            disabled
             small
             tile
             text
@@ -111,25 +113,25 @@
 </template>
 
 <script lang="ts">
-import $store from '@/store'
-import axios, { AxiosResponse } from 'axios'
-import AppBase from '@/AppBase'
-import Component from 'vue-class-component'
+import $store from '@/store';
+import axios, { AxiosResponse } from 'axios';
+import AppBase from '@/AppBase';
+import Component from 'vue-class-component';
 
 // See https://github.com/lancedikson/bowser
-import * as Bowser from 'bowser'
-import { Route } from 'vue-router/types/router'
+import * as Bowser from 'bowser';
+import { Route } from 'vue-router/types/router';
 
 @Component({
   beforeRouteEnter (to: Route, from: Route, next) {
-    $store.commit('bootstrap_process', false)
+    $store.commit('bootstrap_process', false);
     next((vm) => {
       // Если перешли на страницу авторизации.
       // Следует отключиться от телефонии.
       if (vm.$dialer.isConnected()) {
-        vm.$dialer.disconnect()
+        vm.$dialer.disconnect();
       }
-    })
+    });
   }
 })
 export default class Login extends AppBase {
@@ -147,12 +149,12 @@ export default class Login extends AppBase {
   processMessage = '';
 
   private login (login: string, password: string) {
-    const browser = Bowser.parse(window.navigator.userAgent)
+    const browser = Bowser.parse(window.navigator.userAgent);
 
-    this.processAuthorization = true
-    this.isError = false
-    this.authorization.loading = true
-    this.processMessage = this.$tc('Authentication...')
+    this.processAuthorization = true;
+    this.isError = false;
+    this.authorization.loading = true;
+    this.processMessage = this.$tc('Authentication...');
     this.axiosInstance.post(`${process.env.VUE_APP_API_ENDPOINT}/account/authorization`, {
       login,
       password,
@@ -163,7 +165,7 @@ export default class Login extends AppBase {
       if (response.status === 200) {
         /* eslint-disable */
         // @ts-ignore
-        this.$cookie.set('access_token', response.data.access_token, { path: '/', 'max-age': 86400 });
+        this.$cookie.set('access_token', response.data.access_token, { path: '/', 'Max-Age': 1800 });
 
         // TODO: SSE JWT
         this.$cookie.set('mercureAuthorization', this.$cookie.get('access_token'), {
@@ -177,22 +179,26 @@ export default class Login extends AppBase {
         await this.$store.dispatch('profile/fetch');
 
         setTimeout(() => {
-          this.$router.replace('/');
+          this.$router.replace('/contacts-new');
         }, 1000);
 
         this.processMessage = this.$tc('Login successful!');
         /* eslint-enable */
       } else {
-        this.processMessage = this.$tc('Authentication Error!')
+        this.processMessage = this.$tc('Authentication Error!');
       }
     }).catch(() => {
-      this.processMessage = this.$tc('Authentication Error!')
+      this.processMessage = this.$tc('Authentication Error!');
     }).finally(() => {
       setTimeout(() => {
-        this.authorization.loading = false
-        this.processAuthorization = false
-      }, 3000)
-    })
+        this.authorization.loading = false;
+        this.processAuthorization = false;
+      }, 3000);
+    });
+  }
+
+  mounted () {
+    if (this.$monitoring.connected) { this.$monitoring.disconnect(); }
   }
 }
 </script>
@@ -203,7 +209,7 @@ export default class Login extends AppBase {
   left: 0;
   top: 0;
   height: 2px;
-  width: 3px;
+  width: 2px;
   .u {
     height: 100%;
     width: 100%;

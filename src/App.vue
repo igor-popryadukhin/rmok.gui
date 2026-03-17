@@ -20,20 +20,20 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import Component from 'vue-class-component';
 
 @Component({
   components: { AppLoading }
 })
 export default class App extends AppBase {
   get layout () {
-    return this.$route.meta.layout || 'clean'
+    return this.$route.meta.layout || 'clean';
   }
 
   get bootstrapProcess (): boolean {
-    return this.$store.getters['bootstrap_process']
+    return this.$store.getters['bootstrap_process'];
   }
 }
 </script>

@@ -21,9 +21,9 @@ export function defaultState (): State {
     contact_created_at: undefined,
     order_by: 'created_at',
     order_direction: 'asc'
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

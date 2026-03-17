@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType, VNode } from 'vue'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import Vue, { PropType, VNode } from 'vue';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppTooltip extends Vue {
@@ -28,8 +28,8 @@ export default class AppTooltip extends Vue {
   @Prop({
     default: null as unknown as PropType<string | HTMLElement | VNode | Element | null>,
     validator: (val: string | object) => {
-      return ['string', 'object'].includes(typeof val)
-    },
+      return ['string', 'object'].includes(typeof val);
+    }
   }) readonly activator!: string | HTMLElement | VNode | Element | null
 }
 </script>

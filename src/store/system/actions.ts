@@ -1,8 +1,8 @@
-import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
-import { State } from './state'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import { RootState } from '@/store';
+import { ActionContext, ActionTree } from 'vuex';
+import { State } from './state';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
 
 const actions: ActionTree<State, RootState> = {
   /**
@@ -14,10 +14,10 @@ const actions: ActionTree<State, RootState> = {
     $axios.get('/permissions')
       .then((response: AxiosResponse) => {
         if (response.status === 200) {
-          commit('permissions', response.data || [])
+          commit('permissions', response.data || []);
         }
-      })
+      });
   }
-}
+};
 
-export default actions
+export default actions;

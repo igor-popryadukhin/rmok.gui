@@ -32,7 +32,7 @@ function state (): State {
     direction: null,
     status_id: 0,
     comment: ''
-  }
+  };
 }
 
-export default state
+export default state;

@@ -25,7 +25,7 @@ function state (): State {
     ice_transport_policy: 'all',
     rtcp_mux_policy: 'require',
     candidate_ready_timeout: 0
-  }
+  };
 }
 
-export default state
+export default state;

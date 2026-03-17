@@ -1,21 +1,21 @@
-import Vue from 'vue'
-import moment from 'moment-timezone'
+import Vue from 'vue';
+import moment from 'moment-timezone';
 
 // todo: реализовать возможность изменять локаль
-moment.locale('ru')
+moment.locale('ru');
 
 class PermissionPlugin {
   public install () {
     Object.defineProperties(Vue.prototype, {
       $moment: {
         get () {
-          return moment
+          return moment;
         }
       }
-    })
+    });
   }
 }
 
-Vue.use(new PermissionPlugin())
+Vue.use(new PermissionPlugin());
 
-export const $moment = moment
+export const $moment = moment;

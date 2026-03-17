@@ -6,7 +6,7 @@ export interface State {
 export function defaultState (): State {
   return {
     filter_width: 280
-  }
+  };
 }
 
-export const state = defaultState()
+export const state = defaultState();

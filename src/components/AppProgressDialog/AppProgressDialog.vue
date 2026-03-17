@@ -31,9 +31,9 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import Vue from 'vue'
-import { Prop } from 'vue-property-decorator'
+import Component from 'vue-class-component';
+import Vue from 'vue';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppProgressDialog extends Vue {

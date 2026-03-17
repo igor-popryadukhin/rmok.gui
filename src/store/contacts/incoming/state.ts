@@ -1,7 +1,7 @@
-import ContactDetail from '@/api/interfaces/ContactDetail'
-import ContactTag from '@/api/interfaces/ContactTag'
-import StatusGroup from '@/api/interfaces/StatusGroup'
-import Messenger from '@/interfaces/Messenger'
+import ContactDetail from '@/api/interfaces/ContactDetail';
+import ContactTag from '@/api/interfaces/ContactTag';
+import StatusGroup from '@/api/interfaces/StatusGroup';
+import Messenger from '@/interfaces/Messenger';
 
 export interface ContactsIncomingState {
   fetching: boolean;
@@ -54,9 +54,9 @@ export function contactsIncomingState (): ContactsIncomingState {
     // Мессенджер
     messenger_available: false,
     messenger: null
-  }
+  };
 }
 
-const state = contactsIncomingState
+const state = contactsIncomingState;
 
-export default state
+export default state;

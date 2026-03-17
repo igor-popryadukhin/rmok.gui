@@ -5,7 +5,7 @@ export interface TasksState {
 function state (): TasksState {
   return {
     pending_items: []
-  }
+  };
 }
 
-export default state
+export default state;

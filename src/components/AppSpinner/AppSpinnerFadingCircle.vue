@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppSpinnerFadingCircle extends Vue {
@@ -32,7 +32,7 @@ export default class AppSpinnerFadingCircle extends Vue {
     return {
       '--bgColor': this.color,
       '--size': typeof this.size === 'string' ? this.size : this.size + 'px'
-    }
+    };
   }
 }
 </script>

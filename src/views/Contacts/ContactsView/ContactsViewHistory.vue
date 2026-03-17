@@ -134,7 +134,7 @@
                   </span>
                 </div>
                 <div class="text-caption grey--text">
-                  {{ $dayjs(item.created_at * 1000).format('DD.MM.YYYY HH.mm') }}
+                  {{ $dayjs(item.created_at).format('DD.MM.YYYY HH.mm') }}
                 </div>
               </div>
               <div class="d-flex justify-start">
@@ -154,7 +154,7 @@
                 </div>
                 <div class="ml-3">
                   <v-list-item-subtitle>
-                    <span class="black--text">{{ secondsToHmsDigital(item.call_duration) }}</span>
+                    <span class="black--text">{{ item.call_duration }}</span>
                   </v-list-item-subtitle>
                   <v-list-item-subtitle v-if="item.owner">
                     <span class="black--text">{{ item.owner.full_name }}</span>
@@ -215,16 +215,15 @@
 </template>
 
 <script lang="ts">
-import ContactHistory from '@/api/interfaces/ContactHistory'
-import StatusGroup from '@/api/interfaces/StatusGroup'
-import AppBase from '@/AppBase'
-import AppContactHistoryEdit from '@/components/AppContactHistoryEdit/AppContactHistoryEdit.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import $store from '@/store'
-import { secondsToHmsDigital } from '@/utils/datetime'
-import debounce from '@/utils/debounce'
-import parsePhoneNumber from 'libphonenumber-js'
-import Component from 'vue-class-component'
+import ContactHistory from '@/api/interfaces/ContactHistory';
+import StatusGroup from '@/api/interfaces/StatusGroup';
+import AppBase from '@/AppBase';
+import AppContactHistoryEdit from '@/components/AppContactHistoryEdit/AppContactHistoryEdit.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import $store from '@/store';
+import debounce from '@/utils/debounce';
+import parsePhoneNumber from 'libphonenumber-js';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsViewHistory>({
@@ -232,54 +231,50 @@ import Component from 'vue-class-component'
   beforeRouteEnter (to, from, next) {
     $store
       .dispatch('contacts/view/history/fetch', to.params.id)
-      .finally(() => (next()))
+      .finally(() => (next()));
   }
 })
 export default class ContactsViewHistory extends AppBase {
   get historyItemsFetching (): boolean {
-    return this.$store.getters['contacts/view/history/items_fetching']
+    return this.$store.getters['contacts/view/history/items_fetching'];
   }
 
   get historyItems (): ContactHistory[] {
-    return this.$store.getters['contacts/view/history/items']
+    return this.$store.getters['contacts/view/history/items'];
   }
 
   get statuses (): StatusGroup[] {
-    return this.$store.getters['contacts/view/contact_project_statuses']
+    return this.$store.getters['contacts/view/contact_project_statuses'];
   }
 
   public created () {
-    this.fetchHistory = debounce(this.fetchHistory, 500)
+    this.fetchHistory = debounce(this.fetchHistory, 500);
 
-    this.$root.$on('sse:contact:history:changed', this.onSSEContactHistoryChanged)
+    this.$root.$on('sse:contact:history:changed', this.onSSEContactHistoryChanged);
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse:contact:history:changed', this.onSSEContactHistoryChanged)
-  }
-
-  private secondsToHmsDigital (s: number) {
-    return secondsToHmsDigital(s)
+    this.$root.$off('sse:contact:history:changed', this.onSSEContactHistoryChanged);
   }
 
   private onSSEContactHistoryChanged () {
-    this.fetchHistory()
+    this.fetchHistory();
   }
 
   private fetchHistory () {
-    this.$store.dispatch('contacts/view/history/fetch', this.$route.params.id)
+    this.$store.dispatch('contacts/view/history/fetch', this.$route.params.id);
   }
 
   private async onBtnItemEditClick (item) {
-    const statuses = []
+    const statuses = [];
     this.statuses.forEach((e1) => {
       e1.children.forEach((e2) => {
         statuses.push({
           ...e2,
           color: e1.color
-        })
-      })
-    })
+        });
+      });
+    });
     const dialog = await this.$dialog.show(AppContactHistoryEdit, {
       waitForResult: false,
       overlayOpacity: 0.1,
@@ -287,23 +282,23 @@ export default class ContactsViewHistory extends AppBase {
       statusId: item.status?.id || 0,
       comment: item.comment || '',
       statuses
-    })
+    });
 
     // @ts-expect-error: dialog.vmd.$on
     dialog.vmd.$on('click:btn:save', ({ status_id, comment }) => {
-      dialog.close()
+      dialog.close();
 
-      this.$axios.patch(`/contacts/history/${item.id}`, { status_id, comment })
-    })
+      this.$axios.patch(`/contacts/history/${item.id}`, { status_id, comment });
+    });
     // @ts-expect-error: dialog.vmd.$on
-    dialog.vmd.$on('click:btn:cancel', () => { dialog.close() })
+    dialog.vmd.$on('click:btn:cancel', () => { dialog.close(); });
   }
 
   private async onBtnItemPlayClick (item) {
     this.$root.$emit('audio-player-show', {
       src: `${process.env.VUE_APP_API_ENDPOINT}/contacts/history/audio/${item.audio_recording_id}`,
       author: `${item.owner.name} / ${item.contact.name}`
-    })
+    });
   }
 
   /**
@@ -312,12 +307,12 @@ export default class ContactsViewHistory extends AppBase {
    * @private
    */
   private formatPhoneNumber (phone: string) {
-    const phoneNumber = parsePhoneNumber(phone, 'RU')
+    const phoneNumber = parsePhoneNumber(phone, 'RU');
     if (phoneNumber) {
-      return phoneNumber.formatNational()
+      return phoneNumber.formatNational();
     }
 
-    return 'Не верный формат'
+    return 'Не верный формат';
   }
 }
 

@@ -1,4 +1,4 @@
-import Notification from '@/api/interfaces/Notification'
+import Notification from '@/api/interfaces/Notification';
 
 export interface State {
   visible: boolean;
@@ -11,7 +11,7 @@ function state (): State {
     visible: false,
     count: 0,
     items: []
-  }
+  };
 }
 
-export default state
+export default state;

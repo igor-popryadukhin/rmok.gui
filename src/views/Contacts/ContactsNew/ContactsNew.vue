@@ -3,21 +3,14 @@
     <div class="contacts-new__tools">
       <div class="buttons">
         <v-btn
-          :loading="itemsFetching"
+          :disabled="itemsFetching"
           :color="$vuetify.theme.currentTheme.primary"
-          icon
+          small
+          tile
+          text
           @click="onBtnRefreshClick"
         >
-          <app-tooltip>
-            <template #activator="{ on }">
-              <v-icon v-on="on">
-                mdi-refresh
-              </v-icon>
-            </template>
-            <span>
-              {{ $tc('Click to update') }}
-            </span>
-          </app-tooltip>
+          {{ $tc('Refresh') }}
         </v-btn>
       </div>
       <v-spacer />
@@ -81,34 +74,34 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
-import $store from '@/store'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue';
+import $store from '@/store';
+import Component from 'vue-class-component';
 
 @Component({
   components: { AppCountUp, AppPaginator, AppLoading },
   beforeRouteEnter (to, from, next) {
     $store.dispatch('contacts/contacts_new/fetch')
       .catch(() => (next()))
-      .finally(() => (next()))
+      .finally(() => (next()));
   }
 })
 export default class ContactsNew extends AppBase {
   item_ids_before_navigate = []
 
-  get items () { return this.$store.getters['contacts/contacts_new/items'] }
-  get itemsTotal () { return this.$store.getters['contacts/contacts_new/items_total'] }
-  get itemsFetching () { return this.$store.getters['contacts/contacts_new/loading'] }
+  get items () { return this.$store.getters['contacts/contacts_new/items']; }
+  get itemsTotal () { return this.$store.getters['contacts/contacts_new/items_total']; }
+  get itemsFetching () { return this.$store.getters['contacts/contacts_new/loading']; }
 
   private onBtnRefreshClick () {
-    this.$store.dispatch('contacts/contacts_new/fetch')
+    this.$store.dispatch('contacts/contacts_new/fetch');
   }
 
   private onAppPaginatorBtnClick () {
-    this.$store.dispatch('contacts/contacts_new/fetch')
+    this.$store.dispatch('contacts/contacts_new/fetch');
   }
 }
 </script>

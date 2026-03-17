@@ -18,19 +18,19 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import Vue from 'vue';
+import Component from 'vue-class-component';
 
 @Component
 export default class ContactsViewError extends Vue {
   loading = false
 
   private reload () {
-    this.loading = true
+    this.loading = true;
     this.$router.replace({
       name: 'contacts_view',
       params: this.$route.params
-    }).finally(() => (this.loading = false))
+    }).finally(() => (this.loading = false));
   }
 }
 </script>

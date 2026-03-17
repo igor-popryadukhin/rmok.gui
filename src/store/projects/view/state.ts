@@ -1,4 +1,4 @@
-import Status from '@/api/interfaces/Status'
+import Status from '@/api/interfaces/Status';
 
 export interface ProjectsViewState {
   fetching: boolean;
@@ -19,9 +19,9 @@ export function defaultState (): ProjectsViewState {
     project_scenario: '',
     project_statuses: [],
     project_queue_number: null
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

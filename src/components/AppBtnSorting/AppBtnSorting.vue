@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import Vue, { PropType } from 'vue';
 
 interface Sort {
   order_by: string;
@@ -103,44 +103,44 @@ export default Vue.extend({
         order_direction: 'asc'
       } as Sort,
       menu: false
-    }
+    };
   },
 
   mounted () {
     if (this.value) {
-      this.sort = this.value as Sort
-      this.changeName()
+      this.sort = this.value as Sort;
+      this.changeName();
     }
     this.$watch('value', (val: Sort) => {
-      this.sort = val
-    })
+      this.sort = val;
+    });
   },
 
   methods: {
     onListItemClick (item: Sort) {
-      this.sort.order_by = item.order_by
-      this.changeName()
-      this.$emit('change', this.sort)
+      this.sort.order_by = item.order_by;
+      this.changeName();
+      this.$emit('change', this.sort);
     },
 
     onDirectionClick (order_direction: 'asc' | 'desc') {
-      this.sort.order_direction = order_direction
-      this.changeName()
-      this.$emit('change', this.sort)
+      this.sort.order_direction = order_direction;
+      this.changeName();
+      this.$emit('change', this.sort);
     },
 
     onBtnResetClick () {
-      this.sort.order_by = ''
-      this.sort.order_direction = 'asc'
-      this.changeName()
-      this.$emit('change', this.sort)
+      this.sort.order_by = '';
+      this.sort.order_direction = 'asc';
+      this.changeName();
+      this.$emit('change', this.sort);
     },
 
     changeName () {
-      this.name = this.items.find((e) => e.order_by === this.sort.order_by)?.[this.itemText]
+      this.name = this.items.find((e) => e.order_by === this.sort.order_by)?.[this.itemText];
     }
   }
-})
+});
 </script>
 
 <style scoped>

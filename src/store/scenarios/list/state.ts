@@ -1,4 +1,4 @@
-import Scenario from '@/api/interfaces/Scenario'
+import Scenario from '@/api/interfaces/Scenario';
 
 export interface State {
   items: Scenario[];
@@ -13,7 +13,7 @@ function state (): State {
     total: 0,
     per_page: 50,
     filter_offset: 0
-  }
+  };
 }
 
-export default state
+export default state;

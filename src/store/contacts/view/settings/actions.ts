@@ -1,11 +1,11 @@
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { ContactsViewSettingsState } from './state'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { ContactsViewSettingsState } from './state';
 
 const actions: ActionTree<ContactsViewSettingsState, RootState> = {
   flush: ({ commit }) => {
-    commit('flush')
+    commit('flush');
   }
-}
+};
 
-export default actions
+export default actions;

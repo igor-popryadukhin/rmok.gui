@@ -66,9 +66,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppChatMessage extends Vue {
@@ -78,7 +78,7 @@ export default class AppChatMessage extends Vue {
   @Prop({
     type: String,
     validator (value: string): boolean {
-      return ['delivered', 'sent', 'read'].includes(value)
+      return ['delivered', 'sent', 'read'].includes(value);
     }
   }) status!: string
 

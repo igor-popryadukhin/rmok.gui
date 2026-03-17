@@ -204,22 +204,22 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import AutodialerCall from '@/api/interfaces/AutodialerCall'
-import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue'
-import Component from 'vue-class-component'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
+import APIError from '@/api/classes/APIError';
+import AutodialerCall from '@/api/interfaces/AutodialerCall';
+import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue';
+import Component from 'vue-class-component';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue';
 
 // eslint-disable-next-line no-use-before-define
 @Component<Contacts>({
   components: { AppConfirmDialog, AppPaginator, AppLoading },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.itemsFetching = true
-      vm.$store.dispatch('autodialer/view/calls/fetch', to.params.id).finally(() => (vm.itemsFetching = false))
-    })
+      vm.itemsFetching = true;
+      vm.$store.dispatch('autodialer/view/calls/fetch', to.params.id).finally(() => (vm.itemsFetching = false));
+    });
   }
 })
 export default class Contacts extends AppBase {
@@ -273,92 +273,92 @@ export default class Contacts extends AppBase {
         sortable: false,
         value: 'you_can_call'
       }
-    ]
+    ];
   }
 
   // В данный момент совершают вызовы
   get itemsCallers () {
     return (this.$store.getters['autodialer/view/calls/items_callers'] as AutodialerCall[])
-      .map(this.callItemNormalize)
+      .map(this.callItemNormalize);
   }
 
   // Остальные
   get items () {
     return (this.$store.getters['autodialer/view/calls/items'] as AutodialerCall[])
-      .map(this.callItemNormalize)
+      .map(this.callItemNormalize);
   }
 
-  get itemsTotal () { return this.$store.getters['autodialer/view/calls/items_total'] }
-  get itemsPerPage () { return this.$store.getters['autodialer/view/calls/items_per_page'] }
+  get itemsTotal () { return this.$store.getters['autodialer/view/calls/items_total']; }
+  get itemsPerPage () { return this.$store.getters['autodialer/view/calls/items_per_page']; }
 
   get itemsSelected () {
-    return this.$store.getters['autodialer/view/calls/items_selected'] || []
+    return this.$store.getters['autodialer/view/calls/items_selected'] || [];
   }
 
   set itemsSelected (val) {
-    this.$store.commit('autodialer/view/calls/items_selected', val)
+    this.$store.commit('autodialer/view/calls/items_selected', val);
   }
 
-  get filterOffset (): number { return this.$store.getters['autodialer/view/calls/filter_offset'] }
-  set filterOffset (val: string|number) { this.$store.commit('autodialer/view/calls/filter_offset', +val) }
+  get filterOffset (): number { return this.$store.getters['autodialer/view/calls/filter_offset']; }
+  set filterOffset (val: string|number) { this.$store.commit('autodialer/view/calls/filter_offset', +val); }
 
   public mounted () {
     // Каждые 5 секунд обновляем список звонящих
     this.timerIds.push(setInterval(() => {
       if (this.$route.name === 'auto_dialer_view_tab_contacts' && this.itemsSelected.length === 0) {
-        this.$store.dispatch('autodialer/view/calls/fetch_callers', this.$route.params.id)
+        this.$store.dispatch('autodialer/view/calls/fetch_callers', this.$route.params.id);
       }
-    }, 5000))
+    }, 5000));
 
     // Каждые 10 секунд обновляем общий список
     this.timerIds.push(setInterval(() => {
       if (this.$route.name === 'auto_dialer_view_tab_contacts' && this.itemsSelected.length === 0) {
-        this.$store.dispatch('autodialer/view/calls/fetch', this.$route.params.id)
+        this.$store.dispatch('autodialer/view/calls/fetch', this.$route.params.id);
       }
-    }, 10000))
+    }, 10000));
   }
 
   public beforeDestroy () {
-    this.timerIds.map(clearInterval)
+    this.timerIds.map(clearInterval);
   }
 
   private onBtnRefreshClick () {
-    this.fetchCalls()
+    this.fetchCalls();
   }
 
   private onAppPaginationChange () {
-    this.itemsFetching = true
+    this.itemsFetching = true;
     this.$store.dispatch('autodialer/view/calls/fetch', this.$route.params.id)
-      .finally(() => (this.itemsFetching = false))
+      .finally(() => (this.itemsFetching = false));
   }
 
   private onBtnDeleteClick () {
-    this.removalProcess = true
-    const ids = this.itemsSelected.map((e) => e.id)
+    this.removalProcess = true;
+    const ids = this.itemsSelected.map((e) => e.id);
     this.$axios.delete(`/auto-dialers/${this.$route.params.id}/contacts`, { params: { ids } })
       .then((response) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Deleted')
-        this.itemsSelected = []
-        this.fetchCalls()
+        this.$toast.success('Deleted');
+        this.itemsSelected = [];
+        this.fetchCalls();
       }).catch((reason) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         } else {
-          this.$toast.error(reason.message)
+          this.$toast.error(reason.message);
         }
-      }).finally(() => (this.removalProcess = false))
+      }).finally(() => (this.removalProcess = false));
   }
 
   private fetchCalls () {
-    this.btnRefreshLoading = true
+    this.btnRefreshLoading = true;
     this.$store
       .dispatch('autodialer/view/calls/fetch', this.$route.params.id)
-      .finally(() => (this.btnRefreshLoading = false))
+      .finally(() => (this.btnRefreshLoading = false));
   }
 
   private callItemNormalize (item: AutodialerCall) {
@@ -367,7 +367,7 @@ export default class Contacts extends AppBase {
       you_can_call: item.you_can_call ? 'Да' : 'Нет',
       last_call_at: item.last_call_at ? this.$dayjs(item.last_call_at).format('DD.MM.YYYY HH:mm') : '—',
       next_call_at: item.next_call_at ? this.$dayjs(item.next_call_at).format('DD.MM.YYYY HH:mm') : '—'
-    }
+    };
   }
 }
 </script>

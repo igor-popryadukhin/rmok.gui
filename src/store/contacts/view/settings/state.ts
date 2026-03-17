@@ -7,9 +7,9 @@ export function contactsViewSettingsState (): ContactsViewSettingsState {
   return {
     left_width: 280,
     right_width: 400
-  }
+  };
 }
 
-const state = contactsViewSettingsState()
+const state = contactsViewSettingsState();
 
-export default state
+export default state;

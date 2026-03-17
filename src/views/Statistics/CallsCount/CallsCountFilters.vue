@@ -96,16 +96,16 @@
 </template>
 
 <script lang="ts">
-import Project from '@/api/interfaces/Project'
-import User from '@/api/interfaces/User'
-import UserGroup from '@/api/interfaces/UserGroup'
-import AppBase from '@/AppBase'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
-import { Emit } from 'vue-property-decorator'
+import Project from '@/api/interfaces/Project';
+import User from '@/api/interfaces/User';
+import UserGroup from '@/api/interfaces/UserGroup';
+import AppBase from '@/AppBase';
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue';
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import debounce from '@/utils/debounce';
+import Component from 'vue-class-component';
+import { Emit } from 'vue-property-decorator';
 
 // eslint-disable-next-line no-use-before-define
 @Component<CallsCountFilters>({
@@ -113,42 +113,42 @@ import { Emit } from 'vue-property-decorator'
 })
 export default class CallsCountFilters extends AppBase {
   @Emit('click:btn:refresh')
-  private clickBtnRefresh () {
-    return undefined
+  public clickBtnRefresh () {
+    return;
   }
 
   @Emit('filter:change')
-  private filterChangeEmit () {
-    return undefined
+  public filterChangeEmit () {
+    return undefined;
   }
 
-  get itemsFetching (): boolean { return this.$store.getters['statistics/calls_count/items_fetching'] }
+  get itemsFetching (): boolean { return this.$store.getters['statistics/calls_count/items_fetching']; }
 
   // region Параметры фильтров
 
   get filterProject (): Project|null {
-    return this.$store.getters['statistics/calls_count/filter/project']
+    return this.$store.getters['statistics/calls_count/filter/project'];
   }
   set filterProject (val: Project|null) {
-    this.$store.commit('statistics/calls_count/filter/project', val)
+    this.$store.commit('statistics/calls_count/filter/project', val);
   }
 
-  get filterUsers (): User[] { return this.$store.getters['statistics/calls_count/filter/users'] }
+  get filterUsers (): User[] { return this.$store.getters['statistics/calls_count/filter/users']; }
   set filterUsers (val: User[]) {
-    this.$store.commit('statistics/calls_count/filter/users', val)
+    this.$store.commit('statistics/calls_count/filter/users', val);
   }
 
-  get filterGroup (): UserGroup|null { return this.$store.getters['statistics/calls_count/filter/user_group'] }
+  get filterGroup (): UserGroup|null { return this.$store.getters['statistics/calls_count/filter/user_group']; }
   set filterGroup (val: UserGroup|null) {
-    this.$store.commit('statistics/calls_count/filter/user_group', val)
+    this.$store.commit('statistics/calls_count/filter/user_group', val);
   }
 
-  get callTypes (): string[] { return this.$store.getters['statistics/calls_count/filter/call_types'] }
-  set callTypes (val: string[]) {this.$store.commit('statistics/calls_count/filter/call_types', val)}
+  get callTypes (): string[] { return this.$store.getters['statistics/calls_count/filter/call_types']; }
+  set callTypes (val: string[]) { this.$store.commit('statistics/calls_count/filter/call_types', val); }
 
   // endregion
 
-  get callTypeOptions() {
+  get callTypeOptions () {
     return [
       // {
       //   title: 'All',
@@ -170,19 +170,13 @@ export default class CallsCountFilters extends AppBase {
       return {
         title: this.$tc(e.title),
         value: e.value
-      }
-    })
+      };
+    });
   }
 
-  // region Обработчики жизненного цикла
   public created () {
-    this.filterChangeEmit = debounce(this.filterChangeEmit, 450)
+    this.filterChangeEmit = debounce(this.filterChangeEmit, 450);
   }
-
-  public mounted () {
-    ///
-  }
-  // endregion
 
 }
 </script>

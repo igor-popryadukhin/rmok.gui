@@ -1,5 +1,5 @@
-import { setupDevtoolsPlugin } from '@vue/devtools-api'
-import Vue from 'vue'
+import { setupDevtoolsPlugin } from '@vue/devtools-api';
+import Vue from 'vue';
 
 export function setupDevtools (app) {
   setupDevtoolsPlugin({
@@ -41,16 +41,16 @@ export function setupDevtools (app) {
     },
     app
   }, (api) => {
-    console.log(api.getSettings())
-  })
+    console.log(api.getSettings());
+  });
 }
 
 class DevtoolsPlugin {
   public install (app) {
-    setupDevtools(app)
+    setupDevtools(app);
   }
 }
 
-const devtoolsPlugin: DevtoolsPlugin = new DevtoolsPlugin()
+const devtoolsPlugin: DevtoolsPlugin = new DevtoolsPlugin();
 
-Vue.use(devtoolsPlugin)
+Vue.use(devtoolsPlugin);

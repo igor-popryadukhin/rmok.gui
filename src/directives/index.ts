@@ -1,2 +1,2 @@
-import './v-clipboard'
-import './v-size'
+import './v-clipboard';
+import './v-size';

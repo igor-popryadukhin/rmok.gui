@@ -109,14 +109,14 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import ContactTag from '@/api/interfaces/ContactTag'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import debounce from '@/utils/debounce'
-import { AxiosResponse } from 'axios'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import APIError from '@/api/classes/APIError';
+import ContactTag from '@/api/interfaces/ContactTag';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import debounce from '@/utils/debounce';
+import { AxiosResponse } from 'axios';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 
 @Component({
   components: { AppLoading }
@@ -134,56 +134,56 @@ export default class ContactsAllMenuAddToAutodialer extends AppBase {
   get textSearchWords (): string[] {
     return (this.textSearch || '')
       .split(/\s+/s)
-      .filter((value) => !!value)
+      .filter((value) => !!value);
   }
 
-  get contactsListSelectedAll (): boolean { return this.$store.getters['contacts/contacts_all/selected_all'] }
-  get contactsListSelectedCount () { return this.$store.getters['contacts/contacts_all/selected_count'] }
-  get contactsListItemsSelected () { return this.$store.getters['contacts/contacts_all/items_selected'] }
+  get contactsListSelectedAll (): boolean { return this.$store.getters['contacts/contacts_all/selected_all']; }
+  get contactsListSelectedCount () { return this.$store.getters['contacts/contacts_all/selected_count']; }
+  get contactsListItemsSelected () { return this.$store.getters['contacts/contacts_all/items_selected']; }
   get contactFilter () {
-    const params: Record<string, unknown> = this.$store.getters['contacts/contacts_all/filter/all']
+    const params: Record<string, unknown> = this.$store.getters['contacts/contacts_all/filter/all'];
 
-    if ('offset' in params) { delete params.offset }
-    if ('count' in params) { delete params.count }
-    if ('order_by' in params) { delete params.order_by }
-    if ('order_direction' in params) { delete params.order_direction }
+    if ('offset' in params) { delete params.offset; }
+    if ('count' in params) { delete params.count; }
+    if ('order_by' in params) { delete params.order_by; }
+    if ('order_direction' in params) { delete params.order_direction; }
 
-    return params
+    return params;
   }
 
   @Watch('textSearch')
   textSearchWatchHandler (val: string|null) {
-    this.searchAutodialsInLocal(val || '')
+    this.searchAutodialsInLocal(val || '');
   }
 
   @Watch('menuVisible')
   menuVisibleWatchHandler (val: boolean) {
     if (val) {
-      this.searchAutodialsInLocal()
+      this.searchAutodialsInLocal();
     }
   }
 
   created () {
-    this.searchAutodialsInServer = debounce(this.searchAutodialsInServer, 350)
-    this.searchAutodialsInLocal = debounce(this.searchAutodialsInLocal, 350)
+    this.searchAutodialsInServer = debounce(this.searchAutodialsInServer, 350);
+    this.searchAutodialsInLocal = debounce(this.searchAutodialsInLocal, 350);
   }
 
   private onAddClick () {
-    this.addingProcess = true
+    this.addingProcess = true;
     this.$axios.post(`/auto-dialers/${this.autodialerId}/add-contacts`, {
       contact_ids: (this.contactsListItemsSelected || []).map((e) => e.id)
     }).then((response: AxiosResponse) => {
       if (![200, 202].includes(response.status)) {
-        throw new APIError(response?.data)
+        throw new APIError(response?.data);
       }
 
-      this.$store.dispatch('contacts/contacts_all/unselect_all')
+      this.$store.dispatch('contacts/contacts_all/unselect_all');
     }).catch((reason: Error) => {
-      this.$toast.error(reason.message)
+      this.$toast.error(reason.message);
     }).finally(() => {
-      this.addingProcess = false
-      this.menuVisible = false
-    })
+      this.addingProcess = false;
+      this.menuVisible = false;
+    });
   }
 
   /**
@@ -193,21 +193,21 @@ export default class ContactsAllMenuAddToAutodialer extends AppBase {
    * @private
    */
   private searchAutodialsInServer (q: string) {
-    this.process = true
+    this.process = true;
     this.$axios.get('/auto-dialers', { params: { q, count: 10 } })
       .then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response?.data || response.statusText)
+          throw new APIError(response?.data || response.statusText);
         }
 
         (response.data?.data || []).forEach((value) => {
           if (this.autodials.findIndex((e) => e.id === value.id) === -1) {
-            this.autodials.push(value)
+            this.autodials.push(value);
           }
-        })
+        });
 
-        this.filtered = response.data?.data || []
-      }).finally(() => (this.process = false))
+        this.filtered = response.data?.data || [];
+      }).finally(() => (this.process = false));
   }
 
   /**
@@ -217,12 +217,12 @@ export default class ContactsAllMenuAddToAutodialer extends AppBase {
    * @param q
    */
   private searchAutodialsInLocal (q = '') {
-    const found = this.autodials.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1)
+    const found = this.autodials.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1);
 
     if (found.length === 0) {
-      this.searchAutodialsInServer(q)
+      this.searchAutodialsInServer(q);
     } else {
-      this.filtered = found
+      this.filtered = found;
     }
   }
 
@@ -234,16 +234,16 @@ export default class ContactsAllMenuAddToAutodialer extends AppBase {
    * @private
    */
   private highlight (text: string, words: string[], tag = 'span') {
-    let i
-    const len = words.length
-    let re
+    let i;
+    const len = words.length;
+    let re;
     for (i = 0; i < len; i++) {
-      re = new RegExp(words[i], 'gis')
+      re = new RegExp(words[i], 'gis');
       if (re.test(text)) {
-        text = text.replace(re, '<' + tag + ' class="highlight">$&</' + tag + '>')
+        text = text.replace(re, '<' + tag + ' class="highlight">$&</' + tag + '>');
       }
     }
-    return text
+    return text;
   }
 }
 </script>

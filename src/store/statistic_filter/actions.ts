@@ -1,6 +1,6 @@
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { State } from './state'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { State } from './state';
 
 const actions: ActionTree<State, RootState> = {
   /**
@@ -8,8 +8,8 @@ const actions: ActionTree<State, RootState> = {
    * @param commit
    */
   flush: ({ commit }) => {
-    commit('flush')
+    commit('flush');
   }
-}
+};
 
-export default actions
+export default actions;

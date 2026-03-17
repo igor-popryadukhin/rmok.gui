@@ -44,11 +44,11 @@
 </template>
 
 <script lang="ts">
-import { $axios } from '@/plugins/axios'
-import debounce from '@/utils/debounce'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, VModel, Watch } from 'vue-property-decorator'
+import { $axios } from '@/plugins/axios';
+import debounce from '@/utils/debounce';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, VModel, Watch } from 'vue-property-decorator';
 
 @Component
 export default class SmartAutocomplete extends Vue {
@@ -81,45 +81,45 @@ export default class SmartAutocomplete extends Vue {
   get options (): Array<Record<string, unknown>> {
     if (typeof this.filter === 'function') {
       return (this.$store.getters[this.storeModulePath + '/options'] || [])
-        .filter(this.filter)
+        .filter(this.filter);
     }
 
-    return (this.$store.getters[this.storeModulePath + '/options'] || [])
+    return (this.$store.getters[this.storeModulePath + '/options'] || []);
   }
 
-  set options (val) { this.$store.commit(this.storeModulePath + '/options', val) }
+  set options (val) { this.$store.commit(this.storeModulePath + '/options', val); }
 
   @Watch('query')
   queryWatchHandler (val: string) {
-    this.searchInServer(val)
+    this.searchInServer(val);
   }
 
   @Watch('items')
   itemsWatchHandler (items: any[]) {
-    this.optionsSynchronize(items)
+    this.optionsSynchronize(items);
   }
 
   @Watch('vModel')
   vModelWatchHandler (val: any[]|any) {
-    this.$emit('change', val)
+    this.$emit('change', val);
   }
 
   public created () {
-    this.searchInServer = debounce(this.searchInServer, 450)
+    this.searchInServer = debounce(this.searchInServer, 450);
 
-    this.storeModulePath = 'smart-autocomplete' + this.storeModuleName
+    this.storeModulePath = 'smart-autocomplete' + this.storeModuleName;
 
     // Локальное центральное хранилище
     if (!this.$store.hasModule(this.storeModulePath)) {
       this.$store.registerModule(this.storeModulePath, {
         namespaced: true,
-        state: () => { return { options: [] } },
-        getters: { options (state) { return state.options } },
-        mutations: { options (state, payload) { state.options = payload } }
-      })
+        state: () => { return { options: [] }; },
+        getters: { options (state) { return state.options; } },
+        mutations: { options (state, payload) { state.options = payload; } }
+      });
     }
 
-    this.optionsSynchronize(this.items)
+    this.optionsSynchronize(this.items);
   }
 
   /**
@@ -129,45 +129,45 @@ export default class SmartAutocomplete extends Vue {
    */
   private searchInServer (q = '') {
     if (!q && this.options.length) {
-      return
+      return;
     }
 
     if (this.options.findIndex((e) => String(String(e[this.itemText])?.toLocaleLowerCase()).indexOf(q.toLocaleLowerCase()) > -1) > -1) {
       // Нашли в локальном хранилище
-      return
+      return;
     }
 
-    let params = {}
+    let params = {};
     if (typeof this.apiQuery === 'function') {
-      params = this.apiQuery(q)
+      params = this.apiQuery(q);
     }
 
-    this.loading = true
+    this.loading = true;
     $axios
       .get(this.apiEndPoint, { params })
       .then((response) => {
         if (response.status !== 200) {
-          throw new Error(response.statusText)
+          throw new Error(response.statusText);
         }
 
-        const options = JSON.parse(JSON.stringify(this.options)) as Array<Record<string, unknown>>
+        const options = JSON.parse(JSON.stringify(this.options)) as Array<Record<string, unknown>>;
 
-        let responseItems = []
+        let responseItems = [];
         if (this.responseProperty) {
-          responseItems = response.data[this.responseProperty] || []
+          responseItems = response.data[this.responseProperty] || [];
         } else {
-          responseItems = response.data || []
+          responseItems = response.data || [];
         }
 
         responseItems
           .forEach((e1) => {
             if (options.findIndex((e2) => e2[this.itemValue] === e1[this.itemValue]) === -1) {
-              options.push(e1)
+              options.push(e1);
             }
-          })
+          });
 
-        this.options = options
-      }).finally(() => (this.loading = false))
+        this.options = options;
+      }).finally(() => (this.loading = false));
   }
 
   /**
@@ -176,14 +176,14 @@ export default class SmartAutocomplete extends Vue {
    * @private
    */
   private optionsSynchronize(items: any[]) {
-    const options = JSON.parse(JSON.stringify(this.options)) as Array<Record<string, unknown>>
+    const options = JSON.parse(JSON.stringify(this.options)) as Array<Record<string, unknown>>;
     items
       .forEach((e1) => {
         if (options.findIndex((e2) => e2[this.itemValue] === e1[this.itemValue]) === -1) {
-          options.push(e1)
+          options.push(e1);
         }
-      })
-    this.options = options
+      });
+    this.options = options;
   }
 }
 </script>

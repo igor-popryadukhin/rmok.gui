@@ -1,9 +1,9 @@
-import { RootState } from '@/store'
-import { GetterTree } from 'vuex'
-import { State } from './state'
+import { RootState } from '@/store';
+import { GetterTree } from 'vuex';
+import { State } from './state';
 
 const getters: GetterTree<State, RootState> = {
-  items (state: State) { return state.items }
-}
+  items (state: State) { return state.items; }
+};
 
-export default getters
+export default getters;

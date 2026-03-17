@@ -11,11 +11,11 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue'
-import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
-import ProjectsTools from '@/views/Projects/ProjectsTools.vue'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue';
+import ProjectsItems from '@/views/Projects/ProjectsItems.vue';
+import ProjectsTools from '@/views/Projects/ProjectsTools.vue';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<UsersViewContacts>({
@@ -24,12 +24,12 @@ import Component from 'vue-class-component'
 export default class UsersViewContacts extends AppBase {
   conservationProcess = false
 
-  get name () { return this.$store.getters['projects/view/project_name'] }
-  set name (val: string) { this.$store.commit('projects/view/project_name', val) }
-  get description () { return this.$store.getters['projects/view/project_description'] }
-  set description (val: string) { this.$store.commit('projects/view/project_description', val) }
-  get scenario () { return this.$store.getters['projects/view/project_scenario'] }
-  set scenario (val: string) { this.$store.commit('projects/view/project_scenario', val) }
+  get name () { return this.$store.getters['projects/view/project_name']; }
+  set name (val: string) { this.$store.commit('projects/view/project_name', val); }
+  get description () { return this.$store.getters['projects/view/project_description']; }
+  set description (val: string) { this.$store.commit('projects/view/project_description', val); }
+  get scenario () { return this.$store.getters['projects/view/project_scenario']; }
+  set scenario (val: string) { this.$store.commit('projects/view/project_scenario', val); }
 }
 </script>
 

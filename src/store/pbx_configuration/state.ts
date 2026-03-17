@@ -4,7 +4,7 @@ export interface State {
 }
 
 function defaultState (): State {
-  return {}
+  return {};
 }
 
-export default defaultState
+export default defaultState;

@@ -65,15 +65,15 @@
 </template>
 
 <script lang="ts">
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import debounce from '@/utils/debounce'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Watch } from 'vue-property-decorator'
-import Vuelidate, { validationMixin } from 'vuelidate'
-import { maxLength, minValue, numeric, required } from 'vuelidate/lib/validators'
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import debounce from '@/utils/debounce';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Watch } from 'vue-property-decorator';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { maxLength, minValue, numeric, required } from 'vuelidate/lib/validators';
 
-Vue.use(Vuelidate)
+Vue.use(Vuelidate);
 
 interface Project {
   id: number;
@@ -98,19 +98,19 @@ interface Project {
   },
   computed: {
     nameErrors () {
-      const errors = []
-      if (!this.$v.form.name.$dirty) return errors
-      !this.$v.form.name.required && errors.push('message.error.required')
-      !this.$v.form.name.maxLength && errors.push('message.error.name_max_length')
-      return errors.map((e) => this.$tc(e))
+      const errors = [];
+      if (!this.$v.form.name.$dirty) return errors;
+      !this.$v.form.name.required && errors.push('message.error.required');
+      !this.$v.form.name.maxLength && errors.push('message.error.name_max_length');
+      return errors.map((e) => this.$tc(e));
     },
     projectIdErrors () {
-      const errors = []
-      if (!this.$v.form.project_id.$dirty) return errors
-      !this.$v.form.project_id.required && errors.push('message.error.required_project')
-      !this.$v.form.project_id.numeric && errors.push('message.error.required_project')
-      !this.$v.form.project_id.minValue && errors.push('message.error.required_project')
-      return errors.map((e) => this.$tc(e))
+      const errors = [];
+      if (!this.$v.form.project_id.$dirty) return errors;
+      !this.$v.form.project_id.required && errors.push('message.error.required_project');
+      !this.$v.form.project_id.numeric && errors.push('message.error.required_project');
+      !this.$v.form.project_id.minValue && errors.push('message.error.required_project');
+      return errors.map((e) => this.$tc(e));
     }
   }
 })
@@ -128,39 +128,39 @@ export default class AutoDialerCreateDialog extends Vue {
 
   @Emit('click:create')
   clickCreateEmit () {
-    this.show = false
-    return this.form
+    this.show = false;
+    return this.form;
   }
 
   @Emit('click:cancel')
   clickCancelEmit () {
-    return undefined
+    return undefined;
   }
 
   @Watch('project.q')
   projectQWatch (value: string) {
-    this.searchProjectsInServer(value)
+    this.searchProjectsInServer(value);
   }
 
   public created () {
-    this.searchProjectsInServer = debounce(this.searchProjectsInServer, 350)
+    this.searchProjectsInServer = debounce(this.searchProjectsInServer, 350);
   }
 
   private cancel () {
-    this.show = false
-    this.clickCancelEmit()
+    this.show = false;
+    this.clickCancelEmit();
   }
 
   private create () {
     if (!this.$v.$invalid) {
-      return
+      return;
     }
-    this.show = false
-    this.clickCreateEmit()
+    this.show = false;
+    this.clickCreateEmit();
   }
 
   private onClick () {
-    this.show = true
+    this.show = true;
   }
 
   /**
@@ -170,34 +170,34 @@ export default class AutoDialerCreateDialog extends Vue {
    */
   private searchProjectsInServer (q = '') {
     if (!q && this.project.options.length) {
-      return
+      return;
     }
 
     if (this.project.options.findIndex((e) => String(e.name?.toLocaleLowerCase()).indexOf(q.toLocaleLowerCase()) > -1) > -1) {
-      return
+      return;
     }
 
     this.$axios
       .get('/projects', { params: { q, count: 100 } })
       .then((response) => {
         if (response.status !== 200) {
-          throw new Error(response.statusText)
+          throw new Error(response.statusText);
         }
 
-        let responseItems: Project[] = response.data?.data || [] as Project[]
+        let responseItems: Project[] = response.data?.data || [] as Project[];
 
         if (this.project.options.length === 0) {
-          this.project.options = responseItems
+          this.project.options = responseItems;
         } else {
           responseItems
             .forEach((e1) => {
               if (this.project.options.findIndex((e2) => e2.id === e1.id) === -1) {
-                this.project.options.push(e1)
+                this.project.options.push(e1);
               }
-            })
+            });
         }
 
-      })
+      });
   }
 }
 </script>

@@ -43,27 +43,27 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ProjectsView>({
   components: { AppLoading },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.$store.dispatch('users/view/fetch')
-    })
+      vm.$store.dispatch('users/view/fetch');
+    });
   },
   beforeRouteLeave (to, from, next) {
-    this.$store.dispatch('users/view/flush')
-    this.$store.dispatch('users/view/sessions/flush')
-    next()
+    this.$store.dispatch('users/view/flush');
+    this.$store.dispatch('users/view/sessions/flush');
+    next();
   }
 })
 export default class ProjectsView extends AppBase {
-  get getThisPageHeight () { return this.screenHeight - 118 }
-  get fetching () { return this.$store.getters['users/view/fetching'] }
+  get getThisPageHeight () { return this.screenHeight - 118; }
+  get fetching () { return this.$store.getters['users/view/fetching']; }
   get tabs () {
     return [
       {
@@ -96,11 +96,11 @@ export default class ProjectsView extends AppBase {
           name: 'users_view_sessions'
         }
       }
-    ]
+    ];
   }
 
   public beforeDestroy () {
-    this.$store.dispatch('users/view/flush')
+    this.$store.dispatch('users/view/flush');
   }
 }
 </script>

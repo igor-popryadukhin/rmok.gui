@@ -5,7 +5,7 @@ export interface State {
 function state (): State {
   return {
     unsaved: false
-  }
+  };
 }
 
-export default state
+export default state;

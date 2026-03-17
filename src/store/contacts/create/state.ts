@@ -13,9 +13,9 @@ export function defaultState (): State {
     field_last_name: null,
     field_middle_name: null
     /// FIELDS ///
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

@@ -110,9 +110,9 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import AppBase from '@/AppBase'
-import { Prop } from 'vue-property-decorator'
+import Component from 'vue-class-component';
+import AppBase from '@/AppBase';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class List extends AppBase {
@@ -128,7 +128,7 @@ export default class List extends AppBase {
   }
 
   get calls () {
-    return this.$store.getters['autodialer/view/operators/items']
+    return this.$store.getters['autodialer/view/operators/items'];
   }
 
   get contextMenuItems () {
@@ -139,22 +139,22 @@ export default class List extends AppBase {
           click: this.excludeUser
         }
       }
-    ]
+    ];
   }
 
   private contextMenuShow (item: Record<string, unknown>, e: PointerEvent) {
-    e.preventDefault()
-    this.contextMenu.currentItem = item
-    this.contextMenu.visible = false
-    this.contextMenu.position.x = e.x
-    this.contextMenu.position.y = e.y
+    e.preventDefault();
+    this.contextMenu.currentItem = item;
+    this.contextMenu.visible = false;
+    this.contextMenu.position.x = e.x;
+    this.contextMenu.position.y = e.y;
     this.$nextTick(() => {
-      this.contextMenu.visible = true
-    })
+      this.contextMenu.visible = true;
+    });
   }
 
   private excludeUser () {
-    const operatorId: number = this.contextMenu.currentItem.operator_id
+    const operatorId: number = this.contextMenu.currentItem.operator_id;
 
     this.$dialog.confirm({
       title: this.$tc('Confirmation request'),
@@ -169,12 +169,12 @@ export default class List extends AppBase {
         this.$store
           .dispatch('autodialer/view/operators/exclude', [operatorId])
           .then(() => {
-            this.$toast.success('Success')
+            this.$toast.success('Success');
           }).catch((reason: Error) => {
-            this.$toast.error(reason.message)
-          })
+            this.$toast.error(reason.message);
+          });
       }
-    })
+    });
   }
 }
 </script>

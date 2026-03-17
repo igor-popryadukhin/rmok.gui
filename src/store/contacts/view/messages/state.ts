@@ -1,4 +1,4 @@
-import ContactHistory from '@/api/interfaces/ContactHistory'
+import ContactHistory from '@/api/interfaces/ContactHistory';
 
 export interface ContactsViewMessagesState {
   items_fetching: boolean;
@@ -9,9 +9,9 @@ export function defaultState (): ContactsViewMessagesState {
   return {
     items_fetching: false,
     items: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

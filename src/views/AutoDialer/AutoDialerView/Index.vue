@@ -25,10 +25,10 @@
 </template>
 
 <script lang="ts">
-import $store from '@/store'
-import Component from 'vue-class-component'
-import Base from './Base'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import $store from '@/store';
+import Component from 'vue-class-component';
+import Base from './Base';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
 
 // eslint-disable-next-line no-use-before-define
 @Component<AutoDialerView>({
@@ -36,22 +36,22 @@ import AppLoading from '@/components/AppLoading/AppLoading.vue'
   beforeRouteEnter (to, from, next) {
     $store
       .dispatch('autodialer/view/fetch', to.params.id)
-      .finally(() => (next()))
+      .finally(() => (next()));
   }
 })
 export default class AutoDialerView extends Base {
   sse: EventSource|null = null
 
   get height () {
-    return this.screenHeight - 115
+    return this.screenHeight - 115;
   }
 
   get tab () {
-    return this.$route.path
+    return this.$route.path;
   }
 
   set tab (val: string) {
-    console.log(val)
+    console.log(val);
   }
 
   get tabs () {
@@ -98,49 +98,49 @@ export default class AutoDialerView extends Base {
           name: 'auto_dialer_view_tab_contacts'
         }
       }
-    ]
+    ];
   }
 
   mounted () {
-    this.sseOpen()
+    this.sseOpen();
   }
 
   beforeDestroy () {
-    this.sseClose()
+    this.sseClose();
   }
 
   private sseOpen () {
     if ('VUE_APP_SSE_ENDPOINT' in process.env) {
-      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT)
+      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT);
 
       // Темы для подписок
-      url.searchParams.append('topic', `${window.origin}/autodialer/${this.$route.params.id}/messages`)
+      url.searchParams.append('topic', `${window.origin}/autodialer/${this.$route.params.id}/messages`);
 
       this.sse = new EventSource(url, {
         withCredentials: true
-      })
+      });
 
       this.sse.addEventListener('autodialer-journal-change', (event: Event) => {
         if (event instanceof MessageEvent) {
-          this.$root.$emit('sse:autodialer:journal:change', JSON.parse(event.data))
+          this.$root.$emit('sse:autodialer:journal:change', JSON.parse(event.data));
         }
-      })
+      });
       this.sse.addEventListener('autodialer:worker:stats', (event: Event) => {
         if (event instanceof MessageEvent) {
-          this.$root.$emit('sse:autodialer:worker:stats', JSON.parse(event.data))
+          this.$root.$emit('sse:autodialer:worker:stats', JSON.parse(event.data));
         }
-      })
+      });
       this.sse.addEventListener('autodialer:worker:agents', (event: Event) => {
         if (event instanceof MessageEvent) {
-          this.$root.$emit('sse:autodialer:worker:agents', JSON.parse(event.data))
+          this.$root.$emit('sse:autodialer:worker:agents', JSON.parse(event.data));
         }
-      })
+      });
     }
   }
 
   private sseClose () {
     if (this.sse instanceof EventSource) {
-      this.sse.close()
+      this.sse.close();
     }
   }
 }

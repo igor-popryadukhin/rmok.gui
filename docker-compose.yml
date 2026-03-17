@@ -2,20 +2,40 @@ version: "3.7"
 
 services:
 
-  app:
-    container_name: rmok.ui
+  node:
+    container_name: rmok-gui.node
+    image: rmok-gui/node:dev
     restart: always
     build:
       context: .
+      target: "development" # development or build
+      dockerfile: docker/node/Dockerfile
     volumes:
-      - .:/app
+      - .:/home/node/app
     ports:
       - "3000:3000"
-      - "8888:8888"
     expose:
       - 3000
-    environment:
-      TZ: "Europe/Moscow"
-      CHOKIDAR_USEPOLLING: 1
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+#  nginx:
+#    container_name: rmok-gui.nginx
+#    image: rmok-gui/nginx:dev
+#    build:
+#      context: ./docker/nginx
+#      dockerfile: Dockerfile
+#    restart: always
+#    depends_on:
+#      - node
+#    expose:
+#      - 80
+#      - 443
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "1m"
+#        max-file: "1"

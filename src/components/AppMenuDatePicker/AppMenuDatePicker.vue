@@ -36,10 +36,10 @@
 </template>
 
 <script lang="ts">
-import dayjs from 'dayjs'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, VModel, Watch } from 'vue-property-decorator'
+import dayjs from 'dayjs';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, VModel, Watch } from 'vue-property-decorator';
 
 @Component
 export default class AppMenuDatePicker extends Vue {
@@ -54,57 +54,57 @@ export default class AppMenuDatePicker extends Vue {
   get textDisplay () {
     if (Array.isArray(this.dates)) {
       if (this.dates.length === 2) {
-        const d1 = dayjs(this.dates[0], this.format)
-        const d2 = dayjs(this.dates[1], this.format)
+        const d1 = dayjs(this.dates[0], this.format);
+        const d2 = dayjs(this.dates[1], this.format);
 
         if (d1.diff(d2, 'day') <= 0) {
-          return [d1.format(this.displayFormat), d2.format(this.displayFormat)].join(' - ')
+          return [d1.format(this.displayFormat), d2.format(this.displayFormat)].join(' - ');
         }
-        return [d2.format(this.displayFormat), d1.format(this.displayFormat)].join(' - ')
+        return [d2.format(this.displayFormat), d1.format(this.displayFormat)].join(' - ');
       } else if (this.dates.length === 1) {
-        return [dayjs(this.dates[0], this.format).format(this.displayFormat), '__.__.__'].join(' - ')
+        return [dayjs(this.dates[0], this.format).format(this.displayFormat), '__.__.__'].join(' - ');
       }
     } else if (typeof this.dates === 'string') {
-      return dayjs(this.dates, this.format).format(this.displayFormat)
+      return dayjs(this.dates, this.format).format(this.displayFormat);
     }
-    return '__.__.__'
+    return '__.__.__';
   }
 
   @Watch('dates')
   datesWatchHandler (val: string[] | string) {
     if (Array.isArray(val) && val.length === 2) {
-      const d1 = dayjs(val[0], this.format)
-      const d2 = dayjs(val[1], this.format)
+      const d1 = dayjs(val[0], this.format);
+      const d2 = dayjs(val[1], this.format);
 
       if (d1.diff(d2, 'day') <= 0) {
-        this.datesVModel = [d1.format(this.format), d2.format(this.format)]
+        this.datesVModel = [d1.format(this.format), d2.format(this.format)];
       } else {
-        this.datesVModel = [d2.format(this.format), d1.format(this.format)]
+        this.datesVModel = [d2.format(this.format), d1.format(this.format)];
       }
     } else if (typeof val === 'string') {
-      this.datesVModel = dayjs(val, this.format).format(this.format)
+      this.datesVModel = dayjs(val, this.format).format(this.format);
     } else {
-      this.datesVModel = null
+      this.datesVModel = null;
     }
   }
 
   @Watch('datesVModel')
   datesVModelWatchHandler (val: string[] | string) {
-    this.dates = val
+    this.dates = val;
   }
 
   private closeMenu () {
-    this.menuVisible = false
+    this.menuVisible = false;
   }
 
   public mounted () {
     if (Array.isArray(this.datesVModel)) {
-      this.dates = []
+      this.dates = [];
       this.datesVModel.forEach((e) => {
-        this.dates.push(dayjs(e, this.format).format(this.format))
-      })
+        this.dates.push(dayjs(e, this.format).format(this.format));
+      });
     } else if (typeof this.dates === 'string') {
-      this.dates = dayjs(this.dates, this.format).format(this.format)
+      this.dates = dayjs(this.dates, this.format).format(this.format);
     }
   }
 }

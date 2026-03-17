@@ -23,9 +23,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppICEServerDialogEditor extends Vue {
@@ -42,24 +42,24 @@ export default class AppICEServerDialogEditor extends Vue {
 
   @Emit('click:save')
   clickSave () {
-    this.dialogVisible = false
+    this.dialogVisible = false;
     return {
       urls: this.urlsModel,
       username: this.usernameModel,
       credential: this.credentialModel
-    }
+    };
   }
 
   private activatorOnClick () {
-    this.urlsModel = this.urls
-    this.usernameModel = this.username
-    this.credentialModel = this.credential
+    this.urlsModel = this.urls;
+    this.usernameModel = this.username;
+    this.credentialModel = this.credential;
 
     this.dialogComponent = () => new Promise((resolve) => {
       return import(/* webpackChunkName: "app-i-c-e-server-editor-dialog" */ './AppICEServerEditor.vue')
         .then(resolve)
-        .finally(() => (this.dialogVisible = true))
-    })
+        .finally(() => (this.dialogVisible = true));
+    });
   }
 }
 </script>

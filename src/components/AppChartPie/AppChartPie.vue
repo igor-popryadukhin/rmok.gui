@@ -9,12 +9,12 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
-import Vue from 'vue'
-import VueApexCharts from 'vue-apexcharts'
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
+import Vue from 'vue';
+import VueApexCharts from 'vue-apexcharts';
 
-Vue.component('ApexChart', VueApexCharts)
+Vue.component('ApexChart', VueApexCharts);
 
 @Component
 export default class AppChartPie extends Vue {
@@ -61,11 +61,11 @@ export default class AppChartPie extends Vue {
       legend: {
         // offsetX: 400,
         formatter: (seriesName: string, opts: any) => {
-          return [opts.w.globals.series[opts.seriesIndex], ' - ', seriesName]
+          return [opts.w.globals.series[opts.seriesIndex], ' - ', seriesName];
         },
         markers: {
           onClick: (chart: any, seriesIndex: any, opts: any) => {
-            console.log('series- ' + seriesIndex + '\'s marker was clicked')
+            console.log('series- ' + seriesIndex + '\'s marker was clicked');
           }
         },
         position: 'left',
@@ -74,17 +74,17 @@ export default class AppChartPie extends Vue {
         floating: false,
         show: true
       }
-    }
+    };
   }
 
   private strTruncate (str: string, len: number, useWordBoundary = true) {
-    if (str.length <= len) { return str }
+    if (str.length <= len) { return str; }
 
-    const subString = str.substr(0, len - 1)
+    const subString = str.substr(0, len - 1);
 
     return useWordBoundary
       ? subString.substr(0, subString.lastIndexOf(' ')) + ' ...'
-      : subString + ' ...'
+      : subString + ' ...';
   }
 }
 </script>

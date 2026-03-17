@@ -36,9 +36,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppConfirmDialogTemplate extends Vue {
@@ -46,12 +46,12 @@ export default class AppConfirmDialogTemplate extends Vue {
 
   @Emit('click:cancel')
   clickCancel () {
-    return undefined
+    return undefined;
   }
 
   @Emit('click:confirm')
   clickConfirm () {
-    return undefined
+    return undefined;
   }
 }
 </script>

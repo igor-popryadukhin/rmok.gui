@@ -39,9 +39,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, Watch } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, Watch } from 'vue-property-decorator';
 
 @Component
 export default class AppDialogAutocomplete extends Vue {
@@ -62,23 +62,23 @@ export default class AppDialogAutocomplete extends Vue {
   onWatchQuery (val: string) {
     if (typeof this.onSearch === 'function') {
       this.onSearch(val, (items: Array<Record<string, unknown>> | string[]) => {
-        this.options = items
-      })
+        this.options = items;
+      });
     }
   }
 
   @Watch('selected', {})
   onWatchSelected (val: Array<Record<string, unknown>> | string[]) {
     if (typeof this.onSelect === 'function' && val) {
-      this.onSelect(val)
+      this.onSelect(val);
     }
   }
 
   mounted () {
     if (typeof this.onMounted === 'function') {
       this.onMounted((items: Array<Record<string, unknown>> | string[]) => {
-        this.options = items
-      })
+        this.options = items;
+      });
     }
   }
 }

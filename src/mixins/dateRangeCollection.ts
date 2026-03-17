@@ -1,5 +1,5 @@
-import moment from 'moment'
-import Vue from 'vue'
+import moment from 'moment';
+import Vue from 'vue';
 
 const dateRangeCollection = Vue.extend({
   computed: {
@@ -25,9 +25,9 @@ const dateRangeCollection = Vue.extend({
           title: moment().format('MMMM'),
           value: `${moment('1 00:00:00', 'D hh:mm:ss').unix()},${moment('23:59:59', 'hh:mm:ss').unix()}`
         }
-      ]
+      ];
     }
   }
-})
+});
 
-export default dateRangeCollection
+export default dateRangeCollection;

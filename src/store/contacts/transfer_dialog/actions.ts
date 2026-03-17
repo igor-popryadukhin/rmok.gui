@@ -1,25 +1,25 @@
-import Project from '@/api/interfaces/Project'
-import User from '@/api/interfaces/User'
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { State } from './state'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import Projects from '@/api/Projects'
-import APIError from '@/api/classes/APIError'
+import Project from '@/api/interfaces/Project';
+import User from '@/api/interfaces/User';
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { State } from './state';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import Projects from '@/api/Projects';
+import APIError from '@/api/classes/APIError';
 
 const actions: ActionTree<State, RootState> = {
   show: ({ commit }) => {
-    commit('visible', true)
+    commit('visible', true);
   },
 
   hide: ({ commit }) => {
-    commit('visible', false)
+    commit('visible', false);
   },
 
   reset: ({ commit }) => {
-    commit('project_id', 0)
-    commit('user_ids', [])
+    commit('project_id', 0);
+    commit('user_ids', []);
   },
 
   /**
@@ -31,18 +31,18 @@ const actions: ActionTree<State, RootState> = {
    */
   transfer: ({ dispatch, state, rootGetters }) => {
     // Скрываю диалог передачи контактов
-    dispatch('hide')
+    dispatch('hide');
 
-    let params: Record<string, unknown> = rootGetters['contacts/list/filter/all']
+    let params: Record<string, unknown> = rootGetters['contacts/list/filter/all'];
 
     if ((rootGetters['contacts/list/items_selected'] || []).length > 0 && !rootGetters['contacts/list/selected_all']) {
       params = {
         ids: rootGetters['contacts/list/items_selected']
-      }
+      };
     }
 
-    if ('offset' in params) { delete params.offset }
-    if ('count' in params) { delete params.count }
+    if ('offset' in params) { delete params.offset; }
+    if ('count' in params) { delete params.count; }
 
     return new Promise<void>((resolve, reject) => {
       $axios.post('/contacts/transfer', {
@@ -52,12 +52,12 @@ const actions: ActionTree<State, RootState> = {
       })
         .then((response: AxiosResponse) => {
           if (![200, 202].includes(response.status)) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          dispatch('reset')
-          resolve()
-        }).catch(reject)
-    })
+          dispatch('reset');
+          resolve();
+        }).catch(reject);
+    });
   },
 
   fetch_projects: ({ commit, state }, params = {}) => {
@@ -65,14 +65,14 @@ const actions: ActionTree<State, RootState> = {
       .find({
         ...params
       }).then((response) => {
-        const itemsCopy = (JSON.parse(JSON.stringify(state.available_projects)) as Project[])
+        const itemsCopy = (JSON.parse(JSON.stringify(state.available_projects)) as Project[]);
         response.data.forEach((value) => {
           if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
-            itemsCopy.push(value)
+            itemsCopy.push(value);
           }
-        })
-        commit('available_projects', itemsCopy)
-      })
+        });
+        commit('available_projects', itemsCopy);
+      });
   },
 
   fetch_users: ({ commit, state }, params = {}) => {
@@ -80,19 +80,19 @@ const actions: ActionTree<State, RootState> = {
       $axios.get('/users', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            const itemsCopy = (JSON.parse(JSON.stringify(state.available_users)) as User[])
+            const itemsCopy = (JSON.parse(JSON.stringify(state.available_users)) as User[]);
 
             response.data?.data.forEach((value) => {
               if (itemsCopy.findIndex((e) => e.id === value.id) === -1) {
-                itemsCopy.push(value)
+                itemsCopy.push(value);
               }
-            })
-            commit('available_users', itemsCopy)
-            resolve()
+            });
+            commit('available_users', itemsCopy);
+            resolve();
           }
-        })
-    })
+        });
+    });
   }
-}
+};
 
-export default actions
+export default actions;

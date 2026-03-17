@@ -1,7 +1,7 @@
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import APIError from '@/api/classes/APIError'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import APIError from '@/api/classes/APIError';
 
 export interface OrganizationInterface {
   id: number;
@@ -48,12 +48,12 @@ export class ProjectIntegrationSettings {
       $axios.get('/configurations/projectintegration', { params })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           } else {
-            reject(response.data)
+            reject(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -67,11 +67,11 @@ export class ProjectIntegrationSettings {
         params: Object.assign({}, { target_groups: ids }, params)
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          return resolve(response.data)
+          return resolve(response.data);
         }
-        throw new APIError(response.data)
-      }).catch(reject)
-    })
+        throw new APIError(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -83,11 +83,11 @@ export class ProjectIntegrationSettings {
       $axios.post('/configurations/projectintegration', data)
         .then((response: AxiosResponse) => {
           if ([200, 201].includes(response.status)) {
-            return resolve(response.data.id)
+            return resolve(response.data.id);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -100,11 +100,11 @@ export class ProjectIntegrationSettings {
       $axios.patch(`/configurations/projectintegration/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -116,11 +116,11 @@ export class ProjectIntegrationSettings {
       $axios.delete(`/configurations/projectintegration/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   public getById (id: number): Promise<ProfileInterface> {
@@ -128,11 +128,11 @@ export class ProjectIntegrationSettings {
       $axios.get(`/configurations/projectintegration/${id}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -146,13 +146,13 @@ export class ProjectIntegrationSettings {
       $axios.get(`/configurations/projectintegration/${id}/active/${state ? 1 : 0}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            resolve(response.data)
+            resolve(response.data);
           } else {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 }
 
-export default ProjectIntegrationSettings
+export default ProjectIntegrationSettings;

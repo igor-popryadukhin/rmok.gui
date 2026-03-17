@@ -1,9 +1,9 @@
-import { RootState } from '@/store'
-import { Module } from 'vuex'
-import state, { ProfileState } from './state'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
+import { RootState } from '@/store';
+import { Module } from 'vuex';
+import state, { ProfileState } from './state';
+import getters from './getters';
+import actions from './actions';
+import mutations from './mutations';
 
 const profile: Module<ProfileState, RootState> = {
   namespaced: true,
@@ -11,6 +11,6 @@ const profile: Module<ProfileState, RootState> = {
   actions,
   getters,
   mutations
-}
+};
 
-export default profile
+export default profile;

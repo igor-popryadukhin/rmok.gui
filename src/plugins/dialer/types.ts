@@ -1,4 +1,4 @@
-import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
+import { ConnectingEvent, EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession';
 
 export type EventHandler = (...args: any[]) => void
 export type EventHandlerConnecting = (session: RTCSession, event: ConnectingEvent) => void

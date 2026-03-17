@@ -36,9 +36,9 @@
 
 <script lang="ts">
 
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppPopupMenu extends Vue {
@@ -48,8 +48,8 @@ export default class AppPopupMenu extends Vue {
 
   @Emit('click:btn:ok')
   clickBtnOk () {
-    this.menuVisible = false
-    return
+    this.menuVisible = false;
+    return;
   }
 }
 </script>

@@ -1,32 +1,28 @@
-import { Timer } from './Timer'
-import JsSIP, { Utils as JsSIPUtils, UA, URI } from 'jssip'
+import { Timer } from './Timer';
+import JsSIP, { Utils as JsSIPUtils, UA, URI } from 'jssip';
 import {
-  ConnectingEvent,
-  EndEvent,
-  IncomingEvent,
-  OutgoingEvent,
   RTCSession,
-  AnswerOptions, RTCPeerConnectionDeprecated
-} from 'jssip/lib/RTCSession'
+  AnswerOptions
+} from 'jssip/lib/RTCSession';
 import {
   CallOptions,
   ConnectedEvent,
   IncomingRTCSessionEvent,
   OutgoingRTCSessionEvent,
   RegisteredEvent, UnRegisteredEvent, UAConfiguration, UnRegisterOptions
-} from 'jssip/lib/UA'
-import debug from 'debug'
+} from 'jssip/lib/UA';
+import debug from 'debug';
 
-import { DisconnectEvent } from 'jssip/lib/WebSocketInterface'
+import { DisconnectEvent } from 'jssip/lib/WebSocketInterface';
 
 function makeAudioElement (id?: string): HTMLAudioElement {
-  const audioElement: HTMLAudioElement = document.createElement('audio')
+  const audioElement: HTMLAudioElement = document.createElement('audio');
   if (id) {
-    audioElement.setAttribute('id', id)
+    audioElement.setAttribute('id', id);
   }
-  audioElement.setAttribute('style', 'display: none')
-  audioElement.setAttribute('controls', '')
-  return audioElement
+  audioElement.setAttribute('style', 'display: none');
+  audioElement.setAttribute('controls', '');
+  return audioElement;
 }
 
 export interface DialerConfiguration {
@@ -45,20 +41,20 @@ export enum DialerState {
   PROGRESS = 'progress'
 }
 
-const DialerDebug = debug('Dialer')
+const DialerDebug = debug('Dialer');
 
 export default class Dialer {
-  get pcConfig (): RTCConfiguration { return this._pcConfig }
-  set pcConfig (value: RTCConfiguration) { this._pcConfig = value }
-  get sessionStartTime (): Date|null { return this._sessionStartTime }
-  get sessionEndTime (): Date|null { return this._sessionEndTime }
-  get sessionStopwatch (): string { return this._sessionStopwatch }
-  get state (): DialerState { return this._state }
+  get pcConfig (): RTCConfiguration { return this._pcConfig; }
+  set pcConfig (value: RTCConfiguration) { this._pcConfig = value; }
+  get sessionStartTime (): Date|null { return this._sessionStartTime; }
+  get sessionEndTime (): Date|null { return this._sessionEndTime; }
+  get sessionStopwatch (): string { return this._sessionStopwatch; }
+  get state (): DialerState { return this._state; }
   get direction (): string {
     if (this._currentRTCSession?.status === 8) {
-      return 'indeterminate'
+      return 'indeterminate';
     }
-    return this._currentRTCSession?.direction || 'indeterminate'
+    return this._currentRTCSession?.direction || 'indeterminate';
   }
 
   private _sessionStopwatchTimerId: NodeJS.Timeout;
@@ -77,25 +73,25 @@ export default class Dialer {
   private _currentRTCSession?: RTCSession = null;
 
   constructor () {
-    this._localAudio = makeAudioElement()
-    this._remoteAudio = makeAudioElement()
-    this._audioElementForRinging = makeAudioElement()
+    this._localAudio = makeAudioElement();
+    this._remoteAudio = makeAudioElement();
+    this._audioElementForRinging = makeAudioElement();
 
-    this._localAudio.autoplay = true
-    this._remoteAudio.autoplay = true
+    this._localAudio.autoplay = true;
+    this._remoteAudio.autoplay = true;
 
-    this._timer = new Timer()
-    this._state = DialerState.IDLE
+    this._timer = new Timer();
+    this._state = DialerState.IDLE;
 
-    return this
+    return this;
   }
 
   public setUAParameter<T extends keyof UAConfiguration> (parameter: T, value: UAConfiguration[T]): boolean {
-    return this._ua.set(parameter, value)
+    return this._ua.set(parameter, value);
   }
 
   public getUAParameter<T extends keyof UAConfiguration> (parameter: T): UAConfiguration[T] {
-    return this._ua.get(parameter)
+    return this._ua.get(parameter);
   }
 
   /**
@@ -105,11 +101,11 @@ export default class Dialer {
    */
   public call (number: string): RTCSession {
     if (!this._ua) {
-      throw new Error('User agent is not initialized!')
+      throw new Error('User agent is not initialized!');
     }
 
     if (!this.isConnected()) {
-      throw new Error('User agent is not connected')
+      throw new Error('User agent is not connected');
     }
 
     this._currentRTCSession = this._ua.call(number, {
@@ -132,45 +128,45 @@ export default class Dialer {
         offerToReceiveAudio: true,
         offerToReceiveVideo: false
       }
-    })
+    });
 
-    return this._currentRTCSession
+    return this._currentRTCSession;
   }
 
   public connect (): void {
     if (this._ua) {
-      DialerDebug('Connecting...')
-      this._ua.start()
+      DialerDebug('Connecting...');
+      this._ua.start();
     }
   }
 
   public disconnect (): void {
     if (this._ua) {
-      DialerDebug('Disconnect...')
-      this._ua.stop()
+      DialerDebug('Disconnect...');
+      this._ua.stop();
     }
   }
 
   public register (): void {
     if (this._ua) {
-      DialerDebug('Registration...')
-      this._ua.register()
+      DialerDebug('Registration...');
+      this._ua.register();
     }
   }
 
   public unregister (options?: UnRegisterOptions): void {
     if (this._ua) {
-      DialerDebug('Unregister...')
-      this._ua.unregister(options)
+      DialerDebug('Unregister...');
+      this._ua.unregister(options);
     }
   }
 
   public isConnected (): boolean {
-    return this._ua?.isConnected() || false
+    return this._ua?.isConnected() || false;
   }
 
   public isRegistered (): boolean {
-    return Boolean(this._ua?.isRegistered())
+    return Boolean(this._ua?.isRegistered());
   }
 
   /**
@@ -179,7 +175,7 @@ export default class Dialer {
    */
   public answer (options?: AnswerOptions): void {
     if (this._currentRTCSession) {
-      this._currentRTCSession.answer(options)
+      this._currentRTCSession.answer(options);
     }
   }
 
@@ -188,24 +184,24 @@ export default class Dialer {
    */
   public hangUp (options?: CallOptions): void {
     if (this._ua) {
-      this._ua.terminateSessions(options)
+      this._ua.terminateSessions(options);
     }
   }
 
   public mute (): void {
     if (this._currentRTCSession) {
-      this._currentRTCSession.mute()
+      this._currentRTCSession.mute();
     }
   }
 
   public unmute (): void {
     if (this._currentRTCSession) {
-      this._currentRTCSession.unmute()
+      this._currentRTCSession.unmute();
     }
   }
 
   public isMuted (): boolean {
-    return Boolean(this._currentRTCSession?.isMuted())
+    return Boolean(this._currentRTCSession?.isMuted());
   }
 
   /**
@@ -213,14 +209,14 @@ export default class Dialer {
    * @param config
    */
   public configure (url: string, config: DialerConfiguration) {
-    this.unInitializeListeners()
+    this.unInitializeListeners();
 
     if (this._ua) {
-      this._ua.stop()
-      this._ua = null
+      this._ua.stop();
+      this._ua = null;
     }
 
-    this._candidateReadyTimeOut = config?.candidateReadyTimeOut || 0
+    this._candidateReadyTimeOut = config?.candidateReadyTimeOut || 0;
     this._ua = new JsSIP.UA({
       sockets: [new JsSIP.WebSocketInterface(url)],
       uri: config.uri,
@@ -231,11 +227,11 @@ export default class Dialer {
       contact_uri: config.uri,
       session_timers_refresh_method: 'invite',
       session_timers: true
-    })
+    });
 
     // Отписываемся от всех событий
-    this.initializeListeners()
-    return this
+    this.initializeListeners();
+    return this;
   }
 
   /**
@@ -244,8 +240,8 @@ export default class Dialer {
    * @param handler
    */
   public on (event: string, handler: (...args: any[]) => void): Dialer {
-    this._ua = this._ua?.addListener(event, handler)
-    return this
+    this._ua = this._ua?.addListener(event, handler);
+    return this;
   }
 
   /**
@@ -254,8 +250,8 @@ export default class Dialer {
    * @param handler
    */
   public off (event: string, handler: (...args: any[]) => void): Dialer {
-    this._ua = this._ua?.off(event, handler)
-    return this
+    this._ua = this._ua?.off(event, handler);
+    return this;
   }
 
   /**
@@ -263,11 +259,11 @@ export default class Dialer {
    * @private
    */
   private initializeListeners () {
-    this._ua.on('registered', this.onRegistered.bind(this))
-    this._ua.on('unregistered', this.onUnregistered.bind(this))
-    this._ua.on('connected', this.onConnected.bind(this))
-    this._ua.on('disconnected', this.onDisconnected.bind(this))
-    this._ua.on('newRTCSession', this.onNewRTCSession.bind(this))
+    this._ua.on('registered', this.onRegistered.bind(this));
+    this._ua.on('unregistered', this.onUnregistered.bind(this));
+    this._ua.on('connected', this.onConnected.bind(this));
+    this._ua.on('disconnected', this.onDisconnected.bind(this));
+    this._ua.on('newRTCSession', this.onNewRTCSession.bind(this));
   }
 
   /**
@@ -276,28 +272,28 @@ export default class Dialer {
    */
   private unInitializeListeners () {
     if (this._ua) {
-      this._ua.off('registered', this.onRegistered.bind(this))
-      this._ua.off('unregistered', this.onUnregistered.bind(this))
-      this._ua.off('connected', this.onConnected.bind(this))
-      this._ua.off('disconnected', this.onDisconnected.bind(this))
-      this._ua.off('newRTCSession', this.onNewRTCSession.bind(this))
+      this._ua.off('registered', this.onRegistered.bind(this));
+      this._ua.off('unregistered', this.onUnregistered.bind(this));
+      this._ua.off('connected', this.onConnected.bind(this));
+      this._ua.off('disconnected', this.onDisconnected.bind(this));
+      this._ua.off('newRTCSession', this.onNewRTCSession.bind(this));
     }
   }
 
   private onRegistered (event: RegisteredEvent) {
-    DialerDebug('Registered %o', event)
+    DialerDebug('Registered %o', event);
   }
 
   private onUnregistered (event: UnRegisteredEvent) {
-    DialerDebug('Unregistered %o', event)
+    DialerDebug('Unregistered %o', event);
   }
 
   private onConnected (event: ConnectedEvent) {
-    DialerDebug('Connected %o', event)
+    DialerDebug('Connected %o', event);
   }
 
   private onDisconnected (event: DisconnectEvent) {
-    DialerDebug('Disconnected %o', event)
+    DialerDebug('Disconnected %o', event);
   }
 
   /**
@@ -306,62 +302,62 @@ export default class Dialer {
    * @private
    */
   private onNewRTCSession (event: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
-    this._sessionStartTime = new Date()
-    this._currentRTCSession = event.session
+    this._sessionStartTime = new Date();
+    this._currentRTCSession = event.session;
 
     if (this._candidateReadyTimeOut) {
       event.session.on('icecandidate', (event) => {
-        DialerDebug(event.candidate.candidate)
+        DialerDebug(event.candidate.candidate);
         if (this._candidateReadyTimeoutId != null) {
-          clearTimeout(this._candidateReadyTimeoutId)
+          clearTimeout(this._candidateReadyTimeoutId);
         }
         this._candidateReadyTimeoutId = setTimeout(() => {
-          event.ready()
-        }, this._candidateReadyTimeOut)
-      })
+          event.ready();
+        }, this._candidateReadyTimeOut);
+      });
     }
     if (event.session.direction === 'incoming') {
       event.session.on('peerconnection', (event) => {
         event.peerconnection.ontrack = (ev) => {
-          this._remoteAudio.srcObject = ev.streams[0]
-        }
-      })
+          this._remoteAudio.srcObject = ev.streams[0];
+        };
+      });
     }
 
     event.session.on('connecting', () => {
-      this._state = DialerState.CONNECTING
-      this.startRenderSessionStopwatch()
+      this._state = DialerState.CONNECTING;
+      this.startRenderSessionStopwatch();
 
       event.session.connection.ontrack = (te) => {
-        this._remoteAudio.srcObject = te.streams[0]
-      }
-    })
+        this._remoteAudio.srcObject = te.streams[0];
+      };
+    });
 
     // Срабатывает при получении или генерации ответа класса 1XX SIP (> 100) на запрос INVITE
     event.session.on('progress', () => {
-      this._state = DialerState.PROGRESS
-    })
+      this._state = DialerState.PROGRESS;
+    });
 
     // Срабатывает, когда вызов принят (2XX получено / отправлено).
     event.session.on('accepted', () => {
-      this._state = DialerState.ACCEPTED
-    })
+      this._state = DialerState.ACCEPTED;
+    });
 
     // Срабатывает, когда установленный вызов завершается.
     event.session.on('ended', () => {
-      this._sessionEndTime = new Date()
-      this.stopRenderSessionStopwatch()
+      this._sessionEndTime = new Date();
+      this.stopRenderSessionStopwatch();
 
-      this._state = DialerState.IDLE
-    })
+      this._state = DialerState.IDLE;
+    });
 
     // Запускается, когда сеанс не может быть установлен.
     event.session.on('failed', () => {
-      this._sessionEndTime = new Date()
-      this.stopRenderSessionStopwatch()
+      this._sessionEndTime = new Date();
+      this.stopRenderSessionStopwatch();
 
-      this._state = DialerState.IDLE
-    })
+      this._state = DialerState.IDLE;
+    });
   }
 
   /**
@@ -369,11 +365,11 @@ export default class Dialer {
    * @private
    */
   private startRenderSessionStopwatch () {
-    this._timer.reset()
-    this._timer.start()
+    this._timer.reset();
+    this._timer.start();
     this._sessionStopwatchTimerId = setInterval(() => {
-      this._sessionStopwatch = this._timer.render()
-    }, 100)
+      this._sessionStopwatch = this._timer.render();
+    }, 100);
   }
 
   /**
@@ -381,9 +377,9 @@ export default class Dialer {
    * @private
    */
   private stopRenderSessionStopwatch () {
-    this._timer.stop()
-    this._timer.reset()
-    this._sessionStopwatch = '00:00:000'
-    clearInterval(this._sessionStopwatchTimerId)
+    this._timer.stop();
+    this._timer.reset();
+    this._sessionStopwatch = '00:00:000';
+    clearInterval(this._sessionStopwatchTimerId);
   }
 }

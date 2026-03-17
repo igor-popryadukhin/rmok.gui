@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import { isEmpty } from '@/utils/utils'
+import Vue from 'vue';
+import { isEmpty } from '@/utils/utils';
 
 interface DynamicRuleInterface {
   val: (value: string) => void;
@@ -91,36 +91,36 @@ export default Vue.extend({
         }
         /* eslint-enable */
       }
-    }
+    };
   },
 
   methods: {
     assertLength (options: AssertLengthInterface) {
       return (value: string) => {
         if (options.max) {
-          const max = options.max
-          const messageMax: string = options.messageMax ?? 'Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.'
+          const max = options.max;
+          const messageMax: string = options.messageMax ?? 'Empty. | This value is too long. It should have {n} characters or less. | This value is too long. It should have {n} characters or less.';
           const assertMax = (v: string) => {
-            return v.length <= max ? true : this.$tc(messageMax, max)
-          }
+            return v.length <= max ? true : this.$tc(messageMax, max);
+          };
 
-          return assertMax(value)
+          return assertMax(value);
         }
 
         if (options.min) {
-          const min = options.min
-          const messageMin: string = options.messageMin ?? 'Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.'
+          const min = options.min;
+          const messageMin: string = options.messageMin ?? 'Empty. | This value is too short. It should have {n} characters or more. | This value is too short. It should have {n} characters or more.';
           const assertMin = (v: string) => {
-            return v.length <= min ? true : this.$tc(messageMin, min)
-          }
+            return v.length <= min ? true : this.$tc(messageMin, min);
+          };
 
-          return assertMin(value)
+          return assertMin(value);
         }
-      }
+      };
     },
 
     ruleComparer (val1: number | string | boolean, val2: number | string | boolean, message?: string) {
-      return () => val1 === val2 || message || this.$t('rule_value_is_not_equal')
+      return () => val1 === val2 || message || this.$t('rule_value_is_not_equal');
     },
 
     ruleDynamic (val: number | string | boolean | RegExp, message?: string): DynamicRuleInterface {
@@ -129,7 +129,7 @@ export default Vue.extend({
         min: (value: string) => isEmpty(value) || value.length >= val || message || this.$t('rule_min_dynamic_length', { val }),
         regex: (value: string) => isEmpty(value) || new RegExp(val as string | RegExp).test(value) || message || this.$t('rule_regex_dynamic', { val }),
         val: () => val || message || this.$t('rule_max_dynamic_length', { val })
-      }
+      };
     }
   }
-})
+});

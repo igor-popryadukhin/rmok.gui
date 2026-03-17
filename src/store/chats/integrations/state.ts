@@ -20,7 +20,7 @@ function state (): State {
       id: 0,
       name: ''
     }
-  }
+  };
 }
 
-export default state
+export default state;

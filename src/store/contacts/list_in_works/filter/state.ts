@@ -1,4 +1,4 @@
-import Status from '@/api/interfaces/Status'
+import Status from '@/api/interfaces/Status';
 
 export interface Group {
   id: number;
@@ -83,7 +83,7 @@ export function defaultState (): State {
     order_direction: 'asc',
     /// /////////////////////////////////
     filter_panel_visible: true
-  }
+  };
 }
 
-export const state = defaultState
+export const state = defaultState;

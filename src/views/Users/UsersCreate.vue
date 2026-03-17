@@ -150,19 +150,19 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import AppBase from '@/AppBase'
-import { loadLanguageAsync } from '@/plugins/i18n'
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import debounce from '@/utils/debounce'
-import { generatePassword } from '@/utils/utils'
-import { AxiosResponse } from 'axios'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
-import Vuelidate from 'vuelidate'
+import APIError from '@/api/classes/APIError';
+import AppBase from '@/AppBase';
+import { loadLanguageAsync } from '@/plugins/i18n';
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import debounce from '@/utils/debounce';
+import { generatePassword } from '@/utils/utils';
+import { AxiosResponse } from 'axios';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
+import Vuelidate from 'vuelidate';
 
-Vue.use(Vuelidate)
+Vue.use(Vuelidate);
 
 // eslint-disable-next-line no-use-before-define
 @Component<UsersCreate>({
@@ -173,8 +173,8 @@ Vue.use(Vuelidate)
     // TODO: Language optional
     loadLanguageAsync('ru', 'messages')
       .finally(() => {
-        next()
-      })
+        next();
+      });
   }
 })
 export default class UsersCreate extends AppBase {
@@ -193,7 +193,7 @@ export default class UsersCreate extends AppBase {
   }
 
   get validatorIsInvalid () {
-    return this.validator.length === 0 || this.validator.findIndex((e) => e.status === 'failure') > -1
+    return this.validator.length === 0 || this.validator.findIndex((e) => e.status === 'failure') > -1;
   }
 
   // Справочники
@@ -215,16 +215,16 @@ export default class UsersCreate extends AppBase {
         title: 'Оператор',
         value: 'ROLE_OPERATOR'
       }
-    ]
+    ];
   }
 
   @Watch('form', { deep: true })
   formWatchHandler () {
-    this.onChangeFields()
+    this.onChangeFields();
   }
 
   public created () {
-    this.onChangeFields = debounce(this.onChangeFields, 350)
+    this.onChangeFields = debounce(this.onChangeFields, 350);
   }
 
   private onChangeFields () {
@@ -233,31 +233,31 @@ export default class UsersCreate extends AppBase {
         { ...this.form }
       )
       .then((response: AxiosResponse) => {
-        this.validator = response.data || []
-      })
+        this.validator = response.data || [];
+      });
   }
 
   private validatorErrors (property: string, require = false) {
-    const index = this.validator.findIndex((e) => e.property_name === `[${property}]` && e.status === 'failure')
+    const index = this.validator.findIndex((e) => e.property_name === `[${property}]` && e.status === 'failure');
     if (index > -1) {
       if (require) {
-        return this.validator[index].message
+        return this.validator[index].message;
       }
-      return this.validator[index].value ? this.validator[index].message : ''
+      return this.validator[index].value ? this.validator[index].message : '';
     }
-    return ''
+    return '';
   }
 
   private validatorSuccess (property: string) {
-    const index = this.validator.findIndex((e) => e.property_name === `[${property}]` && e.status === 'success')
+    const index = this.validator.findIndex((e) => e.property_name === `[${property}]` && e.status === 'success');
     if (index > -1 && this.validator[index].value) {
-      return this.validator[index].message
+      return this.validator[index].message;
     }
-    return ''
+    return '';
   }
 
   private userCreate () {
-    this.conservationProcess = true
+    this.conservationProcess = true;
 
     this.$axios.post('/users', {
       first_name: this.form.first_name.trim(),
@@ -270,7 +270,7 @@ export default class UsersCreate extends AppBase {
     })
       .then((response: AxiosResponse) => {
         if (response.status !== 201) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
 
         this.$router.replace({
@@ -278,23 +278,23 @@ export default class UsersCreate extends AppBase {
           params: {
             id: String(response.data.id)
           }
-        })
+        });
 
-        this.$toast.success('User created')
+        this.$toast.success('User created');
       }).catch((reason) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         } else {
-          this.$toast.error(reason.message)
+          this.$toast.error(reason.message);
         }
-      }).finally(() => (this.conservationProcess = false))
+      }).finally(() => (this.conservationProcess = false));
   }
 
   private generatePassword () {
-    this.passwordVisible = true
-    this.form.password = generatePassword(8)
+    this.passwordVisible = true;
+    this.form.password = generatePassword(8);
   }
 }
 </script>

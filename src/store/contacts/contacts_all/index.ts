@@ -1,11 +1,11 @@
-import { RootState } from '@/store'
-import settings from './settings'
-import { Module } from 'vuex'
-import state, { ContactsListState } from './state'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
-import filter from './filter'
+import { RootState } from '@/store';
+import settings from './settings';
+import { Module } from 'vuex';
+import state, { ContactsListState } from './state';
+import getters from './getters';
+import actions from './actions';
+import mutations from './mutations';
+import filter from './filter';
 
 const module: Module<ContactsListState, RootState> = {
   actions,
@@ -17,6 +17,6 @@ const module: Module<ContactsListState, RootState> = {
     filter,
     settings
   }
-}
+};
 
-export default module
+export default module;

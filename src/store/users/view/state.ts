@@ -1,8 +1,8 @@
-import PBXConfiguration from '@/api/interfaces/PBXConfiguration'
-import Project from '@/api/interfaces/Project'
-import Role from '@/api/interfaces/Role'
-import UserGroup from '@/api/interfaces/UserGroup'
-import UserSchedule from '@/api/interfaces/UserSchedule'
+import PBXConfiguration from '@/api/interfaces/PBXConfiguration';
+import Project from '@/api/interfaces/Project';
+import Role from '@/api/interfaces/Role';
+import UserGroup from '@/api/interfaces/UserGroup';
+import UserSchedule from '@/api/interfaces/UserSchedule';
 
 export interface UsersViewState {
   fetching: boolean;
@@ -53,9 +53,9 @@ export function defaultState (): UsersViewState {
       }
     },
     user_schedule: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

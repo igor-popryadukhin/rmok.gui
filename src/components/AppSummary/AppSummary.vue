@@ -38,10 +38,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import { Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import { Prop } from 'vue-property-decorator';
 
 @Component({
   components: {

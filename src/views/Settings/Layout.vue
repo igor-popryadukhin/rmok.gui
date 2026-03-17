@@ -1,7 +1,5 @@
 <template>
-  <keep-alive max="5">
-    <router-view />
-  </keep-alive>
+  <router-view />
 </template>
 
 <style lang="scss" scoped>

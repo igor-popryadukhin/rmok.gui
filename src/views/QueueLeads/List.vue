@@ -132,13 +132,13 @@
 </template>
 
 <script lang="ts">
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import Vue from 'vue'
-import { Contacts } from '@/api/Contacts'
-import { $axios } from '@/plugins/axios'
-import debounce from '@/utils/debounce'
-import SSEMessage from '@/interfaces/SSEMessage'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import Vue from 'vue';
+import { Contacts } from '@/api/Contacts';
+import { $axios } from '@/plugins/axios';
+import debounce from '@/utils/debounce';
+import SSEMessage from '@/interfaces/SSEMessage';
 
 interface Data {
   [key: string]: any
@@ -167,19 +167,19 @@ export default Vue.extend<Data, Methods, Computed>({
         progress: 0,
         text: ''
       }
-    }
+    };
   },
 
   async mounted () {
     // Всегда загружаем самый свежий список
-    this.loadContacts()
-    this.SSEContactsQueueComputeProcess = debounce(this.SSEContactsQueueComputeProcess, 450)
+    this.loadContacts();
+    this.SSEContactsQueueComputeProcess = debounce(this.SSEContactsQueueComputeProcess, 450);
 
-    this.$root.$on('sse:queue:compute:process', this.SSEContactsQueueComputeProcess)
+    this.$root.$on('sse:queue:compute:process', this.SSEContactsQueueComputeProcess);
   },
 
   beforeDestroy () {
-    this.$root.$off('sse:queue:compute:process', this.SSEContactsQueueComputeProcess)
+    this.$root.$off('sse:queue:compute:process', this.SSEContactsQueueComputeProcess);
   },
 
   methods: {
@@ -187,28 +187,28 @@ export default Vue.extend<Data, Methods, Computed>({
      * Запускает на сервере процесс вычисления параметров очереди.
      */
     computeQueue () {
-      this.queueProcess.visible = true
-      $axios.get('/contacts/queue/compute')
+      this.queueProcess.visible = true;
+      $axios.get('/contacts/queue/compute');
     },
 
     /**
      * Загрузит контакты с сервера.
      */
     loadContacts () {
-      this.contactsProcessLoading = true
+      this.contactsProcessLoading = true;
       new Contacts()
         .find({ queue: 1, count: 50 })
         .then((response) => {
-          this.contactsTotal = response.meta?.count || 0
-          this.contactsItems = response.data || []
-        }).finally(() => (this.contactsProcessLoading = false))
+          this.contactsTotal = response.meta?.count || 0;
+          this.contactsItems = response.data || [];
+        }).finally(() => (this.contactsProcessLoading = false));
     },
 
     /**
      * Происходит при нажатии на кнопку "Обновить".
      */
     onBtnRefreshClick () {
-      this.computeQueue()
+      this.computeQueue();
     },
 
     /**
@@ -219,23 +219,23 @@ export default Vue.extend<Data, Methods, Computed>({
     SSEContactsQueueComputeProcess (message: SSEMessage) {
       if (message.payload.status === 'progress') {
         // В процессе вычисления
-        this.queueProcess.progress = +message.payload.percent
-        this.queueProcess.visible = true
+        this.queueProcess.progress = +message.payload.percent;
+        this.queueProcess.visible = true;
       } else if (message.payload.status === 'success') {
         // Процесс вычисления успешно завершён.
-        this.queueProcess.progress = 0
-        this.queueProcess.visible = false
-        this.loadContacts()
+        this.queueProcess.progress = 0;
+        this.queueProcess.visible = false;
+        this.loadContacts();
       } else if (message.payload.status === 'failure') {
         // Процесс вычисления завершился с ошибкой
-        this.queueProcess.visible = false
-        this.queueProcess.progress = 0
+        this.queueProcess.visible = false;
+        this.queueProcess.progress = 0;
 
-        this.$toast.error(message.payload.message)
+        this.$toast.error(message.payload.message);
       }
     }
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

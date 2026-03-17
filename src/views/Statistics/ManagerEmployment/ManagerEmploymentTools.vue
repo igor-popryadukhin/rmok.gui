@@ -41,10 +41,10 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import AppBase from '@/AppBase';
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 
 @Component<ManagerEmploymentTools>({
   components: { AppBtnToggleDate }
@@ -53,34 +53,34 @@ export default class ManagerEmploymentTools extends AppBase {
   isoFormat = 'YYYY-MM-DD'
   customPeriod = null
 
-  get itemsFetching (): boolean { return this.$store.getters['statistics/manager_employment/items_fetching'] }
+  get itemsFetching (): boolean { return this.$store.getters['statistics/manager_employment/items_fetching']; }
 
   get filterPeriod () {
-    const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0)
-    const dtB = this.$dayjs().set('h', 23).set('m', 59).set('s', 59).set('millisecond', 0)
+    const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0);
+    const dtB = this.$dayjs().set('h', 23).set('m', 59).set('s', 59).set('millisecond', 0);
 
-    return this.$store.getters['statistics/manager_employment/filter/period'] || `${dtA.format(this.isoFormat)}|${dtB.format(this.isoFormat)}`
+    return this.$store.getters['statistics/manager_employment/filter/period'] || `${dtA.format(this.isoFormat)}|${dtB.format(this.isoFormat)}`;
   }
   set filterPeriod (val: string) {
     if (/\d{4}-\d{2}-\d{2}\|\d{4}-\d{2}-\d{2}/s.test(val)) {
-      this.customPeriod = []
-      this.$store.commit('statistics/manager_employment/filter/period', val)
+      this.customPeriod = [];
+      this.$store.commit('statistics/manager_employment/filter/period', val);
     }
   }
 
   get customPeriodDisplay () {
     if (Array.isArray(this.customPeriod) && this.customPeriod.length === 2) {
-      const dtA = this.$dayjs(this.customPeriod[0], 'YYYY-MM-DD')
-      const dtB = this.$dayjs(this.customPeriod[1], 'YYYY-MM-DD')
-      return [dtA.format('DD.MM.YYYY'), dtB.format('DD.MM.YYYY')].join(' - ')
+      const dtA = this.$dayjs(this.customPeriod[0], 'YYYY-MM-DD');
+      const dtB = this.$dayjs(this.customPeriod[1], 'YYYY-MM-DD');
+      return [dtA.format('DD.MM.YYYY'), dtB.format('DD.MM.YYYY')].join(' - ');
     }
-    return ''
+    return '';
   }
 
   // Возможные варианты диапазонов
   get dateRangeCollection () {
-    const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0)
-    const dtB = this.$dayjs().set('h', 23).set('m', 59).set('s', 59).set('millisecond', 0)
+    const dtA = this.$dayjs().set('h', 0).set('m', 0).set('s', 0).set('millisecond', 0);
+    const dtB = this.$dayjs().set('h', 23).set('m', 59).set('s', 59).set('millisecond', 0);
 
     return [
       {
@@ -108,39 +108,39 @@ export default class ManagerEmploymentTools extends AppBase {
         tooltip: `c ${dtA.startOf('month').format('DD.MM.YYYY')} по ${dtB.endOf('month').format('DD.MM.YYYY')}`,
         value: `${dtA.startOf('month').format(this.isoFormat)}|${dtB.endOf('month').format(this.isoFormat)}`
       }
-    ]
+    ];
   }
 
   @Watch('filterPeriod')
   filterPeriodWatchHandler () {
-    this.fetchStatistic()
+    this.fetchStatistic();
   }
 
   @Watch('customPeriod')
   customPeriodWatchHandler (val: string[]) {
     if (val.length === 2) {
-      const d1 = this.$dayjs(val[0], 'YYYY-MM-DD')
-      const d2 = this.$dayjs(val[1], 'YYYY-MM-DD')
+      const d1 = this.$dayjs(val[0], 'YYYY-MM-DD');
+      const d2 = this.$dayjs(val[1], 'YYYY-MM-DD');
       if (d1.diff(d2, 'day') >= 0) {
-        this.$store.commit('statistics/manager_employment/filter/period', `${val[1]}|${val[0]}`)
+        this.$store.commit('statistics/manager_employment/filter/period', `${val[1]}|${val[0]}`);
       } else {
-        this.$store.commit('statistics/manager_employment/filter/period', `${val[0]}|${val[1]}`)
+        this.$store.commit('statistics/manager_employment/filter/period', `${val[0]}|${val[1]}`);
       }
     }
   }
 
   public mounted () {
     if (this.filterPeriod && this.dateRangeCollection.findIndex((e) => e.value === this.filterPeriod) === -1) {
-      const dates = this.filterPeriod.split('|')
+      const dates = this.filterPeriod.split('|');
       this.customPeriod = [
         this.$dayjs(dates[0]).format('YYYY-MM-DD'),
         this.$dayjs(dates[1]).format('YYYY-MM-DD')
-      ]
+      ];
     }
   }
 
   private fetchStatistic () {
-    this.$store.dispatch('statistics/manager_employment/fetch')
+    this.$store.dispatch('statistics/manager_employment/fetch');
   }
 }
 </script>

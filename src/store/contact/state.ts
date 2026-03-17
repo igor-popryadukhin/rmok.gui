@@ -72,7 +72,7 @@ function defaultState (): State {
     notes: '',
     default_phone: null,
     created_at: 0
-  }
+  };
 }
 
-export default defaultState
+export default defaultState;

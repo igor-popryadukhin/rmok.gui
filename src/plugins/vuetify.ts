@@ -1,15 +1,15 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import { Ripple } from 'vuetify/lib/directives'
+import Vue from 'vue';
+import Vuetify from 'vuetify/lib';
+import { Ripple } from 'vuetify/lib/directives';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import ru from 'vuetify/lib/locale/ru'
+import ru from 'vuetify/lib/locale/ru';
 
 Vue.use(Vuetify, {
   directives: {
     Ripple
   }
-})
+});
 
 export default new Vuetify({
   icons: {
@@ -30,4 +30,4 @@ export default new Vuetify({
       }
     }
   }
-})
+});

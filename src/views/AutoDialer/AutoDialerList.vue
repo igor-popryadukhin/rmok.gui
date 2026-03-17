@@ -154,16 +154,16 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import Autodialer from '@/api/interfaces/Autodialer'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppPagination from '@/components/AppPagination/AppPaginator.vue'
-import AppTextField from '@/components/AppTextField/AppTextField.vue'
-import $store from '@/store'
-import debounce from '@/utils/debounce'
-import { AxiosResponse } from 'axios'
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import APIError from '@/api/classes/APIError';
+import Autodialer from '@/api/interfaces/Autodialer';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppPagination from '@/components/AppPagination/AppPaginator.vue';
+import AppTextField from '@/components/AppTextField/AppTextField.vue';
+import $store from '@/store';
+import debounce from '@/utils/debounce';
+import { AxiosResponse } from 'axios';
+import Vue from 'vue';
+import Component from 'vue-class-component';
 
 @Component({
   components: {
@@ -178,7 +178,7 @@ import Component from 'vue-class-component'
   beforeRouteEnter (to, from, next) {
     $store
       .dispatch('autodialer/list/fetch')
-      .finally(() => (next()))
+      .finally(() => (next()));
   }
 })
 export default class AutoDialerList extends Vue {
@@ -186,101 +186,101 @@ export default class AutoDialerList extends Vue {
   processItemAction = []
 
   get autoDialerItems () {
-    return this.$store.getters['autodialer/list/items']
+    return this.$store.getters['autodialer/list/items'];
   }
 
   get autoDialerItemsTotal () {
-    return this.$store.getters['autodialer/list/total']
+    return this.$store.getters['autodialer/list/total'];
   }
   get autoDialerItemsFetching () {
-    return this.$store.getters['autodialer/list/items_fetching']
+    return this.$store.getters['autodialer/list/items_fetching'];
   }
 
   // Фильтры
   get filterQ (): string {
-    return this.$store.getters['autodialer/list/filter/filter_q']
+    return this.$store.getters['autodialer/list/filter/filter_q'];
   }
 
   set filterQ (val: string) {
-    this.$store.commit('autodialer/list/filter/filter_q', val)
+    this.$store.commit('autodialer/list/filter/filter_q', val);
   }
 
   get filterOffset (): number {
-    return Number(this.$routerQuery.getQuery('offset')) || 0
+    return Number(this.$routerQuery.getQuery('offset')) || 0;
   }
 
   set filterOffset (val: number) {
-    this.$routerQuery.setQuery({ offset: val })
+    this.$routerQuery.setQuery({ offset: val });
   }
 
   get requestParameters () {
     return {
       offset: this.filterOffset
-    }
+    };
   }
 
   created () {
-    this.onFilterChange = debounce(this.onFilterChange, 350)
+    this.onFilterChange = debounce(this.onFilterChange, 350);
   }
 
   onBtnItemPlayOrStopClick (item: Autodialer, status: 'start'|'stop') {
-    this.processItemAction.push(item.id)
+    this.processItemAction.push(item.id);
 
     this.$axios.get(`/auto-dialers/${item.id}/${status}`)
       .then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
 
-        const items = JSON.parse(JSON.stringify(this.autoDialerItems)) as Array<any>
-        const index = items.findIndex((e) => e.id === item.id)
+        const items = JSON.parse(JSON.stringify(this.autoDialerItems)) as Array<any>;
+        const index = items.findIndex((e) => e.id === item.id);
         if (index > -1) {
-          items[index].status = status === 'start' ? 'process' : 'ready'
-          this.$store.commit('autodialer/list/items', items)
+          items[index].status = status === 'start' ? 'process' : 'ready';
+          this.$store.commit('autodialer/list/items', items);
         }
 
         if (status === 'start') {
-          this.$toast.success(this.$tc('Autodial is started'))
+          this.$toast.success(this.$tc('Autodial is started'));
         } else if (status === 'stop') {
-          this.$toast.success(this.$tc('Autodial is stopped'))
+          this.$toast.success(this.$tc('Autodial is stopped'));
         }
 
       }).finally(() => {
-      const index = this.processItemAction.findIndex((value) => value === item.id)
+      const index = this.processItemAction.findIndex((value) => value === item.id);
       if (index > -1) {
-        this.processItemAction.splice(index, 1)
+        this.processItemAction.splice(index, 1);
       }
-    })
+    });
   }
 
   async onAutoDialerCreateDialogCreate (data: any) {
     this.$axios.post('/auto-dialers', data)
       .then((response: AxiosResponse) => {
         if (response.status !== 201) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
 
-        this.$store.dispatch('autodialer/list/fetch')
-        this.$toast.success('Autodial created successfully')
-      })
+        this.$store.dispatch('autodialer/list/fetch');
+        this.$toast.success('Autodial created successfully');
+      });
   }
 
   private onBtnRefreshClick () {
-    this.$store.dispatch('autodialer/list/fetch')
+    this.$store.dispatch('autodialer/list/fetch');
   }
 
   private loadMore () {
-    this.$store.dispatch('autodialer/list/fetch', { append: true })
+    this.$store.dispatch('autodialer/list/fetch', { append: true });
   }
 
   private onFilterChange () {
-    this.$store.dispatch('autodialer/list/fetch')
+    this.$store.dispatch('autodialer/list/fetch');
   }
 
   private onIntersect (entries) {
-    this.isIntersecting = entries[0].isIntersecting
+    this.isIntersecting = entries[0].isIntersecting;
     if (this.isIntersecting) {
-      this.loadMore()
+      this.loadMore();
     }
   }
 }

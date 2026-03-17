@@ -108,25 +108,25 @@
 </template>
 
 <script lang="ts">
-import StatusGroup from '@/api/interfaces/StatusGroup'
-import AppBase from '@/AppBase'
-import { Prop } from 'vue-property-decorator'
-import Component from 'vue-class-component'
+import StatusGroup from '@/api/interfaces/StatusGroup';
+import AppBase from '@/AppBase';
+import { Prop } from 'vue-property-decorator';
+import Component from 'vue-class-component';
 
 @Component
 export default class ContactsViewStatus extends AppBase {
   tabStatus = 0
   @Prop({ default: 300 }) readonly height!: number
 
-  get contactProjectStatuses (): StatusGroup[] { return this.$store.getters['contacts/view/contact_project_statuses'] }
+  get contactProjectStatuses (): StatusGroup[] { return this.$store.getters['contacts/view/contact_project_statuses']; }
 
-  get unsavedCallStatusId (): number { return this.$store.getters['contacts/view/unsaved_call/data_status_id'] }
-  set unsavedCallStatusId (val: number) { this.$store.commit('contacts/view/unsaved_call/data_status_id', val) }
-  get unsavedCallComment (): string { return this.$store.getters['contacts/view/unsaved_call/data_comment'] }
-  set unsavedCallComment (val: string) { this.$store.commit('contacts/view/unsaved_call/data_comment', val) }
+  get unsavedCallStatusId (): number { return this.$store.getters['contacts/view/unsaved_call/data_status_id']; }
+  set unsavedCallStatusId (val: number) { this.$store.commit('contacts/view/unsaved_call/data_status_id', val); }
+  get unsavedCallComment (): string { return this.$store.getters['contacts/view/unsaved_call/data_comment']; }
+  set unsavedCallComment (val: string) { this.$store.commit('contacts/view/unsaved_call/data_comment', val); }
 
   private onRadioChange (status: any) {
-    this.$emit('change', status.id)
+    this.$emit('change', status.id);
   }
 }
 

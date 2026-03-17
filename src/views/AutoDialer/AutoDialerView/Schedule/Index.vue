@@ -45,10 +45,10 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppScheduleWeek from '@/components/AppScheduleWeek/AppScheduleWeek.vue'
+import Component from 'vue-class-component';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppScheduleWeek from '@/components/AppScheduleWeek/AppScheduleWeek.vue';
 
 // eslint-disable-next-line no-use-before-define
 @Component<Index>({
@@ -104,7 +104,7 @@ export default class Index extends AppBase {
       { time: '16:00', day: 5 },
       { time: '17:00', day: 5 },
       { time: '18:00', day: 5 }
-    ]
+    ];
   }
 }
 </script>

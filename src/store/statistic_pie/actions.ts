@@ -1,7 +1,7 @@
-import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
-import { State } from './state'
-import Statistics from '@/api/Statistics'
+import { RootState } from '@/store';
+import { ActionContext, ActionTree } from 'vuex';
+import { State } from './state';
+import Statistics from '@/api/Statistics';
 
 const actions: ActionTree<State, RootState> = {
   fetch: ({ commit }: ActionContext<State, RootState>, params = {}) => {
@@ -9,17 +9,17 @@ const actions: ActionTree<State, RootState> = {
       new Statistics()
         .recentCallsPie(params)
         .then((response) => {
-          commit('labels', response.labels)
-          commit('series', response.series)
-          commit('colors', response.colors)
-          resolve()
-        }).catch(reject)
-    })
+          commit('labels', response.labels);
+          commit('series', response.series);
+          commit('colors', response.colors);
+          resolve();
+        }).catch(reject);
+    });
   },
 
   flush: ({ commit }) => {
-    commit('flush')
+    commit('flush');
   }
-}
+};
 
-export default actions
+export default actions;

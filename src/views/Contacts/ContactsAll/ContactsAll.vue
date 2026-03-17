@@ -134,15 +134,15 @@
 </template>
 
 <script lang="ts">
-import Contact from '@/api/interfaces/Contact'
-import AppBase from '@/AppBase'
-import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
-import AppInfoLine from '@/components/AppInfoLine/AppInfoLine.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppTable from '@/components/AppTable/AppTable.vue'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import Contact from '@/api/interfaces/Contact';
+import AppBase from '@/AppBase';
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue';
+import AppInfoLine from '@/components/AppInfoLine/AppInfoLine.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppTable from '@/components/AppTable/AppTable.vue';
+import debounce from '@/utils/debounce';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsAll>({
@@ -162,19 +162,19 @@ import { Watch } from 'vue-property-decorator'
     ContactsListTools: () => import(
       /* webpackChunkName: "contacts-all-tools" */
       './ContactsAllTools.vue'
-      ),
+      )
   },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
       if ((vm.$store.getters['contacts/contacts_all/items'] as Array<Contact>).length === 0) {
-        vm.$store.dispatch('contacts/contacts_all/fetch')
+        vm.$store.dispatch('contacts/contacts_all/fetch');
       }
-    })
+    });
   }
 })
 export default class ContactsAll extends AppBase {
-  get settingsFilterWidth (): number { return this.$store.getters['contacts/contacts_all/settings/filter_width'] }
-  set settingsFilterWidth (val: number) { this.$store.commit('contacts/contacts_all/settings/filter_width', val) }
+  get settingsFilterWidth (): number { return this.$store.getters['contacts/contacts_all/settings/filter_width']; }
+  set settingsFilterWidth (val: number) { this.$store.commit('contacts/contacts_all/settings/filter_width', val); }
 
   get contactsHeaders () {
     return [
@@ -208,7 +208,7 @@ export default class ContactsAll extends AppBase {
         sortable: false,
         value: 'last_call_at'
       }
-    ]
+    ];
   }
 
   get contacts () {
@@ -222,39 +222,39 @@ export default class ContactsAll extends AppBase {
           project: e?.project?.name || '—',
           last_call_at: e?.last_call_at ? this.$dayjs(e?.last_call_at).format('DD.MM.YYYY HH:mm') : '',
           is_new: !!e?.is_new
-        }
-      })
+        };
+      });
   }
 
-  get contactsTotal (): number { return this.$store.getters['contacts/contacts_all/items_total'] }
+  get contactsTotal (): number { return this.$store.getters['contacts/contacts_all/items_total']; }
 
-  get contactsSelectedLength (): number { return (this.$store.getters['contacts/contacts_all/items_selected'] || []).length }
-  get contactsSelected () { return (this.$store.getters['contacts/contacts_all/items_selected'] || []) }
-  set contactsSelected (val) { this.$store.commit('contacts/contacts_all/items_selected', val) }
+  get contactsSelectedLength (): number { return (this.$store.getters['contacts/contacts_all/items_selected'] || []).length; }
+  get contactsSelected () { return (this.$store.getters['contacts/contacts_all/items_selected'] || []); }
+  set contactsSelected (val) { this.$store.commit('contacts/contacts_all/items_selected', val); }
 
-  get contactsError (): boolean { return this.$store.getters['contacts/contacts_all/error'] }
-  get contactsErrorText (): string { return this.$store.getters['contacts/contacts_all/error_text'] }
-  get contactsLoading (): boolean { return this.$store.getters['contacts/contacts_all/loading'] }
+  get contactsError (): boolean { return this.$store.getters['contacts/contacts_all/error']; }
+  get contactsErrorText (): string { return this.$store.getters['contacts/contacts_all/error_text']; }
+  get contactsLoading (): boolean { return this.$store.getters['contacts/contacts_all/loading']; }
 
   // Все параметры фильтров
   get filterAll () {
-    return this.$store.getters['contacts/contacts_all/filter/all']
+    return this.$store.getters['contacts/contacts_all/filter/all'];
   }
 
   // Здесь отслеживаем все параметры фильтров в одном месте.
   @Watch('filterAll')
   filterAllWatch () {
-    this.onFilterChange()
+    this.onFilterChange();
   }
 
   created () {
-    this.onFilterChange = debounce(this.onFilterChange, 350)
+    this.onFilterChange = debounce(this.onFilterChange, 350);
 
-    this.$root.$on('sse:contacts:transferred', this.onSSEContactsTransferred)
+    this.$root.$on('sse:contacts:transferred', this.onSSEContactsTransferred);
   }
 
   beforeDestroy () {
-    this.$root.$off('sse:contacts:transferred', this.onSSEContactsTransferred)
+    this.$root.$off('sse:contacts:transferred', this.onSSEContactsTransferred);
   }
 
   /**
@@ -262,20 +262,20 @@ export default class ContactsAll extends AppBase {
    * @private
    */
   private onFilterChange () {
-    this.$store.dispatch('contacts/contacts_all/fetch')
+    this.$store.dispatch('contacts/contacts_all/fetch');
   }
 
   private onBtnToRetryClick () {
-    this.$store.dispatch('contacts/contacts_all/fetch')
+    this.$store.dispatch('contacts/contacts_all/fetch');
   }
 
   private onToolsBtnAddToAutodialer () {
-    this.$store.dispatch('contacts/contacts_all/add_to_autodialer', 3)
+    this.$store.dispatch('contacts/contacts_all/add_to_autodialer', 3);
   }
 
   private onSSEContactsTransferred () {
-    this.$store.dispatch('contacts/contacts_all/unselect_all')
-    this.$store.dispatch('contacts/contacts_all/fetch')
+    this.$store.dispatch('contacts/contacts_all/unselect_all');
+    this.$store.dispatch('contacts/contacts_all/fetch');
   }
 }
 

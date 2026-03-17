@@ -134,16 +134,16 @@
 </template>
 
 <script lang="ts">
-import StatusAction from '@/api/interfaces/StatusAction'
-import AppBase from '@/AppBase'
-import ActionBlank from '@/views/Projects/Action/ActionBlank.vue'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop, PropSync, VModel } from 'vue-property-decorator'
-import Vuelidate, { validationMixin } from 'vuelidate'
-import { required, maxLength } from 'vuelidate/lib/validators'
+import StatusAction from '@/api/interfaces/StatusAction';
+import AppBase from '@/AppBase';
+import ActionBlank from '@/views/Projects/Action/ActionBlank.vue';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop, PropSync, VModel } from 'vue-property-decorator';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { required, maxLength } from 'vuelidate/lib/validators';
 
-Vue.use(Vuelidate)
+Vue.use(Vuelidate);
 
 // eslint-disable-next-line no-use-before-define
 @Component<StatusesEditDialog>({
@@ -154,11 +154,16 @@ Vue.use(Vuelidate)
   },
   computed: {
     nameErrors () {
-      const errors = []
-      if (!this.$v.nameSync.$dirty) return errors
-      !this.$v.nameSync.maxLength && errors.push('Name must be at most 255 characters long')
-      !this.$v.nameSync.required && errors.push('Name is required.')
-      return errors.map((e) => this.$tc(e))
+      const errors = [];
+      if (!this.$v.nameSync.$dirty) return errors;
+
+      if (this.$v.nameSync.maxLength) {
+        errors.push('Name must be at most 255 characters long');
+      }
+      if (this.$v.nameSync.required) {
+        errors.push('Name is required.');
+      }
+      return errors.map((e) => this.$tc(e));
     }
   }
 })
@@ -177,7 +182,7 @@ export default class StatusesEditDialog extends AppBase {
         id: 'create_task',
         title: 'Автозадача',
         component: () => new Promise((resolve) => {
-          return import('./Action/ActionAutoTask.vue').then(resolve)
+          return import('./Action/ActionAutoTask.vue').then(resolve);
         }),
         action_template: {
           data: {
@@ -194,7 +199,7 @@ export default class StatusesEditDialog extends AppBase {
         id: 'send_email',
         title: 'Отправить письмо на почту',
         component: () => new Promise((resolve) => {
-          return import('./Action/ActionSendEmail.vue').then(resolve)
+          return import('./Action/ActionSendEmail.vue').then(resolve);
         }),
         action_template: {
           data: {},
@@ -202,27 +207,27 @@ export default class StatusesEditDialog extends AppBase {
           title: 'Отправить письмо на почту'
         }
       }
-    ]
+    ];
   }
 
   @Emit('click:save')
   clickSaveEmit () {
-    this.visible = false
-    return undefined
+    this.visible = false;
+    return undefined;
   }
 
   @Emit('click:cancel')
   clickCancelEmit () {
-    this.visible = false
-    return undefined
+    this.visible = false;
+    return undefined;
   }
 
   private hasType (id: string): boolean {
-    return this.components.findIndex((e) => e.id === id) > -1
+    return this.components.findIndex((e) => e.id === id) > -1;
   }
 
   private getComponentById (id: string) {
-    return this.components.find((e) => e.id === id).component
+    return this.components.find((e) => e.id === id).component;
   }
 
   private addAction (template: StatusAction) {
@@ -230,13 +235,13 @@ export default class StatusesEditDialog extends AppBase {
       data: { ...template.data },
       type: template.type,
       title: template.title
-    })
+    });
   }
 
   private closeTab (item: StatusAction) {
-    const index = this.actionsSync.findIndex((e) => e.type === item.type)
+    const index = this.actionsSync.findIndex((e) => e.type === item.type);
     if (index > -1) {
-      this.actionsSync.splice(index, 1)
+      this.actionsSync.splice(index, 1);
     }
   }
 }

@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 enum Originator {
   REMOTE = 'remote',
@@ -139,43 +139,43 @@ export default Vue.extend({
         caseIcon: '',
         caseColor: 'red',
         caseText: this.$i18n.tc(this.cause)
-      }
+      };
 
       switch (this.cause) {
         case RTCSessionCause.BYE:
-          callStackIcons.caseIcon = 'mdi-phone-hangup-outline'
+          callStackIcons.caseIcon = 'mdi-phone-hangup-outline';
           if (this.originator === 'local') {
-            callStackIcons.caseColor = 'grey'
+            callStackIcons.caseColor = 'grey';
           }
-          break
+          break;
         case RTCSessionCause.CANCELED:
-          callStackIcons.caseIcon = 'mdi-phone-cancel'
+          callStackIcons.caseIcon = 'mdi-phone-cancel';
           if (this.originator === 'local') {
-            callStackIcons.caseColor = 'grey'
+            callStackIcons.caseColor = 'grey';
           }
-          break
+          break;
         case RTCSessionCause.BUSY:
-          callStackIcons.caseIcon = 'mdi-phone-missed'
-          callStackIcons.caseColor = 'grey'
-          break
+          callStackIcons.caseIcon = 'mdi-phone-missed';
+          callStackIcons.caseColor = 'grey';
+          break;
         case RTCSessionCause.SIP_FAILURE_CODE:
-          callStackIcons.caseIcon = 'mdi-phone-voip'
-          callStackIcons.directionColor = 'red'
-          callStackIcons.originatorColor = 'red'
-          callStackIcons.caseColor = 'red'
-          break
+          callStackIcons.caseIcon = 'mdi-phone-voip';
+          callStackIcons.directionColor = 'red';
+          callStackIcons.originatorColor = 'red';
+          callStackIcons.caseColor = 'red';
+          break;
         default:
-          callStackIcons.caseIcon = 'mdi-phone-remove'
+          callStackIcons.caseIcon = 'mdi-phone-remove';
           if (this.originator === 'local') {
-            callStackIcons.caseColor = 'grey'
+            callStackIcons.caseColor = 'grey';
           }
-          break
+          break;
       }
 
-      return callStackIcons
+      return callStackIcons;
     }
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

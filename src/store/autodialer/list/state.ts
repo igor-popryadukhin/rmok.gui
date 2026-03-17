@@ -1,4 +1,4 @@
-import Autodialer from '@/api/interfaces/Autodialer'
+import Autodialer from '@/api/interfaces/Autodialer';
 
 export interface State {
   items_fetching: boolean;
@@ -11,7 +11,7 @@ function state (): State {
     items_fetching: false,
     items: [],
     total: 0
-  }
+  };
 }
 
-export default state
+export default state;

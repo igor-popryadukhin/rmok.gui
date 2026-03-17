@@ -6,11 +6,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { ModelSync, Ref, Watch } from 'vue-property-decorator'
-import Vueditor from 'vueditor'
-import 'vueditor/dist/style/vueditor.min.css'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { ModelSync, Ref, Watch } from 'vue-property-decorator';
+import Vueditor from 'vueditor';
+import 'vueditor/dist/style/vueditor.min.css';
 
 Vue.use(Vueditor, {
   toolbar: [
@@ -93,7 +93,7 @@ Vue.use(Vueditor, {
   },
   fontSize: ['12px', '14px', '16px', '18px', '0.8rem', '1.0rem', '1.2rem', '1.5rem', '2.0rem'],
   uploadUrl: ''
-})
+});
 
 @Component
 export default class AppWysiwyg extends Vue {
@@ -105,36 +105,36 @@ export default class AppWysiwyg extends Vue {
 
   @Watch('value')
   valueWatchHandler (value) {
-    this.vEditor.setContent(value)
+    this.vEditor.setContent(value);
   }
 
   mounted () {
-    this.vEditor = this.$children[0]
+    this.vEditor = this.$children[0];
 
-    this.vEditor.setContent(this.textValue)
+    this.vEditor.setContent(this.textValue);
 
     setTimeout(() => {
-      let oldContent = this.textValue
+      let oldContent = this.textValue;
       this.vEditor.$store.subscribe((mutation, state) => {
         switch (mutation.type) {
           case 'UPDATE_CONTENT': {
             if (oldContent !== mutation.payload) {
-              oldContent = mutation.payload
-              this.$emit('change', mutation.payload)
+              oldContent = mutation.payload;
+              this.$emit('change', mutation.payload);
             }
-            break
+            break;
           }
         }
-      })
-    }, 1000)
+      });
+    }, 1000);
   }
 
   private getContent () {
-    return this.vEditor.getContent()
+    return this.vEditor.getContent();
   }
 
   private setContent (value: string) {
-    return this.vEditor.setContent(value)
+    return this.vEditor.setContent(value);
   }
 }
 </script>

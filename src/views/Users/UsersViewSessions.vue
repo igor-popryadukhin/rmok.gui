@@ -66,10 +66,10 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import Component from 'vue-class-component'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppTable from '@/components/AppTable/AppTable.vue'
+import AppBase from '@/AppBase';
+import Component from 'vue-class-component';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppTable from '@/components/AppTable/AppTable.vue';
 
 // eslint-disable-next-line no-use-before-define
 @Component<UsersViewSessions>({
@@ -77,18 +77,18 @@ import AppTable from '@/components/AppTable/AppTable.vue'
   beforeRouteEnter (to, from, next) {
     next((vm) => {
       if (vm.sessions.length === 0) {
-        vm.loading = true
+        vm.loading = true;
         vm.$store.dispatch('users/view/sessions/fetch')
-          .finally(() => (vm.loading = false))
+          .finally(() => (vm.loading = false));
       }
-    })
+    });
   }
 })
 export default class UsersViewSessions extends AppBase {
   loading = false
 
   get sessions () {
-    return this.$store.getters['users/view/sessions/items']
+    return this.$store.getters['users/view/sessions/items'];
   }
 }
 </script>

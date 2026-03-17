@@ -1,4 +1,4 @@
-import Status from '@/api/interfaces/Status'
+import Status from '@/api/interfaces/Status';
 
 export interface StatusesState {
   items_fetching: boolean;
@@ -9,7 +9,7 @@ function state (): StatusesState {
   return {
     items_fetching: false,
     items: []
-  }
+  };
 }
 
-export default state
+export default state;

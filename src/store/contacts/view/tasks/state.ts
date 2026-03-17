@@ -1,4 +1,4 @@
-import Task from '@/api/interfaces/Task'
+import Task from '@/api/interfaces/Task';
 
 export interface ContactsViewTasksState {
   items_fetching: boolean;
@@ -11,9 +11,9 @@ export function contactsViewState (): ContactsViewTasksState {
     items_fetching: false,
     items_count: 0,
     items: []
-  }
+  };
 }
 
-const state = contactsViewState()
+const state = contactsViewState();
 
-export default state
+export default state;

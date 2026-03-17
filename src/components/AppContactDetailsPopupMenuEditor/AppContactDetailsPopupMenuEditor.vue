@@ -49,9 +49,9 @@
 
 <script lang="ts">
 
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop, Watch } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
 
 @Component
 export default class AppContactDetailsPopupMenuEditor extends Vue {
@@ -69,36 +69,36 @@ export default class AppContactDetailsPopupMenuEditor extends Vue {
   }
 
   get newFrom () {
-    return JSON.stringify(this.form)
+    return JSON.stringify(this.form);
   }
 
   get isEditable() {
-    return this.oldForm === this.newFrom
+    return this.oldForm === this.newFrom;
   }
 
   @Watch('menuVisible')
   private menuVisibleWatch(value: boolean) {
     if (value) {
-      this.readProps()
+      this.readProps();
     }
   }
 
   @Emit('click:btn:save')
   private clickBtnSave () {
-    this.menuVisible = false
-    return { ...this.form }
+    this.menuVisible = false;
+    return { ...this.form };
   }
 
   public created () {
-    this.readProps()
+    this.readProps();
   }
 
   private readProps () {
-    this.form.id = this.id
-    this.form.label = this.label
-    this.form.value = this.value
+    this.form.id = this.id;
+    this.form.label = this.label;
+    this.form.value = this.value;
 
-    this.oldForm = JSON.stringify(this.form)
+    this.oldForm = JSON.stringify(this.form);
   }
 }
 </script>

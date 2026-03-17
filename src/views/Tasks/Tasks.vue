@@ -87,13 +87,13 @@
 </template>
 
 <script lang="ts">
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
-import debounce from '@/utils/debounce'
-import { tasks } from './store'
-import Base from './Base'
-import Component from 'vue-class-component'
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue';
+import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue';
+import debounce from '@/utils/debounce';
+import { tasks } from './store';
+import Base from './Base';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<Tasks>({
@@ -104,30 +104,30 @@ import Component from 'vue-class-component'
   },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.calculateTasksCount()
-    })
+      vm.calculateTasksCount();
+    });
   }
 })
 export default class Tasks extends Base {
   get filterQ () {
-    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_q`]
+    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_q`];
   }
   set filterQ (value: string) {
-    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_q`, value)
+    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_q`, value);
   }
 
   get filterStatusId () {
-    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_status_id`]
+    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_status_id`];
   }
   set filterStatusId (value: number) {
-    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_status_id`, value)
+    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_status_id`, value);
   }
 
   get filterState () {
-    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_state`]
+    return this.$store.getters[`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_state`];
   }
   set filterState (value: string) {
-    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_state`, value)
+    this.$store.commit(`${this.getVuexModuleNamespace(this.$route)}/list/filter/filter_state`, value);
   }
 
   get tabs () {
@@ -136,11 +136,11 @@ export default class Tasks extends Base {
       // $store,
       $dayjs
       // getVuexModuleNamespace
-    } = this
+    } = this;
 
-    const from = $dayjs().local()
-    const to = $dayjs().local()
-    const isoFormat = 'YYYY-MM-DD'
+    const from = $dayjs().local();
+    const to = $dayjs().local();
+    const isoFormat = 'YYYY-MM-DD';
 
     return [
       {
@@ -215,7 +215,7 @@ export default class Tasks extends Base {
           planned_for: `${from.startOf('year').format(isoFormat)}|${to.endOf('year').format(isoFormat)}`,
           state: 'pending'
         }
-      },
+      }
       // {
       //   id: 'custom',
       //   get title () {
@@ -237,53 +237,53 @@ export default class Tasks extends Base {
       //     visible: true
       //   }
       // }
-    ]
+    ];
   }
 
   get statuses () {
-    return this.$profile?.project?.statuses || []
+    return this.$profile?.project?.statuses || [];
   }
 
   get states () {
     return [
       {
         title: this.$tc('task_pending'),
-        value: 'pending',
+        value: 'pending'
       },
       {
         title: this.$tc('task_done'),
-        value: 'done',
+        value: 'done'
       }
-    ]
+    ];
   }
 
   public created () {
-    this.initializeVuexModules()
-    this.onSSETasksChanged = debounce(this.onSSETasksChanged, 10000)
-    this.$root.$on('sse:tasks:changed', this.onSSETasksChanged)
+    this.initializeVuexModules();
+    this.onSSETasksChanged = debounce(this.onSSETasksChanged, 10000);
+    this.$root.$on('sse:tasks:changed', this.onSSETasksChanged);
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse:tasks:changed', this.onSSETasksChanged)
+    this.$root.$off('sse:tasks:changed', this.onSSETasksChanged);
   }
 
   private onSSETasksChanged () {
-    this.calculateTasksCount()
-    this.fetchTasks()
+    this.calculateTasksCount();
+    this.fetchTasks();
   }
 
   private initializeVuexModules () {
     // Регистрация модулей vuex
     this.tabs.forEach((tab) => {
-      const path = `tasks_${tab.to.params.id}`
+      const path = `tasks_${tab.to.params.id}`;
       if (!this.$store.hasModule(path)) {
-        this.$store.registerModule(path, tasks)
+        this.$store.registerModule(path, tasks);
 
         if ('params' in tab && 'planned_for' in tab.params) {
-          this.$store.commit(`${path}/list/filter/filter_planned_for`, tab.params.planned_for)
+          this.$store.commit(`${path}/list/filter/filter_planned_for`, tab.params.planned_for);
         }
       }
-    })
+    });
   }
 
   /**
@@ -291,7 +291,7 @@ export default class Tasks extends Base {
    * @private
    */
   private calculateTasksCount () {
-    const request = []
+    const request = [];
     this.tabs.forEach((tab) => {
       if ('params' in tab && 'planned_for' in tab.params) {
         request.push({
@@ -299,20 +299,20 @@ export default class Tasks extends Base {
           params: {
             planned_for: tab.params.planned_for
           }
-        })
+        });
       }
-    })
+    });
 
-    this.$store.dispatch('tasks/calculate', request)
+    this.$store.dispatch('tasks/calculate', request);
   }
 
   private tabTaskCount (id: string) {
-    return (this.$store.getters['tasks/pending_items'] || []).find((e) => e.id === id)?.count || 0
+    return (this.$store.getters['tasks/pending_items'] || []).find((e) => e.id === id)?.count || 0;
   }
 
   private onBtnSearchClick () {
-    this.calculateTasksCount()
-    this.fetchTasks()
+    this.calculateTasksCount();
+    this.fetchTasks();
   }
 }
 </script>

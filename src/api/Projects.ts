@@ -1,11 +1,11 @@
-import Status from '@/api/Schemas/Status'
-import StatusGroup from '@/api/Schemas/StatusGroup'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import APIError from './classes/APIError'
-import { GroupInterface } from '@/api/Groups'
-import Project from '@/api/interfaces/Project'
+import Status from '@/api/Schemas/Status';
+import StatusGroup from '@/api/Schemas/StatusGroup';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import APIError from './classes/APIError';
+import { GroupInterface } from '@/api/Groups';
+import Project from '@/api/interfaces/Project';
 
 export interface ProjectOwnerInterface {
   id: number;
@@ -54,11 +54,11 @@ export default class Projects {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        return resolve(response.data)
-      }).catch(reject)
-    })
+        return resolve(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -71,11 +71,11 @@ export default class Projects {
       $axios.post('/projects', data)
         .then((response: AxiosResponse) => {
           if (response.status === 201) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -86,11 +86,11 @@ export default class Projects {
       $axios.get('/projects/current')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -104,11 +104,11 @@ export default class Projects {
       $axios.patch(`/projects/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -122,11 +122,11 @@ export default class Projects {
       $axios.post(`/projects/${id}/members`, number_ids)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -142,10 +142,10 @@ export default class Projects {
         $axios.delete(`/projects/${id}/members/${member_ids[0]}`)
           .then((response: AxiosResponse) => {
             if (response.status === 200) {
-              return resolve()
+              return resolve();
             }
-            throw new APIError(response.data)
-          }).catch(reject)
+            throw new APIError(response.data);
+          }).catch(reject);
       } else {
         // Если нужно удалить одного и более.
         $axios.delete(`/projects/${id}/members`, {
@@ -154,12 +154,12 @@ export default class Projects {
           }
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
+          throw new APIError(response.data);
+        }).catch(reject);
       }
-    })
+    });
   }
 
   /**
@@ -171,11 +171,11 @@ export default class Projects {
       $axios.get(`/projects/${id}/activate`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -186,11 +186,11 @@ export default class Projects {
       $axios.get('/projects/inactive')
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -202,11 +202,11 @@ export default class Projects {
       $axios.get(`/projects/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -225,11 +225,11 @@ export default class Projects {
         }
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          return resolve(response.data)
+          return resolve(response.data);
         }
-        reject(response.data)
-      }).catch(reject)
-    })
+        reject(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -242,11 +242,11 @@ export default class Projects {
       $axios.get(`/projects/${project_id}/statuses`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -259,11 +259,11 @@ export default class Projects {
       $axios.get(`/projects/statuses/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -276,11 +276,11 @@ export default class Projects {
       $axios.post('/projects/statuses', data)
         .then((response: AxiosResponse) => {
           if (response.status === 201) {
-            return resolve(response.data?.id)
+            return resolve(response.data?.id);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -294,11 +294,11 @@ export default class Projects {
       $axios.put(`/projects/statuses/${id}`, data)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -311,11 +311,11 @@ export default class Projects {
       $axios.delete(`/projects/statuses/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -328,11 +328,11 @@ export default class Projects {
       $axios.get(`/projects/user/${user_id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -344,11 +344,11 @@ export default class Projects {
       $axios.delete(`/projects/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(true)
+            return resolve(true);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -361,11 +361,11 @@ export default class Projects {
       $axios.post('/projects/statuses/groups', data)
         .then((response: AxiosResponse) => {
           if ([201].includes(response.status)) {
-            return resolve(response.data?.id)
+            return resolve(response.data?.id);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -379,11 +379,11 @@ export default class Projects {
       $axios.put(`/projects/statuses/groups/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -396,11 +396,11 @@ export default class Projects {
       $axios.get(`/projects/statuses/groups/${id}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -413,10 +413,10 @@ export default class Projects {
       $axios.delete(`/projects/statuses/groups/${id}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve()
+            return resolve();
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 }

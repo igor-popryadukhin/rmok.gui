@@ -10,9 +10,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppInfoLine extends Vue {
@@ -31,7 +31,7 @@ export default class AppInfoLine extends Vue {
       '--width': this.width + 'px',
       '--position-top': this.top + 'px',
       '--opacity': this.opacity
-    }
+    };
   }
 }
 </script>

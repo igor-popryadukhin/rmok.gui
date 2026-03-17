@@ -1,4 +1,4 @@
-import Task from '@/api/interfaces/Task'
+import Task from '@/api/interfaces/Task';
 
 export interface ProjectsListState {
   per_page: number;
@@ -13,9 +13,9 @@ export function defaultState (): ProjectsListState {
     total: 0,
     items_fetching: false,
     items: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

@@ -24,7 +24,7 @@ function unsavedCallState (): UnsavedCallState {
     data_status_id: 0,
     persists: false,
     unsaved: false
-  }
+  };
 }
 
-export default unsavedCallState
+export default unsavedCallState;

@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const packageJson = require('fs').readFileSync('./package.json')
-const version = JSON .parse(packageJson).version || 0
+const packageJson = require('fs').readFileSync('./package.json');
+const version = JSON .parse(packageJson).version || 0;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const webpack = require('webpack')
+const webpack = require('webpack');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 module.exports = {
   configureWebpack: {
@@ -18,11 +18,11 @@ module.exports = {
   },
 
   chainWebpack: config => {
-    config.plugins.delete('prefetch')
+    config.plugins.delete('prefetch');
 
     config.plugin('fork-ts-checker').tap((args) => {
-      args[0].memoryLimit = 8192
-      return args
+      args[0].memoryLimit = 8192;
+      return args;
     });
 
     config.module
@@ -30,7 +30,7 @@ module.exports = {
       .resourceQuery(/blockType=i18n/)
       .type('javascript/auto')
       .use('i18n')
-      .loader('@kazupon/vue-i18n-loader')
+      .loader('@kazupon/vue-i18n-loader');
   },
 
   devServer: {
@@ -46,7 +46,7 @@ module.exports = {
   },
 
   filenameHashing: true,
-  parallel: 4,
+  parallel: 8,
 
   pluginOptions: {},
 
@@ -54,4 +54,4 @@ module.exports = {
   transpileDependencies: [
     'vuetify'
   ]
-}
+};

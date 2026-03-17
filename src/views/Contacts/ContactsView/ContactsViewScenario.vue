@@ -20,12 +20,12 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import Component from 'vue-class-component';
 
 @Component
 export default class ContactsViewScenario extends AppBase {
-  get scenario (): string { return this.$store.getters['contacts/view/contact_project_scenario'] }
+  get scenario (): string { return this.$store.getters['contacts/view/contact_project_scenario']; }
 }
 
 </script>

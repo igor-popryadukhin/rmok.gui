@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import { CrumbInterface } from '@/Interfaces'
+import Vue from 'vue';
+import { CrumbInterface } from '@/Interfaces';
 
 export default Vue.mixin(Vue.extend({
   computed: {
@@ -55,4 +55,4 @@ export default Vue.mixin(Vue.extend({
       /* eslint-enable */
     }
   }
-}))
+}));

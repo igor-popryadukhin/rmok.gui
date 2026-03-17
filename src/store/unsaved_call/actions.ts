@@ -1,7 +1,7 @@
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { State } from './state'
-import { Contacts } from '@/api/Contacts'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { State } from './state';
+import { Contacts } from '@/api/Contacts';
 
 const actions: ActionTree<State, RootState> = {
   save ({ commit, rootGetters }) {
@@ -11,19 +11,19 @@ const actions: ActionTree<State, RootState> = {
           comment: rootGetters['unsaved_call/data/comment'],
           status_id: rootGetters['unsaved_call/data/status_id']
         }).then(() => {
-          commit('unsaved', false)
+          commit('unsaved', false);
 
-          commit('data/contact_history_id', 0)
-          commit('data/contact_id', 0)
-          commit('data/contact_name', '')
-          commit('data/call_id', null)
-          commit('data/status_id', 0)
-          commit('data/comment', '')
+          commit('data/contact_history_id', 0);
+          commit('data/contact_id', 0);
+          commit('data/contact_name', '');
+          commit('data/call_id', null);
+          commit('data/status_id', 0);
+          commit('data/comment', '');
 
-          resolve()
-        })
-    })
+          resolve();
+        });
+    });
   }
-}
+};
 
-export default actions
+export default actions;

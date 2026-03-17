@@ -1,8 +1,8 @@
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import APIError from './classes/APIError'
-import ResponseInterface from './interfaces/ResponseInterface'
-import Autodialer from './interfaces/Autodialer'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import APIError from './classes/APIError';
+import ResponseInterface from './interfaces/ResponseInterface';
+import Autodialer from './interfaces/Autodialer';
 
 /**
  * Управление параметрами автодозвонщика.
@@ -19,12 +19,12 @@ export default class AutodialerParams {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         } else {
-          resolve(response.data)
+          resolve(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 
   /**
@@ -36,12 +36,12 @@ export default class AutodialerParams {
       $axios.post('/auto-dialers', data)
         .then((response: AxiosResponse) => {
           if (response.status !== 201) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data.id)
+            resolve(response.data.id);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -53,12 +53,12 @@ export default class AutodialerParams {
       $axios.get(`/auto-dialers/${id}/start`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -70,12 +70,12 @@ export default class AutodialerParams {
       $axios.get(`/auto-dialers/${id}/stop`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -88,12 +88,12 @@ export default class AutodialerParams {
       $axios.get(`/auto-dialers/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -107,12 +107,12 @@ export default class AutodialerParams {
       $axios.patch(`/auto-dialers/${id}`, data)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   public getJournal (id: number): Promise<any> {
@@ -120,12 +120,12 @@ export default class AutodialerParams {
       $axios.get(`/auto-dialers/${id}/journal`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -137,11 +137,11 @@ export default class AutodialerParams {
       $axios.get(`/auto-dialers/${id}/stats/online`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 }

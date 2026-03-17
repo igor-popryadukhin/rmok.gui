@@ -26,9 +26,9 @@ export function defaultState (): State {
     history_fetching: false,
     history: [],
     history_count: 0
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

@@ -1,4 +1,4 @@
-import User from '@/api/interfaces/User'
+import User from '@/api/interfaces/User';
 
 export interface UserListState {
   filter_query: Record<string, unknown>;
@@ -15,9 +15,9 @@ export function defaultState (): UserListState {
     items_total: 0,
     items_fetching: false,
     items: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

@@ -58,7 +58,7 @@
 
         <div
           class="d-flex align-center"
-          style="padding: 5px 0px 5px 0;"
+          style="padding: 5px 0 5px 0;"
         >
           <app-task-dialog-edit
             v-model="taskDialogVisible"
@@ -666,21 +666,21 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import ContactDetail from '@/api/interfaces/ContactDetail'
-import ContactTag from '@/api/interfaces/ContactTag'
-import Location from '@/api/interfaces/Location'
-import AppBase from '@/AppBase'
-import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
-import AppDigitalNumber from '@/components/AppDigitalNumber/AppDigitalNumber.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import dayjs from '@/plugins/dayjs'
-import $store from '@/store'
-import parsePhoneNumber from 'libphonenumber-js'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import APIError from '@/api/classes/APIError';
+import ContactDetail from '@/api/interfaces/ContactDetail';
+import ContactTag from '@/api/interfaces/ContactTag';
+import Location from '@/api/interfaces/Location';
+import AppBase from '@/AppBase';
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue';
+import AppDigitalNumber from '@/components/AppDigitalNumber/AppDigitalNumber.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import dayjs from '@/plugins/dayjs';
+import $store from '@/store';
+import parsePhoneNumber from 'libphonenumber-js';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 
-const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
+const dateTimeFormat = 'YYYY-MM-DDTHH:mm';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsView>({
@@ -714,53 +714,53 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
       .dispatch('contacts/view/fetch', to.params.id)
       .then(() => {
         next((vm) => {
-          vm.route_from_full_path = from.fullPath
-        })
+          vm.route_from_full_path = from.fullPath;
+        });
       }).catch((reason: Error) => {
       if (reason instanceof APIError && reason.error_code === 'not_found') {
         // Контакт не удалось найти по причине его отсутствия
         next({
           name: 'contacts_view_not_found',
           params: { id: to.params.id }
-        })
+        });
       } else {
         // Другие причины
         next({
           name: 'contacts_view_error',
           params: { id: to.params.id }
-        })
+        });
       }
-    })
+    });
   },
   beforeRouteUpdate (to, from, next) {
-    this.tabKey++
+    this.tabKey++;
 
     if (to.params.id !== from.params.id) {
       this.$store
         .dispatch('contacts/view/fetch', to.params.id)
-        .then(() => (next()))
+        .then(() => (next()));
     } else {
-      next()
+      next();
     }
   },
   async beforeRouteLeave (to, from, next) {
-    let answer = true
+    let answer = true;
 
     if (this.isUnsavedCall) {
-      answer = this.$confirm()
+      answer = this.$confirm();
     }
 
     if (answer) {
-      this.userStatusUpdate(this.$profile.status)
+      this.userStatusUpdate(this.$profile.status);
       setTimeout(() => {
-        this.$store.dispatch('contacts/view/unsaved_call/flush')
-        this.$store.dispatch('contacts/view/history/flush')
-        this.$store.dispatch('contacts/view/tasks/flush')
-        this.$store.dispatch('contacts/view/messages/flush')
-      }, 0)
-      await next()
+        this.$store.dispatch('contacts/view/unsaved_call/flush');
+        this.$store.dispatch('contacts/view/history/flush');
+        this.$store.dispatch('contacts/view/tasks/flush');
+        this.$store.dispatch('contacts/view/messages/flush');
+      }, 0);
+      await next();
     } else {
-      next(false)
+      next(false);
     }
   }
 })
@@ -786,11 +786,11 @@ export default class ContactsView extends AppBase {
   editContactLocationButtonVisible = false
 
   get tab () {
-    return this.$route.path
+    return this.$route.path;
   }
 
   set tab (value: string) {
-    this.$appDebug('Tab: %s', value)
+    this.$appDebug('Tab: %s', value);
   }
 
   get tabs () {
@@ -809,7 +809,7 @@ export default class ContactsView extends AppBase {
             title: 'Закрыть',
             on: {
               click: () => {
-                this.$store.dispatch('contacts/view/unsaved_call/flush')
+                this.$store.dispatch('contacts/view/unsaved_call/flush');
               }
             }
           }
@@ -850,97 +850,97 @@ export default class ContactsView extends AppBase {
           name: 'contacts_view_messages'
         }
       }
-    ].filter((e) => e.visible)
+    ].filter((e) => e.visible);
   }
 
   get heightThisPage () {
-    return this.screenHeight - 75
+    return this.screenHeight - 75;
   }
 
   get settingsLeftWidth (): number {
-    return this.$store.getters['contacts/view/settings/left_width']
+    return this.$store.getters['contacts/view/settings/left_width'];
   }
 
   set settingsLeftWidth (val: number) {
     if (val > 279) {
-      this.$store.commit('contacts/view/settings/left_width', val)
+      this.$store.commit('contacts/view/settings/left_width', val);
     }
   }
 
   get rightWidth (): number {
-    return this.containerWidth - this.settingsLeftWidth - 35
+    return this.containerWidth - this.settingsLeftWidth - 35;
   }
 
   get settingsRightWidth (): number {
-    return this.$store.getters['contacts/view/settings/right_width']
+    return this.$store.getters['contacts/view/settings/right_width'];
   }
 
   set settingsRightWidth (val: number) {
-    this.$store.commit('contacts/view/settings/right_width', val)
+    this.$store.commit('contacts/view/settings/right_width', val);
   }
 
   get contactFetching (): boolean {
-    return this.$store.getters['contacts/view/fetching']
+    return this.$store.getters['contacts/view/fetching'];
   }
 
   get contactName () {
-    return this.$store.getters['contacts/view/contact_name']
+    return this.$store.getters['contacts/view/contact_name'];
   }
 
   get contactFirstName () {
-    return this.$store.getters['contacts/view/contact_first_name']
+    return this.$store.getters['contacts/view/contact_first_name'];
   }
 
   get contactLastName () {
-    return this.$store.getters['contacts/view/contact_last_name']
+    return this.$store.getters['contacts/view/contact_last_name'];
   }
 
   get contactMiddleName () {
-    return this.$store.getters['contacts/view/contact_middle_name']
+    return this.$store.getters['contacts/view/contact_middle_name'];
   }
 
   get contactTags (): ContactTag[] {
-    return this.$store.getters['contacts/view/contact_tags']
+    return this.$store.getters['contacts/view/contact_tags'];
   }
 
   get contactOwnerId (): number {
-    return this.$store.getters['contacts/view/contact_owner_id']
+    return this.$store.getters['contacts/view/contact_owner_id'];
   }
 
   get contactOwnerFullName (): string {
-    return this.$store.getters['contacts/view/contact_owner_full_name']
+    return this.$store.getters['contacts/view/contact_owner_full_name'];
   }
 
   get contactProject () {
-    return this.$store.getters['contacts/view/contact_project']
+    return this.$store.getters['contacts/view/contact_project'];
   }
 
   get contactProjectName (): string {
-    return this.$store.getters['contacts/view/contact_project_name'] || 'Проект не установлен'
+    return this.$store.getters['contacts/view/contact_project_name'] || 'Проект не установлен';
   }
 
   get contactDetails (): ContactDetail[] {
-    return this.$store.getters['contacts/view/contact_details']
+    return this.$store.getters['contacts/view/contact_details'];
   }
 
   get contactDefault (): ContactDetail | null {
-    return this.$store.getters['contacts/view/contact_details_default']
+    return this.$store.getters['contacts/view/contact_details_default'];
   }
 
   get contactTZ (): string {
-    return this.$store.getters['contacts/view/contact_tz']
+    return this.$store.getters['contacts/view/contact_tz'];
   }
 
   get contactCreatedAt (): string {
-    return this.$store.getters['contacts/view/contact_created_at']
+    return this.$store.getters['contacts/view/contact_created_at'];
   }
 
   get contactLocation (): Location {
-    return this.$store.getters['contacts/view/contact_location']
+    return this.$store.getters['contacts/view/contact_location'];
   }
 
   get contactAllowCall (): boolean {
-    return this.$store.getters['contacts/view/contact_allow_call']
+    return this.$store.getters['contacts/view/contact_allow_call'];
   }
 
   get contactTimeIcon (): string {
@@ -956,26 +956,26 @@ export default class ContactsView extends AppBase {
       9: 'nine',
       10: 'ten',
       11: 'eleven',
-      12: 'twelve',
-    }
+      12: 'twelve'
+    };
 
-    return `mdi-clock-time-${times[this.$dayjs().tz(this.contactTZ).format('h')]}-outline`
+    return `mdi-clock-time-${times[this.$dayjs().tz(this.contactTZ).format('h')]}-outline`;
   }
 
   get unsavedCallPersists (): boolean {
-    return this.$store.getters['contacts/view/unsaved_call/persists']
+    return this.$store.getters['contacts/view/unsaved_call/persists'];
   }
 
   get isUnsavedCall (): boolean {
-    return this.$store.getters['contacts/view/unsaved_call/unsaved']
+    return this.$store.getters['contacts/view/unsaved_call/unsaved'];
   }
 
   get isUnsavedCallStatusId (): number {
-    return this.$store.getters['contacts/view/unsaved_call/data_status_id']
+    return this.$store.getters['contacts/view/unsaved_call/data_status_id'];
   }
 
   get contactLastStatus (): null | Record<'id', number> & Record<'name', string> & Record<'color', string> {
-    return this.$store.getters['contacts/view/contact_last_status']
+    return this.$store.getters['contacts/view/contact_last_status'];
   }
 
   /** Состояние активности кнопки вызова */
@@ -983,11 +983,11 @@ export default class ContactsView extends AppBase {
     return this.$dialer.isConnected() &&
       this.$dialer.isRegistered() &&
       !this.contactFetching &&
-      !this.isUnsavedCall
+      !this.isUnsavedCall;
   }
 
   get messengerAvailable (): boolean {
-    return this.$store.getters['contacts/view/messenger_available']
+    return this.$store.getters['contacts/view/messenger_available'];
   }
 
   @Watch('isUnsavedCall')
@@ -996,36 +996,36 @@ export default class ContactsView extends AppBase {
       this.$router.push({
         name: 'contacts_view_status',
         params: { id: String(this.$route.params.id) }
-      })
+      });
     } else {
       this.$router.push({
         name: 'contacts_view_history',
         params: { id: String(this.$route.params.id) }
-      })
+      });
     }
   }
 
   public created () {
-    setInterval(() => (this.contactTimeTick++), 1000)
+    setInterval(() => (this.contactTimeTick++), 1000);
 
-    this.$root.$on('sse:contact:updated', this.onSSEContactUpdated)
-    this.$root.$on('dialer:session:accepted', this.onDialerSessionAccepted)
-    this.$root.$on('dialer:session:finality', this.onDialerSessionFinality)
+    this.$root.$on('sse:contact:updated', this.onSSEContactUpdated);
+    this.$root.$on('dialer:session:accepted', this.onDialerSessionAccepted);
+    this.$root.$on('dialer:session:finality', this.onDialerSessionFinality);
   }
 
   public mounted () {
-    this.sseOpen()
+    this.sseOpen();
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse:contact:updated', this.onSSEContactUpdated)
-    this.$root.$off('dialer:session:accepted', this.onDialerSessionAccepted)
-    this.$root.$off('dialer:session:finality', this.onDialerSessionFinality)
-    this.sseClose()
+    this.$root.$off('sse:contact:updated', this.onSSEContactUpdated);
+    this.$root.$off('dialer:session:accepted', this.onDialerSessionAccepted);
+    this.$root.$off('dialer:session:finality', this.onDialerSessionFinality);
+    this.sseClose();
   }
 
   private onSSEContactUpdated () {
-    this.$store.dispatch('contacts/view/fetch', this.$route.params.id)
+    this.$store.dispatch('contacts/view/fetch', this.$route.params.id);
   }
 
   private onDialerSessionAccepted () {
@@ -1033,7 +1033,7 @@ export default class ContactsView extends AppBase {
   }
 
   private onDialerSessionFinality () {
-    this.callerID = 0
+    this.callerID = 0;
   }
 
   /**
@@ -1042,75 +1042,75 @@ export default class ContactsView extends AppBase {
    * @param phone
    */
   private onBtnCallClick (phone: ContactDetail) {
-    this.closeAllTasks()
+    this.closeAllTasks();
 
     if (!this.contactProject) {
-      return this.$toast.warning('Запрещено совершать вызов ко')
+      return this.$toast.warning('Запрещено совершать вызов ко');
     }
 
-    this.$store.commit('last_call_at', this.$dayjs().toISOString())
+    this.$store.commit('last_call_at', this.$dayjs().toISOString());
 
     // Если вкладка не сценарий, то переходим
     if (this.$route.name !== 'contacts_view_scenario') {
       this.$router.push({
         name: 'contacts_view_scenario'
-      })
+      });
     }
 
-    this.$audio.play('/sounds/tick.mp3')
+    this.$audio.play('/sounds/tick.mp3');
 
     if (phone.type !== 'phone') {
-      return this.$toast.error('Not a phone number!')
+      return this.$toast.error('Not a phone number!');
     }
 
-    const session = this.$dialer.call(phone.value)
+    const session = this.$dialer.call(phone.value);
 
-    session.data.contact_id = this.$route.params.id
-    session.data.contact_name = this.contactName
-    session.data.target = phone.value
+    session.data.contact_id = this.$route.params.id;
+    session.data.contact_name = this.contactName;
+    session.data.target = phone.value;
 
-    this.callerID = phone.id
+    this.callerID = phone.id;
   }
 
   private onBtnPhoneNumberDefaultClick (item: ContactDetail) {
     if (item.type === 'phone' && item.id !== this.contactDefault.id) {
-      this.$store.commit('contacts/view/contact_details_default', item)
+      this.$store.commit('contacts/view/contact_details_default', item);
       this.$axios.patch(`/contacts/${this.$route.params.id}`, {
         default_phone_id: item.id
       }).then((response) => {
         if (![200, 204].includes(response.status)) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Changes accepted')
+        this.$toast.success('Changes accepted');
       }).catch((reason: Error) => {
-        this.$toast.error(reason.message)
-      })
+        this.$toast.error(reason.message);
+      });
     }
   }
 
   private onBtnSaveClick () {
     if (this.isUnsavedCallStatusId > 0) {
 
-      this.userStatusUpdate(this.$profile.status)
+      this.userStatusUpdate(this.$profile.status);
 
       // Оператор сможет принимать вызовы.
-      this.$axios.put('/account/dnd/false')
+      this.$axios.put('/account/dnd/false');
 
       this.$store.dispatch('contacts/view/unsaved_call/persist')
         .finally(() => {
           setTimeout(() => {
             if (this.route_from_full_path) {
-              this.$router.push(this.route_from_full_path)
-              this.route_from_full_path = null
+              this.$router.push(this.route_from_full_path);
+              this.route_from_full_path = null;
             }
-          }, 2000)
-        })
+          }, 2000);
+        });
     } else {
-      this.$toast.warning('Пожалуйста, выберите статус')
+      this.$toast.warning('Пожалуйста, выберите статус');
       this.$router.push({
         name: 'contacts_view_status',
         params: { id: String(this.$route.params.id) }
-      })
+      });
     }
   }
 
@@ -1127,10 +1127,10 @@ export default class ContactsView extends AppBase {
       contact_id: this.$route.params.id
     }).then((response) => {
       if (response.status === 201) {
-        this.$toast.success('Task created')
-        this.taskDialog.description = ''
+        this.$toast.success('Task created');
+        this.taskDialog.description = '';
       }
-    })
+    });
   }
 
   /**
@@ -1142,26 +1142,26 @@ export default class ContactsView extends AppBase {
     switch (item.type) {
       case 'telegram':
       case 'whatsapp': {
-        this.channelSetProcess.push(item.id)
+        this.channelSetProcess.push(item.id);
         this.$axios.get(`/contacts/channels/${item.id}`)
           .then((response) => {
             if ([200, 204].includes(response.status)) {
-              this.$toast.success('Канал установлен')
-              this.$store.dispatch('contacts/view/fetch', this.$route.params.id)
+              this.$toast.success('Канал установлен');
+              this.$store.dispatch('contacts/view/fetch', this.$route.params.id);
 
               if (this.$route.name !== 'contacts_view_messages') {
                 this.$router.push({
                   name: 'contacts_view_messages'
-                })
+                });
               }
             }
           }).finally(() => {
-          const index = this.channelSetProcess.findIndex((value) => value === item.id)
+          const index = this.channelSetProcess.findIndex((value) => value === item.id);
           if (index > -1) {
-            this.channelSetProcess.splice(index, 1)
+            this.channelSetProcess.splice(index, 1);
           }
-        })
-        break
+        });
+        break;
       }
     }
   }
@@ -1179,12 +1179,12 @@ export default class ContactsView extends AppBase {
       value: data.value
     }).then((response) => {
       if (![200, 204].includes(response.status)) {
-        throw new APIError(response.data)
+        throw new APIError(response.data);
       }
-      this.$toast.success('Changes accepted')
+      this.$toast.success('Changes accepted');
     }).catch((reason: Error) => {
-      this.$toast.error(reason.message)
-    })
+      this.$toast.error(reason.message);
+    });
   }
 
   /**
@@ -1200,12 +1200,12 @@ export default class ContactsView extends AppBase {
       middle_name: data.middle_name
     }).then((response) => {
       if (![200, 204].includes(response.status)) {
-        throw new APIError(response.data)
+        throw new APIError(response.data);
       }
-      this.$toast.success('Changes accepted')
+      this.$toast.success('Changes accepted');
     }).catch((reason: Error) => {
-      this.$toast.error(reason.message)
-    })
+      this.$toast.error(reason.message);
+    });
   }
 
   /**
@@ -1220,17 +1220,17 @@ export default class ContactsView extends AppBase {
       region: data.region
     }).then((response) => {
       if (![200, 204].includes(response.status)) {
-        throw new APIError(response.data)
+        throw new APIError(response.data);
       }
-      this.$toast.success('Changes accepted')
+      this.$toast.success('Changes accepted');
     }).catch((reason: Error) => {
-      this.$toast.error(reason.message)
-    })
+      this.$toast.error(reason.message);
+    });
   }
 
   private onSSENewMessage (event: MessageEvent<string> | Event) {
     if (event instanceof MessageEvent) {
-      this.$root.$emit('messenger:message', JSON.parse(event.data))
+      this.$root.$emit('messenger:message', JSON.parse(event.data));
     }
   }
 
@@ -1240,12 +1240,12 @@ export default class ContactsView extends AppBase {
    * @private
    */
   private formatPhoneNumber (phone: string) {
-    const phoneNumber = parsePhoneNumber(phone, 'RU')
+    const phoneNumber = parsePhoneNumber(phone, 'RU');
     if (phoneNumber) {
-      return phoneNumber.formatNational()
+      return phoneNumber.formatNational();
     }
 
-    return 'Не верный формат'
+    return 'Не верный формат';
   }
 
   /**
@@ -1254,16 +1254,16 @@ export default class ContactsView extends AppBase {
    */
   private sseOpen () {
     if ('VUE_APP_SSE_ENDPOINT' in process.env) {
-      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT)
+      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT);
 
       // Темы для подписок
-      url.searchParams.append('topic', `contacts/${this.$route.params.id}/messages`)
+      url.searchParams.append('topic', `contacts/${this.$route.params.id}/messages`);
 
       this.eventSource = new EventSource(url, {
         withCredentials: true
-      })
+      });
 
-      this.eventSource.addEventListener('messenger:message', this.onSSENewMessage)
+      this.eventSource.addEventListener('messenger:message', this.onSSENewMessage);
     }
   }
 
@@ -1274,13 +1274,13 @@ export default class ContactsView extends AppBase {
    */
   private sseClose () {
     if (this.eventSource instanceof EventSource) {
-      this.eventSource.removeEventListener('messenger:message', this.onSSENewMessage)
-      this.eventSource.close()
+      this.eventSource.removeEventListener('messenger:message', this.onSSENewMessage);
+      this.eventSource.close();
     }
   }
 
   private closeAllTasks () {
-    this.$axios.get(`/contacts/${this.$route.params.id}/tasks/close-all`)
+    this.$axios.get(`/contacts/${this.$route.params.id}/tasks/close-all`);
   }
 }
 

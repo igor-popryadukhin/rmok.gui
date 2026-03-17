@@ -1,7 +1,7 @@
-import { ActionContext, ActionTree } from 'vuex'
-import { RootState } from '@/store'
-import { State } from './state'
-import Statistics from '@/api/Statistics'
+import { ActionContext, ActionTree } from 'vuex';
+import { RootState } from '@/store';
+import { State } from './state';
+import Statistics from '@/api/Statistics';
 
 const actions: ActionTree<State, RootState> = {
   fetch: ({ commit }: ActionContext<State, RootState>, params = {}) => {
@@ -9,11 +9,11 @@ const actions: ActionTree<State, RootState> = {
       new Statistics()
         .allCallsHistory(params)
         .then((response) => {
-          commit('history', response.data)
-          commit('total', response.meta?.count || 0)
-          resolve()
-        }).catch(reject)
-    })
+          commit('history', response.data);
+          commit('total', response.meta?.count || 0);
+          resolve();
+        }).catch(reject);
+    });
   },
 
   /**
@@ -21,8 +21,8 @@ const actions: ActionTree<State, RootState> = {
    * @param commit
    */
   flush: ({ commit }) => {
-    commit('flush')
+    commit('flush');
   }
-}
+};
 
-export default actions
+export default actions;

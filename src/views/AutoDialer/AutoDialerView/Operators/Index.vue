@@ -142,15 +142,15 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import List from './List.vue'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import debounce from '@/utils/debounce'
-import { Ref } from 'vue-property-decorator'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
+import Component from 'vue-class-component';
+import List from './List.vue';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import debounce from '@/utils/debounce';
+import { Ref } from 'vue-property-decorator';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue';
 
 // eslint-disable-next-line no-use-before-define
 @Component<Index>({
@@ -170,53 +170,53 @@ export default class Index extends AppBase {
   // Увеличивает значение при изменении размера компонента.
   listKey = 0
 
-  get operatorsTotal () { return this.$store.getters['autodialer/view/operators/total'] }
-  get operatorsPerPage () { return this.$store.getters['autodialer/view/operators/per_page'] }
+  get operatorsTotal () { return this.$store.getters['autodialer/view/operators/total']; }
+  get operatorsPerPage () { return this.$store.getters['autodialer/view/operators/per_page']; }
 
-  get offset (): number { return this.$store.getters['autodialer/view/operators/filter_offset'] }
-  set offset (val: string|number) { this.$store.commit('autodialer/view/operators/filter_offset', +val) }
+  get offset (): number { return this.$store.getters['autodialer/view/operators/filter_offset']; }
+  set offset (val: string|number) { this.$store.commit('autodialer/view/operators/filter_offset', +val); }
 
   get requestParameters () {
     return {
       count: this.operatorsPerPage,
       offset: this.offset
-    }
+    };
   }
 
   get listHeight () {
-    const listKey = this.listKey
-    return this.$el.clientHeight - this.tools.clientHeight
+    const listKey = this.listKey;
+    return this.$el.clientHeight - this.tools.clientHeight;
   }
 
   created () {
-    this.addUsers = debounce(this.addUsers, 3000)
-    this.onThisResizable = debounce(this.onThisResizable, 350)
-    this.findUsers = debounce(this.findUsers, 500)
+    this.addUsers = debounce(this.addUsers, 3000);
+    this.onThisResizable = debounce(this.onThisResizable, 350);
+    this.findUsers = debounce(this.findUsers, 500);
   }
 
   mounted () {
     this.$store.dispatch('autodialer/view/operators/fetch', this.requestParameters)
-      .finally(() => (this.loading = false))
+      .finally(() => (this.loading = false));
   }
 
   private onThisResizable () {
-    this.listKey++
+    this.listKey++;
   }
 
   private findUsers (q = '') {
     const filterItems = (q = '') => {
-      console.log(q)
+      console.log(q);
       this.avUsersFiltered = this
         .avUsersCached
         .filter((e) => (e.full_name || '')
           .toLowerCase()
           .indexOf((q || '')
-            .toLowerCase()) > -1)
+            .toLowerCase()) > -1);
 
-      return this.avUsersFiltered.length > 0
-    }
+      return this.avUsersFiltered.length > 0;
+    };
 
-    this.usersLoading = true
+    this.usersLoading = true;
     if (!filterItems(q)) {
       $axios.get('/users', {
         params: {
@@ -226,51 +226,51 @@ export default class Index extends AppBase {
         if (response.status === 200) {
           if (this.avUsersCached.length === 0) {
             // Сработает один раз!
-            this.avUsersCached = (response.data.data || []).map((value) => value)
-            filterItems(q)
+            this.avUsersCached = (response.data.data || []).map((value) => value);
+            filterItems(q);
           } else {
             for (const item of (response.data.data || [])) {
               if (this.avUsersCached.findIndex((value) => value.id === item.id) === -1) {
-                this.avUsersCached.push(Object.assign({}, item))
+                this.avUsersCached.push(Object.assign({}, item));
               }
             }
           }
         }
-      }).finally(() => (this.usersLoading = false))
+      }).finally(() => (this.usersLoading = false));
     }
   }
 
   private onBtnRefreshClick () {
-    this.btnRefreshLoading = true
+    this.btnRefreshLoading = true;
     this.$store.dispatch('autodialer/view/operators/fetch', this.requestParameters)
-      .finally(() => (this.btnRefreshLoading = false))
+      .finally(() => (this.btnRefreshLoading = false));
   }
 
   private onItemAddUserClick (userId: number) {
-    this.usersIdsForAdd.push(userId)
-    this.usersIdAdded.push(userId)
-    this.addUsers(this.usersIdsForAdd)
+    this.usersIdsForAdd.push(userId);
+    this.usersIdAdded.push(userId);
+    this.addUsers(this.usersIdsForAdd);
   }
 
   private addUsers (userIds: number[]) {
-    this.usersIdsForAdd = []
+    this.usersIdsForAdd = [];
     this.$axios.post(`/auto-dialers/${this.$route.params.id}/operators`, {
       user_ids: userIds
     }).then((response: AxiosResponse) => {
       if (![200, 204].includes(response.status)) {
-        throw new Error(response.data?.error_message || response.statusText)
+        throw new Error(response.data?.error_message || response.statusText);
       }
-      this.$toast.success('Success')
-      this.$store.dispatch('autodialer/view/operators/fetch', this.requestParameters)
+      this.$toast.success('Success');
+      this.$store.dispatch('autodialer/view/operators/fetch', this.requestParameters);
     }).catch((reason: Error) => {
-      this.$toast.error(reason.message)
-    })
+      this.$toast.error(reason.message);
+    });
   }
 
   private onAppPaginationChange () {
-    this.loading = true
+    this.loading = true;
     this.$store.dispatch('autodialer/view/operators/fetch', this.requestParameters)
-      .finally(() => (this.loading = false))
+      .finally(() => (this.loading = false));
   }
 }
 </script>

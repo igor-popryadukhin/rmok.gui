@@ -42,10 +42,10 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import AppBase from '@/AppBase';
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 
 @Component({
   components: { AppBtnToggleDate }
@@ -55,32 +55,32 @@ export default class RecentCallsTools extends AppBase {
   customPeriod = null
 
   get filterPeriod () {
-    const dtA = this.$dayjs()
-    const dtB = this.$dayjs()
+    const dtA = this.$dayjs();
+    const dtB = this.$dayjs();
 
-    return this.$store.getters['statistics/recent_calls/filter/period'] || `${dtA.format(this.isoFormat)}|${dtB.format(this.isoFormat)}`
+    return this.$store.getters['statistics/recent_calls/filter/period'] || `${dtA.format(this.isoFormat)}|${dtB.format(this.isoFormat)}`;
   }
 
   set filterPeriod (val: string) {
     if (/\d{4}-\d{2}-\d{2}\|\d{4}-\d{2}-\d{2}/s.test(val)) {
-      this.customPeriod = []
-      this.$store.commit('statistics/recent_calls/filter/period', val)
+      this.customPeriod = [];
+      this.$store.commit('statistics/recent_calls/filter/period', val);
     }
   }
 
   get customPeriodDisplay () {
     if (Array.isArray(this.customPeriod) && this.customPeriod.length === 2) {
-      const dtA = this.$dayjs(this.customPeriod[0], 'YYYY-MM-DD')
-      const dtB = this.$dayjs(this.customPeriod[1], 'YYYY-MM-DD')
-      return [dtA.format('DD.MM.YYYY'), dtB.format('DD.MM.YYYY')].join(' - ')
+      const dtA = this.$dayjs(this.customPeriod[0], 'YYYY-MM-DD');
+      const dtB = this.$dayjs(this.customPeriod[1], 'YYYY-MM-DD');
+      return [dtA.format('DD.MM.YYYY'), dtB.format('DD.MM.YYYY')].join(' - ');
     }
-    return ''
+    return '';
   }
 
   // Возможные варианты диапазонов
   get dateRangeCollection () {
-    const dtA = this.$dayjs()
-    const dtB = this.$dayjs()
+    const dtA = this.$dayjs();
+    const dtB = this.$dayjs();
 
     return [
       {
@@ -108,55 +108,55 @@ export default class RecentCallsTools extends AppBase {
         tooltip: `c ${dtA.startOf('month').format('DD.MM.YYYY')} по ${dtB.endOf('month').format('DD.MM.YYYY')}`,
         value: `${dtA.startOf('month').format(this.isoFormat)}|${dtB.endOf('month').format(this.isoFormat)}`
       }
-    ]
+    ];
   }
 
   get refreshLoading () {
-    return this.$store.getters['statistics/recent_calls/pie_fetching']
+    return this.$store.getters['statistics/recent_calls/pie_fetching'];
   }
 
   @Watch('filterPeriod')
   filterPeriodWatchHandler () {
-    this.$store.commit('statistics/recent_calls/filter/offset', 0)
-    this.fetchStatistic()
+    this.$store.commit('statistics/recent_calls/filter/offset', 0);
+    this.fetchStatistic();
   }
 
   @Watch('customPeriod')
   customPeriodWatchHandler (val: string[]) {
-    this.$store.commit('statistics/recent_calls/filter/offset', 0)
+    this.$store.commit('statistics/recent_calls/filter/offset', 0);
     if (val.length === 2) {
-      const d1 = this.$dayjs(val[0], 'YYYY-MM-DD')
-      const d2 = this.$dayjs(val[1], 'YYYY-MM-DD')
+      const d1 = this.$dayjs(val[0], 'YYYY-MM-DD');
+      const d2 = this.$dayjs(val[1], 'YYYY-MM-DD');
       if (d1.diff(d2, 'day') >= 0) {
-        this.$store.commit('statistics/recent_calls/filter/period', `${val[1]}|${val[0]}`)
+        this.$store.commit('statistics/recent_calls/filter/period', `${val[1]}|${val[0]}`);
       } else {
-        this.$store.commit('statistics/recent_calls/filter/period', `${val[0]}|${val[1]}`)
+        this.$store.commit('statistics/recent_calls/filter/period', `${val[0]}|${val[1]}`);
       }
     }
   }
 
   public mounted () {
     if (this.filterPeriod && this.dateRangeCollection.findIndex((e) => e.value === this.filterPeriod) === -1) {
-      const dates = this.filterPeriod.split('|')
+      const dates = this.filterPeriod.split('|');
       this.customPeriod = [
         this.$dayjs(dates[0]).format('YYYY-MM-DD'),
         this.$dayjs(dates[1]).format('YYYY-MM-DD')
-      ]
+      ];
     }
   }
 
   private fetchStatistic () {
-    this.$store.dispatch('statistics/recent_calls/fetch_total_calls')
-    this.$store.dispatch('statistics/recent_calls/fetch_pie')
-    this.$store.dispatch('statistics/recent_calls/fetch_history')
+    this.$store.dispatch('statistics/recent_calls/fetch_total_calls');
+    this.$store.dispatch('statistics/recent_calls/fetch_pie');
+    this.$store.dispatch('statistics/recent_calls/fetch_history');
   }
 
   private onBtnRefreshClick () {
-    this.fetchStatistic()
+    this.fetchStatistic();
   }
 
   private onBtnLoadCancel () {
-    this.$store.dispatch('statistics/recent_calls/cancel_fetch_all')
+    this.$store.dispatch('statistics/recent_calls/cancel_fetch_all');
   }
 }
 </script>

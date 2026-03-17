@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 export default Vue.extend({
   name: 'AppTimeZoneSelect',
@@ -95,19 +95,19 @@ export default Vue.extend({
           value: 12
         }
       ]
-    }
+    };
   },
 
   watch: {
     value (val?: number) {
-      this.selected = val || null
+      this.selected = val || null;
     }
   },
 
   mounted () {
-    this.selected = this.value || null
+    this.selected = this.value || null;
   }
-})
+});
 </script>
 
 <style scoped>

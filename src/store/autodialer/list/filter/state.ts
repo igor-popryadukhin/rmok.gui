@@ -7,7 +7,7 @@ export function defaultState (): State {
   return {
     filter_q: '',
     filter_offset: 0
-  }
+  };
 }
 
-export const state = defaultState
+export const state = defaultState;

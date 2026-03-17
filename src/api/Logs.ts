@@ -1,8 +1,8 @@
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import APIError from './classes/APIError'
-import { UserInterface } from '@/api/Users'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import APIError from './classes/APIError';
+import { UserInterface } from '@/api/Users';
 
 export interface LogInterface {
   id: number;
@@ -30,11 +30,11 @@ export default class Logs {
         params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          return resolve(response.data)
+          return resolve(response.data);
         }
-        throw new APIError(response.data)
-      }).catch(reject)
-    })
+        throw new APIError(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -46,11 +46,11 @@ export default class Logs {
       $axios.get(`/logs/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -61,9 +61,9 @@ export default class Logs {
       $axios.get('/logs/actions')
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 }

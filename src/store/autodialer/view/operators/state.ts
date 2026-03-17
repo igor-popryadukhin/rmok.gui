@@ -1,4 +1,4 @@
-import User from '@/api/interfaces/User'
+import User from '@/api/interfaces/User';
 
 export interface State {
   items: User[];
@@ -13,7 +13,7 @@ function state (): State {
     total: 0,
     per_page: 30,
     filter_offset: 0
-  }
+  };
 }
 
-export default state
+export default state;

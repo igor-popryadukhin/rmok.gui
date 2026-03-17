@@ -1,9 +1,9 @@
-import ContactDetail from '@/api/interfaces/ContactDetail'
-import User from './User'
-import ContactTag from './ContactTag'
-import ContactEmail from './ContactEmail'
-import Project from './Project'
-import ContactPhone from './ContactPhone'
+import ContactDetail from '@/api/interfaces/ContactDetail';
+import User from './User';
+import ContactTag from './ContactTag';
+import ContactEmail from './ContactEmail';
+import Project from './Project';
+import ContactPhone from './ContactPhone';
 
 export default interface Contact {
   id: number;

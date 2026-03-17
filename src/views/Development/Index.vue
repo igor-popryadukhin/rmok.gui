@@ -24,17 +24,17 @@
 </template>
 
 <script lang="ts">
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import Component from 'vue-class-component'
-import Base from './Base'
-import { Watch } from 'vue-property-decorator'
-import * as Bowser from 'bowser'
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import Component from 'vue-class-component';
+import Base from './Base';
+import { Watch } from 'vue-property-decorator';
+import * as Bowser from 'bowser';
 @Component({
   components: { SmartAutocomplete }
 })
 export default class AutoDialerView extends Base {
   get infoItems () {
-    const browser = Bowser.parse(window.navigator.userAgent)
+    const browser = Bowser.parse(window.navigator.userAgent);
     return [
       {
         title: 'Browser',
@@ -65,23 +65,23 @@ export default class AutoDialerView extends Base {
       },
       {
         title: 'WS',
-        value: this.$ws.connected ? 'Connected' : 'Disconnected'
+        value: this.$monitoring.connected ? 'Connected' : 'Disconnected'
       }
-    ]
+    ];
   }
 
   get debugNamespace () {
-    return window.localStorage.getItem('debug')
+    return window.localStorage.getItem('debug');
   }
 
   set debugNamespace (val: string) {
-    window.localStorage.setItem('debug', val)
+    window.localStorage.setItem('debug', val);
   }
 
   @Watch('debugNamespace')
   debugNamespaceWatch (val: string) {
     if (!val) {
-      window.localStorage.removeItem('debug')
+      window.localStorage.removeItem('debug');
     }
   }
 }

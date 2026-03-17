@@ -1,5 +1,5 @@
 // 1. Обязательно импортируйте Vue перед объявлением расширенных типов
-import { Permission } from '@/plugins/permission'
+import { Permission } from '@/plugins/permission';
 
 // 2. Укажите файл с типами, которые вы хотите расширить
 //    Vue имеет тип конструктора в types/vue.d.ts

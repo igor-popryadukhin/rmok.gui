@@ -1,10 +1,10 @@
-import APIError from './classes/APIError'
-import Contact from './interfaces/Contact'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import { ContactTagInterface } from './Schemas/ContactInterface'
-import ContactHistory from '@/api/interfaces/ContactHistory'
+import APIError from './classes/APIError';
+import Contact from './interfaces/Contact';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import { ContactTagInterface } from './Schemas/ContactInterface';
+import ContactHistory from '@/api/interfaces/ContactHistory';
 
 export interface ContactResponseInterface {
   count: number;
@@ -157,12 +157,12 @@ export class Contacts {
         params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          return resolve(response.data)
+          return resolve(response.data);
         }
 
-        throw new APIError(response.data)
-      }).catch(reject)
-    })
+        throw new APIError(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -174,11 +174,11 @@ export class Contacts {
       $axios.post('/contacts', data)
         .then((response: AxiosResponse) => {
           if ([200, 201].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.statusText)
-        }).catch(reject)
-    })
+          reject(response.statusText);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -191,11 +191,11 @@ export class Contacts {
       $axios.patch(`/contacts/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.statusText)
-        }).catch(reject)
-    })
+          reject(response.statusText);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -208,11 +208,11 @@ export class Contacts {
       $axios.post('/contacts/transfer', params)
         .then((response: AxiosResponse) => {
           if (![200, 202].includes(response.status)) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve()
-        }).catch(reject)
-    })
+          resolve();
+        }).catch(reject);
+    });
   }
 
   /**
@@ -224,11 +224,11 @@ export class Contacts {
       $axios.get(`/contacts/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -241,11 +241,11 @@ export class Contacts {
       $axios.patch(`/contacts/${contactId}/phone/${phoneNumberId}/default`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          reject(response.data)
-        }).catch(reject)
-    })
+          reject(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -258,11 +258,11 @@ export class Contacts {
       $axios.get(`/contacts/by-number/${number}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -275,11 +275,11 @@ export class Contacts {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 202) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        return resolve()
-      }).catch(reject)
-    })
+        return resolve();
+      }).catch(reject);
+    });
   }
 
   /**
@@ -293,11 +293,11 @@ export class Contacts {
         params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          return resolve(response.data)
+          return resolve(response.data);
         }
-        throw new APIError(response.data)
-      }).catch(reject)
-    })
+        throw new APIError(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -309,11 +309,11 @@ export class Contacts {
       $axios.get(`/contacts/history/${historyId}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -326,11 +326,11 @@ export class Contacts {
       $axios.post(`/contacts/${contactId}/history`, data)
         .then((response: AxiosResponse) => {
           if (![200, 201].includes(response.status)) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve(response.data.id)
-        }).catch(reject)
-    })
+          resolve(response.data.id);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -343,11 +343,11 @@ export class Contacts {
       $axios.patch(`/contacts/history/${historyId}`, data)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve(response.data?.id)
-        }).catch(reject)
-    })
+          resolve(response.data?.id);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -358,11 +358,11 @@ export class Contacts {
       $axios.get('/contacts/labels')
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            return reject(response.data)
+            return reject(response.data);
           }
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -378,27 +378,27 @@ export class Contacts {
           onUploadProgress
         }).then((response: AxiosResponse) => {
           if ([200, 202].includes(response.status)) {
-            resolve(response.data)
+            resolve(response.data);
           } else {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-        }).catch(reject)
-      }
+        }).catch(reject);
+      };
 
       if (fs instanceof File) {
-        const formData = new FormData()
-        formData.append('files', fs)
-        upload(formData)
+        const formData = new FormData();
+        formData.append('files', fs);
+        upload(formData);
       } else if (fs instanceof FileList) {
-        const formData = new FormData()
+        const formData = new FormData();
         Array.from(fs).forEach((file, index) => {
-          formData.append(`file[${index}]`, file)
-        })
-        upload(formData)
+          formData.append(`file[${index}]`, file);
+        });
+        upload(formData);
       } else {
-        throw new Error('Invalid argument')
+        throw new Error('Invalid argument');
       }
-    })
+    });
   }
 
   /**
@@ -411,11 +411,11 @@ export class Contacts {
       $axios.post('/contacts/export', params)
         .then((response: AxiosResponse) => {
           if (response.status !== 202) {
-            throw new APIError(response?.data)
+            throw new APIError(response?.data);
           }
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -428,11 +428,11 @@ export class Contacts {
       $axios.get('/contacts/tags', { params })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response?.data || response.statusText)
+            throw new APIError(response?.data || response.statusText);
           }
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -445,11 +445,11 @@ export class Contacts {
       $axios.post('/contacts/tags/set', params)
         .then((response: AxiosResponse) => {
           if (![200, 202].includes(response.status)) {
-            throw new APIError(response?.data)
+            throw new APIError(response?.data);
           }
-          resolve()
-        }).catch(reject)
-    })
+          resolve();
+        }).catch(reject);
+    });
   }
 
   /**
@@ -461,11 +461,11 @@ export class Contacts {
       $axios.post('/contacts/tags', data)
         .then((response: AxiosResponse) => {
           if ([200, 201].includes(response.status)) {
-            return resolve(response.data?.id || 0)
+            return resolve(response.data?.id || 0);
           }
-          throw new APIError(response?.data || response.statusText)
-        }).catch(reject)
-    })
+          throw new APIError(response?.data || response.statusText);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -478,27 +478,27 @@ export class Contacts {
       $axios.get(`/contacts/export/file/${name}`, { responseType: 'blob' })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            const url = window.URL.createObjectURL(new Blob([response.data]))
-            const link = document.createElement('a')
-            link.href = url
-            const extFile = name.split('.').pop()
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const extFile = name.split('.').pop();
             if (extFile === 'xlsx') {
-              link.setAttribute('download', `${new Date().getTime()}.xlsx`)
+              link.setAttribute('download', `${new Date().getTime()}.xlsx`);
             } else if (extFile === 'csv') {
-              link.setAttribute('download', `${new Date().getTime()}.csv`)
+              link.setAttribute('download', `${new Date().getTime()}.csv`);
             }
 
-            document.body.appendChild(link)
-            link.click()
+            document.body.appendChild(link);
+            link.click();
             setTimeout(() => {
-              link.remove()
-            }, 1000)
+              link.remove();
+            }, 1000);
           } else {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve(response.data?.id)
-        }).catch(reject)
-    })
+          resolve(response.data?.id);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -511,10 +511,10 @@ export class Contacts {
       $axios.get(`/contacts/${contact_id}/tasks/close-all`)
         .then((response: AxiosResponse) => {
           if (![202, 200].includes(response.status)) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve()
-        }).catch(reject)
-    })
+          resolve();
+        }).catch(reject);
+    });
   }
 }

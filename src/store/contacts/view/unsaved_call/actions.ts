@@ -1,13 +1,13 @@
-import APIError from '@/api/classes/APIError'
-import { $axios } from '@/plugins/axios'
-import { RootState } from '@/store'
-import { AxiosResponse } from 'axios'
-import { ActionTree } from 'vuex'
-import { UnsavedCallState } from './state'
+import APIError from '@/api/classes/APIError';
+import { $axios } from '@/plugins/axios';
+import { RootState } from '@/store';
+import { AxiosResponse } from 'axios';
+import { ActionTree } from 'vuex';
+import { UnsavedCallState } from './state';
 
 const actions: ActionTree<UnsavedCallState, RootState> = {
   persist ({ commit, state, dispatch }) {
-    commit('persists', true)
+    commit('persists', true);
 
     return new Promise<void>((resolve) => {
       $axios.patch(`/contacts/history/${state.data_contact_history_id}`, {
@@ -15,15 +15,15 @@ const actions: ActionTree<UnsavedCallState, RootState> = {
         status_id: state.data_status_id
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        dispatch('flush')
-        resolve()
-      }).finally(() => (commit('persists', false)))
-    })
+        dispatch('flush');
+        resolve();
+      }).finally(() => (commit('persists', false)));
+    });
   },
 
-  flush ({ commit }) { commit('flush') }
-}
+  flush ({ commit }) { commit('flush'); }
+};
 
-export default actions
+export default actions;

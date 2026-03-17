@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import Component from 'vue-class-component';
 
 @Component
 export default class ActionBlank extends AppBase {}

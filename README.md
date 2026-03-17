@@ -1,5 +1,0 @@
-# rmok.ui
-
-```js
-eddeed
-```

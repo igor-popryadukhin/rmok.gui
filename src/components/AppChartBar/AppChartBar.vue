@@ -9,13 +9,13 @@
 </template>
 
 <script lang="ts">
-import { secondsToHms } from '@/utils/datetime'
-import Vue from 'vue'
-import VueApexCharts from 'vue-apexcharts'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import { secondsToHms } from '@/utils/datetime';
+import Vue from 'vue';
+import VueApexCharts from 'vue-apexcharts';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
-Vue.component('ApexChart', VueApexCharts)
+Vue.component('ApexChart', VueApexCharts);
 
 interface Series {
   name: string;
@@ -73,7 +73,7 @@ export default class AppChartBar extends Vue {
           color: '#255aee',
           shadeTo: 'light',
           shadeIntensity: 0.65
-        },
+        }
       },
       dataLabels: {
         dropShadow: {
@@ -85,7 +85,7 @@ export default class AppChartBar extends Vue {
             h: ['ч.', 'ч.', 'ч.'],
             m: ['м.', 'м.', 'м.'],
             s: ['c.', 'c.', 'c.']
-          })
+          });
         },
         offsetX: 0,
         style: {
@@ -95,7 +95,7 @@ export default class AppChartBar extends Vue {
       },
       legend: {
         formatter: function (seriesName, opts) {
-          return [seriesName]
+          return [seriesName];
         },
         position: 'top',
         floating: true,
@@ -150,10 +150,10 @@ export default class AppChartBar extends Vue {
         custom: ({series, seriesIndex, dataPointIndex, w}) => {
           return '<div class="app-chart-bar-tooltip">' +
             '<span>' + secondsToHms(series[seriesIndex][dataPointIndex]) + '</span>' +
-            '</div>'
+            '</div>';
         }
       }
-    }
+    };
   }
 
 

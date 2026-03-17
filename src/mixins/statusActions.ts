@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
 const statusActions = Vue.extend({
   data () {
@@ -6,8 +6,8 @@ const statusActions = Vue.extend({
       statusActions: [
         'delayed_call'
       ]
-    }
+    };
   }
-})
+});
 
-export default statusActions
+export default statusActions;

@@ -24,9 +24,9 @@ export interface SessionsState {
 export function defaultState (): SessionsState {
   return {
     items: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

@@ -14,7 +14,7 @@ export function defaultState (): State {
     filter_state: 'pending',
     filter_planned_for: '',
     filter_offset: 0
-  }
+  };
 }
 
-export const state = defaultState
+export const state = defaultState;

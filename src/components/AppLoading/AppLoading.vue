@@ -12,10 +12,10 @@
 </template>
 
 <script lang="ts">
-import AppSpinnerFadingCircle from '@/components/AppSpinner/AppSpinnerFadingCircle.vue'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import AppSpinnerFadingCircle from '@/components/AppSpinner/AppSpinnerFadingCircle.vue';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 @Component({
   components: { AppSpinnerFadingCircle }
 })

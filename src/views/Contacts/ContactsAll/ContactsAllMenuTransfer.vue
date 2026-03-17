@@ -96,13 +96,13 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import Vuelidate, { validationMixin } from 'vuelidate'
-import { required, minLength } from 'vuelidate/lib/validators'
-Vue.use(Vuelidate)
+import AppBase from '@/AppBase';
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { required, minLength } from 'vuelidate/lib/validators';
+Vue.use(Vuelidate);
 
 @Component({
   mixins: [validationMixin],
@@ -112,11 +112,11 @@ Vue.use(Vuelidate)
   },
   computed: {
     usersErrors () {
-      const errors = []
-      if (!this.$v.users.$dirty) return errors
-      !this.$v.users.required && errors.push('Users is required.')
-      !this.$v.users.minLength && errors.push('Users is required.')
-      return errors.map((e) => this.$tc(e))
+      const errors = [];
+      if (!this.$v.users.$dirty) return errors;
+      !this.$v.users.required && errors.push('Users is required.');
+      !this.$v.users.minLength && errors.push('Users is required.');
+      return errors.map((e) => this.$tc(e));
     }
   }
 })
@@ -126,52 +126,52 @@ export default class ContactsAllMenuTransfer extends AppBase {
   project: Record<'id', number>|null = null
   users: Array<Record<'id', number>> = []
 
-  get contactsSelectedLength () { return (this.$store.getters['contacts/contacts_all/items_selected'] || []).length }
-  get contactsSelected () { return (this.$store.getters['contacts/contacts_all/items_selected'] || []) }
-  set contactsSelected (val) { this.$store.commit('contacts/contacts_all/items_selected', val) }
+  get contactsSelectedLength () { return (this.$store.getters['contacts/contacts_all/items_selected'] || []).length; }
+  get contactsSelected () { return (this.$store.getters['contacts/contacts_all/items_selected'] || []); }
+  set contactsSelected (val) { this.$store.commit('contacts/contacts_all/items_selected', val); }
 
   /**
    * Совершает передачу контактов
    * @private
    */
   private transfer () {
-    this.menuVisible = false
-    this.process = true
+    this.menuVisible = false;
+    this.process = true;
     this.$axios.post('/contacts/transfer', {
       contact_ids: this.contactsSelected.map((e) => e.id),
       destination_user_ids: this.users.map((e) => e.id),
       ...(!!this.project ? { destination_project_id: this.project.id } : {})
     }).then((response) => {
       if (response.status !== 202) {
-        throw new Error(response.statusText)
+        throw new Error(response.statusText);
       }
 
-      this.$toast.success('Accepted')
+      this.$toast.success('Accepted');
 
-      this.contactsSelected = []
+      this.contactsSelected = [];
     }).catch((reason: Error) => {
-      this.$toast.error(reason.message)
-    }).finally(() => (this.process = false))
+      this.$toast.error(reason.message);
+    }).finally(() => (this.process = false));
   }
 
   private userChipCloseClick (id: number) {
     this.users = this.users.filter((e) => {
-      return e.id !== id
-    })
+      return e.id !== id;
+    });
   }
 
   private usersQuery (q) {
     if (this.project) {
-      return { q, project_id: this.project.id }
+      return { q, project_id: this.project.id };
     }
-    return { q }
+    return { q };
   }
 
   private usersQueryFilter (item: any) {
     if (item?.project?.id) {
-      return item.project.id === this.project.id
+      return item.project.id === this.project.id;
     }
-    return true
+    return true;
   }
 }
 </script>

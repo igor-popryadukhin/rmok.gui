@@ -44,10 +44,10 @@
 </template>
 
 <script lang="ts">
-import Schedule from './Schedule'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, VModel, Watch } from 'vue-property-decorator'
+import Schedule from './Schedule';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, VModel, Watch } from 'vue-property-decorator';
 
 interface ScheduleMatrixInterface {
   x: number;
@@ -68,17 +68,17 @@ export default class AppScheduleWeek extends Vue {
   private matrix = []
 
   get currentDay () {
-    return new Date().getDay()
+    return new Date().getDay();
   }
 
   get currentHour () {
-    return String(new Date().getHours()).padStart(2, '00') + ':00'
+    return String(new Date().getHours()).padStart(2, '00') + ':00';
   }
 
   get verticalLineCss () {
-    const left = 100
-    const first = 113
-    const length = 750
+    const left = 100;
+    const first = 113;
+    const length = 750;
     // const hours = new Date().getHours()
 
     // const difference = length - first
@@ -91,35 +91,35 @@ export default class AppScheduleWeek extends Vue {
       top: '169px',
       height: '205px',
       width: '2px'
-    }
+    };
   }
 
   get cssElementSize () {
     return {
       height: '50px',
       width: '50px'
-    }
+    };
   }
 
   get selected () {
     return this.matrix.filter((value) => {
-      return value.selected
+      return value.selected;
     }).map((value) => {
-      return value.schedule
-    })
+      return value.schedule;
+    });
   }
 
   @Watch('schedule', { deep: true })
   valueWatchHandler (val) {
     if (val) {
       this.matrix = this.matrix.map((value) => {
-        value.selected = false
-        return value
-      })
+        value.selected = false;
+        return value;
+      });
       for (let i = 0; i < this.matrix.length; i++) {
         for (let j = 0; j < val.length; j++) {
           if (this.matrix[i].schedule.day === val[j].day && this.matrix[i].schedule.time === val[j].time) {
-            this.matrix[i].selected = true
+            this.matrix[i].selected = true;
           }
         }
       }
@@ -132,7 +132,7 @@ export default class AppScheduleWeek extends Vue {
         title: String(i).padStart(2, '00'),
         h: i,
         y: i
-      })
+      });
     }
 
     const daysOfTheWeek = [
@@ -143,15 +143,15 @@ export default class AppScheduleWeek extends Vue {
       'Пятница',
       'Суббота',
       'Воскресенье'
-    ]
+    ];
 
     this.days = daysOfTheWeek.map((value, index) => {
       return {
         title: value,
         d: index + 1,
         x: index
-      }
-    })
+      };
+    });
 
     for (let i = 0; i < this.days.length; i++) {
       for (let j = 0; j < this.hours.length; j++) {
@@ -163,79 +163,79 @@ export default class AppScheduleWeek extends Vue {
             time: String(j).padStart(2, '00') + ':00',
             day: i + 1
           }
-        })
+        });
       }
     }
 
-    const schedule = this.schedule.map((e) => ({ ...e }))
+    const schedule = this.schedule.map((e) => ({ ...e }));
     this.matrix = this.matrix.map((value) => {
-      value.selected = false
-      return value
-    })
+      value.selected = false;
+      return value;
+    });
     for (let i = 0; i < this.matrix.length; i++) {
       for (let j = 0; j < schedule.length; j++) {
         if (this.matrix[i].schedule.day === schedule[j].day && this.matrix[i].schedule.time === schedule[j].time) {
-          this.matrix[i].selected = true
+          this.matrix[i].selected = true;
         }
       }
     }
   }
 
   private onMouseUpCtrl (itemDay: any, event: MouseEvent) {
-    event.preventDefault()
+    event.preventDefault();
     this.matrix = this.matrix.map((value) => {
-      if (itemDay.d === value.schedule.day) { value.selected = false }
-      return value
-    })
-    this.schedule = this.selected
+      if (itemDay.d === value.schedule.day) { value.selected = false; }
+      return value;
+    });
+    this.schedule = this.selected;
   }
 
   private onMatrixClick ({ itemDay, itemHour }: any) {
-    const x = itemDay?.x || 0
-    const y = itemHour?.y || 0
-    this.setMatrixState(x, y || 0, !this.getMatrixState(x, y))
+    const x = itemDay?.x || 0;
+    const y = itemHour?.y || 0;
+    this.setMatrixState(x, y || 0, !this.getMatrixState(x, y));
 
-    this.schedule = this.selected
-    this.$emit('click:square', this.getMatrix(x, y))
+    this.schedule = this.selected;
+    this.$emit('click:square', this.getMatrix(x, y));
   }
 
   private setMatrixState (x: number, y: number, selected: boolean) {
     const m = this.matrix.find(value => {
-      return value.x === x && value.y === y
-    })
+      return value.x === x && value.y === y;
+    });
 
-    if (m) { m.selected = selected }
+    if (m) { m.selected = selected; }
   }
 
   private getMatrixState (x: number, y: number) {
     const m = this.matrix.find(value => {
-      return value.x === x && value.y === y
-    })
+      return value.x === x && value.y === y;
+    });
 
     if (m) {
-      return m.selected
+      return m.selected;
     }
 
-    return false
+    return false;
   }
 
   private getMatrix (x: number, y: number): ScheduleMatrixInterface | undefined {
     const m = this.matrix.find(value => {
-      return value.x === x && value.y === y
-    })
+      return value.x === x && value.y === y;
+    });
 
     if (m) {
-      return m
+      return m;
     }
 
-    return undefined
+    return undefined;
   }
 
   private calculateStyle (x: number, y: number) {
-    const m = this.getMatrix(x, y)
+    const m = this.getMatrix(x, y);
 
     if (m) {
-      return {}
+      return {};
     }
   }
 }

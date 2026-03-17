@@ -1,23 +1,23 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
-const options = { passive: false }
+const options = { passive: false };
 
-let callback: any = null
+let callback: any = null;
 const eventHandler = function (arg: any) {
   if (typeof eventHandler === 'function') {
-    callback(arg)
+    callback(arg);
   }
-}
+};
 
 Vue.directive('size', {
 
   inserted (el, binding) {
-    callback = binding.value!
-    el.addEventListener('resize', eventHandler, options)
-    callback(el.clientWidth)
+    callback = binding.value!;
+    el.addEventListener('resize', eventHandler, options);
+    callback(el.clientWidth);
   },
 
   unbind (el, binding) {
-    el.removeEventListener('resize', eventHandler)
+    el.removeEventListener('resize', eventHandler);
   }
-})
+});

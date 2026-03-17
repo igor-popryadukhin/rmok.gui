@@ -1,6 +1,6 @@
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import APIError from './classes/APIError'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import APIError from './classes/APIError';
 
 export interface PermissionInterface {
   title: string;
@@ -24,11 +24,11 @@ export default class Permissions {
       $axios.get(`/permissions/${id}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -42,10 +42,10 @@ export default class Permissions {
       $axios.patch(`/permissions/${id}`, params)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 }

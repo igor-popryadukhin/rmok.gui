@@ -56,10 +56,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapGetters } from 'vuex'
-import debounce from '@/utils/debounce'
-import User from '@/api/interfaces/User'
+import Vue from 'vue';
+import { mapGetters } from 'vuex';
+import debounce from '@/utils/debounce';
+import User from '@/api/interfaces/User';
 
 export default Vue.extend({
   name: 'AppUserAutocomplete',
@@ -99,7 +99,7 @@ export default Vue.extend({
       selectedName: null,
       q: null,
       selected: null as unknown as number | number[]
-    }
+    };
   },
 
   computed: {
@@ -108,40 +108,40 @@ export default Vue.extend({
     }),
 
     paramsQuery () {
-      const paramsQuery: Record<string, unknown | string> = {}
+      const paramsQuery: Record<string, unknown | string> = {};
 
       if (this.q) {
-        paramsQuery.q = this.q
+        paramsQuery.q = this.q;
       }
 
-      return paramsQuery
+      return paramsQuery;
     }
   },
 
   watch: {
     q (val: string) {
-      val && this.options.findIndex((e: User) => (e.full_name || '').indexOf(val) > -1) === -1 && this.fetchOptions()
+      val && this.options.findIndex((e: User) => (e.full_name || '').indexOf(val) > -1) === -1 && this.fetchOptions();
     }
   },
 
   created () {
-    this.fetchOptions = debounce(this.fetchOptions, 350)
+    this.fetchOptions = debounce(this.fetchOptions, 350);
   },
 
   mounted () {
-    this.selected = this.value
+    this.selected = this.value;
 
     if (this.options.length === 0) {
-      this.fetchOptions()
+      this.fetchOptions();
     }
   },
 
   methods: {
     fetchOptions () {
-      this.$store.dispatch('filter/users', this.paramsQuery)
+      this.$store.dispatch('filter/users', this.paramsQuery);
     }
   }
-})
+});
 </script>
 
 <style scoped>

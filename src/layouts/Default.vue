@@ -555,28 +555,28 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import Notification from '@/api/interfaces/Notification'
-import AppBase from '@/AppBase'
-import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import SSEMessage from '@/interfaces/SSEMessage'
-import VNavigationDrawer from '@/interfaces/VNavigationDrawer'
-import { sleep } from '@/Utils'
-import { makeAudioElement } from '@/utils/utils'
-import { AxiosResponse } from 'axios'
-import dayjs from 'dayjs'
-import debug from 'debug'
-import { EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession'
-import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA'
-import Component from 'vue-class-component'
-import { Ref } from 'vue-property-decorator'
-import { POSITION } from 'vue-toastification'
-import SSEEvents from './SSEEvents'
+import APIError from '@/api/classes/APIError';
+import Notification from '@/api/interfaces/Notification';
+import AppBase from '@/AppBase';
+import AppIncomingCallDialog from '@/components/AppIncomingCallDialog/AppIncomingCallDialog.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import SSEMessage from '@/interfaces/SSEMessage';
+import VNavigationDrawer from '@/interfaces/VNavigationDrawer';
+import { sleep } from '@/Utils';
+import { makeAudioElement } from '@/utils/utils';
+import { AxiosResponse } from 'axios';
+import dayjs from 'dayjs';
+import debug from 'debug';
+import { EndEvent, IncomingEvent, OutgoingEvent, RTCSession } from 'jssip/lib/RTCSession';
+import { IncomingRTCSessionEvent, OutgoingRTCSessionEvent } from 'jssip/lib/UA';
+import Component from 'vue-class-component';
+import { Ref } from 'vue-property-decorator';
+import { POSITION } from 'vue-toastification';
+import SSEEvents from './SSEEvents';
 
-const appDebug = debug('APP')
-const debugDialer = appDebug.extend('DIALER')
-const debugDialerEvent = appDebug.extend('DIALER-EVENT')
+const appDebug = debug('app');
+const debugDialer = appDebug.extend('DIALER');
+const debugDialerEvent = appDebug.extend('DIALER-EVENT');
 
 // eslint-disable-next-line no-use-before-define
 @Component<DefaultLayout>({
@@ -588,10 +588,10 @@ const debugDialerEvent = appDebug.extend('DIALER-EVENT')
   computed: {
     navigation_drawer_mini: {
       get () {
-        return this.$store.getters['settings/navigation_drawer_mini']
+        return this.$store.getters['settings/navigation_drawer_mini'];
       },
       set (value: boolean) {
-        this.$store.commit('settings/navigation_drawer_mini', value)
+        this.$store.commit('settings/navigation_drawer_mini', value);
       }
     }
   }
@@ -622,20 +622,20 @@ export default class DefaultLayout extends AppBase {
 
   // region Системные уведомления
 
-  get notificationsVisible () { return this.$store.getters['notifications/visible'] }
-  set notificationsVisible (value: boolean) { this.$store.commit('notifications/visible', value) }
-  get notificationsCount () { return this.$store.getters['notifications/count'] }
-  set notificationsCount (value: number) { this.$store.commit('notifications/count', value) }
-  get notificationsItems (): Notification[] { return this.$store.getters['notifications/items'] }
-  set notificationsItems (value: Notification[]) { this.$store.commit('notifications/items', value) }
+  get notificationsVisible () { return this.$store.getters['notifications/visible']; }
+  set notificationsVisible (value: boolean) { this.$store.commit('notifications/visible', value); }
+  get notificationsCount () { return this.$store.getters['notifications/count']; }
+  set notificationsCount (value: number) { this.$store.commit('notifications/count', value); }
+  get notificationsItems (): Notification[] { return this.$store.getters['notifications/items']; }
+  set notificationsItems (value: Notification[]) { this.$store.commit('notifications/items', value); }
   // endregion
 
   // region Входящий вызов
   get contactIncomingId (): number {
-    return this.$store.getters['contacts/incoming/contact_id']
+    return this.$store.getters['contacts/incoming/contact_id'];
   }
   get contactIncomingContactName (): string {
-    return this.$store.getters['contacts/incoming/contact_name']
+    return this.$store.getters['contacts/incoming/contact_name'];
   }
   // endregion
 
@@ -664,30 +664,30 @@ export default class DefaultLayout extends AppBase {
         },
         on: {
           click: () => {
-            if (this.$dialer.isConnected()) { this.$dialer.disconnect() }
-            if (this.$ws.connected) { this.$ws.disconnect() }
+            if (this.$dialer.isConnected()) { this.$dialer.disconnect(); }
+            if (this.$monitoring.connected) { this.$monitoring.disconnect(); }
 
             if (this.eventSource instanceof EventSource) {
-              this.eventSource.close()
+              this.eventSource.close();
             }
 
             // Очищение локального хранилища
-            this.$store.dispatch('contacts/view/unsaved_call/flush')
-            this.$store.dispatch('contacts/view/history/flush')
-            this.$store.dispatch('contacts/view/tasks/flush')
-            this.$store.dispatch('contacts/view/messages/flush')
+            this.$store.dispatch('contacts/view/unsaved_call/flush');
+            this.$store.dispatch('contacts/view/history/flush');
+            this.$store.dispatch('contacts/view/tasks/flush');
+            this.$store.dispatch('contacts/view/messages/flush');
 
-            this.$store.dispatch('profile/logout')
+            this.$store.dispatch('profile/logout');
 
-            this.$cookie.delete('refresh_token')
-            this.$cookie.delete('access_token')
+            this.$cookie.delete('refresh_token');
+            this.$cookie.delete('access_token');
 
-            this.$router.replace({ name: 'login' })
+            this.$router.replace({ name: 'login' });
           }
         },
         title: 'Exit'
       }
-    ]
+    ];
   }
 
   get mainMenu () {
@@ -985,124 +985,124 @@ export default class DefaultLayout extends AppBase {
     ].filter((e) => e.visible)
       .map((e) => {
         if (Array.isArray(e.children)) {
-          e.children = e.children.filter((e1) => e1.visible)
+          e.children = e.children.filter((e1) => e1.visible);
         }
-        return e
-      })
+        return e;
+      });
   }
 
   get cssVars () {
     return {
       '--page-calculated-height': `${this.screenHeight - 86}px`,
       '--page-calculated-height2': `${this.screenHeight - 110}px`
-    }
+    };
   }
 
   @Ref('navigationDrawer') readonly navigationDrawer: VNavigationDrawer
 
   public created () {
-    this.$root.$on('router:before:each', this.onRouterBeforeEach)
-    this.$root.$on('router:after:each', this.onRouterAfterEach)
-    this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow)
-    this.$root.$on('main-process-dialog-update', this.onMainProcessDialogUpdate)
-    this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide)
-    this.$root.$on('audio-player-show', this.onAudioPlayerShow)
-    this.$root.$on('audio-player-hide', this.onAudioPlayerHide)
+    this.$root.$on('router:before:each', this.onRouterBeforeEach);
+    this.$root.$on('router:after:each', this.onRouterAfterEach);
+    this.$root.$on('main-process-dialog-show', this.onMainProcessDialogShow);
+    this.$root.$on('main-process-dialog-update', this.onMainProcessDialogUpdate);
+    this.$root.$on('main-process-dialog-hide', this.onMainProcessDialogHide);
+    this.$root.$on('audio-player-show', this.onAudioPlayerShow);
+    this.$root.$on('audio-player-hide', this.onAudioPlayerHide);
 
-    this.$root.$on('sse:profile:changed', this.onSSEProfileChanged)
-    this.$root.$on('sse:tasks:changed', this.onSSETacksChange)
+    this.$root.$on('sse:profile:changed', this.onSSEProfileChanged);
+    this.$root.$on('sse:tasks:changed', this.onSSETacksChange);
 
-    this.$ifvisible.setIdleDuration(300)
-    this.$ifvisible.on('idle', this.ifVisibleIdleHandler)
-    this.$ifvisible.on('wakeup', this.ifVisibleWakeupHandler)
-    this.$ifvisible.on('blur', this.ifVisibleBlurHandler)
-    this.$ifvisible.on('focus', this.ifVisibleFocusHandler)
+    this.$ifvisible.setIdleDuration(300);
+    this.$ifvisible.on('idle', this.ifVisibleIdleHandler);
+    this.$ifvisible.on('wakeup', this.ifVisibleWakeupHandler);
+    this.$ifvisible.on('blur', this.ifVisibleBlurHandler);
+    this.$ifvisible.on('focus', this.ifVisibleFocusHandler);
 
     navigator
       .mediaDevices
       .getUserMedia({ audio: true })
       .then(() => {
-        this.audio = new Audio()
+        this.audio = new Audio();
       }).catch(function (err) {
-        console.log(err.name + ': ' + err.message)
-      })
+        console.log(err.name + ': ' + err.message);
+      });
 
     setInterval(() => {
       if (['connecting', 'accepted', 'progress'].includes(this.$dialer.state)) {
-        this.$ifvisible.wakeup()
+        this.$ifvisible.wakeup();
       }
-    }, 1000)
+    }, 1000);
 
     setInterval(() => {
-      this.shortTick++
-    }, 1000)
+      this.shortTick++;
+    }, 1000);
   }
 
   public mounted () {
-    this.sseInitialize()
+    this.sseInitialize();
 
-    this.$ws.cbToken = () => this.$cookie.get('access_token')
-    this.$ws.connect()
+    this.$monitoring.cbToken = () => this.$cookie.get('access_token');
+    this.$monitoring.connect();
 
     if (this.$profilePBXCredentials.login) {
-      this.dialerInitialize()
+      this.dialerInitialize();
 
       if (this.$profile.status === 'normal') {
         // Отменяю паузу во всех очередях
-        this.$axios.put('/account/dnd/false')
+        this.$axios.put('/account/dnd/false');
       }
     }
 
     setTimeout(() => {
-      this.userStatusUpdate(this.$profile.status)
-    }, 500)
+      this.userStatusUpdate(this.$profile.status);
+    }, 500);
 
     if (!this.$profile.tz) {
       this.$axios.patch('/account/profile', {
         tz: dayjs.tz.guess()
-      })
+      });
     }
 
-    this.$store.dispatch('notifications/fetch')
+    this.$store.dispatch('notifications/fetch');
 
     this.audio.onplay = () => {
-      this.audioPlayed = true
-    }
+      this.audioPlayed = true;
+    };
     this.audio.onended = () => {
-      this.audioPlayed = false
-    }
+      this.audioPlayed = false;
+    };
   }
 
   public beforeDestroy () {
-    this.$root.$off('router:before:each', this.onRouterBeforeEach)
-    this.$root.$off('router:after:each', this.onRouterAfterEach)
-    this.$root.$off('sse:profile:changed', this.onSSEProfileChanged)
-    this.$root.$off('sse:tasks:changed', this.onSSETacksChange)
+    this.$root.$off('router:before:each', this.onRouterBeforeEach);
+    this.$root.$off('router:after:each', this.onRouterAfterEach);
+    this.$root.$off('sse:profile:changed', this.onSSEProfileChanged);
+    this.$root.$off('sse:tasks:changed', this.onSSETacksChange);
 
-    this.$ifvisible.off('idle', this.ifVisibleIdleHandler)
-    this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler)
-    this.$ifvisible.off('blur', this.ifVisibleBlurHandler)
-    this.$ifvisible.off('focus', this.ifVisibleFocusHandler)
+    this.$ifvisible.off('idle', this.ifVisibleIdleHandler);
+    this.$ifvisible.off('wakeup', this.ifVisibleWakeupHandler);
+    this.$ifvisible.off('blur', this.ifVisibleBlurHandler);
+    this.$ifvisible.off('focus', this.ifVisibleFocusHandler);
 
-    this.$root.$off('main-process-dialog-show', this.onMainProcessDialogShow)
-    this.$root.$off('main-process-dialog-update', this.onMainProcessDialogUpdate)
-    this.$root.$off('main-process-dialog-hide', this.onMainProcessDialogHide)
+    this.$root.$off('main-process-dialog-show', this.onMainProcessDialogShow);
+    this.$root.$off('main-process-dialog-update', this.onMainProcessDialogUpdate);
+    this.$root.$off('main-process-dialog-hide', this.onMainProcessDialogHide);
 
-    this.$root.$off('audio-player-show', this.onAudioPlayerShow)
-    this.$root.$off('audio-player-hide', this.onAudioPlayerHide)
+    this.$root.$off('audio-player-show', this.onAudioPlayerShow);
+    this.$root.$off('audio-player-hide', this.onAudioPlayerHide);
 
-    clearInterval(this.timerId)
+    clearInterval(this.timerId);
   }
 
   private dialerInitialize () {
-    debugDialer('Dialer initialize...')
+    debugDialer('Dialer initialize...');
     // Обработчики событий телефонии.
 
     if (this.$dialer.isConnected()) {
-      this.$dialer.disconnect()
+      this.$dialer.disconnect();
     }
 
-    this.$dialer.off('newRTCSession', this.onNewRTCSession)
+    this.$dialer.off('newRTCSession', this.onNewRTCSession);
 
     // RTC Config
     this.$dialer.pcConfig = {
@@ -1114,29 +1114,29 @@ export default class DefaultLayout extends AppBase {
               credentialType: value.credential_type,
               urls: value.urls,
               username: value.username
-            }
+            };
           }
           return {
             urls: value.urls
-          }
+          };
         }),
 
       bundlePolicy: this.$profileRTCConfiguration.bundle_policy,
       iceCandidatePoolSize: this.$profileRTCConfiguration.ice_candidate_pool_size,
       iceTransportPolicy: this.$profileRTCConfiguration.ice_transport_policy
-    }
+    };
 
     if (this.$profileRTCConfiguration.rtcp_mux_policy) {
-      this.$dialer.pcConfig.rtcpMuxPolicy = this.$profileRTCConfiguration.rtcp_mux_policy
+      this.$dialer.pcConfig.rtcpMuxPolicy = this.$profileRTCConfiguration.rtcp_mux_policy;
     }
 
-    debugDialer('pcConfig: %o', this.$dialer.pcConfig)
+    debugDialer('pcConfig: %o', this.$dialer.pcConfig);
 
-    const schema = this.$profilePBXCredentials.schema
-    const host = this.$profilePBXCredentials.server
-    const port = this.$profilePBXCredentials.port
-    const login = this.$profilePBXCredentials.login
-    const password = this.$profilePBXCredentials.password
+    const schema = this.$profilePBXCredentials.schema;
+    const host = this.$profilePBXCredentials.server;
+    const port = this.$profilePBXCredentials.port;
+    const login = this.$profilePBXCredentials.login;
+    const password = this.$profilePBXCredentials.password;
 
     this.$dialer.configure(`${schema}://${host}:${port}/ws`, {
       display_name: this.$profile.full_name,
@@ -1144,12 +1144,12 @@ export default class DefaultLayout extends AppBase {
       realm: host,
       uri: `sip:${login}@${host}`,
       candidateReadyTimeOut: this.$profileRTCConfiguration.candidate_ready_timeout
-    })
-    this.$dialer.on('newRTCSession', this.onNewRTCSession.bind(this))
+    });
+    this.$dialer.on('newRTCSession', this.onNewRTCSession.bind(this));
 
     // Подключение в зависимости от состояния статуса пользователя.
     if (this.$profile.status !== 'away') {
-      this.$dialer.connect()
+      this.$dialer.connect();
     }
   }
 
@@ -1158,44 +1158,44 @@ export default class DefaultLayout extends AppBase {
    * @param newRTCSession
    */
   private onNewRTCSession (newRTCSession: IncomingRTCSessionEvent | OutgoingRTCSessionEvent) {
-    debugDialerEvent('NewRTCSession %o', newRTCSession)
+    debugDialerEvent('NewRTCSession %o', newRTCSession);
 
     // Обработчик прогресса вызова
     newRTCSession.session.on('connecting', (event) => {
       if (newRTCSession.session.direction === 'outgoing') {
-        this.userStatusUpdate('outgoing_ringing')
+        this.userStatusUpdate('outgoing_ringing');
       }
-      this.onSessionConnecting(newRTCSession.session, event)
-    })
+      this.onSessionConnecting(newRTCSession.session, event);
+    });
 
     // Обработчик прогресса вызова
     newRTCSession.session.on('progress', (event: IncomingEvent | OutgoingEvent) => {
-      this.userStatusUpdate(`${newRTCSession.session.direction}_ringing`)
-      this.onSessionProgress(newRTCSession.session, event)
-    })
+      this.userStatusUpdate(`${newRTCSession.session.direction}_ringing`);
+      this.onSessionProgress(newRTCSession.session, event);
+    });
 
     // Обработчик принятия вызова
     newRTCSession.session.on('accepted', (event: IncomingEvent | OutgoingEvent) => {
-      this.userStatusUpdate('speaks')
-      this.onSessionAccepted(newRTCSession.session, event)
-    })
+      this.userStatusUpdate('speaks');
+      this.onSessionAccepted(newRTCSession.session, event);
+    });
 
     // Обработчик ошибок
     newRTCSession.session.on('failed', (event: EndEvent) => {
-      this.userStatusUpdate('wrap_up')
-      this.onSessionFailed(newRTCSession.session, event)
-    })
+      this.userStatusUpdate('wrap_up');
+      this.onSessionFailed(newRTCSession.session, event);
+    });
 
     // Обработчик завершения
     newRTCSession.session.on('ended', (event: EndEvent) => {
-      this.userStatusUpdate('wrap_up')
-      this.onSessionEnded(newRTCSession.session, event)
-    })
+      this.userStatusUpdate('wrap_up');
+      this.onSessionEnded(newRTCSession.session, event);
+    });
 
     // Call-ID – идентификатор вызова.
-    newRTCSession.session.data.call_id = newRTCSession.request.getHeader('Call-ID')
+    newRTCSession.session.data.call_id = newRTCSession.request.getHeader('Call-ID');
 
-    this.$ifvisible.wakeup()
+    this.$ifvisible.wakeup();
   }
 
   /**
@@ -1206,9 +1206,9 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private onSessionConnecting (session: RTCSession, event) {
-    this.$root.$emit('dialer:session:connection', session, event)
+    this.$root.$emit('dialer:session:connection', session, event);
 
-    debugDialerEvent('Connecting %o %o', session, event)
+    debugDialerEvent('Connecting %o %o', session, event);
   }
 
   /**
@@ -1218,19 +1218,19 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private async onSessionProgress (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
-    this.$root.$emit('dialer:session:progress', session, event)
+    this.$root.$emit('dialer:session:progress', session, event);
 
     // Если входящий
     if (session.direction === 'incoming') {
-      session.data.target = session.remote_identity.display_name || session.remote_identity.uri.user // Номер входящего
+      session.data.target = session.remote_identity.display_name || session.remote_identity.uri.user; // Номер входящего
 
-      debugDialerEvent('Входящий: %s', session.data.target)
+      debugDialerEvent('Входящий: %s', session.data.target);
 
       // Загружаю информацию о контакте с сервера.
       this.$store.dispatch('contacts/incoming/find_by_phone_number', session.data.target)
         .then(() => {
           // Проигрываю мелодию входящего вызова.
-          this.playAudio('/sounds/ringing2.mp3', true)
+          this.playAudio('/sounds/ringing2.mp3', true);
 
           // Показать диалог входящего.
           this.$toast({
@@ -1252,11 +1252,11 @@ export default class DefaultLayout extends AppBase {
             bodyClassName: '',
             position: POSITION.TOP_CENTER,
             draggable: false
-          })
-        })
+          });
+        });
     }
 
-    debugDialerEvent('Progress %o %o', session, event)
+    debugDialerEvent('Progress %o %o', session, event);
   }
 
   /**
@@ -1266,18 +1266,18 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private onSessionAccepted (session: RTCSession, event: IncomingEvent | OutgoingEvent) {
-    this.$toast.dismiss('incoming-dialog')
+    this.$toast.dismiss('incoming-dialog');
 
-    setTimeout(() => (this.stopAudio()), 500)
+    setTimeout(() => (this.stopAudio()), 500);
 
-    this.$root.$emit('dialer:session:accepted', session, event)
+    this.$root.$emit('dialer:session:accepted', session, event);
 
-    debugDialerEvent('Accepted %o %o', session, event)
+    debugDialerEvent('Accepted %o %o', session, event);
 
     // Оператор уходит на паузу, входящие поступать не будут.
     this.$axios.put('/account/dnd/true', {
       reason: 'Post-processing after call completion'
-    })
+    });
   }
 
   /**
@@ -1287,16 +1287,16 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private onSessionEnded (session: RTCSession, event: EndEvent) {
-    this.$toast.dismiss('incoming-dialog')
+    this.$toast.dismiss('incoming-dialog');
 
-    setTimeout(() => (this.stopAudio()), 500)
+    setTimeout(() => (this.stopAudio()), 500);
 
-    this.onSessionFinality(session, event)
+    this.onSessionFinality(session, event);
 
-    this.$root.$emit('dialer:session:ended', session, event)
-    this.$root.$emit('dialer:session:finality', session, event) // Финальный
+    this.$root.$emit('dialer:session:ended', session, event);
+    this.$root.$emit('dialer:session:finality', session, event); // Финальный
 
-    debugDialerEvent('Ended %o %o', session, event)
+    debugDialerEvent('Ended %o %o', session, event);
   }
 
   /**
@@ -1306,30 +1306,30 @@ export default class DefaultLayout extends AppBase {
    * @param event
    */
   private onSessionFailed (session: RTCSession, event: EndEvent) {
-    this.$toast.dismiss('incoming-dialog')
+    this.$toast.dismiss('incoming-dialog');
 
-    setTimeout(() => (this.stopAudio()), 500)
+    setTimeout(() => (this.stopAudio()), 500);
 
-    this.onSessionFinality(session, event)
-    this.$root.$emit('dialer:session:failed', session, event)
-    this.$root.$emit('dialer:session:finality', session, event)
+    this.onSessionFinality(session, event);
+    this.$root.$emit('dialer:session:failed', session, event);
+    this.$root.$emit('dialer:session:finality', session, event);
 
-    debugDialerEvent('Failed %o %o', session, event)
+    debugDialerEvent('Failed %o %o', session, event);
 
     if (event.originator === 'local') {
       // Локальный
       if (event.cause === 'Canceled') {
-        this.$toast.info('The call was canceled by you')
+        this.$toast.info('The call was canceled by you');
       }
       if (event.cause === 'User Denied Media Access') {
         this.$toast.error('No microphone access.\n' +
-          'You must provide permission to use the microphone.')
+          'You must provide permission to use the microphone.');
       }
     } else if (event.originator === 'remote') {
       const message = {
         status_code: (event.message as unknown as { status_code: number }).status_code || 0,
         data: (event.message as unknown as { data: string }).data || ''
-      }
+      };
 
       if (typeof message === 'object' && 'status_code' in message) {
         if (message.status_code === 480) {
@@ -1338,9 +1338,9 @@ export default class DefaultLayout extends AppBase {
            * SIP описание: Temporarily unavailable
            */
           if (/Q\.850;cause=19/.test(message.data)) {
-            this.$toast.info('Subscriber unavailable')
+            this.$toast.info('Subscriber unavailable');
           } else {
-            this.$toast.error(message.data)
+            this.$toast.error(message.data);
           }
         } else if (message?.status_code === 486) {
           /**
@@ -1350,9 +1350,9 @@ export default class DefaultLayout extends AppBase {
            * SIP описание: Busy here
            */
           if (/Q\.850;cause=17/.test(String(message?.data || ''))) {
-            this.$toast.info('The subscriber is busy')
+            this.$toast.info('The subscriber is busy');
           } else {
-            this.$toast.error(message?.data)
+            this.$toast.error(message?.data);
           }
         } else if (message?.status_code === 503) {
           /**
@@ -1363,9 +1363,9 @@ export default class DefaultLayout extends AppBase {
            * SIP описание: Service unavailable
            */
           if (/Q\.850;cause=34/.test(String(message?.data || ''))) {
-            this.$toast.info('Service unavailable')
+            this.$toast.info('Service unavailable');
           } else {
-            this.$toast.error(message?.data)
+            this.$toast.error(message?.data);
           }
           /**
            * Ошибка SIP 603 обычно возвращается в качестве ответа,
@@ -1374,9 +1374,9 @@ export default class DefaultLayout extends AppBase {
            * ошибке отправляется вашим сервером VoIP, и Zoiper просто отображает его.
            */
         } else if (message?.status_code === 603) {
-          this.$toast.info('Subscriber does not exist')
+          this.$toast.info('Subscriber does not exist');
         } else {
-          this.$toast.error(message?.data)
+          this.$toast.error(message?.data);
         }
       }
     }
@@ -1390,8 +1390,8 @@ export default class DefaultLayout extends AppBase {
   private onSessionFinality (session: RTCSession, event: EndEvent) {
     /// ///////////////////////////////////////////////////////
     if (session.direction === 'incoming') {
-      session.data.contact_id = this.contactIncomingId
-      session.data.contact_name = this.contactIncomingContactName
+      session.data.contact_id = this.contactIncomingId;
+      session.data.contact_name = this.contactIncomingContactName;
     }
 
     // Данные для сохранения истории
@@ -1399,35 +1399,33 @@ export default class DefaultLayout extends AppBase {
       cause: event.cause,
       direction: session.direction,
       originator: event.originator,
-      session_end_time: this.$dialer.sessionEndTime?.getTime() / 1000,
-      session_start_time: this.$dialer.sessionStartTime?.getTime() / 1000,
       type: 'call',
       audio_record_id: session.data.call_id,
       target: session.data.target
-    }
+    };
 
     // Если есть время разговора
     if ((session.start_time) && (session.end_time)) {
-      historyData.start_timestamp = session.start_time.getTime() / 1000
-      historyData.end_timestamp = session.end_time.getTime() / 1000
+      historyData.call_start_time = this.$dayjs(session.start_time).local().toISOString(); // session.start_time.getTime() / 1000
+      historyData.call_end_time = this.$dayjs(session.end_time).local().toISOString(); // session.end_time.getTime() / 1000
     }
 
     // Сохраняю историю звонка
     this.$axios.post(`/contacts/${session.data.contact_id}/history`, historyData)
       .then((response: AxiosResponse) => {
         if ([200, 201].includes(response.status)) {
-          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name)
-          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id)
-          this.$store.commit('contacts/view/unsaved_call/data_call_id', session.data.call_id)
-          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction)
-          this.$store.commit('contacts/view/unsaved_call/unsaved', true)
+          this.$store.commit('contacts/view/unsaved_call/data_contact_id', session.data.contact_id);
+          this.$store.commit('contacts/view/unsaved_call/data_contact_name', session.data.contact_name);
+          this.$store.commit('contacts/view/unsaved_call/data_contact_history_id', response.data.id);
+          this.$store.commit('contacts/view/unsaved_call/data_call_id', session.data.call_id);
+          this.$store.commit('contacts/view/unsaved_call/data_direction', session.direction);
+          this.$store.commit('contacts/view/unsaved_call/unsaved', true);
         } else {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
       }).catch((reason: Error) => {
-        this.$toast.error(reason.message)
-      })
+        this.$toast.error(reason.message);
+      });
     /// ///////////////////////////////////////////////////////
   }
   // DIALER EVENTS
@@ -1437,69 +1435,69 @@ export default class DefaultLayout extends AppBase {
    */
   private sseInitialize () {
     if ('VUE_APP_SSE_ENDPOINT' in process.env) {
-      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT)
+      const url = new URL('/.well-known/mercure', process.env.VUE_APP_SSE_ENDPOINT);
 
       // Темы для подписок
-      url.searchParams.append('topic', `user:${this.$profile.uuid}`)
+      url.searchParams.append('topic', `user:${this.$profile.uuid}`);
 
       this.eventSource = new EventSource(url, {
         withCredentials: true
-      })
+      });
 
       this.eventSource.addEventListener('event', (event: Event) => {
         if (event instanceof MessageEvent) {
-          const obj: SSEMessage = JSON.parse(event.data)
+          const obj: SSEMessage = JSON.parse(event.data);
 
-          appDebug.extend('SSE').extend('EVENT')('%o', obj)
+          appDebug.extend('SSE').extend('EVENT')('%o', obj);
 
           // Кидаем сообщение на корневую шину
-          this.$root.$emit('sse:' + obj.name, obj)
+          this.$root.$emit('sse:' + obj.name, obj);
         }
-      })
+      });
 
       // Системные уведомления.
       this.eventSource.addEventListener('system-notification', (event: Event) => {
         if (event instanceof MessageEvent) {
-          const obj = JSON.parse(event.data) as Notification
-          appDebug.extend('SSE').extend('SYSTEM-NOTIFICATION')('%o', obj)
+          const obj = JSON.parse(event.data) as Notification;
+          appDebug.extend('SSE').extend('SYSTEM-NOTIFICATION')('%o', obj);
 
-          const notifications = this.notificationsItems.map((value) => value)
+          const notifications = this.notificationsItems.map((value) => value);
           if (notifications.findIndex((value) => value.id === obj.id) === -1) {
-            notifications.unshift(obj)
-            this.notificationsItems = notifications
-            this.notificationsCount++
+            notifications.unshift(obj);
+            this.notificationsItems = notifications;
+            this.notificationsCount++;
           }
 
-          this.notificationShake()
+          this.notificationShake();
           if (this.$dialer.state === 'idle') {
-            this.playAudio('/sounds/notifications/1.mp3')
+            this.playAudio('/sounds/notifications/1.mp3');
           }
 
-          this.$root.$emit('sse:system:notification', obj)
+          this.$root.$emit('sse:system:notification', obj);
         }
-      })
+      });
 
       // SSE типа message
       this.eventSource.onmessage = (event) => {
         // Emit в корневой экземпляр
-        this.$root.$emit('root-sse-message', event.data)
-      }
+        this.$root.$emit('root-sse-message', event.data);
+      };
     }
   }
 
   private notificationShake () {
-    this.notificationShakeProcess = true
+    this.notificationShakeProcess = true;
     setTimeout(() => {
-      this.notificationShakeProcess = false
-    }, 800)
+      this.notificationShakeProcess = false;
+    }, 800);
   }
 
   private onBtnCloseNotification (id: number) {
-    this.$store.dispatch('notifications/close', id)
+    this.$store.dispatch('notifications/close', id);
   }
 
   private onSystemNotificationCloseAllClick () {
-    this.$store.dispatch('notifications/close_all')
+    this.$store.dispatch('notifications/close_all');
   }
 
   /**
@@ -1516,24 +1514,24 @@ export default class DefaultLayout extends AppBase {
             while (true) {
               // Проверяю состояние простоя
               if (this.$dialer.state === 'idle') {
-                break
+                break;
               }
-              await sleep(1000)
+              await sleep(1000);
             }
-            resolve()
-          }
+            resolve();
+          };
 
           // Выполняем повторную инициализацию только в случае простоя.
           new Promise<void>((resolve) => {
-            checkState(resolve)
+            checkState(resolve);
           }).then(() => {
-            this.dialerInitialize() // Пришло время выполнить инициализацию.
-            this.dialerIsInitialize = false
-          })
+            this.dialerInitialize(); // Пришло время выполнить инициализацию.
+            this.dialerIsInitialize = false;
+          });
 
-          this.dialerIsInitialize = true
+          this.dialerIsInitialize = true;
         }
-      })
+      });
   }
 
   /**
@@ -1541,134 +1539,134 @@ export default class DefaultLayout extends AppBase {
    * @param status
    */
   private onStatusListItemClick (status: 'normal' | 'dnd' | 'away') {
-    this.userStatusUpdate(status)
-    this.$store.dispatch('profile/set_status', status)
+    this.userStatusUpdate(status);
+    this.$store.dispatch('profile/set_status', status);
   }
 
   /**
    * Срабатывает когда нажали на кнопку отклонить вызов.
    */
   private onIncomingDialogHangupClick () {
-    this.$store.dispatch('contacts/incoming/flush')
-    this.$toast.dismiss('incoming-dialog')
-    this.$dialer.hangUp()
+    this.$store.dispatch('contacts/incoming/flush');
+    this.$toast.dismiss('incoming-dialog');
+    this.$dialer.hangUp();
   }
 
   /**
    * Срабатывает когда нажали на кнопку принять вызов.
    */
   private onIncomingDialogAnswerClick () {
-    this.$toast.dismiss('incoming-dialog')
+    this.$toast.dismiss('incoming-dialog');
 
-    setTimeout(() => (this.$dialer.answer()))
+    setTimeout(() => (this.$dialer.answer()));
     this.$router.push({
       name: 'contacts_view_scenario',
       params: {
         id: String(this.contactIncomingId)
       }
-    })
+    });
   }
 
   /**
    * Срабатывает когда нет взаимодействия с вкладкой браузера в течении некоторого времени.
    */
   private ifVisibleIdleHandler () {
-    this.degradation = true
+    this.degradation = true;
   }
 
   /**
    * Срабатывает при пробуждении после сна.
    */
   private ifVisibleWakeupHandler () {
-    this.degradation = false
+    this.degradation = false;
   }
 
   private playAudio (src: string, loop = false, playbackRate = 1.0) {
     if (!this.audioPlayed) {
-      this.audioPlayed = true
-      this.audio.src = src
-      this.audio.loop = loop
-      this.audio.playbackRate = playbackRate
+      this.audioPlayed = true;
+      this.audio.src = src;
+      this.audio.loop = loop;
+      this.audio.playbackRate = playbackRate;
       this.audio.onended = () => {
-        this.audioPlayed = false
-      }
+        this.audioPlayed = false;
+      };
       this.audio.play().catch(() => {
         navigator
           .mediaDevices
           .getUserMedia({ audio: true })
           .then(() => {
-            this.audio.play()
+            this.audio.play();
           }).catch(function (err) {
-            console.log(err.name + ': ' + err.message)
-          })
-      })
+            console.log(err.name + ': ' + err.message);
+          });
+      });
     }
   }
 
   private stopAudio () {
     if (!this.audio.paused) {
-      this.audio.pause()
+      this.audio.pause();
     }
-    this.audio.currentTime = 0.0
-    this.audioPlayed = false
+    this.audio.currentTime = 0.0;
+    this.audioPlayed = false;
   }
 
   private onMainProcessDialogShow ({ message, progress }) {
-    this.progressDialog.visible = true
-    this.progressDialog.message = message
-    this.progressDialog.progress = progress
+    this.progressDialog.visible = true;
+    this.progressDialog.message = message;
+    this.progressDialog.progress = progress;
   }
 
   private onMainProcessDialogUpdate ({ message, progress }) {
-    this.progressDialog.visible = true
-    this.progressDialog.message = message || this.progressDialog.message
-    this.progressDialog.progress = progress || this.progressDialog.progress
+    this.progressDialog.visible = true;
+    this.progressDialog.message = message || this.progressDialog.message;
+    this.progressDialog.progress = progress || this.progressDialog.progress;
   }
 
   private onMainProcessDialogHide () {
-    this.progressDialog.visible = false
-    this.progressDialog.message = ''
-    this.progressDialog.progress = 0
+    this.progressDialog.visible = false;
+    this.progressDialog.message = '';
+    this.progressDialog.progress = 0;
   }
 
   private onAudioPlayerShow ({ src, author }) {
-    this.audioPlayer.visible = false
+    this.audioPlayer.visible = false;
     setTimeout(() => {
-      this.audioPlayer.src = src
-      this.audioPlayer.visible = true
-      this.audioPlayer.author = author
-      this.$audio.play('/sounds/gain_12_normal.mp3')
-    }, 300)
+      this.audioPlayer.src = src;
+      this.audioPlayer.visible = true;
+      this.audioPlayer.author = author;
+      this.$audio.play('/sounds/gain_12_normal.mp3');
+    }, 300);
   }
 
   private onAudioPlayerHide () {
-    this.audioPlayer.visible = false
+    this.audioPlayer.visible = false;
   }
 
   private onRouterBeforeEach () {
     this.pageLoadingId = setTimeout(() => {
-      this.pageLoading = true
-    }, 200)
+      this.pageLoading = true;
+    }, 200);
   }
 
   private onRouterAfterEach () {
-   clearTimeout(this.pageLoadingId)
-    this.pageLoading = false
+   clearTimeout(this.pageLoadingId);
+    this.pageLoading = false;
   }
 
   private onSSETacksChange () {
     this.$axios.get('/tasks/count/pending')
       .then((response) => {
-        this.$store.commit('profile/tasks_pending_number', response.data?.count || 0)
-    })
+        this.$store.commit('profile/tasks_pending_number', response.data?.count || 0);
+    });
   }
 
   private ifVisibleFocusHandler () {
-    console.error('Method ifVisibleFocusHandler not implemented.')
+    console.warn('Method ifVisibleFocusHandler not implemented.');
   }
 
   private ifVisibleBlurHandler() {
-    console.error('Method ifVisibleBlurHandler not implemented.')
+    console.warn('Method ifVisibleBlurHandler not implemented.');
   }
 }
 </script>
@@ -1682,7 +1680,6 @@ export default class DefaultLayout extends AppBase {
 
 .router-view-loading {
   display: block;
-  background: rgb(255,255,255);
   background: rgb(255,255,255);
   background: radial-gradient(circle, rgba(255,255,255,0.6699054621848739) 30%, rgba(255,255,255,0.6194852941176471) 51%, rgba(255,255,255,0) 70%);
   position: absolute;

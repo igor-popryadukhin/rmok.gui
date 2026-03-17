@@ -5,7 +5,7 @@
       style="max-width: 768px"
     >
       <v-sheet
-        height="400"
+        height="500"
         class="overflow-auto mb-3"
         outlined
       >
@@ -120,15 +120,15 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import StatusGroup from '@/api/interfaces/StatusGroup'
-import AppBase from '@/AppBase'
-import { loadLanguageAsync } from '@/plugins/i18n'
-import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
-import ProjectsTools from '@/views/Projects/ProjectsTools.vue'
-import StatusesEditDialog from '@/views/Projects/StatusesEditDialog.vue'
-import StatusesGroupEditDialog from './StatusesGroupEditDialog.vue'
-import Component from 'vue-class-component'
+import APIError from '@/api/classes/APIError';
+import StatusGroup from '@/api/interfaces/StatusGroup';
+import AppBase from '@/AppBase';
+import { loadLanguageAsync } from '@/plugins/i18n';
+import ProjectsItems from '@/views/Projects/ProjectsItems.vue';
+import ProjectsTools from '@/views/Projects/ProjectsTools.vue';
+import StatusesEditDialog from '@/views/Projects/StatusesEditDialog.vue';
+import StatusesGroupEditDialog from './StatusesGroupEditDialog.vue';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ProjectsViewStatuses>({
@@ -136,8 +136,8 @@ import Component from 'vue-class-component'
   beforeRouteEnter (to, from, next) {
     loadLanguageAsync('ru', 'messages')
       .finally(() => {
-        next()
-      })
+        next();
+      });
   }
 })
 export default class ProjectsViewStatuses extends AppBase {
@@ -161,41 +161,41 @@ export default class ProjectsViewStatuses extends AppBase {
   processLoadingStatusId = 0
 
   get statuses (): StatusGroup[] {
-    return this.$store.getters['projects/view/project_statuses']
+    return this.$store.getters['projects/view/project_statuses'];
   }
 
   set statuses (value: StatusGroup[]) {
-    this.$store.commit('projects/view/project_statuses', value)
+    this.$store.commit('projects/view/project_statuses', value);
   }
 
   private onBtnStatusDeleteClick (id: number) {
     this.$axios.delete(`/projects/statuses/${id}`)
       .then((response) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Changes accepted')
+        this.$toast.success('Changes accepted');
 
-        const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses))
+        const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses));
 
         for (let i = 0; i < statuses.length; i++) {
           for (let j = 0; j < statuses[i].children.length; j++) {
             if (statuses[i].children[j].id === id) {
-              statuses[i].children.splice(j, 1)
+              statuses[i].children.splice(j, 1);
             }
           }
         }
 
-        this.statuses = statuses
+        this.statuses = statuses;
       }).catch((reason) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         } else {
-          this.$toast.error(reason.message)
+          this.$toast.error(reason.message);
         }
-      })
+      });
   }
 
   /**
@@ -204,11 +204,11 @@ export default class ProjectsViewStatuses extends AppBase {
    * @private
    */
   private onBtnStatusAddClick (id: number) {
-    this.statusesDialog.status_id = 0
-    this.statusesDialog.group_id = id
-    this.statusesDialog.name = ''
-    this.statusesDialog.actions = []
-    this.statusesDialog.visible = true
+    this.statusesDialog.status_id = 0;
+    this.statusesDialog.group_id = id;
+    this.statusesDialog.name = '';
+    this.statusesDialog.actions = [];
+    this.statusesDialog.visible = true;
   }
 
   /**
@@ -217,80 +217,80 @@ export default class ProjectsViewStatuses extends AppBase {
    * @private
    */
   private onBtnStatusEditClick (id: number) {
-    const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses))
+    const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses));
 
-    let isBreak = false
+    let isBreak = false;
     for (let i = 0; i < statuses.length; i++) {
       for (let j = 0; j < statuses[i].children.length; j++) {
         if (id === statuses[i].children[j].id) {
-          this.statusesDialog.status_id = statuses[i].children[j].id
-          this.statusesDialog.name = statuses[i].children[j].name
-          this.statusesDialog.actions = statuses[i].children[j].actions
-          this.statusesDialog.visible = true
+          this.statusesDialog.status_id = statuses[i].children[j].id;
+          this.statusesDialog.name = statuses[i].children[j].name;
+          this.statusesDialog.actions = statuses[i].children[j].actions;
+          this.statusesDialog.visible = true;
 
-          isBreak = true
-          break
+          isBreak = true;
+          break;
         }
       }
       if (isBreak) {
-        break
+        break;
       }
     }
   }
 
   private onBtnStatusSaveDialogClick () {
-    this.statusesDialog.visible = false
+    this.statusesDialog.visible = false;
 
-    const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses))
+    const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses));
 
-    let statusGroupIndex = -1
-    let statusIndex = -1
-    let isBreak = false
+    let statusGroupIndex = -1;
+    let statusIndex = -1;
+    let isBreak = false;
     for (let i = 0; i < statuses.length; i++) {
       if (this.statusesDialog.group_id === statuses[i].id) {
-        statusGroupIndex = i
+        statusGroupIndex = i;
       }
       for (let j = 0; j < statuses[i].children.length; j++) {
         if (this.statusesDialog.status_id === statuses[i].children[j].id) {
-          statusGroupIndex = i
-          statusIndex = j
-          isBreak = true
-          break
+          statusGroupIndex = i;
+          statusIndex = j;
+          isBreak = true;
+          break;
         }
       }
       if (isBreak) {
-        break
+        break;
       }
     }
 
     if (statusGroupIndex > -1 && statusIndex > -1) {
-      statuses[statusGroupIndex].children[statusIndex].name = this.statusesDialog.name
-      statuses[statusGroupIndex].children[statusIndex].actions = this.statusesDialog.actions
+      statuses[statusGroupIndex].children[statusIndex].name = this.statusesDialog.name;
+      statuses[statusGroupIndex].children[statusIndex].actions = this.statusesDialog.actions;
 
-      this.statuses = statuses
+      this.statuses = statuses;
 
       this.$axios.patch(`/projects/statuses/${this.statusesDialog.status_id}`, {
         name: this.statusesDialog.name,
         actions: this.statusesDialog.actions
       }).then((response) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Changes accepted')
+        this.$toast.success('Changes accepted');
 
-        this.statusesDialog.group_id = 0
-        this.statusesDialog.status_id = 0
-        this.statusesDialog.name = ''
-        this.statusesDialog.actions = []
+        this.statusesDialog.group_id = 0;
+        this.statusesDialog.status_id = 0;
+        this.statusesDialog.name = '';
+        this.statusesDialog.actions = [];
       }).catch((reason) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         } else {
-          this.$toast.error(reason.message)
+          this.$toast.error(reason.message);
         }
-      })
+      });
     } else if (statusGroupIndex > -1) {
       // Создаю новый статус
       this.$axios.post('/projects/statuses', {
@@ -300,33 +300,33 @@ export default class ProjectsViewStatuses extends AppBase {
         project_id: +this.$route.params.id
       }).then((response) => {
         if (response.status !== 201) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Changes accepted')
+        this.$toast.success('Changes accepted');
 
         statuses[statusGroupIndex].children.push({
           id: +response.data.id,
           name: this.statusesDialog.name,
           actions: this.statusesDialog.actions
-        })
+        });
 
-        this.statuses = statuses
+        this.statuses = statuses;
 
-        this.statusesDialog.group_id = 0
-        this.statusesDialog.status_id = 0
-        this.statusesDialog.name = ''
-        this.statusesDialog.actions = []
+        this.statusesDialog.group_id = 0;
+        this.statusesDialog.status_id = 0;
+        this.statusesDialog.name = '';
+        this.statusesDialog.actions = [];
       }).catch((reason) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         } else {
-          this.$toast.error(reason.message)
+          this.$toast.error(reason.message);
         }
-      })
+      });
     } else {
-      this.$toast.error('An error occurred while saving the status')
+      this.$toast.error('An error occurred while saving the status');
     }
   }
 
@@ -334,43 +334,43 @@ export default class ProjectsViewStatuses extends AppBase {
     this.$axios.delete(`/projects/statuses/groups/${id}`)
       .then((response) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        this.$toast.success('Changes accepted')
+        this.$toast.success('Changes accepted');
 
-        const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses))
-        const index = statuses.findIndex((e) => e.id === id)
+        const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses));
+        const index = statuses.findIndex((e) => e.id === id);
         if (index > -1) {
-          statuses.splice(index, 1)
-          this.statuses = statuses
+          statuses.splice(index, 1);
+          this.statuses = statuses;
         }
       }).catch((reason) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         } else {
-          this.$toast.error(reason.message)
+          this.$toast.error(reason.message);
         }
-      })
+      });
   }
 
   private onBtnStatusGroupAddClick () {
-    this.statusesGroupDialog.id = 0
-    this.statusesGroupDialog.fields.name = ''
-    this.statusesGroupDialog.fields.color = ''
-    this.statusesGroupDialog.visible = true
+    this.statusesGroupDialog.id = 0;
+    this.statusesGroupDialog.fields.name = '';
+    this.statusesGroupDialog.fields.color = '';
+    this.statusesGroupDialog.visible = true;
   }
 
   private onBtnStatusGroupEditClick (id: number) {
-    const index = this.statuses.findIndex((e) => e.id === id)
+    const index = this.statuses.findIndex((e) => e.id === id);
     if (index > -1) {
-      const statusGroup = { ...this.statuses[index] }
-      this.statusesGroupDialog.id = id
-      this.statusesGroupDialog.fields.name = statusGroup.name
-      this.statusesGroupDialog.fields.color = statusGroup.color
+      const statusGroup = { ...this.statuses[index] };
+      this.statusesGroupDialog.id = id;
+      this.statusesGroupDialog.fields.name = statusGroup.name;
+      this.statusesGroupDialog.fields.color = statusGroup.color;
 
-      this.statusesGroupDialog.visible = true
+      this.statusesGroupDialog.visible = true;
     }
   }
 
@@ -381,17 +381,17 @@ export default class ProjectsViewStatuses extends AppBase {
    */
   private onBtnStatusGroupDialogSaveClick () {
     // Обязательно делаем копию
-    const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses))
+    const statuses: StatusGroup[] = JSON.parse(JSON.stringify(this.statuses));
 
     // Нахожу элемент группы статуса
-    const index = statuses.findIndex((e) => e.id === this.statusesGroupDialog.id)
+    const index = statuses.findIndex((e) => e.id === this.statusesGroupDialog.id);
 
     if (index > -1) {
-      statuses[index].name = this.statusesGroupDialog.fields.name
-      statuses[index].color = this.statusesGroupDialog.fields.color
+      statuses[index].name = this.statusesGroupDialog.fields.name;
+      statuses[index].color = this.statusesGroupDialog.fields.color;
 
       // Заменяю во Vuex
-      this.statuses = statuses
+      this.statuses = statuses;
 
       // Изменение старой
       this.$axios.patch(`/projects/statuses/groups/${this.statusesGroupDialog.id}`, {
@@ -399,22 +399,22 @@ export default class ProjectsViewStatuses extends AppBase {
       })
         .then((response) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          this.$toast.success('Changes accepted')
+          this.$toast.success('Changes accepted');
 
-          this.statusesGroupDialog.id = 0
-          this.statusesGroupDialog.fields.name = ''
-          this.statusesGroupDialog.fields.color = ''
+          this.statusesGroupDialog.id = 0;
+          this.statusesGroupDialog.fields.name = '';
+          this.statusesGroupDialog.fields.color = '';
         }).catch((reason) => {
           if (reason instanceof APIError) {
             reason.errors.forEach((e) => {
-              this.$toast.error(e.message)
-            })
+              this.$toast.error(e.message);
+            });
           } else {
-            this.$toast.error(reason.message)
+            this.$toast.error(reason.message);
           }
-        })
+        });
     } else {
       // Новая группа
       this.$axios.post('/projects/statuses/groups', {
@@ -422,7 +422,7 @@ export default class ProjectsViewStatuses extends AppBase {
         ...this.statusesGroupDialog.fields
       }).then((response) => {
         if (response.status !== 201) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
 
         statuses.push({
@@ -430,23 +430,23 @@ export default class ProjectsViewStatuses extends AppBase {
           name: this.statusesGroupDialog.fields.name,
           color: this.statusesGroupDialog.fields.color,
           children: []
-        })
+        });
 
         // Заменяю во Vuex
-        this.statuses = statuses
+        this.statuses = statuses;
 
-        this.statusesGroupDialog.id = 0
-        this.statusesGroupDialog.fields.name = ''
-        this.statusesGroupDialog.fields.color = ''
+        this.statusesGroupDialog.id = 0;
+        this.statusesGroupDialog.fields.name = '';
+        this.statusesGroupDialog.fields.color = '';
       }).catch((reason) => {
         if (reason instanceof APIError) {
           reason.errors.forEach((e) => {
-            this.$toast.error(e.message)
-          })
+            this.$toast.error(e.message);
+          });
         } else {
-          this.$toast.error(reason.message)
+          this.$toast.error(reason.message);
         }
-      })
+      });
     }
   }
 }

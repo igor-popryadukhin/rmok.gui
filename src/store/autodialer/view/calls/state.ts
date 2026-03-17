@@ -1,4 +1,4 @@
-import AutodialerCall from '@/api/interfaces/AutodialerCall'
+import AutodialerCall from '@/api/interfaces/AutodialerCall';
 
 export interface State {
   items: AutodialerCall[];
@@ -21,7 +21,7 @@ function defaultState (): State {
     items_selected: [],
 
     filter_offset: 0
-  }
+  };
 }
 
-export default defaultState
+export default defaultState;

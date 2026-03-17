@@ -1,6 +1,5 @@
-import integrations from './integrations'
-import messengers from './messengers'
-
+import integrations from './integrations';
+import messengers from './messengers';
 
 const chats = {
   namespaced: true,
@@ -8,6 +7,6 @@ const chats = {
     integrations,
     messengers
   }
-}
+};
 
-export default chats
+export default chats;

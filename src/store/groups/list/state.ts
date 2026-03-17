@@ -1,4 +1,4 @@
-import UserGroup from '@/api/interfaces/UserGroup'
+import UserGroup from '@/api/interfaces/UserGroup';
 
 export interface ProjectsListState {
   per_page: number;
@@ -13,9 +13,9 @@ export function defaultState (): ProjectsListState {
     total: 0,
     items_fetching: false,
     items: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

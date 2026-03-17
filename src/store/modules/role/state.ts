@@ -11,9 +11,9 @@ export function defaultState (): State {
     name: '',
     key: '',
     permissions: []
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
 const mixin = Vue.extend({
   props: {
@@ -11,6 +11,6 @@ const mixin = Vue.extend({
       default: false
     }
   }
-})
+});
 
-export default mixin
+export default mixin;

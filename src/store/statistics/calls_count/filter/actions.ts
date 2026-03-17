@@ -1,7 +1,7 @@
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { State } from './state'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { State } from './state';
 
-const actions: ActionTree<State, RootState> = {}
+const actions: ActionTree<State, RootState> = {};
 
-export default actions
+export default actions;

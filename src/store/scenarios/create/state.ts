@@ -7,7 +7,7 @@ function state (): State {
   return {
     name: '',
     scenario: ''
-  }
+  };
 }
 
-export default state
+export default state;

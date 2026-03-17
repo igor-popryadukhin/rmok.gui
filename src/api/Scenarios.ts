@@ -1,8 +1,8 @@
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import APIError from './classes/APIError'
-import ResponseInterface from './interfaces/ResponseInterface'
-import Scenario from './interfaces/Scenario'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import APIError from './classes/APIError';
+import ResponseInterface from './interfaces/ResponseInterface';
+import Scenario from './interfaces/Scenario';
 
 /**
  * Управление параметрами сценарий.
@@ -19,12 +19,12 @@ export default class Scenarios {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         } else {
-          resolve(response.data)
+          resolve(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 
   /**
@@ -36,12 +36,12 @@ export default class Scenarios {
       $axios.post('/scenarios', data)
         .then((response: AxiosResponse) => {
           if (response.status !== 201) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data.id)
+            resolve(response.data.id);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -54,12 +54,12 @@ export default class Scenarios {
       $axios.get(`/scenarios/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -73,12 +73,12 @@ export default class Scenarios {
       $axios.patch(`/scenarios/${id}`, data)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           } else {
-            resolve(response.data)
+            resolve(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -90,10 +90,10 @@ export default class Scenarios {
       $axios.delete(`/scenarios/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve()
-        }).catch(reject)
-    })
+          resolve();
+        }).catch(reject);
+    });
   }
 }

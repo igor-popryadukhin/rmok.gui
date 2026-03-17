@@ -1,5 +1,5 @@
-import User from '@/api/interfaces/User'
-import StatusGroup from '@/api/interfaces/StatusGroup'
+import User from '@/api/interfaces/User';
+import StatusGroup from '@/api/interfaces/StatusGroup';
 
 export interface State {
   id: number;
@@ -22,9 +22,9 @@ export function defaultState (): State {
     owner: undefined,
     scenario: '',
     statuses: []
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

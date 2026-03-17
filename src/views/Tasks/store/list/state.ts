@@ -1,4 +1,4 @@
-import Task from '@/api/interfaces/Task'
+import Task from '@/api/interfaces/Task';
 
 export interface TasksListState {
   loading: boolean;
@@ -17,9 +17,9 @@ export function defaultState (): TasksListState {
     items_fetching: false,
     items_total: 0,
     items: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

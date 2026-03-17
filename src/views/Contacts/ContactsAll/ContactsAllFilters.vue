@@ -169,7 +169,7 @@
     <smart-autocomplete
       v-model="timeZone"
       :label="$tc('Time zone')"
-      api-end-point="/handbooks/timezones"
+      api-end-point="/database/time-zones"
       :items="timeZone ? [timeZone] : []"
       item-text="name_local"
       item-value="id"
@@ -214,12 +214,12 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue';
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import debounce from '@/utils/debounce';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsAllFilters>({
@@ -228,76 +228,76 @@ import Component from 'vue-class-component'
 export default class ContactsAllFilters extends AppBase {
 
   // region Параметры запроса
-  get q () { return this.$store.getters['contacts/contacts_all/filter/filter_q'] }
-  set q (val) { this.$store.commit('contacts/contacts_all/filter/filter_q', val) }
+  get q () { return this.$store.getters['contacts/contacts_all/filter/filter_q']; }
+  set q (val) { this.$store.commit('contacts/contacts_all/filter/filter_q', val); }
 
   get project () {
     return this.$store.getters['contacts/contacts_all/filter/filter_project'] ||
-      this.$store.getters['profile/current_project']
+      this.$store.getters['profile/current_project'];
   }
   set project (val) {
-    this.$store.commit('contacts/contacts_all/filter/filter_project', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_project', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
-  get statuses () { return this.$store.getters['contacts/contacts_all/filter/filter_statuses'] }
+  get statuses () { return this.$store.getters['contacts/contacts_all/filter/filter_statuses']; }
   set statuses (val) {
-    this.$store.commit('contacts/contacts_all/filter/filter_statuses', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_statuses', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
-  get userGroup () { return this.$store.getters['contacts/contacts_all/filter/filter_user_group'] }
+  get userGroup () { return this.$store.getters['contacts/contacts_all/filter/filter_user_group']; }
   set userGroup (val) {
-    this.$store.commit('contacts/contacts_all/filter/filter_user_group', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_user_group', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
-  get user () { return this.$store.getters['contacts/contacts_all/filter/filter_owner'] }
+  get user () { return this.$store.getters['contacts/contacts_all/filter/filter_owner']; }
   set user (val) {
-    this.$store.commit('contacts/contacts_all/filter/filter_owner', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_owner', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
-  get task (): string { return this.$store.getters['contacts/contacts_all/filter/filter_task'] }
+  get task (): string { return this.$store.getters['contacts/contacts_all/filter/filter_task']; }
   set task (val: string) {
-    this.$store.commit('contacts/contacts_all/filter/filter_task', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_task', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
-  get called (): string { return this.$store.getters['contacts/contacts_all/filter/filter_called'] }
+  get called (): string { return this.$store.getters['contacts/contacts_all/filter/filter_called']; }
   set called (val: string) {
-    this.$store.commit('contacts/contacts_all/filter/filter_called', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_called', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
-  get tags () { return this.$store.getters['contacts/contacts_all/filter/filter_tags'] }
+  get tags () { return this.$store.getters['contacts/contacts_all/filter/filter_tags']; }
   set tags (val) {
-    this.$store.commit('contacts/contacts_all/filter/filter_tags', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_tags', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
-  get timeZone () { return this.$store.getters['contacts/contacts_all/filter/filter_timezone'] }
+  get timeZone () { return this.$store.getters['contacts/contacts_all/filter/filter_timezone']; }
   set timeZone (val) {
-    this.$store.commit('contacts/contacts_all/filter/filter_timezone', val)
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_timezone', val);
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
   get contactCreatedAt (): string[] {
     const dates = String(this.$store.getters['contacts/contacts_all/filter/filter_contact_created_at'] || '')
-      .split('|')
+      .split('|');
     if (dates.length === 2) {
-      return dates
+      return dates;
     }
-    return []
+    return [];
   }
 
   set contactCreatedAt (val: string[]) {
     if (Array.isArray(val) && val.length === 2) {
-      this.$store.commit('contacts/contacts_all/filter/filter_contact_created_at', val.join('|'))
-      this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+      this.$store.commit('contacts/contacts_all/filter/filter_contact_created_at', val.join('|'));
+      this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
     } else if (Array.isArray(val) && val.length === 0) {
-      this.$store.commit('contacts/contacts_all/filter/filter_contact_created_at', '')
-      this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+      this.$store.commit('contacts/contacts_all/filter/filter_contact_created_at', '');
+      this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
     }
   }
 
@@ -310,8 +310,8 @@ export default class ContactsAllFilters extends AppBase {
       return {
         value: e,
         text: this.$tc(`ContactsFilters.Tasks.${e}`)
-      }
-    })
+      };
+    });
   }
 
   get callingOptions () {
@@ -322,14 +322,14 @@ export default class ContactsAllFilters extends AppBase {
       return {
         value: e.value,
         text: this.$tc(e.text)
-      }
-    })
+      };
+    });
   }
   // endregion
 
   // region Обработчики жизненного цикла
   created () {
-    this.onFilterChange = debounce(this.onFilterChange, 350)
+    this.onFilterChange = debounce(this.onFilterChange, 350);
   }
 
   // endregion
@@ -341,7 +341,7 @@ export default class ContactsAllFilters extends AppBase {
    * @private
    */
   private onFilterChange () {
-    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0)
+    this.$store.commit('contacts/contacts_all/filter/filter_offset', 0);
   }
 
   /**
@@ -350,8 +350,8 @@ export default class ContactsAllFilters extends AppBase {
    */
   private onTagsChipClose (id: number) {
     this.tags = this.tags.filter((value) => {
-      return value.id !== id
-    })
+      return value.id !== id;
+    });
   }
 
   /**
@@ -360,13 +360,13 @@ export default class ContactsAllFilters extends AppBase {
    */
   private onStatusChipClose (id: number) {
     this.statuses = this.statuses.filter((value) => {
-      return value.id !== id
-    })
+      return value.id !== id;
+    });
   }
 
   private onContactCreatedAtBtnOkClick (value: string[]) {
     // @ts-expect-error: Contact created at
-    return this.$refs.contactCreatedAtMenu?.save(value)
+    return this.$refs.contactCreatedAtMenu?.save(value);
   }
   // endregion
 }

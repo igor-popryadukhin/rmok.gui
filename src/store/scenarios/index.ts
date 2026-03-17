@@ -1,8 +1,8 @@
-import { RootState } from '@/store'
-import { Module } from 'vuex'
-import list from './list'
-import view from './view'
-import create from './create'
+import { RootState } from '@/store';
+import { Module } from 'vuex';
+import list from './list';
+import view from './view';
+import create from './create';
 
 const module: Module<any, RootState> = {
   namespaced: true,
@@ -11,6 +11,6 @@ const module: Module<any, RootState> = {
     view,
     create
   }
-}
+};
 
-export default module
+export default module;

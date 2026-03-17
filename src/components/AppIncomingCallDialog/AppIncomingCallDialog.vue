@@ -34,8 +34,8 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import { Emit, Prop, Vue } from 'vue-property-decorator'
+import Component from 'vue-class-component';
+import { Emit, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class AppIncomingCallDialog extends Vue {
@@ -43,12 +43,12 @@ export default class AppIncomingCallDialog extends Vue {
 
   @Emit('click:btn:answer')
   clickBtnAnswer () {
-    return undefined
+    return undefined;
   }
 
   @Emit('click:btn:hangup')
   clickBtnHangup () {
-    return undefined
+    return undefined;
   }
 }
 </script>

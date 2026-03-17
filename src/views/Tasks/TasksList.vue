@@ -94,12 +94,12 @@
 </template>
 
 <script lang="ts">
-import Task from '@/api/interfaces/Task'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import Base from './Base'
+import Task from '@/api/interfaces/Task';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import Base from './Base';
 
-import Component from 'vue-class-component'
-import { Prop } from 'vue-property-decorator'
+import Component from 'vue-class-component';
+import { Prop } from 'vue-property-decorator';
 
 // eslint-disable-next-line no-use-before-define
 @Component<TasksList>({
@@ -112,16 +112,16 @@ import { Prop } from 'vue-property-decorator'
   },
   beforeRouteEnter (to, from, next) {
     next((vm) => {
-      vm.$store.dispatch(vm.getVuexModuleNamespace(to) + '/list/fetch')
-    })
+      vm.$store.dispatch(vm.getVuexModuleNamespace(to) + '/list/fetch');
+    });
   },
   beforeRouteUpdate (to, from, next) {
-    const isFetching = this.$store.getters[this.getVuexModuleNamespace(to) + '/list/items_fetching']
-    const isEmpty = (this.$store.getters[this.getVuexModuleNamespace(to) + '/list/items'] || []).length === 0
+    const isFetching = this.$store.getters[this.getVuexModuleNamespace(to) + '/list/items_fetching'];
+    const isEmpty = (this.$store.getters[this.getVuexModuleNamespace(to) + '/list/items'] || []).length === 0;
     if (isEmpty && !isFetching) {
-      this.$store.dispatch(this.getVuexModuleNamespace(to) + '/list/fetch')
+      this.$store.dispatch(this.getVuexModuleNamespace(to) + '/list/fetch');
     }
-    next()
+    next();
   }
 })
 export default class TasksList extends Base {
@@ -135,31 +135,31 @@ export default class TasksList extends Base {
    * Задачи
    */
   get items (): Task[] {
-    return this.$store.getters[this.getVuexModuleNamespace(this.$route) + '/list/items'] || []
+    return this.$store.getters[this.getVuexModuleNamespace(this.$route) + '/list/items'] || [];
   }
   get itemsTotal (): number {
-    return this.$store.getters[this.getVuexModuleNamespace(this.$route) + '/list/items_total']
+    return this.$store.getters[this.getVuexModuleNamespace(this.$route) + '/list/items_total'];
   }
 
   private onListItemClick (id: number) {
-    const task = this.items.find((e) => e.contact && e.id === id)
+    const task = this.items.find((e) => e.contact && e.id === id);
     if (task) {
       this.$router.push({
         name: 'contacts_view_tasks',
         params: {
           id: String(task.contact.id)
         }
-      })
+      });
     }
   }
 
   private taskTypeDisplay (type: string) {
     switch (type) {
-      case 'call': return 'Позвонить'
-      case 'task': return 'Задача'
-      case 'letter': return 'Написать письмо'
-      case 'meeting': return 'Встреча'
-      default: return ''
+      case 'call': return 'Позвонить';
+      case 'task': return 'Задача';
+      case 'letter': return 'Написать письмо';
+      case 'meeting': return 'Встреча';
+      default: return '';
     }
   }
 
@@ -169,19 +169,19 @@ export default class TasksList extends Base {
    * @private
    */
   private onBtnTaskItemCloseClick (id: number) {
-    this.tasksCloseProcessIds.push(id)
+    this.tasksCloseProcessIds.push(id);
     this.$axios.get(`/tasks/${id}/done`)
       .then((response) => {
         if (response.status === 200) {
-          this.$toast.success('The task is closed')
+          this.$toast.success('The task is closed');
         }
-      })
+      });
   }
 
   private onIntersect (entries, observer) {
-    this.isIntersecting = entries[0].isIntersecting
+    this.isIntersecting = entries[0].isIntersecting;
     if (this.isIntersecting) {
-      this.fetchTasks(true)
+      this.fetchTasks(true);
     }
   }
 }

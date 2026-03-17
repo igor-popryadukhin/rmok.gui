@@ -6,7 +6,7 @@ export interface ProjectState {
 function state (): ProjectState {
   return {
     scenario: ''
-  }
+  };
 }
 
-export default state
+export default state;

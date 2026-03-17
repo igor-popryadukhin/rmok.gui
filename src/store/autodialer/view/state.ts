@@ -1,4 +1,4 @@
-import Project from '@/api/interfaces/Project'
+import Project from '@/api/interfaces/Project';
 
 export interface State {
   id: number;
@@ -31,7 +31,7 @@ function state (): State {
     description: '',
     project: null,
     summary: []
-  }
+  };
 }
 
-export default state
+export default state;

@@ -1,10 +1,10 @@
-import { RootState } from '@/store'
-import { Module } from 'vuex'
-import state, { UsersViewState } from './state'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
-import sessions from './sessions'
+import { RootState } from '@/store';
+import { Module } from 'vuex';
+import state, { UsersViewState } from './state';
+import getters from './getters';
+import actions from './actions';
+import mutations from './mutations';
+import sessions from './sessions';
 
 const module: Module<UsersViewState, RootState> = {
   actions,
@@ -15,6 +15,6 @@ const module: Module<UsersViewState, RootState> = {
   modules: {
     sessions
   }
-}
+};
 
-export default module
+export default module;

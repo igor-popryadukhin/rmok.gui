@@ -1,4 +1,4 @@
-import StatusAction from './StatusAction'
+import StatusAction from './StatusAction';
 
 export default interface Status {
   id: number;

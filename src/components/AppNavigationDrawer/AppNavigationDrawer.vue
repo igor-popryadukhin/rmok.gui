@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import Vue from 'vue'
-import { Prop, VModel } from 'vue-property-decorator'
+import Component from 'vue-class-component';
+import Vue from 'vue';
+import { Prop, VModel } from 'vue-property-decorator';
 
 @Component
 export default class AppNavigationDrawer extends Vue {

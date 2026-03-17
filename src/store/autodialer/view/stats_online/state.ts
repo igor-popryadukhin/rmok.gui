@@ -5,7 +5,7 @@ export interface State {
 function state (): State {
   return {
     items: []
-  }
+  };
 }
 
-export default state
+export default state;

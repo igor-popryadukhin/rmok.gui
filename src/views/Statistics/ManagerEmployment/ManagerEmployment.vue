@@ -23,64 +23,63 @@
 </template>
 
 <script lang="ts">
-
-import AppChartBar from '@/components/AppChartBar/AppChartBar.vue'
-import $store from '@/store'
-import ManagerEmploymentFilters from '@/views/Statistics/ManagerEmployment/ManagerEmploymentFilters.vue'
-import ManagerEmploymentTools from '@/views/Statistics/ManagerEmployment/ManagerEmploymentTools.vue'
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import AppChartBar from '@/components/AppChartBar/AppChartBar.vue';
+import $store from '@/store';
+import ManagerEmploymentFilters from '@/views/Statistics/ManagerEmployment/ManagerEmploymentFilters.vue';
+import ManagerEmploymentTools from '@/views/Statistics/ManagerEmployment/ManagerEmploymentTools.vue';
+import Vue from 'vue';
+import Component from 'vue-class-component';
 
 @Component({
   components: { ManagerEmploymentTools, ManagerEmploymentFilters, AppChartBar },
   beforeRouteEnter (to, from, next) {
     $store.dispatch('statistics/manager_employment/fetch')
       .then(() => {
-        next()
-      })
+        next();
+      });
   }
 })
 export default class ManagerEmployment extends Vue {
   get types () {
-    return this.$store.getters['statistics/manager_employment/types']
+    return this.$store.getters['statistics/manager_employment/types'];
   }
 
   get series () {
-    const series = []
+    const series = [];
     this.$store.getters['statistics/manager_employment/items']
       .forEach((value: unknown & { series: any[]; }) => {
         value.series.forEach((value1: any) => {
-          const index = series.findIndex(v => v.name === value1.name)
+          const index = series.findIndex((value) => value.name === value1.name);
           if (index > -1) {
-            series[index].data.push(value1.seconds)
+            series[index].data.push(value1.seconds);
           } else {
             series.push({
               data: [value1.seconds],
               name: value1.name
-            })
+            });
           }
-        })
-      })
-    return series
+        });
+      });
+    return series;
   }
 
   get labels () {
-    return this.items.map((e) => e.user_full_name)
+    return this.items.map((e) => e.user_full_name);
   }
 
   get colors () {
-    return this.types.map((e) => e.color)
+    return this.types.map((e) => e.color);
   }
 
   get items () {
-    return (this.$store.getters['statistics/manager_employment/items'] || [])
+    return (this.$store.getters['statistics/manager_employment/items'] || []);
   }
 
   get apexchartHeight () {
     if (this.items.length < 10) {
-      return '100%'
+      return '100%';
     } else {
-      return `${this.items.length * 30}px`
+      return `${this.items.length * 30}px`;
     }
   }
 }

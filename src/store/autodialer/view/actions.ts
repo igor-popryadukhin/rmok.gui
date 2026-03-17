@@ -1,7 +1,7 @@
-import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
-import { State } from './state'
-import AutodialerParams from '@/api/AutodialerParams'
+import { RootState } from '@/store';
+import { ActionContext, ActionTree } from 'vuex';
+import { State } from './state';
+import AutodialerParams from '@/api/AutodialerParams';
 
 export const actions: ActionTree<State, RootState> = {
 
@@ -14,8 +14,8 @@ export const actions: ActionTree<State, RootState> = {
     return new AutodialerParams()
       .getById(id)
       .then((response) => {
-        ctx.commit('fill', response)
-      })
+        ctx.commit('fill', response);
+      });
   },
 
   /**
@@ -29,8 +29,8 @@ export const actions: ActionTree<State, RootState> = {
       max_calls_number: ctx.state.max_calls_number,
       mode: ctx.state.mode,
       description: ctx.state.description
-    }
-    return new AutodialerParams().edit(ctx.state.id, data)
+    };
+    return new AutodialerParams().edit(ctx.state.id, data);
   }
 
-}
+};

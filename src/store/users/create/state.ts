@@ -23,9 +23,9 @@ export function defaultState (): State {
     role_id: 0,
     group_id: 0,
     country_id: 0
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

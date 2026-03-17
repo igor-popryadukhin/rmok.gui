@@ -1,5 +1,5 @@
-import Contact from './Contact'
-import User from './User'
+import Contact from './Contact';
+import User from './User';
 
 export default interface Task {
   id: number;

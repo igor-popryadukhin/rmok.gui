@@ -282,16 +282,16 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import PBXConfiguration, { Credentials, RTCConfiguration, RTCIceServer } from '@/api/interfaces/PBXConfiguration'
-import AppBase from '@/AppBase'
-import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue'
-import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue'
-import { $axios } from '@/plugins/axios'
-import ProjectsItems from '@/views/Projects/ProjectsItems.vue'
-import ProjectsTools from '@/views/Projects/ProjectsTools.vue'
-import { AxiosResponse } from 'axios'
-import Component from 'vue-class-component'
+import APIError from '@/api/classes/APIError';
+import PBXConfiguration, { Credentials, RTCConfiguration, RTCIceServer } from '@/api/interfaces/PBXConfiguration';
+import AppBase from '@/AppBase';
+import AppConfirmDialog from '@/components/AppConfirmDialog/AppConfirmDialog.vue';
+import AppPellEditor from '@/components/AppPellEditor/AppPellEditor.vue';
+import { $axios } from '@/plugins/axios';
+import ProjectsItems from '@/views/Projects/ProjectsItems.vue';
+import ProjectsTools from '@/views/Projects/ProjectsTools.vue';
+import { AxiosResponse } from 'axios';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<UsersViewTelephony>({
@@ -307,107 +307,107 @@ export default class UsersViewTelephony extends AppBase {
   conservationProcess = false
   oldFormState = null
 
-  get pbxConfig (): PBXConfiguration { return this.$store.getters['users/view/user_pbx_configuration'] }
-  get credentials (): Credentials { return this.pbxConfig.credentials }
-  get rtcConfiguration (): RTCConfiguration { return this.pbxConfig.rtc_configuration }
+  get pbxConfig (): PBXConfiguration { return this.$store.getters['users/view/user_pbx_configuration']; }
+  get credentials (): Credentials { return this.pbxConfig.credentials; }
+  get rtcConfiguration (): RTCConfiguration { return this.pbxConfig.rtc_configuration; }
 
   // Параметры подключения
-  get credentialsDisplayName (): string { return this.credentials.display_name }
+  get credentialsDisplayName (): string { return this.credentials.display_name; }
   set credentialsDisplayName (val: string) {
     this.$store
       .commit('users/view/user_pbx_configuration_credentials', Object.assign(
         JSON.parse(JSON.stringify(this.credentials)), { display_name: val }
-      ))
+      ));
   }
 
-  get credentialsLogin (): string { return this.credentials.login }
+  get credentialsLogin (): string { return this.credentials.login; }
   set credentialsLogin (val: string) {
     this.$store
       .commit('users/view/user_pbx_configuration_credentials', Object.assign(
         JSON.parse(JSON.stringify(this.credentials)), { login: val }
-      ))
+      ));
   }
 
-  get credentialsPassword (): string { return this.credentials.password }
+  get credentialsPassword (): string { return this.credentials.password; }
   set credentialsPassword (val: string) {
     this.$store
       .commit('users/view/user_pbx_configuration_credentials', Object.assign(
         JSON.parse(JSON.stringify(this.credentials)), { password: val }
-      ))
+      ));
   }
 
-  get credentialsServer (): string { return this.credentials.server }
+  get credentialsServer (): string { return this.credentials.server; }
   set credentialsServer (val: string) {
     this.$store
       .commit('users/view/user_pbx_configuration_credentials', Object.assign(
         JSON.parse(JSON.stringify(this.credentials)), { server: val }
-      ))
+      ));
   }
 
-  get credentialsSchema (): string { return this.credentials.schema }
+  get credentialsSchema (): string { return this.credentials.schema; }
   set credentialsSchema (val: string) {
     this.$store
       .commit('users/view/user_pbx_configuration_credentials', Object.assign(
         JSON.parse(JSON.stringify(this.credentials)), { schema: val }
-      ))
+      ));
   }
 
-  get credentialsPort (): number { return this.credentials.port }
+  get credentialsPort (): number { return this.credentials.port; }
   set credentialsPort (val: number) {
     this.$store
       .commit('users/view/user_pbx_configuration_credentials', Object.assign(
         JSON.parse(JSON.stringify(this.credentials)), { port: val }
-      ))
+      ));
   }
   // Параметры подключения
 
   // ICE
-  get rtcBundlePolicy (): 'balanced' | 'max-bundle' | 'max-compat' { return this.rtcConfiguration.bundle_policy }
+  get rtcBundlePolicy (): 'balanced' | 'max-bundle' | 'max-compat' { return this.rtcConfiguration.bundle_policy; }
   set rtcBundlePolicy (val: 'balanced' | 'max-bundle' | 'max-compat') {
     this.$store
       .commit('users/view/user_pbx_configuration_rtc_configuration', Object.assign(
         JSON.parse(JSON.stringify(this.rtcConfiguration)), { bundle_policy: val }
-      ))
+      ));
   }
 
-  get rtcICETransportPolicy (): 'all' | 'relay' { return this.rtcConfiguration.ice_transport_policy }
+  get rtcICETransportPolicy (): 'all' | 'relay' { return this.rtcConfiguration.ice_transport_policy; }
   set rtcICETransportPolicy (val: 'all' | 'relay') {
     this.$store
       .commit('users/view/user_pbx_configuration_rtc_configuration', Object.assign(
         JSON.parse(JSON.stringify(this.rtcConfiguration)), { ice_transport_policy: val }
-      ))
+      ));
   }
 
-  get rtcICECandidatePoolSize (): number { return this.rtcConfiguration.ice_candidate_pool_size }
+  get rtcICECandidatePoolSize (): number { return this.rtcConfiguration.ice_candidate_pool_size; }
   set rtcICECandidatePoolSize (val: number) {
     this.$store
       .commit('users/view/user_pbx_configuration_rtc_configuration', Object.assign(
         JSON.parse(JSON.stringify(this.rtcConfiguration)), { ice_candidate_pool_size: val }
-      ))
+      ));
   }
 
-  get rtcMuxPolicy (): 'require' | undefined { return this.rtcConfiguration.rtcp_mux_policy }
+  get rtcMuxPolicy (): 'require' | undefined { return this.rtcConfiguration.rtcp_mux_policy; }
   set rtcMuxPolicy (val: 'require' | undefined) {
     this.$store
       .commit('users/view/user_pbx_configuration_rtc_configuration', Object.assign(
         JSON.parse(JSON.stringify(this.rtcConfiguration)), { rtcp_mux_policy: val }
-      ))
+      ));
   }
 
-  get rtcCandidateReadyTimeOut (): number { return this.rtcConfiguration.candidate_ready_timeout }
+  get rtcCandidateReadyTimeOut (): number { return this.rtcConfiguration.candidate_ready_timeout; }
   set rtcCandidateReadyTimeOut (val: number) {
     this.$store
       .commit('users/view/user_pbx_configuration_rtc_configuration', Object.assign(
         JSON.parse(JSON.stringify(this.rtcConfiguration)), { candidate_ready_timeout: +val }
-      ))
+      ));
   }
 
   // eslint-disable-next-line no-undef
-  get rtcICEServers (): RTCIceServer[] { return this.$store.getters['users/view/user_pbx_configuration_rtc_configuration_ice_servers'] }
+  get rtcICEServers (): RTCIceServer[] { return this.$store.getters['users/view/user_pbx_configuration_rtc_configuration_ice_servers']; }
   // ICE
 
   get isChanged () {
-    return this.oldFormState !== JSON.stringify(this.pbxConfig)
+    return this.oldFormState !== JSON.stringify(this.pbxConfig);
   }
 
   get schemas () {
@@ -420,37 +420,37 @@ export default class UsersViewTelephony extends AppBase {
         title: 'ws://',
         value: 'ws'
       }
-    ]
+    ];
   }
 
   public mounted () {
-    this.oldFormState = JSON.stringify(this.pbxConfig)
+    this.oldFormState = JSON.stringify(this.pbxConfig);
   }
 
   private onBtnSaveChangeClick () {
-    this.conservationProcess = true
+    this.conservationProcess = true;
     $axios.patch(`/users/${this.$route.params.id}`, {
       pbx_configuration: this.pbxConfig
     }).then((response: AxiosResponse) => {
       if (![200, 204].includes(response.status)) {
-        throw new APIError(response.data)
+        throw new APIError(response.data);
       }
 
-      this.oldFormState = JSON.stringify(this.pbxConfig)
-      this.$toast.success('Changes accepted')
+      this.oldFormState = JSON.stringify(this.pbxConfig);
+      this.$toast.success('Changes accepted');
     }).catch((reason) => {
       if (reason instanceof APIError) {
         reason.errors.forEach((e) => {
-          this.$toast.error(e.message)
-        })
+          this.$toast.error(e.message);
+        });
       } else {
-        this.$toast.error(reason.message)
+        this.$toast.error(reason.message);
       }
-    }).finally(() => (this.conservationProcess = false))
+    }).finally(() => (this.conservationProcess = false));
   }
 
   private onICEServerDialogSave (index: number, data) {
-    const iceServers = JSON.parse(JSON.stringify(this.rtcICEServers)) as RTCIceServer[]
+    const iceServers = JSON.parse(JSON.stringify(this.rtcICEServers)) as RTCIceServer[];
 
     if (index === -1) {
       iceServers.push({
@@ -458,32 +458,28 @@ export default class UsersViewTelephony extends AppBase {
         username: data.username,
         credential: data.credential,
         credential_type: 'password'
-      })
+      });
 
       this.$store
-        .commit('users/view/user_pbx_configuration_rtc_configuration_ice_servers', iceServers)
+        .commit('users/view/user_pbx_configuration_rtc_configuration_ice_servers', iceServers);
     } else {
-      iceServers[index].username = data.username
-      iceServers[index].urls = String(data.urls).split(',').map((e) => e.trim())
-      iceServers[index].credential = data.credential
+      iceServers[index].username = data.username;
+      iceServers[index].urls = String(data.urls).split(',').map((e) => e.trim());
+      iceServers[index].credential = data.credential;
 
       this.$store
-        .commit('users/view/user_pbx_configuration_rtc_configuration_ice_servers', iceServers)
+        .commit('users/view/user_pbx_configuration_rtc_configuration_ice_servers', iceServers);
     }
   }
 
-  /**
-   *
-   * @param index
-   */
   private deleteICEServer (index: number) {
     // eslint-disable-next-line no-undef
-    const iceServers = JSON.parse(JSON.stringify(this.rtcICEServers)) as RTCIceServer[]
+    const iceServers = JSON.parse(JSON.stringify(this.rtcICEServers)) as RTCIceServer[];
 
     if (typeof iceServers[index] !== 'undefined') {
-      iceServers.splice(index, 1)
+      iceServers.splice(index, 1);
       this.$store
-        .commit('users/view/user_pbx_configuration_rtc_configuration_ice_servers', iceServers)
+        .commit('users/view/user_pbx_configuration_rtc_configuration_ice_servers', iceServers);
     }
   }
 }

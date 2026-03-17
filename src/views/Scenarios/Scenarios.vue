@@ -79,14 +79,14 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import Scenario from '@/api/interfaces/Scenario'
-import { AxiosResponse } from 'axios'
-import Vue from 'vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
-import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
+import APIError from '@/api/classes/APIError';
+import Scenario from '@/api/interfaces/Scenario';
+import { AxiosResponse } from 'axios';
+import Vue from 'vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import debounce from '@/utils/debounce';
+import Component from 'vue-class-component';
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue';
 
 @Component({
   components: {
@@ -97,35 +97,35 @@ import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
 export default class ScenariosList extends Vue {
   processLoading = false
 
-  get items (): Scenario[] { return this.$store.getters['scenarios/list/items'] }
-  get scenariosTotal () { return this.$store.getters['scenarios/list/total'] }
-  get scenariosPerPage () { return this.$store.getters['scenarios/list/per_page'] }
+  get items (): Scenario[] { return this.$store.getters['scenarios/list/items']; }
+  get scenariosTotal () { return this.$store.getters['scenarios/list/total']; }
+  get scenariosPerPage () { return this.$store.getters['scenarios/list/per_page']; }
 
   // Фильтры
-  get offset (): number { return this.$store.getters['scenarios/list/filter_offset'] }
-  set offset (val: string|number) { this.$store.commit('scenarios/list/filter_offset', +val) }
+  get offset (): number { return this.$store.getters['scenarios/list/filter_offset']; }
+  set offset (val: string|number) { this.$store.commit('scenarios/list/filter_offset', +val); }
 
   get requestParameters () {
     return {
       count: this.scenariosPerPage,
       offset: this.offset
-    }
+    };
   }
 
   mounted () {
-    this.fetch = debounce(this.fetch, 500)
-    this.fetch()
+    this.fetch = debounce(this.fetch, 500);
+    this.fetch();
   }
 
   fetch () {
-    this.processLoading = true
+    this.processLoading = true;
     this.$store
       .dispatch('scenarios/list/fetch', this.requestParameters)
-      .finally(() => (this.processLoading = false))
+      .finally(() => (this.processLoading = false));
   }
 
   onBtnRefreshClick () {
-    this.fetch()
+    this.fetch();
   }
 
   onBtnCreateClick () {
@@ -142,30 +142,30 @@ export default class ScenariosList extends Vue {
           name: value
         }).then((response: AxiosResponse) => {
           if (response.status !== 201) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          this.$toast.success('Scenario created')
+          this.$toast.success('Scenario created');
           this.$router.push({
             name: 'scenarios_view',
             params: {
               id: String(response.data?.id)
             }
-          })
+          });
         }).catch((reason) => {
           if (reason instanceof APIError) {
             reason.errors.forEach((e) => {
-              this.$toast.error(e.message)
-            })
+              this.$toast.error(e.message);
+            });
           } else {
-            this.$toast.error(reason.message)
+            this.$toast.error(reason.message);
           }
-        })
+        });
       }
-    })
+    });
   }
 
   private onAppPaginationChange () {
-    this.fetch()
+    this.fetch();
   }
 }
 </script>

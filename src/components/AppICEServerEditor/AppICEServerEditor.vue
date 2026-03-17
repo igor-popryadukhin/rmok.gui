@@ -59,12 +59,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, PropSync } from 'vue-property-decorator'
-import Vuelidate, { validationMixin } from 'vuelidate'
-import { maxLength, required } from 'vuelidate/lib/validators'
-Vue.use(Vuelidate)
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, PropSync } from 'vue-property-decorator';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { maxLength, required } from 'vuelidate/lib/validators';
+Vue.use(Vuelidate);
 
 @Component({
   mixins: [validationMixin],
@@ -73,10 +73,10 @@ Vue.use(Vuelidate)
   },
   computed: {
     usernameSyncErrors () {
-      const errors = []
-      if (!this.$v.usernameSync.$dirty) return errors
-      !this.$v.usernameSync.maxLength && errors.push('User name must be at most 255 characters long')
-      return errors.map((e) => this.$tc(e))
+      const errors = [];
+      if (!this.$v.usernameSync.$dirty) return errors;
+      !this.$v.usernameSync.maxLength && errors.push('User name must be at most 255 characters long');
+      return errors.map((e) => this.$tc(e));
     }
   }
 })
@@ -87,12 +87,12 @@ export default class AppICEServerEditor extends Vue {
 
   @Emit('click:cancel')
   clickCancel () {
-    return undefined
+    return undefined;
   }
 
   @Emit('click:save')
   clickSave () {
-    return undefined
+    return undefined;
   }
 }
 </script>

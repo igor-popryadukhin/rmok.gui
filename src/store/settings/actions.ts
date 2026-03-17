@@ -1,8 +1,8 @@
 
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { SettingsStateInterface } from './state'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { SettingsStateInterface } from './state';
 
-const actions: ActionTree<SettingsStateInterface, RootState> = {}
+const actions: ActionTree<SettingsStateInterface, RootState> = {};
 
-export default actions
+export default actions;

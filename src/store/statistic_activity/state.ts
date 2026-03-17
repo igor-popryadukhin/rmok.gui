@@ -8,9 +8,9 @@ export function defaultState (): State {
   return {
     activity: [],
     types: []
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

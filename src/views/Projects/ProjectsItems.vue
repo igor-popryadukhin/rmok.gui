@@ -1,13 +1,13 @@
 <template>
   <v-sheet height="100%">
-    <template v-if="items.length === 0 && itemsFetching">
+    <template v-if="projectListItems.length === 0 && projectListItemsFetching">
       <div class="d-flex justify-center align-center fill-height">
         <div class="grey--text">
           <app-loading />
         </div>
       </div>
     </template>
-    <template v-else-if="items.length === 0 && itemsFetching === false">
+    <template v-else-if="projectListItems.length === 0 && projectListItemsFetching === false">
       <div class="d-flex align-center justify-center fill-height">
         <div class="grey--text">
           {{ $tc('Projects list is empty') }}
@@ -16,8 +16,11 @@
     </template>
     <template v-else>
       <v-list dense>
-        <template v-for="(item, itemKey) in items">
-          <v-list-item :key="`v-list-item-${itemKey}`">
+        <template v-for="(item, itemKey) in projectListItems">
+          <v-list-item
+            :key="`v-list-item-${itemKey}`"
+            link
+          >
             <v-list-item-content>
               <v-list-item-title>{{ item.name }}</v-list-item-title>
             </v-list-item-content>
@@ -54,22 +57,22 @@
 </template>
 
 <script lang="ts">
-import Project from '@/api/interfaces/Project'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import Component from 'vue-class-component'
-import { Emit } from 'vue-property-decorator'
+import Project from '@/api/interfaces/Project';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import Component from 'vue-class-component';
+import { Emit } from 'vue-property-decorator';
 
 @Component({
   components: { AppLoading }
 })
 export default class ProjectsItems extends AppBase {
-  get items (): Project[] { return this.$store.getters['projects/list/items'] }
-  get itemsFetching (): boolean { return this.$store.getters['projects/list/items_fetching'] }
+  get projectListItems (): Project[] { return this.$store.getters['projects/list/items']; }
+  get projectListItemsFetching (): boolean { return this.$store.getters['projects/list/items_fetching']; }
 
   @Emit('item:actions:click:edit')
   itemActionsClickEdit (id: number) {
-    return id
+    return id;
   }
 }
 </script>

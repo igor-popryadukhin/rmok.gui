@@ -122,10 +122,10 @@
 </template>
 
 <script lang="ts">
-import dayjs from '@/plugins/dayjs'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop, PropSync, Ref, VModel, Watch } from 'vue-property-decorator'
+import dayjs from '@/plugins/dayjs';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop, PropSync, Ref, VModel, Watch } from 'vue-property-decorator';
 
 @Component
 export default class TasksDialogEdit extends Vue {
@@ -141,7 +141,7 @@ export default class TasksDialogEdit extends Vue {
   @PropSync('dateTime', {
     default: () => '',
     validator (value: string): boolean {
-      return dayjs(value).isValid()
+      return dayjs(value).isValid();
     }
   }) dateTimeSync!: string
 
@@ -185,54 +185,54 @@ export default class TasksDialogEdit extends Vue {
   @Ref('menuDatePicker') menuDatePicker: Element
 
   get dateDisplay () {
-    return dayjs(this.dateTimeSync, this.formatDateTime).format(this.displayFormatDate)
+    return dayjs(this.dateTimeSync, this.formatDateTime).format(this.displayFormatDate);
   }
 
   get timeDisplay () {
-    return dayjs(this.dateTimeSync, this.formatDateTime).format(this.displayFormatTime)
+    return dayjs(this.dateTimeSync, this.formatDateTime).format(this.displayFormatTime);
   }
 
   @Watch('dateTimeSync')
   dateTimeSyncWatchHandler (val: string) {
     if (val) {
-      this.date = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatDate)
-      this.time = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatTime)
+      this.date = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatDate);
+      this.time = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatTime);
     }
   }
 
   @Watch('time')
   timeWatchHandler (val: string) {
     if (val) {
-      this.dateTimeSync = this.dateTimeSyncFormat(this.date, val)
+      this.dateTimeSync = this.dateTimeSyncFormat(this.date, val);
     }
   }
 
   @Watch('date')
   dateWatchHandler (val: string) {
     if (val) {
-      this.dateTimeSync = this.dateTimeSyncFormat(val, this.time)
+      this.dateTimeSync = this.dateTimeSyncFormat(val, this.time);
     }
   }
 
   @Emit('action:ok:click')
   okClickEmit () {
-    this.visible = false
-    return undefined
+    this.visible = false;
+    return undefined;
   }
 
   @Emit('action:cancel:click')
   cancelClickEmit () {
-    this.visible = false
-    return undefined
+    this.visible = false;
+    return undefined;
   }
 
   public created () {
-    this.date = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatDate)
-    this.time = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatTime)
+    this.date = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatDate);
+    this.time = dayjs(this.dateTimeSync, this.formatDateTime).format(this.formatTime);
   }
 
   private dateTimeSyncFormat (date: string, time: string) {
-    return dayjs(`${date}T${time}`, this.formatDateTime).format(this.formatDateTime)
+    return dayjs(`${date}T${time}`, this.formatDateTime).format(this.formatDateTime);
   }
 }
 

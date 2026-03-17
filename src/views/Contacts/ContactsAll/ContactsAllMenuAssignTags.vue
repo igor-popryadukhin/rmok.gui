@@ -128,15 +128,15 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import ContactTag from '@/api/interfaces/ContactTag'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import { $axios } from '@/plugins/axios'
-import debounce from '@/utils/debounce'
-import { AxiosResponse } from 'axios'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import APIError from '@/api/classes/APIError';
+import ContactTag from '@/api/interfaces/ContactTag';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import { $axios } from '@/plugins/axios';
+import debounce from '@/utils/debounce';
+import { AxiosResponse } from 'axios';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 
 @Component({
   components: { AppLoading }
@@ -155,60 +155,60 @@ export default class ContactsAllMenuAssignTags extends AppBase {
   get textSearchWords (): string[] {
     return (this.textSearch || '')
       .split(/\s+/s)
-      .filter((value) => !!value)
+      .filter((value) => !!value);
   }
 
-  get contactsListSelectedCount () { return (this.$store.getters['contacts/contacts_all/selected_count'] || []) }
-  get contactsListItemsSelected () { return this.$store.getters['contacts/contacts_all/items_selected'] || [] }
+  get contactsListSelectedCount () { return (this.$store.getters['contacts/contacts_all/selected_count'] || []); }
+  get contactsListItemsSelected () { return this.$store.getters['contacts/contacts_all/items_selected'] || []; }
   get contactFilter () {
-    const params: Record<string, unknown> = this.$store.getters['contacts/contacts_all/filter/all']
+    const params: Record<string, unknown> = this.$store.getters['contacts/contacts_all/filter/all'];
 
-    if ('offset' in params) { delete params.offset }
-    if ('count' in params) { delete params.count }
-    if ('order_by' in params) { delete params.order_by }
-    if ('order_direction' in params) { delete params.order_direction }
+    if ('offset' in params) { delete params.offset; }
+    if ('count' in params) { delete params.count; }
+    if ('order_by' in params) { delete params.order_by; }
+    if ('order_direction' in params) { delete params.order_direction; }
 
-    return params
+    return params;
   }
 
   @Watch('textSearch')
   textSearchWatchHandler (val: string|null) {
-    this.searchTagsInLocal(val || '')
+    this.searchTagsInLocal(val || '');
   }
 
   @Watch('menuVisible')
   menuVisibleWatchHandler (val: boolean) {
     if (val) {
-      this.searchTagsInLocal()
+      this.searchTagsInLocal();
     }
   }
 
   created () {
-    this.searchTagsInServer = debounce(this.searchTagsInServer, 350)
-    this.searchTagsInLocal = debounce(this.searchTagsInLocal, 350)
+    this.searchTagsInServer = debounce(this.searchTagsInServer, 350);
+    this.searchTagsInLocal = debounce(this.searchTagsInLocal, 350);
   }
 
   private onAssignTagClick () {
-    const request: Record<string, unknown> = {}
+    const request: Record<string, unknown> = {};
 
-    request.tag_ids = this.selected
+    request.tag_ids = this.selected;
 
-    this.assignProcess = true
+    this.assignProcess = true;
     this.$axios.post('/contacts/tags/set', {
       contact_ids: this.contactsListItemsSelected.map((e) => e.id),
       tag_ids: this.selected
     }).then((response: AxiosResponse) => {
       if (![200, 202].includes(response.status)) {
-        throw new APIError(response?.data)
+        throw new APIError(response?.data);
       }
-      this.$toast.success('Tags assigned')
-      this.$store.commit('contacts/contacts_all/items_selected', [])
+      this.$toast.success('Tags assigned');
+      this.$store.commit('contacts/contacts_all/items_selected', []);
     }).catch((reason: Error) => {
-      this.$toast.error(reason.message)
+      this.$toast.error(reason.message);
     }).finally(() => {
-      this.assignProcess = false
-      this.menuVisible = false
-    })
+      this.assignProcess = false;
+      this.menuVisible = false;
+    });
   }
 
   /**
@@ -218,35 +218,35 @@ export default class ContactsAllMenuAssignTags extends AppBase {
    * @private
    */
   private createTag (name: string) {
-    this.processOfCreation = true
+    this.processOfCreation = true;
     $axios.post('/contacts/tags', { name })
       .then((response: AxiosResponse) => {
         if (![200, 201].includes(response.status)) {
-          throw new APIError(response?.data || response.statusText)
+          throw new APIError(response?.data || response.statusText);
         }
-        this.$toast.success(this.$t('tag_added', { name }))
-        this.searchTagsInServer(name)
+        this.$toast.success(this.$t('tag_added', { name }));
+        this.searchTagsInServer(name);
       }).catch((reason: Error) => {
-        this.$toast.error(reason.message)
-      }).finally(() => (this.processOfCreation = false))
+        this.$toast.error(reason.message);
+      }).finally(() => (this.processOfCreation = false));
   }
 
   private searchTagsInServer (q: string) {
-    this.process = true
+    this.process = true;
     this.$axios.get('/contacts/tags', { params: { q, count: 10 } })
       .then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response?.data || response.statusText)
+          throw new APIError(response?.data || response.statusText);
         } else {
           (response.data?.data || []).forEach((value: any) => {
             if (this.tags.findIndex((e: any) => e.id === value.id) === -1) {
-              this.tags.push(value)
+              this.tags.push(value);
             }
-          })
+          });
 
-          this.filtered = response.data?.data || []
+          this.filtered = response.data?.data || [];
         }
-      }).finally(() => (this.process = false))
+      }).finally(() => (this.process = false));
   }
 
   /**
@@ -255,12 +255,12 @@ export default class ContactsAllMenuAssignTags extends AppBase {
    * @param q
    */
   private searchTagsInLocal (q = '') {
-    const found = this.tags.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1)
+    const found = this.tags.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1);
 
     if (found.length === 0) {
-      this.searchTagsInServer(q)
+      this.searchTagsInServer(q);
     } else {
-      this.filtered = found
+      this.filtered = found;
     }
   }
 
@@ -272,16 +272,16 @@ export default class ContactsAllMenuAssignTags extends AppBase {
    * @private
    */
   private highlight (text: string, words: string[], tag = 'span') {
-    let i
-    const len = words.length
-    let re
+    let i;
+    const len = words.length;
+    let re;
     for (i = 0; i < len; i++) {
-      re = new RegExp(words[i], 'gis')
+      re = new RegExp(words[i], 'gis');
       if (re.test(text)) {
-        text = text.replace(re, '<' + tag + ' class="highlight">$&</' + tag + '>')
+        text = text.replace(re, '<' + tag + ' class="highlight">$&</' + tag + '>');
       }
     }
-    return text
+    return text;
   }
 }
 </script>

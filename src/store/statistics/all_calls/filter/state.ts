@@ -1,9 +1,9 @@
-import ContactTag from '@/api/interfaces/ContactTag'
-import Project from '@/api/interfaces/Project'
-import Status from '@/api/interfaces/Status'
-import TimeZone from '@/api/interfaces/TimeZone'
-import User from '@/api/interfaces/User'
-import UserGroup from '@/api/interfaces/UserGroup'
+import ContactTag from '@/api/interfaces/ContactTag';
+import Project from '@/api/interfaces/Project';
+import Status from '@/api/interfaces/Status';
+import TimeZone from '@/api/interfaces/TimeZone';
+import User from '@/api/interfaces/User';
+import UserGroup from '@/api/interfaces/UserGroup';
 
 export interface State {
   /// /////////////////////////////////
@@ -38,7 +38,7 @@ export function defaultState (): State {
     order_by: '',
     order_direction: 'asc'
     /// /////////////////////////////////
-  }
+  };
 }
 
-export const state = defaultState
+export const state = defaultState;

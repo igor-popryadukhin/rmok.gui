@@ -1,8 +1,8 @@
-import APIError from '@/api/classes/APIError'
-import { AxiosResponse } from 'axios'
-import { Report } from './interfaces/Report'
-import { $axios } from '@/plugins/axios'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import APIError from '@/api/classes/APIError';
+import { AxiosResponse } from 'axios';
+import { Report } from './interfaces/Report';
+import { $axios } from '@/plugins/axios';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
 
 type ReportType = 'recent_calls' | 'all_calls'
 
@@ -21,11 +21,11 @@ export default class Reports {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        resolve(response.data)
-      }).catch(reject)
-    })
+        resolve(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -39,11 +39,11 @@ export default class Reports {
       $axios.post(`/reports/${type}`, params)
         .then((response: AxiosResponse) => {
           if (response.status !== 202) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -55,11 +55,11 @@ export default class Reports {
       $axios.delete(`/reports/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve()
-        }).catch(reject)
-    })
+          resolve();
+        }).catch(reject);
+    });
   }
 
   /**
@@ -72,24 +72,24 @@ export default class Reports {
       $axios.get(`/reports/${id}/download`, { responseType: 'blob' })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
 
-          const type = response.headers['content-type']
+          const type = response.headers['content-type'];
 
-          const a = document.createElement('a')
-          document.body.appendChild(a)
-          a.setAttribute('style', 'display: none')
-          const url = window.URL.createObjectURL(new Blob([response.data], { type }))
-          a.href = url
-          a.click()
+          const a = document.createElement('a');
+          document.body.appendChild(a);
+          a.setAttribute('style', 'display: none');
+          const url = window.URL.createObjectURL(new Blob([response.data], { type }));
+          a.href = url;
+          a.click();
           setTimeout(() => {
-            a.remove()
-          }, 1000)
+            a.remove();
+          }, 1000);
 
-          window.URL.revokeObjectURL(url)
-          resolve()
-        }).catch(reject)
-    })
+          window.URL.revokeObjectURL(url);
+          resolve();
+        }).catch(reject);
+    });
   }
 }

@@ -39,7 +39,7 @@ pipelines:
             - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
             - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
             - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
-            - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_MONITORING_ENDPOINT=$VUE_APP_MS_MONITORING_ENDPOINT" | tee -a ./.env
             - npm run build
 
       # Deploy for review
@@ -99,7 +99,7 @@ pipelines:
             - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
             - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
             - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
-            - echo "VUE_APP_MS_WS_ENDPOINT=$VUE_APP_MS_WS_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_MONITORING_ENDPOINT=$VUE_APP_MS_MONITORING_ENDPOINT" | tee -a ./.env
             - npm run build
 
       # Deploy for production

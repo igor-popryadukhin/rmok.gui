@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+echo "Building..."
+docker compose build
+
+echo "Up..."
+docker compose up -d
+
+
+echo "Copy node_modules from container to this host..."
+docker compose cp node:/home/node/app/node_modules ./
+
+sudo chown "$USER:$USER" -R ./node_modules
+
+echo "Done!"

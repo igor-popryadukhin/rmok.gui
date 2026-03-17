@@ -146,12 +146,12 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import { Watch } from 'vue-property-decorator'
+import Component from 'vue-class-component';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import { Watch } from 'vue-property-decorator';
 
 // eslint-disable-next-line no-use-before-define
 @Component<CallsProcessingRules>({
@@ -159,12 +159,12 @@ import { Watch } from 'vue-property-decorator'
   beforeRouteLeave (to, from, next) {
     if (this.isChanged) {
       if (this.$confirm()) {
-        next()
+        next();
       } else {
-        next(false)
+        next(false);
       }
     } else {
-      next()
+      next();
     }
   }
 })
@@ -179,20 +179,20 @@ export default class CallsProcessingRules extends AppBase {
    * Возможные варианты действий
    */
   get repeatCallsSettingsAvailableActions () {
-    return this.$store.getters['autodialer/view/calls_processing_rules_actions']
+    return this.$store.getters['autodialer/view/calls_processing_rules_actions'];
   }
 
   get repeatCallSettings () {
-    return this.$store.getters['autodialer/view/calls_processing_rules']
+    return this.$store.getters['autodialer/view/calls_processing_rules'];
   }
 
   @Watch('isChanged')
   isChangedWatchHandle (value: boolean) {
-    if (value) { this.$confirmBeforeunload() } else { this.$confirmBeforeunloadFlush() }
+    if (value) { this.$confirmBeforeunload(); } else { this.$confirmBeforeunloadFlush(); }
   }
 
   mounted () {
-    this.maximumAttempts = this.$store.getters['autodialer/view/maximum_attempts']
+    this.maximumAttempts = this.$store.getters['autodialer/view/maximum_attempts'];
 
     // Копирую в новый массив, это позволит открепиться от "vuex"
     this.statuses = this.repeatCallSettings.map((e) => {
@@ -203,11 +203,11 @@ export default class CallsProcessingRules extends AppBase {
         interval: e.interval,
         status_name: e.status_name,
         status_code: e.status_code
-      }
-    })
+      };
+    });
 
-    this.$watch('maximumAttempts', () => (this.isChanged = true))
-    this.$watch('statuses', () => (this.isChanged = true), { deep: true })
+    this.$watch('maximumAttempts', () => (this.isChanged = true));
+    this.$watch('statuses', () => (this.isChanged = true), { deep: true });
   }
 
   /**
@@ -216,7 +216,7 @@ export default class CallsProcessingRules extends AppBase {
    * @private
    */
   private onBtnSaveClick () {
-    this.processSave = true
+    this.processSave = true;
     $axios.patch(`/auto-dialers/${this.$route.params.id}`, {
       maximum_attempts: this.maximumAttempts,
       calls_processing_rules: this.statuses.map((e: Record<string, unknown>) => {
@@ -225,14 +225,14 @@ export default class CallsProcessingRules extends AppBase {
           action: e.action,
           attempts: e.attempts,
           interval: e.interval
-        }
+        };
       })
     }).then((response: AxiosResponse) => {
       if (response.status === 200) {
-        this.isChanged = false
-        this.$toast.success('Changes accepted')
+        this.isChanged = false;
+        this.$toast.success('Changes accepted');
       }
-    }).catch((e: Error) => (this.$toast.error(e.message))).finally(() => (this.processSave = false))
+    }).catch((e: Error) => (this.$toast.error(e.message))).finally(() => (this.processSave = false));
   }
 
   private async onBtnAddRuleClick () {

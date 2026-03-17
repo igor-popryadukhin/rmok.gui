@@ -10,9 +10,9 @@ export function defaultState (): State {
     history_offset: 0,
     total: 0,
     history: []
-  }
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

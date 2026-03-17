@@ -1,7 +1,7 @@
-import Projects, { ProjectInterface } from '@/api/Projects'
-import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
-import { ProjectState } from './state'
+import Projects, { ProjectInterface } from '@/api/Projects';
+import { RootState } from '@/store';
+import { ActionContext, ActionTree } from 'vuex';
+import { ProjectState } from './state';
 
 const actions: ActionTree<ProjectState, RootState> = {
 
@@ -20,10 +20,10 @@ const actions: ActionTree<ProjectState, RootState> = {
           scenario: response.scenario,
           statuses: response.statuses,
           created_at: response.created_at
-        })
+        });
       }).catch(() => {
-        ctx.commit('current', null)
-      })
+        ctx.commit('current', null);
+      });
   },
 
   /**
@@ -41,9 +41,9 @@ const actions: ActionTree<ProjectState, RootState> = {
             id: value?.id,
             name: value?.name,
             created_at: value?.created_at
-          }
-        }))
-      })
+          };
+        }));
+      });
   },
 
   /**
@@ -52,10 +52,10 @@ const actions: ActionTree<ProjectState, RootState> = {
    * @param ctx
    */
   clear (ctx: ActionContext<ProjectState, RootState>) {
-    ctx.commit('available', [])
-    ctx.commit('current', null)
+    ctx.commit('available', []);
+    ctx.commit('current', null);
   }
 
-}
+};
 
-export default actions
+export default actions;

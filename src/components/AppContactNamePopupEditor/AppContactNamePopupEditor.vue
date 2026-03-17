@@ -77,13 +77,13 @@
 
 <script lang="ts">
 
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop, Watch } from 'vue-property-decorator'
-import Vuelidate, { validationMixin } from 'vuelidate'
-import { required, maxLength } from 'vuelidate/lib/validators'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop, Watch } from 'vue-property-decorator';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { required, maxLength } from 'vuelidate/lib/validators';
 
-Vue.use(Vuelidate)
+Vue.use(Vuelidate);
 
 @Component({
   mixins: [validationMixin],
@@ -96,27 +96,27 @@ Vue.use(Vuelidate)
   },
   computed: {
     fieldFirstNameErrors () {
-      const errors = []
+      const errors = [];
 
-      if (!this.$v.form.first_name.$dirty) return errors
-      !this.$v.form.first_name.maxLength && errors.push('First name must be at most 255 characters long.')
-      !this.$v.form.first_name.required && errors.push('First name is required.')
-      return errors.map((e) => this.$tc(e))
+      if (!this.$v.form.first_name.$dirty) return errors;
+      !this.$v.form.first_name.maxLength && errors.push('First name must be at most 255 characters long.');
+      !this.$v.form.first_name.required && errors.push('First name is required.');
+      return errors.map((e) => this.$tc(e));
     },
     fieldLastNameErrors () {
-      const errors = []
+      const errors = [];
 
-      if (!this.$v.form.last_name.$dirty) return errors
-      !this.$v.form.last_name.maxLength && errors.push('Last name must be at most 255 characters long.')
-      !this.$v.form.last_name.required && errors.push('Last name is required.')
-      return errors.map((e) => this.$tc(e))
+      if (!this.$v.form.last_name.$dirty) return errors;
+      !this.$v.form.last_name.maxLength && errors.push('Last name must be at most 255 characters long.');
+      !this.$v.form.last_name.required && errors.push('Last name is required.');
+      return errors.map((e) => this.$tc(e));
     },
     fieldMiddleNameErrors () {
-      const errors = []
+      const errors = [];
 
-      if (!this.$v.form.middle_name.$dirty) return errors
-      !this.$v.form.middle_name.maxLength && errors.push('Middle name must be at most 255 characters long.')
-      return errors.map((e) => this.$tc(e))
+      if (!this.$v.form.middle_name.$dirty) return errors;
+      !this.$v.form.middle_name.maxLength && errors.push('Middle name must be at most 255 characters long.');
+      return errors.map((e) => this.$tc(e));
     }
   }
 })
@@ -138,40 +138,40 @@ export default class AppContactNamePopupEditor extends Vue {
   }
 
   get newFrom () {
-    return this.form
+    return this.form;
   }
 
   get isEditable() {
-    return JSON.stringify(this.form) === JSON.stringify(this.newFrom)
+    return JSON.stringify(this.form) === JSON.stringify(this.newFrom);
   }
 
   @Emit('click:btn:cancel')
   private clickBtnCancel () {
     for(const k in this.oldForm) this.form[k]=this.oldForm[k];
-    return
+    return;
   }
 
   @Emit('click:btn:save')
   private clickBtnSave () {
-    this.menuVisible = false
-    return { ...this.form }
+    this.menuVisible = false;
+    return { ...this.form };
   }
 
   @Watch('menuVisible')
   private menuVisibleWatch(value: boolean) {
     if (value) {
-      this.readProps()
+      this.readProps();
     }
   }
 
   public created () {
-    this.readProps()
+    this.readProps();
   }
 
   private readProps () {
-    this.form.first_name = this.firstName
-    this.form.last_name = this.lastName
-    this.form.middle_name = this.middleName
+    this.form.first_name = this.firstName;
+    this.form.last_name = this.lastName;
+    this.form.middle_name = this.middleName;
 
     for(const k in this.form) this.oldForm[k]=this.form[k];
   }

@@ -28,22 +28,22 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
-import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
-import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue'
-import AppSummary from '@/components/AppSummary/AppSummary.vue'
-import Vue from 'vue'
-import VueApexCharts from 'vue-apexcharts'
-import Component from 'vue-class-component'
-import CallsCountFilters from './CallsCountFilters.vue'
-import CallsCountTools from './CallsCountTools.vue'
+import AppBase from '@/AppBase';
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue';
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue';
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue';
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppNavigationDrawer from '@/components/AppNavigationDrawer/AppNavigationDrawer.vue';
+import AppSummary from '@/components/AppSummary/AppSummary.vue';
+import Vue from 'vue';
+import VueApexCharts from 'vue-apexcharts';
+import Component from 'vue-class-component';
+import CallsCountFilters from './CallsCountFilters.vue';
+import CallsCountTools from './CallsCountTools.vue';
 
-Vue.use(VueApexCharts)
-Vue.component('Apexchart', VueApexCharts)
+Vue.use(VueApexCharts);
+Vue.component('Apexchart', VueApexCharts);
 
 // eslint-disable-next-line no-use-before-define
 @Component<CallsCount>({
@@ -63,15 +63,15 @@ export default class CallsCount extends AppBase {
   isFetchStatistic = false
 
   get settingsFilterWidth (): number {
-    return this.$store.getters['statistics/calls_count/settings/filter_width']
+    return this.$store.getters['statistics/calls_count/settings/filter_width'];
   }
 
   set settingsFilterWidth (val: number) {
-    this.$store.commit('statistics/calls_count/settings/filter_width', val)
+    this.$store.commit('statistics/calls_count/settings/filter_width', val);
   }
 
   get items () {
-    return (this.$store.getters['statistics/calls_count/items'] || [])
+    return (this.$store.getters['statistics/calls_count/items'] || []);
   }
 
   // Данные круговой диаграммы
@@ -83,17 +83,17 @@ export default class CallsCount extends AppBase {
             return {
               x: e.name,
               y: e.total
-            }
+            };
           })
       }
-    ]
+    ];
   }
 
   get apexchartHeight () {
     if (this.items.length < 10) {
-      return '100%'
+      return '100%';
     } else {
-      return `${this.items.length * 30}px`
+      return `${this.items.length * 30}px`;
     }
   }
 
@@ -149,23 +149,23 @@ export default class CallsCount extends AppBase {
           options: {}
         }
       ]
-    }
+    };
   }
 
   public mounted () {
-    this.fetchStatistic()
+    this.fetchStatistic();
   }
 
   private async fetchStatistic () {
-    this.isFetchStatistic = true
+    this.isFetchStatistic = true;
     this.$store.dispatch('statistics/calls_count/fetch')
       .finally(() => {
-        this.isFetchStatistic = false
-      })
+        this.isFetchStatistic = false;
+      });
   }
 
   private onFilterChange () {
-    this.fetchStatistic()
+    this.fetchStatistic();
   }
 }
 </script>

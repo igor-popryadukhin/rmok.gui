@@ -108,15 +108,15 @@
 </template>
 
 <script lang="ts">
-import Task from '@/api/interfaces/Task'
-import AppBase from '@/AppBase'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import dayjs from '@/plugins/dayjs'
-import $store from '@/store'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
+import Task from '@/api/interfaces/Task';
+import AppBase from '@/AppBase';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import dayjs from '@/plugins/dayjs';
+import $store from '@/store';
+import debounce from '@/utils/debounce';
+import Component from 'vue-class-component';
 
-const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
+const dateTimeFormat = 'YYYY-MM-DDTHH:mm';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsViewTasks>({
@@ -133,11 +133,11 @@ const dateTimeFormat = 'YYYY-MM-DDTHH:mm'
   },
   beforeRouteEnter (to, from, next) {
     $store.dispatch('contacts/view/tasks/fetch', to.params.id)
-    .finally(() => (next()))
+    .finally(() => (next()));
   },
   beforeRouteUpdate (to, from, next) {
     $store.dispatch('contacts/view/tasks/fetch', to.params.id)
-      .finally(() => (next()))
+      .finally(() => (next()));
   }
 })
 export default class ContactsViewTasks extends AppBase {
@@ -152,48 +152,48 @@ export default class ContactsViewTasks extends AppBase {
   }
 
   get itemsFetching (): boolean {
-    return this.$store.getters['contacts/view/tasks/items_fetching']
+    return this.$store.getters['contacts/view/tasks/items_fetching'];
   }
 
   get items (): Task[] {
-    return this.$store.getters['contacts/view/tasks/items']
+    return this.$store.getters['contacts/view/tasks/items'];
   }
 
   public created () {
-    this.onSSETasksChanged = debounce(this.onSSETasksChanged, 3000)
-    this.$root.$on('sse:tasks:changed', this.onSSETasksChanged)
+    this.onSSETasksChanged = debounce(this.onSSETasksChanged, 3000);
+    this.$root.$on('sse:tasks:changed', this.onSSETasksChanged);
   }
 
   public beforeDestroy () {
-    this.$root.$off('sse:tasks:changed', this.onSSETasksChanged)
+    this.$root.$off('sse:tasks:changed', this.onSSETasksChanged);
   }
 
   private onSSETasksChanged () {
-    this.fetchTasks()
+    this.fetchTasks();
   }
 
   private fetchTasks () {
-    this.$store.dispatch('contacts/view/tasks/fetch', this.$route.params.id)
+    this.$store.dispatch('contacts/view/tasks/fetch', this.$route.params.id);
   }
 
   private taskTypeDisplay (type: string) {
     switch (type) {
-      case 'call': return 'Позвонить'
-      case 'task': return 'Задача'
-      case 'letter': return 'Написать письмо'
-      case 'meeting': return 'Встреча'
-      default: return ''
+      case 'call': return 'Позвонить';
+      case 'task': return 'Задача';
+      case 'letter': return 'Написать письмо';
+      case 'meeting': return 'Встреча';
+      default: return '';
     }
   }
 
   private onBtnTaskItemEditClick (id: number) {
-    const task = this.items.find(e => e.id === id)
+    const task = this.items.find(e => e.id === id);
     if (task) {
-      this.taskDialog.id = task.id
-      this.taskDialog.type = task.type
-      this.taskDialog.description = task.description
-      this.taskDialog.dateTime = this.$dayjs(task.planned_for).format(dateTimeFormat)
-      this.taskDialogVisible = true
+      this.taskDialog.id = task.id;
+      this.taskDialog.type = task.type;
+      this.taskDialog.description = task.description;
+      this.taskDialog.dateTime = this.$dayjs(task.planned_for).format(dateTimeFormat);
+      this.taskDialogVisible = true;
     }
   }
 
@@ -204,19 +204,19 @@ export default class ContactsViewTasks extends AppBase {
       planned_for: this.$dayjs(this.taskDialog.dateTime, dateTimeFormat).toISOString()
     }).then((response) => {
       if (response.status === 200) {
-        this.$toast.success('The task is update')
+        this.$toast.success('The task is update');
       }
-    })
+    });
   }
 
   private onBtnTaskItemCloseClick (id: number) {
-    this.tasksCloseProcessIds.push(id)
+    this.tasksCloseProcessIds.push(id);
     this.$axios.get(`/tasks/${id}/done`)
       .then((response) => {
         if (response.status === 200) {
-          this.$toast.success('The task is closed')
+          this.$toast.success('The task is closed');
         }
-      })
+      });
   }
 }
 

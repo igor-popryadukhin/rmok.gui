@@ -1,35 +1,35 @@
-import Home from '@/views/Home.vue'
-import Vue from 'vue'
-import VueRouter, { Route, RouteConfig } from 'vue-router'
-import { NavigationGuardNext } from 'vue-router/types/router'
-import { Store } from 'vuex'
-import $store from '@/store'
-import bootstrap from '@/middleware/bootstrap'
+import Home from '@/views/Home.vue';
+import Vue from 'vue';
+import VueRouter, { Route, RouteConfig } from 'vue-router';
+import { NavigationGuardNext } from 'vue-router/types/router';
+import { Store } from 'vuex';
+import $store from '@/store';
+import bootstrap from '@/middleware/bootstrap';
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 function isGranted (value: string | string[]): boolean {
   if (Array.isArray(value)) {
-    let granted = false
+    let granted = false;
 
     for (const role1 of $store.getters['profile/roles']) {
       for (const role2 of value) {
         if (!granted) {
-          granted = role1 === role2
+          granted = role1 === role2;
         }
       }
     }
 
-    return granted
+    return granted;
   }
 }
 
-const originPush = VueRouter.prototype.push
+const originPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push (location) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  return originPush.call(this, location).catch((error) => error)
-}
+  return originPush.call(this, location).catch((error) => error);
+};
 
 const routes: RouteConfig[] = [
   {
@@ -104,9 +104,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -192,9 +192,9 @@ const routes: RouteConfig[] = [
     ],
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -301,9 +301,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -314,9 +314,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -360,9 +360,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -473,7 +473,7 @@ const routes: RouteConfig[] = [
     },
     children: [
       {
-        component: () => import(/* webpackChunkName: "settings-profile" */ '../views/Settings/Profile.vue'),
+        component: () => import(/* webpackChunkName: "settings-profile" */ '../views/Settings/Profile/Profile.vue'),
         meta: {
           icon: 'mdi-account-circle-outline',
           layout: 'default',
@@ -562,9 +562,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -582,16 +582,16 @@ const routes: RouteConfig[] = [
         meta: { layout: 'default', middleware: [bootstrap] }
       },
       {
-        name: 'projects_view_people',
-        path: 'people',
-        component: () => import(/* webpackChunkName: "projects-view-people" */ '../views/Projects/ProjectsViewPeople.vue'),
+        name: 'projects_view_members',
+        path: 'members',
+        component: () => import(/* webpackChunkName: "projects-view-members" */ '../views/Projects/ProjectsViewMembers.vue'),
         children: [],
         meta: { layout: 'default', middleware: [bootstrap] }
       },
       {
         name: 'projects_view_statuses',
         path: 'statuses',
-        component: () => import(/* webpackChunkName: "projects-view-people" */ '../views/Projects/ProjectsViewStatuses.vue'),
+        component: () => import(/* webpackChunkName: "projects-view-members" */ '../views/Projects/ProjectsViewStatuses.vue'),
         children: [],
         meta: { layout: 'default', middleware: [bootstrap] }
       }
@@ -599,9 +599,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -625,9 +625,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -638,9 +638,9 @@ const routes: RouteConfig[] = [
     meta: { layout: 'default', middleware: [bootstrap] },
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   },
@@ -673,9 +673,9 @@ const routes: RouteConfig[] = [
     children: [],
     beforeEnter (to, from, next) {
       if (isGranted(['ROLE_ADMIN', 'ROLE_CCM'])) {
-        next()
+        next();
       } else {
-        next({ name: 'access_denied' })
+        next({ name: 'access_denied' });
       }
     }
   }
@@ -693,7 +693,7 @@ const routes: RouteConfig[] = [
   //   meta: { layout: 'default', middleware: [auth] },
   //   children: []
   // }
-]
+];
 
 // Symfony profiler
 if (process.env.NODE_ENV === 'development') {
@@ -706,7 +706,7 @@ if (process.env.NODE_ENV === 'development') {
     },
     name: 'symfony_profiler',
     path: '/_profiler'
-  })
+  });
   routes.push({
     component: () => import(/* webpackChunkName: "symfony-profiler-list" */ '../views/Development/Index.vue'),
     meta: {
@@ -716,7 +716,7 @@ if (process.env.NODE_ENV === 'development') {
     },
     name: 'development',
     path: '/development'
-  })
+  });
 }
 
 const $router = new VueRouter({
@@ -731,19 +731,19 @@ const $router = new VueRouter({
           resolve({
             selector: to.hash,
             behavior: 'smooth'
-          })
+          });
         } else {
           // До самого верха
           resolve({
             x: 0,
             y: 0,
             behavior: 'smooth'
-          })
+          });
         }
-      }, 500)
-    })
+      }, 500);
+    });
   }
-})
+});
 
 export interface MiddlewareContextInterface {
   to: Route;
@@ -754,23 +754,23 @@ export interface MiddlewareContextInterface {
 
 $router.beforeEach((to: Route, from: Route, next: NavigationGuardNext) => {
   if (!to.meta.middleware) {
-    return next()
+    return next();
   }
 
   if (to.meta.middleware.length === 0) {
-    return next()
+    return next();
   }
 
-  const middleware = to.meta.middleware
+  const middleware = to.meta.middleware;
   const context: MiddlewareContextInterface = {
     store: $store,
     from,
     next,
     to
-  }
+  };
   return middleware[0]({
     ...context
-  })
-})
+  });
+});
 
-export default $router
+export default $router;

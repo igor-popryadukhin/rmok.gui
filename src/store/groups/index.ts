@@ -1,5 +1,5 @@
-import view from './view'
-import list from './list'
+import view from './view';
+import list from './list';
 
 const project = {
   namespaced: true,
@@ -7,6 +7,6 @@ const project = {
     list,
     view
   }
-}
+};
 
-export default project
+export default project;

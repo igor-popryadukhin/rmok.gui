@@ -46,14 +46,14 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { VModel } from 'vue-property-decorator'
-import Vuelidate, { validationMixin } from 'vuelidate'
-import { maxLength, required } from 'vuelidate/lib/validators'
+import AppBase from '@/AppBase';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { VModel } from 'vue-property-decorator';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { maxLength, required } from 'vuelidate/lib/validators';
 
-Vue.use(Vuelidate)
+Vue.use(Vuelidate);
 
 // eslint-disable-next-line no-use-before-define
 @Component<ActionAutoTask>({
@@ -73,7 +73,7 @@ export default class ActionAutoTask extends AppBase {
         unit: 'hour',
         value: 1,
         description: null
-      }
+      };
     }
   }) payload: Record<string, Record<string, unknown>>
 
@@ -95,11 +95,11 @@ export default class ActionAutoTask extends AppBase {
         title: 'Письмо',
         value: 'letter'
       }
-    ]
+    ];
   }
 
   get unitOptions () {
-    return ['day', 'hour', 'minute', 'second']
+    return ['day', 'hour', 'minute', 'second'];
   }
 }
 </script>

@@ -10,9 +10,9 @@ export function defaultState (): State {
     items_fetching: false,
     types: [],
     items: []
-  }
+  };
 }
 
-const state = defaultState
+const state = defaultState;
 
-export default state
+export default state;

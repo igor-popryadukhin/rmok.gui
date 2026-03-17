@@ -135,9 +135,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, PropSync, Watch } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, PropSync, Watch } from 'vue-property-decorator';
 
 @Component
 export default class AppAudioPlayer extends Vue {
@@ -160,85 +160,85 @@ export default class AppAudioPlayer extends Vue {
   get breakpointWidth () {
     switch (this.$vuetify.breakpoint.name) {
       case 'xs':
-        return '100%'
+        return '100%';
       case 'sm':
-        return '100%'
+        return '100%';
       case 'md':
-        return '70%'
+        return '70%';
       case 'lg':
-        return '60%'
+        return '60%';
       case 'xl':
-        return '50%'
+        return '50%';
 
       default:
-        return '100%'
+        return '100%';
     }
   }
 
   @Watch('volumeSync')
   volumeSyncWatch (value: number) {
-    this.audioPlayerVolume = value
+    this.audioPlayerVolume = value;
   }
 
   @Watch('audioPlayerVolume')
   audioPlayerVolumeWatch (value: number) {
-    this.volumeSync = value
-    this.audioPlayer.volume = value
+    this.volumeSync = value;
+    this.audioPlayer.volume = value;
   }
 
   @Watch('visibleSync')
   srcVolumeWatch (value: boolean) {
     if (value) {
-      this.play()
+      this.play();
     }
   }
 
   public created () {
-    this.audioPlayerVolume = this.volumeSync
+    this.audioPlayerVolume = this.volumeSync;
   }
 
   public mounted () {
-    this.initializePlayer()
+    this.initializePlayer();
   }
 
   private tc (name: string) {
-    return this?.$tc(name) || name
+    return this?.$tc(name) || name;
   }
 
   private backward () {
-    this.audioPlayer.currentTime = 0.0
+    this.audioPlayer.currentTime = 0.0;
   }
 
   private play () {
-    this.setSpeedNormal()
-    this.audioPlayer.src = this.src
-    this.paused = false
-    this.audioPlayer.play()
+    this.setSpeedNormal();
+    this.audioPlayer.src = this.src;
+    this.paused = false;
+    this.audioPlayer.play();
   }
 
   private pause () {
-    this.paused = true
-    this.audioPlayer.pause()
+    this.paused = true;
+    this.audioPlayer.pause();
   }
 
   private stop () {
-    this.audioPlayer.pause()
-    this.progress = 0.0
-    this.audioPlayer.currentTime = 0.0
-    this.paused = this.audioPlayer.paused
+    this.audioPlayer.pause();
+    this.progress = 0.0;
+    this.audioPlayer.currentTime = 0.0;
+    this.paused = this.audioPlayer.paused;
   }
 
   private show () {
-    this.visibleSync = true
+    this.visibleSync = true;
   }
 
   private hide () {
-    this.visibleSync = false
+    this.visibleSync = false;
   }
 
   private close () {
-    this.stop()
-    this.hide()
+    this.stop();
+    this.hide();
   }
 
   /**
@@ -246,87 +246,87 @@ export default class AppAudioPlayer extends Vue {
    * @param progress
    */
   private onProgressClick (progress: number) {
-    this.audioPlayer.currentTime = (progress * this.audioPlayer.duration) / 100
+    this.audioPlayer.currentTime = (progress * this.audioPlayer.duration) / 100;
   }
 
   private onSpeedClick () {
     switch (this.stateSpeed) {
       case 'x1': {
-        this.audioPlayer.playbackRate = 1.5
-        this.stateSpeed = 'x2'
-        this.stateSpeedIcon = 'mdi-numeric-2-circle-outline'
-        break
+        this.audioPlayer.playbackRate = 1.5;
+        this.stateSpeed = 'x2';
+        this.stateSpeedIcon = 'mdi-numeric-2-circle-outline';
+        break;
       }
 
       case 'x2': {
-        this.audioPlayer.playbackRate = 2.0
-        this.stateSpeed = 'x3'
-        this.stateSpeedIcon = 'mdi-numeric-3-circle-outline'
-        break
+        this.audioPlayer.playbackRate = 2.0;
+        this.stateSpeed = 'x3';
+        this.stateSpeedIcon = 'mdi-numeric-3-circle-outline';
+        break;
       }
 
       case 'x3': {
-        this.audioPlayer.playbackRate = 1.0
-        this.stateSpeed = 'x1'
-        this.stateSpeedIcon = 'mdi-numeric-1-circle-outline'
-        break
+        this.audioPlayer.playbackRate = 1.0;
+        this.stateSpeed = 'x1';
+        this.stateSpeedIcon = 'mdi-numeric-1-circle-outline';
+        break;
       }
     }
   }
 
   private setSpeedNormal () {
-    this.audioPlayer.playbackRate = 1.0
-    this.stateSpeed = 'x1'
-    this.stateSpeedIcon = 'mdi-numeric-1-circle-outline'
+    this.audioPlayer.playbackRate = 1.0;
+    this.stateSpeed = 'x1';
+    this.stateSpeedIcon = 'mdi-numeric-1-circle-outline';
   }
 
   private initializePlayer () {
-    this.audioPlayer.currentTime = 0.0
-    this.audioPlayer.src = this.src
-    this.audioPlayer.loop = false
-    this.audioPlayer.volume = this.audioPlayerVolume
-    this.audioPlayer.autoplay = false
+    this.audioPlayer.currentTime = 0.0;
+    this.audioPlayer.src = this.src;
+    this.audioPlayer.loop = false;
+    this.audioPlayer.volume = this.audioPlayerVolume;
+    this.audioPlayer.autoplay = false;
 
     this.audioPlayer.onloadstart = () => {
-      this.displayString = this.$tc('Loading media...')
-      this.processDownloading = true
-    }
+      this.displayString = this.$tc('Loading media...');
+      this.processDownloading = true;
+    };
 
     this.audioPlayer.onloadeddata = () => {
-      this.displayString = '00:00:00 / 00:00:00'
-      this.processDownloading = false
-    }
+      this.displayString = '00:00:00 / 00:00:00';
+      this.processDownloading = false;
+    };
 
     // Прогресс
     this.audioPlayer.ontimeupdate = (s) => {
-      this.progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100
-      this.displayString = `${this.durationHms(this.audioPlayer.currentTime)} / ${ this.durationHms(this.audioPlayer.duration)}`
-    }
+      this.progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100;
+      this.displayString = `${this.durationHms(this.audioPlayer.currentTime)} / ${ this.durationHms(this.audioPlayer.duration)}`;
+    };
 
     // Конец
     this.audioPlayer.onended = () => {
-      this.paused = this.audioPlayer.paused
-      this.audioPlayer.currentTime = 0.0
-      this.progress = 0
+      this.paused = this.audioPlayer.paused;
+      this.audioPlayer.currentTime = 0.0;
+      this.progress = 0;
 
       if (this.autoCloseAfterEndPlay) {
         setTimeout(() => {
-          this.visibleSync = false
-        }, 1500)
+          this.visibleSync = false;
+        }, 1500);
       }
-    }
+    };
 
     this.audioPlayer.onerror = () => {
-      this.displayString = this.$tc('Media loading error')
-    }
+      this.displayString = this.$tc('Media loading error');
+    };
   }
 
   private durationHms (seconds: number) {
-    const h: number = Math.floor(seconds / 3600)
-    const m: number = Math.floor(seconds % 3600 / 60)
-    const s: number = Math.floor(seconds % 3600 % 60)
+    const h: number = Math.floor(seconds / 3600);
+    const m: number = Math.floor(seconds % 3600 / 60);
+    const s: number = Math.floor(seconds % 3600 % 60);
 
-    return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00')
+    return String(h).padStart(2, '00') + ':' + String(m).padStart(2, '00') + ':' + String(s).padStart(2, '00');
   }
 }
 </script>

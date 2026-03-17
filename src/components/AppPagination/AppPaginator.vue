@@ -51,10 +51,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import Component from 'vue-class-component'
-import { Prop, Emit, Watch, VModel } from 'vue-property-decorator'
+import Vue from 'vue';
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import Component from 'vue-class-component';
+import { Prop, Emit, Watch, VModel } from 'vue-property-decorator';
 
 // eslint-disable-next-line no-use-before-define
 @Component<AppPaginator>({
@@ -71,55 +71,55 @@ export default class AppPaginator extends Vue {
   public page = 0
 
   get pages () {
-    return Math.ceil(this.count / this.perPage)
+    return Math.ceil(this.count / this.perPage);
   }
 
   get offsetStart () {
-    return this.offset + 1
+    return this.offset + 1;
   }
 
   get offsetEnd () {
-    const offsetEnd = this.offset + this.perPage
-    return offsetEnd >= this.count ? this.count : offsetEnd
+    const offsetEnd = this.offset + this.perPage;
+    return offsetEnd >= this.count ? this.count : offsetEnd;
   }
 
   get isBtnRightDisabled () {
-    return this.offset >= (this.count - this.perPage)
+    return this.offset >= (this.count - this.perPage);
   }
 
   get isBtnLeftDisabled () {
-    return this.page <= 1
+    return this.page <= 1;
   }
 
   private calculate () {
-    this.page = (this.pages - Math.ceil((this.count - this.offset) / this.perPage)) + 1
+    this.page = (this.pages - Math.ceil((this.count - this.offset) / this.perPage)) + 1;
   }
 
   @Watch('count')
   WatchCount () {
-    this.calculate()
+    this.calculate();
   }
 
   @Emit('click:btn:left')
   private onBtnLeftClick () {
-    this.page--
-    this.offset = Math.ceil(this.page * this.perPage) - +this.perPage
-    this.onBtnClick()
+    this.page--;
+    this.offset = Math.ceil(this.page * this.perPage) - +this.perPage;
+    this.onBtnClick();
     return {
       page: this.page,
       offset: this.offset
-    }
+    };
   }
 
   @Emit('click:btn:right')
   private onBtnRightClick () {
-    this.page++
-    this.offset = Math.ceil(this.page * this.perPage) - +this.perPage
-    this.onBtnClick()
+    this.page++;
+    this.offset = Math.ceil(this.page * this.perPage) - +this.perPage;
+    this.onBtnClick();
     return {
       page: this.page,
       offset: this.offset
-    }
+    };
   }
 
   @Emit('click:btn')
@@ -127,11 +127,11 @@ export default class AppPaginator extends Vue {
     return {
       page: this.page,
       offset: this.offset
-    }
+    };
   }
 
   public mounted () {
-    this.calculate()
+    this.calculate();
   }
 }
 </script>

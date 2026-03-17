@@ -10,7 +10,7 @@ export interface SymfonyStateInterface {
 function state (): SymfonyStateInterface {
   return {
     call_collection: []
-  }
+  };
 }
 
-export default state
+export default state;

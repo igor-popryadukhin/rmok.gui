@@ -195,13 +195,13 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
-import { Watch } from 'vue-property-decorator'
+import AppBase from '@/AppBase';
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue';
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import debounce from '@/utils/debounce';
+import Component from 'vue-class-component';
+import { Watch } from 'vue-property-decorator';
 
 // eslint-disable-next-line no-use-before-define
 @Component<AllCallsFilters>({
@@ -210,59 +210,59 @@ import { Watch } from 'vue-property-decorator'
 export default class AllCallsFilters extends AppBase {
 
   // region Параметры запроса
-  get q () { return this.$store.getters['statistics/all_calls/filter/q'] }
-  set q (val) { this.$store.commit('statistics/all_calls/filter/q', val) }
+  get q () { return this.$store.getters['statistics/all_calls/filter/q']; }
+  set q (val) { this.$store.commit('statistics/all_calls/filter/q', val); }
 
-  get project () { return this.$store.getters['statistics/all_calls/filter/project'] }
+  get project () { return this.$store.getters['statistics/all_calls/filter/project']; }
   set project (val) {
-    this.$store.commit('statistics/all_calls/filter/project', val)
-    this.$store.commit('statistics/all_calls/filter/statuses', [])
+    this.$store.commit('statistics/all_calls/filter/project', val);
+    this.$store.commit('statistics/all_calls/filter/statuses', []);
   }
 
-  get statuses () { return this.$store.getters['statistics/all_calls/filter/statuses'] }
-  set statuses (val) { this.$store.commit('statistics/all_calls/filter/statuses', val) }
+  get statuses () { return this.$store.getters['statistics/all_calls/filter/statuses']; }
+  set statuses (val) { this.$store.commit('statistics/all_calls/filter/statuses', val); }
 
-  get userGroup () { return this.$store.getters['statistics/all_calls/filter/user_group'] }
+  get userGroup () { return this.$store.getters['statistics/all_calls/filter/user_group']; }
   set userGroup (val) {
-    this.$store.commit('statistics/all_calls/filter/user_group', val)
-    this.$store.commit('statistics/all_calls/filter/owner', null)
+    this.$store.commit('statistics/all_calls/filter/user_group', val);
+    this.$store.commit('statistics/all_calls/filter/owner', null);
   }
 
-  get owner () { return this.$store.getters['statistics/all_calls/filter/owner'] }
-  set owner (val) { this.$store.commit('statistics/all_calls/filter/owner', val) }
+  get owner () { return this.$store.getters['statistics/all_calls/filter/owner']; }
+  set owner (val) { this.$store.commit('statistics/all_calls/filter/owner', val); }
 
-  get tags () { return this.$store.getters['statistics/all_calls/filter/tags'] }
-  set tags (val) { this.$store.commit('statistics/all_calls/filter/tags', val) }
+  get tags () { return this.$store.getters['statistics/all_calls/filter/tags']; }
+  set tags (val) { this.$store.commit('statistics/all_calls/filter/tags', val); }
 
-  get timeZone () { return this.$store.getters['statistics/all_calls/filter/timezone'] }
-  set timeZone (val) { this.$store.commit('statistics/all_calls/filter/timezone', val) }
+  get timeZone () { return this.$store.getters['statistics/all_calls/filter/timezone']; }
+  set timeZone (val) { this.$store.commit('statistics/all_calls/filter/timezone', val); }
 
   get contactCreatedAt (): string[] {
     const dates = String(this.$store.getters['statistics/all_calls/filter/contact_created_at'] || '')
-      .split('|')
+      .split('|');
     if (dates.length === 2) {
-      return dates
+      return dates;
     }
-    return []
+    return [];
   }
 
   set contactCreatedAt (val: string[]) {
     if (Array.isArray(val) && val.length === 2) {
-      this.$store.commit('statistics/all_calls/filter/contact_created_at', val.join('|'))
+      this.$store.commit('statistics/all_calls/filter/contact_created_at', val.join('|'));
     } else if (Array.isArray(val) && val.length === 0) {
-      this.$store.commit('statistics/all_calls/filter/contact_created_at', null)
+      this.$store.commit('statistics/all_calls/filter/contact_created_at', null);
     }
   }
 
-  get itemsFetching (): boolean { return this.$store.getters['statistics/all_calls/items_fetching'] }
+  get itemsFetching (): boolean { return this.$store.getters['statistics/all_calls/items_fetching']; }
 
   @Watch('contactCreatedAt')
-  contactCreatedAtWatch() {
-    this.onFilterChange()
+  contactCreatedAtWatch () {
+    this.onFilterChange();
   }
 
   public created () {
-    this.onFilterChange = debounce(this.onFilterChange, 350)
+    this.onFilterChange = debounce(this.onFilterChange, 350);
   }
 
   /**
@@ -270,12 +270,12 @@ export default class AllCallsFilters extends AppBase {
    * @private
    */
   private onFilterChange () {
-    this.$store.dispatch('statistics/all_calls/fetch')
-    this.$store.commit('statistics/all_calls/filter/offset', 0)
+    this.$store.dispatch('statistics/all_calls/fetch');
+    this.$store.commit('statistics/all_calls/filter/offset', 0);
   }
 
   private onBtnRefresh () {
-    this.$store.dispatch('statistics/all_calls/fetch')
+    this.$store.dispatch('statistics/all_calls/fetch');
   }
 
   /**
@@ -284,8 +284,8 @@ export default class AllCallsFilters extends AppBase {
    */
   private onTagsChipClose (id: number) {
     this.tags = this.tags.filter((value) => {
-      return value.id !== id
-    })
+      return value.id !== id;
+    });
   }
 
   /**
@@ -294,8 +294,8 @@ export default class AllCallsFilters extends AppBase {
    */
   private onStatusChipClose (id: number) {
     this.statuses = this.statuses.filter((value) => {
-      return value.id !== id
-    })
+      return value.id !== id;
+    });
   }
 }
 </script>

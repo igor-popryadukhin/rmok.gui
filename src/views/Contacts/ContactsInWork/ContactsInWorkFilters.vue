@@ -205,12 +205,12 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import debounce from '@/utils/debounce'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue';
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import debounce from '@/utils/debounce';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ContactsInWorkFilters>({
@@ -218,84 +218,84 @@ import Component from 'vue-class-component'
 })
 export default class ContactsInWorkFilters extends AppBase {
   /** Текущий проект пользователя */
-  get profileProjectId (): number { return this.$store.getters['profile/current_project']?.id || 0 }
+  get profileProjectId (): number { return this.$store.getters['profile/current_project']?.id || 0; }
 
   // region Параметры запроса
-  get q (): string|null { return this.$store.getters['contacts/list_in_works/filter/filter_q'] }
+  get q (): string|null { return this.$store.getters['contacts/list_in_works/filter/filter_q']; }
 
-  set q (val: string|null) { this.$store.commit('contacts/list_in_works/filter/filter_q', val) }
+  set q (val: string|null) { this.$store.commit('contacts/list_in_works/filter/filter_q', val); }
 
   get projectId (): number|null {
     return this.$store.getters['contacts/list_in_works/filter/filter_project_id'] ||
-      this.profileProjectId
+      this.profileProjectId;
   }
 
   set projectId (val: number) {
-    this.$store.commit('contacts/list_in_works/filter/filter_project_id', val)
+    this.$store.commit('contacts/list_in_works/filter/filter_project_id', val);
 
     // Сброс состояния связанных фильтров
-    this.$store.commit('contacts/list_in_works/filter/filter_owner_id', 0)
-    this.$store.commit('contacts/list_in_works/filter/filter_status_ids', [])
+    this.$store.commit('contacts/list_in_works/filter/filter_owner_id', 0);
+    this.$store.commit('contacts/list_in_works/filter/filter_status_ids', []);
   }
 
   get statusIds (): number[] {
-    return this.$store.getters['contacts/list_in_works/filter/filter_status_ids']
+    return this.$store.getters['contacts/list_in_works/filter/filter_status_ids'];
   }
 
-  set statusIds (val: string|number|(string|number)[]) {
-    this.$store.commit('contacts/list_in_works/filter/filter_status_ids', val)
+  set statusIds (val: string|number|Array<string|number>) {
+    this.$store.commit('contacts/list_in_works/filter/filter_status_ids', val);
   }
 
-  get userGroupId (): number|null { return this.$store.getters['contacts/list_in_works/filter/filter_user_group_id'] }
+  get userGroupId (): number|null { return this.$store.getters['contacts/list_in_works/filter/filter_user_group_id']; }
 
   set userGroupId (val: string|number) {
-    this.$store.commit('contacts/list_in_works/filter/filter_user_group_id', val)
+    this.$store.commit('contacts/list_in_works/filter/filter_user_group_id', val);
   }
 
-  get userId (): number|null { return this.$store.getters['contacts/list_in_works/filter/filter_owner_id'] }
+  get userId (): number|null { return this.$store.getters['contacts/list_in_works/filter/filter_owner_id']; }
 
   set userId (val: string|number) {
-    this.$store.commit('contacts/list_in_works/filter/filter_owner_id', val)
+    this.$store.commit('contacts/list_in_works/filter/filter_owner_id', val);
   }
 
-  get task (): string { return this.$store.getters['contacts/list_in_works/filter/filter_task'] }
+  get task (): string { return this.$store.getters['contacts/list_in_works/filter/filter_task']; }
 
-  set task (val: string) { this.$store.commit('contacts/list_in_works/filter/filter_task', val) }
+  set task (val: string) { this.$store.commit('contacts/list_in_works/filter/filter_task', val); }
 
-  get called (): string { return this.$store.getters['contacts/list_in_works/filter/filter_called'] }
+  get called (): string { return this.$store.getters['contacts/list_in_works/filter/filter_called']; }
 
-  set called (val: string) { this.$store.commit('contacts/list_in_works/filter/filter_called', val) }
+  set called (val: string) { this.$store.commit('contacts/list_in_works/filter/filter_called', val); }
 
   get tagIds (): number[] {
-    return this.$store.getters['contacts/list_in_works/filter/filter_tag_ids']
+    return this.$store.getters['contacts/list_in_works/filter/filter_tag_ids'];
   }
 
   set tagIds (val: number[]) {
-    this.$store.commit('contacts/list_in_works/filter/filter_tag_ids', val)
+    this.$store.commit('contacts/list_in_works/filter/filter_tag_ids', val);
   }
 
   get timeZoneId (): number {
-    return this.$store.getters['contacts/list_in_works/filter/filter_timezone_id']
+    return this.$store.getters['contacts/list_in_works/filter/filter_timezone_id'];
   }
 
   set timeZoneId (val: number) {
-    this.$store.commit('contacts/list_in_works/filter/filter_timezone_id', val)
+    this.$store.commit('contacts/list_in_works/filter/filter_timezone_id', val);
   }
 
   get contactCreatedAt (): string[] {
     const dates = String(this.$store.getters['contacts/list_in_works/filter/filter_contact_created_at'] || '')
-      .split('|')
+      .split('|');
     if (dates.length === 2) {
-      return dates
+      return dates;
     }
-    return []
+    return [];
   }
 
   set contactCreatedAt (val: string[]) {
     if (Array.isArray(val) && val.length === 2) {
-      this.$store.commit('contacts/list_in_works/filter/filter_contact_created_at', val.join('|'))
+      this.$store.commit('contacts/list_in_works/filter/filter_contact_created_at', val.join('|'));
     } else if (Array.isArray(val) && val.length === 0) {
-      this.$store.commit('contacts/list_in_works/filter/filter_contact_created_at', '')
+      this.$store.commit('contacts/list_in_works/filter/filter_contact_created_at', '');
     }
   }
 
@@ -308,8 +308,8 @@ export default class ContactsInWorkFilters extends AppBase {
       return {
         value: e,
         text: this.$tc(`ContactsFilters.Tasks.${e}`)
-      }
-    })
+      };
+    });
   }
 
   get callingOptions () {
@@ -320,14 +320,14 @@ export default class ContactsInWorkFilters extends AppBase {
       return {
         value: e.value,
         text: this.$tc(e.text)
-      }
-    })
+      };
+    });
   }
   // endregion
 
   // region Обработчики жизненного цикла
   created () {
-    this.onFilterChange = debounce(this.onFilterChange, 350)
+    this.onFilterChange = debounce(this.onFilterChange, 350);
   }
 
   // endregion
@@ -339,7 +339,7 @@ export default class ContactsInWorkFilters extends AppBase {
    * @private
    */
   private onFilterChange () {
-    this.$store.commit('contacts/list_in_works/filter/filter_offset', 0)
+    this.$store.commit('contacts/list_in_works/filter/filter_offset', 0);
   }
 
   /**
@@ -348,8 +348,8 @@ export default class ContactsInWorkFilters extends AppBase {
    */
   private onTagsChipClose (id: number) {
     this.tagIds = this.tagIds.filter((value) => {
-      return value !== id
-    })
+      return value !== id;
+    });
   }
 
   /**
@@ -358,13 +358,13 @@ export default class ContactsInWorkFilters extends AppBase {
    */
   private onStatusChipClose (id: number) {
     this.statusIds = this.statusIds.filter((value) => {
-      return value !== id
-    })
+      return value !== id;
+    });
   }
 
   private onContactCreatedAtBtnOkClick (value: string[]) {
     // @ts-expect-error: Contact created at
-    return this.$refs.contactCreatedAtMenu?.save(value)
+    return this.$refs.contactCreatedAtMenu?.save(value);
   }
   // endregion
 }

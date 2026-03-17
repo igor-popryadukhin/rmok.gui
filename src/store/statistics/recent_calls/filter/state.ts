@@ -1,4 +1,4 @@
-import Status from '@/api/interfaces/Status'
+import Status from '@/api/interfaces/Status';
 
 export interface Group {
   id: number;
@@ -77,7 +77,7 @@ export function defaultState (): State {
     order_by: 'created_at',
     order_direction: 'desc'
     /// /////////////////////////////////
-  }
+  };
 }
 
-export const state = defaultState
+export const state = defaultState;

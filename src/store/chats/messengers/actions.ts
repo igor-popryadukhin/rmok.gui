@@ -1,8 +1,8 @@
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { State } from './state'
-import { $axios } from '@/plugins/axios'
-import APIError from '@/api/classes/APIError'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { State } from './state';
+import { $axios } from '@/plugins/axios';
+import APIError from '@/api/classes/APIError';
 import {AxiosResponse} from "axios";
 
 const actions: ActionTree<State, RootState> = {
@@ -14,19 +14,19 @@ const actions: ActionTree<State, RootState> = {
    */
   fetch ({ commit, rootGetters }) {
     return new Promise<void>((resolve, reject) => {
-      commit('fetching', true)
+      commit('fetching', true);
       $axios
         .get(`/integrations/messengers`)
         .then((response) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          commit('items', response.data)
-          resolve()
+          commit('items', response.data);
+          resolve();
         }).catch(reject)
-        .finally(() => (commit('fetching', false)))
-    })
+        .finally(() => (commit('fetching', false)));
+    });
   }
-}
+};
 
-export default actions
+export default actions;

@@ -222,17 +222,17 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue'
-import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue'
-import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue'
-import AppCountUp from '@/components/AppCountup/AppCountUp.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppPaginator from '@/components/AppPagination/AppPaginator.vue'
-import debounce from '@/utils/debounce'
-import RecentCallsFilters from '@/views/Statistics/RecentCalls/RecentCallsFilters.vue'
-import RecentCallsTools from '@/views/Statistics/RecentCalls/RecentCallsTools.vue'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppBlockResize from '@/components/AppBlockResize/AppBlockResize.vue';
+import AppBtnSorting from '@/components/AppBtnSorting/AppBtnSorting.vue';
+import AppBtnToggleDate from '@/components/AppBtnToggleDate/AppBtnToggleDate.vue';
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppPaginator from '@/components/AppPagination/AppPaginator.vue';
+import debounce from '@/utils/debounce';
+import RecentCallsFilters from '@/views/Statistics/RecentCalls/RecentCallsFilters.vue';
+import RecentCallsTools from '@/views/Statistics/RecentCalls/RecentCallsTools.vue';
+import Component from 'vue-class-component';
 
 // eslint-disable-next-line no-use-before-define
 @Component<RecentCalls>({
@@ -252,106 +252,106 @@ export default class RecentCalls extends AppBase {
   isFetchStatistic = false
 
   get height (): number {
-    return 600
+    return 600;
   }
 
-  get settingsFilterWidth (): number { return this.$store.getters['statistics/recent_calls/settings/filter_width'] }
-  set settingsFilterWidth (val: number) { this.$store.commit('statistics/recent_calls/settings/filter_width', val) }
+  get settingsFilterWidth (): number { return this.$store.getters['statistics/recent_calls/settings/filter_width']; }
+  set settingsFilterWidth (val: number) { this.$store.commit('statistics/recent_calls/settings/filter_width', val); }
 
   // Данные круговой диаграммы
   get pieLabels () {
-    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_labels']))
+    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_labels']));
   }
 
   get pieColors () {
-    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_colors']))
+    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_colors']));
   }
 
   get pieSeries () {
-    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_series']))
+    return JSON.parse(JSON.stringify(this.$store.getters['statistics/recent_calls/pie_series']));
   }
 
   // Данные круговой диаграмм
   get historyFetching () {
-    return this.$store.getters['statistics/recent_calls/history_fetching']
+    return this.$store.getters['statistics/recent_calls/history_fetching'];
   }
 
   // Количество прозвоненных клиентов в соответствии установленными параметрами фильтров
   get historyCount () {
-    return this.$store.getters['statistics/recent_calls/history_count']
+    return this.$store.getters['statistics/recent_calls/history_count'];
   }
 
   get historyItems (): Array<Record<string, unknown>> {
-    return this.$store.getters['statistics/recent_calls/history']
+    return this.$store.getters['statistics/recent_calls/history'];
   }
 
   get totalCalls () {
-    return this.$store.getters['statistics/recent_calls/total_calls']
+    return this.$store.getters['statistics/recent_calls/total_calls'];
   }
 
   get totalCallsFetching (): boolean {
-    return this.$store.getters['statistics/recent_calls/total_calls_fetching']
+    return this.$store.getters['statistics/recent_calls/total_calls_fetching'];
   }
 
   get filterOffset () {
-    return this.$store.getters['statistics/recent_calls/filter/offset']
+    return this.$store.getters['statistics/recent_calls/filter/offset'];
   }
 
   set filterOffset (val: number) {
-    this.$store.commit('statistics/recent_calls/filter/offset', val)
+    this.$store.commit('statistics/recent_calls/filter/offset', val);
   }
 
   get orderBy () {
-    return this.$store.getters['statistics/recent_calls/filter/order_by']
+    return this.$store.getters['statistics/recent_calls/filter/order_by'];
   }
 
   set orderBy (val: string) {
-    this.$store.commit('statistics/recent_calls/filter/order_by', val)
+    this.$store.commit('statistics/recent_calls/filter/order_by', val);
   }
 
   get orderDirection () {
-    return this.$store.getters['statistics/recent_calls/filter/order_direction']
+    return this.$store.getters['statistics/recent_calls/filter/order_direction'];
   }
 
   set orderDirection (val: string) {
-    this.$store.commit('statistics/recent_calls/filter/order_direction', val)
+    this.$store.commit('statistics/recent_calls/filter/order_direction', val);
   }
 
   get appBtnSorting () {
     return {
       order_by: this.orderBy,
       order_direction: this.orderDirection
-    }
+    };
   }
 
   set appBtnSorting ({
     order_by,
     order_direction
   }) {
-    this.orderBy = order_by
-    this.orderDirection = order_direction
+    this.orderBy = order_by;
+    this.orderDirection = order_direction;
   }
 
   // Возможные варианты сортировки
   get sortingOptions () {
-    return ['created_at', 'contact', 'result', 'comment', 'call_duration', 'session_duration', 'manager'].map((e) => ({
+    return ['created_at', 'contact', 'result', 'comment', 'call_duration', 'manager'].map((e) => ({
       name: this.$t(`statistics.recent_calls.sorting_options.${e}`),
       order_by: e,
       order_direction: 'asc',
       visible: true
-    }))
+    }));
   }
 
   public created () {
-    this.fetchStatisticHistory = debounce(this.fetchStatisticHistory, 350)
+    this.fetchStatisticHistory = debounce(this.fetchStatisticHistory, 350);
   }
 
   public mounted () {
-    this.fetchStatistic()
+    this.fetchStatistic();
   }
 
   private async fetchStatistic () {
-    this.isFetchStatistic = true
+    this.isFetchStatistic = true;
     Promise.all(
       [
         this.$store.dispatch('statistics/recent_calls/fetch_total_calls'),
@@ -359,17 +359,17 @@ export default class RecentCalls extends AppBase {
         this.$store.dispatch('statistics/recent_calls/fetch_history')
       ]
     ).finally(() => {
-      this.isFetchStatistic = false
-    })
+      this.isFetchStatistic = false;
+    });
   }
 
   private fetchStatisticHistory () {
-    this.$store.dispatch('statistics/recent_calls/fetch_history')
+    this.$store.dispatch('statistics/recent_calls/fetch_history');
   }
 
   private onFilterChange () {
-    this.$store.commit('statistics/recent_calls/filter/offset', 0)
-    this.fetchStatistic()
+    this.$store.commit('statistics/recent_calls/filter/offset', 0);
+    this.fetchStatistic();
   }
 
   /**
@@ -381,7 +381,7 @@ export default class RecentCalls extends AppBase {
     this.$root.$emit('audio-player-show', {
       src: `${process.env.VUE_APP_API_ENDPOINT}/contacts/history/audio/${item.audio_record_id}`,
       author: `${item.owner.name} / ${item.contact.name}`
-    })
+    });
   }
 }
 </script>

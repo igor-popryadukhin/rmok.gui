@@ -65,11 +65,11 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import Base from '../Base'
-import AppTable from '@/components/AppTable/AppTable.vue'
-import { mapGetters } from 'vuex'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
+import Component from 'vue-class-component';
+import Base from '../Base';
+import AppTable from '@/components/AppTable/AppTable.vue';
+import { mapGetters } from 'vuex';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
 
 @Component({
   components: { AppLoading, AppTable },
@@ -83,31 +83,31 @@ export default class Journal extends Base {
   processLoading = true
 
   get items (): Array<Record<string, unknown>> {
-    return this.$store.getters['autodialer/view/journal/items']
+    return this.$store.getters['autodialer/view/journal/items'];
   }
 
   created () {
-    this.$root.$on('sse:autodialer:journal:change', this.onSSEJournalChange)
+    this.$root.$on('sse:autodialer:journal:change', this.onSSEJournalChange);
   }
 
   mounted () {
     this.$store.dispatch('autodialer/view/journal/fetch')
-      .finally(() => (this.processLoading = false))
+      .finally(() => (this.processLoading = false));
   }
 
   beforeDestroy () {
-    this.$root.$off('sse:autodialer:journal:change', this.onSSEJournalChange)
+    this.$root.$off('sse:autodialer:journal:change', this.onSSEJournalChange);
   }
 
   onSSEJournalChange (data: Record<string, unknown>) {
-    const items = this.items.map(e => e)
-    items.unshift(data)
-    items.pop()
-    this.$store.commit('autodialer/view/journal/items', items)
+    const items = this.items.map(e => e);
+    items.unshift(data);
+    items.pop();
+    this.$store.commit('autodialer/view/journal/items', items);
   }
 
   isAfter (timestamp: number, val: number): boolean {
-    return this.$dayjs(timestamp * 1000).isAfter(this.$dayjs().subtract(val, 'second'))
+    return this.$dayjs(timestamp * 1000).isAfter(this.$dayjs().subtract(val, 'second'));
   }
 }
 </script>

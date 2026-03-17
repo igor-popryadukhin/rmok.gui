@@ -1,9 +1,9 @@
-import Country from '@/api/interfaces/Country'
-import PBXConfiguration from '@/api/interfaces/PBXConfiguration'
-import Project from '@/api/interfaces/Project'
-import Role from '@/api/interfaces/Role'
-import TimeZone from '@/api/interfaces/TimeZone'
-import UserGroup from '@/api/interfaces/UserGroup'
+import Country from '@/api/interfaces/Country';
+import PBXConfiguration from '@/api/interfaces/PBXConfiguration';
+import Project from '@/api/interfaces/Project';
+import Role from '@/api/interfaces/Role';
+import TimeZone from '@/api/interfaces/TimeZone';
+import UserGroup from '@/api/interfaces/UserGroup';
 
 export interface ProfileState {
   id: number;
@@ -83,7 +83,7 @@ function state (): ProfileState {
     role: null,
     roles: [],
     tasks_pending_number: 0
-  }
+  };
 }
 
-export default state
+export default state;

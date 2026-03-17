@@ -27,6 +27,55 @@ module.exports = {
   root: true,
 
   rules: {
+    "comma-dangle": ["error", {
+      "arrays": "never",
+      "objects": "never",
+      "imports": "never",
+      "exports": "never",
+      "functions": "never"
+    }],
+    "semi": [2, "always"],
+    "vue/attributes-order": ["error", {
+      "order": [
+        "DEFINITION",
+        "LIST_RENDERING",
+        "CONDITIONALS",
+        "RENDER_MODIFIERS",
+        "GLOBAL",
+        ["UNIQUE", "SLOT"],
+        "TWO_WAY_BINDING",
+        "OTHER_DIRECTIVES",
+        "OTHER_ATTR",
+        "EVENTS",
+        "CONTENT"
+      ],
+      "alphabetical": false
+    }],
+    "vue/max-attributes-per-line": ["error", {
+      "singleline": {
+        "max": 1
+      },
+      "multiline": {
+        "max": 1
+      }
+    }],
+    "vue/component-name-in-template-casing": ["error", "kebab-case", {
+      "registeredComponentsOnly": true
+    }],
+    "vue/no-dupe-keys": ["error", {
+      "groups": []
+    }],
+    "vue/html-indent": [
+      "error",
+      2,
+      {
+        attribute: 1,
+        baseIndent: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+        ignores: []
+      }
+    ],
     "@typescript-eslint/no-this-alias": [
       "error",
       {
@@ -47,4 +96,4 @@ module.exports = {
       }
     }
   ]
-}
+};

@@ -110,8 +110,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import Vue from 'vue';
+import Component from 'vue-class-component';
 
 @Component
 export default class Whatsapp extends Vue {
@@ -129,16 +129,16 @@ export default class Whatsapp extends Vue {
   eventSourceData = null
 
   public mounted () {
-    this.eventSource.addEventListener('catch-qr', this.SSEWhatsappCatchQR)
-    this.eventSource.addEventListener('client-status', this.SSEWhatsappClientStatus)
-    this.eventSource.addEventListener('service-state', this.SSEWhatsappServiceState)
+    this.eventSource.addEventListener('catch-qr', this.SSEWhatsappCatchQR);
+    this.eventSource.addEventListener('client-status', this.SSEWhatsappClientStatus);
+    this.eventSource.addEventListener('service-state', this.SSEWhatsappServiceState);
   }
 
   beforeDestroy () {
-    this.eventSource.removeEventListener('catch-qr', this.SSEWhatsappCatchQR)
-    this.eventSource.removeEventListener('client-status', this.SSEWhatsappClientStatus)
-    this.eventSource.removeEventListener('service-state', this.SSEWhatsappServiceState)
-    this.eventSource.close()
+    this.eventSource.removeEventListener('catch-qr', this.SSEWhatsappCatchQR);
+    this.eventSource.removeEventListener('client-status', this.SSEWhatsappClientStatus);
+    this.eventSource.removeEventListener('service-state', this.SSEWhatsappServiceState);
+    this.eventSource.close();
   }
 
   /**
@@ -148,7 +148,7 @@ export default class Whatsapp extends Vue {
    * @private
    */
   private SSEWhatsappCatchQR (event: Event | MessageEvent) {
-    this.whatsappQRCodeUpdate((event as MessageEvent).data)
+    this.whatsappQRCodeUpdate((event as MessageEvent).data);
   }
 
   /**
@@ -159,7 +159,7 @@ export default class Whatsapp extends Vue {
    * @private
    */
   private SSEWhatsappClientStatus (event: Event | MessageEvent) {
-    this.whatsappClientStatus = JSON.parse((event as MessageEvent).data)
+    this.whatsappClientStatus = JSON.parse((event as MessageEvent).data);
   }
 
   /**
@@ -170,55 +170,55 @@ export default class Whatsapp extends Vue {
    * @private
    */
   private SSEWhatsappServiceState (event: Event | MessageEvent) {
-    const data = JSON.parse((event as MessageEvent).data || '{ "is_running": false }')
+    const data = JSON.parse((event as MessageEvent).data || '{ "is_running": false }');
 
-    this.hostDevice = []
+    this.hostDevice = [];
 
-    this.whatsappIsRunning = !!data.is_running
+    this.whatsappIsRunning = !!data.is_running;
 
     if (data.is_running) {
 
       this.hostDevice.push({
         title: data.connected ? 'Да' : 'Нет',
         subtitle: 'Телефон подключен к сети интернет'
-      })
+      });
 
       this.hostDevice.push({
         title: data.battery + ' %',
         subtitle: 'Уровень заряда батареи'
-      })
+      });
 
       this.hostDevice.push({
         title: `${data.platform} / ${data.phone.os_version} / ${data.phone.os_build_number}`,
         subtitle: 'Платформа / Версия / Сборка'
-      })
+      });
 
       this.hostDevice.push({
         title: `${data.phone.device_manufacturer} / ${data.phone.device_model}`,
         subtitle: 'Производитель / Модель'
-      })
+      });
 
       this.hostDevice.push({
         title: data.phone.wa_version,
         subtitle: 'Версия установленного приложения WhatsApp'
-      })
+      });
     }
   }
 
   private whatsappEnable () {
-    this.$axios.get(`${process.env.VUE_APP_MS_WHATSAPP_ENDPOINT}/application/start`)
+    this.$axios.get(`${process.env.VUE_APP_MS_WHATSAPP_ENDPOINT}/application/start`);
   }
 
   private whatsappDisable () {
-    this.$axios.get(`${process.env.VUE_APP_MS_WHATSAPP_ENDPOINT}/application/stop`)
+    this.$axios.get(`${process.env.VUE_APP_MS_WHATSAPP_ENDPOINT}/application/stop`);
   }
 
   private whatsappQRCodeUpdate (qr: string) {
-    this.whatsappQRCodeVisible = false
+    this.whatsappQRCodeVisible = false;
     setTimeout(() => {
-      this.whatsappQRCode = qr
-      this.whatsappQRCodeVisible = true
-    }, 300)
+      this.whatsappQRCode = qr;
+      this.whatsappQRCodeVisible = true;
+    }, 300);
   }
 }
 </script>

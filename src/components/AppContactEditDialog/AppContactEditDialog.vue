@@ -185,9 +185,9 @@
 </template>
 
 <script lang="ts">
-import Component from 'vue-class-component'
-import Vue from 'vue'
-import { Prop, PropSync, Emit } from 'vue-property-decorator'
+import Component from 'vue-class-component';
+import Vue from 'vue';
+import { Prop, PropSync, Emit } from 'vue-property-decorator';
 
 @Component
 export default class AppContactEditDialog extends Vue {
@@ -203,7 +203,7 @@ export default class AppContactEditDialog extends Vue {
 
   @Emit('action:cancel')
   private actionCancel () {
-    this.visibleSync = false
+    this.visibleSync = false;
   }
 }
 </script>

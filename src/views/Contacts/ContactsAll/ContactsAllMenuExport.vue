@@ -34,11 +34,11 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
+import AppBase from '@/AppBase';
 
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import Component from 'vue-class-component'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import Component from 'vue-class-component';
 
 @Component
 export default class ContactsAllMenuExport extends AppBase {
@@ -66,28 +66,28 @@ export default class ContactsAllMenuExport extends AppBase {
         icon_color: 'green',
         format: 'xlsx'
       }
-    ]
+    ];
   }
 
   get contactsListItemsSelected (): number[] {
-    return ((this.$store.getters['contacts/contacts_all/items_selected'] || []) as Array<Record<'id', number>>).map((e) => e.id)
+    return ((this.$store.getters['contacts/contacts_all/items_selected'] || []) as Array<Record<'id', number>>).map((e) => e.id);
   }
 
   private onMenuItemClick (format: string) {
     let request: Record<string, unknown> = {
       ids: this.contactsListItemsSelected
-    }
+    };
 
-    request.format = format
+    request.format = format;
 
     $axios.post('/contacts/export', request, { responseType: 'blob' })
       .then((response: AxiosResponse) => {
-        const type = response.headers['content-type']
-        const objectUrl = window.URL.createObjectURL(new Blob([response.data], { type }))
+        const type = response.headers['content-type'];
+        const objectUrl = window.URL.createObjectURL(new Blob([response.data], { type }));
         window.open(objectUrl);
       }).catch((e: Error) => {
-        this.$toast.error(e.message)
-      })
+        this.$toast.error(e.message);
+      });
   }
 }
 </script>

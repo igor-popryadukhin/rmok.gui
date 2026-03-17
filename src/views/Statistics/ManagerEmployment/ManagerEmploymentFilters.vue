@@ -36,13 +36,13 @@
 </template>
 
 <script lang="ts">
-import Project from '@/api/interfaces/Project'
-import AppBase from '@/AppBase'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue'
-import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue'
-import Component from 'vue-class-component'
-import { Emit } from 'vue-property-decorator'
+import Project from '@/api/interfaces/Project';
+import AppBase from '@/AppBase';
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import AppMenuDatePicker from '@/components/AppMenuDatePicker/AppMenuDatePicker.vue';
+import SmartAutocomplete from '@/smart-components/SmartAutocomplete/SmartAutocomplete.vue';
+import Component from 'vue-class-component';
+import { Emit } from 'vue-property-decorator';
 
 // eslint-disable-next-line no-use-before-define
 @Component<ManagerEmploymentFilters>({
@@ -51,27 +51,27 @@ import { Emit } from 'vue-property-decorator'
 export default class ManagerEmploymentFilters extends AppBase {
   @Emit('click:btn:refresh')
   private clickBtnRefresh () {
-    return undefined
+    return undefined;
   }
 
   @Emit('filter:change')
   private filterChangeEmit () {
-    return undefined
+    return undefined;
   }
 
-  get itemsFetching (): boolean { return this.$store.getters['statistics/manager_employment/items_fetching'] }
+  get itemsFetching (): boolean { return this.$store.getters['statistics/manager_employment/items_fetching']; }
 
   // region Параметры фильтров
   get filterProject (): Project|null {
-    return this.$store.getters['statistics/manager_employment/filter/project']
+    return this.$store.getters['statistics/manager_employment/filter/project'];
   }
   set filterProject (val: Project|null) {
-    this.$store.commit('statistics/manager_employment/filter/project', val)
+    this.$store.commit('statistics/manager_employment/filter/project', val);
   }
   // endregion
 
   private fetchStatistic () {
-    this.$store.dispatch('statistics/manager_employment/fetch')
+    this.$store.dispatch('statistics/manager_employment/fetch');
   }
 
 }

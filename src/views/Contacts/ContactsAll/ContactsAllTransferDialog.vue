@@ -108,9 +108,9 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppAutocomplete from '@/components/AppAutocomplete/AppAutocomplete.vue';
+import Component from 'vue-class-component';
 
 @Component({
   components: { AppAutocomplete }
@@ -118,46 +118,46 @@ import Component from 'vue-class-component'
 export default class ContactsAllTransferDialog extends AppBase {
   dialogVisible = true
 
-  get contactsListSelectedCount () { return this.$store.getters['contacts/contacts_all/selected_count'] }
+  get contactsListSelectedCount () { return this.$store.getters['contacts/contacts_all/selected_count']; }
 
-  get availableProjects () { return this.$store.getters['contacts/transfer_dialog/available_projects'] }
-  get availableUsers () { return this.$store.getters['contacts/transfer_dialog/available_users'] }
+  get availableProjects () { return this.$store.getters['contacts/transfer_dialog/available_projects']; }
+  get availableUsers () { return this.$store.getters['contacts/transfer_dialog/available_users']; }
 
-  get projectId () { return this.$store.getters['contacts/transfer_dialog/project_id'] }
-  set projectId (value: number) { this.$store.commit('contacts/transfer_dialog/project_id', value) }
+  get projectId () { return this.$store.getters['contacts/transfer_dialog/project_id']; }
+  set projectId (value: number) { this.$store.commit('contacts/transfer_dialog/project_id', value); }
 
-  get userIds () { return this.$store.getters['contacts/transfer_dialog/user_ids'] }
-  set userIds (value: number[]) { this.$store.commit('contacts/transfer_dialog/user_ids', value) }
+  get userIds () { return this.$store.getters['contacts/transfer_dialog/user_ids']; }
+  set userIds (value: number[]) { this.$store.commit('contacts/transfer_dialog/user_ids', value); }
 
   private onAppAutocompleteProjectsSearch (q = '') {
     if (this.availableProjects.findIndex((e: any) => e.name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
       this.$store.dispatch('contacts/transfer_dialog/fetch_projects', {
         q
-      })
+      });
     }
   }
 
   private onAppAutocompleteUsersChipCloseClick (userId: number) {
-    this.userIds = this.userIds.filter((id) => id !== userId)
+    this.userIds = this.userIds.filter((id) => id !== userId);
   }
 
   private onSearchUsers (q = '') {
-    const params: Record<string, unknown> = { q }
+    const params: Record<string, unknown> = { q };
     if (this.projectId > 0) {
-      params.project_id = this.projectId
+      params.project_id = this.projectId;
     }
 
     if (this.availableUsers.findIndex((e: any) => e.full_name?.toLowerCase().indexOf(q?.toLowerCase()) > -1) === -1) {
-      this.$store.dispatch('contacts/transfer_dialog/fetch_users', params)
+      this.$store.dispatch('contacts/transfer_dialog/fetch_users', params);
     }
   }
 
   private onBtnCancelClick () {
-    this.$store.dispatch('contacts/transfer_dialog/hide')
+    this.$store.dispatch('contacts/transfer_dialog/hide');
   }
 
   private onBtnTrasferClick () {
-    this.$store.dispatch('contacts/transfer_dialog/transfer')
+    this.$store.dispatch('contacts/transfer_dialog/transfer');
   }
 }
 </script>

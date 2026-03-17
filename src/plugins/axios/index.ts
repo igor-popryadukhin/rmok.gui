@@ -1,29 +1,30 @@
-import $app from '@/main'
-import { Cookie } from '@/plugins/cookie'
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import Vue from 'vue'
-import debug from 'debug'
-import { sleep } from '@/utils/utils'
+import $app from '@/main';
+import { Cookie } from '@/plugins/cookie';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import Vue from 'vue';
+import debug from 'debug';
+import { sleep } from '@/utils/utils';
 
 function importModuleUUID () {
-  return import(/* webpackPrefetch: false, webpackPreload: false, webpackChunkName: "uuid"  */'uuid')
+  return import(/* webpackPrefetch: false, webpackPreload: false, webpackChunkName: "uuid"  */'uuid');
 }
 
-let tabID: string|null = null
+let tabID: string|null = null;
 importModuleUUID()
   .then(({ v4 }) => {
     tabID = sessionStorage.tabID &&
     sessionStorage.closedLastTab !== '2'
       ? sessionStorage.tabID
-      : sessionStorage.tabID = v4()
-    sessionStorage.closedLastTab = '2'
+      : sessionStorage.tabID = v4();
+    sessionStorage.closedLastTab = '2';
 
-    window.addEventListener('unload', () => (sessionStorage.closedLastTab = '1'))
-    window.addEventListener('beforeunload', () => (sessionStorage.closedLastTab = '1'))
-  })
+    window.addEventListener('unload', () => (sessionStorage.closedLastTab = '1'));
+    window.addEventListener('beforeunload', () => (sessionStorage.closedLastTab = '1'));
+  });
 
-const httpResponseLog = debug('APP').extend('HTTP').extend('RESPONSE')
-const httpRequestLog = debug('APP').extend('HTTP').extend('REQUEST')
+const httpLog = debug('app').extend('http');
+const httpResponseLog = debug('app').extend('http').extend('response');
+const httpRequestLog = debug('app').extend('http').extend('request');
 
 // Full config:  https://github.com/axios/axios#request-config
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || ''
@@ -41,14 +42,14 @@ const config = {
 }
 /* eslint-enable */
 
-const _axios: AxiosInstance = axios.create(config)
-const cookie: Cookie = new Cookie()
-let isRefreshTokenProcess = false
-const promises: any[] = []
+const _axios: AxiosInstance = axios.create(config);
+const cookie: Cookie = new Cookie();
+let isRefreshTokenProcess = false;
+const promises: any[] = [];
 
 if (process.env.NODE_ENV === 'development') {
   // Связан с параметром withCredentials
-  cookie.set('XDEBUG_SESSION', 'PHPSTORM', { path: '/' })
+  cookie.set('XDEBUG_SESSION', 'PHPSTORM', { path: '/' });
 }
 
 /* eslint-disable */
@@ -64,12 +65,12 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
     }
 
     if (isRefreshTokenProcess) {
-      console.log('%c%s', 'color: red;', `Запрос ${config.url} ожидает обновление токена...`)
+      httpLog('%c%s', 'color: red;', `Запрос ${config.url} ожидает обновление токена...`)
       promises.push(new Promise<void>(async (resolve) => {
         while (isRefreshTokenProcess) {
           await sleep(500)
         }
-        console.log('%c%s', 'color: green;', `Запрос ${config.url} разрешён!`)
+        httpLog(`Запрос ${config.url} разрешён!`)
         resolve()
       }))
       // This is process update token
@@ -81,13 +82,13 @@ _axios.interceptors.request.use(async (config: AxiosRequestConfig): AxiosRequest
       return config
     } else {
       if (cookie.has('refresh_token')) {
-        console.log('%c%s', 'color: blue;', 'Обновление токена...')
+        httpLog('Обновление токена...')
         isRefreshTokenProcess = true
         await axios.post(`${process.env.VUE_APP_API_ENDPOINT}/account/authorization/refresh-token`, {
           refresh_token: cookie.get('refresh_token')
         }).then((response: AxiosResponse) => {
           if (response.status === 200) {
-            cookie.set('access_token', response.data.access_token, { 'max-age': 86400, 'path': '/' })
+            cookie.set('access_token', response.data.access_token, { 'Max-Age': 1800, 'path': '/' })
             cookie.set('refresh_token', response.data.refresh_token, { 'max-age': 31536000, 'path': '/' })
             config.headers.Authorization = `Bearer ${cookie.get('access_token')}`
           }

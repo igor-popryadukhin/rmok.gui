@@ -8,11 +8,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Prop, Ref, VModel, Watch } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, Ref, VModel, Watch } from 'vue-property-decorator';
 
-import pell, { PellElement } from 'pell'
+import pell, { PellElement } from 'pell';
 
 @Component
 export default class AppPellEditor extends Vue {
@@ -29,7 +29,7 @@ export default class AppPellEditor extends Vue {
   @Watch('content')
   contentWatchHandler (val: string) {
     if (!this.innerEdit) {
-      this.pell.content.innerHTML = val
+      this.pell.content.innerHTML = val;
     }
   }
 
@@ -37,25 +37,25 @@ export default class AppPellEditor extends Vue {
     return {
       '--pell-content-height': typeof this.height === 'number' ? this.height + 'px' : this.height,
       '--height': this.height + 'px'
-    }
+    };
   }
 
   public mounted () {
-    this.initialize()
+    this.initialize();
   }
 
   public beforeDestroy () {
-    this.pell = undefined
+    this.pell = undefined;
   }
 
   private initialize () {
     this.pell = pell.init({
       element: this.editor,
       onChange: (html: string) => {
-        this.innerEdit = true
-        this.content = html
+        this.innerEdit = true;
+        this.content = html;
         // TODO: Костыль
-        setTimeout(() => (this.innerEdit = false), 0)
+        setTimeout(() => (this.innerEdit = false), 0);
       },
       defaultParagraphSeparator: 'div',
       styleWithCSS: true,
@@ -79,8 +79,8 @@ export default class AppPellEditor extends Vue {
         content: 'pell-content',
         selected: 'pell-button-selected'
       }
-    })
-    this.pell.content.innerHTML = this.content
+    });
+    this.pell.content.innerHTML = this.content;
   }
 }
 </script>

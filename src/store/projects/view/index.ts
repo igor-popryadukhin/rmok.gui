@@ -1,10 +1,10 @@
-import { RootState } from '@/store'
-import people from '@/store/projects/view/people'
-import { Module } from 'vuex'
-import state, { ProjectsViewState } from './state'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
+import { RootState } from '@/store';
+import members from './members';
+import { Module } from 'vuex';
+import state, { ProjectsViewState } from './state';
+import getters from './getters';
+import actions from './actions';
+import mutations from './mutations';
 
 const module: Module<ProjectsViewState, RootState> = {
   actions,
@@ -13,8 +13,8 @@ const module: Module<ProjectsViewState, RootState> = {
   namespaced: true,
   state,
   modules: {
-    people
+    members
   }
-}
+};
 
-export default module
+export default module;

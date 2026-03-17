@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import { CountryCodeInterface, Database } from '@/api/Database'
+import Vue from 'vue';
+import { CountryCodeInterface, Database } from '@/api/Database';
 
 export default Vue.extend({
 
@@ -7,7 +7,7 @@ export default Vue.extend({
     return {
       countryCodeSelected: null,
       countryCodes: [] as CountryCodeInterface[]
-    }
+    };
   },
   created () {
     new Database()
@@ -17,6 +17,6 @@ export default Vue.extend({
         // @ts-ignore
         this.countryCodes = response
         /* eslint-enable */
-      })
+      });
   }
-})
+});

@@ -5,7 +5,7 @@
 <script>
 export default {
   name: 'AppBadgeDot'
-}
+};
 </script>
 
 <style scoped>

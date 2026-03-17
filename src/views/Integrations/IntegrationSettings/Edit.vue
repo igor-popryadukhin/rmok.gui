@@ -218,13 +218,13 @@
 import ProjectIntegrationSettings, {
   OrganizationInterface,
   ProfileInterface, ProjectInterface
-} from '@/api/ProjectIntegrationSettings'
-import rules from '@/mixins/rules'
-import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
-import VInterface from '@/VInterface'
-import Vue, { VueConstructor } from 'vue'
-import { NavigationGuardNext } from 'vue-router/types/router'
-import APIError from '@/api/classes/APIError'
+} from '@/api/ProjectIntegrationSettings';
+import rules from '@/mixins/rules';
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue';
+import VInterface from '@/VInterface';
+import Vue, { VueConstructor } from 'vue';
+import { NavigationGuardNext } from 'vue-router/types/router';
+import APIError from '@/api/classes/APIError';
 
 interface Ref {
   [key: string]: any;
@@ -251,39 +251,39 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
       .getById(+to.params.id)
       .then(async (response: ProfileInterface) => {
         next((vm) => {
-          vm.profile.name = response.name
-          vm.profile.external_project_id = response.external_project_id
-          vm.profile.main_tag = response.main_tag
-          vm.profile.cross_tag = response.cross_tag
-          vm.profile.half_cross_tag = response.half_cross_tag
-          vm.profile.half_tag = response.half_tag
+          vm.profile.name = response.name;
+          vm.profile.external_project_id = response.external_project_id;
+          vm.profile.main_tag = response.main_tag;
+          vm.profile.cross_tag = response.cross_tag;
+          vm.profile.half_cross_tag = response.half_cross_tag;
+          vm.profile.half_tag = response.half_tag;
 
           if (vm.assertObjectHasAttribute(vm.$refs, 'SProjectsAutocomplete')) {
             if (vm.assertObjectHasAttribute(response.main_project, 'id')) {
-              vm.$refs.SProjectsAutocomplete.setDefault(response.main_project?.id)
+              vm.$refs.SProjectsAutocomplete.setDefault(response.main_project?.id);
             }
           }
           if (vm.assertObjectHasAttribute(vm.$refs, 'Cross')) {
             if (vm.assertObjectHasAttribute(response.cross_project, 'id')) {
-              vm.$refs.Cross.setDefault(response.cross_project?.id)
+              vm.$refs.Cross.setDefault(response.cross_project?.id);
             }
           }
           if (vm.assertObjectHasAttribute(vm.$refs, 'Half')) {
             if (vm.assertObjectHasAttribute(response.half_project, 'id')) {
-              vm.$refs.Half.setDefault(response.half_project?.id)
+              vm.$refs.Half.setDefault(response.half_project?.id);
             }
           }
           if (vm.assertObjectHasAttribute(vm.$refs, 'HalfCross')) {
             if (vm.assertObjectHasAttribute(response.half_cross_project, 'id')) {
-              vm.$refs.HalfCross.setDefault(response.half_cross_project?.id)
+              vm.$refs.HalfCross.setDefault(response.half_cross_project?.id);
             }
           }
-        })
+        });
       }).catch(() => {
         next({
           name: 'not_found'
-        })
-      })
+        });
+      });
   },
 
   data () {
@@ -313,7 +313,7 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         external_project_id: null,
         organization: null as unknown as OrganizationInterface
       }
-    }
+    };
   },
   methods: {
 
@@ -330,25 +330,25 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
               new ProjectIntegrationSettings()
                 .delete(+this.$route.params.id)
                 .then(() => {
-                  this.$toast.success(this.$tc('profile_delete_successfully'))
-                  this.$router.back()
+                  this.$toast.success(this.$tc('profile_delete_successfully'));
+                  this.$router.back();
                 }).catch((e: APIError) => {
-                  this.$toast.error(e.message)
-                })
+                  this.$toast.error(e.message);
+                });
             },
             text: this.$tc('Yes')
           }
         },
         text: this.$tc('All information  will be deleted permanently.'),
         title: this.$tc('Confirmation request')
-      })
+      });
     },
 
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
-        return
+        return;
       }
-      this.buttonSave.loading = true
+      this.buttonSave.loading = true;
 
       const request = {
         name: this.profile.name,
@@ -357,40 +357,40 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         half_tag: this.profile.half_tag,
         cross_tag: this.profile.cross_tag,
         half_cross_tag: this.profile.half_cross_tag
-      } as any
+      } as any;
 
       if (this.assertObjectHasAttribute(this.profile.main_project, 'id')) {
-        request.main_project_id = this.profile.main_project.id
+        request.main_project_id = this.profile.main_project.id;
       }
 
       if (this.assertObjectHasAttribute(this.profile.cross_project, 'id')) {
-        request.cross_project_id = this.profile.cross_project.id
+        request.cross_project_id = this.profile.cross_project.id;
       }
 
       if (this.assertObjectHasAttribute(this.profile.half_project, 'id')) {
-        request.half_project_id = this.profile.half_project.id
+        request.half_project_id = this.profile.half_project.id;
       }
 
       if (this.assertObjectHasAttribute(this.profile.half_cross_project, 'id')) {
-        request.half_cross_project_id = this.profile.half_cross_project.id
+        request.half_cross_project_id = this.profile.half_cross_project.id;
       }
       new ProjectIntegrationSettings()
         .update(+this.$route.params.id, request)
         .then(() => {
-          this.$toast.success(this.$tc('Profile updated successfully.'))
+          this.$toast.success(this.$tc('Profile updated successfully.'));
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
             e.errors.map((e: any) => {
-              this.$toast.warning(e.message)
-            })
+              this.$toast.warning(e.message);
+            });
           }
-          this.$toast.error(e.message)
+          this.$toast.error(e.message);
         }).finally(() => {
-          this.buttonSave.loading = false
-        })
+          this.buttonSave.loading = false;
+        });
     }
   }
-})
+});
 </script>
 
 <style scoped>

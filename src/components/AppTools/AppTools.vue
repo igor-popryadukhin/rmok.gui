@@ -10,7 +10,7 @@
 <script>
 export default {
   name: 'AppTools'
-}
+};
 </script>
 
 <style lang="scss" scoped>

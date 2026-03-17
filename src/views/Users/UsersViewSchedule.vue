@@ -9,6 +9,13 @@
       />
     </div>
 
+    <div class="mb-5">
+      <app-schedule-week
+        v-model="schedule"
+        :element-color="$vuetify.theme.currentTheme.primary"
+      />
+    </div>
+
     <v-divider class="mb-2" />
 
     <div class="mb-5">
@@ -27,15 +34,15 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import UserSchedule from '@/api/interfaces/UserSchedule'
-import AppBase from '@/AppBase'
-import AppScheduleWeek from '@/components/AppScheduleWeek/AppScheduleWeek.vue'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import Component from 'vue-class-component'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppTable from '@/components/AppTable/AppTable.vue'
+import APIError from '@/api/classes/APIError';
+import UserSchedule from '@/api/interfaces/UserSchedule';
+import AppBase from '@/AppBase';
+import AppScheduleWeek from '@/components/AppScheduleWeek/AppScheduleWeek.vue';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import Component from 'vue-class-component';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppTable from '@/components/AppTable/AppTable.vue';
 
 // eslint-disable-next-line no-use-before-define
 @Component<UsersViewSchedule>({
@@ -46,41 +53,41 @@ export default class UsersViewSchedule extends AppBase {
   oldFormState = null
 
   get schedule (): UserSchedule[] {
-    return this.$store.getters['users/view/user_schedule']
+    return this.$store.getters['users/view/user_schedule'];
   }
 
   set schedule (val: UserSchedule[]) {
-    this.$store.commit('users/view/user_schedule', val)
+    this.$store.commit('users/view/user_schedule', val);
   }
 
   get isChanged () {
-    return this.oldFormState !== JSON.stringify(this.schedule)
+    return this.oldFormState !== JSON.stringify(this.schedule);
   }
 
   public mounted () {
-    this.oldFormState = JSON.stringify(this.schedule)
+    this.oldFormState = JSON.stringify(this.schedule);
   }
 
   private onBtnSaveChangeClick () {
-    this.conservationProcess = true
+    this.conservationProcess = true;
     $axios.patch(`/users/${this.$route.params.id}`, {
       schedule: this.schedule
     }).then((response: AxiosResponse) => {
       if (![200, 204].includes(response.status)) {
-        throw new APIError(response.data)
+        throw new APIError(response.data);
       }
 
-      this.oldFormState = JSON.stringify(this.schedule)
-      this.$toast.success('Changes accepted')
+      this.oldFormState = JSON.stringify(this.schedule);
+      this.$toast.success('Changes accepted');
     }).catch((reason) => {
       if (reason instanceof APIError) {
         reason.errors.forEach((e) => {
-          this.$toast.error(e.message)
-        })
+          this.$toast.error(e.message);
+        });
       } else {
-        this.$toast.error(reason.message)
+        this.$toast.error(reason.message);
       }
-    }).finally(() => (this.conservationProcess = false))
+    }).finally(() => (this.conservationProcess = false));
   }
 }
 </script>

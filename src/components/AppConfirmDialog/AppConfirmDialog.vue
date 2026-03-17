@@ -21,9 +21,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import { Emit, Prop } from 'vue-property-decorator'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, Prop } from 'vue-property-decorator';
 
 @Component
 export default class AppConfirmDialog extends Vue {
@@ -34,22 +34,22 @@ export default class AppConfirmDialog extends Vue {
 
   @Emit('click:cancel')
   clickCancel () {
-    this.dialogVisible = false
-    return undefined
+    this.dialogVisible = false;
+    return undefined;
   }
 
   @Emit('click:confirm')
   clickConfirm () {
-    this.dialogVisible = false
-    return undefined
+    this.dialogVisible = false;
+    return undefined;
   }
 
   private activatorOnClick () {
     this.dialogComponent = () => new Promise((resolve) => {
       return import(/* webpackChunkName: "app-confirm-dialog-template" */ './AppConfirmDialogTemplate.vue')
         .then(resolve)
-        .finally(() => (this.dialogVisible = true))
-    })
+        .finally(() => (this.dialogVisible = true));
+    });
   }
 }
 </script>

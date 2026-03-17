@@ -99,10 +99,10 @@
 </template>
 
 <script lang="ts">
-import AppBase from '@/AppBase'
-import AppChatMessage from '@/components/AppChat/AppChatMessage.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import Component from 'vue-class-component'
+import AppBase from '@/AppBase';
+import AppChatMessage from '@/components/AppChat/AppChatMessage.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import Component from 'vue-class-component';
 
 interface SSEMessengerMessage {
   id: number;
@@ -118,42 +118,42 @@ interface SSEMessengerMessage {
     next((vm) => {
       vm.$store.dispatch('contacts/view/messages/fetch', {
         contact_id: to.params.id
-      })
-    })
+      });
+    });
   }
 })
 export default class ContactsViewMessages extends AppBase {
   text = null
 
   get messagesFetching () {
-    return this.$store.getters['contacts/view/messages/items_fetching']
+    return this.$store.getters['contacts/view/messages/items_fetching'];
   }
 
   get messages () {
-    return this.$store.getters['contacts/view/messages/items']
+    return this.$store.getters['contacts/view/messages/items'];
   }
 
   get messengerAvailable (): boolean {
-    return this.$store.getters['contacts/view/messenger_available']
+    return this.$store.getters['contacts/view/messenger_available'];
   }
 
   get messenger () {
-    return this.$store.getters['contacts/view/messenger']
+    return this.$store.getters['contacts/view/messenger'];
   }
 
   get writeAMessageTo  (): string {
     if (this.messengerAvailable) {
-      return this.$t('write_a_message_to', { text: this.messenger.name }).toString()
+      return this.$t('write_a_message_to', { text: this.messenger.name }).toString();
     }
-    return ''
+    return '';
   }
 
   public created () {
-    this.$root.$on('messenger:message', this.onSSEMessengerMessage)
+    this.$root.$on('messenger:message', this.onSSEMessengerMessage);
   }
 
   public beforeDestroy () {
-    this.$root.$off('messenger:message', this.onSSEMessengerMessage)
+    this.$root.$off('messenger:message', this.onSSEMessengerMessage);
   }
 
   private onSSEMessengerMessage (data: SSEMessengerMessage) {
@@ -161,9 +161,9 @@ export default class ContactsViewMessages extends AppBase {
       contact_id: this.$route.params.id
     }).finally(() => {
       if (data.out === false) {
-        this.$audio.play('/sounds/messenger/message-1.mp3')
+        this.$audio.play('/sounds/messenger/message-1.mp3');
       }
-    })
+    });
   }
 
   /**
@@ -191,13 +191,13 @@ export default class ContactsViewMessages extends AppBase {
       contact_id: this.$route.params.id,
       text: this.text
     }).finally(() => {
-      this.$audio.play('/sounds/messenger/sentmessage-1.mp3')
-    })
-    this.text = null
+      this.$audio.play('/sounds/messenger/sentmessage-1.mp3');
+    });
+    this.text = null;
   }
 
   private onSendEnter () {
-    this.sendMessage()
+    this.sendMessage();
   }
 
   /**

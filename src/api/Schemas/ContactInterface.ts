@@ -1,5 +1,5 @@
-import { ProjectInterface } from '@/api/Projects'
-import { UserInterface } from '@/api/Users'
+import { ProjectInterface } from '@/api/Projects';
+import { UserInterface } from '@/api/Users';
 
 export interface ContactTagInterface {
   id: number;

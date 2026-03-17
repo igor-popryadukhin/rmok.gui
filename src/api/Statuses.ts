@@ -1,8 +1,8 @@
-import APIError from '@/api/classes/APIError'
-import Status from '@/api/interfaces/Status'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import APIError from '@/api/classes/APIError';
+import Status from '@/api/interfaces/Status';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
 
 export interface StatusGroupInterface {
   id: number;
@@ -27,11 +27,11 @@ export default class Statuses {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        resolve(response.data)
-      }).catch(reject)
-    })
+        resolve(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -45,11 +45,11 @@ export default class Statuses {
         params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          return resolve(response.data)
+          return resolve(response.data);
         }
-        throw new APIError(response.data)
-      }).catch(reject)
-    })
+        throw new APIError(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -63,10 +63,10 @@ export default class Statuses {
         .get(`/statuses/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            resolve(response.data)
+            resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 }

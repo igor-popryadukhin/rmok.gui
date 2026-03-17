@@ -1,6 +1,6 @@
 // 1. Обязательно импортируйте Vue перед объявлением расширенных типов
-import Vue from 'vue'
-import { Moment } from 'moment'
+import Vue from 'vue';
+import { Moment } from 'moment';
 
 // 2. Укажите файл с типами, которые вы хотите расширить
 //    Vue имеет тип конструктора в types/vue.d.ts

@@ -1,34 +1,34 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import createPersistedState from 'vuex-persistedstate'
-import projects from './projects'
-import settings from './settings'
-import symfony from './symfony'
-import system from './system'
-import profile from './profile'
-import groups from './groups'
-import users from './users'
-import contacts from './contacts'
-import statistic_recent_call from './statistic_recent_call'
-import statistic_all_call from './statistic_all_call'
-import autodialer from './autodialer'
-import scenarios from './scenarios'
-import unsaved_call from './unsaved_call'
-import statistic_activity from './statistic_activity'
-import debug from 'debug'
-import $app from '@/main'
-import { notifications } from './notifications'
-import { statistics } from './statistics'
-import chats from './chats'
-import tasks from './tasks'
-import LocalStorage from './LocalStorage'
-import SessionStorage from './SessionStorage'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
+import projects from './projects';
+import settings from './settings';
+import symfony from './symfony';
+import system from './system';
+import profile from './profile';
+import groups from './groups';
+import users from './users';
+import contacts from './contacts';
+import statistic_recent_call from './statistic_recent_call';
+import statistic_all_call from './statistic_all_call';
+import autodialer from './autodialer';
+import scenarios from './scenarios';
+import unsaved_call from './unsaved_call';
+import statistic_activity from './statistic_activity';
+import debug from 'debug';
+import $app from '@/main';
+import { notifications } from './notifications';
+import { statistics } from './statistics';
+import chats from './chats';
+import tasks from './tasks';
+import LocalStorage from './LocalStorage';
+import SessionStorage from './SessionStorage';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
-const vuexDebug = debug('VUEX')
-const vuexDebugActions = vuexDebug.extend('ACTION')
-const vuexDebugMutations = vuexDebug.extend('MUTATION')
+const vuexDebug = debug('VUEX');
+const vuexDebugActions = vuexDebug.extend('ACTION');
+const vuexDebugMutations = vuexDebug.extend('MUTATION');
 
 export interface RootState {
   last_call_at: Date|null;
@@ -44,7 +44,7 @@ const $store = new Vuex.Store({
       last_call_at: null,
       bootstrap_process: true, // Процесс начальной загрузки
       is_logged_in: false // Состояние авторизации
-    }
+    };
   },
 
   modules: {
@@ -69,9 +69,9 @@ const $store = new Vuex.Store({
   },
 
   mutations: {
-    last_call_at (state, payload) { state.last_call_at = payload },
-    bootstrap_process (state, payload) { state.bootstrap_process = payload },
-    is_logged_in (state, payload) { state.is_logged_in = payload }
+    last_call_at (state, payload) { state.last_call_at = payload; },
+    bootstrap_process (state, payload) { state.bootstrap_process = payload; },
+    is_logged_in (state, payload) { state.is_logged_in = payload; }
   },
 
   getters: {
@@ -119,14 +119,14 @@ const $store = new Vuex.Store({
       storage: new SessionStorage()
     })
   ]
-})
+});
 
 $store.subscribeAction((ap, rs) => {
-  vuexDebugActions('%o %o', ap, rs)
-})
+  vuexDebugActions('%o %o', ap, rs);
+});
 
 $store.subscribe((ap, rs) => {
-  vuexDebugMutations('%o %o', ap, rs)
-})
+  vuexDebugMutations('%o %o', ap, rs);
+});
 
-export default $store
+export default $store;

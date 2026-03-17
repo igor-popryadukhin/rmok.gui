@@ -1,8 +1,8 @@
-import ContactDetail from '@/api/interfaces/ContactDetail'
-import ContactTag from '@/api/interfaces/ContactTag'
-import Location from '@/api/interfaces/Location'
-import StatusGroup from '@/api/interfaces/StatusGroup'
-import Messenger from '@/interfaces/Messenger'
+import ContactDetail from '@/api/interfaces/ContactDetail';
+import ContactTag from '@/api/interfaces/ContactTag';
+import Location from '@/api/interfaces/Location';
+import StatusGroup from '@/api/interfaces/StatusGroup';
+import Messenger from '@/interfaces/Messenger';
 
 export interface ContactsViewState {
   fetching: boolean;
@@ -62,9 +62,9 @@ export function contactsViewState (): ContactsViewState {
     // Мессенджер
     messenger_available: false,
     messenger: null
-  }
+  };
 }
 
-const state = contactsViewState
+const state = contactsViewState;
 
-export default state
+export default state;

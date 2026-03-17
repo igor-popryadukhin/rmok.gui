@@ -1,15 +1,15 @@
-import { contactsViewState, ContactsViewTasksState } from './state'
-import { MutationTree } from 'vuex'
+import { contactsViewState, ContactsViewTasksState } from './state';
+import { MutationTree } from 'vuex';
 
 const mutations: MutationTree<ContactsViewTasksState> = {
-  items_fetching (state, payload) { state.items_fetching = payload },
-  items_count (state, payload) { state.items_count = payload },
-  items (state, payload) { state.items = payload },
+  items_fetching (state, payload) { state.items_fetching = payload; },
+  items_count (state, payload) { state.items_count = payload; },
+  items (state, payload) { state.items = payload; },
 
   /** Сброс состояния */
   flush (state) {
-    Object.assign(state, contactsViewState())
+    Object.assign(state, contactsViewState());
   }
-}
+};
 
-export default mutations
+export default mutations;

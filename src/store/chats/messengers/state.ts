@@ -1,4 +1,4 @@
-import { Messengers } from '@/api/interfaces/Messengers'
+import { Messengers } from '@/api/interfaces/Messengers';
 
 export interface State {
   fetching: boolean;
@@ -9,7 +9,7 @@ function state (): State {
   return {
     fetching: false,
     items: []
-  }
+  };
 }
 
-export default state
+export default state;

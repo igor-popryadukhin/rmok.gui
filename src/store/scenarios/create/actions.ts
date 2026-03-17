@@ -1,7 +1,7 @@
-import { RootState } from '@/store'
-import { ActionContext, ActionTree } from 'vuex'
-import { State } from './state'
-import Scenarios from '@/api/Scenarios'
+import { RootState } from '@/store';
+import { ActionContext, ActionTree } from 'vuex';
+import { State } from './state';
+import Scenarios from '@/api/Scenarios';
 
 export const actions: ActionTree<State, RootState> = {
 
@@ -14,7 +14,7 @@ export const actions: ActionTree<State, RootState> = {
     const data: Record<string, unknown> = {
       name: ctx.state.name,
       scenario: ctx.state.scenario
-    }
-    return new Scenarios().create(data)
+    };
+    return new Scenarios().create(data);
   }
-}
+};

@@ -27,7 +27,7 @@ function state (): State {
     region: '',
     site: '',
     sphere_activity: ''
-  }
+  };
 }
 
-export default state
+export default state;

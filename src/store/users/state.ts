@@ -1,4 +1,4 @@
-import User from '@/api/interfaces/User'
+import User from '@/api/interfaces/User';
 
 export interface State {
   process_loading: boolean;
@@ -15,7 +15,7 @@ function state (): State {
     total_online: 0,
     items: [],
     selected: []
-  }
+  };
 }
 
-export default state
+export default state;

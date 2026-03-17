@@ -11,7 +11,7 @@ function state (): ScenarioViewState {
     name: '',
     description: '',
     scenario: ''
-  }
+  };
 }
 
-export default state
+export default state;
