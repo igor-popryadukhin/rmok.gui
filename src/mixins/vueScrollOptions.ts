@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
 const vueScrollOptions = Vue.extend({
   data () {
@@ -27,8 +27,8 @@ const vueScrollOptions = Vue.extend({
           wheelScrollDuration: 500
         }
       }
-    }
+    };
   }
-})
+});
 
-export default vueScrollOptions
+export default vueScrollOptions;

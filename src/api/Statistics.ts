@@ -1,10 +1,10 @@
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import APIError from '@/api/classes/APIError'
-import { ContactHistoryInterface } from '@/api/Schemas/ContactInterface'
-import StatisticPie from '@/api/interfaces/StatisticPie'
-import ContactHistory from '@/api/interfaces/ContactHistory'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import APIError from '@/api/classes/APIError';
+import { ContactHistoryInterface } from '@/api/Schemas/ContactInterface';
+import StatisticPie from '@/api/interfaces/StatisticPie';
+import ContactHistory from '@/api/interfaces/ContactHistory';
 
 export default class Statistics {
   /**
@@ -20,14 +20,14 @@ export default class Statistics {
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
           if (typeof response.data?.count !== 'number') {
-            throw new Error('Invalid api response')
+            throw new Error('Invalid api response');
           }
-          resolve(response.data?.count)
+          resolve(response.data?.count);
         } else {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 
   /**
@@ -42,11 +42,11 @@ export default class Statistics {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-        resolve(response.data)
-      }).catch(reject)
-    })
+        resolve(response.data);
+      }).catch(reject);
+    });
   }
 
   /**
@@ -61,12 +61,12 @@ export default class Statistics {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          resolve(response.data)
+          resolve(response.data);
         } else {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 
   /**
@@ -80,12 +80,12 @@ export default class Statistics {
         params
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
 
-        resolve(response.data)
-      }).catch(reject)
-    })
+        resolve(response.data);
+      }).catch(reject);
+    });
   }
 
   public callCount<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
@@ -94,12 +94,12 @@ export default class Statistics {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          resolve(response.data)
+          resolve(response.data);
         } else {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 
   /**
@@ -107,18 +107,18 @@ export default class Statistics {
    *
    * @param params
    */
-  public activity<TM, TD> (params = {}): Promise<ResponseInterface<TM, TD>> {
-    return new Promise<ResponseInterface<TM, TD>>((resolve, reject) => {
+  public activity<TM, TD> (params = {}): Promise<ResponseInterface<{ types: [] }, TD>> {
+    return new Promise<ResponseInterface<{ types: [] }, TD>>((resolve, reject) => {
       $axios.get('/statistics/stats-activity', {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          resolve(response.data)
+          resolve(response.data);
         } else {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 
   /**
@@ -132,11 +132,11 @@ export default class Statistics {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          resolve(response.data)
+          resolve(response.data);
         } else {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 }

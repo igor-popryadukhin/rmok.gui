@@ -1,9 +1,19 @@
 <template>
-  <div />
+  <v-sheet class="d-flex align-center justify-center fill-height">
+    <div class="text-center" />
+  </v-sheet>
 </template>
-
 <script lang="ts">
-import Vue from 'vue'
+import AppBase from '@/AppBase';
+import { generateUUID } from '@/utils/utils';
+import { AxiosResponse } from 'axios';
 
-export default Vue.extend({})
+import Component from 'vue-class-component';
+
+@Component
+export default class Home extends AppBase {
+  private test () {
+    this.$toast.info('Message');
+  }
+}
 </script>

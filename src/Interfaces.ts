@@ -23,7 +23,7 @@ export interface NotificationInterface {
   title: string;
   message: string;
   message2?: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   /** @deprecated */
   click?: (e: NotificationInterface, i: number) => void;
   actions?: NotificationActionInterface[];

@@ -1,23 +1,26 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--wave">
-      <div></div>
-      <div></div>
-      <div></div>
+  <div
+    :style="styles"
+    class="spinner spinner--wave"
+  >
+    <div />
+    <div />
+    <div />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     styles () {
       return {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

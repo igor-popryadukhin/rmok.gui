@@ -1,21 +1,34 @@
 <template>
-  <svg v-bind:style="styles" class="spinner spinner--circle" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-    <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+  <svg
+    :style="styles"
+    class="spinner spinner--circle"
+    viewBox="0 0 66 66"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle
+      class="path"
+      fill="none"
+      stroke-width="6"
+      stroke-linecap="round"
+      cx="33"
+      cy="33"
+      r="30"
+    />
   </svg>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     styles () {
       return {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

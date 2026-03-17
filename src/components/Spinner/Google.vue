@@ -1,19 +1,22 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--google"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--google"
+  />
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     styles () {
       return {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

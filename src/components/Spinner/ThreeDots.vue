@@ -1,13 +1,36 @@
 <template>
-  <div v-bind:style="styles" class="spinner">
-    <div v-bind:style="blobStyles" class="blob top"></div>
-    <div v-bind:style="blobStyles" class="blob bottom"></div>
-    <div v-bind:style="blobStyles" class="blob left"></div>
-    <div v-bind:style="moveBlobStyles" class="blob move-blob"></div>
+  <div
+    :style="styles"
+    class="spinner"
+  >
+    <div
+      :style="blobStyles"
+      class="blob top"
+    />
+    <div
+      :style="blobStyles"
+      class="blob bottom"
+    />
+    <div
+      :style="blobStyles"
+      class="blob left"
+    />
+    <div
+      :style="moveBlobStyles"
+      class="blob move-blob"
+    />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     blobStyles () {
       return {
@@ -25,14 +48,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    color: {
-      default: '#41b883'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

@@ -1,5 +1,8 @@
 <template>
-  <v-card tile flat>
+  <v-card
+    tile
+    flat
+  >
     <v-card-text class="pt-5">
       <v-list>
         <template v-for="(item, key) in options">
@@ -14,7 +17,7 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-divider :key="`v-divider-${key}`"/>
+          <v-divider :key="`v-divider-${key}`" />
         </template>
       </v-list>
     </v-card-text>
@@ -22,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 export default Vue.extend({
   name: 'AppDialogList',
@@ -55,23 +58,23 @@ export default Vue.extend({
   },
 
   data () {
-    return {}
+    return {};
   },
 
   mounted () {
     setTimeout(() => {
-      this.$emit('close')
-    }, 3000)
+      this.$emit('close');
+    }, 3000);
   },
 
   methods: {
     itemClick (item: any) {
       if (typeof this.onItemClick === 'function') {
-        this.onItemClick(item)
+        this.onItemClick(item);
       }
     }
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

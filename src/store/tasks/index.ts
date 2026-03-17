@@ -1,16 +1,16 @@
-import { RootState } from '@/store'
-import { Module } from 'vuex'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
-import state, { TasksState } from './state'
+import { RootState } from '@/store';
+import { Module } from 'vuex';
+import actions from './actions';
+import getters from './getters';
+import mutations from './mutations';
+import state, { TasksState } from './state';
 
-const module: Module<TasksState, RootState> = {
+const index: Module<TasksState, RootState> = {
   actions,
   getters,
   mutations,
   namespaced: true,
   state
-}
+};
 
-export default module
+export default index;

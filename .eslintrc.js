@@ -4,59 +4,96 @@ module.exports = {
     es6: true,
     node: true
   },
+
   extends: [
     'plugin:vue/recommended',
-    '@vue/standard',
     '@vue/typescript/recommended'
   ],
+
   ignorePatterns: [
+    'node_modules',
     '**/node_modules/*',
     '**/tests/*'
   ],
+
   parserOptions: {
     ecmaVersion: 2020
   },
+
   plugins: [
     // 'sort-keys-fix'
   ],
+
   root: true,
+
   rules: {
-    "sort-imports": ["warn", { "ignoreCase": true }],
-    '@typescript-eslint/naming-convention': [
-      'error',
-      {
-        format: [
-          'camelCase',
-          'strictCamelCase',
-          'PascalCase',
-          'StrictPascalCase',
-          'snake_case',
-          'UPPER_CASE'
-        ],
-        leadingUnderscore: 'allow',
-        selector: 'default',
-        trailingUnderscore: 'allow'
-      }
-    ],
-    camelcase: 'off',
-    indent: ['error', 2, {
-      FunctionDeclaration: {
-        body: 1,
-        parameters: 2
+    "comma-dangle": ["error", {
+      "arrays": "never",
+      "objects": "never",
+      "imports": "never",
+      "exports": "never",
+      "functions": "never"
+    }],
+    "semi": [2, "always"],
+    "vue/attributes-order": ["error", {
+      "order": [
+        "DEFINITION",
+        "LIST_RENDERING",
+        "CONDITIONALS",
+        "RENDER_MODIFIERS",
+        "GLOBAL",
+        ["UNIQUE", "SLOT"],
+        "TWO_WAY_BINDING",
+        "OTHER_DIRECTIVES",
+        "OTHER_ATTR",
+        "EVENTS",
+        "CONTENT"
+      ],
+      "alphabetical": false
+    }],
+    "vue/max-attributes-per-line": ["error", {
+      "singleline": {
+        "max": 1
       },
-      ImportDeclaration: 1,
-      MemberExpression: 1,
-      ObjectExpression: 1,
-      SwitchCase: 1,
-      VariableDeclarator: {
-        const: 3,
-        let: 2,
-        var: 2
+      "multiline": {
+        "max": 1
       }
     }],
-    'no-console': 'off',
-    'no-control-regex': 'off',
-    'no-debugger': 'off',
-    // 'sort-keys-fix/sort-keys-fix': 'warn'
-  }
-}
+    "vue/component-name-in-template-casing": ["error", "kebab-case", {
+      "registeredComponentsOnly": true
+    }],
+    "vue/no-dupe-keys": ["error", {
+      "groups": []
+    }],
+    "vue/html-indent": [
+      "error",
+      2,
+      {
+        attribute: 1,
+        baseIndent: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+        ignores: []
+      }
+    ],
+    "@typescript-eslint/no-this-alias": [
+      "error",
+      {
+        "allowDestructuring": true, // Allow `const { props, state } = this`; false by default
+        "allowedNames": ["vm"] // Allow `const vm= this`; `[]` by default
+      }
+    ]
+  },
+
+  overrides: [
+    {
+      files: [
+        '**/__tests__/*.{j,t}s?(x)',
+        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+      ],
+      env: {
+        jest: true
+      }
+    }
+  ]
+};

@@ -47,9 +47,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapGetters } from 'vuex'
-import { debounce } from 'vuetify/src/util/helpers'
+import Vue from 'vue';
+import debounce from '@/utils/debounce';
 
 export default Vue.extend({
   name: 'AppContactTagAutocomplete',
@@ -68,6 +67,15 @@ export default Vue.extend({
       type: Boolean,
       default: false
     },
+    // Включает элемент с нулевым значением и помещает его в начало списка.
+    noResultItem: {
+      type: Boolean,
+      default: false
+    },
+    noResultItemTitle: {
+      type: String,
+      default: () => 'No tags'
+    },
     disabled: {
       type: Boolean,
       default: false
@@ -83,49 +91,60 @@ export default Vue.extend({
       q: null,
       qOld: null,
       selected: 0 as number | number[]
-    }
+    };
   },
 
   computed: {
-    ...mapGetters({
-      options: 'filter/contact_tags'
-    }),
+    options () {
+      const statuses: unknown[] = this.$store.getters['filter/contact_tags'].map((e: unknown) => e);
 
-    paramsQuery () {
-      const paramsQuery: Record<string, unknown | string> = {}
-
-      if (this.q) {
-        paramsQuery.q = this.q
+      if (this.noResultItem) {
+        statuses.unshift({
+          id: 0,
+          name: this.noResultItemTitle,
+          color: 'grey'
+        });
       }
 
-      return paramsQuery
+      return statuses;
+    },
+
+    paramsQuery () {
+      const paramsQuery: Record<string, unknown | string> = {};
+
+      if (this.q) {
+        paramsQuery.q = this.q;
+      }
+
+      return paramsQuery;
     }
   },
 
   watch: {
     q (val: string) {
-      val && this.options.findIndex((e) => e.name?.toLowerCase().indexOf(val.toLowerCase()) > -1) === -1 && this.fetchOptions()
+      // @ts-expect-error: val && this.options.findIndex((e) => e.name?.toLowerCase().indexOf(val.toLowerCase()) > -1) === -1 && this.fetchOptions()
+      val && this.options.findIndex((e) => e.name?.toLowerCase().indexOf(val.toLowerCase()) > -1) === -1 && this.fetchOptions();
     }
   },
 
   created () {
-    this.fetchOptions = debounce(this.fetchOptions, 450)
+    this.fetchOptions = debounce(this.fetchOptions, 450);
   },
 
   mounted () {
-    this.selected = this.value
+    this.selected = this.value;
 
-    if (this.options.length === 0) {
-      this.fetchOptions()
+    if (this.options.length === 0 || (this.options.length === 1 && this.noResultItem)) {
+      this.fetchOptions();
     }
   },
 
   methods: {
     fetchOptions () {
-      this.$store.dispatch('filter/contact_tags', this.paramsQuery)
+      this.$store.dispatch('filter/contact_tags', this.paramsQuery);
     }
   }
-})
+});
 </script>
 
 <style scoped>

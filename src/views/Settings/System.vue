@@ -46,31 +46,31 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 export default Vue.extend({
   computed: {
     settingsVueKeepAlive: {
       set (value: boolean) {
-        this.$store.commit('settings/vue_keep_alive', value)
+        this.$store.commit('settings/vue_keep_alive', value);
       },
       get () {
-        return this.$store.getters['settings/vue_keep_alive']
+        return this.$store.getters['settings/vue_keep_alive'];
       }
     },
 
     keepAliveHelp () {
-      return 'Позволяет сохранять состояние ранее посещённых страниц.'
+      return 'Позволяет сохранять состояние ранее посещённых страниц.';
     }
   },
 
   methods: {
     clearLocalStorage () {
-      localStorage.clear()
-      window.location.reload()
+      localStorage.clear();
+      window.location.reload();
     }
   }
-})
+});
 </script>
 
 <style scoped>

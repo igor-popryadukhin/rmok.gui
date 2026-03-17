@@ -1,11 +1,11 @@
-import Vue from 'vue'
-import VueI18n from 'vue-i18n'
+import Vue from 'vue';
+import VueI18n from 'vue-i18n';
 
-Vue.use(VueI18n)
+Vue.use(VueI18n);
 
-const loadedPackages: string[] = [] // our default language that is preloaded
+const loadedPackages: string[] = []; // our default language that is preloaded
 
-const locale: string | undefined = process.env.VUE_APP_I18N_LOCALE
+const locale: string | undefined = process.env.VUE_APP_I18N_LOCALE;
 
 const i18n = new VueI18n({
   fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'ru',
@@ -17,63 +17,53 @@ const i18n = new VueI18n({
      * @returns финальный индекс для выбора соответственного варианта слова
      */
     ru (choice: number, choicesLength: number) {
-      // this === VueI18n instance, so the locale property also exists here
-      if (choice === 1 && choicesLength === 2) {
-        return 0
+      if (choice === 0) {
+        return 0;
       }
 
-      if (choice === 2 && choicesLength === 2) {
-        return 1
-      }
-
-      // 12 вариантов
-      if (choicesLength === 11) {
-        return choice
-      }
-
-      const teen = choice > 10 && choice < 20
-      const endsWithOne = choice % 10 === 1
+      const teen = choice > 10 && choice < 20;
+      const endsWithOne = choice % 10 === 1;
 
       if (choicesLength < 4) {
-        return (!teen && endsWithOne) ? 1 : 2
+        return (!teen && endsWithOne) ? 1 : 2;
       }
       if (!teen && endsWithOne) {
-        return 1
+        return 1;
       }
       if (!teen && choice % 10 >= 2 && choice % 10 <= 4) {
-        return 2
+        return 2;
       }
 
-      return (choicesLength < 4) ? 2 : 3
+      return (choicesLength < 4) ? 2 : 3;
     }
   },
   silentTranslationWarn: true
-})
+});
 
 class VueI18nPlugin {
   public install () {
     Object.defineProperties(Vue.prototype, {
       i18n: {
         get () {
-          return i18n
+          return i18n;
         }
       }
-    })
+    });
   }
 }
 
-Vue.use(new VueI18nPlugin())
+Vue.use(new VueI18nPlugin());
 
-export default i18n
+export default i18n;
 
 function setI18nLanguage (lang: string) {
-  i18n.locale = lang
+  i18n.locale = lang;
   // todo: Warning, not working in SSR!
   /* eslint-disable */
   // @ts-ignore
   document.querySelector('html').setAttribute('lang', lang)
   /* eslint-enable */
-  return lang
+  return lang;
 }
 
 /**
@@ -84,19 +74,19 @@ function setI18nLanguage (lang: string) {
  */
 export function loadLanguageAsync (lang: string, name: string): Promise<boolean> {
   return new Promise((resolve) => {
-    const ln = `${lang}-${name}`
+    const ln = `${lang}-${name}`;
     if (loadedPackages.includes(ln)) {
-      resolve(true)
-      return
+      resolve(true);
+      return;
     }
-    loadedPackages.push(ln)
+    loadedPackages.push(ln);
 
     return import(/* webpackChunkName: "lang-[request]" */ `@/locales/${lang}/${name}.json`).then(
       (messages) => {
-        resolve(true)
-        i18n.mergeLocaleMessage(lang, messages.default)
-        return setI18nLanguage(lang)
+        resolve(true);
+        i18n.mergeLocaleMessage(lang, messages.default);
+        return setI18nLanguage(lang);
       }
-    )
-  })
+    );
+  });
 }

@@ -1,28 +1,34 @@
 <template>
-  <div :style="styles" class="spinner spinner--gauge">
-    <div :style="innerStyles" class="spinner-inner"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--gauge"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         transform: 'scale(' + (size / 60) + ')'
       }
     },
     styles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         height: size / 2 + 'px',
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import Vue, { PropType } from 'vue';
 
 export default Vue.extend({
   name: 'AppContactHistoryStatusDialogEdit',
@@ -85,35 +85,36 @@ export default Vue.extend({
       oldStatusValue: this.value,
       statusValue: this.value,
       dialogVisible: this.visible
-    }
+    };
   },
 
   computed: {
     saveAvailable () {
-      return this.$data.oldStatusValue === this.$data.statusValue
+      return this.$data.oldStatusValue === this.$data.statusValue;
     }
   },
 
   watch: {
     value (val: number) {
-      this.statusValue = val
+      this.statusValue = val;
     },
     statusValue (val: number) {
-      this.$emit('update', val)
+      this.$emit('update', val);
     },
     dialogVisible (val: boolean) {
-      this.$emit('update:visible', val)
+      this.$emit('update:visible', val);
     }
   },
 
   methods: {
     onBtnSaveClick () {
-      if (!this.$refs.form.validate(true)) { return }
+      // @ts-expect-error: if (!this.$refs.form.validate(true)) { return }
+      if (!this.$refs.form.validate(true)) { return; }
 
-      this.$emit('btn:save')
+      this.$emit('btn:save');
     }
   }
-})
+});
 </script>
 
 <style scoped>

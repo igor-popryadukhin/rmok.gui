@@ -13,35 +13,35 @@ interface ErrorInterface {
 
 export default class APIError extends Error {
   get error_code (): string {
-    return this._error_code
+    return this._error_code;
   }
 
   set error_code (value: string) {
-    this._error_code = value
+    this._error_code = value;
   }
 
   get error_message (): string {
-    return this._error_message
+    return this._error_message;
   }
 
   set error_message (value: string) {
-    this._error_message = value
+    this._error_message = value;
   }
 
   get debug_message (): string {
-    return this._debug_message
+    return this._debug_message;
   }
 
   set debug_message (value: string) {
-    this._debug_message = value
+    this._debug_message = value;
   }
 
   get errors (): E[] {
-    return this._errors
+    return this._errors;
   }
 
   set errors (value: E[]) {
-    this._errors = value
+    this._errors = value;
   }
 
   private _error_code: string;
@@ -54,11 +54,11 @@ export default class APIError extends Error {
    * @param data
    */
   constructor (data: ErrorInterface) {
-    super(data.error_message || 'The structure of the incoming data is broken!')
+    super(data.error_message || 'The structure of the incoming data is broken!');
 
-    this._error_code = data.error_code
-    this._error_message = data.error_message
-    this._debug_message = data.debug_message || ''
-    this._errors = data.errors || []
+    this._error_code = data.error_code;
+    this._error_message = data.error_message;
+    this._debug_message = data.debug_message || '';
+    this._errors = data.errors || [];
   }
 }

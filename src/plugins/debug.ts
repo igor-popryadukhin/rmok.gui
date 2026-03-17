@@ -1,18 +1,18 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
-import debug, { Debugger } from 'debug'
+import debug, { Debugger } from 'debug';
 
 class Plugin {
   public install () {
-    const appDebug = debug('APP')
+    const appDebug = debug('app');
     Object.defineProperties(Vue.prototype, {
       $appDebug: {
         get (): Debugger {
-          return appDebug
+          return appDebug;
         }
       }
-    })
+    });
   }
 }
 
-Vue.use(new Plugin())
+Vue.use(new Plugin());

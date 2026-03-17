@@ -1,42 +1,100 @@
 <template>
-    <svg v-bind:style="styles" class="spinner spinner--circle-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-      <g class="anim-0">
-        <circle cx="50" cy="50" r="50" v-bind:fill="background" />
-      </g>
-      <g class="anim-1">
-        <circle cx="50" cy="50" r="5" fill="white" />
-      </g>
-      <g class="anim-2">
-        <circle cx="75" cy="50" r="5" fill="white" />
-        <line x1="25" y1="50" x2="75" y2="50" stroke="white" stroke-width="3" />
-      </g>
-      <g class="anim-3">
-        <circle cx="50" cy="25" r="5" fill="white" />
-        <line x1="50" y1="25" x2="25" y2="75" stroke="white" stroke-width="3" />
-        <line x1="50" y1="25" x2="75" y2="75" stroke="white" stroke-width="3" />
-      </g>
-      <g class="anim-4">
-        <circle cx="75" cy="25" r="5" fill="white" />
-        <line x1="75" y1="25" x2="25" y2="25" stroke="white" stroke-width="3" />
-      </g>
-    </svg>
+  <svg
+    :style="styles"
+    class="spinner spinner--circle-6"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+  >
+    <g class="anim-0">
+      <circle
+        cx="50"
+        cy="50"
+        r="50"
+        :fill="background"
+      />
+    </g>
+    <g class="anim-1">
+      <circle
+        cx="50"
+        cy="50"
+        r="5"
+        fill="white"
+      />
+    </g>
+    <g class="anim-2">
+      <circle
+        cx="75"
+        cy="50"
+        r="5"
+        fill="white"
+      />
+      <line
+        x1="25"
+        y1="50"
+        x2="75"
+        y2="50"
+        stroke="white"
+        stroke-width="3"
+      />
+    </g>
+    <g class="anim-3">
+      <circle
+        cx="50"
+        cy="25"
+        r="5"
+        fill="white"
+      />
+      <line
+        x1="50"
+        y1="25"
+        x2="25"
+        y2="75"
+        stroke="white"
+        stroke-width="3"
+      />
+      <line
+        x1="50"
+        y1="25"
+        x2="75"
+        y2="75"
+        stroke="white"
+        stroke-width="3"
+      />
+    </g>
+    <g class="anim-4">
+      <circle
+        cx="75"
+        cy="25"
+        r="5"
+        fill="white"
+      />
+      <line
+        x1="75"
+        y1="25"
+        x2="25"
+        y2="25"
+        stroke="white"
+        stroke-width="3"
+      />
+    </g>
+  </svg>
 </template>
 <script>
 export default {
-  computed: {
-    styles () {
-      return {
-        height: this.size,
-        width: this.size
-      }
-    }
-  },
   props: {
     background: {
       default: '#41b883'
     },
     size: {
       default: '40px'
+    }
+  },
+  computed: {
+    styles () {
+      return {
+        height: this.size,
+        width: this.size
+      }
     }
   }
 }

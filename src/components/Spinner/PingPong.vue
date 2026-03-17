@@ -1,13 +1,16 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--ping-pong">
-    <div v-bind:style="innerStyles" class="spinner-inner">
+  <div
+    :style="styles"
+    class="spinner spinner--ping-pong"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
       <div class="board">
-        <div class="left">
-        </div>
-        <div class="right">
-        </div>
-        <div class="ball">
-        </div>
+        <div class="left" />
+        <div class="right" />
+        <div class="ball" />
       </div>
     </div>
   </div>
@@ -15,9 +18,14 @@
 
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         transform: 'scale(' + (size / 250) + ')'
       }
@@ -27,11 +35,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

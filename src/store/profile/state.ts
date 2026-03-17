@@ -1,29 +1,36 @@
-import Country from '@/api/interfaces/Country'
-import Organization from '@/api/interfaces/Organization'
-import Role from '@/api/interfaces/Role'
-import Project from '@/api/interfaces/Project'
-import UserGroup from '@/api/interfaces/UserGroup'
+import Country from '@/api/interfaces/Country';
+import PBXConfiguration from '@/api/interfaces/PBXConfiguration';
+import Project from '@/api/interfaces/Project';
+import Role from '@/api/interfaces/Role';
+import TimeZone from '@/api/interfaces/TimeZone';
+import UserGroup from '@/api/interfaces/UserGroup';
 
 export interface ProfileState {
   id: number;
+  uuid: string;
   first_name: string;
   last_name: string;
   middle_name?: string;
   full_name?: string;
+  abbreviation?: string;
   userpic?: string;
   login: string;
   email?: string;
   phone?: string;
-  status?: string;
+  status: 'normal' | 'dnd' | 'away';
+  mode?: string;
   contacts_count?: number;
-  tz?: string;
+  tz?: TimeZone;
   last_login: number;
-  role: Role;
-  organization?: Organization;
   created_at: number;
   country?: Country;
-  project?: Project;
+  pbx_configuration?: PBXConfiguration;
+  permissions?: Array<Record<string, unknown>>;
+  project: Project|null;
   group?: UserGroup;
+  role?: Role;
+  roles?: Array<Record<string, 'ROLE_ADMIN'|'ROLE_CCM'|'ROLE_TEAM_LEADER'|'ROLE_OPERATOR'>>;
+  tasks_pending_number?: number;
 }
 
 function state (): ProfileState {
@@ -39,37 +46,44 @@ function state (): ProfileState {
     email: '',
     first_name: '',
     id: 0,
+    uuid: null,
     last_login: 0,
     last_name: '',
     login: '',
     middle_name: '',
     full_name: '',
+    abbreviation: '',
     phone: '',
-    role: {
-      id: 0,
-      name: '',
-      permissions: []
-    },
-    organization: {
-      id: 0,
-      address: '',
-      city: '',
-      cpp: '',
-      description: '',
-      email: '',
-      inn: '',
-      name: '',
-      phone: '',
-      region: '',
-      site: '',
-      sphere_activity: ''
-    },
-    status: '',
-    tz: '',
+    status: 'normal',
+    mode: '',
+    tz: null,
     userpic: '',
-    project: undefined,
-    group: undefined
-  }
+    pbx_configuration: {
+      rtc_configuration: {
+        bundle_policy: undefined,
+        candidate_ready_timeout: 0,
+        certificates: [],
+        ice_candidate_pool_size: 0,
+        ice_servers: [],
+        ice_transport_policy: undefined,
+        rtcp_mux_policy: 'require'
+      },
+      credentials: {
+        display_name: '',
+        login: '',
+        password: '',
+        port: 0,
+        schema: '',
+        server: ''
+      }
+    },
+    permissions: [],
+    project: null,
+    group: null,
+    role: null,
+    roles: [],
+    tasks_pending_number: 0
+  };
 }
 
-export default state
+export default state;

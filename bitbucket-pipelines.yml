@@ -1,25 +1,124 @@
-#  Template NodeJS build
-
-#  This template allows you to validate your NodeJS code.
-#  The workflow allows running tests and code linting on the default branch.
-
-image: node:16.13.0
-
 pipelines:
-  default:
-    - parallel:
-        - step:
-            name: Build and Test
-            caches:
-              - node
-            script:
-              - npm install
-              - npm run build
-        - step:
-            name:  Deploy to test
-            deployment: test
-            script:
-              - echo "Deploying to test environment"
+  branches:
+    release/*:
+      # Up version
+      - step:
+          name: "Up version"
+          trigger: automatic
+          runs-on:
+            - self.hosted
+            - prod
+          script:
+            - apt-get update
+            - apt-get install -y jq
+            - old_version=$(jq -r '.version' package.json)
+            - new_version="$(date +'v%Y.%-m.%-d.')$BITBUCKET_BUILD_NUMBER"
+            - sed -i "s/$old_version/$new_version/g" ./package.json
+            - git commit -am "Release $new_version [skip ci]"
+            - git push
 
-              
-              
+      # Build for review
+      - step:
+          name: "Build for review"
+          image: node:16.13.0
+          trigger: automatic
+          deployment: "Review"
+          caches:
+            - pip
+            - node
+          runs-on:
+            - self.hosted
+            - prod
+          artifacts:
+            - dist/**
+          script:
+            - git pull
+            - npm install --no-progress
+            - echo "VUE_APP_I18N_LOCALE=ru" | tee ./.env
+            - echo "VUE_APP_I18N_FALLBACK_LOCALE=ru" | tee -a ./.env
+            - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_MONITORING_ENDPOINT=$VUE_APP_MS_MONITORING_ENDPOINT" | tee -a ./.env
+            - npm run build
+
+      # Deploy for review
+      - step:
+          name: "Deploy for review"
+          trigger: automatic
+          caches:
+            - pip
+          runs-on:
+            - self.hosted
+            - prod
+          artifacts:
+            - dist/**
+          script:
+            - pipe: atlassian/rsync-deploy:0.7.0
+              variables:
+                USER: $REVIEW_SSH_USER
+                SERVER: $REVIEW_SSH_SERVER
+                REMOTE_PATH: "~/www/rmok.gui"
+                LOCAL_PATH: "./dist/"
+                EXTRA_ARGS: "--delete"
+                DEBUG: "false"
+
+      # Update production!!!
+      - step:
+          name: "Update production!!!"
+          trigger: manual
+          runs-on:
+            - self.hosted
+            - prod
+          script:
+            - apt-get update
+            - apt-get install -y jq
+            - git pull
+            - version=$(jq -r '.version' package.json)
+            - git tag -a $version -m "Release $version"
+
+      # Build for production
+      - step:
+          name: "Build for production"
+          image: node:16.13.0
+          trigger: automatic
+          deployment: "Production"
+          caches:
+            - pip
+            - node
+          runs-on:
+            - self.hosted
+            - prod
+          artifacts:
+            - dist/**
+          script:
+            - git pull
+            - npm install --no-progress
+            - echo "VUE_APP_I18N_LOCALE=ru" | tee ./.env
+            - echo "VUE_APP_I18N_FALLBACK_LOCALE=ru" | tee -a ./.env
+            - echo "VUE_APP_API_ENDPOINT=$VUE_APP_API_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_SSE_ENDPOINT=$VUE_APP_SSE_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_WHATSAPP_ENDPOINT=$VUE_APP_MS_WHATSAPP_ENDPOINT" | tee -a ./.env
+            - echo "VUE_APP_MS_MONITORING_ENDPOINT=$VUE_APP_MS_MONITORING_ENDPOINT" | tee -a ./.env
+            - npm run build
+
+      # Deploy for production
+      - step:
+          name: "Deploy for production"
+          trigger: automatic
+          caches:
+            - pip
+          runs-on:
+            - self.hosted
+            - prod
+          artifacts:
+            - dist/**
+          script:
+            - pipe: atlassian/rsync-deploy:0.7.0
+              variables:
+                USER: $PROD_SSH_USER
+                SERVER: $PROD_SSH_SERVER
+                REMOTE_PATH: "~/www/rmok.gui"
+                LOCAL_PATH: "./dist/"
+                EXTRA_ARGS: "--delete"
+                DEBUG: "false"

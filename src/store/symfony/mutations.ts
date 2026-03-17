@@ -1,5 +1,5 @@
-import { SymfonyStateInterface } from './state'
-import { MutationTree } from 'vuex'
+import { SymfonyStateInterface } from './state';
+import { MutationTree } from 'vuex';
 
 const mutations: MutationTree<SymfonyStateInterface> = {
   /**
@@ -9,11 +9,11 @@ const mutations: MutationTree<SymfonyStateInterface> = {
    */
   call_collection (state, payload) {
     if (state.call_collection.length > 50) {
-      state.call_collection.splice(9, state.call_collection.length)
+      state.call_collection.splice(9, state.call_collection.length);
     }
 
-    state.call_collection.push(payload)
+    state.call_collection.push(payload);
   }
-}
+};
 
-export default mutations
+export default mutations;

@@ -1,19 +1,22 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--circle-4"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--circle-4"
+  />
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     styles () {
       return {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

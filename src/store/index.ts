@@ -1,111 +1,132 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import createPersistedState from 'vuex-persistedstate'
-import project from './project'
-import tasks from './tasks'
-import settings from './settings'
-import filter from './filter'
-import symfony from './symfony'
-import system from './system'
-import profile from './profile'
-import statuses from './statuses'
-import users from './users'
-import contacts from './contacts'
-import contacts_new from './contacts_new'
-import contacts_queue from './contacts_queue'
-import statistic_recent_call from './statistic_recent_call'
-import statistic_all_call from './statistic_all_call'
-import { database } from './database'
-import debug from 'debug'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
+import projects from './projects';
+import settings from './settings';
+import symfony from './symfony';
+import system from './system';
+import profile from './profile';
+import groups from './groups';
+import users from './users';
+import contacts from './contacts';
+import statistic_recent_call from './statistic_recent_call';
+import statistic_all_call from './statistic_all_call';
+import autodialer from './autodialer';
+import scenarios from './scenarios';
+import unsaved_call from './unsaved_call';
+import statistic_activity from './statistic_activity';
+import debug from 'debug';
+import $app from '@/main';
+import { notifications } from './notifications';
+import { statistics } from './statistics';
+import chats from './chats';
+import tasks from './tasks';
+import LocalStorage from './LocalStorage';
+import SessionStorage from './SessionStorage';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
-const vuexDebug = debug('VUEX')
-const vuexDebugActions = vuexDebug.extend('ACTION')
-const vuexDebugPersistedstate = vuexDebug.extend('PERSISTEDSTATE')
-
-const get = (key: string) => {
-  vuexDebugPersistedstate('GET: %s', key)
-  return localStorage.getItem(key)
-}
-
-const set = debounce((key: string, value: string) => {
-  vuexDebugPersistedstate('SET: %s [%o]', key, value)
-  localStorage.setItem(key, value)
-}, 1000)
-
-const remove = (key: string) => {
-  vuexDebugPersistedstate('REMOVE: %s', key)
-  localStorage.removeItem(key)
-}
+const vuexDebug = debug('VUEX');
+const vuexDebugActions = vuexDebug.extend('ACTION');
+const vuexDebugMutations = vuexDebug.extend('MUTATION');
 
 export interface RootState {
-  root: number;
+  last_call_at: Date|null;
+  bootstrap_process: boolean;
+  is_logged_in: boolean;
 }
 
-const store = new Vuex.Store({
+const $store = new Vuex.Store({
   strict: true,
+
   state (): RootState {
     return {
-      root: 0
-    }
+      last_call_at: null,
+      bootstrap_process: true, // Процесс начальной загрузки
+      is_logged_in: false // Состояние авторизации
+    };
   },
 
   modules: {
-    database,
+    notifications,
     profile,
-    project,
-    statuses,
+    projects,
     settings,
-    filter,
     symfony,
     system,
-    tasks,
+    groups,
     users,
+    unsaved_call,
     contacts,
-    contacts_new,
-    contacts_queue,
+    statistics,
     statistic_recent_call,
-    statistic_all_call
+    statistic_all_call,
+    autodialer,
+    statistic_activity,
+    scenarios,
+    chats,
+    tasks
   },
 
-  mutations: {},
+  mutations: {
+    last_call_at (state, payload) { state.last_call_at = payload; },
+    bootstrap_process (state, payload) { state.bootstrap_process = payload; },
+    is_logged_in (state, payload) { state.is_logged_in = payload; }
+  },
 
-  getters: {},
+  getters: {
+    last_call_at: (state) => state.last_call_at,
+    routeParams: () => Object.assign({}, $app.$route.params),
+    bootstrap_process: (state) => state.bootstrap_process,
+    is_logged_in: (state) => state.is_logged_in
+  },
 
   plugins: [
+    // Постоянное хранение
     createPersistedState({
       key: window.origin,
       paths: [
-        'profile',
-        'tasks',
+        'unsaved_call',
         'database',
         'settings',
         'filters',
         'symfony',
         'contacts.params',
-        'statistic_recent_call.filter',
+        'contacts.list.settings',
+        'contacts.list_in_work.settings',
+        'contacts.view.settings',
+        'contacts.view.unsaved_call',
+        'statistics.recent_calls.settings',
+        'statistics.calls_count.settings',
+        'statistics.all_calls.settings',
+        'statistics.manager_employment.settings',
         'system.route'
       ],
-      storage: {
-        getItem: (key: string) => get(key),
-        removeItem: (key: string) => remove(key),
-        setItem: (key, value) => set(key, value)
-      }
+      storage: new LocalStorage()
+    }),
+
+    // Хранение в рамках сессии
+    createPersistedState({
+      key: window.origin,
+      paths: [
+        'contacts.list.filter',
+        'contacts.list_in_work.filter',
+        'statistics.all_calls.filter',
+        'statistics.calls_count.filter',
+        'statistics.recent_calls.filter',
+        'statistics.manager_employment.filter'
+      ],
+      storage: new SessionStorage()
     })
   ]
-})
+});
 
-store.subscribeAction((ap, rs) => {
-  vuexDebugActions('%o %o', ap, rs)
-})
+$store.subscribeAction((ap, rs) => {
+  vuexDebugActions('%o %o', ap, rs);
+});
 
-export default store
+$store.subscribe((ap, rs) => {
+  vuexDebugMutations('%o %o', ap, rs);
+});
 
-function debounce (fn: CallableFunction, delay: number) {
-  let timeoutId = 0 as any
-  return (...args: any[]) => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn(...args), delay)
-  }
-}
+export default $store;

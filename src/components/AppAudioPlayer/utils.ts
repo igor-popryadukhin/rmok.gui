@@ -1,11 +1,11 @@
 export function makeAudioElement (id?: string): HTMLAudioElement {
-  const audioElement: HTMLAudioElement = document.createElement('audio')
+  const audioElement: HTMLAudioElement = document.createElement('audio');
   if (id) {
-    audioElement.setAttribute('id', id)
+    audioElement.setAttribute('id', id);
   }
-  audioElement.setAttribute('style', 'display: none')
-  audioElement.setAttribute('controls', '')
-  return audioElement
+  audioElement.setAttribute('style', 'display: none');
+  audioElement.setAttribute('controls', '');
+  return audioElement;
 }
 
 /**
@@ -13,8 +13,16 @@ export function makeAudioElement (id?: string): HTMLAudioElement {
  * @param id
  */
 export function removeAudioElement (id: string) {
-  const element: HTMLElement | null = document.getElementById(id)
+  const element: HTMLElement | null = document.getElementById(id);
   if (element) {
-    element.remove()
+    element.remove();
   }
+}
+
+export function debounce (fn: CallableFunction, delay: number) {
+  let timeoutId = 0 as any;
+  return (...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
 }

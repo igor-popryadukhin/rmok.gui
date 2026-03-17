@@ -122,12 +122,12 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapGetters } from 'vuex'
-import { debounce } from 'vuetify/src/util/helpers'
-import ContactTag from '@/api/interfaces/ContactTag'
-import { Contacts } from '@/api/Contacts'
-import { randomColor } from '@/utils/utils'
+import Vue from 'vue';
+import { mapGetters } from 'vuex';
+import debounce from '@/utils/debounce';
+import ContactTag from '@/api/interfaces/ContactTag';
+import { Contacts } from '@/api/Contacts';
+import { randomColor } from '@/utils/utils';
 
 export default Vue.extend({
   name: 'AppMenuTags',
@@ -140,7 +140,7 @@ export default Vue.extend({
       textSearch: null,
       filtered: [],
       tagsSelected: []
-    }
+    };
   },
 
   computed: {
@@ -151,46 +151,46 @@ export default Vue.extend({
 
   watch: {
     textSearch (val?: string) {
-      this.search(val || '')
+      this.search(val || '');
     }
   },
 
   created () {
-    this.searchTags = debounce(this.searchTags, 350)
+    this.searchTags = debounce(this.searchTags, 350);
   },
 
   mounted () {
-    this.filtered = this.tags
+    this.filtered = this.tags;
   },
 
   methods: {
     onCreateTagClick (name: string) {
-      this.processOfCreation = true
+      this.processOfCreation = true;
       new Contacts()
         .addTag({
           name,
           color: randomColor()
         }).finally(() => {
-          this.processOfCreation = false
-          this.searchTags(name)
-        })
+          this.processOfCreation = false;
+          this.searchTags(name);
+        });
     },
 
     onApplyTagClick () {
-      this.menuVisible = false
-      this.$emit('update:apply', this.tagsSelected)
-      this.tagsSelected = []
+      this.menuVisible = false;
+      this.$emit('update:apply', this.tagsSelected);
+      this.tagsSelected = [];
     },
 
     /**
      * Поиск тегов в удалённом хранилище.
      */
     searchTags (q: string) {
-      this.process = true
+      this.process = true;
       this.$store.dispatch('filter/contact_tags', { q })
         .then(() => {
-          this.filtered = this.tags
-        }).finally(() => (this.process = false))
+          this.filtered = this.tags;
+        }).finally(() => (this.process = false));
     },
 
     /**
@@ -199,17 +199,16 @@ export default Vue.extend({
      * @param q
      */
     search (q: string) {
-      this.$appDebug(q)
-      const found = this.tags.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1)
+      const found = this.tags.filter((e: ContactTag) => e.name.toLowerCase().indexOf(q.toLowerCase()) > -1);
 
       if (found.length === 0) {
-        this.searchTags(q)
+        this.searchTags(q);
       } else {
-        this.filtered = found
+        this.filtered = found;
       }
     }
   }
-})
+});
 </script>
 
 <style scoped>

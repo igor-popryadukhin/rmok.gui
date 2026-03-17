@@ -82,7 +82,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 export default Vue.extend({
   name: 'AppError',
@@ -97,7 +97,7 @@ export default Vue.extend({
       default: ''
     }
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

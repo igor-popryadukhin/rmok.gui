@@ -1,8 +1,8 @@
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import APIError from './classes/APIError'
-import Notification from './interfaces/Notification'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import APIError from './classes/APIError';
+import Notification from './interfaces/Notification';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
 
 export default class Notifications {
   /**
@@ -14,12 +14,12 @@ export default class Notifications {
       $axios.get('/notifications', { params })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
 
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   public close (id: number): Promise<void> {
@@ -27,11 +27,11 @@ export default class Notifications {
       $axios.delete('/notifications/' + id)
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
 
-          resolve()
-        }).catch(reject)
-    })
+          resolve();
+        }).catch(reject);
+    });
   }
 }

@@ -1,20 +1,47 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--circle-8">
-    <div v-bind:style="innerStyles" class="spinner-inner">
+  <div
+    :style="styles"
+    class="spinner spinner--circle-8"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
       <div class="ball-container">
-        <div class="contener_mixte"><div class="ballcolor ball_1">&nbsp;</div></div>
-        <div class="contener_mixte"><div class="ballcolor ball_2">&nbsp;</div></div>
-        <div class="contener_mixte"><div class="ballcolor ball_3">&nbsp;</div></div>
-        <div class="contener_mixte"><div class="ballcolor ball_4">&nbsp;</div></div>
+        <div class="contener_mixte">
+          <div class="ballcolor ball_1">
+&nbsp;
+          </div>
+        </div>
+        <div class="contener_mixte">
+          <div class="ballcolor ball_2">
+&nbsp;
+          </div>
+        </div>
+        <div class="contener_mixte">
+          <div class="ballcolor ball_3">
+&nbsp;
+          </div>
+        </div>
+        <div class="contener_mixte">
+          <div class="ballcolor ball_4">
+&nbsp;
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         transform: 'scale(' + (size / 44) + ')'
       }
@@ -24,11 +51,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

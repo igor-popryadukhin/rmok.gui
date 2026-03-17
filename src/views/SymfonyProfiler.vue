@@ -46,22 +46,22 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 export default Vue.extend({
   data () {
     return {
       tick: 0
-    }
+    };
   },
 
   computed: {
     symfony_call_collection () {
-      const collection = this.$store.state.symfony.call_collection.map((e: any) => e)
-      return collection.reverse()
+      const collection = this.$store.state.symfony.call_collection.map((e: any) => e);
+      return collection.reverse();
     }
   }
-})
+});
 </script>
 
 <style lang="scss">

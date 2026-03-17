@@ -1,5 +1,5 @@
 export default interface Role {
-  id: number;
   name: string;
-  permissions: string[];
+  grants?: Array<Record<string, string>>;
+  main_role: string;
 }

@@ -1,5 +1,5 @@
-import Contact from './Contact'
-import User from './User'
+import Contact from './Contact';
+import User from './User';
 
 export default interface Task {
   id: number;
@@ -8,8 +8,8 @@ export default interface Task {
   description: string;
   state: 'done' | 'pending';
   expired: boolean;
-  planned_for: number;
+  planned_for: string;
   author: User;
   contact?: Contact;
-  created_at: number;
+  created_at: string;
 }

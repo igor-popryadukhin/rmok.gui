@@ -1,12 +1,18 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--circle-9">
-    <div v-bind:style="innerStyles" class="spinner-inner">
-      <div class='loading spin-1'>
-        <div class='loading spin-2'>
-          <div class='loading spin-3'>
-            <div class='loading spin-4'>
-              <div class='loading spin-5'>
-                <div class='loading spin-6'></div>
+  <div
+    :style="styles"
+    class="spinner spinner--circle-9"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
+      <div class="loading spin-1">
+        <div class="loading spin-2">
+          <div class="loading spin-3">
+            <div class="loading spin-4">
+              <div class="loading spin-5">
+                <div class="loading spin-6" />
               </div>
             </div>
           </div>
@@ -17,9 +23,14 @@
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         transform: 'scale(' + (size / 120) + ')'
       }
@@ -29,11 +40,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

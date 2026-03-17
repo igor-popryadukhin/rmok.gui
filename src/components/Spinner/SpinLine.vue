@@ -1,12 +1,27 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--spin-line">
-    <div v-bind:style="lineStyles" class="spinner-inner">
-
-    </div>
+  <div
+    :style="styles"
+    class="spinner spinner--spin-line"
+  >
+    <div
+      :style="lineStyles"
+      class="spinner-inner"
+    />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
+    },
+    stroke: {
+      default: '5px'
+    }
+  },
   computed: {
     lineStyles () {
       return {
@@ -17,23 +32,12 @@ export default {
       }
     },
     styles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         height: this.size,
         transform: 'scale(' + (size / 75) + ')',
         width: this.size
       }
-    }
-  },
-  props: {
-    color: {
-      default: '#41b883'
-    },
-    size: {
-      default: '40px'
-    },
-    stroke: {
-      default: '5px'
     }
   }
 }

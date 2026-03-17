@@ -2,13 +2,15 @@
   <Vueditor
     ref="editor"
     class="vueditor"
-  ></Vueditor>
+  />
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Vueditor from 'vueditor'
-import 'vueditor/dist/style/vueditor.min.css'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { ModelSync, Ref, Watch } from 'vue-property-decorator';
+import Vueditor from 'vueditor';
+import 'vueditor/dist/style/vueditor.min.css';
 
 Vue.use(Vueditor, {
   toolbar: [
@@ -86,65 +88,55 @@ Vue.use(Vueditor, {
       title: 'полный экран'
     },
     table: { title: 'Таблица' },
-    undo: { title: 'Назадо' },
+    undo: { title: 'Назад' },
     redo: { title: 'Вперед' }
   },
   fontSize: ['12px', '14px', '16px', '18px', '0.8rem', '1.0rem', '1.2rem', '1.5rem', '2.0rem'],
   uploadUrl: ''
-})
+});
 
-export default Vue.extend({
-  name: 'AppWysiwyg',
+@Component
+export default class AppWysiwyg extends Vue {
+  @Ref('editor') readonly editor!: unknown
+  @ModelSync('value', 'change', { type: String })
+  readonly textValue!: string
 
-  props: {
-    value: {
-      type: String,
-      default: () => ''
-    }
-  },
+  vEditor = null
 
-  model: {
-    event: 'change',
-    prop: 'value'
-  },
-
-  watch: {
-    value (value) {
-      this.$refs.editor.setContent(value)
-    }
-  },
+  @Watch('value')
+  valueWatchHandler (value) {
+    this.vEditor.setContent(value);
+  }
 
   mounted () {
-    const vEditor = this.$children[0]
+    this.vEditor = this.$children[0];
 
-    vEditor.setContent(this.value)
+    this.vEditor.setContent(this.textValue);
 
     setTimeout(() => {
-      let oldContent = this.value
-      vEditor.$store.subscribe((mutation, state) => {
+      let oldContent = this.textValue;
+      this.vEditor.$store.subscribe((mutation, state) => {
         switch (mutation.type) {
           case 'UPDATE_CONTENT': {
             if (oldContent !== mutation.payload) {
-              oldContent = mutation.payload
-              this.$emit('change', mutation.payload)
+              oldContent = mutation.payload;
+              this.$emit('change', mutation.payload);
             }
-            break
+            break;
           }
         }
-      })
-    }, 1000)
-  },
-
-  methods: {
-    getContent () {
-      return this.$children[0].getContent()
-    },
-
-    setContent (value: string) {
-      return this.$children[0].setContent(value)
-    }
+      });
+    }, 1000);
   }
-})
+
+  private getContent () {
+    return this.vEditor.getContent();
+  }
+
+  private setContent (value: string) {
+    return this.vEditor.setContent(value);
+  }
+}
 </script>
 
 <style lang="scss" scoped>

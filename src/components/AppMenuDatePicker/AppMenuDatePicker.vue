@@ -1,57 +1,33 @@
 <template>
   <v-menu
     ref="menu"
-    v-model="menu"
+    v-model="menuVisible"
     :close-on-content-click="false"
-    :return-value.sync="dates"
     transition="scale-transition"
     offset-y
+    left
     min-width="auto"
   >
-    <template #activator="{ on, attrs }">
-      <v-text-field
-        :label="label"
-        :hide-details="!messages"
-        :messages="messages"
-        :value="dateRangeText"
-        :disabled="disabled"
-        multiple
-        dense
-        outlined
-        prepend-inner-icon="mdi-calendar"
-        readonly
-        clearable
-        v-bind="attrs"
-        v-on="on"
-        @click:clear="onTextFieldDateRangeClearClick"
+    <template #activator="{ on }">
+      <slot
+        name="activator"
+        :on="on"
+        :text="textDisplay"
       />
     </template>
     <v-date-picker
       v-model="dates"
       :range="range"
+      :first-day-of-week="1"
       no-title
       show-current
     >
-      <!--      <v-switch-->
-      <!--        v-model="range"-->
-      <!--        :ripple="false"-->
-      <!--        :label="$tc('Range')"-->
-      <!--        @change="onSwitchRangeChange(range)"-->
-      <!--      />-->
       <v-spacer />
       <v-btn
         text
         color="primary"
         small
-        @click="menu = false"
-      >
-        {{ $tc('Cancel') }}
-      </v-btn>
-      <v-btn
-        text
-        color="primary"
-        small
-        @click="onBtnOkClick(dates)"
+        @click="closeMenu"
       >
         {{ $tc('Ok') }}
       </v-btn>
@@ -60,86 +36,78 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import dayjs from 'dayjs';
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Prop, VModel, Watch } from 'vue-property-decorator';
 
-export default Vue.extend({
-  name: 'AppMenuDatePicker',
+@Component
+export default class AppMenuDatePicker extends Vue {
+  @Prop({ default: () => 'YYYY-MM-DD' }) readonly format!: string
+  @Prop({ default: () => 'DD.MM.YYYY' }) readonly displayFormat!: string
+  @Prop({ default: () => false }) readonly range!: boolean
+  @VModel({ default: () => null }) datesVModel!: string | string[]
 
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
+  menuVisible = false
+  dates = null
 
-  props: {
-    label: {
-      type: String,
-      default: ''
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    range: {
-      type: Boolean,
-      default: false
-    },
-    value: {
-      type: [Array, String],
-      default: () => null
-    },
-    messages: {
-      type: [Array, String],
-      default: () => null
-    },
-    t: {
-      type: Function,
-      default: (name: string) => name
-    }
-  },
+  get textDisplay () {
+    if (Array.isArray(this.dates)) {
+      if (this.dates.length === 2) {
+        const d1 = dayjs(this.dates[0], this.format);
+        const d2 = dayjs(this.dates[1], this.format);
 
-  data () {
-    return {
-      dates: null,
-      menu: false
-    }
-  },
-
-  computed: {
-    dateRangeText () {
-      if (Array.isArray(this.$data.dates)) {
-        return this.$data.dates.join(' ~ ')
+        if (d1.diff(d2, 'day') <= 0) {
+          return [d1.format(this.displayFormat), d2.format(this.displayFormat)].join(' - ');
+        }
+        return [d2.format(this.displayFormat), d1.format(this.displayFormat)].join(' - ');
+      } else if (this.dates.length === 1) {
+        return [dayjs(this.dates[0], this.format).format(this.displayFormat), '__.__.__'].join(' - ');
       }
-      return this.$data.dates
+    } else if (typeof this.dates === 'string') {
+      return dayjs(this.dates, this.format).format(this.displayFormat);
     }
-  },
+    return '__.__.__';
+  }
 
-  mounted () {
-    if (this.value) {
-      if (Array.isArray(this.value)) {
-        this.$emit('update:range', true)
+  @Watch('dates')
+  datesWatchHandler (val: string[] | string) {
+    if (Array.isArray(val) && val.length === 2) {
+      const d1 = dayjs(val[0], this.format);
+      const d2 = dayjs(val[1], this.format);
+
+      if (d1.diff(d2, 'day') <= 0) {
+        this.datesVModel = [d1.format(this.format), d2.format(this.format)];
+      } else {
+        this.datesVModel = [d2.format(this.format), d1.format(this.format)];
       }
-
-      this.$data.dates = this.value
-    }
-  },
-
-  methods: {
-    onBtnOkClick (value: string | string[]) {
-      this.$emit('change', value)
-      return this.$refs.menu?.save(value)
-    },
-    onTextFieldDateRangeClearClick () {
-      this.$emit('change', null)
-      return this.$refs.menu?.save(null)
-    },
-
-    onSwitchRangeChange (value: boolean) {
-      if (!value) {
-        this.$data.dates = this.$data.dates.shift()
-      }
+    } else if (typeof val === 'string') {
+      this.datesVModel = dayjs(val, this.format).format(this.format);
+    } else {
+      this.datesVModel = null;
     }
   }
-})
+
+  @Watch('datesVModel')
+  datesVModelWatchHandler (val: string[] | string) {
+    this.dates = val;
+  }
+
+  private closeMenu () {
+    this.menuVisible = false;
+  }
+
+  public mounted () {
+    if (Array.isArray(this.datesVModel)) {
+      this.dates = [];
+      this.datesVModel.forEach((e) => {
+        this.dates.push(dayjs(e, this.format).format(this.format));
+      });
+    } else if (typeof this.dates === 'string') {
+      this.dates = dayjs(this.dates, this.format).format(this.format);
+    }
+  }
+}
 </script>
 
 <style scoped>

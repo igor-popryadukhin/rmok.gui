@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 export default Vue.extend({
   name: 'AppNumberFormat',
@@ -21,10 +21,10 @@ export default Vue.extend({
 
   computed: {
     numberFormatted () {
-      return new Intl.NumberFormat(this.locale).format(this.value)
+      return new Intl.NumberFormat(this.locale).format(this.value);
     }
   }
-})
+});
 </script>
 
 <style scoped>

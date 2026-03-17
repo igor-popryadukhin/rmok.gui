@@ -202,25 +202,25 @@
 
 <script lang="ts">
 import ProjectIntegrationSettings, {
-  ProfileInterface,
+  OrganizationInterface,
   ProfileFindQueryInterface,
-  OrganizationInterface, ProjectInterface
-} from '@/api/ProjectIntegrationSettings'
-import rules from '@/mixins/rules'
-import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue'
-import VInterface from '@/VInterface'
-import Vue, { VueConstructor } from 'vue'
-interface IRef {
+  ProfileInterface, ProjectInterface
+} from '@/api/ProjectIntegrationSettings';
+import rules from '@/mixins/rules';
+import SProjectsAutocomplete from '@/snippets/SProjects/SProjectsAutocomplete.vue';
+import VInterface from '@/VInterface';
+import Vue, { VueConstructor } from 'vue';
+interface Ref {
   [key: string]: any;
 }
 
-interface IData {
+interface Data {
   [key: string]: any
 }
 
 interface VInnerInterface extends VInterface {
-  $data: IData;
-  $refs: IRef;
+  $data: Data;
+  $refs: Ref;
 }
 
 export default (Vue as VueConstructor<VInnerInterface>).extend({
@@ -253,16 +253,16 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         external_project_id: null,
         organization: null as unknown as OrganizationInterface
       }
-    }
+    };
   },
 
   methods: {
 
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
-        return
+        return;
       }
-      this.buttonSave.loading = true
+      this.buttonSave.loading = true;
 
       const request = {
         name: this.profile.name,
@@ -271,48 +271,48 @@ export default (Vue as VueConstructor<VInnerInterface>).extend({
         half_tag: this.profile.half_tag,
         cross_tag: this.profile.cross_tag,
         half_cross_tag: this.profile.half_cross_tag
-      } as any
+      } as any;
 
       if (this.assertObjectHasAttribute(this.profile.main_project, 'id')) {
-        request.main_project_id = this.profile.main_project.id
+        request.main_project_id = this.profile.main_project.id;
       }
 
       if (this.assertObjectHasAttribute(this.profile.cross_project, 'id')) {
-        request.cross_project_id = this.profile.cross_project.id
+        request.cross_project_id = this.profile.cross_project.id;
       }
 
       if (this.assertObjectHasAttribute(this.profile.half_project, 'id')) {
-        request.half_project_id = this.profile.half_project.id
+        request.half_project_id = this.profile.half_project.id;
       }
 
       if (this.assertObjectHasAttribute(this.profile.half_cross_project, 'id')) {
-        request.half_cross_project_id = this.profile.half_cross_project.id
+        request.half_cross_project_id = this.profile.half_cross_project.id;
       }
       new ProjectIntegrationSettings()
         .add(request)
         .then((id: number) => {
           this.$router.replace({
             name: 'itegrationset_edit',
-            params: { id }
-          })
-          this.$toast.success(this.$tc('Profile added successfully'))
+            params: { id: String(id) }
+          });
+          this.$toast.success(this.$tc('Profile added successfully'));
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
             e.errors.map((e: any) => {
-              this.$toast.warning(e.message)
-            })
+              this.$toast.warning(e.message);
+            });
           }
-          this.$toast.error(e.message)
+          this.$toast.error(e.message);
         }).finally(() => {
-          this.buttonSave.loading = false
-        })
+          this.buttonSave.loading = false;
+        });
     },
 
     resetForm () {
-      (this.$refs.form as Vue & { reset: () => boolean }).reset()
+      (this.$refs.form as Vue & { reset: () => boolean }).reset();
     }
   }
-})
+});
 </script>
 
 <style scoped>

@@ -1,8 +1,9 @@
-import APIError from '@/api/classes/APIError'
-import Country from '@/api/Schemas/Country'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import APIError from '@/api/classes/APIError';
+import TimeZone from '@/api/interfaces/TimeZone';
+import Country from '@/api/interfaces/Country';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
 
 export interface CountryCodeInterface {
   name: string;
@@ -35,15 +36,15 @@ export class Database {
    * Возвращает список стран.
    */
   public getCountries (): Promise<Country[]> {
-    return new Promise<Promise<Country[]>>((resolve, reject): Promise<Country[]> => {
+    return new Promise((resolve, reject) => {
       $axios.get('/database/countries')
         .then((response: AxiosResponse) => {
-          if (response.status === 200) {
-            resolve(response.data)
+          if (response.status !== 200) {
+            throw new APIError(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -54,11 +55,11 @@ export class Database {
       $axios.get('/database/countries/codes')
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            reject(response.data)
+            reject(response.data);
           }
-          resolve(response.data as CountryCodeInterface[])
-        }).catch(reject)
-    })
+          resolve(response.data as CountryCodeInterface[]);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -70,10 +71,22 @@ export class Database {
         params
       }).then((response: AxiosResponse) => {
         if (response.status === 200) {
-          resolve(response.data)
+          resolve(response.data);
         }
-        throw new APIError(response.data)
-      }).catch(reject)
-    })
+        throw new APIError(response.data);
+      }).catch(reject);
+    });
+  }
+
+  public getTimeZone (): Promise<TimeZone[] | any> {
+    return new Promise((resolve, reject): Promise<TimeZone[] | any> | any => {
+      $axios.get('/database/timezones')
+        .then((response: AxiosResponse) => {
+          if (response.status !== 200) {
+            reject(response.data);
+          }
+          resolve(response.data as TimeZone[]);
+        }).catch(reject);
+    });
   }
 }

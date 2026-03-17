@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import { CrumbInterface } from '@/Interfaces'
+import Vue from 'vue';
+import { CrumbInterface } from '@/Interfaces';
 
 export default Vue.mixin(Vue.extend({
   computed: {
@@ -30,7 +30,9 @@ export default Vue.mixin(Vue.extend({
 
         // I replace markers with real data
         for (const param in this.$route.params) {
-          crumb.path = crumb.path.replace(`:${param}`, this.$route.params[param])
+          if (this.$route.params.hasOwnProperty(param)) {
+            crumb.path = crumb.path.replace(`:${param}`, this.$route.params[param])
+          }
         }
 
         if (item.meta.route_breadcrumb_name) {
@@ -53,4 +55,4 @@ export default Vue.mixin(Vue.extend({
       /* eslint-enable */
     }
   }
-}))
+}));

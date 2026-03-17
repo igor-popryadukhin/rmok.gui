@@ -189,13 +189,13 @@
 </template>
 
 <script lang="ts">
-import List from '@/views/Contacts/List.backup.vue'
-import Vue from 'vue'
-import { Contacts } from '@/api/Contacts'
-import rules from '@/mixins/rules'
-import { isEmpty } from '@/Utils'
-import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface'
-import SEmails from '@/snippets/SEmails/SEmails.vue'
+import List from '@/views/Contacts/List.backup.vue';
+import Vue from 'vue';
+import { Contacts } from '@/api/Contacts';
+import rules from '@/mixins/rules';
+import { isEmpty } from '@/Utils';
+import { PhoneNumberInterface } from '@/api/Schemas/PhoneNumberInterface';
+import SEmails from '@/snippets/SEmails/SEmails.vue';
 
 interface PhoneInterface {
   value: string;
@@ -217,20 +217,20 @@ export default Vue.extend({
       new Contacts()
         .getById(+to.params.contact_id)
         .then(response => {
-          to.meta.route_breadcrumb_name = `${response.first_name} ${response.last_name}`
+          to.meta.route_breadcrumb_name = `${response.first_name} ${response.last_name}`;
           next((vm: any) => {
-            vm.contact.first_name = response.first_name
-            vm.contact.last_name = response.last_name
-            vm.contact.middle_name = response.middle_name
-            vm.contact.phones = response.phones
-            vm.contact.emails = response.emails
-            vm.contact.city = response.city
-            vm.contact.region = response.region
-            vm.contact.address = response.address
-          })
-        })
+            vm.contact.first_name = response.first_name;
+            vm.contact.last_name = response.last_name;
+            vm.contact.middle_name = response.middle_name;
+            vm.contact.phones = response.phones;
+            vm.contact.emails = response.emails;
+            vm.contact.city = response.city;
+            vm.contact.region = response.region;
+            vm.contact.address = response.address;
+          });
+        });
     } else {
-      next()
+      next();
     }
   },
 
@@ -269,7 +269,7 @@ export default Vue.extend({
       },
       phones: [] as PhoneInterface[]
       /* eslint-enable */
-    }
+    };
   },
 
   methods: {
@@ -281,7 +281,7 @@ export default Vue.extend({
       this.contact.emails.push({
         label: '',
         value: ''
-      })
+      });
     },
 
     /**
@@ -294,7 +294,7 @@ export default Vue.extend({
         id: 0,
         label: '',
         raw: ''
-      })
+      });
     },
 
     /**
@@ -302,7 +302,7 @@ export default Vue.extend({
      * @param index
      */
     onDeleteEmailClick (index: number) {
-      this.contact.emails.splice(index, 1)
+      this.contact.emails.splice(index, 1);
     },
 
     /**
@@ -310,12 +310,12 @@ export default Vue.extend({
      * @param index
      */
     onDeletePhoneClick (index: number) {
-      this.contact.phones.splice(index, 1)
+      this.contact.phones.splice(index, 1);
     },
 
     onSave () {
       if (!(this.$refs.form as Vue & { validate: () => boolean }).validate()) {
-        return
+        return;
       }
 
       const data: any = {
@@ -333,31 +333,31 @@ export default Vue.extend({
             label: phone.label,
             raw: phone.raw
           }))
-      }
+      };
 
-      if (this.contact.notes) { data.notes = this.contact.notes }
-      if (this.contact.city) { data.city = this.contact.city }
-      if (this.contact.region) { data.region = this.contact.region }
-      if (this.contact.address) { data.address = this.contact.address }
+      if (this.contact.notes) { data.notes = this.contact.notes; }
+      if (this.contact.city) { data.city = this.contact.city; }
+      if (this.contact.region) { data.region = this.contact.region; }
+      if (this.contact.address) { data.address = this.contact.address; }
 
-      this.buttonSave.loading = true
+      this.buttonSave.loading = true;
       new Contacts()
         .update(+this.$route.params.contact_id, data)
         .then(() => {
-          this.$toast.success(this.$tc('Contact successfully saved.'))
+          this.$toast.success(this.$tc('Contact successfully saved.'));
         }).catch((e) => {
           if (Array.isArray(e.errors)) {
             e.errors.map((e: any) => {
-              this.$toast.warning(e.message)
-            })
+              this.$toast.warning(e.message);
+            });
           }
-          this.$toast.error(e.statusText || e.error_message || 'undefined')
+          this.$toast.error(e.statusText || e.error_message || 'undefined');
         }).finally(() => {
-          this.buttonSave.loading = false
-        })
+          this.buttonSave.loading = false;
+        });
     }
   }
-})
+});
 </script>
 
 <style scoped>

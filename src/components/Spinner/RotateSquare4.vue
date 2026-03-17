@@ -1,25 +1,28 @@
 <template>
-  <span v-bind:style="styles" class="spinner spinner--rotate-square4">
-    <span class="loader-inner"></span>
+  <span
+    :style="styles"
+    class="spinner spinner--rotate-square4"
+  >
+    <span class="loader-inner" />
   </span>
 </template>
 
 <script>
 export default {
-  computed: {
-    styles () {
-      return {
-        height: this.size,
-        width: this.size
-      }
-    }
-  },
   props: {
     color: {
       default: '#41b883'
     },
     size: {
       default: '40px'
+    }
+  },
+  computed: {
+    styles () {
+      return {
+        height: this.size,
+        width: this.size
+      }
     }
   }
 }

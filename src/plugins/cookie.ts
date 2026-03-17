@@ -1,8 +1,5 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
-interface CookieOptionsInterface {
-  [key: string]: any;
-}
 /* eslint-disable */
 export class Cookie {
   public set (name: string, value: string, options: any = { path: '/' }) {
@@ -51,7 +48,7 @@ export class Cookie {
 }
 /* eslint-enable */
 
-const $cookie: Cookie = new Cookie()
+const $cookie: Cookie = new Cookie();
 
 // tslint:disable-next-line:max-classes-per-file
 class CookiePlugin {
@@ -59,11 +56,11 @@ class CookiePlugin {
     Object.defineProperties(Vue.prototype, {
       $cookie: {
         get (): Cookie {
-          return $cookie
+          return $cookie;
         }
       }
-    })
+    });
   }
 }
 
-Vue.use(new CookiePlugin())
+Vue.use(new CookiePlugin());

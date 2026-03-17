@@ -1,6 +1,6 @@
-import APIError from '@/api/classes/APIError'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import APIError from '@/api/classes/APIError';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
 
 export class Calls {
   /**
@@ -13,11 +13,11 @@ export class Calls {
       $axios.post('/calls/quality', request)
         .then((response: AxiosResponse) => {
           if (response.status === 201) {
-            resolve(response.data?.id || 0)
+            resolve(response.data?.id || 0);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -34,27 +34,27 @@ export class Calls {
       })
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            const type = response.headers['content-type']
-            const url = window.URL.createObjectURL(new Blob([response.data], { type }))
-            const link = document.createElement('a')
-            link.href = url
+            const type = response.headers['content-type'];
+            const url = window.URL.createObjectURL(new Blob([response.data], { type }));
+            const link = document.createElement('a');
+            link.href = url;
 
-            link.setAttribute('download', `${new Date().getTime()}.xlsx`)
+            link.setAttribute('download', `${new Date().getTime()}.xlsx`);
 
-            document.body.appendChild(link)
+            document.body.appendChild(link);
 
-            link.click()
+            link.click();
 
             setTimeout(() => {
-              link.remove()
-            }, 1000)
+              link.remove();
+            }, 1000);
 
-            resolve()
+            resolve();
           } else {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -66,10 +66,10 @@ export class Calls {
         params: { count, offset }
       }).then((response: AxiosResponse) => {
         if (response.status !== 200) {
-          reject(response.data)
+          reject(response.data);
         }
-        resolve(response.data)
-      }).catch(reject)
-    })
+        resolve(response.data);
+      }).catch(reject);
+    });
   }
 }

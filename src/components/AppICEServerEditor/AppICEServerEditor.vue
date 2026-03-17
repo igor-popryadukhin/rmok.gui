@@ -1,30 +1,34 @@
 <template>
   <v-card>
     <v-card-title>
-      {{ $tc('ice_server', 1) }}
+      {{ $tc('ICE server') }}
     </v-card-title>
     <v-card-text>
       <v-text-field
-        v-model="dUrls"
+        v-model="urlsSync"
         :label="$tc('URLS')"
+        :messages="$tc('Possible options, separated by commas: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302')"
         placeholder="stun:stun.l.google.com:19302"
-        :rules="[ruleNotBlank, ruleMaxLength]"
         prepend-inner-icon="mdi-server"
-      ></v-text-field>
+      />
 
       <v-text-field
-        v-model="dUsername"
+        v-model="usernameSync"
         :label="$tc('User name')"
+        :error-messages="usernameSyncErrors"
         prepend-inner-icon="mdi-account"
-      ></v-text-field>
+        autocomplete="off"
+        @input="$v.usernameSync.$touch()"
+        @blur="$v.usernameSync.$touch()"
+      />
 
       <v-text-field
-        v-model="dPassword"
+        v-model="credentialSync"
         :label="$tc('Password')"
         prepend-inner-icon="mdi-form-textbox-password"
         type="password"
-      ></v-text-field>
-
+        autocomplete="new-password"
+      />
     </v-card-text>
 
     <v-card-text class="py-0">
@@ -32,12 +36,12 @@
     </v-card-text>
 
     <v-card-actions class="py-4 px-4">
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn
         text
         tile
         small
-        @click="onBtnCancelClick"
+        @click="clickCancel"
       >
         {{ $tc('Cancel') }}
       </v-btn>
@@ -46,7 +50,7 @@
         text
         tile
         small
-        @click="onBtnSaveClick"
+        @click="clickSave"
       >
         {{ $tc('Save') }}
       </v-btn>
@@ -55,81 +59,54 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
+import Component from 'vue-class-component';
+import { Emit, PropSync } from 'vue-property-decorator';
+import Vuelidate, { validationMixin } from 'vuelidate';
+import { maxLength, required } from 'vuelidate/lib/validators';
+Vue.use(Vuelidate);
 
-export default Vue.extend({
-  name: 'AppICEServerEditor',
-
-  props: {
-
-    urls: {
-      default: '',
-      type: String
-    },
-
-    username: {
-      default: '',
-      type: String
-    },
-
-    password: {
-      default: '',
-      type: String
-    },
-
-    handler: Function
+@Component({
+  mixins: [validationMixin],
+  validations: {
+    usernameSync: { maxLength: maxLength(255) }
   },
-
-  data () {
-    return {
-      dUrls: '',
-      dUsername: '',
-      dPassword: ''
-    }
-  },
-
-  watch: {},
-
   computed: {
-    ruleNotBlank () {
-      return (value: string) => !!value || this.$tc('This field should not be blank.')
-    },
-    ruleMaxLength () {
-      return (value: string) => (value?.length || 0) < 255 || this.$tc('rule_max_dynamic_length', value.length)
-    }
-  },
-
-  mounted () {
-    this.$data.dUrls = this.$props.urls
-    this.$data.dUsername = this.$props.username
-    this.$data.dPassword = this.$props.password
-  },
-
-  methods: {
-
-    onBtnCancelClick () {
-      if (typeof this.handler !== 'function') {
-        return
-      }
-
-      this.handler('cancel')
-    },
-
-    onBtnSaveClick () {
-      if (typeof this.handler !== 'function') {
-        return
-      }
-
-      this.handler('save', {
-        urls: this.dUrls,
-        username: this.dUsername,
-        password: this.dPassword
-      })
+    usernameSyncErrors () {
+      const errors = [];
+      if (!this.$v.usernameSync.$dirty) return errors;
+      !this.$v.usernameSync.maxLength && errors.push('User name must be at most 255 characters long');
+      return errors.map((e) => this.$tc(e));
     }
   }
 })
+export default class AppICEServerEditor extends Vue {
+  @PropSync('urls', { default: () => '', type: String }) urlsSync!: string
+  @PropSync('username', { default: () => '', type: String }) usernameSync!: string
+  @PropSync('credential', { default: () => '', type: String }) credentialSync!: string
+
+  @Emit('click:cancel')
+  clickCancel () {
+    return undefined;
+  }
+
+  @Emit('click:save')
+  clickSave () {
+    return undefined;
+  }
+}
 </script>
 
 <style lang="scss" scoped>
 
 </style>
+
+<i18n>
+{
+  "ru" : {
+    "Possible options, separated by commas: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302": "Возможные варианты через запятую: stun:stun.a.google.com:19302, stun:stun.b.google.com:19302",
+    "ICE server": "ICE сервер",
+    "ICE servers": "ICE серверы"
+  }
+}
+</i18n>

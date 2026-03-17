@@ -101,17 +101,17 @@
 </template>
 
 <script lang="ts">
-import APIError from '@/api/classes/APIError'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import AppTools from '@/components/AppTools/AppTools.vue'
-import Vue, { VueConstructor } from 'vue'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import VInterface from '@/VInterface'
+import APIError from '@/api/classes/APIError';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import AppTools from '@/components/AppTools/AppTools.vue';
+import Vue, { VueConstructor } from 'vue';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import VInterface from '@/VInterface';
 import ProjectIntegrationSettings, {
   ProfileFindQueryInterface,
   ProfileInterface
-} from '@/api/ProjectIntegrationSettings'
-import ContactsIntegrations from '@/api/ContactsIntegrations'
+} from '@/api/ProjectIntegrationSettings';
+import ContactsIntegrations from '@/api/ContactsIntegrations';
 
 export default (Vue as VueConstructor<VInterface>).extend({
   components: { AppLoading, AppTools },
@@ -140,42 +140,42 @@ export default (Vue as VueConstructor<VInterface>).extend({
       },
       groupsProcessLoading: false,
       negativeScreenHeightSize: 220
-    }
+    };
   },
   computed: {
     // Вычисляю высоту таблицы
     dataTableGroupsHeight () {
-      let h: number = this.$screenHeight - 250
-      if (h < 640) { h = 640 }
-      return h
+      let h: number = this.$screenHeight - 250;
+      if (h < 640) { h = 640; }
+      return h;
     }
   },
 
   created () {
-    this.fetchGroups()
+    this.fetchGroups();
   },
   methods: {
     fetchGroups () {
-      this.dataTableGroups.processLoading = true
-      const offset = (this.dataTableGroups.itemsPerPage * this.dataTableGroups.page) - this.dataTableGroups.itemsPerPage
+      this.dataTableGroups.processLoading = true;
+      const offset = (this.dataTableGroups.itemsPerPage * this.dataTableGroups.page) - this.dataTableGroups.itemsPerPage;
 
       const params: any = {
         count: this.dataTableGroups.itemsPerPage,
         offset
-      }
+      };
       new ProjectIntegrationSettings()
-        .find<{count: number}, ProfileFindQueryInterface[]>(params)
+        .find(params)
         .then((response: ResponseInterface<{ count: number }, ProfileInterface[]>) => {
-          this.dataTableGroups.totalCount = response.meta.count
-          this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage)
-          this.dataTableGroups.items = response.data
+          this.dataTableGroups.totalCount = response.meta.count;
+          this.dataTableGroups.pages = Math.ceil(response.meta.count / this.dataTableGroups.itemsPerPage);
+          this.dataTableGroups.items = response.data;
         }).finally(() => {
-          this.dataTableGroups.processLoading = false
-        })
+          this.dataTableGroups.processLoading = false;
+        });
     },
 
     onButtonRefreshClick () {
-      this.fetchGroups()
+      this.fetchGroups();
     },
     /**
      * Событие, которое генерируется при изменении состояния активности интеграции.
@@ -184,44 +184,46 @@ export default (Vue as VueConstructor<VInterface>).extend({
      * @param state
      */
     onSwitchChange (id: number, state: boolean) {
-      this.$data.switchChangeProcess = true
+      this.$data.switchChangeProcess = true;
       new ProjectIntegrationSettings()
         .setActive(id, state)
         .then(() => {
-          this.$toast.success(this.$tc('Changes accepted'))
+          this.$toast.success(this.$tc('Changes accepted'));
         })
         .catch((e: Error) => {
-          this.$toast.error(e.message)
+          this.$toast.error(e.message);
         }).finally(() => {
-          this.$data.switchChangeProcess = false
-        })
+          this.$data.switchChangeProcess = false;
+        });
     },
     onDeleteItem (id: number) {
       this.$dialog.confirm({
         text: this.$tc('confirm_profile_deletion'),
         title: this.$tc('confirmation_request'),
-        actions: {
-          false: this.$tc('No'),
-          true: {
+        actions: [
+          {
+            text: this.$tc('No')
+          },
+          {
             color: 'red',
             text: this.$tc('Yes'),
             handler: () => {
               new ProjectIntegrationSettings()
                 .delete(id)
                 .then(() => {
-                  this.groups = this.groups.filter((e: ProfileInterface) => e.id !== id)
-                  this.$toast.success(this.$t('profile_delete_successfully'), { icon: true })
+                  this.groups = this.groups.filter((e: ProfileInterface) => e.id !== id);
+                  this.$toast.success(this.$t('profile_delete_successfully'), { icon: true });
                 })
                 .catch((e: APIError) => {
-                  this.$toast.error(this.$t('profile_delete_error', { cause: e.message }), { icon: true })
-                })
+                  this.$toast.error(this.$t('profile_delete_error', { cause: e.message }), { icon: true });
+                });
             }
           }
-        }
-      })
+        ]
+      });
     }
   }
-})
+});
 </script>
 
 <style>

@@ -1,24 +1,47 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner--plane">
-    <div v-bind:style="innerStyles" class="spinner-inner">
-      <div id="top" class="mask">
-        <div class="plane"></div>
+  <div
+    :style="styles"
+    class="spinner spinner--plane"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner"
+    >
+      <div
+        id="top"
+        class="mask"
+      >
+        <div class="plane" />
       </div>
-      <div id="middle" class="mask">
-        <div class="plane"></div>
+      <div
+        id="middle"
+        class="mask"
+      >
+        <div class="plane" />
       </div>
 
-      <div id="bottom" class="mask">
-        <div class="plane"></div>
+      <div
+        id="bottom"
+        class="mask"
+      >
+        <div class="plane" />
       </div>
     </div>
   </div>
 </template>
 <script>
 export default {
+  props: {
+    color: {
+      default: '#41b883'
+    },
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         height: this.size,
         transform: 'scale(' + (size / 70) + ')',
@@ -26,19 +49,11 @@ export default {
       }
     },
     styles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         height: this.size,
         width: size + 'px'
       }
-    }
-  },
-  props: {
-    color: {
-      default: '#41b883'
-    },
-    size: {
-      default: '40px'
     }
   }
 }

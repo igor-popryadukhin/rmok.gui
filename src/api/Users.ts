@@ -48,14 +48,14 @@ export class Users {
    *
    * @param data
    */
-  public create<T = any> (data: T): Promise<number> {
+  public create (data: Record<string, unknown>): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       $axios.post('/users', data)
         .then((response: AxiosResponse) => {
-          if ([201].includes(response.status)) {
-            return resolve(response.data.id)
+          if (response.status !== 201) {
+            throw new APIError(response.data)
           }
-          throw new APIError(response.data)
+          resolve(response.data.id)
         }).catch(reject)
     })
   }
@@ -136,7 +136,7 @@ export class Users {
    * Возвращает список пользователей в соответствии с заданным критерием поиска.
    * @param params
    */
-  public find (params = {}): Promise<ResponseInterface<{ count: 0 }, User[]>> {
+  public find (params = {}): Promise<ResponseInterface<Record<string, unknown>, User[]>> {
     return new Promise((resolve, reject) => {
       $axios.get('/users', {
         params
@@ -254,7 +254,7 @@ export class Users {
    * @param params
    */
   public loginFind (params = {}): Promise<any> {
-    return new Promise<ResponseInterface<TD>>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       $axios.get('/users/login_verification', {
         params
       }).then((response: AxiosResponse) => {

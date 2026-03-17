@@ -1,64 +1,64 @@
 stages:
-  - merge-request
+  - unit-test
   - build-review
-  - deploy-review
   - build-production
   - deploy-production
 
 
-.only-default: &only-default
-  only:
-    - develop
-    - merge_requests
+#.only-default: &only-default
+#  only:
+#    - develop
+#    - merge_requests
 
 cache:
   policy: pull-push
   paths:
     - node_modules/
 
+# Unit test
+unit_test:
+  image: v16.13.0
+  stage: unit-test
+  script:
+    - npm install --progress=false
+    - npm run test:unit
+  only:
+    - develop
+  tags:
+    - vue
+
 # Review
 build_review:
-  image: node:14.16.0-alpine3.12
+  image: v16.13.0
   stage: build-review
   script:
     - cat $VUE_ENV_REVIEW >> ./.env
     - npm install --progress=false
-    - npm run build
+    - npm run build || exit_code=$?
+    - if [ $exit_code -ne 0 ]; then echo "Сборка звершилась с ошибкой"; fi;
+    - cd ./dist
+    - rsync -rq --delete . ~/rmok.ui
   only:
     - develop
   artifacts:
-    expire_in: 30 days
+    expire_in: 90 days
     paths:
       - dist
   tags:
     - vue
-
-# todo: Test stage
-
-deploy_review:
-  stage: deploy-review
-  script:
-    - rsync -rq --delete ./dist/* ~/rmok.ui
-  artifacts:
-    expire_in: 30 days
-    paths:
-      - dist
-  tags:
-    - vue
-  only:
-    - develop
 
 
 # Production
 build_production:
-  image: node:14.16.0-alpine3.12
+  image: v16.13.0
   stage: build-production
   script:
     - cat $VUE_ENV_PRODUCTION > ./.env
     - npm install --progress=false
-    - npm run build
+    - npm run build || exit_code=$?
+    - if [ $exit_code -ne 0 ]; then echo "Сборка звершилась с ошибкой"; fi;
   artifacts:
-    expire_in: 30 days
+    expire_in: 90 days
     paths:
       - dist
   when: manual
@@ -67,19 +67,18 @@ build_production:
   only:
     - develop
 
-# todo: Test stage
-
 deploy_production:
+  image: v16.13.0
   stage: deploy-production
   script:
-    - rsync -rq --delete ./dist/* /var/www/ui.rmok
+    - ls -l
+    - cd ./dist
+    - rsync -rq --delete . /var/www/ui.rmok
   artifacts:
-    expire_in: 30 days
+    expire_in: 90 days
     paths:
       - dist
-  needs:
-    - job: build_production
-      artifacts: true
+  when: manual
   tags:
     - production
   only:

@@ -1,8 +1,8 @@
-import APIError from '@/api/classes/APIError'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import * as RS from 'RS'
+import APIError from '@/api/classes/APIError';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import * as RS from 'RS';
 
 export default class ContactsIntegrations {
   /**
@@ -24,12 +24,12 @@ export default class ContactsIntegrations {
         params
       }).then((response: AxiosResponse) => {
         if ([200].includes(response.status)) {
-          resolve(response.data)
+          resolve(response.data);
         } else {
-          throw new APIError(response.data)
+          throw new APIError(response.data);
         }
-      }).catch(reject)
-    })
+      }).catch(reject);
+    });
   }
 
   /**
@@ -44,12 +44,12 @@ export default class ContactsIntegrations {
       $axios.get(`/contacts/integrations/projects/${project_id}/users/${user_id}/add`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            resolve(response.data)
+            resolve(response.data);
           } else {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -63,12 +63,12 @@ export default class ContactsIntegrations {
       $axios.patch(`/contacts/integrations/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            resolve(response.data)
+            resolve(response.data);
           } else {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 
   /**
@@ -82,11 +82,11 @@ export default class ContactsIntegrations {
       $axios.get(`/contacts/integrations/${id}/active/${state ? 1 : 0}`)
         .then((response: AxiosResponse) => {
           if ([200].includes(response.status)) {
-            resolve(response.data)
+            resolve(response.data);
           } else {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-        }).catch(reject)
-    })
+        }).catch(reject);
+    });
   }
 }

@@ -10,7 +10,7 @@
         length="5"
         size="35"
         hover
-      ></v-rating>
+      />
     </v-card-text>
     <v-card-text>
       <v-textarea
@@ -19,8 +19,7 @@
         rows="3"
         outlined
         hide-details
-      >
-      </v-textarea>
+      />
     </v-card-text>
     <v-card-actions class="px-4 pb-4">
       <v-spacer />
@@ -46,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from 'vue';
 
 export default Vue.extend({
   name: 'AppCardCommunicationQualityAssessment',
@@ -65,13 +64,13 @@ export default Vue.extend({
     return {
       rating: 0,
       comment: ''
-    }
+    };
   },
 
   methods: {
     onBtnCancelClick () {
       if (typeof this.handler === 'function') {
-        this.handler('cancel')
+        this.handler('cancel');
       }
     },
 
@@ -80,11 +79,11 @@ export default Vue.extend({
         this.handler('ok', {
           rating: this.rating,
           comment: this.comment
-        })
+        });
       }
     }
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,4 +1,4 @@
-import Contact from '@/api/interfaces/Contact'
+import Contact from '@/api/interfaces/Contact';
 
 export interface ContactsState {
   process_loading: boolean;
@@ -6,6 +6,7 @@ export interface ContactsState {
   total: number;
   items: Contact[];
   selected: number[];
+  selected_all: boolean;
 }
 
 export function defaultState (): ContactsState {
@@ -14,10 +15,11 @@ export function defaultState (): ContactsState {
     per_page: 50,
     total: 0,
     items: [],
-    selected: []
-  }
+    selected: [],
+    selected_all: false
+  };
 }
 
-const state = defaultState()
+const state = defaultState();
 
-export default state
+export default state;

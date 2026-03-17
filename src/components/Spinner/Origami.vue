@@ -1,20 +1,31 @@
 <template>
-  <div v-bind:style="styles" class="spinner spinner-origami">
-    <div v-bind:style="innerStyles" class="spinner-inner loading">
-      <span class="slice"></span>
-      <span class="slice"></span>
-      <span class="slice"></span>
-      <span class="slice"></span>
-      <span class="slice"></span>
-      <span class="slice"></span>
+  <div
+    :style="styles"
+    class="spinner spinner-origami"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner loading"
+    >
+      <span class="slice" />
+      <span class="slice" />
+      <span class="slice" />
+      <span class="slice" />
+      <span class="slice" />
+      <span class="slice" />
     </div>
   </div>
 </template>
 <script>
 export default {
+  props: {
+    size: {
+      default: '40px'
+    }
+  },
   computed: {
     innerStyles () {
-      const size = parseInt(this.size)
+      const size = parseInt(this.size, 10)
       return {
         transform: 'scale(' + (size / 60) + ')'
       }
@@ -24,11 +35,6 @@ export default {
         height: this.size,
         width: this.size
       }
-    }
-  },
-  props: {
-    size: {
-      default: '40px'
     }
   }
 }

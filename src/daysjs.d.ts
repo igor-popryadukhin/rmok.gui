@@ -1,7 +1,10 @@
-import { Dayjs } from 'dayjs'
+import { Dayjs } from 'dayjs';
 
 declare module 'vue/types/vue' {
   interface Vue {
-    $dayjs: (date?: dayjs.ConfigType, format?: dayjs.OptionType, locale?: string, strict?: boolean) => Dayjs
+    $dayjs:  (date?: dayjs.ConfigType, format?: dayjs.OptionType, locale?: string, strict?: boolean) => Dayjs
+  }
+  interface Vue {
+    $dayjs: Dayjs
   }
 }

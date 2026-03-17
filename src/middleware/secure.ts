@@ -1,4 +1,4 @@
-import { MiddlewareContextInterface } from '@/router'
+import { MiddlewareContextInterface } from '@/router';
 
 export default function (context: MiddlewareContextInterface) {
   // if (/^\/administrator/s.test(context.to.path) && context.store.getters['profile/role_use'] !== 'for_administration') {
@@ -11,5 +11,5 @@ export default function (context: MiddlewareContextInterface) {
   //   return context.next()
   // }
 
-  context.next()
+  context.next();
 }

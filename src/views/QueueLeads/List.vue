@@ -5,7 +5,7 @@
       <template #left>
         <div class="d-flex flex-column">
           <h3 class="grey--text">
-            {{ $tc('Queue Leads') }}
+            {{ $tc('Queue') }}
           </h3>
           <small
             class="grey--text"
@@ -19,13 +19,23 @@
       <template #right>
         <div class="align-self-end">
           <v-btn
-            :loading="contactsProcessLoading"
+            :disabled="queueProcess.visible"
             small
             tile
             text
+            outlined
+            min-width="100"
             @click="onBtnRefreshClick"
           >
-            {{ $tc('Refresh') }}
+            <template v-if="queueProcess.visible">
+              <v-progress-linear
+                v-model="queueProcess.progress"
+                :indeterminate="queueProcess.progress === 0"
+              />
+            </template>
+            <template v-else>
+              {{ $tc('Refresh') }}
+            </template>
           </v-btn>
         </div>
       </template>
@@ -33,40 +43,76 @@
     <v-divider class="mb-2" />
 
     <template v-if="contactsItems.length > 0">
-      <v-list>
-        <template
-          v-for="(item, itemIndex) in contactsItems"
-        >
-          <v-divider
-            v-if="itemIndex > 0"
-            :key="`divider-${item.id}`"
-          />
-
-          <v-list-item
-            :key="`list-item-${item.id}`"
-            ripple
-            selectable
-            :to="{ name: 'contacts_view', params: { contact_id: item.id } }"
-            style="min-height: 35px"
-          >
-            <v-list-item-content class="pa-0">
-              <v-list-item-title>
-                {{ item.contact_name }}
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-      </v-list>
-      <v-btn
-        v-if="contactsMoreAvailable"
-        :loading="contactsProcessLoading"
-        block
-        text
-        tile
-        @click="onBtnLoadMoreClick"
+      <v-simple-table
+        class="table-contact-list"
+        dense
       >
-        {{ $tc('Load more') }}
-      </v-btn>
+        <template #default>
+          <thead>
+            <tr>
+              <th class="text-left">
+                {{ $tc('Name') }}
+              </th>
+
+              <th class="text-left">
+                {{ $tc('Result') }}
+              </th>
+
+              <th class="text-left">
+                {{ $tc('Дата/Время последнего звонка') }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="item in contactsItems"
+              :key="'tr-' + item.id"
+            >
+              <!-- Имя контакта -->
+              <td :style="{ 'border-left': `6px solid ${item.color || null}` }">
+                <router-link :to="{ name: 'contacts_view', params: { id: item.id } }">
+                  {{ item.name }}
+                </router-link>
+                <v-icon
+                  v-if="item.icon"
+                  :color="item.color"
+                  small
+                >
+                  {{ item.icon }}
+                </v-icon>
+              </td>
+              <!-- Имя контакта -->
+
+              <!-- Статус/Результат -->
+              <td>
+                <template v-if="item.last_status">
+                  <v-chip
+                    :color="item.last_status.color"
+                    x-small
+                    label
+                    outlined
+                  >
+                    {{ item.last_status.name }}
+                  </v-chip>
+                </template>
+                <template v-else>
+                  —
+                </template>
+              </td>
+              <!-- Статус/Результат -->
+
+              <td>
+                <template v-if="item.last_call_at">
+                  {{ $dayjs(item.last_call_at * 1000).format('DD.MM.YYYY HH.mm') }}
+                </template>
+                <template v-else>
+                  —
+                </template>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
     </template>
     <template v-else-if="contactsProcessLoading && contactsItems.length === 0">
       <div class="d-flex justify-center">
@@ -86,10 +132,13 @@
 </template>
 
 <script lang="ts">
-import AppCountUp from '@/components/AppCountup/AppCountup.vue'
-import AppLoading from '@/components/AppLoading/AppLoading.vue'
-import Vue from 'vue'
-import { mapActions, mapGetters } from 'vuex'
+import AppCountUp from '@/components/AppCountup/AppCountUp.vue';
+import AppLoading from '@/components/AppLoading/AppLoading.vue';
+import Vue from 'vue';
+import { Contacts } from '@/api/Contacts';
+import { $axios } from '@/plugins/axios';
+import debounce from '@/utils/debounce';
+import SSEMessage from '@/interfaces/SSEMessage';
 
 interface Data {
   [key: string]: any
@@ -108,76 +157,134 @@ export default Vue.extend<Data, Methods, Computed>({
 
   data (): Data {
     return {
-      leadsPerPage: 50,
-      leadsCount: 0,
-      loadMoreOffset: 0,
-      loadMoreProcess: false,
-      loadMoreVisible: false
-    }
-  },
+      contactsProcessLoading: false,
+      contactsTotal: 0,
+      contactsItems: [],
 
-  computed: {
-    ...mapGetters({
-      contactsProcessLoading: 'contacts_queue/process_loading',
-      contactsOffset: 'contacts_queue/offset',
-      contactsMoreAvailable: 'contacts_queue/more_available',
-      contactsTotal: 'contacts_queue/total',
-      contactsItems: 'contacts_queue/items'
-    })
+      queueProcess: {
+        visible: false,
+        total: 0,
+        progress: 0,
+        text: ''
+      }
+    };
   },
 
   async mounted () {
-    if (this.contactsItems.length === 0) {
-      this.loadContacts()
-    }
+    // Всегда загружаем самый свежий список
+    this.loadContacts();
+    this.SSEContactsQueueComputeProcess = debounce(this.SSEContactsQueueComputeProcess, 450);
+
+    this.$root.$on('sse:queue:compute:process', this.SSEContactsQueueComputeProcess);
+  },
+
+  beforeDestroy () {
+    this.$root.$off('sse:queue:compute:process', this.SSEContactsQueueComputeProcess);
   },
 
   methods: {
-    ...mapActions({
-      fetchContacts: 'contacts_queue/items',
-      fetchMore: 'contacts_queue/items_more'
-    }),
+    /**
+     * Запускает на сервере процесс вычисления параметров очереди.
+     */
+    computeQueue () {
+      this.queueProcess.visible = true;
+      $axios.get('/contacts/queue/compute');
+    },
 
+    /**
+     * Загрузит контакты с сервера.
+     */
     loadContacts () {
-      this.$store.dispatch('contacts_queue/items', { queue_leads: 1 })
+      this.contactsProcessLoading = true;
+      new Contacts()
+        .find({ queue: 1, count: 50 })
+        .then((response) => {
+          this.contactsTotal = response.meta?.count || 0;
+          this.contactsItems = response.data || [];
+        }).finally(() => (this.contactsProcessLoading = false));
     },
 
+    /**
+     * Происходит при нажатии на кнопку "Обновить".
+     */
     onBtnRefreshClick () {
-      this.loadContacts()
+      this.computeQueue();
     },
 
-    onBtnLoadMoreClick () {
-      this.fetchMore()
+    /**
+     * SSE уведомление с сервера процесса вычисления.
+     *
+     * @constructor
+     */
+    SSEContactsQueueComputeProcess (message: SSEMessage) {
+      if (message.payload.status === 'progress') {
+        // В процессе вычисления
+        this.queueProcess.progress = +message.payload.percent;
+        this.queueProcess.visible = true;
+      } else if (message.payload.status === 'success') {
+        // Процесс вычисления успешно завершён.
+        this.queueProcess.progress = 0;
+        this.queueProcess.visible = false;
+        this.loadContacts();
+      } else if (message.payload.status === 'failure') {
+        // Процесс вычисления завершился с ошибкой
+        this.queueProcess.visible = false;
+        this.queueProcess.progress = 0;
+
+        this.$toast.error(message.payload.message);
+      }
     }
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
-.border {
-  border-left: 2px #3A70D4 solid;
-  margin-left: 5px;
-}
+.table-contact-list {
 
-.toolbar {
-  &-subtitle {
-    display: flex;
-    flex-flow: column;
+  thead {
+    th:not(:first-child) {
+      white-space: nowrap;
+      padding: 0 10px 0 10px!important;
+    }
   }
+  tbody {
+    tr {
+      white-space: nowrap;
 
-  &-subtitle small {
-    font-size: 12px;
-    color: #848484;
+      td {
+        padding: 0 10px 0 10px !important;
+      }
+
+      td:not(:first-child) {
+        padding: 0 5px 0 5px !important;
+      }
+
+      td:nth-child(2) {
+        width: 100px;
+      }
+
+      td:last-child {
+        width: 100px;
+      }
+    }
+    //tr:nth-child(n+1) {
+    //  td:first-child {
+    //    border-left: 4px solid #f4355b;
+    //  }
+    //}
+    //tr:nth-child(n+15) {
+    //  td:first-child {
+    //    border-left: 4px solid #f9dd74;
+    //  }
+    //}
+    //
+    //tr:nth-child(n+30) {
+    //  td:first-child {
+    //    border-left: 4px solid #53f989;
+    //  }
+    //}
+
   }
 }
 
-.v-card {
-  display: flex !important;
-  flex-direction: column;
-}
-
-.v-card__text {
-  flex-grow: 1;
-  overflow: auto;
-}
 </style>

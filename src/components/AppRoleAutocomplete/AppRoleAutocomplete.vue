@@ -44,9 +44,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapGetters } from 'vuex'
-import { debounce } from 'vuetify/src/util/helpers'
+import debounce from '@/utils/debounce';
+import Vue from 'vue';
+import { mapGetters } from 'vuex';
 
 export default Vue.extend({
   name: 'AppRoleAutocomplete',
@@ -94,7 +94,7 @@ export default Vue.extend({
       q: null,
       qOld: null,
       selected: 0 as number | number[]
-    }
+    };
   },
 
   computed: {
@@ -103,40 +103,40 @@ export default Vue.extend({
     }),
 
     paramsQuery () {
-      const paramsQuery: Record<string, unknown | string> = {}
+      const paramsQuery: Record<string, unknown | string> = {};
 
       if (this.q) {
-        paramsQuery.q = this.q
+        paramsQuery.q = this.q;
       }
 
-      return paramsQuery
+      return paramsQuery;
     }
   },
 
   watch: {
     value (val: number | number[]) {
-      this.selected = val
+      this.selected = val;
     }
   },
 
   created () {
-    this.fetchOptions = debounce(this.fetchOptions, 450)
+    this.fetchOptions = debounce(this.fetchOptions, 450);
   },
 
   mounted () {
-    this.selected = this.value
+    this.selected = this.value;
 
     if (this.options.length === 0) {
-      this.fetchOptions()
+      this.fetchOptions();
     }
   },
 
   methods: {
     fetchOptions () {
-      this.$store.dispatch('filter/roles')
+      this.$store.dispatch('filter/roles');
     }
   }
-})
+});
 </script>
 
 <style scoped>

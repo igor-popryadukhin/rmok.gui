@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
 interface FileDialogOptions {
   multiple?: boolean;
@@ -8,42 +8,42 @@ interface FileDialogOptions {
 const defaultOptions: FileDialogOptions = {
   accept: '*/*',
   multiple: false
-}
+};
 
 export class FileDialog {
-  public open (options: FileDialogOptions = defaultOptions): Promise<FileList | File> {
-    return new Promise<FileList | File>((resolve: (files: FileList | File) => void) => {
-      const input: HTMLInputElement = document.createElement('input')
-      input.type = 'file'
-      input.multiple = options.multiple || false
-      input.accept = options.accept || '*/*'
+  public open (options: FileDialogOptions = defaultOptions): Promise<File | FileList> {
+    return new Promise((resolve) => {
+      const input: HTMLInputElement = document.createElement('input');
+      input.type = 'file';
+      input.multiple = options.multiple || false;
+      input.accept = options.accept || '*/*';
       input.onchange = () => {
         if (!input.files) {
-          return
+          return;
         }
         if (options.multiple) {
-          resolve(input.files)
+          resolve(input.files);
         } else {
-          resolve(input.files[0])
+          resolve(input.files[0]);
         }
 
-        input.remove()
-      }
-      input.click()
-    })
+        input.remove();
+      };
+      input.click();
+    });
   }
 }
 
-const fd = new FileDialog()
+const fd = new FileDialog();
 
 Vue.use({
   install () {
     Object.defineProperties(Vue.prototype, {
       $fileDialog: {
         get () {
-          return fd
+          return fd;
         }
       }
-    })
+    });
   }
-})
+});

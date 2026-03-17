@@ -1,15 +1,15 @@
-import { RootState } from '@/store'
-import { ActionTree } from 'vuex'
-import { State } from './state'
+import { RootState } from '@/store';
+import { ActionTree } from 'vuex';
+import { State } from './state';
 
 const actions: ActionTree<State, RootState> = {
   /**
    * Сбрасывает до состояния по умолчанию.
    * @param commit
    */
-  resetState: ({ commit }) => {
-    commit('resetState')
+  flush: ({ commit }) => {
+    commit('flush');
   }
-}
+};
 
-export default actions
+export default actions;

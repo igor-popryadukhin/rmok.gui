@@ -1,8 +1,8 @@
-import Role from '@/api/interfaces/Role'
-import ResponseInterface from '@/api/Schemas/ResponseInterface'
-import { $axios } from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
-import APIError from '@/api/classes/APIError'
+import Role from '@/api/interfaces/Role';
+import ResponseInterface from '@/api/Schemas/ResponseInterface';
+import { $axios } from '@/plugins/axios';
+import { AxiosResponse } from 'axios';
+import APIError from '@/api/classes/APIError';
 
 export interface RoleInterface {
   id: string;
@@ -22,11 +22,11 @@ export class Roles {
       $axios.get('/roles', { params })
         .then((response: AxiosResponse) => {
           if (response.status !== 200) {
-            throw new APIError(response.data)
+            throw new APIError(response.data);
           }
-          resolve(response.data)
-        }).catch(reject)
-    })
+          resolve(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -39,11 +39,11 @@ export class Roles {
       $axios.get(`/roles/${id}`)
         .then((response: AxiosResponse) => {
           if (response.status === 200) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -56,11 +56,11 @@ export class Roles {
       $axios.post('/roles', data)
         .then((response: AxiosResponse) => {
           if (response.status === 201) {
-            return resolve(response.data.id)
+            return resolve(response.data.id);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -74,11 +74,11 @@ export class Roles {
       $axios.patch(`/roles/${id}`, data)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 
   /**
@@ -91,12 +91,12 @@ export class Roles {
       $axios.delete(`/roles/${id}`)
         .then((response: AxiosResponse) => {
           if ([200, 204].includes(response.status)) {
-            return resolve(response.data)
+            return resolve(response.data);
           }
-          throw new APIError(response.data)
-        }).catch(reject)
-    })
+          throw new APIError(response.data);
+        }).catch(reject);
+    });
   }
 }
 
-export default Roles
+export default Roles;

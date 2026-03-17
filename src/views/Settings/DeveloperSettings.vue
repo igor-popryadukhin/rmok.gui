@@ -46,13 +46,13 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Organizations } from '@/api/Organizations'
-import AccessTokenInterface from '@/api/Schemas/AccessTokenInterface'
-import VueClipboard from 'vue-clipboard2'
+import Vue from 'vue';
+import { Organizations } from '@/api/Organizations';
+import AccessTokenInterface from '@/api/Schemas/AccessTokenInterface';
+import VueClipboard from 'vue-clipboard2';
 
 // See documentations https://vue-clipboard2.inndy.tw
-Vue.use(VueClipboard)
+Vue.use(VueClipboard);
 
 export default Vue.extend({
   data () {
@@ -64,7 +64,7 @@ export default Vue.extend({
         token_type: ''
         /* eslint-enable */
       } as AccessTokenInterface
-    }
+    };
   },
 
   methods: {
@@ -72,18 +72,18 @@ export default Vue.extend({
       new Organizations()
         .generatePersonalAccessToken()
         .then((token) => {
-          this.token = token
+          this.token = token;
           this.$toast.warning(this.$tc('Do not transfer the access token to third parties!'), {
             timeout: false
-          })
+          });
           this.$toast.warning(this.$tc('Make sure to copy your new personal access token now. You won’t be able to see it again!'), {
             timeout: false
-          })
-          this.$toast.success(this.$tc('Access token generated successfully!'))
-        })
+          });
+          this.$toast.success(this.$tc('Access token generated successfully!'));
+        });
     }
   }
-})
+});
 </script>
 
 <style scoped>

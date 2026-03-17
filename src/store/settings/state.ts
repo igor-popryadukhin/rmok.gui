@@ -1,7 +1,8 @@
-import PBXConfig from '@/api/interfaces/PBXConfig'
+import PBXConfig from '@/api/interfaces/PBXConfig';
 
 interface NavigationDrawerInterface {
   mini: boolean;
+  width: number;
 }
 
 interface AudioPlayerInterface {
@@ -16,7 +17,7 @@ interface DateTimeFormatInterface {
   long_time: string;
 }
 
-interface ContactListInterface {
+interface ContactsListInterface {
   /** Количество элементов на страницу */
   count_per_page: number;
 }
@@ -27,8 +28,9 @@ interface TooltipInterface {
 }
 
 export interface SettingsStateInterface {
-  contact_list: ContactListInterface,
+  contact_list: ContactsListInterface,
   navigation_drawer: NavigationDrawerInterface;
+  container_width: number;
   audio_player: AudioPlayerInterface;
   date_time_format: DateTimeFormatInterface;
   tooltip: TooltipInterface;
@@ -50,8 +52,10 @@ function state (): SettingsStateInterface {
       short_time: 'HH:mm'
     },
     navigation_drawer: {
-      mini: true
+      mini: true,
+      width: 0
     },
+    container_width: 0,
     audio_player: {
       volume: 1
     },
@@ -65,7 +69,7 @@ function state (): SettingsStateInterface {
       iceCandidatePoolSize: 0,
       iceServers: [],
       iceTransportPolicy: 'all',
-      rtcpMuxPolicy: undefined
+      rtcpMuxPolicy: 'require'
     },
     pbx_config: {
       display_name: '',
@@ -75,7 +79,7 @@ function state (): SettingsStateInterface {
       port: 443
     },
     vue_keep_alive: true
-  }
+  };
 }
 
-export default state
+export default state;
